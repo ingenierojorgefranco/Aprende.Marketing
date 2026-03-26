@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2, Crown, X, Loader2, AlertTriangle, CheckCircle2, Target } from 'lucide-react';
+import { MessageCircle, Check, Copy, Calendar, Clock, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2, Crown, X, Loader2, AlertTriangle, CheckCircle2, Target } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { PlanLimits, WhatsAppLaunchMessage, WhatsAppLaunch } from '../../../../types';
@@ -7,18 +7,18 @@ import { ProjectMasterStrategy } from '../../../../services/strategySchema';
 import { generateWhatsAppMessage } from '../../../../services/geminiservices/whatsappService';
 
 const WHATSAPP_LAUNCH_MOMENTS = [
-    { id: 'wl1', name: 'Bienvenida + Fecha (Día -7)', momentText: 'Día -7', objective: 'Confirmar que está en el lugar correcto y fijar la fecha del evento en su mente.', pilarType: 'Bienvenida y Valor', purpose: 'Reduce la incertidumbre, genera el primer micro-compromiso y evita que el usuario se olvide del evento.' },
-    { id: 'wl2', name: 'Historia / Autoridad (Día -5)', momentText: 'Día -5', objective: 'Humanizar al experto y generar conexión emocional.', pilarType: 'Autoridad y Conexión', purpose: 'Aumenta la confianza, hace que el usuario crea en el guía y se posicione como autoridad.' },
-    { id: 'wl3', name: 'Curiosidad (Día -3)', momentText: 'Día -3', objective: 'Generar intriga sobre lo que se enseñará en el evento.', pilarType: 'Curiosidad y Deseo', purpose: 'Aumenta el deseo de asistir, hace que el usuario espere el evento y sube el valor percibido.' },
-    { id: 'wl4', name: 'Errores (Día -1)', momentText: 'Día -1', objective: 'Mostrarle al usuario que está cometiendo errores fatales.', pilarType: 'Conciencia del Problema', purpose: 'Activa el dolor, genera necesidad urgente de solución y posiciona el evento como algo necesario.' },
-    { id: 'wl5', name: 'Recordatorio (Mañana)', momentText: 'Día Clase (AM)', objective: 'Recordar el evento del día de hoy.', pilarType: 'Recordatorio y Logística', purpose: 'Mantiene el evento presente en su mente, reduce olvidos y aumenta la tasa de asistencia.' },
-    { id: 'wl6', name: 'Preparación (Horas antes)', momentText: 'Día Clase (PM)', objective: 'Preparar al usuario mentalmente para la clase.', pilarType: 'Preparación y Compromiso', purpose: 'Aumenta el compromiso, mejora la atención durante la clase y hace que el usuario se lo tome en serio.' },
-    { id: 'wl7', name: 'Link en Vivo', momentText: 'Día Clase (Link)', objective: 'Llevar tráfico directo al evento en vivo.', pilarType: 'Acceso al Evento', purpose: 'Acción inmediata, elimina fricción y maximiza los asistentes en tiempo real.' },
-    { id: 'wl8', name: 'Oferta + Link (Post-clase)', momentText: 'Post-Clase', objective: 'Presentar la oferta de forma clara y directa.', pilarType: 'Presentación de Oferta', purpose: 'Captura el pico de emoción, convierte a los prospectos más calientes y genera las primeras ventas.' },
-    { id: 'wl9', name: 'Bonos + Resolución de dudas', momentText: 'Urgencia 1', objective: 'Acelerar la decisión de compra y eliminar fricción técnica.', pilarType: 'Bonos y Objeciones', purpose: 'Reduce dudas de último momento, incrementa conversiones y evita el abandono del carrito.' },
-    { id: 'wl10', name: 'Prueba social', momentText: 'Validación', objective: 'Mostrar que otros ya compraron y están teniendo resultados.', pilarType: 'Prueba Social y Validación', purpose: 'Reduce el miedo, genera validación social y activa el efecto de deseo de pertenencia.' },
-    { id: 'wl11', name: 'Garantía', momentText: 'Garantía', objective: 'Eliminar el riesgo percibido por el comprador.', pilarType: 'Garantía y Seguridad', purpose: 'Disminuye el miedo a perder dinero, facilita el "sí" y aumenta la confianza final en la compra.' },
-    { id: 'wl12', name: 'Última llamada', momentText: 'Cierre', objective: 'Forzar la decisión inmediata antes del cierre.', pilarType: 'Urgencia y Cierre', purpose: 'Activa la urgencia real, dispara ventas de último momento y evita que el usuario postergue la decisión.' }
+    { id: 'wl1', name: 'Bienvenida + Fecha (Día -7)', momentText: 'Día -7', objective: 'Confirmar que está en el lugar correcto y fijar la fecha del evento en su mente.', pilarType: 'Bienvenida y Valor', purpose: 'Este mensaje sirve para reducir la incertidumbre del prospecto al confirmar su ingreso al grupo.\n\nLograrás fijar la fecha del evento en su mente y generar el primer micro-compromiso, asegurando que no se olvide de la cita y aumentando la tasa de retención inicial.', timeRule: 'fixed', timeValue: '09:00', dayOffset: -7 },
+    { id: 'wl2', name: 'Historia / Autoridad (Día -5)', momentText: 'Día -5', objective: 'Humanizar al experto y generar conexión emocional.', pilarType: 'Autoridad y Conexión', purpose: 'Sirve para humanizar la marca y generar una conexión emocional profunda.\n\nAl compartir tu historia y autoridad, lograrás que el usuario confíe en tu guía, se sienta identificado con tus desafíos y te vea como la persona capaz de llevarlo al resultado que busca.', timeRule: 'fixed', timeValue: '10:00', dayOffset: -5 },
+    { id: 'wl3', name: 'Curiosidad (Día -3)', momentText: 'Día -3', objective: 'Generar intriga sobre lo que se enseñará en el evento.', pilarType: 'Curiosidad y Deseo', purpose: 'Este mensaje tiene como fin despertar una intriga irresistible sobre el contenido del evento.\n\nLograrás que el usuario anticipe la clase con entusiasmo, elevando el valor percibido de lo que vas a enseñar y manteniendo el interés alto durante la fase de espera.', timeRule: 'fixed', timeValue: '11:00', dayOffset: -3 },
+    { id: 'wl4', name: 'Errores (Día -1)', momentText: 'Día -1', objective: 'Mostrarle al usuario que está cometiendo errores fatales.', pilarType: 'Conciencia del Problema', purpose: 'Sirve para agitar el problema del prospecto mostrando los errores comunes que lo detienen.\n\nLograrás generar una necesidad urgente de cambio, posicionando tu evento como la solución necesaria para dejar de perder tiempo o dinero.', timeRule: 'fixed', timeValue: '14:00', dayOffset: -1 },
+    { id: 'wl5', name: 'Recordatorio (Mañana)', momentText: 'Día Clase (AM)', objective: 'Recordar el evento del día de hoy.', pilarType: 'Recordatorio y Logística', purpose: 'Este mensaje asegura que el evento sea la prioridad número uno del usuario en su día.\n\nLograrás reducir drásticamente los olvidos de última hora y maximizar la tasa de asistencia al recordar la importancia de estar presente en vivo.', timeRule: 'fixed', timeValue: '08:00', dayOffset: 0 },
+    { id: 'wl6', name: 'Preparación (Horas antes)', momentText: 'Día Clase (PM)', objective: 'Preparar al usuario mentalmente para la clase.', pilarType: 'Preparación y Compromiso', purpose: 'Sirve para elevar el nivel de compromiso minutos antes de empezar.\n\nLograrás que el usuario despeje su agenda, prepare papel y lápiz, y entre a la clase con una mentalidad de aprendizaje activo, lo que facilita la posterior conversión.', timeRule: 'relative', timeOffset: -2, dayOffset: 0 },
+    { id: 'wl7', name: 'Link en Vivo', momentText: 'Día Clase (Link)', objective: 'Llevar tráfico directo al evento en vivo.', pilarType: 'Acceso al Evento', purpose: 'Este es el mensaje de acción inmediata. Sirve para eliminar cualquier fricción técnica proporcionando el acceso directo.\n\nLograrás una entrada masiva de asistentes en los primeros minutos, generando el impulso necesario para un lanzamiento exitoso.', timeRule: 'relative', timeOffset: 0, dayOffset: 0 },
+    { id: 'wl8', name: 'Oferta + Link (Post-clase)', momentText: 'Post-Clase', objective: 'Presentar la oferta de forma clara y directa.', pilarType: 'Presentación de Oferta', purpose: 'Sirve para capturar el pico máximo de emoción tras la clase.\n\nAl presentar la oferta con claridad, lograrás convertir a los prospectos más decididos de inmediato, asegurando las primeras ventas y validando la propuesta comercial.', timeRule: 'relative', timeOffset: 1, dayOffset: 0 },
+    { id: 'wl9', name: 'Bonos + Resolución de dudas', momentText: 'Urgencia 1', objective: 'Acelerar la decisión de compra y eliminar fricción técnica.', pilarType: 'Bonos y Objeciones', purpose: 'Este mensaje sirve para derribar las barreras mentales y técnicas que frenan la compra.\n\nAl introducir bonos exclusivos y resolver dudas, lograrás que los indecisos den el paso final, reduciendo el abandono del carrito de compras.', timeRule: 'fixed', timeValue: '10:00', dayOffset: 1 },
+    { id: 'wl10', name: 'Prueba social', momentText: 'Validación', objective: 'Mostrar que otros ya compraron y están teniendo resultados.', pilarType: 'Prueba Social y Validación', purpose: 'Sirve para activar el disparador mental de la prueba social.\n\nAl mostrar resultados de otros alumnos, lograrás eliminar el miedo al fracaso del prospecto y generar un deseo de pertenencia a una comunidad que ya está teniendo éxito.', timeRule: 'fixed', timeValue: '11:00', dayOffset: 2 },
+    { id: 'wl11', name: 'Garantía', momentText: 'Garantía', objective: 'Eliminar el riesgo percibido por el comprador.', pilarType: 'Garantía y Seguridad', purpose: 'Este mensaje tiene como fin eliminar el riesgo financiero de la mente del comprador.\n\nAl enfatizar la garantía, lograrás que el usuario sienta que no tiene nada que perder, facilitando un "sí" basado en la seguridad y la confianza total en el producto.', timeRule: 'fixed', timeValue: '10:00', dayOffset: 3 },
+    { id: 'wl12', name: 'Última llamada', momentText: 'Cierre', objective: 'Forzar la decisión inmediata antes del cierre.', pilarType: 'Urgencia y Cierre', purpose: 'Sirve para activar la urgencia real por escasez de tiempo.\n\nLograrás disparar las ventas de último momento al dejar claro que la oportunidad se cierra definitivamente, forzando a los procrastinadores a tomar una decisión ahora mismo.', timeRule: 'fixed', timeValue: '20:00', dayOffset: 3 }
 ];
 
 const ChatSimulator: React.FC<{ 
@@ -128,11 +128,17 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const [launchCount, setLaunchCount] = useState(0);
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [launchDate, setLaunchDate] = useState<string>('');
+    const [launchTime, setLaunchTime] = useState<string>('20:00');
+    const [openPhases, setOpenPhases] = useState<Set<number>>(new Set([0])); // Fase 1 abierta por defecto
     const [launchId, setLaunchId] = useState<string | null>(null);
+    const [showDateTimeModal, setShowDateTimeModal] = useState(false);
+    const [tempLaunchDate, setTempLaunchDate] = useState<string>('');
+    const [tempLaunchTime, setTempLaunchTime] = useState<string>('20:00');
     const [sentMessages, setSentMessages] = useState<Set<number>>(new Set());
     const [isTypeLocked, setIsTypeLocked] = useState(true);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const dateInputRef = useRef<HTMLInputElement>(null);
+    const purposeTextareaRef = useRef<HTMLTextAreaElement>(null);
 
     // --- CÁLCULO DE FECHA MÍNIMA (HOY + 8 DÍAS) ---
     const minDateStr = (() => {
@@ -171,6 +177,12 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         'Bonos y Objeciones', 'Prueba Social y Validación', 'Garantía y Seguridad', 'Urgencia y Cierre'
     ];
 
+    const handleOpenDateTimeModal = () => {
+        setTempLaunchDate(launchDate);
+        setTempLaunchTime(launchTime);
+        setShowDateTimeModal(true);
+    };
+
     const loadLaunchData = async () => {
         if (!projectId) return;
         setLoadingLocal(true);
@@ -189,6 +201,9 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 if (waLaunchDb.launchDate) {
                     const dateOnly = typeof waLaunchDb.launchDate === 'string' ? waLaunchDb.launchDate.split('T')[0] : waLaunchDb.launchDate.toISOString().split('T')[0];
                     setLaunchDate(dateOnly);
+                }
+                if (waLaunchDb.launchTime) {
+                    setLaunchTime(waLaunchDb.launchTime);
                 }
             }
 
@@ -227,25 +242,68 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         loadLaunchData();
     }, [projectId, propStrategyData]);
 
-    const formatLongDate = (dateStr: string) => {
+    const formatLongDate = (dateStr: string, timeStr?: string) => {
         if (!dateStr) return '';
         const date = new Date(dateStr + 'T12:00:00'); 
         const formatter = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-        const formatted = formatter.format(date);
-        return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+        let formatted = formatter.format(date);
+        formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+        
+        if (timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            const ampm = hours >= 12 ? 'pm' : 'am';
+            const displayHours = hours % 12 || 12;
+            const displayMinutes = String(minutes).padStart(2, '0');
+            return `${formatted} a las ${displayHours}:${displayMinutes} ${ampm}`;
+        }
+        
+        return formatted;
     };
 
-    const getCalculatedDate = (baseDateStr: string, index: number) => {
+    const getCalculatedTime = (index: number) => {
+        const moment = WHATSAPP_LAUNCH_MOMENTS[index];
+        if (!moment) return '10:00';
+        
+        if (moment.timeRule === 'fixed') {
+            return (moment as any).timeValue;
+        }
+        
+        if (moment.timeRule === 'relative') {
+            const [hours, minutes] = launchTime.split(':').map(Number);
+            const offset = (moment as any).timeOffset || 0;
+            const newHours = (hours + offset + 24) % 24;
+            return `${String(newHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+        
+        return '10:00';
+    };
+
+    const getCalculatedDate = (baseDateStr: string, index: number, includeTime: boolean = false) => {
         if (!baseDateStr) return '';
         const baseDate = new Date(baseDateStr + 'T12:00:00');
-        const offsets = [0, 2, 4, 6, 7, 7, 7, 7, 7, 7, 7, 7];
-        const offset = offsets[index] !== undefined ? offsets[index] : 7;
+        const moment = WHATSAPP_LAUNCH_MOMENTS[index];
+        const offset = moment?.dayOffset || 0;
+        
         const calculatedDate = new Date(baseDate);
         calculatedDate.setDate(baseDate.getDate() + offset);
-        return formatLongDate(calculatedDate.toISOString().split('T')[0]);
+        
+        const datePart = calculatedDate.toISOString().split('T')[0];
+        if (includeTime) {
+            const timePart = getCalculatedTime(index);
+            return formatLongDate(datePart, timePart);
+        }
+        return formatLongDate(datePart);
     };
 
     const activeItem = whatsappLaunch[activeWaScript] || whatsappLaunch[0];
+
+    useEffect(() => {
+        if (purposeTextareaRef.current) {
+            purposeTextareaRef.current.style.height = 'auto';
+            purposeTextareaRef.current.style.height = `${purposeTextareaRef.current.scrollHeight}px`;
+        }
+    }, [activeItem?.purpose]);
+
     let displayMessages: any[] = [];
     if (activeItem) {
         if (activeItem.messages && Array.isArray(activeItem.messages)) displayMessages = activeItem.messages;
@@ -264,8 +322,22 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const handleUpdateMessage = async (index: number, field: string, value: any) => {
         if (!projectId || !launchId) return;
         try {
-            const newMessages = [...whatsappLaunch];
+            let newMessages = [...whatsappLaunch];
+            const currentId = newMessages[index].id;
             (newMessages[index] as any)[field] = value;
+
+            if (field === 'pilarType') {
+                newMessages.sort((a, b) => {
+                    return waTypes.indexOf(a.pilarType) - waTypes.indexOf(b.pilarType);
+                });
+                
+                // Actualizar el índice activo para seguir al mensaje que se movió
+                const newIndex = newMessages.findIndex(m => m.id === currentId);
+                if (newIndex !== -1) {
+                    setActiveWaScript(newIndex);
+                }
+            }
+
             await api.updateWhatsAppLaunch(launchId, { messages: newMessages });
             setWhatsappLaunch([...newMessages]);
         } catch (e) {
@@ -327,6 +399,18 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         }
     };
 
+    const handleLaunchTimeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newTime = e.target.value;
+        setLaunchTime(newTime);
+        if (launchId) {
+            try {
+                await api.updateWhatsAppLaunch(launchId, { launchTime: newTime });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    };
+
     const handleGenerate = async () => {
         setShowConfirmModal(false);
         if (!projectId) return;
@@ -369,12 +453,22 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     if (usagePercent > 50) progressColor = "bg-yellow-500";
     if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
+    const togglePhase = (phaseIdx: number) => {
+        const newOpen = new Set(openPhases);
+        if (newOpen.has(phaseIdx)) newOpen.delete(phaseIdx);
+        else newOpen.add(phaseIdx);
+        setOpenPhases(newOpen);
+    };
+
+    const phases = [
+        { title: "Fase 1: Anticipación (Calentar al prospecto)", indices: [0, 1, 2, 3], color: "bg-blue-600" },
+        { title: "Fase 2: Día del Evento (Maximizar asistencia)", indices: [4, 5, 6], color: "bg-blue-600" },
+        { title: "Fase 3: Conversión (Aprovechar el momento caliente)", indices: [7, 8], color: "bg-blue-600" },
+        { title: "Fase 4: Cierre (Forzar decisión final)", indices: [9, 10, 11], color: "bg-blue-600" }
+    ];
+
     const renderPhaseHeader = (index: number) => {
-        if (index === 0) return <div className="mt-6 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 1: Anticipación (Calentar al prospecto)</div>;
-        if (index === 4) return <div className="mt-8 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 2: Día del Evento (Maximizar asistencia)</div>;
-        if (index === 7) return <div className="mt-8 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 3: Conversión (Aprovechar el momento caliente)</div>;
-        if (index === 9) return <div className="mt-8 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 4: Cierre (Forzar decisión final)</div>;
-        return null;
+        return null; // Eliminamos el renderizado antiguo ya que usaremos el nuevo sistema de fases
     };
 
     return (
@@ -454,32 +548,40 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
             ) : (
                 <>
                     <div className="max-w-[70em] mx-auto px-4 md:px-0 mb-12">
-                        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl animate-in slide-in-from-top-2 duration-500 cursor-pointer hover:bg-white/10 transition-all" onClick={() => dateInputRef.current?.showPicker()}>
-                            <label className="block text-xs font-black text-green-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-3 cursor-pointer"><Calendar className="w-8 h-8" /> Fecha de Inicio del Lanzamiento</label>
+                        <div 
+                            className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 p-8 rounded-[2.5rem] animate-in slide-in-from-top-2 duration-500 cursor-pointer hover:bg-white/10 transition-all group relative overflow-hidden" 
+                            onClick={handleOpenDateTimeModal}
+                        >
+                            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <Calendar className="w-24 h-24 text-green-500" />
+                            </div>
                             
-                            {!launchDate && (
-                                <p className="text-gray-400 font-bold text-xl mb-2">Haz clic para definir la fecha de tu Lanzamiento.</p>
-                            )}
-                            
-                            <input 
-                                ref={dateInputRef} 
-                                type="date" 
-                                value={launchDate} 
-                                onChange={handleLaunchDateChange} 
-                                min={minDateStr}
-                                required
-                                className={`w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white font-bold ${!launchDate ? 'opacity-50' : ''}`} 
-                                style={{ colorScheme: 'dark' }} 
-                            />
+                            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-black text-green-500 uppercase tracking-[0.2em] flex items-center gap-3">
+                                        <Calendar className="w-5 h-5" /> Configuración del Lanzamiento
+                                    </label>
+                                    <h4 className="text-3xl md:text-4xl font-black text-white tracking-tighter italic">
+                                        {launchDate ? formatLongDate(launchDate, launchTime) : 'Definir Fecha de Inicio'}
+                                    </h4>
+                                    <p className="text-gray-400 font-medium flex items-center gap-2">
+                                        <Clock className="w-4 h-4 text-blue-400" /> Hora del evento: <span className="text-white font-bold">{launchTime} hs</span>
+                                    </p>
+                                </div>
+                                
+                                <button className="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white font-black text-xs uppercase tracking-widest transition-all group-hover:scale-105 active:scale-95">
+                                    Cambiar Fecha y Hora
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div id="psd-whatsapp-grid" className="grid lg:grid-cols-11 gap-8 relative">
-                                <div className="lg:col-span-4 bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-2xl">
+                    <div id="psd-whatsapp-grid" className="grid lg:grid-cols-12 gap-8 relative">
+                                <div className="lg:col-span-5 bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-2xl">
                                     <div className="flex items-center gap-3 mb-6 shrink-0"><div className="p-2 bg-green-900/30 rounded-lg text-green-400 border border-green-900/50"><Calendar className="w-6 h-6" /></div><h3 className="text-xl font-bold text-white">Listado de Mensajes</h3></div>
                                     
                                     {/* Barra de Progreso de Lanzamientos */}
-                                    <div className="w-full mb-6">
+                                    <div className="w-full mb-4">
                                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                                             <div className="flex justify-between items-center mb-2 text-sm">
                                                 <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Lanzamientos creados</span>
@@ -490,28 +592,73 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="space-y-1 flex-1 pr-2 overflow-y-auto custom-scrollbar">
-                                        {whatsappLaunch.map((script: any, idx: number) => (
-                                            <React.Fragment key={script.id}>
-                                                {renderPhaseHeader(idx)}
-                                                <div onClick={() => setActiveWaScript(idx)} className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${script.isGenerated || sentMessages.has(idx) ? 'bg-emerald-900/10 border-emerald-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800')}`}>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${script.isGenerated || sentMessages.has(idx) ? 'bg-green-50 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className={`text-[10px] font-black uppercase mb-1 ${activeWaScript === idx ? 'text-emerald-400' : 'text-gray-600'}`}>Mensaje {idx + 1}</p>
-                                                            <h4 className={`text-lg font-thin leading-relaxed whitespace-normal text-white`}>{script.name}</h4>
-                                                        </div>
+
+                                    {/* Botón de Generación Superior */}
+                                    <button 
+                                        onClick={() => setShowConfirmModal(true)}
+                                        className="w-full mb-6 py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                                    >
+                                        <Wand2 className="w-5 h-5" /> Crear Secuencia de Mensajes
+                                    </button>
+
+                                    <div className="space-y-4 flex-1 pr-2 overflow-y-auto custom-scrollbar">
+                                        {phases.map((phase, pIdx) => (
+                                            <div key={pIdx} className="space-y-2">
+                                                <button 
+                                                    onClick={() => togglePhase(pIdx)}
+                                                    className={`w-full px-6 py-4 ${phase.color} border border-white/20 rounded-xl text-left flex items-center justify-between group transition-all hover:bg-blue-700`}
+                                                >
+                                                    <span className="text-base text-white tracking-wide font-medium">{phase.title}</span>
+                                                    <ChevronDown className={`w-5 h-5 text-white transition-transform duration-300 ${openPhases.has(pIdx) ? 'rotate-180' : ''}`} />
+                                                </button>
+
+                                                {openPhases.has(pIdx) && (
+                                                    <div className="space-y-2 pl-2 animate-in slide-in-from-top-2 duration-300">
+                                                        {phase.indices.map(idx => {
+                                                            const script = whatsappLaunch[idx];
+                                                            if (!script) return null;
+                                                            return (
+                                                                <div 
+                                                                    key={script.id}
+                                                                    onClick={() => setActiveWaScript(idx)} 
+                                                                    className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${script.isGenerated || sentMessages.has(idx) ? 'bg-emerald-900/10 border-emerald-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800')}`}
+                                                                >
+                                                                    <div className="flex items-center gap-6">
+                                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${script.isGenerated || sentMessages.has(idx) ? 'bg-green-50 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div>
+                                                                        <div className="flex-1 min-w-0">
+                                                                            <div className="flex items-center gap-2 mb-1">
+                                                                                <span className="text-xs font-bold uppercase tracking-wider text-gray-400">{script.momentText}</span>
+                                                                                <span className="text-xs font-bold uppercase tracking-wider text-emerald-500 flex items-center gap-1">
+                                                                                    <Clock className="w-3 h-3" /> {getCalculatedTime(idx)}
+                                                                                </span>
+                                                                            </div>
+                                                                            <h4 className={`text-lg font-thin leading-relaxed whitespace-normal text-white`}>{script.name}</h4>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div onClick={(e) => toggleSent(e, idx)} className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${sentMessages.has(idx) ? 'border-green-500 bg-green-500' : 'border-gray-600'}`}>
+                                                                        {sentMessages.has(idx) ? (
+                                                                            <Check className="w-4 h-4 text-black font-black" />
+                                                                        ) : (
+                                                                            <Check className="w-4 h-4 text-gray-600" />
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
                                                     </div>
-                                                    <div onClick={(e) => toggleSent(e, idx)} className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${sentMessages.has(idx) ? 'border-green-500 bg-green-500' : 'border-gray-600'}`}>
-                                                        {sentMessages.has(idx) ? (
-                                                            <Check className="w-4 h-4 text-black font-black" />
-                                                        ) : (
-                                                            <Check className="w-4 h-4 text-gray-600" />
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </React.Fragment>
+                                                )}
+                                            </div>
                                         ))}
+
+                                        {/* Botón de Generación Inferior */}
+                                        <div className="pt-4">
+                                            <button 
+                                                onClick={() => setShowConfirmModal(true)}
+                                                className="w-full py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                                            >
+                                                <Wand2 className="w-5 h-5" /> Crear Secuencia de Mensajes
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -532,18 +679,53 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                 </div>
                                             </div>
 
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="bg-emerald-900/10 border border-emerald-500/20 p-4 rounded-2xl flex gap-3">
+                                                    <Target className="w-5 h-5 text-emerald-400 shrink-0" />
+                                                    <div>
+                                                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block mb-1">Pilar Estratégico</span>
+                                                        <span className="text-white font-bold text-sm">{activeItem.pilarType}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-emerald-900/10 border border-emerald-500/20 p-4 rounded-2xl flex gap-3">
+                                                    <Calendar className="w-5 h-5 text-emerald-400 shrink-0" />
+                                                    <div>
+                                                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block mb-1">Fecha de Envío</span>
+                                                        <span className="text-white font-bold text-sm">
+                                                            {launchDate ? getCalculatedDate(launchDate, activeWaScript, true) : 'Fecha por Definir'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                             <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4">
-                                                <Info className="w-6 h-6 text-emerald-400 shrink-0" />
+                                                <Brain className="w-6 h-6 text-emerald-400 shrink-0" />
                                                 <div className="text-gray-300 text-base leading-relaxed">
-                                                    <span className="font-bold text-emerald-200 block mb-1">Propósito Estratégico:</span>
-                                                    <div className="prose prose-invert prose-p:text-gray-300 max-w-none">
+                                                    <span className="font-bold text-emerald-200 block mb-1 uppercase text-xs tracking-widest">Propósito Estratégico:</span>
+                                                    <div className="prose prose-invert prose-p:text-gray-300 max-w-none italic">
                                                         {activeItem.purpose}
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <ChatSimulator messages={processedMessages} senderName={user?.name} onSaveMessage={handleSaveChatMessage} />
-                                            <div className="flex gap-4 mt-6"><button onClick={() => handleCopy(processedMessages[0]?.text || '')} className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-lg shadow-lg flex items-center justify-center gap-2"><Copy className="w-5 h-5" /> Copiar Mensaje</button></div>
+                                            <div className="relative group/chat">
+                                                <ChatSimulator messages={processedMessages} senderName={user?.name} onSaveMessage={handleSaveChatMessage} />
+                                                <button 
+                                                    onClick={() => handleCopy(processedMessages[0]?.text || '')}
+                                                    className="absolute top-4 right-4 p-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl shadow-2xl opacity-0 group-hover/chat:opacity-100 transition-all transform hover:scale-110 active:scale-95 z-20 flex items-center gap-2 font-bold text-xs"
+                                                >
+                                                    <Copy className="w-4 h-4" /> Copiar
+                                                </button>
+                                            </div>
+                                            
+                                            <div className="flex gap-4 mt-auto pt-4">
+                                                <button 
+                                                    onClick={() => handleCopy(processedMessages[0]?.text || '')} 
+                                                    className="flex-1 py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xl shadow-2xl shadow-emerald-500/20 flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 transition-all"
+                                                >
+                                                    <Copy className="w-6 h-6" /> COPIAR MENSAJE PARA WHATSAPP
+                                                </button>
+                                            </div>
                                         </div>
                                     ) : (
                                         <div className="space-y-12 animate-in fade-in duration-500 flex-1 flex flex-col relative z-10">
@@ -563,7 +745,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                             <Settings2 className="w-5 h-5 text-emerald-500" /> Pilar Estratégico (Tipo)
                                                         </label>
                                                         <button onClick={() => setIsTypeLocked(!isTypeLocked)} className="text-xs font-black text-emerald-400 uppercase bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
-                                                            {isTypeLocked ? 'Desbloquear' : 'Bloquear'}
+                                                            {isTypeLocked ? 'Reordenar' : 'Guardar'}
                                                         </button>
                                                     </div>
                                                     <select disabled={isTypeLocked} value={activeItem?.pilarType} onChange={(e) => handleUpdateMessage(activeWaScript, 'pilarType', e.target.value)} className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none appearance-none ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-emerald-500/50'}`}>
@@ -573,10 +755,10 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                 
                                                 <div className="space-y-3">
                                                     <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2">
-                                                        <Calendar className="w-5 h-5 text-emerald-500" /> Fecha de Lanzamiento
+                                                        <Calendar className="w-5 h-5 text-emerald-500" /> Fecha en la que enviarás el mensaje.
                                                     </label>
                                                     <div className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl">
-                                                        {launchDate ? getCalculatedDate(launchDate, activeWaScript) : 'Fecha por Definir'}
+                                                        {launchDate ? getCalculatedDate(launchDate, activeWaScript, true) : 'Fecha por Definir'}
                                                     </div>
                                                 </div>
 
@@ -584,12 +766,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                     <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2">
                                                         <Brain className="w-5 h-5 text-emerald-500" /> Propósito Estratégico
                                                     </label>
-                                                    <textarea rows={4} value={activeItem?.purpose} onChange={(e) => handleUpdateMessage(activeWaScript, 'purpose', e.target.value)} className="w-full bg-black/60 border border-white/10 rounded-[2.5rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none resize-none" />
-                                                </div>
-                                                <div className="pt-4">
-                                                    <button onClick={() => setShowConfirmModal(true)} className="w-full py-6 rounded-[2cm] bg-emerald-600 text-white font-black text-lg uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-4">
-                                                        <Wand2 className="w-7 h-7 fill-current" /> Generar con IA
-                                                    </button>
+                                                    <textarea ref={purposeTextareaRef} rows={1} value={activeItem?.purpose} onChange={(e) => handleUpdateMessage(activeWaScript, 'purpose', e.target.value)} className="w-full bg-black/60 border border-white/10 rounded-[2.5rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none resize-none overflow-hidden" />
                                                 </div>
                                             </div>
                                         </div>
@@ -609,7 +786,69 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                             <p className="text-gray-400 text-lg leading-relaxed">Generar un nuevo lanzamiento de WhatsApp consumirá créditos de tu plan <span className="text-emerald-400 font-bold capitalize">{planLimits?.planName || 'Starter'}</span>.</p>
                             <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left"><div className="flex justify-between items-center mb-3"><span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Lanzamientos en tu plan</span><span className="text-white font-bold text-sm">{launchUsed} / {isRealAdmin ? '∞' : maxLaunches}</span></div><div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden p-0.5 border border-white/5"><div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(16,185,129,0.5)]`} style={{ width: `${isRealAdmin ? (launchUsed > 0 ? 100 : 0) : usagePercent}%` }}></div></div></div>
                         </div>
-                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0"><button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button><button onClick={handleGenerate} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Generar</button></div>
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0"><button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button><button onClick={handleGenerate} className="flex-1 py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Generar</button></div>
+                    </div>
+                </div>
+            )}
+
+            {showDateTimeModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowDateTimeModal(false)}>
+                    <div className="bg-[#0B0B0B] border border-blue-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+                        <div className="p-8 md:p-10 space-y-8 flex-1">
+                            <div className="w-20 h-20 bg-blue-500/10 text-blue-400 rounded-3xl flex items-center justify-center mx-auto border border-blue-500/20 shadow-lg"><Calendar className="w-10 h-10" /></div>
+                            <div className="text-center space-y-2">
+                                <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Programar Lanzamiento</h3>
+                                <p className="text-gray-400 text-sm">Define la fecha y hora exacta de tu evento principal.</p>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Fecha de Inicio</label>
+                                    <input 
+                                        type="date" 
+                                        value={tempLaunchDate} 
+                                        onChange={(e) => setTempLaunchDate(e.target.value)} 
+                                        min={minDateStr}
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-lg outline-none focus:border-blue-500/50 transition-colors"
+                                        style={{ colorScheme: 'dark' }}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Hora del Evento</label>
+                                    <input 
+                                        type="time" 
+                                        value={tempLaunchTime} 
+                                        onChange={(e) => setTempLaunchTime(e.target.value)} 
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-lg outline-none focus:border-blue-500/50 transition-colors"
+                                        style={{ colorScheme: 'dark' }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button onClick={() => setShowDateTimeModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all hover:bg-white/10">Cancelar</button>
+                            <button 
+                                onClick={async () => {
+                                    setLaunchDate(tempLaunchDate);
+                                    setLaunchTime(tempLaunchTime);
+                                    if (launchId) {
+                                        try {
+                                            await api.updateWhatsAppLaunch(launchId, { 
+                                                launchDate: tempLaunchDate,
+                                                launchTime: tempLaunchTime 
+                                            });
+                                        } catch (error) {
+                                            console.error(error);
+                                        }
+                                    }
+                                    setShowDateTimeModal(false);
+                                }} 
+                                className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all"
+                            >
+                                Aceptar
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

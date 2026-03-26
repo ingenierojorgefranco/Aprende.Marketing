@@ -61,6 +61,7 @@ export interface WhatsAppLaunch {
   createdAt: Date;
   messages: WhatsAppLaunchMessage[]; // Inmerso en data_json
   launchDate?: Date | string; // Añadido: Fecha de lanzamiento persistente
+  launchTime?: string; // Nuevo: Hora del lanzamiento (HH:mm)
 }
 ////////// Fin de actualización - 10/06/2025 11:00 //////////
 

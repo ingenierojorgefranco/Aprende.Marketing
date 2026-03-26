@@ -1801,7 +1801,8 @@ export const api = {
                 projectName: l.project_name,
                 createdAt: new Date(l.created_at),
                 messages: typeof l.data_json === 'string' ? JSON.parse(l.data_json) : (l.data_json || []),
-                launchDate: l.launch_date ? new Date(l.launch_date) : undefined
+                launchDate: l.launch_date ? new Date(l.launch_date) : undefined,
+                launchTime: l.launch_time || undefined
             };
         } catch (e) {
             return null;
@@ -1829,6 +1830,10 @@ export const api = {
         if (payload.launchDate) {
             (payload as any).launch_date = typeof payload.launchDate === 'string' ? payload.launchDate : (payload.launchDate as Date).toISOString().split('T')[0];
             delete payload.launchDate;
+        }
+        if (payload.launchTime) {
+            (payload as any).launch_time = payload.launchTime;
+            delete payload.launchTime;
         }
         await fetchWithFallback(`/whatsapp-launch/launches/${launchId}`, {
             method: 'PUT',

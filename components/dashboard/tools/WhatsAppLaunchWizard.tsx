@@ -13,19 +13,19 @@ import { UpgradeModal } from '../UpgradeModal';
 
 // Estructura estática de los 14 momentos para visualización persuasiva local
 const WHATSAPP_LAUNCH_MOMENTS = [
-    { id: 'wl1', name: 'Bienvenida y Confirmación de Fecha', momentText: 'Día -7', objective: 'Confirmar lugar, dar gracias, fijar fecha/hora.', pilarType: 'Bienvenida y Valor', purpose: 'Confirmar que están en el lugar correcto, dar las gracias y fijar la fecha/hora del evento en el calendario mental del usuario.' },
-    { id: 'wl2', name: 'Historia de Autoridad (Storytelling)', momentText: 'Día -5', objective: 'Conectar emocionalmente con la experta.', pilarType: 'Autoridad y Conexión', purpose: 'Quién es el experto, sus fracasos iniciales y cómo el método que va a enseñar cambió su vida. Humaniza la marca.' },
-    { id: 'wl3', name: 'El "Qué" vs el "Cómo" (Curiosidad)', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Curiosidad y Deseo', purpose: 'Revelar los temas que se verán en la clase. Prometer un secreto o técnica específica que no encontrarán en YouTube.' },
-    { id: 'wl4', name: 'Los 3 Errores Fatales', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Conciencia del Problema', purpose: 'Identificar qué están haciendo mal los leads hoy. Esto posiciona al experto como la única solución para dejar de perder tiempo/dinero.' },
-    { id: 'wl5', name: 'Recordatorio Matutino', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Recordatorio y Logística', purpose: '¡Llegó el día!. Confirmar horarios por países para evitar confusiones.' },
-    { id: 'wl6', name: 'Instrucciones de Preparación (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Preparación y Compromiso', purpose: 'Pedir que preparen libreta, café y eliminen distracciones. Crea un ritual en torno a la clase.' },
-    { id: 'wl7', name: '¡Estamos en Vivo! (El Link)', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acceso al Evento', purpose: 'Enlace directo a YouTube/Zoom/VSL. Corto, al grano y con muchos emojis de alerta.' },
-    { id: 'wl8', name: 'Apertura de Carrito y Oferta Irresistible', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Presentación de Oferta', purpose: 'Revelar el precio especial de lanzamiento, los bonos y el enlace de Hotmart.' },
-    { id: 'wl9', name: 'Bonos de Acción Rápida (Urgencia)', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Bonos y Objeciones', purpose: 'Regalo extra solo para las primeras X personas que compren en las próximas 2 horas.' },
-    { id: 'wl10', name: 'Tutorial de Pago y Soporte', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Prueba Social y Validación', purpose: 'Explicar cómo pagar (tarjeta, PayPal, efectivo) y dejar el link de contacto directo para dudas.' },
-    { id: 'wl11', name: 'Prueba Social Dinámica', momentText: 'Validación', objective: 'Validación de resultados.', pilarType: 'Garantía y Seguridad', purpose: 'Mostrar capturas de pantalla de nuevos alumnos o testimonios rápidos. "Si ellos pudieron, tú también".' },
-    { id: 'wl12', name: 'Garantía y Seguridad', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Urgencia y Cierre', purpose: 'Recordar los 7 o 15 días de garantía de Hotmart. Derriba el miedo al fraude.' },
-    { id: 'wl13', name: 'Última Llamada (Faltan 4 horas)', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Urgencia y Cierre', purpose: 'El contador llega a cero. Los bonos desaparecen y el precio subirá.' }
+    { id: 'wl1', name: 'Bienvenida y Confirmación de Fecha', momentText: 'Día -7', objective: 'Confirmar lugar, dar gracias, fijar fecha/hora.', pilarType: 'Bienvenida y Valor', purpose: 'Confirmar que están en el lugar correcto, dar las gracias y fijar la fecha/hora del evento en el calendario mental del usuario.', timeRule: 'fixed', timeValue: '10:00' },
+    { id: 'wl2', name: 'Historia de Autoridad (Storytelling)', momentText: 'Día -5', objective: 'Conectar emocionalmente con la experta.', pilarType: 'Autoridad y Conexión', purpose: 'Quién es el experto, sus fracasos iniciales y cómo el método que va a enseñar cambió su vida. Humaniza la marca.', timeRule: 'fixed', timeValue: '10:00' },
+    { id: 'wl3', name: 'El "Qué" vs el "Cómo" (Curiosidad)', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Curiosidad y Deseo', purpose: 'Revelar los temas que se verán en la clase. Prometer un secreto o técnica específica que no encontrarán en YouTube.', timeRule: 'fixed', timeValue: '10:00' },
+    { id: 'wl4', name: 'Los 3 Errores Fatales', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Conciencia del Problema', purpose: 'Identificar qué están haciendo mal los leads hoy. Esto posiciona al experto como la única solución para dejar de perder tiempo/dinero.', timeRule: 'fixed', timeValue: '10:00' },
+    { id: 'wl5', name: 'Recordatorio Matutino', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Recordatorio y Logística', purpose: '¡Llegó el día!. Confirmar horarios por países para evitar confusiones.', timeRule: 'fixed', timeValue: '08:00' },
+    { id: 'wl6', name: 'Instrucciones de Preparación (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Preparación y Compromiso', purpose: 'Pedir que preparen libreta, café y eliminen distracciones. Crea un ritual en torno a la clase.', timeRule: 'relative', timeOffset: -4 },
+    { id: 'wl7', name: '¡Estamos en Vivo! (El Link)', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acceso al Evento', purpose: 'Enlace directo a YouTube/Zoom/VSL. Corto, al grano y con muchos emojis de alerta.', timeRule: 'relative', timeOffset: 0 },
+    { id: 'wl8', name: 'Apertura de Carrito y Oferta Irresistible', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Presentación de Oferta', purpose: 'Revelar el precio especial de lanzamiento, los bonos y el enlace de Hotmart.', timeRule: 'relative', timeOffset: 2 },
+    { id: 'wl9', name: 'Bonos de Acción Rápida (Urgencia)', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Bonos y Objeciones', purpose: 'Regalo extra solo para las primeras X personas que compren en las próximas 2 horas.', timeRule: 'relative', timeOffset: 4 },
+    { id: 'wl10', name: 'Tutorial de Pago y Soporte', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Prueba Social y Validación', purpose: 'Explicar cómo pagar (tarjeta, PayPal, efectivo) y dejar el link de contacto directo para dudas.', timeRule: 'fixed', timeValue: '10:00' },
+    { id: 'wl11', name: 'Prueba Social Dinámica', momentText: 'Validación', objective: 'Validación de resultados.', pilarType: 'Garantía y Seguridad', purpose: 'Mostrar capturas de pantalla de nuevos alumnos o testimonios rápidos. "Si ellos pudieron, tú también".', timeRule: 'fixed', timeValue: '10:00' },
+    { id: 'wl12', name: 'Garantía y Seguridad', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Urgencia y Cierre', purpose: 'Recordar los 7 o 15 días de garantía de Hotmart. Derriba el miedo al fraude.', timeRule: 'fixed', timeValue: '10:00' },
+    { id: 'wl13', name: 'Última Llamada (Faltan 4 horas)', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Urgencia y Cierre', purpose: 'El contador llega a cero. Los bonos desaparecen y el precio subirá.', timeRule: 'fixed', timeValue: '20:00' }
 ];
 
 // Professional WhatsApp Chat Simulator Component
@@ -92,6 +92,7 @@ export const WhatsAppLaunchWizard: React.FC<{ onClose?: () => void; editLaunchId
     const [projects, setProjects] = useState<Project[]>([]);
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [activeLaunch, setActiveLaunch] = useState<WhatsAppLaunch | null>(null);
+    const [launchTime, setLaunchTime] = useState('10:00');
     const [loading, setLoading] = useState(false);
     const [generating, setGenerating] = useState(false);
     const [activeMsgIdx, setActiveMsgIdx] = useState(0);
@@ -120,6 +121,7 @@ export const WhatsAppLaunchWizard: React.FC<{ onClose?: () => void; editLaunchId
                         const proj = projectsData.find(p => p.id === currentLaunch.projectId);
                         if (proj) setSelectedProject(proj);
                         setActiveLaunch(currentLaunch);
+                        if (currentLaunch.launchTime) setLaunchTime(currentLaunch.launchTime);
                         setStep(1);
                         setLoading(false);
                         return;
@@ -182,6 +184,7 @@ export const WhatsAppLaunchWizard: React.FC<{ onClose?: () => void; editLaunchId
                 name: `Lanzamiento: ${project.name}`,
                 status: 'borrador',
                 createdAt: new Date(),
+                launchTime: '10:00',
                 messages: localMessages
             };
 
@@ -250,6 +253,36 @@ export const WhatsAppLaunchWizard: React.FC<{ onClose?: () => void; editLaunchId
         if (!activeLaunch) return;
         navigator.clipboard.writeText(activeLaunch.messages[activeMsgIdx].content);
         alert("Copiado para WhatsApp");
+    };
+
+    const handleLaunchTimeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newTime = e.target.value;
+        setLaunchTime(newTime);
+        if (activeLaunch && !activeLaunch.id.startsWith('temp-')) {
+            try {
+                await api.updateWhatsAppLaunch(activeLaunch.id, { launchTime: newTime });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    };
+
+    const getCalculatedTime = (index: number) => {
+        const moment = WHATSAPP_LAUNCH_MOMENTS[index];
+        if (!moment) return '10:00';
+        
+        if (moment.timeRule === 'fixed') {
+            return (moment as any).timeValue;
+        }
+        
+        if (moment.timeRule === 'relative') {
+            const [hours, minutes] = launchTime.split(':').map(Number);
+            const offset = (moment as any).timeOffset || 0;
+            const newHours = (hours + offset + 24) % 24;
+            return `${String(newHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+        
+        return '10:00';
     };
 
     if (loading && step === 0) {
@@ -377,7 +410,12 @@ export const WhatsAppLaunchWizard: React.FC<{ onClose?: () => void; editLaunchId
                                             {idx + 1}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className={`text-[10px] font-black uppercase mb-1 ${activeMsgIdx === idx ? 'text-emerald-400' : 'text-gray-600'}`}>{msg.momentText}</p>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <p className={`text-[10px] font-black uppercase ${activeMsgIdx === idx ? 'text-emerald-400' : 'text-gray-600'}`}>{msg.momentText}</p>
+                                                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-500 flex items-center gap-1">
+                                                    <Clock className="w-3 h-3" /> {getCalculatedTime(idx)}
+                                                </span>
+                                            </div>
                                             <h5 className={`font-bold truncate ${activeMsgIdx === idx ? 'text-white' : 'text-gray-400'}`}>{msg.name}</h5>
                                         </div>
                                         {msg.isGenerated && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
