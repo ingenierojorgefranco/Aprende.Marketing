@@ -147,6 +147,7 @@ router.post('/launches/generate-message', authMiddleware, async (req, res) => {
         3. Si es un mensaje de confirmación de fecha, usa [FECHA_CLASE].
         4. Si es un mensaje con horario, usa [HORA_EVENTO].
         5. Mantén el mensaje estructurado para que sea fácil de leer en móviles.
+        6. No incluyas nunca placeholders de firma como [TU NOMBRE], [FIRMA] o similares al final del mensaje.
         
         Responde exclusivamente con el texto del mensaje generado para copiar y pegar en WhatsApp.`;
 
@@ -218,6 +219,7 @@ router.post('/launches/generate-full-sequence', authMiddleware, async (req, res)
             3. Si es un mensaje de confirmación de fecha, usa [FECHA_CLASE].
             4. Si es un mensaje con horario, usa [HORA_EVENTO].
             5. Mantén el mensaje estructurado para que sea fácil de leer en móviles.
+            6. No incluyas nunca placeholders de firma como [TU NOMBRE], [FIRMA] o similares al final del mensaje.
             
             Responde exclusivamente con el texto del mensaje generado para copiar y pegar en WhatsApp.`;
 
