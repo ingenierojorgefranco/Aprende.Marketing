@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, BookOpen } from 'lucide-react';
+import confetti from 'canvas-confetti';
+import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, BookOpen, Shield } from 'lucide-react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, EmailMessage, EmailSequence, LandingPage, AffiliateLink } from '../../../../types';
 import { api } from '../../../../services/api';
@@ -310,10 +311,12 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             setIsGenerating(false);
             setShowSuccess(true);
             
-            // Esperar 4 segundos para que el usuario vea el éxito y el confeti
-            setTimeout(() => {
-                window.location.reload();
-            }, 4000);
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+            });
         } catch (e) {
             console.error(e);
             setIsGenerating(false);
@@ -384,18 +387,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     return (
         <div id="psd-email-section" className="pt-8">
             <style>{`
-                @keyframes confetti-fall {
-                    0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
-                    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-                }
-                .confetti {
-                    position: absolute;
-                    width: 8px;
-                    height: 8px;
-                    animation: confetti-fall 3s linear forwards;
-                    top: -10px;
-                    z-index: 300;
-                }
                 @keyframes loading-shine {
                     0% { transform: translateX(-100%); }
                     100% { transform: translateX(100%); }
@@ -463,30 +454,40 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
             {/* --- UI DE ÉXITO (CONFETTI) --- */}
             {showSuccess && (
-                <div className="fixed inset-0 z-[400] bg-[#0B0B0B] flex flex-col items-center justify-center p-6 animate-in zoom-in-95 duration-500 overflow-hidden">
-                    {/* Confetti simulation */}
-                    {[...Array(40)].map((_, i) => (
-                        <div 
-                            key={i} 
-                            className="confetti" 
-                            style={{
-                                left: `${Math.random() * 100}%`,
-                                backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'][Math.floor(Math.random() * 5)],
-                                animationDelay: `${Math.random() * 3}s`,
-                                animationDuration: `${2 + Math.random() * 2}s`
-                            }}
-                        ></div>
-                    ))}
-
-                    <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-8 scale-110 animate-bounce">
-                        <CheckCircle2 className="w-14 h-14 text-white" />
+                <div className="fixed inset-0 z-[400] bg-[#0B0B0B] flex flex-col items-center justify-center p-6 animate-in zoom-in-95 duration-700 overflow-hidden">
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] bg-blue-600/20 blur-[150px] rounded-full opacity-50"></div>
+                        <div className="absolute bottom-[-20%] left-[-10%] w-[60%] h-[60%] bg-purple-600/10 blur-[150px] rounded-full opacity-50"></div>
                     </div>
 
-                    <div className="text-center max-w-2xl space-y-4">
-                        <h3 className="text-4xl font-black text-white leading-tight">¡Secuencia Generada con Éxito!</h3>
-                        <p className="text-gray-400 text-lg font-medium leading-relaxed">
-                            Tu secuencia de 7 días ha sido optimizada y está lista para ser implementada en tu sistema de email marketing.
-                        </p>
+                    <div className="relative w-full max-w-2xl flex flex-col items-center text-center space-y-10">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-emerald-500/40 blur-3xl rounded-full animate-pulse"></div>
+                            <div className="relative w-32 h-32 bg-emerald-500 rounded-[2.5rem] flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.4)] animate-bounce">
+                                <CheckCircle2 className="w-16 h-16 text-white" />
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <h3 className="text-4xl md:text-6xl font-black text-white leading-tight uppercase tracking-tighter italic">
+                                ¡Secuencia Generada con Éxito!
+                            </h3>
+                            <p className="text-gray-400 text-lg md:text-xl font-medium max-w-lg mx-auto leading-relaxed">
+                                Tu secuencia de 7 días ha sido optimizada y está lista para ser implementada en tu sistema de email marketing.
+                            </p>
+                        </div>
+
+                        <div className="w-full max-w-sm pt-4">
+                            <button 
+                                onClick={() => window.location.reload()}
+                                className="w-full py-6 bg-blue-600 hover:bg-blue-500 text-white font-black text-xl uppercase tracking-[0.2em] rounded-2xl transition-all shadow-[0_20px_50px_rgba(59,130,246,0.3)] transform hover:scale-105 active:scale-95 flex items-center justify-center gap-4 group"
+                            >
+                                Ver mi Secuencia <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                            </button>
+                            <p className="text-gray-600 text-[10px] font-black uppercase tracking-widest mt-6 flex items-center justify-center gap-2">
+                                <Shield className="w-3 h-3" /> Acceso Instantáneo Desbloqueado
+                            </p>
+                        </div>
                     </div>
                 </div>
             )}

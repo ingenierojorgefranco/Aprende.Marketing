@@ -540,52 +540,63 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
       {/* --- OVERLAY DE CARGA --- */}
       {generationStatus === 'generating' && (
-        <div className="fixed inset-0 z-[300] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in fade-in duration-500 flex flex-col items-center space-y-10">
+        <div className="fixed inset-0 z-[300] bg-[#0B0B0B] flex items-center justify-center p-6 overflow-hidden animate-in fade-in duration-500">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-600/10 blur-[120px] rounded-full animate-pulse"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-600/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+            </div>
+
+            <div className="relative w-full max-w-2xl flex flex-col items-center space-y-12 text-center">
                 {/* Icono de la varita con efecto de brillo */}
                 <div className="relative">
-                    <div className="absolute inset-0 bg-orange-500/20 blur-2xl rounded-full"></div>
-                    <div className="relative w-24 h-24 bg-gray-900 rounded-[2rem] flex items-center justify-center border border-orange-500/30 shadow-2xl shadow-orange-500/10">
-                        <Wand2 className="w-12 h-12 text-orange-400 animate-pulse" />
+                    <div className="absolute inset-0 bg-orange-500/20 blur-3xl rounded-full animate-pulse"></div>
+                    <div className="relative w-32 h-32 bg-gray-900/50 backdrop-blur-xl rounded-[2.5rem] flex items-center justify-center border border-orange-500/30 shadow-2xl">
+                        <Wand2 className="w-16 h-16 text-orange-400 animate-pulse" />
+                    </div>
+                    <div className="absolute -top-2 -right-2 bg-orange-500 p-3 rounded-2xl shadow-lg border-2 border-black animate-bounce">
+                        <Sparkles className="w-6 h-6 text-white" />
                     </div>
                 </div>
 
                 {/* Texto de generación en negrita y profesional */}
-                <div className="text-center space-y-3">
-                    <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
-                        Nuestra inteligencia artificial está redactando tu Kit de Contenido.
+                <div className="space-y-4">
+                    <h3 className="text-3xl md:text-5xl font-black text-white leading-tight tracking-tighter uppercase italic">
+                        Redactando tu Kit de Contenido
                     </h3>
-                    <p className="text-orange-400/80 font-bold text-sm uppercase tracking-[0.2em] animate-pulse">
+                    <p className="text-orange-400 font-black text-sm md:text-base uppercase tracking-[0.3em] animate-pulse">
                         {loadingMessages[loadingStep]}
                     </p>
                 </div>
 
                 {/* Badge de advertencia */}
-                <div className="px-6 py-2 bg-red-600/20 border border-red-600/30 rounded-full shadow-lg">
-                    <p className="text-red-500 font-black uppercase text-sm tracking-widest flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4" /> No cierres esta página
+                <div className="px-8 py-3 bg-red-600/10 border border-red-600/20 rounded-2xl shadow-xl backdrop-blur-md">
+                    <p className="text-red-500 font-black uppercase text-xs md:text-sm tracking-[0.2em] flex items-center gap-3">
+                        <AlertTriangle className="w-5 h-5" /> No cierres esta página, el proceso es irreversible
                     </p>
                 </div>
 
                 {/* Sección de contador con degradado oscuro */}
-                <div className="w-full max-w-md bg-gradient-to-br from-gray-900 to-black p-8 rounded-[2.5rem] border border-white/5 shadow-2xl text-center space-y-4">
-                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Tu kit estará listo en:</p>
-                    <div className="text-white font-mono text-6xl font-black tracking-tighter">
+                <div className="w-full max-w-md bg-white/5 backdrop-blur-md p-10 rounded-[3rem] border border-white/10 shadow-2xl space-y-4 relative group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[3rem]"></div>
+                    <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-[10px] relative z-10">Tiempo estimado de finalización</p>
+                    <div className="text-white font-mono text-7xl font-black tracking-tighter relative z-10 drop-shadow-2xl">
                         {Math.max(0, 90 - secondsElapsed)}s
                     </div>
-                    
-                    {/* Barra de progreso profesional */}
-                    <div className="relative w-full h-3 bg-gray-800 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                </div>
+
+                {/* Barra de progreso profesional */}
+                <div className="w-full max-w-xl space-y-5">
+                    <div className="flex justify-between text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] px-2">
+                        <span>Psicología de Atracción</span>
+                        <span className="text-orange-400">{progress}%</span>
+                    </div>
+                    <div className="w-full h-4 bg-gray-900 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
                         <div 
-                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-orange-600 to-orange-400 transition-all duration-500 ease-out rounded-full"
+                            className="h-full bg-gradient-to-r from-orange-600 via-orange-400 to-orange-500 transition-all duration-500 ease-out relative"
                             style={{ width: `${progress}%` }}
                         >
-                            <div className="absolute inset-0 animate-loading-shine bg-gradient-to-r from-transparent via-white/20 to-transparent w-1/2"></div>
+                            <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-loading-shine"></div>
                         </div>
-                    </div>
-                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-gray-500">
-                        <span>Progreso</span>
-                        <span>{progress}%</span>
                     </div>
                 </div>
 
@@ -596,20 +607,41 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
       {/* --- OVERLAY DE ÉXITO --- */}
       {generationStatus === 'success' && (
-        <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-[#0B0B0B] p-4 animate-in zoom-in-95 duration-700 overflow-hidden">
-            <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-8 scale-110 animate-bounce">
-                <CheckCircle2 className="w-14 h-14 text-white" />
+        <div className="fixed inset-0 z-[400] bg-[#0B0B0B] flex items-center justify-center p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-700">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] bg-orange-600/20 blur-[150px] rounded-full opacity-50"></div>
+                <div className="absolute bottom-[-20%] left-[-10%] w-[60%] h-[60%] bg-emerald-600/10 blur-[150px] rounded-full opacity-50"></div>
             </div>
-            <div className="text-center max-w-xl space-y-4">
-                <h3 className="text-4xl font-black text-white leading-tight uppercase tracking-tight">¡Kit de Contenido Generado!</h3>
-                <p className="text-gray-400 text-lg font-medium leading-relaxed">Tu guion, descripción de anuncios y miniatura sugerida están listos para ser utilizados.</p>
+
+            <div className="relative w-full max-w-2xl flex flex-col items-center text-center space-y-10">
+                <div className="relative">
+                    <div className="absolute inset-0 bg-emerald-500/40 blur-3xl rounded-full animate-pulse"></div>
+                    <div className="relative w-32 h-32 bg-emerald-500 rounded-[2.5rem] flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.4)] animate-bounce">
+                        <CheckCircle2 className="w-16 h-16 text-white" />
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <h3 className="text-4xl md:text-6xl font-black text-white leading-tight uppercase tracking-tighter italic">
+                        ¡Kit de Contenido Generado!
+                    </h3>
+                    <p className="text-gray-400 text-lg md:text-xl font-medium max-w-lg mx-auto leading-relaxed">
+                        Tu guion, descripción de anuncios y miniatura sugerida están listos para ser utilizados.
+                    </p>
+                </div>
+
+                <div className="w-full max-w-sm pt-4">
+                    <button 
+                        onClick={() => setGenerationStatus('idle')}
+                        className="w-full py-6 bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-[0.2em] rounded-2xl transition-all shadow-[0_20px_50px_rgba(234,88,12,0.3)] transform hover:scale-105 active:scale-95 flex items-center justify-center gap-4 group"
+                    >
+                        Ver mi Kit de Contenido <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                    </button>
+                    <p className="text-gray-600 text-[10px] font-black uppercase tracking-widest mt-6 flex items-center justify-center gap-2">
+                        <Shield className="w-3 h-3" /> Acceso Instantáneo Desbloqueado
+                    </p>
+                </div>
             </div>
-            <button 
-                onClick={() => setGenerationStatus('idle')}
-                className="mt-12 px-16 py-6 bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-widest rounded-2xl transition-all shadow-2xl transform hover:scale-105 active:scale-95"
-            >
-                Ver mi Kit de Contenido
-            </button>
         </div>
       )}
 
