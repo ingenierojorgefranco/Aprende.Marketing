@@ -152,6 +152,8 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     // --- ESTADOS DE GENERACIÓN BAJO DEMANDA ---
     const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
     const [loadingText, setLoadingText] = useState("");
+    const [progress, setProgress] = useState(0);
+    const [secondsElapsed, setSecondsElapsed] = useState(0);
     const loadingTexts = [
         "Analizando psicología del avatar...",
         "Redactando ganchos de apertura...",
@@ -438,6 +440,23 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         }
 
         setGenerationStatus('generating');
+        setProgress(0);
+        setSecondsElapsed(0);
+
+        // Iniciamos el contador de tiempo real
+        const timerInterval = setInterval(() => {
+            setSecondsElapsed(prev => prev + 1);
+        }, 1000);
+
+        // Lógica de simulación de progreso lineal (1 minuto aprox para 99%)
+        let currentProgress = 0;
+        const progressInterval = setInterval(() => {
+            if (currentProgress < 99) {
+                currentProgress += 1;
+                setProgress(currentProgress);
+            }
+        }, 600);
+
         try {
             const { messages: generatedMessages, launchId: newLaunchId } = await api.generateFullWhatsAppSequence(projectId);
 
@@ -448,9 +467,16 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
             const allL = await api.getWhatsAppLaunches();
             setLaunchCount(allL.length);
             
+            // Limpiamos intervalos
+            clearInterval(progressInterval);
+            clearInterval(timerInterval);
+            
+            setProgress(100);
             setGenerationStatus('success');
         } catch (e) {
             console.error(e);
+            clearInterval(progressInterval);
+            clearInterval(timerInterval);
             alert("Error al generar la secuencia de mensajes.");
             setGenerationStatus('idle');
         }
@@ -492,18 +518,54 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
             {/* --- OVERLAY DE CARGA --- */}
             {generationStatus === 'generating' && (
                 <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-white rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in zoom-in-95 duration-300">
-                        <div className="relative mb-12 flex justify-center">
-                            <div className="w-24 h-24 bg-emerald-50 rounded-3xl flex items-center justify-center animate-pulse border border-emerald-100">
-                                <Wand2 className="w-12 h-12 text-emerald-600" />
+                    <div className="bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in fade-in duration-500 flex flex-col items-center space-y-10">
+                        {/* Icono de la varita con efecto de brillo */}
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full"></div>
+                            <div className="relative w-24 h-24 bg-gray-900 rounded-[2rem] flex items-center justify-center border border-emerald-500/30 shadow-2xl shadow-emerald-500/10">
+                                <Wand2 className="w-12 h-12 text-emerald-400 animate-pulse" />
                             </div>
                         </div>
-                        <div className="space-y-4">
-                            <h3 className="text-4xl font-black text-black uppercase tracking-tighter italic animate-pulse">Redactando Mensaje Estratégico</h3>
-                            <p className="text-gray-500 font-bold text-sm uppercase tracking-widest">{loadingText}</p>
+
+                        {/* Texto de generación en negrita y profesional */}
+                        <div className="text-center space-y-3">
+                            <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
+                                Nuestra inteligencia artificial está redactando tu secuencia estratégica.
+                            </h3>
+                            <p className="text-emerald-400/80 font-bold text-sm uppercase tracking-[0.2em] animate-pulse">
+                                {loadingText}
+                            </p>
                         </div>
-                        <div className="w-full max-w-sm h-1.5 bg-gray-100 rounded-full mx-auto mt-10 overflow-hidden relative">
-                            <div className="h-full bg-emerald-500 w-full origin-left animate-loading-bar"></div>
+
+                        {/* Badge de advertencia */}
+                        <div className="px-6 py-2 bg-red-600/20 border border-red-600/30 rounded-full shadow-lg">
+                            <p className="text-red-500 font-black uppercase text-sm tracking-widest flex items-center gap-2">
+                                <AlertTriangle className="w-4 h-4" /> No cierres esta página
+                            </p>
+                        </div>
+
+                        {/* Sección de contador con degradado oscuro */}
+                        <div className="w-full max-w-md bg-gradient-to-br from-gray-900 to-black p-8 rounded-[2.5rem] border border-white/5 shadow-2xl text-center space-y-4">
+                            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Tu secuencia estará lista en:</p>
+                            <div className="text-white font-mono text-6xl font-black tracking-tighter">
+                                {Math.floor(Math.max(0, 90 - secondsElapsed) / 60).toString().padStart(2, '0')}:{(Math.max(0, 90 - secondsElapsed) % 60).toString().padStart(2, '0')}
+                            </div>
+                        </div>
+
+                        {/* Barra de progreso verde gruesa y animada */}
+                        <div className="w-full max-w-xl space-y-4">
+                            <div className="flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest px-1">
+                                <span>Psicología de Ventas</span>
+                                <span>{Math.round(progress)}%</span>
+                            </div>
+                            <div className="w-full h-8 bg-gray-900 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
+                                <div 
+                                    className="h-full bg-gradient-to-r from-emerald-600 to-green-400 transition-all duration-300 ease-out shadow-[0_0_20px_rgba(16,185,129,0.3)] relative"
+                                    style={{ width: `${progress}%` }}
+                                >
+                                    <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-loading-shine"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -512,15 +574,15 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
             {/* --- OVERLAY DE ÉXITO --- */}
             {generationStatus === 'success' && (
                 <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-hidden">
-                    <div className="bg-white rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in zoom-in-95 duration-300 relative">
+                    <div className="bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in zoom-in-95 duration-700 relative overflow-hidden">
                         {[...Array(30)].map((_, i) => (
                             <div key={i} className="confetti" style={{ left: `${Math.random() * 100}%`, backgroundColor: ['#10B981', '#34D399', '#4C1D95', '#F59E0B'][Math.floor(Math.random() * 4)], animationDelay: `${Math.random() * 2}s` }}></div>
                         ))}
                         <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mx-auto mb-8 scale-110 animate-bounce">
                             <CheckCircle2 className="w-14 h-14 text-white" />
                         </div>
-                        <h3 className="text-4xl font-black text-black leading-tight mb-4">¡Tu mensaje No ${activeWaScript + 1} de WhatsApp ha sido creado!</h3>
-                        <p className="text-gray-500 text-lg font-medium mb-10">Tu guion persuasivo está listo para ser copiado y enviado a tu comunidad.</p>
+                        <h3 className="text-4xl font-black text-white leading-tight mb-4">¡Tu secuencia de WhatsApp ha sido creada!</h3>
+                        <p className="text-gray-400 text-lg font-medium mb-10 leading-relaxed">Tu guion persuasivo está listo para ser copiado y enviado a tu comunidad.</p>
                         <button 
                             onClick={() => setGenerationStatus('idle')}
                             className="w-full py-5 bg-[#FF5A1F] text-white font-black rounded-2xl shadow-xl hover:bg-[#D94A1E] transition-all transform hover:scale-[1.02] active:scale-95 text-lg"

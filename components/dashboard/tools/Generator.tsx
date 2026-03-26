@@ -159,7 +159,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
             const msgIdx = Math.min(Math.floor((currentProgress / 100) * messages.length), messages.length - 1);
             setLoadingMessage(messages[msgIdx]);
         }
-    }, 70);
+    }, 600);
 
     const destinationConfig: DestinationConfig = {
         type: formData.destinationType,

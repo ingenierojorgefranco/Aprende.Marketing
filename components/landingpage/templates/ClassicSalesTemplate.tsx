@@ -46,10 +46,10 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                           <span className="text-xs md:text-sm font-black uppercase tracking-wider">{content.topTagline || "🔥 Oferta por tiempo limitado"}</span>
                       </div>
                  </div>
-                 {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.2] max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-4xl md:text-[4rem]'}`, ds.hero.highlightGradient)}
+                 {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.2] max-w-[65rem] mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-4xl md:text-[4rem]'}`, ds.hero.highlightGradient)}
                  
                  <div id="subtitulo-principal">
-                    {renderRichText(content.hero.subheadline, `font-light opacity-90 max-w-3xl mx-auto leading-tight text-white ${isMobilePreview ? 'text-lg' : 'text-lg md:text-2xl'}`)}
+                    {renderRichText(content.hero.subheadline, `font-light opacity-90 max-w-3xl mx-auto leading-[2.2rem] text-white ${isMobilePreview ? 'text-lg' : 'text-lg md:text-2xl'}`)}
                  </div>
              </div>
 
@@ -58,16 +58,6 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                     <div className={`backdrop-blur-sm border rounded-2xl shadow-lg ${ds.features.cardBg} ${ds.features.cardBorder}`}>
                         <div id="hero-video-card" className={`relative w-full aspect-video h-auto rounded-2xl overflow-hidden shadow-2xl border cursor-pointer group ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
                             <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} />
-                            {!content.hero.videoUrl && (
-                                <>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90"></div>
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full backdrop-blur-md flex items-center justify-center border group-hover:scale-110 transition-transform ${ds.decorations.playButtonBg} ${ds.decorations.playButtonBorder}`}>
-                                            <PlayCircle className={`w-8 h-8 md:w-10 md:h-10 ${ds.decorations.playButtonIcon}`} />
-                                        </div>
-                                    </div>
-                                </>
-                            )}
                         </div>
                     </div>
                 </div>
