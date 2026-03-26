@@ -26,3 +26,29 @@ export const generateWhatsAppMessage = async (projectId: string, momentId: strin
         strategicPurpose: data.strategicPurpose
     };
 };
+
+/**
+ * Invoca al backend para generar la secuencia completa de 12 mensajes de WhatsApp
+ */
+export const generateFullWhatsAppSequence = async (projectId: string): Promise<{ messages: any[]; launchId: string }> => {
+    const baseUrl = api.getBaseUrl();
+    const token = localStorage.getItem('plataformadeventacom_token');
+    
+    const response = await fetch(`${baseUrl}/whatsapp-launch/launches/generate-full-sequence`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+        },
+        body: JSON.stringify({ projectId })
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error || "Error al generar secuencia completa");
+    }
+    return {
+        messages: data.messages,
+        launchId: data.launchId
+    };
+};

@@ -165,6 +165,101 @@ router.post('/launches/generate-message', authMiddleware, async (req, res) => {
     }
 });
 
+// Endpoint de generación de secuencia completa
+router.post('/launches/generate-full-sequence', authMiddleware, async (req, res) => {
+    const { projectId } = req.body;
+    if (!projectId) return res.status(400).json({ error: "Faltan parámetros" });
+
+    try {
+        const [projRows] = await pool.query("SELECT * FROM projects WHERE id = ?", [projectId]);
+        if (projRows.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
+        const project = projRows[0];
+        const strategy = JSON.parse(project.strategy_json || "{}");
+
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const generatedMessages = [];
+
+        // Generamos los 12 mensajes uno por uno usando sus blueprints
+        for (const moment of DEFAULT_LAUNCH_MESSAGES) {
+            const blueprint = WHATSAPP_BLUEPRINTS[moment.pilarType] || WHATSAPP_BLUEPRINTS['default'];
+            
+            const prompt = `Actúa como un experto en lanzamientos meteóricos por WhatsApp. 
+            Tu misión es redactar un mensaje persuasivo siguiendo estrictamente el siguiente BLUEPRINT ESTRATÉGICO:
+
+            --- BLUEPRINT DEL MENSAJE ---
+            OBJETIVO PSICOLÓGICO: ${blueprint.goal}
+            ESTRUCTURA RECOMENDADA:
+            ${blueprint.structure}
+            TIPS DE COPYWRITING:
+            ${blueprint.copywritingTips}
+            EJEMPLO DE REFERENCIA:
+            ${blueprint.example}
+            ---------------------------
+
+            CONTEXTO DEL PROYECTO:
+            Proyecto: ${project.name}
+            Nicho: ${project.niche}
+            Producto: ${project.product_name}
+            Avatar Principal: ${JSON.stringify(strategy.avatar || strategy.avatars?.[0] || {})}
+            
+            DETALLES DEL MOMENTO:
+            Momento del Lanzamiento: ${moment.name} (${moment.momentText})
+            Pilar Estratégico: ${moment.pilarType}
+            Propósito Específico: ${moment.purpose}
+
+            REGLAS GLOBALES DE CONFIGURACIÓN:
+            TONO: ${GLOBAL_CONFIG.tone} (Adaptar también al tono de marca: "${project.brand_tone}")
+            FORMATO: ${GLOBAL_CONFIG.formatting}
+            EVITAR: ${GLOBAL_CONFIG.avoid}
+
+            REGLAS CRÍTICAS ADICIONALES:
+            1. Usa *negrita* de WhatsApp para resaltar palabras clave y beneficios.
+            2. Si el mensaje requiere un enlace, usa el placeholder [LINK].
+            3. Si es un mensaje de confirmación de fecha, usa [FECHA_CLASE].
+            4. Si es un mensaje con horario, usa [HORA_EVENTO].
+            5. Mantén el mensaje estructurado para que sea fácil de leer en móviles.
+            
+            Responde exclusivamente con el texto del mensaje generado para copiar y pegar en WhatsApp.`;
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-3-flash-preview',
+                contents: prompt,
+            });
+
+            generatedMessages.push({
+                ...moment,
+                content: response.text,
+                purpose: moment.purpose,
+                messages: [{ role: 'agent', text: response.text }],
+                isGenerated: true
+            });
+        }
+
+        // Guardar o actualizar en la DB
+        const [existing] = await pool.query('SELECT id FROM whatsapp_lanzamientos WHERE user_id = ? AND project_id = ?', [req.user.id, projectId]);
+        let launchId;
+        if (existing.length > 0) {
+            launchId = existing[0].id;
+            await pool.query('UPDATE whatsapp_lanzamientos SET data_json = ? WHERE id = ?', [JSON.stringify(generatedMessages), launchId]);
+        } else {
+            const [result] = await pool.query(
+                'INSERT INTO whatsapp_lanzamientos (user_id, project_id, name, status, data_json) VALUES (?, ?, ?, "borrador", ?)',
+                [req.user.id, projectId, 'Lanzamiento WhatsApp', JSON.stringify(generatedMessages)]
+            );
+            launchId = result.insertId;
+        }
+
+        res.json({ 
+            success: true,
+            launchId,
+            messages: generatedMessages
+        });
+    } catch (error) {
+        console.error("Full Sequence Generation Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Actualizar lanzamiento
 router.put('/launches/:id', authMiddleware, async (req, res) => {
     const { name, status, data_json, launch_date } = req.body;

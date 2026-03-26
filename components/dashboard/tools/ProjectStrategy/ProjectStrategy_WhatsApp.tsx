@@ -4,7 +4,7 @@ import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { PlanLimits, WhatsAppLaunchMessage, WhatsAppLaunch } from '../../../../types';
 import { ProjectMasterStrategy } from '../../../../services/strategySchema';
-import { generateWhatsAppMessage } from '../../../../services/geminiservices/whatsappService';
+import { generateWhatsAppMessage, generateFullWhatsAppSequence } from '../../../../services/geminiservices/whatsappService';
 
 const WHATSAPP_LAUNCH_MOMENTS = [
     { id: 'wl1', name: 'Bienvenida + Fecha (Día -7)', momentText: 'Día -7', objective: 'Confirmar que está en el lugar correcto y fijar la fecha del evento en su mente.', pilarType: 'Bienvenida y Valor', purpose: 'Este mensaje sirve para reducir la incertidumbre del prospecto al confirmar su ingreso al grupo.\n\nLograrás fijar la fecha del evento en su mente y generar el primer micro-compromiso, asegurando que no se olvide de la cita y aumentando la tasa de retención inicial.', timeRule: 'fixed', timeValue: '09:00', dayOffset: -7 },
@@ -415,32 +415,28 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         setShowConfirmModal(false);
         if (!projectId) return;
 
+        // Validar que exista una fecha de lanzamiento antes de generar
+        if (!launchDate) {
+            setShowDateTimeModal(true);
+            alert("Antes de crear tus mensajes, define tu fecha de lanzamiento.");
+            return;
+        }
+
         setGenerationStatus('generating');
         try {
-            let currentLaunchId = launchId;
-            if (!currentLaunchId) {
-                const res = await api.createWhatsAppLaunch(projectId, `Lanzamiento WhatsApp`);
-                currentLaunchId = res.id;
-                setLaunchId(res.id);
-            }
+            const { messages: generatedMessages, launchId: newLaunchId } = await generateFullWhatsAppSequence(projectId);
 
-            const { message: generatedText, strategicPurpose } = await generateWhatsAppMessage(projectId, activeItem.id);
-
-            const updatedMessages = [...whatsappLaunch];
-            updatedMessages[activeWaScript] = {
-                ...updatedMessages[activeWaScript],
-                content: generatedText,
-                purpose: strategicPurpose,
-                messages: [{ role: 'agent', text: generatedText }],
-                isGenerated: true
-            };
-
-            await api.updateWhatsAppLaunch(currentLaunchId, { messages: updatedMessages });
-            setWhatsappLaunch(updatedMessages);
+            setLaunchId(newLaunchId);
+            setWhatsappLaunch(generatedMessages);
+            
+            // Actualizar el contador de lanzamientos inmediatamente
+            const allL = await api.getWhatsAppLaunches();
+            setLaunchCount(allL.length);
+            
             setGenerationStatus('success');
         } catch (e) {
             console.error(e);
-            alert("Error de generación.");
+            alert("Error al generar la secuencia de mensajes.");
             setGenerationStatus('idle');
         }
     };
@@ -621,7 +617,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                                 <div 
                                                                     key={script.id}
                                                                     onClick={() => setActiveWaScript(idx)} 
-                                                                    className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${script.isGenerated || sentMessages.has(idx) ? 'bg-emerald-900/10 border-emerald-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800')}`}
+                                                                    className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${script.isGenerated ? 'bg-emerald-500/20 border-emerald-500/50' : (sentMessages.has(idx) ? 'bg-emerald-900/10 border-emerald-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800'))}`}
                                                                 >
                                                                     <div className="flex items-center gap-6">
                                                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${script.isGenerated || sentMessages.has(idx) ? 'bg-green-50 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div>
