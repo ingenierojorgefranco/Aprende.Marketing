@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import confetti from 'canvas-confetti';
 import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle, Wand2 } from 'lucide-react';
 import { useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
@@ -45,6 +46,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
+  const [progress, setProgress] = useState(0);
+  const [secondsElapsed, setSecondsElapsed] = useState(0);
   const [activeKitTab, setActiveKitTab] = useState<'video' | 'ads' | 'thumbs' | 'publish'>('thumbs');
   const [openAccordion, setOpenAccordion] = useState<number | null>(0);
 
@@ -218,11 +221,31 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     setShowConfirmModal(false);
     setUnlockingSingle(true);
     setGenerationStatus('generating');
+    setProgress(0);
+    setSecondsElapsed(0);
+
+    const timerInterval = setInterval(() => {
+        setSecondsElapsed(prev => prev + 1);
+    }, 1000);
+
+    let currentProgress = 0;
+    const progressInterval = setInterval(() => {
+        if (currentProgress < 99) {
+            currentProgress += 1;
+            setProgress(currentProgress);
+            const msgIdx = Math.min(Math.floor((currentProgress / 100) * loadingMessages.length), loadingMessages.length - 1);
+            setLoadingStep(msgIdx);
+        }
+    }, 600);
     
     try {
         const res = await api.unlockSingleHook(projectId, (hook as any).masterHookId);
         await handleGenerateKit(res.id);
         
+        clearInterval(progressInterval);
+        clearInterval(timerInterval);
+        setProgress(100);
+
         // Recargar biblioteca para que los huecos se llenen
         loadLibrary(libraryPage, masterParentId);
         
@@ -235,7 +258,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         setCurrentPage(1);
         
         setGenerationStatus('success');
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#FF5A1F', '#10B981', '#FFFFFF']
+        });
     } catch (e: any) {
+        clearInterval(progressInterval);
+        clearInterval(timerInterval);
         alert("Error al desbloquear gancho: " + e.message);
         setGenerationStatus('idle');
     } finally {
@@ -342,27 +373,54 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     const hookId = hookIdOverride || currentHook.id;
     if (!hookId) return;
 
-    setGenerationStatus('generating');
-    let stepCount = 0;
-    const interval = setInterval(() => {
-      if (stepCount < loadingMessages.length - 1) {
-        stepCount++;
-        setLoadingStep(stepCount);
-      } else {
-        clearInterval(interval);
-      }
-    }, 1200);
+    if (!hookIdOverride) {
+        setGenerationStatus('generating');
+        setProgress(0);
+        setSecondsElapsed(0);
+    }
+
+    const timerInterval = setInterval(() => {
+        setSecondsElapsed(prev => prev + 1);
+    }, 1000);
+
+    let currentProgress = 0;
+    const progressInterval = setInterval(() => {
+        if (currentProgress < 99) {
+            currentProgress += 1;
+            setProgress(currentProgress);
+            const msgIdx = Math.min(Math.floor((currentProgress / 100) * loadingMessages.length), loadingMessages.length - 1);
+            setLoadingStep(msgIdx);
+        }
+    }, 600);
 
     try {
         const now = new Date().toISOString();
         // Guardamos explícitamente el timestamp en la base de datos
         await api.updateProjectHook(hookId, { isGenerated: true, updatedAt: now });
         setHooks(prev => prev.map(h => h.id === hookId ? { ...h, isGenerated: true, updatedAt: now } : h));
-        await new Promise(resolve => setTimeout(resolve, 4000));
-        clearInterval(interval);
+        
+        // Si no es un override (es decir, viene de executeUnlock), esperamos un poco para simular
+        if (!hookIdOverride) {
+            await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+
+        clearInterval(progressInterval);
+        clearInterval(timerInterval);
+        
+        if (!hookIdOverride) {
+            setProgress(100);
+            setGenerationStatus('success');
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#FF5A1F', '#10B981', '#FFFFFF']
+            });
+        }
     } catch (e) {
-        clearInterval(interval);
-        setGenerationStatus('idle');
+        clearInterval(progressInterval);
+        clearInterval(timerInterval);
+        if (!hookIdOverride) setGenerationStatus('idle');
         throw e;
     }
   };
@@ -440,6 +498,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   return (
     <div className="space-y-16">
+      <style>{`
+        @keyframes loading-shine {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        .animate-loading-shine {
+          animation: loading-shine 2s infinite;
+        }
+      `}</style>
       {/* CABECERA ESTRATÉGICA */}
       {!overrideProjectId && (
         <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
@@ -471,25 +538,58 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         </div>
       )}
 
-      {/* --- OVERLAY DE GENERACIÓN PROFESIONAL --- */}
+      {/* --- OVERLAY DE CARGA --- */}
       {generationStatus === 'generating' && (
-        <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-white p-4 animate-in fade-in duration-500">
-            <div className="relative mb-2 flex flex-col items-center">
-                <div className="w-24 h-24 bg-orange-50 rounded-3xl flex items-center justify-center animate-pulse border border-orange-100">
-                    <Wand2 className="w-12 h-12 text-orange-600" />
+        <div className="fixed inset-0 z-[300] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in fade-in duration-500 flex flex-col items-center space-y-10">
+                {/* Icono de la varita con efecto de brillo */}
+                <div className="relative">
+                    <div className="absolute inset-0 bg-orange-500/20 blur-2xl rounded-full"></div>
+                    <div className="relative w-24 h-24 bg-gray-900 rounded-[2rem] flex items-center justify-center border border-orange-500/30 shadow-2xl shadow-orange-500/10">
+                        <Wand2 className="w-12 h-12 text-orange-400 animate-pulse" />
+                    </div>
                 </div>
-                <p className="text-red-600 font-black uppercase text-sm mt-4 tracking-wider">No cierres esta Página</p>
-                <p className="text-black font-bold text-xs uppercase tracking-widest mt-1">(IA Redactando Kit de Contenido)</p>
-            </div>
 
-            <div className="text-center space-y-4 mt-8">
-                <h3 className="text-4xl font-black text-black uppercase tracking-tighter italic">{loadingMessages[loadingStep]}</h3>
-                <p className="text-gray-500 font-bold text-sm uppercase tracking-widest">Sincronizando con tu estrategia Maestra...</p>
-            </div>
+                {/* Texto de generación en negrita y profesional */}
+                <div className="text-center space-y-3">
+                    <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
+                        Nuestra inteligencia artificial está redactando tu Kit de Contenido.
+                    </h3>
+                    <p className="text-orange-400/80 font-bold text-sm uppercase tracking-[0.2em] animate-pulse">
+                        {loadingMessages[loadingStep]}
+                    </p>
+                </div>
 
-            <div className="w-full max-w-md h-1.5 bg-gray-100 rounded-full mx-auto mt-10 overflow-hidden relative border border-gray-200 shadow-inner">
-                <div className="h-full bg-orange-500 w-full origin-left animate-loading-bar"></div>
-                <div className="progress-shine"></div>
+                {/* Badge de advertencia */}
+                <div className="px-6 py-2 bg-red-600/20 border border-red-600/30 rounded-full shadow-lg">
+                    <p className="text-red-500 font-black uppercase text-sm tracking-widest flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4" /> No cierres esta página
+                    </p>
+                </div>
+
+                {/* Sección de contador con degradado oscuro */}
+                <div className="w-full max-w-md bg-gradient-to-br from-gray-900 to-black p-8 rounded-[2.5rem] border border-white/5 shadow-2xl text-center space-y-4">
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Tu kit estará listo en:</p>
+                    <div className="text-white font-mono text-6xl font-black tracking-tighter">
+                        {Math.max(0, 90 - secondsElapsed)}s
+                    </div>
+                    
+                    {/* Barra de progreso profesional */}
+                    <div className="relative w-full h-3 bg-gray-800 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                        <div 
+                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-orange-600 to-orange-400 transition-all duration-500 ease-out rounded-full"
+                            style={{ width: `${progress}%` }}
+                        >
+                            <div className="absolute inset-0 animate-loading-shine bg-gradient-to-r from-transparent via-white/20 to-transparent w-1/2"></div>
+                        </div>
+                    </div>
+                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-gray-500">
+                        <span>Progreso</span>
+                        <span>{progress}%</span>
+                    </div>
+                </div>
+
+                <p className="text-gray-500 font-medium text-xs uppercase tracking-widest">Sincronizando con tu estrategia Maestra...</p>
             </div>
         </div>
       )}

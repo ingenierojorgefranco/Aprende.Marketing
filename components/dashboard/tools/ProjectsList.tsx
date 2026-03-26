@@ -178,7 +178,7 @@ export const ProjectsList: React.FC = () => {
                 const msgIdx = Math.min(Math.floor((currentProgress / 100) * messages.length), messages.length - 1);
                 setLoadingMessage(messages[msgIdx]);
             }
-        }, 120); // Simulación de carga fluida (aprox 12s para 100%)
+        }, 600); // Simulación de carga fluida (aprox 60s para 100%)
 
         try {
             // Enviamos los datos del formulario al backend para que el nuevo proyecto nazca vinculado
@@ -826,38 +826,54 @@ export const ProjectsList: React.FC = () => {
 
             {/* --- OVERLAY DE GENERACIÓN (IDÉNTICO A GENERATOR) --- */}
             {generationStatus === 'generating' && (
-                <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-white p-4 animate-in fade-in duration-500">
-                    <div className="relative mb-2 flex flex-col items-center">
-                        <div className="w-24 h-24 bg-emerald-50 rounded-3xl flex items-center justify-center animate-pulse border border-emerald-100">
-                            <Wand2 className="w-12 h-12 text-emerald-600" />
+                <div className="fixed inset-0 z-[300] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in fade-in duration-500 flex flex-col items-center space-y-10">
+                        {/* Icono de la varita con efecto de brillo */}
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full"></div>
+                            <div className="relative w-24 h-24 bg-gray-900 rounded-[2rem] flex items-center justify-center border border-emerald-500/30 shadow-2xl shadow-emerald-500/10">
+                                <Wand2 className="w-12 h-12 text-emerald-400 animate-pulse" />
+                            </div>
                         </div>
-                        <p className="text-red-600 font-black uppercase text-sm mt-4 tracking-wider">No cierres esta Página</p>
-                        <p className="text-black font-bold text-xs uppercase tracking-widest mt-1">(Tiempo de Espera: 1 Minuto)</p>
-                    </div>
 
-                    <div className="flex flex-col items-center bg-black rounded-2xl p-4 px-8 border border-white/10 shadow-2xl mt-4">
-                        <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.3em] mb-1">Tiempo Transcurrido</p>
-                        <div className="text-white font-mono text-4xl font-black tracking-tighter">
-                            {Math.floor(secondsElapsed / 60).toString().padStart(2, '0')}:{(secondsElapsed % 60).toString().padStart(2, '0')}
+                        {/* Texto de generación en negrita y profesional */}
+                        <div className="text-center space-y-3">
+                            <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
+                                Nuestra inteligencia artificial está duplicando tu estrategia maestra.
+                            </h3>
+                            <p className="text-emerald-400/80 font-bold text-sm uppercase tracking-[0.2em] animate-pulse">
+                                {loadingMessage}
+                            </p>
                         </div>
-                    </div>
 
-                    <div className="text-center space-y-4 mt-8">
-                        <h3 className="text-4xl font-black text-black uppercase tracking-tighter italic">Generando tu Estrategia Maestra</h3>
-                        <p className="text-gray-500 font-bold text-sm uppercase tracking-widest">{loadingMessage}</p>
-                    </div>
-
-                    <div className="w-full max-w-md space-y-4 mt-8">
-                        <div className="flex justify-between text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">
-                            <span>Inteligencia Estratégica</span>
-                            <span>{Math.round(progress)}%</span>
+                        {/* Badge de advertencia */}
+                        <div className="px-6 py-2 bg-red-600/20 border border-red-600/30 rounded-full shadow-lg">
+                            <p className="text-red-500 font-black uppercase text-sm tracking-widest flex items-center gap-2">
+                                <AlertTriangle className="w-4 h-4" /> No cierres esta página
+                            </p>
                         </div>
-                        <div className="w-full h-5 bg-gray-100 rounded-full overflow-hidden border border-gray-200 shadow-inner relative">
-                            <div 
-                                className="h-full bg-gradient-to-r from-emerald-600 to-green-400 transition-all duration-300 ease-out shadow-lg relative"
-                                style={{ width: `${progress}%` }}
-                            >
-                                <div className="absolute top-0 left-0 h-full w-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] animate-[loading-shine_1.5s_infinite]"></div>
+
+                        {/* Sección de contador con degradado oscuro */}
+                        <div className="w-full max-w-md bg-gradient-to-br from-gray-900 to-black p-8 rounded-[2.5rem] border border-white/5 shadow-2xl text-center space-y-4">
+                            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Tu estrategia estará lista en:</p>
+                            <div className="text-white font-mono text-6xl font-black tracking-tighter">
+                                {Math.floor(Math.max(0, 90 - secondsElapsed) / 60).toString().padStart(2, '0')}:{(Math.max(0, 90 - secondsElapsed) % 60).toString().padStart(2, '0')}
+                            </div>
+                        </div>
+
+                        {/* Barra de progreso verde gruesa y animada */}
+                        <div className="w-full max-w-xl space-y-4">
+                            <div className="flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest px-1">
+                                <span>Inteligencia Estratégica</span>
+                                <span>{Math.round(progress)}%</span>
+                            </div>
+                            <div className="w-full h-8 bg-gray-900 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
+                                <div 
+                                    className="h-full bg-gradient-to-r from-emerald-600 to-green-400 transition-all duration-300 ease-out shadow-[0_0_20px_rgba(16,185,129,0.3)] relative"
+                                    style={{ width: `${progress}%` }}
+                                >
+                                    <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-loading-shine"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
