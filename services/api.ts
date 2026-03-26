@@ -1937,6 +1937,18 @@ export const api = {
             headers: getAuthHeaders()
         });
     },
+
+    generateFullWhatsAppSequence: async (projectId: string): Promise<{ messages: any[]; launchId: string }> => {
+        if (isMockMode) return { messages: [], launchId: 'mock-123' };
+        const res = await fetchWithFallback('/whatsapp-launch/launches/generate-full-sequence', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ projectId })
+        });
+        clearCache('waLaunches');
+        return res;
+    },
+
     /* Fin de actualización */
 
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,

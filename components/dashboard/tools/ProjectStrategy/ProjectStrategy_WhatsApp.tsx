@@ -4,7 +4,7 @@ import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { PlanLimits, WhatsAppLaunchMessage, WhatsAppLaunch } from '../../../../types';
 import { ProjectMasterStrategy } from '../../../../services/strategySchema';
-import { generateWhatsAppMessage, generateFullWhatsAppSequence } from '../../../../services/geminiservices/whatsappService';
+import { generateWhatsAppMessage } from '../../../../services/geminiservices/whatsappService';
 
 const WHATSAPP_LAUNCH_MOMENTS = [
     { id: 'wl1', name: 'Bienvenida + Fecha (Día -7)', momentText: 'Día -7', objective: 'Confirmar que está en el lugar correcto y fijar la fecha del evento en su mente.', pilarType: 'Bienvenida y Valor', purpose: 'Este mensaje sirve para reducir la incertidumbre del prospecto al confirmar su ingreso al grupo.\n\nLograrás fijar la fecha del evento en su mente y generar el primer micro-compromiso, asegurando que no se olvide de la cita y aumentando la tasa de retención inicial.', timeRule: 'fixed', timeValue: '09:00', dayOffset: -7 },
@@ -42,6 +42,13 @@ const ChatSimulator: React.FC<{
         setTempText(text);
     };
 
+    const handleBlur = (idx: number) => {
+        if (onSaveMessage && tempText !== messages[idx].text) {
+            onSaveMessage(idx, tempText);
+        }
+        setEditingIdx(null);
+    };
+
     const renderWhatsAppText = (text: string) => {
         if (!text) return null;
         const parts = text.split(/(\*[^\*]+\*)/g);
@@ -72,21 +79,15 @@ const ChatSimulator: React.FC<{
                             className={`${editingIdx === i ? 'w-full' : 'max-w-[85%]'} p-2.5 rounded-lg shadow-sm text-lg whitespace-pre-wrap relative group ${msg.role === 'user' ? 'bg-[#202c33] text-white rounded-tl-none' : 'bg-[#005c4b] text-[#e9edef] rounded-tr-none'} ${editingIdx === null && onSaveMessage ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''}`}
                         >
                             {editingIdx === i ? (
-                                <div className="space-y-3" onClick={e => e.stopPropagation()}>
-                                    <textarea 
-                                        ref={textareaRef}
-                                        autoFocus
-                                        value={tempText}
-                                        onChange={(e) => setTempText(e.target.value)}
-                                        className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-sm md:text-base text-white outline-none focus:ring-2 focus:ring-[#075E54]/20 resize-none overflow-hidden"
-                                    />
-                                    <div className="flex gap-2 justify-end">
-                                        <button onClick={() => setEditingIdx(null)} className="p-2 text-gray-300 hover:bg-white/10 rounded-lg transition"><X className="w-4 h-4" /></button>
-                                        <button onClick={() => { onSaveMessage?.(i, tempText); setEditingIdx(null); }} className="bg-[#075E54] text-white px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-[#054d44] transition">
-                                            <Check className="w-4 h-4" /> Guardar
-                                        </button>
-                                    </div>
-                                </div>
+                                <textarea 
+                                    ref={textareaRef}
+                                    autoFocus
+                                    value={tempText}
+                                    onChange={(e) => setTempText(e.target.value)}
+                                    onBlur={() => handleBlur(i)}
+                                    className="w-full bg-transparent border-none p-0 text-lg text-[#e9edef] outline-none resize-none overflow-hidden font-sans"
+                                    onClick={e => e.stopPropagation()}
+                                />
                             ) : (
                                 <>
                                     {onSaveMessage && (
@@ -137,6 +138,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const [sentMessages, setSentMessages] = useState<Set<number>>(new Set());
     const [isTypeLocked, setIsTypeLocked] = useState(true);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [isPendingGeneration, setIsPendingGeneration] = useState(false);
     const dateInputRef = useRef<HTMLInputElement>(null);
     const purposeTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -181,6 +183,16 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         setTempLaunchDate(launchDate);
         setTempLaunchTime(launchTime);
         setShowDateTimeModal(true);
+    };
+
+    const handleStartGenerationFlow = () => {
+        if (!launchDate) {
+            alert("Antes de crear tus mensajes, define tu fecha de lanzamiento.");
+            setIsPendingGeneration(true);
+            setShowDateTimeModal(true);
+            return;
+        }
+        setShowConfirmModal(true);
     };
 
     const loadLaunchData = async () => {
@@ -316,6 +328,9 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
             const classDate = getCalculatedDate(launchDate, 4);
             text = text.replace('[FECHA_CLASE]', classDate);
         }
+        if (launchTime) {
+            text = text.replace('[HORA_EVENTO]', launchTime);
+        }
         return { ...m, text: text };
     });
 
@@ -424,7 +439,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 
         setGenerationStatus('generating');
         try {
-            const { messages: generatedMessages, launchId: newLaunchId } = await generateFullWhatsAppSequence(projectId);
+            const { messages: generatedMessages, launchId: newLaunchId } = await api.generateFullWhatsAppSequence(projectId);
 
             setLaunchId(newLaunchId);
             setWhatsappLaunch(generatedMessages);
@@ -591,7 +606,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 
                                     {/* Botón de Generación Superior */}
                                     <button 
-                                        onClick={() => setShowConfirmModal(true)}
+                                        onClick={handleStartGenerationFlow}
                                         className="w-full mb-6 py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
                                     >
                                         <Wand2 className="w-5 h-5" /> Crear Secuencia de Mensajes
@@ -617,7 +632,12 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                                 <div 
                                                                     key={script.id}
                                                                     onClick={() => setActiveWaScript(idx)} 
-                                                                    className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${script.isGenerated ? 'bg-emerald-500/20 border-emerald-500/50' : (sentMessages.has(idx) ? 'bg-emerald-900/10 border-emerald-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800'))}`}
+                                                                    className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all duration-300 flex items-center justify-between gap-4 cursor-pointer 
+                                                                        ${activeWaScript === idx ? 'translate-x-3 border-l-4 border-l-blue-500 shadow-lg' : ''}
+                                                                        ${script.isGenerated 
+                                                                            ? (activeWaScript === idx ? 'bg-emerald-500/30 border-emerald-500/50' : 'bg-emerald-500/10 border-emerald-500/20') 
+                                                                            : (sentMessages.has(idx) ? 'bg-emerald-900/10 border-emerald-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800'))}
+                                                                    `}
                                                                 >
                                                                     <div className="flex items-center gap-6">
                                                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${script.isGenerated || sentMessages.has(idx) ? 'bg-green-50 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div>
@@ -649,7 +669,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                         {/* Botón de Generación Inferior */}
                                         <div className="pt-4">
                                             <button 
-                                                onClick={() => setShowConfirmModal(true)}
+                                                onClick={handleStartGenerationFlow}
                                                 className="w-full py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
                                             >
                                                 <Wand2 className="w-5 h-5" /> Crear Secuencia de Mensajes
@@ -839,6 +859,10 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                         }
                                     }
                                     setShowDateTimeModal(false);
+                                    if (isPendingGeneration) {
+                                        setIsPendingGeneration(false);
+                                        setShowConfirmModal(true);
+                                    }
                                 }} 
                                 className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all"
                             >
