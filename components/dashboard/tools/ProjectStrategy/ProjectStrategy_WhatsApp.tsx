@@ -605,12 +605,14 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                     </div>
 
                                     {/* Botón de Generación Superior */}
-                                    <button 
-                                        onClick={handleStartGenerationFlow}
-                                        className="w-full mb-6 py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
-                                    >
-                                        <Wand2 className="w-5 h-5" /> Crear Secuencia de Mensajes
-                                    </button>
+                                    {!whatsappLaunch.some(m => m.isGenerated) && (
+                                        <button 
+                                            onClick={handleStartGenerationFlow}
+                                            className="w-full mb-6 py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                                        >
+                                            <Wand2 className="w-5 h-5" /> Crear Secuencia de Mensajes
+                                        </button>
+                                    )}
 
                                     <div className="space-y-4 flex-1 pr-2 overflow-y-auto custom-scrollbar">
                                         {phases.map((phase, pIdx) => (
@@ -667,14 +669,16 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                         ))}
 
                                         {/* Botón de Generación Inferior */}
-                                        <div className="pt-4">
-                                            <button 
-                                                onClick={handleStartGenerationFlow}
-                                                className="w-full py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
-                                            >
-                                                <Wand2 className="w-5 h-5" /> Crear Secuencia de Mensajes
-                                            </button>
-                                        </div>
+                                        {!whatsappLaunch.some(m => m.isGenerated) && (
+                                            <div className="pt-4">
+                                                <button 
+                                                    onClick={handleStartGenerationFlow}
+                                                    className="w-full py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                                                >
+                                                    <Wand2 className="w-5 h-5" /> Crear Secuencia de Mensajes
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -695,25 +699,6 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                 </div>
                                             </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div className="bg-emerald-900/10 border border-emerald-500/20 p-4 rounded-2xl flex gap-3">
-                                                    <Target className="w-5 h-5 text-emerald-400 shrink-0" />
-                                                    <div>
-                                                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block mb-1">Pilar Estratégico</span>
-                                                        <span className="text-white font-bold text-sm">{activeItem.pilarType}</span>
-                                                    </div>
-                                                </div>
-                                                <div className="bg-emerald-900/10 border border-emerald-500/20 p-4 rounded-2xl flex gap-3">
-                                                    <Calendar className="w-5 h-5 text-emerald-400 shrink-0" />
-                                                    <div>
-                                                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block mb-1">Fecha de Envío</span>
-                                                        <span className="text-white font-bold text-sm">
-                                                            {launchDate ? getCalculatedDate(launchDate, activeWaScript, true) : 'Fecha por Definir'}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
                                             <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4">
                                                 <Brain className="w-6 h-6 text-emerald-400 shrink-0" />
                                                 <div className="text-gray-300 text-base leading-relaxed">
@@ -721,6 +706,16 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                     <div className="prose prose-invert prose-p:text-gray-300 max-w-none italic">
                                                         {activeItem.purpose}
                                                     </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-amber-900/10 border border-amber-500/20 p-4 rounded-2xl flex gap-3">
+                                                <Calendar className="w-5 h-5 text-amber-400 shrink-0" />
+                                                <div>
+                                                    <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block mb-1">Fecha de Envío</span>
+                                                    <span className="text-white font-bold text-sm">
+                                                        {launchDate ? getCalculatedDate(launchDate, activeWaScript, true) : 'Fecha por Definir'}
+                                                    </span>
                                                 </div>
                                             </div>
 
