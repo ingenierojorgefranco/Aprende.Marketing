@@ -38,6 +38,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [isTypeLocked, setIsTypeLocked] = useState(true);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [secondsElapsed, setSecondsElapsed] = useState(0);
+    const [progress, setProgress] = useState(0);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState('Analizando estrategia...');
     const [saveIndicator, setSaveIndicator] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [isPreviewMode, setIsPreviewMode] = useState(true);
     const [editingLink, setEditingLink] = useState<{ element: HTMLAnchorElement, url: string } | null>(null);
@@ -149,6 +153,40 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             lastActiveEmailRef.current = activeEmail;
         }
     }, [activeEmail, emailData, realMessages, projectLinks, pendingConfigs]);
+
+    useEffect(() => {
+        let timer: any;
+        let prog: any;
+        const messages = [
+            "Analizando nicho estratégico...",
+            "Redactando asuntos hipnóticos...",
+            "Estructurando secuencias de persuasión...",
+            "Optimizando para alta entregabilidad...",
+            "Sincronizando con tu estrategia...",
+            "Finalizando arquitectura de conversión..."
+        ];
+
+        if (isGenerating) {
+            setSecondsElapsed(0);
+            setProgress(0);
+            timer = setInterval(() => {
+                setSecondsElapsed(prev => prev + 1);
+            }, 1000);
+            
+            prog = setInterval(() => {
+                setProgress(prev => {
+                    const next = prev + (prev < 90 ? 0.8 : 0.1);
+                    const msgIdx = Math.min(Math.floor((next / 100) * messages.length), messages.length - 1);
+                    setLoadingMessage(messages[msgIdx]);
+                    return next > 99 ? 99 : next;
+                });
+            }, 100);
+        }
+        return () => {
+            clearInterval(timer);
+            clearInterval(prog);
+        };
+    }, [isGenerating]);
 
     const handleUpdateMessage = async (field: string, value: any) => {
         // Actualización optimista del estado local para interactividad inmediata
@@ -266,13 +304,20 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             });
 
             await api.generateFullEmailSequence(projectId, sequenceData, activeType);
-            // Recargar la página o refrescar datos
-            window.location.reload();
+            
+            // Éxito: Mostrar confeti antes de recargar
+            setProgress(100);
+            setIsGenerating(false);
+            setShowSuccess(true);
+            
+            // Esperar 4 segundos para que el usuario vea el éxito y el confeti
+            setTimeout(() => {
+                window.location.reload();
+            }, 4000);
         } catch (e) {
             console.error(e);
-            alert("Error al generar la secuencia completa.");
-        } finally {
             setIsGenerating(false);
+            alert("Error al generar la secuencia completa.");
         }
     };
 
@@ -338,6 +383,114 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
     return (
         <div id="psd-email-section" className="pt-8">
+            <style>{`
+                @keyframes confetti-fall {
+                    0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
+                    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+                }
+                .confetti {
+                    position: absolute;
+                    width: 8px;
+                    height: 8px;
+                    animation: confetti-fall 3s linear forwards;
+                    top: -10px;
+                    z-index: 300;
+                }
+                @keyframes loading-shine {
+                    0% { transform: translateX(-100%); }
+                    100% { transform: translateX(100%); }
+                }
+                .progress-shine {
+                    position: absolute; top: 0; left: 0; height: 100%; width: 50%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: loading-shine 1.5s infinite; 
+                }
+            `}</style>
+
+            {/* --- UI DE GENERACIÓN (LOADING STATE) --- */}
+            {isGenerating && (
+                <div className="fixed inset-0 z-[300] bg-[#0B0B0B] flex flex-col items-center justify-center p-6 animate-in fade-in duration-500">
+                    <div className="w-full max-w-4xl flex flex-col items-center space-y-10">
+                        {/* Icono de la varita con efecto de brillo */}
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full"></div>
+                            <div className="relative w-24 h-24 bg-gray-900 rounded-[2rem] flex items-center justify-center border border-blue-500/30 shadow-2xl shadow-blue-500/10">
+                                <Wand2 className="w-12 h-12 text-blue-400 animate-pulse" />
+                            </div>
+                        </div>
+
+                        {/* Texto de generación en negrita y profesional */}
+                        <div className="text-center space-y-3">
+                            <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
+                                Nuestra inteligencia artificial está generando tu secuencia de correos electrónicos.
+                            </h3>
+                            <p className="text-blue-400/80 font-bold text-sm uppercase tracking-[0.2em] animate-pulse">
+                                {loadingMessage}
+                            </p>
+                        </div>
+
+                        {/* Badge de advertencia */}
+                        <div className="px-6 py-2 bg-red-600/20 border border-red-600/30 rounded-full shadow-lg">
+                            <p className="text-red-500 font-black uppercase text-sm tracking-widest flex items-center gap-2">
+                                <AlertTriangle className="w-4 h-4" /> No cierres esta página
+                            </p>
+                        </div>
+
+                        {/* Sección de contador con degradado oscuro */}
+                        <div className="w-full max-w-md bg-gradient-to-br from-gray-900 to-black p-8 rounded-[2.5rem] border border-white/5 shadow-2xl text-center space-y-4">
+                            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Tu secuencia estará lista en:</p>
+                            <div className="text-white font-mono text-6xl font-black tracking-tighter">
+                                {Math.floor(Math.max(0, 90 - secondsElapsed) / 60).toString().padStart(2, '0')}:{(Math.max(0, 90 - secondsElapsed) % 60).toString().padStart(2, '0')}
+                            </div>
+                        </div>
+
+                        {/* Barra de progreso verde gruesa y animada */}
+                        <div className="w-full max-w-xl space-y-4">
+                            <div className="flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest px-1">
+                                <span>Copywriting Estratégico</span>
+                                <span>{Math.round(progress)}%</span>
+                            </div>
+                            <div className="w-full h-8 bg-gray-900 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
+                                <div 
+                                    className="h-full bg-gradient-to-r from-emerald-600 to-green-400 transition-all duration-300 ease-out shadow-[0_0_20px_rgba(16,185,129,0.3)] relative"
+                                    style={{ width: `${progress}%` }}
+                                >
+                                    <div className="progress-shine"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- UI DE ÉXITO (CONFETTI) --- */}
+            {showSuccess && (
+                <div className="fixed inset-0 z-[400] bg-[#0B0B0B] flex flex-col items-center justify-center p-6 animate-in zoom-in-95 duration-500 overflow-hidden">
+                    {/* Confetti simulation */}
+                    {[...Array(40)].map((_, i) => (
+                        <div 
+                            key={i} 
+                            className="confetti" 
+                            style={{
+                                left: `${Math.random() * 100}%`,
+                                backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'][Math.floor(Math.random() * 5)],
+                                animationDelay: `${Math.random() * 3}s`,
+                                animationDuration: `${2 + Math.random() * 2}s`
+                            }}
+                        ></div>
+                    ))}
+
+                    <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-8 scale-110 animate-bounce">
+                        <CheckCircle2 className="w-14 h-14 text-white" />
+                    </div>
+
+                    <div className="text-center max-w-2xl space-y-4">
+                        <h3 className="text-4xl font-black text-white leading-tight">¡Secuencia Generada con Éxito!</h3>
+                        <p className="text-gray-400 text-lg font-medium leading-relaxed">
+                            Tu secuencia de 7 días ha sido optimizada y está lista para ser implementada en tu sistema de email marketing.
+                        </p>
+                    </div>
+                </div>
+            )}
+
             {/* --- ENCABEZADO ESTRATÉGICO ACTUALIZADO --- */}
             <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full border text-sm font-black uppercase tracking-[0.2em] shadow-lg bg-blue-500/10 border-blue-500/20 text-blue-400 shadow-blue-500/5">

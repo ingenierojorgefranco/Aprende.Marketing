@@ -47,6 +47,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   // --- ESTADOS DE GENERACIÓN ---
   const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
   const [progress, setProgress] = useState(0);
+  const [secondsElapsed, setSecondsElapsed] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [savedArticleResult, setSavedArticleResult] = useState<Article | null>(null);
   const [activeArticleId, setActiveArticleId] = useState<string | undefined>(undefined);
@@ -152,6 +153,17 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       };
       checkLimit();
   }, [editArticleId, user, selectedProject, isSimulating, userProjects]);
+
+  useEffect(() => {
+    let timer: any;
+    if (generationStatus === 'generating') {
+      setSecondsElapsed(0);
+      timer = setInterval(() => {
+        setSecondsElapsed(prev => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [generationStatus]);
 
   useEffect(() => {
     const fetchContext = async () => {
@@ -660,24 +672,92 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         )}
 
         {generationStatus === 'generating' && (
-            <div className="h-full flex flex-col items-center justify-center py-20 space-y-12 animate-in fade-in duration-500">
-                <div className="relative mb-4"><div className="w-24 h-24 bg-purple-50 rounded-3xl flex items-center justify-center animate-pulse border border-purple-100"><Wand2 className="w-12 h-12 text-purple-600" /></div></div>
-                <div className="text-center space-y-4"><h3 className="text-4xl font-black text-black uppercase tracking-tighter italic">Generando tu Artículo Completo</h3><p className="text-gray-500 font-bold text-sm uppercase tracking-widest">{loadingMessage}</p></div>
-                <div className="w-full max-w-md space-y-4"><div className="flex justify-between text-[11px] font-black text-gray-400 uppercase tracking-widest px-1"><span>Inteligencia SEO</span><span>{Math.round(progress)}%</span></div><div className="w-full h-5 bg-gray-100 rounded-full overflow-hidden border border-gray-200 shadow-inner relative"><div className="h-full bg-gradient-to-r from-purple-600 to-pink-400 transition-all duration-300 ease-out shadow-lg relative" style={{ width: `${progress}%` }}><div className="progress-shine"></div></div></div></div>
+            <div className="fixed inset-0 z-[300] bg-[#0B0B0B] flex flex-col items-center justify-center p-6 animate-in fade-in duration-500">
+                <div className="w-full max-w-4xl flex flex-col items-center space-y-10">
+                    {/* Icono de la varita con efecto de brillo */}
+                    <div className="relative">
+                        <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full"></div>
+                        <div className="relative w-24 h-24 bg-gray-900 rounded-[2rem] flex items-center justify-center border border-blue-500/30 shadow-2xl shadow-blue-500/10">
+                            <Wand2 className="w-12 h-12 text-blue-400 animate-pulse" />
+                        </div>
+                    </div>
+
+                    {/* Texto de generación en negrita y profesional */}
+                    <div className="text-center space-y-3">
+                        <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
+                            Nuestra inteligencia artificial está generando tu artículo completo.
+                        </h3>
+                        <p className="text-blue-400/80 font-bold text-sm uppercase tracking-[0.2em] animate-pulse">
+                            {loadingMessage}
+                        </p>
+                    </div>
+
+                    {/* Badge de advertencia */}
+                    <div className="px-6 py-2 bg-red-600/20 border border-red-600/30 rounded-full shadow-lg">
+                        <p className="text-red-500 font-black uppercase text-sm tracking-widest flex items-center gap-2">
+                            <AlertTriangle className="w-4 h-4" /> No cierres esta página
+                        </p>
+                    </div>
+
+                    {/* Sección de contador con degradado oscuro */}
+                    <div className="w-full max-w-md bg-gradient-to-br from-gray-900 to-black p-8 rounded-[2.5rem] border border-white/5 shadow-2xl text-center space-y-4">
+                        <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Tu artículo estará listo en:</p>
+                        <div className="text-white font-mono text-6xl font-black tracking-tighter">
+                            {Math.floor(Math.max(0, 90 - secondsElapsed) / 60).toString().padStart(2, '0')}:{(Math.max(0, 90 - secondsElapsed) % 60).toString().padStart(2, '0')}
+                        </div>
+                    </div>
+
+                    {/* Barra de progreso verde gruesa y animada */}
+                    <div className="w-full max-w-xl space-y-4">
+                        <div className="flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest px-1">
+                            <span>Inteligencia SEO</span>
+                            <span>{Math.round(progress)}%</span>
+                        </div>
+                        <div className="w-full h-8 bg-gray-900 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
+                            <div 
+                                className="h-full bg-gradient-to-r from-emerald-600 to-green-400 transition-all duration-300 ease-out shadow-[0_0_20px_rgba(16,185,129,0.3)] relative"
+                                style={{ width: `${progress}%` }}
+                            >
+                                <div className="progress-shine"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         )}
 
         {generationStatus === 'success' && (
-            <div className="h-full flex flex-col items-center justify-center py-10 space-y-8 animate-in zoom-in-95 duration-700 relative overflow-hidden">
-                {[...Array(30)].map((_, i) => (
-                    <div key={i} className="confetti" style={{ left: `${Math.random() * 100}%`, backgroundColor: ['#9333ea', '#db2777', '#4C1D95', '#F59E0B', '#9333ea'][Math.floor(Math.random() * 5)], animationDelay: `${Math.random() * 3}s`, animationDuration: `${2 + Math.random() * 2}s` }}></div>
+            <div className="fixed inset-0 z-[400] bg-[#0B0B0B] flex flex-col items-center justify-center p-6 animate-in zoom-in-95 duration-500 overflow-hidden">
+                {/* Confetti simulation */}
+                {[...Array(40)].map((_, i) => (
+                    <div 
+                        key={i} 
+                        className="confetti" 
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'][Math.floor(Math.random() * 5)],
+                            animationDelay: `${Math.random() * 3}s`,
+                            animationDuration: `${2 + Math.random() * 2}s`
+                        }}
+                    ></div>
                 ))}
-                <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-4 scale-110 animate-bounce"><CheckCircle className="w-14 h-14 text-white" /></div>
-                <div className="text-center max-w-xl space-y-4"><h3 className="text-4xl font-black text-white leading-tight">¡Tu Artículo Completo ha sido generado correctamente!</h3><p className="text-gray-400 text-lg font-medium leading-relaxed">Hemos diseñado y redactado el contenido SEO perfecto para posicionar tu marca.</p></div>
-                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md pt-6">
-                    <button onClick={() => { const basePageSlug = selectedPageId ? userPages.find(p => p.id === selectedPageId)?.subdomain?.split('.')[0] : null; const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${savedArticleResult?.slug}` : '#'; window.open(articleUrl, '_blank'); }} className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"><Eye className="w-5 h-5" /> Ver Artículo</button>
-                    <button onClick={() => { const editUrl = window.location.hash.startsWith('#/') ? `#/dashboard/articles/edit/${savedArticleResult?.id}` : `/dashboard/articles/edit/${savedArticleResult?.id}`; window.open(editUrl, '_blank'); }} className="flex-1 bg-purple-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-purple-900/20 flex items-center justify-center gap-3 hover:bg-purple-700 transform hover:scale-[1.03] active:scale-95"><PenTool className="w-5 h-5" /> Editar Artículo</button>
+
+                <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-8 scale-110 animate-bounce">
+                    <CheckCircle className="w-14 h-14 text-white" />
                 </div>
+
+                <div className="text-center max-w-2xl space-y-4">
+                    <h3 className="text-4xl font-black text-white leading-tight">¡Artículo Generado con Éxito!</h3>
+                    <p className="text-gray-400 text-lg font-medium leading-relaxed">
+                        Tu artículo SEO ha sido optimizado y está listo para ser publicado en tu blog.
+                    </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md pt-10">
+                    <button onClick={() => { const basePageSlug = selectedPageId ? userPages.find(p => p.id === selectedPageId)?.subdomain?.split('.')[0] : null; const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${savedArticleResult?.slug}` : '#'; window.open(articleUrl, '_blank'); }} className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"><Eye className="w-5 h-5" /> Ver Artículo</button>
+                    <button onClick={() => { const editUrl = window.location.hash.startsWith('#/') ? `#/dashboard/articles/edit/${savedArticleResult?.id}` : `/dashboard/articles/edit/${savedArticleResult?.id}`; window.open(editUrl, '_blank'); }} className="flex-1 bg-blue-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-3 hover:bg-blue-700 transform hover:scale-[1.03] active:scale-95"><PenTool className="w-5 h-5" /> Editar Artículo</button>
+                </div>
+
                 <button 
                     onClick={() => { 
                         setGenerationStatus('idle'); 
