@@ -679,7 +679,7 @@ export const ProjectsList: React.FC = () => {
 
             {/* --- OVERLAY DE GENERACIÓN (IDÉNTICO A GENERATOR) --- */}
             {generationStatus === 'generating' && (
-                <div className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 !mt-0">
                     <div className="bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in fade-in duration-500 flex flex-col items-center space-y-10">
                         {/* Icono de la varita con efecto de brillo */}
                         <div className="relative">
@@ -735,7 +735,7 @@ export const ProjectsList: React.FC = () => {
 
             {/* --- PANTALLA DE ÉXITO (MODAL REDISEÑADO) --- */}
             {generationStatus === 'success' && generatedProjectId && (
-                <div className="fixed inset-0 z-[400] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-500">
+                <div className="fixed inset-0 z-[400] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-500 !mt-0">
                     <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-600 via-emerald-400 to-emerald-600"></div>
                         
@@ -743,9 +743,12 @@ export const ProjectsList: React.FC = () => {
                             <CheckCircle2 className="w-12 h-12" />
                         </div>
                         
-                        <div className="space-y-4">
-                            <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¡Tu Nueva Estrategia Maestra ha sido generada correctamente!</h3>
-                            <p className="text-gray-400 text-lg leading-relaxed font-medium">Hemos diseñado un ecosistema único y personalizado basado en esta plantilla. Tu nueva estrategia está lista para ser implementada.</p>
+                        <div className="space-y-6">
+                            <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">Tu Negocio Digital ha sido creado en menos de 1 minuto</h3>
+                            <div className="space-y-4 text-white text-xl leading-relaxed font-medium">
+                                <p>¡Felicidades! Hemos creado un negocio digital completo para ti, diseñado con precisión para convertir visitantes en clientes reales.</p>
+                                <p>Esta es la oportunidad perfecta para escalar tus resultados. Ahora puedes disfrutar de todos los beneficios de una estrategia profesional lista para operar desde este mismo instante.</p>
+                            </div>
                         </div>
 
                         <button 
@@ -756,13 +759,6 @@ export const ProjectsList: React.FC = () => {
                             className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-emerald-900/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                         >
                             Ver mi nueva Estrategia Maestra <ArrowRight className="w-5 h-5" />
-                        </button>
-
-                        <button 
-                            onClick={() => setGenerationStatus('idle')}
-                            className="text-gray-500 hover:text-white font-bold text-sm transition-colors underline"
-                        >
-                            Cerrar y volver
                         </button>
                     </div>
                 </div>
