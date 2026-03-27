@@ -3,9 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { Project, User, AffiliateLink, Plan } from '../../../types';
-import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check, Gift, ShoppingCart as CartIcon, Info } from 'lucide-react';
+import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check, Gift, ShoppingCart as CartIcon, Info, Crown as CornerCrown } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
+import confetti from 'canvas-confetti';
 
 interface DashboardContext {
   user: User;
@@ -28,21 +29,8 @@ export const ProjectsList: React.FC = () => {
     // --- Nuevo Estado para Protocolo de Desbloqueo ---
     const [showUnlockProtocol, setShowUnlockProtocol] = useState(false);
     const [selectedMasterProject, setSelectedMasterProject] = useState<Project | null>(null);
-    const [unlockStep, setUnlockStep] = useState<'info' | 'confirm' | 'form'>('info');
+    const [unlockStep, setUnlockStep] = useState<'info' | 'confirm'>('info');
 
-    // Estado para formulario de enlaces en el desbloqueo
-    const [unlockForm, setUnlockForm] = useState({
-        leadMagnetType: 'Clase Gratis / VSL',
-        leadMagnetUrl: '',
-        affiliateLinks: [
-            { label: 'Checkout Principal', url: '' },
-            { label: 'Checkout con Descuento', url: '' }
-        ] as AffiliateLink[]
-    });
-
-    // Estado de errores para validación visual activa
-    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-    
     // --- ESTADOS DE GENERACIÓN DINÁMICA ---
     const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
     const [progress, setProgress] = useState(0);
@@ -103,45 +91,15 @@ export const ProjectsList: React.FC = () => {
         setSelectedMasterProject(project);
         setUnlockStep('info');
         setShowUnlockProtocol(true);
-        setFormErrors({});
-        // Reset form
-        setUnlockForm({
-            leadMagnetType: project.leadMagnetType || 'Clase Gratis / VSL',
-            leadMagnetUrl: '',
-            affiliateLinks: [
-                { label: 'Checkout Principal', url: '' },
-                { label: 'Checkout con Descuento', url: '' }
-            ]
-        });
     };
 
     const handleNextToConfirm = () => {
         setUnlockStep('confirm');
     };
 
-    const handleNextToForm = () => {
-        setUnlockStep('form');
-    };
-
     const handleFinalGeneration = async () => {
         if (!selectedMasterProject) return;
         
-        // Validación visual activa
-        const newErrors: Record<string, string> = {};
-        if (!unlockForm.leadMagnetUrl.trim()) {
-            newErrors.leadMagnetUrl = "Este campo es obligatorio para que la IA genere tu estrategia";
-        }
-        
-        const hasAtLeastOneLink = unlockForm.affiliateLinks.some(l => l.url.trim() !== '');
-        if (!hasAtLeastOneLink) {
-            newErrors.affiliateLinks = "Este campo es obligatorio para que la IA genere tu estrategia";
-        }
-
-        if (Object.keys(newErrors).length > 0) {
-            setFormErrors(newErrors);
-            return;
-        }
-
         const isRealAdmin = user.role === 'admin' && !isSimulating;
         const maxProjectsCalculated = user.planLimits?.maxProjects || 1;
         const totalActive = projects.length;
@@ -181,9 +139,11 @@ export const ProjectsList: React.FC = () => {
         }, 600); // Simulación de carga fluida (aprox 60s para 100%)
 
         try {
-            // Enviamos los datos del formulario al backend para que el nuevo proyecto nazca vinculado
+            // Enviamos valores por defecto ya que la configuración se hará en la pestaña de estrategia
             const res = await api.unlockProject(selectedMasterProject.id, {
-                ...unlockForm,
+                leadMagnetType: 'Clase Gratis / VSL',
+                leadMagnetUrl: '',
+                affiliateLinks: [],
                 planSlug: 'starter'
             });
             
@@ -192,6 +152,15 @@ export const ProjectsList: React.FC = () => {
             setProgress(100);
             setGeneratedProjectId(res.id);
             setGenerationStatus('success');
+            
+            // Efecto Confeti
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#FF5A1F', '#ffffff', '#3b82f6']
+            });
+
             await loadData();
         } catch (error: any) {
             clearInterval(progressInterval);
@@ -202,32 +171,6 @@ export const ProjectsList: React.FC = () => {
             setSelectedMasterProject(null);
         }
     };
-
-    const handleUpdateLinkForm = (idx: number, field: 'label' | 'url', val: string) => {
-        const newLinks = [...unlockForm.affiliateLinks];
-        newLinks[idx] = { ...newLinks[idx], [field]: val };
-        setUnlockForm({ ...unlockForm, affiliateLinks: newLinks });
-        if (field === 'url' && val.trim() !== '') {
-            setFormErrors(prev => {
-                const updated = { ...prev };
-                delete updated.affiliateLinks;
-                return updated;
-            });
-        }
-    };
-
-    const handleAddLinkForm = () => {
-        setUnlockForm({
-            ...unlockForm,
-            affiliateLinks: [...unlockForm.affiliateLinks, { label: 'Nuevo Enlace', url: '' }]
-        });
-    };
-
-    const handleRemoveLinkForm = (idx: number) => {
-        const newLinks = unlockForm.affiliateLinks.filter((_, i) => i !== idx);
-        setUnlockForm({ ...unlockForm, affiliateLinks: newLinks });
-    };
-    // ----------------------------------------------
 
     const handleViewStrategy = async (e: React.MouseEvent, project: Project) => {
         e.stopPropagation();
@@ -725,98 +668,8 @@ export const ProjectsList: React.FC = () => {
                                     {isAtLimit ? (
                                         <button onClick={() => { setShowUnlockProtocol(false); setShowUpgradeModal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase shadow-xl transform hover:scale-[1.02] transition-all">Actualizar Plan Pro <ArrowRight className="w-5 h-5" /></button>
                                     ) : (
-                                        <button onClick={handleNextToForm} className="flex-1 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-emerald-900/20 transform hover:scale-[1.02] active:scale-95 transition-all">Aceptar y Continuar</button>
+                                        <button onClick={handleFinalGeneration} className="flex-1 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-emerald-900/20 transform hover:scale-[1.02] active:scale-95 transition-all">Aceptar y Continuar</button>
                                     )}
-                                </div>
-                            </div>
-                        )}
-
-                        {unlockStep === 'form' && (
-                            <div className="p-6 md:p-8 space-y-8 flex-1 overflow-y-auto animate-in slide-in-from-right-4 duration-500 custom-scrollbar">
-                                <div className="flex flex-col items-center text-center space-y-4">
-                                    <div className="w-16 h-16 bg-[#FF5A1F]/10 text-[#FF5A1F] rounded-[1.5rem] flex items-center justify-center border border-[#FF5A1F]/20">
-                                        <LinkIcon className="w-8 h-8" />
-                                    </div>
-                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight">Vinculación de tus Hotlinks</h3>
-                                    <p className="text-gray-400 text-lg leading-relaxed max-w-xl">Para que tu ecosistema esté listo para vender, necesitamos que proporciones tus propios enlaces de afiliado.</p>
-                                </div>
-
-                                <div className="space-y-6 bg-black/40 p-8 rounded-[2.5rem] border border-white/5 shadow-inner">
-                                    <div className="space-y-4">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1">Tipo de Lead Magnet (Regalo)</label>
-                                            <select 
-                                                value={unlockForm.leadMagnetType} 
-                                                onChange={(e) => setUnlockForm({ ...unlockForm, leadMagnetType: e.target.value })}
-                                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white text-base outline-none focus:border-[#FF5A1F]/50 transition-all appearance-none cursor-pointer"
-                                            >
-                                                <option value="">Selecciona tu Lead Magnet</option>
-                                                <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
-                                                <option value="Clase Gratis / VSL">Clase Gratis / Carta de Ventas en Video</option>
-                                                <option value="Masterclass en Vivo">Masterclass en Vivo</option>
-                                                <option value="Plantilla / Checklist">Plantilla / Checklist</option>
-                                            </select>
-                                        </div>
-
-                                        {unlockForm.leadMagnetType && (
-                                            <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                                                <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2"><Gift className="w-4 h-4" /> URL de tu {unlockForm.leadMagnetType}</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={unlockForm.leadMagnetUrl}
-                                                    onChange={(e) => setUnlockForm({ ...unlockForm, leadMagnetUrl: e.target.value })}
-                                                    placeholder="https://pega-aqui-tu-link-de-google-drive-o-clase.com"
-                                                    className={`w-full bg-black/60 border ${formErrors.leadMagnetUrl ? 'border-red-500' : 'border-white/10'} rounded-2xl py-4 px-6 text-white text-base outline-none focus:border-[#FF5A1F]/50 transition-all shadow-inner placeholder:text-gray-700`}
-                                                />
-                                                {formErrors.leadMagnetUrl && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{formErrors.leadMagnetUrl}</p>}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="pt-4 border-t border-white/5 space-y-4">
-                                        <div className="flex justify-between items-center px-1">
-                                            <label className="text-sm font-black text-blue-400 uppercase tracking-widest flex items-center gap-2"><CartIcon className="w-4 h-4" /> Hotlinks de Pago (Afiliado)</label>
-                                            <button onClick={handleAddLinkForm} className="text-[10px] font-black text-blue-400 bg-blue-900/20 px-3 py-1 rounded-lg border border-blue-500/20 hover:bg-blue-600 hover:text-white transition-all">+ Añadir</button>
-                                        </div>
-                                        <div className="grid grid-cols-1 gap-4">
-                                            {unlockForm.affiliateLinks.map((link, idx) => (
-                                                <div key={idx} className="bg-black/60 border border-white/10 rounded-2xl p-4 space-y-3 relative group/link">
-                                                    <button onClick={() => handleRemoveLinkForm(idx)} className="absolute top-2 right-2 p-1.5 text-gray-500 hover:text-red-500 transition-colors opacity-0 group-hover/link:opacity-100"><X className="w-3.5 h-3.5"/></button>
-                                                    <div className="space-y-1">
-                                                        <p className="text-sm text-gray-500 font-bold uppercase tracking-widest ml-1">Etiqueta del Botón</p>
-                                                        <input 
-                                                            type="text" 
-                                                            value={link.label}
-                                                            onChange={(e) => handleUpdateLinkForm(idx, 'label', e.target.value)}
-                                                            placeholder="Ej: Checkout Principal"
-                                                            className="w-full bg-gray-900 border border-white/5 rounded-xl py-2 px-4 text-white text-base outline-none focus:border-blue-500/50"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-1">
-                                                        <p className="text-sm text-gray-500 font-bold uppercase tracking-widest ml-1">URL de Afiliado</p>
-                                                        <input 
-                                                            type="text" 
-                                                            value={link.url}
-                                                            onChange={(e) => handleUpdateLinkForm(idx, 'url', e.target.value)}
-                                                            placeholder="https://go.hotmart.com/..."
-                                                            className={`w-full bg-gray-900 border ${formErrors.affiliateLinks && !link.url.trim() ? 'border-red-500' : 'border-white/5'} rounded-xl py-2 px-4 text-emerald-400 font-mono text-base outline-none focus:border-blue-500/50`}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        {formErrors.affiliateLinks && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{formErrors.affiliateLinks}</p>}
-                                    </div>
-                                </div>
-
-                                <div className="p-6 md:p-8 bg-black/60 border-t border-white/5 flex flex-col sm:flex-row gap-4 shrink-0">
-                                    <button onClick={() => setUnlockStep('confirm')} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest border border-white/5">Cancelar</button>
-                                    <button 
-                                        onClick={handleFinalGeneration} 
-                                        className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-orange-500 hover:from-[#D94A1E] hover:to-orange-600 text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#FF5A1F]/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
-                                    >
-                                        <Rocket className="w-5 h-5" /> GENERAR ESTRATEGIA
-                                    </button>
                                 </div>
                             </div>
                         )}
@@ -826,7 +679,7 @@ export const ProjectsList: React.FC = () => {
 
             {/* --- OVERLAY DE GENERACIÓN (IDÉNTICO A GENERATOR) --- */}
             {generationStatus === 'generating' && (
-                <div className="fixed inset-0 z-[300] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
                     <div className="bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in fade-in duration-500 flex flex-col items-center space-y-10">
                         {/* Icono de la varita con efecto de brillo */}
                         <div className="relative">
@@ -880,52 +733,38 @@ export const ProjectsList: React.FC = () => {
                 </div>
             )}
 
-            {/* --- UI DE ÉXITO (IDÉNTICO A GENERATOR) --- */}
+            {/* --- PANTALLA DE ÉXITO (MODAL REDISEÑADO) --- */}
             {generationStatus === 'success' && generatedProjectId && (
-                <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-[#0B0B0B] p-4 animate-in zoom-in-95 duration-700 overflow-hidden">
-                    {/* Confetti simulation */}
-                    {[...Array(30)].map((_, i) => (
-                        <div 
-                            key={i} 
-                            className="confetti" 
-                            style={{
-                                left: `${Math.random() * 100}%`,
-                                backgroundColor: ['#10B981', '#34D399', '#4C1D95', '#F59E0B', '#10B981'][Math.floor(Math.random() * 5)],
-                                animationDelay: `${Math.random() * 3}s`,
-                                animationDuration: `${2 + Math.random() * 2}s`
-                            }}
-                        ></div>
-                    ))}
+                <div className="fixed inset-0 z-[400] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-500">
+                    <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-600 via-emerald-400 to-emerald-600"></div>
+                        
+                        <div className="w-24 h-24 bg-emerald-500/10 text-emerald-500 rounded-[2rem] flex items-center justify-center border border-emerald-500/20 shadow-lg shadow-emerald-900/10">
+                            <CheckCircle2 className="w-12 h-12" />
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¡Tu Nueva Estrategia Maestra ha sido generada correctamente!</h3>
+                            <p className="text-gray-400 text-lg leading-relaxed font-medium">Hemos diseñado un ecosistema único y personalizado basado en esta plantilla. Tu nueva estrategia está lista para ser implementada.</p>
+                        </div>
 
-                    <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-4 scale-110 animate-bounce">
-                        <CheckCircle2 className="w-14 h-14 text-white" />
-                    </div>
-
-                    <div className="text-center max-w-[41rem] space-y-4">
-                        <h3 className="text-4xl font-black text-white leading-tight">¡Tu Nueva Estrategia Maestra ha sido generada correctamente!</h3>
-                        <p className="text-gray-400 text-lg font-medium leading-relaxed">
-                            Hemos diseñado un ecosistema único y personalizado basado en esta plantilla. Tu nueva estrategia está lista para ser implementada.
-                        </p>
-                    </div>
-
-                    <div className="w-full max-w-[41rem] pt-10">
                         <button 
                             onClick={() => {
                                 setGenerationStatus('idle');
                                 navigate(`/dashboard/projects/${generatedProjectId}/strategy`);
                             }}
-                            className="w-full py-6 bg-[#FF5A1F] text-white font-black text-xl uppercase tracking-[0.2em] rounded-[2.5rem] shadow-2xl shadow-[#FF5A1F]/20 transform hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center gap-4"
+                            className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-emerald-900/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                         >
-                            Ver mi nueva Estrategia Maestra <ArrowRight className="w-6 h-6" />
+                            Ver mi nueva Estrategia Maestra <ArrowRight className="w-5 h-5" />
+                        </button>
+
+                        <button 
+                            onClick={() => setGenerationStatus('idle')}
+                            className="text-gray-500 hover:text-white font-bold text-sm transition-colors underline"
+                        >
+                            Cerrar y volver
                         </button>
                     </div>
-
-                    <button 
-                        onClick={() => setGenerationStatus('idle')}
-                        className="text-gray-500 hover:text-white font-bold text-sm transition-colors pt-8 underline"
-                    >
-                        Cerrar y volver
-                    </button>
                 </div>
             )}
 
@@ -957,6 +796,3 @@ export const ProjectsList: React.FC = () => {
         </div>
     );
 };
-
-// Se renombra localmente para evitar conflicto con la importación principal de lucide-react si existiera
-const CornerCrown = Crown;
