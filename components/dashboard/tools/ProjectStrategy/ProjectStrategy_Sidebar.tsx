@@ -2,7 +2,8 @@ import React from 'react';
 import { 
     LayoutDashboard, TrendingUp, Map, UserSearch, 
     Globe, FileText, Mail, Calendar, MessageCircle,
-    ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity, MessageSquare
+    ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity, MessageSquare,
+    Link as LinkIcon
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -24,6 +25,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
             module: "Analisis de tu Estrategia",
             items: [
                 { id: 'summary', label: 'Resumen Estratégico', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
+                { id: 'hotlinks', label: 'Configura tus Hotlinks', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado" },
                 { id: 'growth', label: 'Proyección de Ingresos', icon: TrendingUp, module: "FUNDAMENTOS", description: "Escalabilidad año 1" },
                 { id: 'blueprint', label: 'Mapa de Ruta', icon: Map, module: "FUNDAMENTOS", description: "Flujo del cliente" },
                 { id: 'avatar', label: 'Diagnóstico de Avatar', icon: UserSearch, module: "FUNDAMENTOS", description: "Perfil psicológico" },

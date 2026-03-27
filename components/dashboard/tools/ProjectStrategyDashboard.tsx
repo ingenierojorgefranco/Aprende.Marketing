@@ -23,6 +23,7 @@ const ProjectStrategy_Email = React.lazy(() => import('./ProjectStrategy/Project
 const ProjectStrategy_Evergreen = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Evergreen').then(m => ({ default: m.ProjectStrategy_Evergreen }))) as React.FC<any>;
 const ProjectStrategy_WhatsApp = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_WhatsApp').then(m => ({ default: m.ProjectStrategy_WhatsApp }))) as React.FC<any>;
 const ProjectStrategy_Testimonials = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Testimonials').then(m => ({ default: m.ProjectStrategy_Testimonials }))) as React.FC<any>;
+const ProjectStrategy_Hotlinks = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Hotlinks').then(m => ({ default: m.ProjectStrategy_Hotlinks }))) as React.FC<any>;
 
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
@@ -240,6 +241,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 <div className="lg:col-span-9 min-w-0">
                     <Suspense fallback={<div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>}>
                         {activeSection === 'summary' && <ProjectStrategy_Summary strategyData={strategyData} description={projectDescription} activeHeaderItem={activeHeaderItem} setActiveHeaderItem={setActiveHeaderItem} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
+                        {activeSection === 'hotlinks' && <ProjectStrategy_Hotlinks projectId={id} />}
                         {activeSection === 'growth' && <ProjectStrategy_BusinessGrowth chartData={chartData} commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)} commissionRate={strategyData.meta?.commissionRate || 0} />}
                         {activeSection === 'blueprint' && <ProjectStrategy_Blueprint handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
                         {activeSection === 'avatar' && <ProjectStrategy_AvatarDiagnosis avatars={strategyData.avatars} psychology={strategyData.psychology} benefitsItems={strategyData.modules?.web?.landingPageTabs?.benefits?.items || []} />}
