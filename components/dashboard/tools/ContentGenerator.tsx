@@ -409,7 +409,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
             const msgIdx = Math.min(Math.floor((currentProgress / 100) * messages.length), messages.length - 1);
             setLoadingMessage(messages[msgIdx]);
         }
-    }, 100);
+    }, 947);
     
     const idea: ArticleTitleIdea = { title: topic, description: objective };
     setSelectedTitle(idea);
