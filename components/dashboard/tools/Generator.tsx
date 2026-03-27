@@ -499,52 +499,54 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         
         {/* --- UI DE GENERACIÓN (LOADING STATE) --- */}
         {generationStatus === 'generating' && (
-            <div className="h-full flex flex-col items-center justify-center py-20 space-y-10 animate-in fade-in duration-500">
-                {/* Icono de la varita con efecto de brillo */}
-                <div className="relative">
-                    <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full"></div>
-                    <div className="relative w-24 h-24 bg-gray-900 rounded-[2rem] flex items-center justify-center border border-emerald-500/30 shadow-2xl shadow-emerald-500/10">
-                        <Wand2 className="w-12 h-12 text-emerald-400 animate-pulse" />
+            <div className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 !mt-0">
+                <div className="bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in fade-in duration-500 flex flex-col items-center space-y-10">
+                    {/* Icono de la varita con efecto de brillo */}
+                    <div className="relative">
+                        <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full"></div>
+                        <div className="relative w-24 h-24 bg-gray-900 rounded-[2rem] flex items-center justify-center border border-emerald-500/30 shadow-2xl shadow-emerald-500/10">
+                            <Wand2 className="w-12 h-12 text-emerald-400 animate-pulse" />
+                        </div>
                     </div>
-                </div>
 
-                {/* Texto de generación en negrita y profesional */}
-                <div className="text-center space-y-3">
-                    <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
-                        Nuestra inteligencia artificial está generando tu página de captura.
-                    </h3>
-                    <p className="text-emerald-400/80 font-bold text-sm uppercase tracking-[0.2em] animate-pulse">
-                        {loadingMessage}
-                    </p>
-                </div>
-
-                {/* Badge de advertencia */}
-                <div className="px-6 py-2 bg-red-600/20 border border-red-600/30 rounded-full shadow-lg">
-                    <p className="text-red-500 font-black uppercase text-sm tracking-widest flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4" /> No cierres esta página
-                    </p>
-                </div>
-
-                {/* Sección de contador con degradado oscuro */}
-                <div className="w-full max-w-md bg-gradient-to-br from-gray-900 to-black p-8 rounded-[2.5rem] border border-white/5 shadow-2xl text-center space-y-4">
-                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Tu página estará lista en:</p>
-                    <div className="text-white font-mono text-6xl font-black tracking-tighter">
-                        {Math.floor(Math.max(0, 90 - secondsElapsed) / 60).toString().padStart(2, '0')}:{(Math.max(0, 90 - secondsElapsed) % 60).toString().padStart(2, '0')}
+                    {/* Texto de generación en negrita y profesional */}
+                    <div className="text-center space-y-3">
+                        <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
+                            Nuestra inteligencia artificial está generando tu página de captura.
+                        </h3>
+                        <p className="text-emerald-400/80 font-bold text-sm uppercase tracking-[0.2em] animate-pulse">
+                            {loadingMessage}
+                        </p>
                     </div>
-                </div>
 
-                {/* Barra de progreso verde gruesa y animada */}
-                <div className="w-full max-w-xl space-y-4">
-                    <div className="flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest px-1">
-                        <span>Arquitectura Estratégica</span>
-                        <span>{Math.round(progress)}%</span>
+                    {/* Badge de advertencia */}
+                    <div className="px-6 py-2 bg-red-600/20 border border-red-600/30 rounded-full shadow-lg">
+                        <p className="text-red-500 font-black uppercase text-sm tracking-widest flex items-center gap-2">
+                            <AlertTriangle className="w-4 h-4" /> No cierres esta página
+                        </p>
                     </div>
-                    <div className="w-full h-8 bg-gray-900 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
-                        <div 
-                            className="h-full bg-gradient-to-r from-emerald-600 to-green-400 transition-all duration-300 ease-out shadow-[0_0_20px_rgba(16,185,129,0.3)] relative"
-                            style={{ width: `${progress}%` }}
-                        >
-                            <div className="progress-shine"></div>
+
+                    {/* Sección de contador con degradado oscuro */}
+                    <div className="w-full max-w-md bg-gradient-to-br from-gray-900 to-black p-8 rounded-[2.5rem] border border-white/5 shadow-2xl text-center space-y-4">
+                        <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Tu página estará lista en:</p>
+                        <div className="text-white font-mono text-6xl font-black tracking-tighter">
+                            {Math.floor(Math.max(0, 90 - secondsElapsed) / 60).toString().padStart(2, '0')}:{(Math.max(0, 90 - secondsElapsed) % 60).toString().padStart(2, '0')}
+                        </div>
+                    </div>
+
+                    {/* Barra de progreso verde gruesa y animada */}
+                    <div className="w-full max-w-xl space-y-4">
+                        <div className="flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest px-1">
+                            <span>Arquitectura Estratégica</span>
+                            <span>{Math.round(progress)}%</span>
+                        </div>
+                        <div className="w-full h-8 bg-gray-900 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
+                            <div 
+                                className="h-full bg-gradient-to-r from-emerald-600 to-green-400 transition-all duration-300 ease-out shadow-[0_0_20px_rgba(16,185,129,0.3)] relative"
+                                style={{ width: `${progress}%` }}
+                            >
+                                <div className="progress-shine"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -553,84 +555,64 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
 
         {/* --- UI DE ÉXITO --- */}
         {generationStatus === 'success' && generatedPageResult && (
-            <div className="h-full flex flex-col items-center justify-center py-10 space-y-8 animate-in zoom-in-95 duration-700 relative overflow-hidden">
-                {/* Confetti simulation */}
-                {[...Array(30)].map((_, i) => (
-                    <div 
-                        key={i} 
-                        className="confetti" 
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            backgroundColor: ['#10B981', '#34D399', '#4C1D95', '#F59E0B', '#10B981'][Math.floor(Math.random() * 5)],
-                            animationDelay: `${Math.random() * 3}s`,
-                            animationDuration: `${2 + Math.random() * 2}s`
-                        }}
-                    ></div>
-                ))}
-
-                <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-4 scale-110 animate-bounce">
-                    <CheckCircle className="w-14 h-14 text-white" />
-                </div>
-
-                <div className="text-center max-w-[41rem] space-y-4">
-                    <h3 className="text-4xl font-black text-white leading-tight">¡Tu Página de Captura ha sido generada correctamente!</h3>
-                    <p className="text-gray-400 text-lg font-medium leading-relaxed">
-                        Tu nuevo activo digital está optimizado para convertir visitas en leads de alta calidad de forma automática.
-                    </p>
-                </div>
-
-                <div className="w-full max-w-[41rem] space-y-4 pt-6">
-                    {/* Fila 1 (Visualización) */}
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <a 
-                            href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-1 bg-white text-black font-black py-4 px-6 rounded-[2.5rem] transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
-                        >
-                            <ExternalLink className="w-5 h-5" /> Ver Página de Captura
-                        </a>
-                        <a 
-                            href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}/gracias`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-1 bg-emerald-600 text-white font-black py-4 px-6 rounded-[2.5rem] transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-emerald-500 transform hover:scale-[1.03] active:scale-95"
-                        >
-                            <ExternalLink className="w-5 h-5" /> Ver Página de Gracias
-                        </a>
+            <div className="fixed inset-0 z-[400] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-500 !mt-0">
+                <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-600 via-emerald-400 to-emerald-600"></div>
+                    
+                    <div className="w-24 h-24 bg-emerald-500/10 text-emerald-500 rounded-[2rem] flex items-center justify-center border border-emerald-500/20 shadow-lg shadow-emerald-900/10 scale-110 animate-bounce">
+                        <CheckCircle className="w-14 h-14" />
                     </div>
-                    {/* Fila 2 (Gestión) */}
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <a 
-                            href={window.location.hash.startsWith('#/') ? `#/dashboard/editor/${generatedPageResult.id}` : `/dashboard/editor/${generatedPageResult.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-[2.5rem] transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 hover:bg-[#D94A1E] transform hover:scale-[1.03] active:scale-95"
-                        >
-                            <PenTool className="w-5 h-5" /> Editar Página de Captura
-                        </a>
-                        <button 
-                            onClick={() => {
-                                setGenerationStatus('idle');
-                                navigate('/dashboard/pages');
-                            }}
-                            className="flex-1 bg-blue-600 text-white font-black py-4 px-6 rounded-[2.5rem] transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-blue-500 transform hover:scale-[1.03] active:scale-95"
-                        >
-                            <Globe className="w-5 h-5" /> Asignar Dominio
-                        </button>
+
+                    <div className="space-y-6">
+                        <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¡Tu Página de Captura ha sido creada en menos de 1 minuto!</h3>
+                        <div className="space-y-4 text-white text-xl leading-relaxed font-medium">
+                            <p>¡Felicidades! Hemos diseñado una página de captura profesional para ti, optimizada con precisión para convertir visitantes en clientes reales.</p>
+                            <p>Esta es la herramienta perfecta para empezar a captar prospectos de alta calidad. Tu página está lista para recibir tráfico y generar resultados desde este mismo instante.</p>
+                        </div>
+                    </div>
+
+                    <div className="w-full space-y-4 pt-4">
+                        {/* Fila 1 (Visualización) */}
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <a 
+                                href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
+                            >
+                                <ExternalLink className="w-5 h-5" /> Ver Página
+                            </a>
+                            <a 
+                                href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}/gracias`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 bg-emerald-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-emerald-500 transform hover:scale-[1.03] active:scale-95"
+                            >
+                                <ExternalLink className="w-5 h-5" /> Ver Gracias
+                            </a>
+                        </div>
+                        {/* Fila 2 (Gestión) */}
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <a 
+                                href={window.location.hash.startsWith('#/') ? `#/dashboard/editor/${generatedPageResult.id}` : `/dashboard/editor/${generatedPageResult.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 hover:bg-[#D94A1E] transform hover:scale-[1.03] active:scale-95"
+                            >
+                                <PenTool className="w-5 h-5" /> Editar Página
+                            </a>
+                            <button 
+                                onClick={() => {
+                                    setGenerationStatus('idle');
+                                    navigate('/dashboard/pages');
+                                }}
+                                className="flex-1 bg-blue-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-blue-500 transform hover:scale-[1.03] active:scale-95"
+                            >
+                                <Globe className="w-5 h-5" /> Dominio
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                <button 
-                    onClick={() => {
-                        setGenerationStatus('idle');
-                        if(onClose) onClose();
-                        else navigate('/dashboard/pages');
-                    }}
-                    className="text-gray-500 hover:text-white font-bold text-sm transition-colors pt-4 underline"
-                >
-                    Cerrar
-                </button>
             </div>
         )}
 
