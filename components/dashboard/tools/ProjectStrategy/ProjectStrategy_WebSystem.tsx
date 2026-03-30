@@ -103,6 +103,11 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     if (usagePercent > 50) progressColor = "bg-yellow-500";
     if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
+    const domainUsagePercent = Math.min(100, (domainCount / maxDomains) * 100);
+    let domainProgressColor = "bg-blue-500";
+    if (domainUsagePercent > 50) domainProgressColor = "bg-indigo-500";
+    if (domainUsagePercent > 90) domainProgressColor = isRealAdmin ? "bg-blue-500" : "bg-red-500";
+
     const renderBrowserMockup = (content: React.ReactNode, isDark = false) => (
         <div className={`w-full ${isDark ? 'bg-[#0b0b0b]' : 'bg-white'} rounded-2xl shadow-2xl overflow-hidden border ${isDark ? 'border-gray-800' : 'border-gray-200'} flex flex-col group/mockup transition-all duration-500 hover:shadow-primary/10`}>
             <div className={`h-10 ${isDark ? 'bg-gray-900 border-b border-gray-800' : 'bg-gray-100 border-b border-gray-200'} flex items-center px-4 gap-4 shrink-0`}>
@@ -283,12 +288,12 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         {loadingLocal ? (
                             <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
                         ) : linkedPages.length > 0 ? (
-                            <div className="bg-[#0B0B0B] border border-emerald-500/20 rounded-[3rem] p-10 shadow-xl flex flex-col items-center text-center animate-in zoom-in-95">
-                                <CheckCircle2 className="w-16 h-16 text-emerald-500 mb-6" />
-                                <h3 className="text-3xl font-black text-white mb-4">¡Tu Sistema de Ventas está 100% Activo!</h3>
-                                <p className="text-gray-400 text-lg font-medium leading-relaxed mb-10 max-w-2xl">Todas las configuraciones técnicas, enlaces de seguimiento y formularios de captura han sido verificados. Tu embudo está listo para procesar visitantes y convertirlos en prospectos de alta calidad.</p>
+                            <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-[45rem] p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
+                                <CheckCircle2 className="w-16 h-16 text-emerald-500" />
+                                <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">¡Tu Sistema de Ventas está 100% Activo!</h3>
+                                <p className="text-gray-400 text-lg font-medium leading-relaxed max-w-2xl">Todas las configuraciones técnicas, enlaces de seguimiento y formularios de captura han sido verificados. Tu embudo está listo para procesar visitantes y convertirlos en prospectos de alta calidad.</p>
                                 
-                                <div className="w-full max-w-[44rem] space-y-4">
+                                <div className="w-full space-y-4">
                                     {/* Fila 1 - Visualización */}
                                     <div className="flex flex-col sm:flex-row gap-4">
                                         <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white text-black font-black py-4 px-10 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Captura</a>
@@ -342,13 +347,25 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     ? "Has alcanzado el límite de páginas de tu plan actual. Actualiza tu plan para continuar."
                                     : "Al crear una nueva página web de captura se consumirá 1 crédito de tu plan actual."}
                             </p>
-                            <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left">
-                                <div className="flex justify-between items-center mb-3">
-                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Páginas Web Creadas</span>
-                                    <span className="text-white font-mono font-bold text-sm">{pageCount} / {isRealAdmin ? '∞' : maxLandings}</span>
+                            <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left space-y-6">
+                                <div>
+                                    <div className="flex justify-between items-center mb-3">
+                                        <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Páginas Web Creadas</span>
+                                        <span className="text-white font-mono font-bold text-sm">{pageCount} / {isRealAdmin ? '∞' : maxLandings}</span>
+                                    </div>
+                                    <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
+                                        <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]`} style={{ width: `${isRealAdmin ? (pageCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                    </div>
                                 </div>
-                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
-                                    <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]`} style={{ width: `${isRealAdmin ? (pageCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+
+                                <div>
+                                    <div className="flex justify-between items-center mb-3">
+                                        <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Dominios Personalizados</span>
+                                        <span className="text-white font-mono font-bold text-sm">{domainCount} / {isRealAdmin ? '∞' : maxDomains}</span>
+                                    </div>
+                                    <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
+                                        <div className={`h-full ${domainProgressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]`} style={{ width: `${isRealAdmin ? (domainCount > 0 ? 100 : 0) : domainUsagePercent}%` }}></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -420,7 +437,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             <div className="aspect-video w-full bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
                                 <iframe 
                                     className="w-full h-full"
-                                    src="https://www.youtube.com/embed/vGfXD9VbfXo" 
+                                    src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
                                     title="Tutorial Configuración de Dominio" 
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                     allowFullScreen
@@ -434,7 +451,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             <div className="border border-gray-800 rounded-2xl overflow-hidden">
                                 <button 
                                     onClick={() => setActiveAccordion(activeAccordion === 1 ? null : 1)}
-                                    className="w-full flex items-center justify-between p-5 bg-gray-800 hover:bg-gray-750 transition text-left"
+                                    className="w-full flex items-center justify-between p-5 bg-gray-850 hover:bg-gray-800 transition text-left"
                                 >
                                     <span className="font-bold text-white flex items-center gap-3">
                                         <div className="w-7 h-7 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-xs font-black">1</div>
@@ -463,7 +480,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             <div className="border border-gray-800 rounded-2xl overflow-hidden">
                                 <button 
                                     onClick={() => setActiveAccordion(activeAccordion === 2 ? null : 2)}
-                                    className="w-full flex items-center justify-between p-5 bg-gray-800 hover:bg-gray-750 transition text-left"
+                                    className="w-full flex items-center justify-between p-5 bg-gray-850 hover:bg-gray-800 transition text-left"
                                 >
                                     <span className="font-bold text-white flex items-center gap-3">
                                         <div className="w-7 h-7 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-xs font-black">2</div>
@@ -536,7 +553,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             <div className="border border-gray-800 rounded-2xl overflow-hidden">
                                 <button 
                                     onClick={() => setActiveAccordion(activeAccordion === 3 ? null : 3)}
-                                    className="w-full flex items-center justify-between p-5 bg-gray-800 hover:bg-gray-750 transition text-left"
+                                    className="w-full flex items-center justify-between p-5 bg-gray-850 hover:bg-gray-800 transition text-left"
                                 >
                                     <span className="font-bold text-white flex items-center gap-3">
                                         <div className="w-7 h-7 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-xs font-black">3</div>
