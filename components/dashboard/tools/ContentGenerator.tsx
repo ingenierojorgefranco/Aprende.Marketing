@@ -393,11 +393,15 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
     const messages = [
         "Analizando nicho estratégico...",
-        "Diseñando estructura SEO (H2, H3)...",
-        "Redactando contenido profesional...",
-        "Optimizando ganchos de lectura...",
+        "Escaneando palabras clave de alta oportunidad...",
+        "Diseñando estructura SEO (H1, H2, H3)...",
+        "Entrenando modelo de redacción persuasiva...",
+        "Generando ganchos de lectura hipnóticos...",
+        "Redactando contenido de alto valor...",
+        "Optimizando densidad de palabras clave...",
         "Sincronizando con la estrategia del proyecto...",
-        "Guardando artículo en base de datos...",
+        "Verificando legibilidad y tono de voz...",
+        "Insertando llamadas a la acción estratégicas...",
         "Finalizando artículo de alta conversión..."
     ];
 
@@ -687,9 +691,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                         <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
                             Nuestra inteligencia artificial está generando tu artículo completo.
                         </h3>
-                        <p className="text-blue-400/80 font-bold text-sm uppercase tracking-[0.2em] animate-pulse">
-                            {loadingMessage}
-                        </p>
                     </div>
 
                     {/* Badge de advertencia */}
@@ -710,7 +711,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                     {/* Barra de progreso verde gruesa y animada */}
                     <div className="w-full max-w-xl space-y-4">
                         <div className="flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest px-1">
-                            <span>Inteligencia SEO</span>
+                            <span>{loadingMessage}</span>
                             <span>{Math.round(progress)}%</span>
                         </div>
                         <div className="w-full h-8 bg-gray-900 rounded-full overflow-hidden border border-white/5 shadow-inner relative">

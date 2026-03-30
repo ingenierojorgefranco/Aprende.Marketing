@@ -121,6 +121,10 @@ export const ProjectsList: React.FC = () => {
             "Personalizando ganchos de venta...",
             "Configurando motor de contenidos...",
             "Optimizando secuencias de email...",
+            "Escaneando oportunidades de mercado...",
+            "Diseñando embudo de conversión...",
+            "Entrenando algoritmos de persuasión...",
+            "Integrando disparadores psicológicos...",
             "Finalizando Estrategia Maestra única..."
         ];
 
@@ -153,13 +157,40 @@ export const ProjectsList: React.FC = () => {
             setGeneratedProjectId(res.id);
             setGenerationStatus('success');
             
-            // Efecto Confeti
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#FF5A1F', '#ffffff', '#3b82f6']
-            });
+            // Efecto Confeti Total (Cañón Izquierdo, Derecho y Central)
+            const end = Date.now() + (4 * 1000);
+            const colors = ['#FF5A1F', '#ffffff', '#3b82f6'];
+
+            (function frame() {
+                confetti({
+                    particleCount: 2,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0, y: 0.6 },
+                    colors: colors,
+                    zIndex: 1000
+                });
+                confetti({
+                    particleCount: 2,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1, y: 0.6 },
+                    colors: colors,
+                    zIndex: 1000
+                });
+                confetti({
+                    particleCount: 3,
+                    angle: 90,
+                    spread: 100,
+                    origin: { x: 0.5, y: 0.8 },
+                    colors: colors,
+                    zIndex: 1000
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
 
             await loadData();
         } catch (error: any) {
@@ -694,9 +725,6 @@ export const ProjectsList: React.FC = () => {
                             <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
                                 Nuestra inteligencia artificial está duplicando tu estrategia maestra.
                             </h3>
-                            <p className="text-emerald-400/80 font-bold text-sm uppercase tracking-[0.2em] animate-pulse">
-                                {loadingMessage}
-                            </p>
                         </div>
 
                         {/* Badge de advertencia */}
@@ -717,7 +745,7 @@ export const ProjectsList: React.FC = () => {
                         {/* Barra de progreso verde gruesa y animada */}
                         <div className="w-full max-w-xl space-y-4">
                             <div className="flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest px-1">
-                                <span>Inteligencia Estratégica</span>
+                                <span>{loadingMessage}</span>
                                 <span>{Math.round(progress)}%</span>
                             </div>
                             <div className="w-full h-8 bg-gray-900 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
@@ -744,10 +772,9 @@ export const ProjectsList: React.FC = () => {
                         </div>
                         
                         <div className="space-y-6">
-                            <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">Tu Negocio Digital ha sido creado en menos de 1 minuto</h3>
+                            <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">Hemos creado tu Negocio Digital en menos de 1 minuto</h3>
                             <div className="space-y-4 text-white text-xl leading-relaxed font-medium">
-                                <p>¡Felicidades! Hemos creado un negocio digital completo para ti, diseñado con precisión para convertir visitantes en clientes reales.</p>
-                                <p>Esta es la oportunidad perfecta para escalar tus resultados. Ahora puedes disfrutar de todos los beneficios de una estrategia profesional lista para operar desde este mismo instante.</p>
+                                <p>¡Felicidades!. Tu Negocio Digital esta listo y completo para usarse. Haz clic a continuación para usar todas las herramientas que te permitirán escalar tu negocio en menos tiempo.</p>
                             </div>
                         </div>
 
@@ -758,7 +785,7 @@ export const ProjectsList: React.FC = () => {
                             }}
                             className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-emerald-900/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                         >
-                            Ver mi nueva Estrategia Maestra <ArrowRight className="w-5 h-5" />
+                            Ver Estrategia Creada <ArrowRight className="w-5 h-5" />
                         </button>
                     </div>
                 </div>

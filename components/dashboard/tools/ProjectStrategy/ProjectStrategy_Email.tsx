@@ -160,11 +160,16 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         let prog: any;
         const messages = [
             "Analizando nicho estratégico...",
-            "Redactando asuntos hipnóticos...",
-            "Estructurando secuencias de persuasión...",
-            "Optimizando para alta entregabilidad...",
-            "Sincronizando con tu estrategia...",
-            "Finalizando arquitectura de conversión..."
+            "Escaneando avatares de cliente ideal...",
+            "Diseñando arquitectura de persuasión...",
+            "Entrenando modelo de copywriting hipnótico...",
+            "Redactando asuntos de alta apertura...",
+            "Estructurando secuencia de 7 días...",
+            "Optimizando disparadores psicológicos...",
+            "Sincronizando con la estrategia del proyecto...",
+            "Verificando entregabilidad y spam-score...",
+            "Insertando enlaces de conversión dinámicos...",
+            "Finalizando secuencia de alta conversión..."
         ];
 
         if (isGenerating) {
@@ -176,12 +181,12 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             
             prog = setInterval(() => {
                 setProgress(prev => {
-                    const next = prev + (prev < 90 ? 0.8 : 0.1);
+                    const next = prev + 1;
                     const msgIdx = Math.min(Math.floor((next / 100) * messages.length), messages.length - 1);
                     setLoadingMessage(messages[msgIdx]);
                     return next > 99 ? 99 : next;
                 });
-            }, 100);
+            }, 909);
         }
         return () => {
             clearInterval(timer);
@@ -311,12 +316,40 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             setIsGenerating(false);
             setShowSuccess(true);
             
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
-            });
+            // Efecto Confeti Total (Cañón Izquierdo, Derecho y Central)
+            const end = Date.now() + (4 * 1000);
+            const colors = ['#FF5A1F', '#ffffff', '#3b82f6'];
+
+            (function frame() {
+                confetti({
+                    particleCount: 2,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0, y: 0.6 },
+                    colors: colors,
+                    zIndex: 1000
+                });
+                confetti({
+                    particleCount: 2,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1, y: 0.6 },
+                    colors: colors,
+                    zIndex: 1000
+                });
+                confetti({
+                    particleCount: 3,
+                    angle: 90,
+                    spread: 100,
+                    origin: { x: 0.5, y: 0.8 },
+                    colors: colors,
+                    zIndex: 1000
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
         } catch (e) {
             console.error(e);
             setIsGenerating(false);
@@ -398,13 +431,13 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
             {/* --- UI DE GENERACIÓN (LOADING STATE) --- */}
             {isGenerating && (
-                <div className="fixed inset-0 z-[300] bg-[#0B0B0B] flex flex-col items-center justify-center p-6 animate-in fade-in duration-500">
-                    <div className="w-full max-w-4xl flex flex-col items-center space-y-10">
+                <div className="fixed inset-0 z-[500] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 !m-0">
+                    <div className="bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in fade-in duration-500 flex flex-col items-center space-y-10 relative">
                         {/* Icono de la varita con efecto de brillo */}
                         <div className="relative">
-                            <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full"></div>
-                            <div className="relative w-24 h-24 bg-gray-900 rounded-[2rem] flex items-center justify-center border border-blue-500/30 shadow-2xl shadow-blue-500/10">
-                                <Wand2 className="w-12 h-12 text-blue-400 animate-pulse" />
+                            <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full"></div>
+                            <div className="relative w-24 h-24 bg-gray-900 rounded-[2rem] flex items-center justify-center border border-emerald-500/30 shadow-2xl shadow-emerald-500/10">
+                                <Wand2 className="w-12 h-12 text-emerald-400 animate-pulse" />
                             </div>
                         </div>
 
@@ -413,9 +446,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                             <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
                                 Nuestra inteligencia artificial está generando tu secuencia de correos electrónicos.
                             </h3>
-                            <p className="text-blue-400/80 font-bold text-sm uppercase tracking-[0.2em] animate-pulse">
-                                {loadingMessage}
-                            </p>
                         </div>
 
                         {/* Badge de advertencia */}
@@ -436,7 +466,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         {/* Barra de progreso verde gruesa y animada */}
                         <div className="w-full max-w-xl space-y-4">
                             <div className="flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest px-1">
-                                <span>Copywriting Estratégico</span>
+                                <span>{loadingMessage}</span>
                                 <span>{Math.round(progress)}%</span>
                             </div>
                             <div className="w-full h-8 bg-gray-900 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
@@ -444,7 +474,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                     className="h-full bg-gradient-to-r from-emerald-600 to-green-400 transition-all duration-300 ease-out shadow-[0_0_20px_rgba(16,185,129,0.3)] relative"
                                     style={{ width: `${progress}%` }}
                                 >
-                                    <div className="progress-shine"></div>
+                                    <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-loading-shine"></div>
                                 </div>
                             </div>
                         </div>
@@ -454,22 +484,16 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
             {/* --- UI DE ÉXITO (CONFETTI) --- */}
             {showSuccess && (
-                <div className="fixed inset-0 z-[400] bg-[#0B0B0B] flex flex-col items-center justify-center p-6 animate-in zoom-in-95 duration-700 overflow-hidden">
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] bg-blue-600/20 blur-[150px] rounded-full opacity-50"></div>
-                        <div className="absolute bottom-[-20%] left-[-10%] w-[60%] h-[60%] bg-purple-600/10 blur-[150px] rounded-full opacity-50"></div>
-                    </div>
-
-                    <div className="relative w-full max-w-2xl flex flex-col items-center text-center space-y-10">
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-emerald-500/40 blur-3xl rounded-full animate-pulse"></div>
-                            <div className="relative w-32 h-32 bg-emerald-500 rounded-[2.5rem] flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.4)] animate-bounce">
-                                <CheckCircle2 className="w-16 h-16 text-white" />
-                            </div>
+                <div className="fixed inset-0 z-[600] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-500 !m-0">
+                    <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-600 via-emerald-400 to-emerald-600"></div>
+                        
+                        <div className="w-24 h-24 bg-emerald-500/10 text-emerald-500 rounded-[2rem] flex items-center justify-center border border-emerald-500/20 shadow-lg shadow-emerald-900/10">
+                            <CheckCircle2 className="w-12 h-12" />
                         </div>
-
-                        <div className="space-y-4">
-                            <h3 className="text-4xl md:text-6xl font-black text-white leading-tight uppercase tracking-tighter italic">
+                        
+                        <div className="space-y-6">
+                            <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight italic">
                                 ¡Secuencia Generada con Éxito!
                             </h3>
                             <p className="text-gray-400 text-lg md:text-xl font-medium max-w-lg mx-auto leading-relaxed">
@@ -480,9 +504,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         <div className="w-full max-w-sm pt-4">
                             <button 
                                 onClick={() => window.location.reload()}
-                                className="w-full py-6 bg-blue-600 hover:bg-blue-500 text-white font-black text-xl uppercase tracking-[0.2em] rounded-2xl transition-all shadow-[0_20px_50px_rgba(59,130,246,0.3)] transform hover:scale-105 active:scale-95 flex items-center justify-center gap-4 group"
+                                className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-blue-900/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                             >
-                                Ver mi Secuencia <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                                Ver mi Secuencia <ArrowRight className="w-5 h-5" />
                             </button>
                             <p className="text-gray-600 text-[10px] font-black uppercase tracking-widest mt-6 flex items-center justify-center gap-2">
                                 <Shield className="w-3 h-3" /> Acceso Instantáneo Desbloqueado

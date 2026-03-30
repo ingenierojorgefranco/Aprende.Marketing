@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
 import { GeneratedPageContent, LandingPage, ColorPalette, StructureType, DestinationConfig, DestinationType, Project, User } from '../../../types';
@@ -331,6 +332,41 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
       setGeneratedPageResult(savedPage);
       setGenerationStatus('success');
 
+      // Efecto Confeti Total (Cañón Izquierdo, Derecho y Central)
+      const end = Date.now() + (4 * 1000);
+      const colors = ['#FF5A1F', '#ffffff', '#3b82f6'];
+
+      (function frame() {
+          confetti({
+              particleCount: 2,
+              angle: 60,
+              spread: 55,
+              origin: { x: 0, y: 0.6 },
+              colors: colors,
+              zIndex: 1000
+          });
+          confetti({
+              particleCount: 2,
+              angle: 120,
+              spread: 55,
+              origin: { x: 1, y: 0.6 },
+              colors: colors,
+              zIndex: 1000
+          });
+          confetti({
+              particleCount: 3,
+              angle: 90,
+              spread: 100,
+              origin: { x: 0.5, y: 0.8 },
+              colors: colors,
+              zIndex: 1000
+          });
+
+          if (Date.now() < end) {
+              requestAnimationFrame(frame);
+          }
+      }());
+
     } catch (err) {
       console.error(err);
       clearInterval(progressInterval);
@@ -564,10 +600,9 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                     </div>
 
                     <div className="space-y-6">
-                        <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¡Tu Página de Captura ha sido creada en menos de 1 minuto!</h3>
+                        <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¡Tu Sistema de Ventas está 100% Activo!</h3>
                         <div className="space-y-4 text-white text-xl leading-relaxed font-medium">
-                            <p>¡Felicidades! Hemos diseñado una página de captura profesional para ti, optimizada con precisión para convertir visitantes en clientes reales.</p>
-                            <p>Esta es la herramienta perfecta para empezar a captar prospectos de alta calidad. Tu página está lista para recibir tráfico y generar resultados desde este mismo instante.</p>
+                            <p>Todas las configuraciones técnicas, enlaces de seguimiento y formularios de captura han sido verificados. Tu embudo está listo para procesar visitantes y convertirlos en prospectos de alta calidad.</p>
                         </div>
                     </div>
 
@@ -580,7 +615,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                                 rel="noopener noreferrer"
                                 className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
                             >
-                                <ExternalLink className="w-5 h-5" /> Ver Página
+                                <ExternalLink className="w-5 h-5" /> Ver Página de Captura
                             </a>
                             <a 
                                 href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}/gracias`}
@@ -588,7 +623,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                                 rel="noopener noreferrer"
                                 className="flex-1 bg-emerald-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-emerald-500 transform hover:scale-[1.03] active:scale-95"
                             >
-                                <ExternalLink className="w-5 h-5" /> Ver Gracias
+                                <ExternalLink className="w-5 h-5" /> Ver Página de Gracias
                             </a>
                         </div>
                         {/* Fila 2 (Gestión) */}
@@ -599,7 +634,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                                 rel="noopener noreferrer"
                                 className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 hover:bg-[#D94A1E] transform hover:scale-[1.03] active:scale-95"
                             >
-                                <PenTool className="w-5 h-5" /> Editar Página
+                                <PenTool className="w-5 h-5" /> Editar Página de Captura
                             </a>
                             <button 
                                 onClick={() => {
@@ -608,7 +643,17 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                                 }}
                                 className="flex-1 bg-blue-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-blue-500 transform hover:scale-[1.03] active:scale-95"
                             >
-                                <Globe className="w-5 h-5" /> Dominio
+                                <Globe className="w-5 h-5" /> Asignar Dominio
+                            </button>
+                        </div>
+                        
+                        {/* Botón Cerrar */}
+                        <div className="pt-4 flex justify-center">
+                            <button 
+                                onClick={onClose}
+                                className="w-full py-4 bg-gray-800 text-gray-400 font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all hover:bg-gray-700 hover:text-white"
+                            >
+                                Cerrar
                             </button>
                         </div>
                     </div>

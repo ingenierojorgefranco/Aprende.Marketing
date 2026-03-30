@@ -157,10 +157,15 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const [secondsElapsed, setSecondsElapsed] = useState(0);
     const loadingTexts = [
         "Analizando psicología del avatar...",
-        "Redactando ganchos de apertura...",
-        "Optimizando para respuesta directa...",
-        "Integrando disparadores mentales...",
-        "Estructurando el cierre de ventas..."
+        "Escaneando disparadores de respuesta rápida...",
+        "Diseñando arquitectura de persuasión móvil...",
+        "Entrenando modelo de copywriting para WhatsApp...",
+        "Estructurando secuencia de 12 momentos críticos...",
+        "Optimizando ganchos de apertura inmediata...",
+        "Sincronizando gatillos mentales de escasez...",
+        "Validando flujo de conversión en tiempo real...",
+        "Ajustando tono de voz para máxima cercanía...",
+        "Finalizando secuencia de lanzamiento maestro..."
     ];
 
     useEffect(() => {
@@ -538,9 +543,6 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                             <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
                                 Diseñando tu Lanzamiento Maestro
                             </h3>
-                            <p className="text-emerald-400/80 font-bold text-sm uppercase tracking-[0.2em] animate-pulse">
-                                {loadingText}
-                            </p>
                         </div>
 
                         {/* Badge de advertencia */}
@@ -561,7 +563,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                         {/* Barra de progreso verde gruesa y animada */}
                         <div className="w-full max-w-xl space-y-4">
                             <div className="flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest px-1">
-                                <span>Arquitectura de Persuasión</span>
+                                <span>{loadingText}</span>
                                 <span>{Math.round(progress)}%</span>
                             </div>
                             <div className="w-full h-8 bg-gray-900 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
