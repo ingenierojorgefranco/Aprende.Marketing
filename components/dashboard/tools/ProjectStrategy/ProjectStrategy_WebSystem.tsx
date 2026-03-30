@@ -288,10 +288,10 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         {loadingLocal ? (
                             <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
                         ) : linkedPages.length > 0 ? (
-                            <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-[45rem] p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
+                            <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-[47rem] p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
                                 <CheckCircle2 className="w-16 h-16 text-emerald-500" />
-                                <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">¡Tu Sistema de Ventas está 100% Activo!</h3>
-                                <p className="text-gray-400 text-lg font-medium leading-relaxed max-w-2xl">Todas las configuraciones técnicas, enlaces de seguimiento y formularios de captura han sido verificados. Tu embudo está listo para procesar visitantes y convertirlos en prospectos de alta calidad.</p>
+                                <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">✅ Tu sistema ya está listo para empezar</h3>
+                                <p className="text-gray-400 text-lg font-medium leading-relaxed max-w-2xl">Hemos configurado y verificado todo por ti:<br />tu página de captura, enlaces y formularios ya están funcionando correctamente.</p>
                                 
                                 <div className="w-full space-y-4">
                                     {/* Fila 1 - Visualización */}
