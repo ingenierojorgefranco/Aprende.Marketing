@@ -32,11 +32,13 @@ export const ProjectsList: React.FC = () => {
     const [unlockStep, setUnlockStep] = useState<'info' | 'confirm'>('info');
 
     // --- ESTADOS DE GENERACIÓN DINÁMICA ---
-    const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
+    const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success' | 'error'>('idle');
     const [progress, setProgress] = useState(0);
     const [loadingMessage, setLoadingMessage] = useState('');
     const [secondsElapsed, setSecondsElapsed] = useState(0);
     const [generatedProjectId, setGeneratedProjectId] = useState<string | null>(null);
+    const [generationError, setGenerationError] = useState<string | null>(null);
+    const [failedProjectId, setFailedProjectId] = useState<string | null>(null);
     // --------------------------------------
 
     // --- Nuevo Estado para Restricción de Eliminación ---
@@ -196,10 +198,42 @@ export const ProjectsList: React.FC = () => {
         } catch (error: any) {
             clearInterval(progressInterval);
             clearInterval(timerInterval);
-            alert(error.message || "Error al desbloquear estrategia.");
-            setGenerationStatus('idle');
+            
+            // Si el error contiene un projectId, significa que el proyecto se creó pero la IA falló
+            if (error.body?.projectId) {
+                setFailedProjectId(error.body.projectId);
+                setGenerationError(error.body.error || "La IA tuvo un problema al generar el contenido JSON. Puedes intentar regenerar sin costo adicional.");
+                setGenerationStatus('error');
+            } else {
+                alert(error.message || "Error al desbloquear estrategia.");
+                setGenerationStatus('idle');
+            }
         } finally {
-            setSelectedMasterProject(null);
+            // No reseteamos selectedMasterProject aquí si hay error, para poder reintentar
+            if (generationStatus !== 'error') {
+                setSelectedMasterProject(null);
+            }
+        }
+    };
+
+    const handleRegenerate = async () => {
+        if (!failedProjectId || !selectedMasterProject) return;
+
+        try {
+            setGenerationStatus('generating');
+            setProgress(0);
+            setSecondsElapsed(0);
+            setGenerationError(null);
+
+            // 1. Borramos el proyecto fallido para no consumir créditos/espacio
+            await api.deleteProject(failedProjectId);
+            setFailedProjectId(null);
+
+            // 2. Reiniciamos la generación
+            await handleFinalGeneration();
+        } catch (error: any) {
+            setGenerationStatus('error');
+            setGenerationError("Error al intentar regenerar. Por favor, intenta de nuevo.");
         }
     };
 
@@ -789,6 +823,51 @@ export const ProjectsList: React.FC = () => {
                         >
                             Ver Estrategia Creada <ArrowRight className="w-5 h-5" />
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* --- PANTALLA DE ERROR (MODAL PROFESIONAL) --- */}
+            {generationStatus === 'error' && (
+                <div className="fixed inset-0 z-[400] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-500 !mt-0">
+                    <div className="bg-[#0B0B0B] border border-red-500/20 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-600 via-red-400 to-red-600"></div>
+                        
+                        <div className="w-24 h-24 bg-red-500/10 text-red-500 rounded-[2rem] flex items-center justify-center border border-red-500/20 shadow-lg shadow-red-900/10">
+                            <AlertTriangle className="w-12 h-12" />
+                        </div>
+                        
+                        <div className="space-y-6">
+                            <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tight leading-tight text-white">
+                                Algo no salió como esperábamos
+                            </h3>
+                            <div className="space-y-4 text-gray-400 text-lg leading-relaxed">
+                                <p>{generationError || "Hubo un error técnico al procesar la respuesta de la IA. No te preocupes, no se han consumido créditos adicionales."}</p>
+                                <p className="text-sm font-bold text-red-400/80 uppercase tracking-widest">Puedes intentar regenerar la estrategia ahora mismo.</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col w-full gap-4">
+                            <button 
+                                onClick={handleRegenerate}
+                                className="w-full py-5 bg-white text-black font-black text-sm uppercase tracking-[0.2em] rounded-2xl shadow-xl transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                            >
+                                <Zap className="w-5 h-5 fill-current" /> Regenerar Estrategia
+                            </button>
+                            
+                            <button 
+                                onClick={() => {
+                                    setGenerationStatus('idle');
+                                    setGenerationError(null);
+                                    setFailedProjectId(null);
+                                    setSelectedMasterProject(null);
+                                    loadData(); // Recargamos por si acaso
+                                }}
+                                className="w-full py-4 text-gray-500 hover:text-white font-bold text-xs uppercase tracking-widest transition-colors"
+                            >
+                                Cancelar y volver
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

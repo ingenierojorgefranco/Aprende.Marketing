@@ -125,8 +125,18 @@ router.post('/unlock/:id', async (req, res) => {
         );
 
         // 4. Invocar internamente a la función generateFullStrategy para que la IA genere avatares y contenidos únicos
-        const strategyJson = await generateFullStrategy(newProjectId);
-        await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), newProjectId]);
+        try {
+            const strategyJson = await generateFullStrategy(newProjectId);
+            await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), newProjectId]);
+        } catch (genError) {
+            console.error("[Unlock Strategy Gen Error]", genError);
+            // Si falla la IA, devolvemos el ID del proyecto creado para que el frontend pueda manejarlo (reintentar o borrar)
+            return res.status(500).json({ 
+                error: 'Error al generar la estrategia personalizada por la IA. Puedes reintentar.',
+                projectId: String(newProjectId),
+                details: genError.message
+            });
+        }
 
         // Registrar actividad de sistema
         await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_MASTER_STRATEGY_GEN', 'project', newProjectId, { masterName: master.name });

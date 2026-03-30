@@ -206,7 +206,7 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
 
     if (!res.ok) {
         let errorMsg = res.statusText;
-        let errorBody = null;
+        let errorBody: any = null;
         try {
             errorBody = await res.json();
             if (errorBody.error) errorMsg = errorBody.error;
@@ -220,7 +220,10 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
             });
         }
 
-        throw new Error(`HTTP Error ${res.status}: ${errorMsg}`);
+        const error = new Error(`HTTP Error ${res.status}: ${errorMsg}`) as any;
+        error.status = res.status;
+        error.body = errorBody;
+        throw error;
     }
     
     return await res.json();
