@@ -39,6 +39,7 @@ export const ProjectsList: React.FC = () => {
     const [generatedProjectId, setGeneratedProjectId] = useState<string | null>(null);
     const [generationError, setGenerationError] = useState<string | null>(null);
     const [failedProjectId, setFailedProjectId] = useState<string | null>(null);
+    const [showCreateOptionsModal, setShowCreateOptionsModal] = useState(false);
     // --------------------------------------
 
     // --- Nuevo Estado para Restricción de Eliminación ---
@@ -333,7 +334,7 @@ export const ProjectsList: React.FC = () => {
                                 </button>
                             ) : (
                                 <button
-                                    onClick={() => navigate('/dashboard/projects/create')}
+                                    onClick={() => setShowCreateOptionsModal(true)}
                                     className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 hover:-translate-y-1 w-full"
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-2">
@@ -370,7 +371,7 @@ export const ProjectsList: React.FC = () => {
                         <h3 className="text-xl font-bold text-white mb-2">Comienza tu Estrategia</h3>
                         <p className="text-gray-400 max-w-md mx-auto mb-8">Define tu primer proyecto o desbloquea una estrategia de la biblioteca inferior.</p>
                         <button 
-                            onClick={() => navigate('/dashboard/projects/create')}
+                            onClick={() => setShowCreateOptionsModal(true)}
                             className="text-blue-400 border border-blue-500/50 hover:bg-blue-600 hover:text-white px-6 py-2.5 rounded-lg transition font-medium"
                         >
                             Crear Primer Proyecto
@@ -379,7 +380,7 @@ export const ProjectsList: React.FC = () => {
                 ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <button 
-                            onClick={() => navigate('/dashboard/projects/create')}
+                            onClick={() => setShowCreateOptionsModal(true)}
                             className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
                         >
                             <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
@@ -496,7 +497,7 @@ export const ProjectsList: React.FC = () => {
             </div>
 
             {/* SECCIÓN 2: BIBLIOTECA DE ESTRATEGIAS MAESTRAS (NUEVA) */}
-            <div className="space-y-8 pt-12 border-t border-white/5">
+            <div id="biblioteca-maestra" className="space-y-8 pt-12 border-t border-white/5">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                     <div className="flex items-center gap-4 border-l-4 border-yellow-500 pl-4 py-1 pb-5">
                         <div className="p-3 bg-yellow-500/10 rounded-2xl text-yellow-500 border border-yellow-500/20 shadow-[0_0_20px_rgba(234,179,8,0.1)]">
@@ -897,6 +898,89 @@ export const ProjectsList: React.FC = () => {
                 userEmail={user.email}
                 userName={user.name}
             />
+
+            {/* MODAL SELECTOR DE INICIO (EFECTO WOW) */}
+            {showCreateOptionsModal && (
+                <div 
+                    onClick={() => setShowCreateOptionsModal(false)}
+                    className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/90 backdrop-blur-2xl animate-in fade-in duration-300 !mt-0"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-[#0B0B0B] border border-white/10 rounded-[3rem] w-full max-w-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative"
+                    >
+                        <button 
+                            onClick={() => setShowCreateOptionsModal(false)}
+                            className="absolute top-6 right-6 p-2 bg-white/5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-all z-10"
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+
+                        <div className="p-10 md:p-16 space-y-12">
+                            <div className="text-center space-y-4">
+                                <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+                                    ¿Cómo quieres <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">empezar hoy?</span>
+                                </h2>
+                                <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto">
+                                    Elige el camino que mejor se adapte a tu nivel de experiencia y velocidad deseada.
+                                </p>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-8">
+                                {/* OPCIÓN 1: BIBLIOTECA MAESTRA */}
+                                <div 
+                                    onClick={() => {
+                                        setShowCreateOptionsModal(false);
+                                        setTimeout(() => {
+                                            document.getElementById('biblioteca-maestra')?.scrollIntoView({ behavior: 'smooth' });
+                                        }, 100);
+                                    }}
+                                    className="group relative bg-gradient-to-br from-gray-900 to-black border border-yellow-500/20 rounded-[2.5rem] p-8 cursor-pointer hover:border-yellow-500/50 transition-all duration-500 hover:-translate-y-2 shadow-xl hover:shadow-yellow-500/10"
+                                >
+                                    <div className="absolute top-4 right-4 px-3 py-1 bg-yellow-500 text-black text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg">
+                                        Recomendado
+                                    </div>
+                                    
+                                    <div className="w-16 h-16 bg-yellow-500/10 text-yellow-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                        <Sparkles className="w-8 h-8" />
+                                    </div>
+                                    
+                                    <h3 className="text-2xl font-black text-white mb-3 group-hover:text-yellow-400 transition-colors">Copiar Nuestra Estrategia Maestra</h3>
+                                    <p className="text-gray-400 leading-relaxed">
+                                        Ahorra semanas de trabajo usando una de nuestras estructuras validadas de alta conversión. Ideal para lanzamientos rápidos.
+                                    </p>
+                                    
+                                    <div className="mt-8 flex items-center gap-2 text-yellow-500 font-black text-xs uppercase tracking-widest group-hover:gap-4 transition-all">
+                                        Explorar Biblioteca <ArrowRight className="w-4 h-4" />
+                                    </div>
+                                </div>
+
+                                {/* OPCIÓN 2: DESDE CERO */}
+                                <div 
+                                    onClick={() => {
+                                        setShowCreateOptionsModal(false);
+                                        navigate('/dashboard/projects/create');
+                                    }}
+                                    className="group relative bg-gradient-to-br from-gray-900 to-black border border-white/5 rounded-[2.5rem] p-8 cursor-pointer hover:border-blue-500/30 transition-all duration-500 hover:-translate-y-2 shadow-xl hover:shadow-blue-500/5"
+                                >
+                                    <div className="w-16 h-16 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                        <PenTool className="w-8 h-8" />
+                                    </div>
+                                    
+                                    <h3 className="text-2xl font-black text-white mb-3 group-hover:text-blue-400 transition-colors">Crear Proyecto desde Cero</h3>
+                                    <p className="text-gray-400 leading-relaxed">
+                                        Define tu propio nicho, audiencia y estrategia personalizada desde una hoja en blanco. Control total sobre cada detalle.
+                                    </p>
+                                    
+                                    <div className="mt-8 flex items-center gap-2 text-blue-500 font-black text-xs uppercase tracking-widest group-hover:gap-4 transition-all">
+                                        Empezar ahora <ArrowRight className="w-4 h-4" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
