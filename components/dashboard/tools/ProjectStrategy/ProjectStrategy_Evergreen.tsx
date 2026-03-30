@@ -347,7 +347,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         return {
             id: article.id,
             day: `Día ${dayNum}`,
-            subject: dbMessage?.subject || `[LECTURA RECOMENDADA] ${article.title}`,
+            subject: dbMessage?.subject || article.title,
             body: dbMessage?.contentHtml || '',
             type: 'Evergreen / Valor',
             objective: 'Construir autoridad de marca enviando tráfico al blog de tu landing page.',
@@ -410,14 +410,12 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                         <div className="flex justify-between items-end">
                             <div>
                                 <h5 className="text-white font-bold text-sm">Correos de Nutrición</h5>
-                                <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-0.5">Límite de tu Plan</p>
                             </div>
-                            <div className="text-right">
-                                <span className="text-white font-black text-xl">{emailsUsed}</span>
-                                <span className="text-gray-600 font-bold text-sm ml-1">/ {maxEmails}</span>
+                            <div className="text-sm font-semibold text-indigo-600">
+                                {emailsUsed} / {maxEmails}
                             </div>
                         </div>
-                        <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden shadow-inner">
+                        <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
                             <div 
                                 className={`h-full transition-all duration-1000 ${progressColor}`}
                                 style={{ width: `${usagePercent}%` }}
@@ -712,46 +710,32 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
 
             {/* MODAL DE CONFIRMACIÓN Y LÍMITES */}
             {showConfirmModal && (
-                <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-[#161616] border border-white/10 rounded-[3rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-red-600"></div>
-                        
-                        <div className="p-10 space-y-8">
-                            <div className="flex items-center gap-5">
-                                <div className="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center text-orange-500 border border-orange-500/20 shadow-lg">
-                                    <Sparkles className="w-8 h-8" />
+                <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300 !mt-0" onClick={() => setShowConfirmModal(false)}>
+                    <div className="bg-[#0B0B0B] border border-purple-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-rose-500"></div>
+                        <div className="p-8 md:p-10 space-y-8 flex-1 overflow-y-auto">
+                            <div className="flex flex-col items-center text-center space-y-6">
+                                <div className="w-20 h-20 bg-purple-500/10 text-purple-400 rounded-3xl flex items-center justify-center mx-auto border border-purple-500/20 shadow-lg shadow-purple-900/10 animate-pulse"><Sparkles className="w-10 h-10" /></div>
+                                <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
+                                    Confirmar Consumo de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Créditos</span>
+                                </h1>
+                                <p className="text-white text-lg leading-relaxed font-normal">
+                                    Al desbloquear este artículo estratégico se consumirá 1 crédito de tu plan actual.
+                                </p>
+                            </div>
+                            <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-inner text-left">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Créditos de Artículos</span>
+                                    <span className="text-white font-bold text-sm">{emailsUsed} / {maxEmails}</span>
                                 </div>
-                                <div>
-                                    <h3 className="text-2xl font-black text-white uppercase tracking-tight">¿Generar Correo de Nutrición?</h3>
-                                    <p className="text-gray-400 font-medium">Usaremos IA para transformar tu artículo en un correo persuasivo.</p>
+                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
+                                    <div className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
                                 </div>
                             </div>
-
-                            {/* Barra de Límites dentro de la Modal */}
-                            <div className="bg-black/40 rounded-3xl p-6 border border-white/5 space-y-4">
-                                <div className="flex justify-between items-end">
-                                    <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">Uso de tu Plan</span>
-                                    <span className="text-white font-black">{emailsUsed} / {maxEmails}</span>
-                                </div>
-                                <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
-                                    <div className={`h-full transition-all duration-1000 ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-3">
-                                <button 
-                                    onClick={handleGenerateEmail}
-                                    className="w-full py-5 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-orange-900/20 uppercase text-sm tracking-widest flex items-center justify-center gap-3"
-                                >
-                                    <PenTool className="w-5 h-5" /> Sí, Redactar Ahora
-                                </button>
-                                <button 
-                                    onClick={() => setShowConfirmModal(false)}
-                                    className="w-full py-5 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-2xl transition-all text-xs uppercase tracking-widest"
-                                >
-                                    Cancelar
-                                </button>
-                            </div>
+                        </div>
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
+                            <button onClick={handleGenerateEmail} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-rose-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Desbloquear</button>
                         </div>
                     </div>
                 </div>
