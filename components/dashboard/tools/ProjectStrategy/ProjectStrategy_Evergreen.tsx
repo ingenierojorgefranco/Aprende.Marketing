@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X, Loader2, Copy, Lock, Unlock, Search, BarChart, Eye, Target, Brain, Shield, Edit3, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, CheckCircle2, Wand2, Code } from 'lucide-react';
+import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X, Loader2, Copy, Lock, Unlock, Search, BarChart, Eye, Target, Brain, Shield, Edit3, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, CheckCircle2, Wand2, Code, AlertCircle } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, Article, EmailMessage } from '../../../../types';
 import { api } from '../../../../services/api';
+import confetti from 'canvas-confetti';
 
 interface ProjectStrategy_EvergreenProps {
     projectId: string;
@@ -29,10 +30,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     const [nurturingMessages, setNurturingMessages] = useState<EmailMessage[]>([]);
     const [loadingMessages, setLoadingMessages] = useState(true);
 
+    // Estados para el flujo de generación profesional
+    const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success' | 'error'>('idle');
+    const [progress, setProgress] = useState(0);
+    const [loadingMessage, setLoadingMessage] = useState('');
+    const [secondsElapsed, setSecondsElapsed] = useState(0);
+    const [generationError, setGenerationError] = useState<string | null>(null);
+
     // Estados para el editor profesional (igual que en ProjectStrategy_Email)
     const [localSubject, setLocalSubject] = useState('');
     const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [isGenerating, setIsGenerating] = useState(false);
     const [saveIndicator, setSaveIndicator] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [isPreviewMode, setIsPreviewMode] = useState(true);
     const [isHtmlMode, setIsHtmlMode] = useState(false);
@@ -209,11 +216,41 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
 
     const handleGenerateEmail = async () => {
         const article = linkedArticles[activeEvergreenEmail];
-        if (!article || generatingId) return;
+        if (!article || generationStatus === 'generating') return;
 
         setShowConfirmModal(false);
         setGeneratingId(article.id);
-        setIsGenerating(true);
+        setGenerationStatus('generating');
+        setProgress(0);
+        setSecondsElapsed(0);
+        setGenerationError(null);
+
+        // Mensajes de carga dinámicos
+        const messages = [
+            "Analizando el contenido del artículo...",
+            "Extrayendo puntos clave de valor...",
+            "Estructurando el gancho persuasivo...",
+            "Redactando el cuerpo del correo...",
+            "Optimizando el llamado a la acción...",
+            "Finalizando detalles del copy..."
+        ];
+        setLoadingMessage(messages[0]);
+
+        // Intervalo para actualizar progreso y mensajes
+        const interval = setInterval(() => {
+            setSecondsElapsed(prev => prev + 1);
+            setProgress(prev => {
+                if (prev < 90) return prev + Math.random() * 5;
+                return prev;
+            });
+            setLoadingMessage(prev => {
+                const currentIndex = messages.indexOf(prev);
+                if (currentIndex < messages.length - 1 && Math.random() > 0.7) {
+                    return messages[currentIndex + 1];
+                }
+                return prev;
+            });
+        }, 1000);
 
         try {
             // Llamada al nuevo endpoint centralizado a través del servicio api
@@ -253,12 +290,27 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
             
             setLocalSubject(result.subject);
             setIsPreviewMode(true);
-        } catch (error) {
+            
+            // Éxito
+            clearInterval(interval);
+            setProgress(100);
+            setGenerationStatus('success');
+            
+            // Disparar confeti
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#FF5A1F', '#3B82F6', '#FFFFFF']
+            });
+
+        } catch (error: any) {
             console.error("Error generating email:", error);
-            alert("Hubo un error al generar el correo. Por favor intenta de nuevo.");
+            clearInterval(interval);
+            setGenerationStatus('error');
+            setGenerationError(error.message || "Hubo un error al generar el correo. Por favor intenta de nuevo.");
         } finally {
             setGeneratingId(null);
-            setIsGenerating(false);
         }
     };
 
@@ -706,7 +758,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
             )}
 
             {/* PANTALLA DE CARGA DE GENERACIÓN */}
-            {isGenerating && (
+            {generationStatus === 'generating' && (
                 <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-500">
                     <div className="relative mb-12">
                         <div className="w-32 h-32 bg-orange-500/10 rounded-[2.5rem] flex items-center justify-center animate-pulse border border-orange-500/20">
@@ -717,9 +769,75 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                         </div>
                     </div>
                     <h3 className="text-4xl font-black text-white uppercase tracking-tighter italic mb-4">Redactando tu Correo Evergreen</h3>
-                    <p className="text-orange-400 font-bold text-sm uppercase tracking-[0.3em] mb-12">Nuestra IA está analizando tu artículo para crear el copy perfecto...</p>
-                    <div className="w-full max-w-md bg-gray-900 h-2 rounded-full overflow-hidden border border-white/5">
-                        <div className="h-full bg-gradient-to-r from-orange-600 to-red-500 animate-progress-indefinite"></div>
+                    <p className="text-orange-400 font-bold text-sm uppercase tracking-[0.3em] mb-12">{loadingMessage}</p>
+                    
+                    <div className="w-full max-w-md space-y-4">
+                        <div className="w-full bg-gray-900 h-3 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                            <div 
+                                className="h-full bg-gradient-to-r from-orange-600 to-red-500 transition-all duration-500 ease-out"
+                                style={{ width: `${progress}%` }}
+                            ></div>
+                        </div>
+                        <div className="flex justify-between items-center text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                            <span>Progreso: {Math.round(progress)}%</span>
+                            <span>Tiempo: {secondsElapsed}s</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL DE ÉXITO */}
+            {generationStatus === 'success' && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-[#161616] border border-white/10 rounded-[3rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-600"></div>
+                        <div className="p-10 text-center space-y-8">
+                            <div className="w-24 h-24 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center text-emerald-500 border border-emerald-500/20 shadow-lg mx-auto">
+                                <Check className="w-12 h-12" />
+                            </div>
+                            <div className="space-y-3">
+                                <h3 className="text-3xl font-black text-white uppercase tracking-tight">¡Correo Generado!</h3>
+                                <p className="text-gray-400 font-medium text-lg">Tu correo de nutrición ha sido redactado con éxito y está listo para ser revisado.</p>
+                            </div>
+                            <button 
+                                onClick={() => setGenerationStatus('idle')}
+                                className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-emerald-900/20 uppercase text-sm tracking-widest flex items-center justify-center gap-3"
+                            >
+                                <Eye className="w-5 h-5" /> Ver Correo Ahora
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL DE ERROR */}
+            {generationStatus === 'error' && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-[#161616] border border-white/10 rounded-[3rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-red-800"></div>
+                        <div className="p-10 text-center space-y-8">
+                            <div className="w-24 h-24 bg-red-500/10 rounded-[2rem] flex items-center justify-center text-red-500 border border-red-500/20 shadow-lg mx-auto">
+                                <AlertCircle className="w-12 h-12" />
+                            </div>
+                            <div className="space-y-3">
+                                <h3 className="text-3xl font-black text-white uppercase tracking-tight">Error de Generación</h3>
+                                <p className="text-gray-400 font-medium">{generationError || "Hubo un problema al conectar con la IA. Por favor, intenta de nuevo."}</p>
+                            </div>
+                            <div className="flex flex-col gap-3">
+                                <button 
+                                    onClick={handleGenerateEmail}
+                                    className="w-full py-5 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-orange-900/20 uppercase text-sm tracking-widest flex items-center justify-center gap-3"
+                                >
+                                    <Sparkles className="w-5 h-5" /> Reintentar Generación
+                                </button>
+                                <button 
+                                    onClick={() => setGenerationStatus('idle')}
+                                    className="w-full py-5 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-2xl transition-all text-xs uppercase tracking-widest"
+                                >
+                                    Cerrar
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

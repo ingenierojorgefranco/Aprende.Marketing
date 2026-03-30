@@ -138,10 +138,14 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
 
     const messages = [
         "Analizando nicho estratégico...",
+        "Investigando puntos de dolor del avatar...",
         "Redactando encabezados hipnóticos...",
         "Estructurando bloques de persuasión...",
+        "Diseñando arquitectura de conversión...",
         "Optimizando para dispositivos móviles...",
+        "Configurando llamados a la acción (CTA)...",
         "Sincronizando con Hotmart®...",
+        "Verificando velocidad de carga...",
         "Finalizando arquitectura SEO..."
     ];
 
@@ -550,9 +554,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                         <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
                             Nuestra inteligencia artificial está generando tu página de captura.
                         </h3>
-                        <p className="text-emerald-400/80 font-bold text-sm uppercase tracking-[0.2em] animate-pulse">
-                            {loadingMessage}
-                        </p>
                     </div>
 
                     {/* Badge de advertencia */}
@@ -573,7 +574,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                     {/* Barra de progreso verde gruesa y animada */}
                     <div className="w-full max-w-xl space-y-4">
                         <div className="flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest px-1">
-                            <span>Arquitectura Estratégica</span>
+                            <span>{loadingMessage || "Iniciando generación..."}</span>
                             <span>{Math.round(progress)}%</span>
                         </div>
                         <div className="w-full h-8 bg-gray-900 rounded-full overflow-hidden border border-white/5 shadow-inner relative">

@@ -1047,39 +1047,37 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
             {showConfirmModal && (
                 <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300" onClick={() => setShowConfirmModal(false)}>
-                    <div className="bg-[#0B0B0B] border border-blue-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+                    <div className="bg-[#0B0B0B] border border-purple-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-rose-500"></div>
                         <div className="p-8 md:p-10 space-y-8 flex-1 overflow-y-auto">
                             <div className="flex flex-col items-center text-center space-y-6">
-                                <div className="w-20 h-20 bg-blue-500/10 text-blue-400 rounded-3xl flex items-center justify-center mx-auto border border-blue-500/20 shadow-lg shadow-blue-900/10 animate-pulse">
+                                <div className="w-20 h-20 bg-purple-500/10 text-purple-400 rounded-3xl flex items-center justify-center mx-auto border border-purple-500/20 shadow-lg shadow-purple-900/10 animate-pulse">
                                     <Sparkles className="w-10 h-10" />
                                 </div>
                                 <div className="space-y-2">
-                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirma la generación masiva</h3>
+                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">
+                                        Confirmar <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Consumo de Créditos</span>
+                                    </h3>
                                 </div>
                                 <p className="text-gray-400 text-lg leading-relaxed font-medium">
-                                    Estás a punto de generar la secuencia completa de 7 correos electrónicos. Por favor, asegúrate de haber revisado los asuntos, pilares y propósitos de cada día antes de proceder.
+                                    Al generar esta secuencia completa de correos se consumirá 1 crédito de tu plan actual.
                                 </p>
                             </div>
+
                             <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner">
-                                {generatedInCurrent === 0 && (
-                                    <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center gap-3 text-blue-400 animate-pulse">
-                                        <Info className="w-5 h-5" />
-                                        <span className="text-xs font-bold uppercase tracking-wider">Esta secuencia de conversión aún no ha sido generada</span>
-                                    </div>
-                                )}
                                 <div className="flex justify-between items-center mb-3">
-                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Uso Total de Secuencias (Global)</span>
+                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Créditos de Secuencias</span>
                                     <span className="text-white font-bold text-sm">{sequenceUsed} / {isRealAdmin ? '∞' : maxSequences}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
-                                    <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]`} style={{ width: `${isRealAdmin ? (sequenceUsed > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                    <div className={`h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_15px_rgba(168,85,247,0.4)]`} style={{ width: `${isRealAdmin ? (sequenceUsed > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                 </div>
                             </div>
                         </div>
+
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
                             <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">Revisar de nuevo</button>
-                            <button onClick={handleGenerateFullSequence} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-purple-900/20 transform hover:scale-105 active:scale-95 transition-all">Generar Secuencia Completa</button>
+                            <button onClick={handleGenerateFullSequence} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-rose-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-purple-900/20 transform hover:scale-105 active:scale-95 transition-all">Generar Secuencia Completa</button>
                         </div>
                     </div>
                 </div>

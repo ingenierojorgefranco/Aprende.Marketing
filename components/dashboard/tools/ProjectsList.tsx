@@ -611,7 +611,7 @@ export const ProjectsList: React.FC = () => {
             {showUnlockProtocol && selectedMasterProject && (
                 <div 
                     onClick={() => setShowUnlockProtocol(false)}
-                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300"
+                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300 !mt-0"
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}
