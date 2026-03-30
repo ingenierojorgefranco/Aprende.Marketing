@@ -581,7 +581,7 @@ export const ProjectsList: React.FC = () => {
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative max-h-[90vh]"
+                        className={`bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full ${unlockStep === 'info' ? 'max-w-[45rem]' : 'max-w-[34rem]'} shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative max-h-[90vh]`}
                     >
                         {/* Línea de acento dorada superior */}
                         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-yellow-600 via-amber-400 to-yellow-600 shadow-[0_0_15px_rgba(234,179,8,0.5)]"></div>
@@ -670,14 +670,14 @@ export const ProjectsList: React.FC = () => {
                                     </div>
                                     <div className="space-y-2">
                                         <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirmar Consumo de Créditos</h3>
-                                        <p className="text-gray-400 text-lg leading-relaxed font-medium max-w-xl">Al desbloquear esta estrategia maestra se consumirá 1 cupo de proyecto de tu plan actual.</p>
+                                        <p className="text-white text-lg leading-relaxed font-medium max-w-xl">Al crear una nueva estrategia de consumirás 1 cupo de proyecto disponble de tu plan actual.</p>
                                     </div>
                                 </div>
 
                                 <div className="bg-black border border-white/5 p-8 rounded-[2.5rem] shadow-inner relative overflow-hidden">
                                     <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500/50"></div>
                                     <div className="flex justify-between items-center mb-4">
-                                        <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Cupos de Proyecto en tu Plan <span className="text-white">({user.planLimits?.planName})</span></span>
+                                        <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Cupos Disponibles para Proyectos</span>
                                         <span className="text-white font-mono font-bold text-sm">{currentCount} / {isRealAdmin ? '∞' : maxProjects}</span>
                                     </div>
                                     <div className="w-full bg-gray-900 h-3 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
@@ -772,8 +772,10 @@ export const ProjectsList: React.FC = () => {
                         </div>
                         
                         <div className="space-y-6">
-                            <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">Hemos creado tu Negocio Digital en menos de 1 minuto</h3>
-                            <div className="space-y-4 text-white text-xl leading-relaxed font-medium">
+                            <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tight leading-tight text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-500 to-yellow-200 drop-shadow-sm">
+                                Hemos creado tu Negocio Digital en menos de 1 minuto
+                            </h3>
+                            <div className="space-y-4 text-gray-300 text-xl leading-relaxed font-light">
                                 <p>¡Felicidades!. Tu Negocio Digital esta listo y completo para usarse. Haz clic a continuación para usar todas las herramientas que te permitirán escalar tu negocio en menos tiempo.</p>
                             </div>
                         </div>

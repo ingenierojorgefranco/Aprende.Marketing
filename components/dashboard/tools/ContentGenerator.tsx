@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../../../services/geminiService';
 import { api } from '../../../services/api';
 import { Article, Project, LandingPage, User, AffiliateLink } from '../../../types';
@@ -163,6 +164,17 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       }, 1000);
     }
     return () => clearInterval(timer);
+  }, [generationStatus]);
+
+  useEffect(() => {
+    if (generationStatus === 'success') {
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        zIndex: 9999
+      });
+    }
   }, [generationStatus]);
 
   useEffect(() => {
@@ -626,8 +638,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   return (
     <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step > 0 ? 'max-w-[98%] xl:max-w-[90rem]' : 'max-w-5xl'}`}>
       <style>{`
-        @keyframes confetti-fall { 0% { transform: translateY(-100%) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
-        .confetti { position: absolute; width: 8px; height: 8px; animation: confetti-fall 3s linear forwards; top: -10px; z-index: 50; }
         @keyframes loading-shine { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
         .progress-shine { position: absolute; top: 0; left: 0; height: 100%; width: 50%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: loading-shine 1.5s infinite; }
       `}</style>
@@ -732,27 +742,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                 <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-600 via-emerald-400 to-emerald-600"></div>
                     
-                    {/* Confetti simulation */}
-                    {[...Array(40)].map((_, i) => (
-                        <div 
-                            key={i} 
-                            className="confetti" 
-                            style={{
-                                left: `${Math.random() * 100}%`,
-                                backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'][Math.floor(Math.random() * 5)],
-                                animationDelay: `${Math.random() * 3}s`,
-                                animationDuration: `${2 + Math.random() * 2}s`
-                            }}
-                        ></div>
-                    ))}
-
-                    <div className="w-24 h-24 bg-emerald-500/10 text-emerald-500 rounded-[2rem] flex items-center justify-center border border-emerald-500/20 shadow-lg shadow-emerald-900/10 scale-110 animate-bounce">
-                        <CheckCircle className="w-14 h-14" />
+                    <div className="w-24 h-24 bg-emerald-500/10 text-emerald-500 rounded-[2rem] flex items-center justify-center border border-emerald-500/20 shadow-lg shadow-emerald-900/10 scale-110 animate-bounce relative">
+                        <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full animate-pulse"></div>
+                        <CheckCircle className="w-14 h-14 relative z-10" />
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¡Artículo Generado con Éxito!</h3>
-                        <p className="text-gray-400 text-lg font-medium leading-relaxed">
+                        <h3 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-500 uppercase tracking-tight leading-tight">¡Artículo Generado con Éxito!</h3>
+                        <p className="text-gray-300 text-lg font-medium leading-relaxed max-w-md mx-auto">
                             Tu artículo SEO ha sido optimizado y está listo para ser publicado en tu blog.
                         </p>
                     </div>

@@ -907,7 +907,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
             {showGeneratorModal && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in" onClick={handleCloseAndReload}>
-                    <div className="w-full max-w-[90rem] h-[95vh] overflow-y-auto rounded-[3rem] shadow-2xl relative border border-white/10 custom-scrollbar" onClick={e => e.stopPropagation()}>
+                    <div className="w-full max-w-[90rem] h-[95vh] overflow-y-auto rounded-[3rem] shadow-2xl relative border border-white/10 custom-scrollbar !mt-0" onClick={e => e.stopPropagation()}>
                         <ContentGenerator 
                             preFilledData={{
                                 topic: currentData[activeArticleIdx]?.title || '',

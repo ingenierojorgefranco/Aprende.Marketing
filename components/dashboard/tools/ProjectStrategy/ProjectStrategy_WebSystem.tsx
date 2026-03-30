@@ -288,7 +288,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <h3 className="text-3xl font-black text-white mb-4">¡Tu Sistema de Ventas está 100% Activo!</h3>
                                 <p className="text-gray-400 text-lg font-medium leading-relaxed mb-10 max-w-2xl">Todas las configuraciones técnicas, enlaces de seguimiento y formularios de captura han sido verificados. Tu embudo está listo para procesar visitantes y convertirlos en prospectos de alta calidad.</p>
                                 
-                                <div className="w-full max-w-[41rem] space-y-4">
+                                <div className="w-full max-w-[44rem] space-y-4">
                                     {/* Fila 1 - Visualización */}
                                     <div className="flex flex-col sm:flex-row gap-4">
                                         <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white text-black font-black py-4 px-10 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Captura</a>
@@ -304,7 +304,17 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         >
                                             <PenTool className="w-5 h-5" /> Editar Página de Captura
                                         </a>
-                                        <button onClick={() => setShowDomainModal(true)} className="flex-1 bg-blue-600 text-white font-black py-4 px-10 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all flex items-center justify-center gap-2"><Globe className="w-5 h-5" /> Asignar Dominio</button>
+                                        <button 
+                                            onClick={() => setShowDomainModal(true)} 
+                                            className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition border shadow-xl transform hover:scale-[1.03] ${
+                                                linkedPages[0].customDomain 
+                                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-white" 
+                                                : "bg-blue-500/10 text-blue-400 border-blue-500/30 hover:bg-blue-600 hover:text-white"
+                                            }`}
+                                        >
+                                            {linkedPages[0].customDomain ? <CheckCircle2 className="w-5 h-5" /> : <Globe className="w-5 h-5" />}
+                                            {linkedPages[0].customDomain ? "Ver Dominio" : "Asignar Dominio"}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -316,15 +326,40 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             </div>
 
             {showConfirmModal && (
-                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowConfirmModal(false)}>
-                    <div className="bg-[#0B0B0B] border border-blue-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl p-10 text-center" onClick={e => e.stopPropagation()}>
-                        <Sparkles className="w-16 h-16 text-blue-400 mx-auto mb-6" />
-                        <h3 className="text-3xl font-black text-white mb-6">Confirma la generación</h3>
-                        <div className="bg-white/5 p-6 rounded-[2rem] mb-8">
-                            <div className="flex justify-between text-xs text-gray-500 uppercase font-black mb-2"><span>Consumo</span><span>{pageCount} / {maxLandings}</span></div>
-                            <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden"><div className={`h-full ${progressColor}`} style={{ width: `${usagePercent}%` }}></div></div>
+                <div 
+                    onClick={() => setShowConfirmModal(false)}
+                    className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" 
+                >
+                    <div className="bg-[#0B0B0B] border border-blue-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-500"></div>
+                        <div className="p-8 md:p-10 space-y-8 flex-1 text-center">
+                            <div className="w-20 h-20 bg-blue-500/10 text-blue-400 rounded-3xl flex items-center justify-center mx-auto border border-blue-500/20 shadow-lg animate-pulse">
+                                <Sparkles className="w-10 h-10" />
+                            </div>
+                            <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirmar Consumo de Créditos</h3>
+                            <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                {(!isRealAdmin && pageCount >= maxLandings) 
+                                    ? "Has alcanzado el límite de páginas de tu plan actual. Actualiza tu plan para continuar."
+                                    : "Al crear una nueva página web de captura se consumirá 1 crédito de tu plan actual."}
+                            </p>
+                            <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Páginas Web Creadas</span>
+                                    <span className="text-white font-mono font-bold text-sm">{pageCount} / {isRealAdmin ? '∞' : maxLandings}</span>
+                                </div>
+                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
+                                    <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]`} style={{ width: `${isRealAdmin ? (pageCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex gap-4"><button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black">No, cancelar</button><button onClick={() => { setShowConfirmModal(false); setShowGeneratorModal(true); }} className="flex-1 py-4 rounded-xl bg-blue-600 text-white font-black">Confirmar</button></div>
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
+                            {(!isRealAdmin && pageCount >= maxLandings) ? (
+                                <button onClick={() => { setShowConfirmModal(false); onUpgrade?.(); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Actualizar Plan</button>
+                            ) : (
+                                <button onClick={() => { setShowConfirmModal(false); setShowGeneratorModal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Generar</button>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
@@ -385,7 +420,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             <div className="aspect-video w-full bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
                                 <iframe 
                                     className="w-full h-full"
-                                    src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                                    src="https://www.youtube.com/embed/vGfXD9VbfXo" 
                                     title="Tutorial Configuración de Dominio" 
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                     allowFullScreen
