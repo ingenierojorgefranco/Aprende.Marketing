@@ -317,7 +317,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             setShowSuccess(true);
             
             // Efecto Confeti Total (Cañón Izquierdo, Derecho y Central)
-            const end = Date.now() + (4 * 1000);
+            const end = Date.now() + (2 * 1000);
             const colors = ['#FF5A1F', '#ffffff', '#3b82f6'];
 
             (function frame() {

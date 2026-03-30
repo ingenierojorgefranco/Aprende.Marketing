@@ -9,7 +9,7 @@ export const WelcomePage: React.FC = () => {
 
     useEffect(() => {
         // Disparar confeti al cargar la página
-        const duration = 3 * 1000;
+        const duration = 2 * 1000;
         const animationEnd = Date.now() + duration;
         const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 

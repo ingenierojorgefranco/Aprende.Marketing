@@ -392,13 +392,26 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         setActiveArticle(globalIdx);
     };
 
-    const handleCloseAndReload = () => {
+    const handleCloseAndReload = async () => {
         setShowGeneratorModal(false);
+        await loadLocalData();
+        setActiveTab('generated');
+        setActiveGeneratedArticle(0);
+        setCurrentPage(1);
+        
+        // Actualizar URL sin recargar para mantener la posición y estado
         const currentUrl = new URL(window.location.href);
         currentUrl.searchParams.set('section', 'content');
         currentUrl.hash = 'psd-content-anchor';
-        window.location.replace(currentUrl.toString());
-        window.location.reload();
+        window.history.pushState({}, '', currentUrl.toString());
+
+        // Scroll suave al ancla de contenido
+        setTimeout(() => {
+            const anchor = document.getElementById('psd-content-anchor');
+            if (anchor) {
+                anchor.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 100);
     };
 
     const handleUnlockArticle = async () => {

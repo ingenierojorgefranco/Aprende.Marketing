@@ -333,7 +333,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
       setGenerationStatus('success');
 
       // Efecto Confeti Total (Cañón Izquierdo, Derecho y Central)
-      const end = Date.now() + (4 * 1000);
+      const end = Date.now() + (2 * 1000);
       const colors = ['#FF5A1F', '#ffffff', '#3b82f6'];
 
       (function frame() {

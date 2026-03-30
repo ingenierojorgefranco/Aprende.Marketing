@@ -676,7 +676,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         )}
 
         {generationStatus === 'generating' && (
-            <div className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 !mt-0">
+            <div className="fixed top-0 left-0 w-full h-full z-[300] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 !m-0">
                 <div className="bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in fade-in duration-500 flex flex-col items-center space-y-10">
                     {/* Icono de la varita con efecto de brillo */}
                     <div className="relative">
@@ -728,7 +728,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         )}
 
         {generationStatus === 'success' && (
-            <div className="fixed inset-0 z-[400] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-500 !mt-0">
+            <div className="fixed top-0 left-0 w-full h-full z-[400] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-500 !m-0">
                 <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-600 via-emerald-400 to-emerald-600"></div>
                     

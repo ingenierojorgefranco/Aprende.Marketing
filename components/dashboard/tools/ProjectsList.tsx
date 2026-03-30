@@ -158,7 +158,7 @@ export const ProjectsList: React.FC = () => {
             setGenerationStatus('success');
             
             // Efecto Confeti Total (Cañón Izquierdo, Derecho y Central)
-            const end = Date.now() + (4 * 1000);
+            const end = Date.now() + (2 * 1000);
             const colors = ['#FF5A1F', '#ffffff', '#3b82f6'];
 
             (function frame() {
@@ -581,7 +581,7 @@ export const ProjectsList: React.FC = () => {
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative max-h-[90vh]"
+                        className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative max-h-[90vh]"
                     >
                         {/* Línea de acento dorada superior */}
                         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-yellow-600 via-amber-400 to-yellow-600 shadow-[0_0_15px_rgba(234,179,8,0.5)]"></div>
@@ -723,7 +723,7 @@ export const ProjectsList: React.FC = () => {
                         {/* Texto de generación en negrita y profesional */}
                         <div className="text-center space-y-3">
                             <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-2xl mx-auto">
-                                Nuestra inteligencia artificial está duplicando tu estrategia maestra.
+                                Estamos creando la Estrategia perfecta para vender tu Producto Digital.
                             </h3>
                         </div>
 

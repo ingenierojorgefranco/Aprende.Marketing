@@ -258,12 +258,41 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         setCurrentPage(1);
         
         setGenerationStatus('success');
-        confetti({
-            particleCount: 150,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ['#FF5A1F', '#10B981', '#FFFFFF']
-        });
+        
+        // Efecto Confeti Total (Cañón Izquierdo, Derecho y Central) - 2 segundos
+        const end = Date.now() + (2 * 1000);
+        const colors = ['#FF5A1F', '#10B981', '#FFFFFF'];
+
+        (function frame() {
+            confetti({
+                particleCount: 2,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0, y: 0.6 },
+                colors: colors,
+                zIndex: 1000
+            });
+            confetti({
+                particleCount: 2,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1, y: 0.6 },
+                colors: colors,
+                zIndex: 1000
+            });
+            confetti({
+                particleCount: 3,
+                angle: 90,
+                spread: 100,
+                origin: { x: 0.5, y: 0.8 },
+                colors: colors,
+                zIndex: 1000
+            });
+
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            }
+        }());
     } catch (e: any) {
         clearInterval(progressInterval);
         clearInterval(timerInterval);
@@ -410,12 +439,41 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         if (!hookIdOverride) {
             setProgress(100);
             setGenerationStatus('success');
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#FF5A1F', '#10B981', '#FFFFFF']
-            });
+            
+            // Efecto Confeti Total (Cañón Izquierdo, Derecho y Central) - 2 segundos
+            const end = Date.now() + (2 * 1000);
+            const colors = ['#FF5A1F', '#10B981', '#FFFFFF'];
+
+            (function frame() {
+                confetti({
+                    particleCount: 2,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0, y: 0.6 },
+                    colors: colors,
+                    zIndex: 1000
+                });
+                confetti({
+                    particleCount: 2,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1, y: 0.6 },
+                    colors: colors,
+                    zIndex: 1000
+                });
+                confetti({
+                    particleCount: 3,
+                    angle: 90,
+                    spread: 100,
+                    origin: { x: 0.5, y: 0.8 },
+                    colors: colors,
+                    zIndex: 1000
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
         }
     } catch (e) {
         clearInterval(progressInterval);
