@@ -231,6 +231,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const handleBlurSave = async (overrideData?: any) => {
         const active = currentData[activeArticleIdx];
         const dataToSave = overrideData || localEdit;
+        console.log("Saving article data:", { id: active?.id, dataToSave });
         if (!dataToSave || !active?.id || (String(active.id).startsWith('available-') && !isRealAdmin) || (active.isUnlocked === false && !isRealAdmin)) return;
 
         // Evitar guardado si no hay cambios reales
@@ -265,11 +266,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 if (idx !== -1) {
                     updated[idx] = {
                         ...updated[idx],
-                        title: localEdit.title,
-                        strategy: localEdit.strategy,
-                        keyword: localEdit.keyword,
-                        searchVolume: localEdit.searchVolume,
-                        searchIntent: localEdit.searchIntent
+                        title: dataToSave.title,
+                        strategy: dataToSave.strategy,
+                        keyword: dataToSave.keyword,
+                        searchVolume: dataToSave.searchVolume,
+                        searchIntent: dataToSave.searchIntent
                     };
                     setLibraryData(updated);
                 }
@@ -279,11 +280,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 if (idx !== -1) {
                     updated[idx] = {
                         ...updated[idx],
-                        title: localEdit.title,
-                        strategy: localEdit.strategy,
-                        keyword: localEdit.keyword,
-                        searchVolume: localEdit.searchVolume,
-                        searchIntent: localEdit.searchIntent
+                        title: dataToSave.title,
+                        strategy: dataToSave.strategy,
+                        keyword: dataToSave.keyword,
+                        searchVolume: dataToSave.searchVolume,
+                        searchIntent: dataToSave.searchIntent
                     };
                     setGeneratedData(updated);
                 }
@@ -314,6 +315,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         ) return;
 
         const timer = setTimeout(async () => {
+            console.log("Auto-saving article data (timer):", { id: active?.id, localEdit });
             try {
                 if (active.isFromDb) {
                     await api.updateArticle(active.id, {
@@ -702,7 +704,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             </span>
                                         ) : (
                                             <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">
-                                                Estrategia Manual
+                                                Artículos SEO Optimizados
                                             </span>
                                         )}
                                         <div className="flex items-center gap-2">
@@ -808,7 +810,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                         onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('keyword')}
                                                         className={`text-purple-300 font-bold text-lg leading-tight break-words transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-purple-100' : ''}`}
                                                     >
-                                                        {localEdit?.keyword || currentData[activeArticleIdx]?.keyword}
+                                                        {localEdit?.keyword || currentData[activeArticleIdx]?.keyword || (isRealAdmin ? 'Añadir Keyword...' : '')}
                                                     </p>
                                                 )}
                                             </div>
@@ -835,7 +837,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                         onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('searchVolume')}
                                                         className={`text-emerald-300 font-bold text-lg leading-tight break-words transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-emerald-100' : ''}`}
                                                     >
-                                                        {localEdit?.searchVolume || currentData[activeArticleIdx]?.searchVolume || 'N/A'}
+                                                        {localEdit?.searchVolume || currentData[activeArticleIdx]?.searchVolume || (isRealAdmin ? 'Añadir Volumen...' : 'N/A')}
                                                     </p>
                                                 )}
                                             </div>
