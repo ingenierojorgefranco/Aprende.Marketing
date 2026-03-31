@@ -910,6 +910,7 @@ export const api = {
             isGenerated: !!a.is_generated,
             isUnlocked: !!a.isUnlocked,
             unlockedAt: a.unlockedAt,
+            masterArticleId: a.master_article_id ? String(a.master_article_id) : undefined,
             psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
             title: a.title,
             slug: a.slug,
@@ -946,6 +947,7 @@ export const api = {
           const mapped: Article = {
                 id: a.id.toString(),
                 projectId: (a.project_id || a.projectId) ? String(a.project_id || a.projectId) : undefined,
+                masterArticleId: a.master_article_id ? String(a.master_article_id) : undefined,
                 pageId: a.page_id ? a.page_id.toString() : undefined,
                 title: a.title,
                 slug: a.slug,
@@ -956,6 +958,7 @@ export const api = {
                 seoScore: a.seo_score || 0,
                 metaTitle: a.meta_title,
                 metaDescription: a.meta_description || '',
+                psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
                 status: a.status || 'published',
                 publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
                 createdAt: a.created_at ? new Date(a.created_at) : new Date()

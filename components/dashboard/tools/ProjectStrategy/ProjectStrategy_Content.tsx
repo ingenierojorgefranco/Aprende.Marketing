@@ -135,6 +135,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     keyword: a.keyword || a.psychologicalStrategy?.keyword || '',
                     searchVolume: a.psychologicalStrategy?.searchVolume || '',
                     searchIntent: a.psychologicalStrategy?.searchIntent || '',
+                    psychologicalStrategy: a.psychologicalStrategy,
                     isFromDb: true,
                     isGenerated: true,
                     isUnlocked: true,
@@ -162,6 +163,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     keyword: a.keyword || a.psychologicalStrategy?.keyword || '',
                     searchVolume: a.psychologicalStrategy?.searchVolume || '',
                     searchIntent: a.psychologicalStrategy?.searchIntent || '',
+                    psychologicalStrategy: a.psychologicalStrategy,
                     isFromDb: true,
                     isGenerated: false,
                     isUnlocked: !!a.isUnlocked,
@@ -299,11 +301,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 await api.updateArticle(active.id, {
                     title: dataToSave.title,
                     psychologicalStrategy: {
+                        ...(active.psychologicalStrategy || {}),
                         focus: dataToSave.strategy,
                         keyword: dataToSave.keyword,
                         searchVolume: dataToSave.searchVolume,
                         searchIntent: dataToSave.searchIntent,
-                        targetUrl: ""
                     }
                 } as any);
             } else if (typeof active.jsonIndex === 'number') {
@@ -402,11 +404,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     await api.updateArticle(active.id, {
                         title: localEdit.title,
                         psychologicalStrategy: {
+                            ...(active.psychologicalStrategy || {}),
                             focus: localEdit.strategy,
                             keyword: localEdit.keyword,
                             searchVolume: localEdit.searchVolume,
                             searchIntent: localEdit.searchIntent,
-                            targetUrl: ""
                         }
                     } as any);
                 } else if (typeof active.jsonIndex === 'number') {
@@ -533,7 +535,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     isUnlocked: true,
                     isGenerated: false,
                     status: 'draft',
-                    psychologicalStrategy: {
+                    psychologicalStrategy: active.psychologicalStrategy || {
                         focus: active.strategy || '',
                         keyword: active.keyword || '',
                         searchVolume: String(active.searchVolume || '0'),

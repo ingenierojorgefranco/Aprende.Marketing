@@ -260,7 +260,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   }, [preSelectedProjectId, userProjects, selectedProject, step]);
 
   useEffect(() => {
-    if (editArticleId) {
+    if (editArticleId && !preFilledData) {
         const loadArticle = async () => {
             setLoading(true);
             try {
