@@ -99,13 +99,13 @@ export const generateFullArticle = async (
         `;
     }
 
-    const prompt = `Actúa como un experto cercano y empático que le habla directamente al lector (usa "tú", "te", "tu", "estás"). El texto debe sentirse como si una persona le hablara directamente al usuario final.
+    const prompt = `Actúa como un Mentor/Profesor experto que se dirige a una audiencia colectiva (usa "nosotros", "ustedes", "nuestra comunidad"). 
     
     REGLAS DE PERSONA:
     - NO menciones nombres propios de personas (ni el tuyo ni de otros).
     - NO cuentes anécdotas personales, historias de vida o detalles privados.
     - Mantén un enfoque 100% informativo, educativo y profesional.
-    - Dirígete al lector de forma personal, cercana y empática.
+    - Evita mencionar nombres de avatares específicos o dirigirte a una sola persona.
 
     Escribe un artículo de blog COMPLETO y optimizado para SEO basado en este esquema estructural OBLIGATORIO.
     
@@ -118,11 +118,11 @@ export const generateFullArticle = async (
     ${projectStrategy}
 
     REGLAS DE REDACCIÓN Y ESTRUCTURA:
-    1. INTRODUCCIÓN OBLIGATORIA: El artículo DEBE comenzar tocando directamente uno o dos puntos de dolor (pains) del lector para generar interés inmediato. PROHIBIDO usar saludos genéricos como "Bienvenidos a nuestra comunidad" o similares.
+    1. INTRODUCCIÓN OBLIGATORIA: El artículo DEBE comenzar con una introducción potente que enganche al lector.
     2. SIN CONCLUSIÓN: NO incluyas una sección de conclusión o cierre al final del texto. El artículo debe terminar con el contenido informativo y el CTA final.
-    3. PÁRRAFOS MUY CORTOS: Cada párrafo debe tener un máximo de 2 a 3 líneas. Divide el contenido en fragmentos cortos y directos para facilitar la lectura rápida.
-    4. TÍTULO ÚNICO: Genera una variación del título base que sea única, viral y altamente atractiva, manteniendo el enfoque y la keyword (o una variación coherente de la misma).
-    5. BANNERS DE LLAMADO A LA ACCIÓN (CTA) REALES: 
+    3. PÁRRAFOS CORTOS: Cada párrafo debe tener un máximo de 3 a 4 líneas para facilitar la lectura rápida.
+    2. TÍTULO ÚNICO: Genera una variación del título base que sea única, viral y altamente atractiva, manteniendo el enfoque y la keyword (o una variación coherente de la misma).
+    3. BANNERS DE LLAMADO A LA ACCIÓN (CTA) REALES: 
        - Inserta DOS banners de CTA en formato HTML real dentro del contenido (uno aproximadamente en la mitad y otro al final).
        - CADA BANNER DEBE TENER UN TEXTO PERSUASIVO DIFERENTE. No los repitas.
        - TONO PERSONALIZADO: El párrafo del CTA debe estar dirigido directamente al usuario que lee (usa "tú", "estás", "quieres", "puedes"). Evita el tono plural/colectivo en el banner.
@@ -141,9 +141,9 @@ export const generateFullArticle = async (
          </div>
        </div>
 
-    6. META DESCRIPTION: Genera una meta description optimizada (Máx 155 car.).
-    7. NO incluyas el Título Principal (H1) dentro del campo 'html'.
-    8. ASEGÚRATE de que el enlace en el botón sea "${ctaLink}" y tenga target="_blank".
+    4. META DESCRIPTION: Genera una meta description optimizada (Máx 155 car.).
+    5. NO incluyas el Título Principal (H1) dentro del campo 'html'.
+    6. ASEGÚRATE de que el enlace en el botón sea "${ctaLink}" y tenga target="_blank".
 
     Formato de Salida JSON: { "title": "Nuevo Título Viral", "html": "Contenido HTML...", "metaDescription": "..." }`;
 
@@ -158,7 +158,7 @@ export const generateFullArticle = async (
     };
 
     try {
-        const response = await callGeminiBackend(prompt, schema, true, "gemini-3-flash-preview", 0);
+        const response = await callGeminiBackend(prompt, schema, true, "gemini-3-pro-preview", 16384);
         if (response.text) {
             return JSON.parse(response.text);
         }

@@ -58,6 +58,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const projectId = embeddedProjectId || routeProjectId;
     const isRealAdmin = (user?.role === 'admin' || user?.email === 'jackfort@gmail.com') || (planLimits?.planName === 'admin' && !isSimulating);
     
+    console.log(">>> ProjectStrategy_Content Rendering", { activeArticle, activeTab, isRealAdmin });
+    console.log(">>> Project Info:", { projectId, userEmail: user?.email });
     const [activeLibraryArticle, setActiveLibraryArticle] = useState(0);
     const [activeGeneratedArticle, setActiveGeneratedArticle] = useState(0);
     const [libraryData, setLibraryData] = useState<any[]>([]);
@@ -188,22 +190,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
             let newLibrary = [...manualFromDb, ...suggestions];
             
-            // Si no es admin, aplicar lógica de ordenamiento especial:
-            // 1. Desbloqueados primero (ordenados por fecha de desbloqueo/creación)
-            // 2. Bloqueados después (orden aleatorio)
+            // Si no es admin, aleatorizar el orden de la biblioteca
             if (!isRealAdmin) {
-                const unlocked = newLibrary.filter(art => art.isUnlocked);
-                const locked = newLibrary.filter(art => !art.isUnlocked);
-                
-                const sortedUnlocked = [...unlocked].sort((a, b) => {
-                    const dateA = new Date(a.unlockedAt || a.createdAt || 0).getTime();
-                    const dateB = new Date(b.unlockedAt || b.createdAt || 0).getTime();
-                    return dateB - dateA;
-                });
-                
-                const randomLocked = [...locked].sort(() => Math.random() - 0.5);
-                
-                newLibrary = [...sortedUnlocked, ...randomLocked];
+                newLibrary = [...newLibrary].sort(() => Math.random() - 0.5);
             }
             
             setLibraryData(newLibrary);
@@ -275,11 +264,20 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         const active = currentData[activeArticleIdx];
         const dataToSave = overrideData || localEdit;
         
+        console.log(">>> handleBlurSave Attempt", { 
+            id: active?.id, 
+            dataToSave, 
+            isFromDb: active?.isFromDb,
+            activeIntent: active?.searchIntent
+        });
+        
         if (!dataToSave || !active?.id) {
+            console.warn(">>> handleBlurSave: No data or ID", { dataToSave, activeId: active?.id });
             return;
         }
         
         if ((String(active.id).startsWith('available-') && !isRealAdmin) || (active.isUnlocked === false && !isRealAdmin) || (active.masterArticleId && !isRealAdmin)) {
+            console.warn(">>> handleBlurSave: Permissions restriction (Master Article)");
             return;
         }
 
@@ -292,8 +290,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             dataToSave.searchIntent !== (active.searchIntent || '');
 
         if (!hasChanges) {
+            console.log(">>> handleBlurSave: No changes detected");
             return;
         }
+
+        console.log(">>> handleBlurSave: Proceeding to save...");
 
         try {
             if (active.isFromDb) {
@@ -347,6 +348,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     };
 
     const handleSearchIntentChange = (val: string) => {
+        console.log(">>> handleSearchIntentChange:", val);
         const active = currentData[activeArticleIdx];
         if (!active) {
             console.error(">>> handleSearchIntentChange: No active article");
@@ -377,6 +379,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             searchIntent: active?.searchIntent || ''
         };
         const newEdit = { ...baseData, [field]: value };
+        console.log(`>>> handleFieldChange [${field}]:`, value);
         setLocalEdit(newEdit);
     };
 
@@ -395,6 +398,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         ) return;
 
         const timer = setTimeout(async () => {
+            console.log("Auto-saving article data (timer):", { id: active?.id, localEdit });
             try {
                 if (active.isFromDb) {
                     await api.updateArticle(active.id, {
