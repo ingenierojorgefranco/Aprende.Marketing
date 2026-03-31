@@ -142,7 +142,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     updatedAt: a.updatedAt,
                     createdAt: a.createdAt,
                     unlockedAt: a.unlockedAt,
-                    publishedAt: a.publishedAt
+                    publishedAt: a.publishedAt,
+                    masterArticleId: a.masterArticleId
                 }))
                 .sort((a, b) => {
                     const dateA = new Date(a.publishedAt || a.updatedAt || a.createdAt).getTime();
@@ -169,7 +170,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     updatedAt: a.updatedAt,
                     createdAt: a.createdAt,
                     unlockedAt: a.unlockedAt,
-                    publishedAt: a.publishedAt
+                    publishedAt: a.publishedAt,
+                    masterArticleId: a.masterArticleId
                 }))
                 .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
@@ -274,8 +276,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             return;
         }
         
-        if ((String(active.id).startsWith('available-') && !isRealAdmin) || (active.isUnlocked === false && !isRealAdmin)) {
-            console.warn(">>> handleBlurSave: Permissions restriction");
+        if ((String(active.id).startsWith('available-') && !isRealAdmin) || (active.isUnlocked === false && !isRealAdmin) || (active.masterArticleId && !isRealAdmin)) {
+            console.warn(">>> handleBlurSave: Permissions restriction (Master Article)");
             return;
         }
 
@@ -525,20 +527,31 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 await api.unlockArticle(projectId!, masterId);
             } else if (String(active.id).startsWith('json-')) {
                 // Para sugerencias del JSON, las "desbloqueamos" guardándolas en la DB
+                let strategyToUse = {
+                    focus: active.strategy || '',
+                    keyword: active.keyword || '',
+                    searchVolume: String(active.searchVolume || '0'),
+                    targetUrl: ''
+                };
+
+                // Si viene de un maestro, intentamos copiar la estrategia exacta
+                if (active.masterArticleId) {
+                    const masterArt = await api.getArticleById(active.masterArticleId);
+                    if (masterArt && masterArt.psychologicalStrategy) {
+                        strategyToUse = masterArt.psychologicalStrategy;
+                    }
+                }
+
                 await api.saveArticle({
                     projectId: projectId!,
+                    masterArticleId: active.masterArticleId,
                     title: active.title,
                     description: active.strategy || '',
                     keyword: active.keyword || '',
                     isUnlocked: true,
                     isGenerated: false,
                     status: 'draft',
-                    psychologicalStrategy: {
-                        focus: active.strategy || '',
-                        keyword: active.keyword || '',
-                        searchVolume: String(active.searchVolume || '0'),
-                        targetUrl: ''
-                    }
+                    psychologicalStrategy: strategyToUse
                 } as any);
             }
             await loadLocalData(targetTitle);
@@ -780,26 +793,30 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-purple-500" /></div>
                                         
                                         <div className="w-full text-left mb-8">
-                                            <h3 className="text-white mb-6 font-bold transition-colors" style={{ fontSize: '1.6rem', lineHeight: '2rem' }}>{currentData[activeArticleIdx].title}</h3>
+                                            <h3 className="text-white mb-6 font-bold transition-colors" style={{ fontSize: '1.6rem', lineHeight: '2rem', paddingTop: '1em', paddingBottom: '0.3em' }}>{currentData[activeArticleIdx].title}</h3>
                                             
-                                            <div className="bg-purple-500/5 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm mb-8">
+                                            {/* Bloque Enfoque Estratégico */}
+                                            <div className="bg-purple-500/5 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm mb-4">
                                                 <div className="flex items-center gap-2 mb-3">
                                                     <Brain className="w-5 h-5 text-purple-400" />
                                                     <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
                                                 </div>
-                                                <p className="text-white font-light leading-relaxed mb-6" style={{ fontSize: '1.1rem' }}>
-                                                    {currentData[activeArticleIdx].strategy}
-                                                </p>
-
-                                                <div className="pt-4 border-t border-purple-500/10">
-                                                    <div className="flex items-center gap-2 mb-3">
-                                                        <Target className="w-5 h-5 text-purple-400" />
-                                                        <span className="text-white font-bold text-xs uppercase tracking-widest">Estado de Consciencia</span>
-                                                    </div>
-                                                    <p className="text-purple-300 font-bold text-lg">
-                                                        {currentData[activeArticleIdx].searchIntent || 'Por determinar'}
+                                                <div className="max-h-[180px] overflow-y-auto custom-scrollbar">
+                                                    <p className="text-white font-light leading-relaxed" style={{ fontSize: '1.1rem' }}>
+                                                        {currentData[activeArticleIdx].strategy}
                                                     </p>
                                                 </div>
+                                            </div>
+
+                                            {/* Bloque Estado de Consciencia */}
+                                            <div className="bg-purple-500/5 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm mb-8">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <Target className="w-5 h-5 text-purple-400" />
+                                                    <span className="text-white font-bold text-xs uppercase tracking-widest">Estado de Consciencia</span>
+                                                </div>
+                                                <p className="text-purple-300 font-bold text-lg text-center">
+                                                    {currentData[activeArticleIdx].searchIntent || 'Por determinar'}
+                                                </p>
                                             </div>
                                         </div>
 
@@ -861,8 +878,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         />
                                     ) : (
                                     <h3 
-                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('title')}
-                                        className={`font-bold text-white mb-6 transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-purple-300' : ''}`}
+                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated && !currentData[activeArticleIdx]?.masterArticleId || isRealAdmin) && setEditingField('title')}
+                                        className={`font-bold text-white mb-6 transition-colors ${(!currentData[activeArticleIdx]?.isGenerated && !currentData[activeArticleIdx]?.masterArticleId || isRealAdmin) ? 'cursor-pointer hover:text-purple-300' : ''}`}
                                         style={{ fontSize: '1.6rem', lineHeight: '2rem' }}
                                     >
                                         {localEdit?.title || currentData[activeArticleIdx]?.title}
@@ -885,8 +902,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     />
                                                 ) : (
                                                     <p 
-                                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('strategy')}
-                                                        className={`text-gray-300 leading-relaxed font-light transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-white' : ''}`}
+                                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated && !currentData[activeArticleIdx]?.masterArticleId || isRealAdmin) && setEditingField('strategy')}
+                                                        className={`text-gray-300 leading-relaxed font-light transition-colors ${(!currentData[activeArticleIdx]?.isGenerated && !currentData[activeArticleIdx]?.masterArticleId || isRealAdmin) ? 'cursor-pointer hover:text-white' : ''}`}
                                                         style={{ fontSize: '1.1rem' }}
                                                     >
                                                         {localEdit?.strategy || currentData[activeArticleIdx]?.strategy}
@@ -906,8 +923,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             <select
                                                 value={localEdit?.searchIntent || ''}
                                                 onChange={(e) => handleSearchIntentChange(e.target.value)}
-                                                disabled={currentData[activeArticleIdx]?.isGenerated && !isRealAdmin}
-                                                className={`w-full bg-transparent text-purple-300 font-bold text-lg text-center outline-none appearance-none cursor-pointer ${(currentData[activeArticleIdx]?.isGenerated && !isRealAdmin) ? 'disabled:cursor-default' : ''}`}
+                                                disabled={(currentData[activeArticleIdx]?.isGenerated || currentData[activeArticleIdx]?.masterArticleId) && !isRealAdmin}
+                                                className={`w-full bg-transparent text-purple-300 font-bold text-lg text-center outline-none appearance-none cursor-pointer ${((currentData[activeArticleIdx]?.isGenerated || currentData[activeArticleIdx]?.masterArticleId) && !isRealAdmin) ? 'disabled:cursor-default' : ''}`}
                                             >
                                                 <option value="" className="bg-gray-900 text-gray-400">Seleccionar Intención...</option>
                                                 <option value="Inconsciente" className="bg-gray-900 text-white">Inconsciente</option>
@@ -936,8 +953,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     />
                                                 ) : (
                                                     <p 
-                                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('keyword')}
-                                                        className={`text-purple-300 font-bold text-lg leading-tight break-words transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-purple-100' : ''}`}
+                                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated && !currentData[activeArticleIdx]?.masterArticleId || isRealAdmin) && setEditingField('keyword')}
+                                                        className={`text-purple-300 font-bold text-lg leading-tight break-words transition-colors ${(!currentData[activeArticleIdx]?.isGenerated && !currentData[activeArticleIdx]?.masterArticleId || isRealAdmin) ? 'cursor-pointer hover:text-purple-100' : ''}`}
                                                     >
                                                         {localEdit?.keyword || currentData[activeArticleIdx]?.keyword || (isRealAdmin ? 'Añadir Keyword...' : '')}
                                                     </p>
@@ -963,8 +980,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     />
                                                 ) : (
                                                     <p 
-                                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('searchVolume')}
-                                                        className={`text-emerald-300 font-bold text-lg leading-tight break-words transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-emerald-100' : ''}`}
+                                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated && !currentData[activeArticleIdx]?.masterArticleId || isRealAdmin) && setEditingField('searchVolume')}
+                                                        className={`text-emerald-300 font-bold text-lg leading-tight break-words transition-colors ${(!currentData[activeArticleIdx]?.isGenerated && !currentData[activeArticleIdx]?.masterArticleId || isRealAdmin) ? 'cursor-pointer hover:text-emerald-100' : ''}`}
                                                     >
                                                         {localEdit?.searchVolume || currentData[activeArticleIdx]?.searchVolume || (isRealAdmin ? 'Añadir Volumen...' : 'N/A')}
                                                     </p>

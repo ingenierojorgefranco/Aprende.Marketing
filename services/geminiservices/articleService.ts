@@ -99,13 +99,13 @@ export const generateFullArticle = async (
         `;
     }
 
-    const prompt = `Actúa como un Mentor/Profesor experto que se dirige a una audiencia colectiva (usa "nosotros", "ustedes", "nuestra comunidad"). 
+    const prompt = `Actúa como un experto cercano y empático que le habla directamente al lector (usa "tú", "te", "tu", "estás"). El texto debe sentirse como si una persona le hablara directamente al usuario final.
     
     REGLAS DE PERSONA:
     - NO menciones nombres propios de personas (ni el tuyo ni de otros).
     - NO cuentes anécdotas personales, historias de vida o detalles privados.
     - Mantén un enfoque 100% informativo, educativo y profesional.
-    - Evita mencionar nombres de avatares específicos o dirigirte a una sola persona.
+    - Dirígete al lector de forma personal, cercana y empática.
 
     Escribe un artículo de blog COMPLETO y optimizado para SEO basado en este esquema estructural OBLIGATORIO.
     
@@ -118,9 +118,9 @@ export const generateFullArticle = async (
     ${projectStrategy}
 
     REGLAS DE REDACCIÓN Y ESTRUCTURA:
-    1. INTRODUCCIÓN OBLIGATORIA: El artículo DEBE comenzar con una introducción potente que enganche al lector.
+    1. INTRODUCCIÓN OBLIGATORIA: El artículo DEBE comenzar tocando directamente uno o dos puntos de dolor (pains) del lector para generar interés inmediato. PROHIBIDO usar saludos genéricos como "Bienvenidos a nuestra comunidad" o similares.
     2. SIN CONCLUSIÓN: NO incluyas una sección de conclusión o cierre al final del texto. El artículo debe terminar con el contenido informativo y el CTA final.
-    3. PÁRRAFOS CORTOS: Cada párrafo debe tener un máximo de 3 a 4 líneas para facilitar la lectura rápida.
+    3. PÁRRAFOS MUY CORTOS: Cada párrafo debe tener un máximo de 2 a 3 líneas. Divide el contenido en fragmentos cortos y directos para facilitar la lectura rápida.
     2. TÍTULO ÚNICO: Genera una variación del título base que sea única, viral y altamente atractiva, manteniendo el enfoque y la keyword (o una variación coherente de la misma).
     3. BANNERS DE LLAMADO A LA ACCIÓN (CTA) REALES: 
        - Inserta DOS banners de CTA en formato HTML real dentro del contenido (uno aproximadamente en la mitad y otro al final).
