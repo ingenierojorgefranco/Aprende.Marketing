@@ -188,11 +188,16 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 !manualFromDb.some(m => m.title === j.title || m.keyword === j.keyword)
             );
 
-            let newLibrary = [...manualFromDb, ...suggestions];
+            const unlocked = manualFromDb.filter(a => a.isUnlocked);
+            const locked = [...manualFromDb.filter(a => !a.isUnlocked), ...suggestions];
             
-            // Si no es admin, aleatorizar el orden de la biblioteca
+            let newLibrary;
             if (!isRealAdmin) {
-                newLibrary = [...newLibrary].sort(() => Math.random() - 0.5);
+                // Aleatorizar solo los bloqueados para que los desbloqueados (amarillos) se mantengan arriba y ordenados
+                const randomizedLocked = [...locked].sort(() => Math.random() - 0.5);
+                newLibrary = [...unlocked, ...randomizedLocked];
+            } else {
+                newLibrary = [...unlocked, ...locked];
             }
             
             setLibraryData(newLibrary);
