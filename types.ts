@@ -456,6 +456,7 @@ export interface Article {
     focus: string;
     keyword: string;
     searchVolume: string;
+    searchIntent?: string;
     targetUrl: string;
   };
   status: 'published' | 'draft' | 'scheduled';

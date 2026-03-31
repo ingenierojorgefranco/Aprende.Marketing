@@ -114,6 +114,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     strategy: a.psychologicalStrategy?.focus || a.description || '',
                     keyword: a.keyword || a.psychologicalStrategy?.keyword || '',
                     searchVolume: a.psychologicalStrategy?.searchVolume || '',
+                    searchIntent: a.psychologicalStrategy?.searchIntent || '',
                     isFromDb: true,
                     isGenerated: true,
                     isUnlocked: true,
@@ -136,6 +137,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     strategy: a.psychologicalStrategy?.focus || a.description || '',
                     keyword: a.keyword || a.psychologicalStrategy?.keyword || '',
                     searchVolume: a.psychologicalStrategy?.searchVolume || '',
+                    searchIntent: a.psychologicalStrategy?.searchIntent || '',
                     isFromDb: true,
                     isGenerated: false,
                     isUnlocked: !!a.isUnlocked,
@@ -192,7 +194,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 title: active.title,
                 strategy: active.strategy,
                 keyword: active.keyword,
-                searchVolume: active.searchVolume
+                searchVolume: active.searchVolume,
+                searchIntent: active.searchIntent || ''
             });
         } else {
             setLocalEdit(null);
@@ -215,7 +218,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 title: updatedData.title,
                 strategy: updatedData.strategy,
                 keyword: updatedData.keyword,
-                searchVolume: updatedData.searchVolume
+                searchVolume: updatedData.searchVolume,
+                searchIntent: updatedData.searchIntent
             };
 
             await api.updateProject(projectId, { ...project, strategy_json: strategy } as any);
@@ -234,7 +238,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             localEdit.title === active.title && 
             localEdit.strategy === active.strategy && 
             localEdit.keyword === (active.keyword || '') && 
-            localEdit.searchVolume === (active.searchVolume || 0)
+            localEdit.searchVolume === (active.searchVolume || 0) &&
+            localEdit.searchIntent === (active.searchIntent || '')
         ) return;
 
         try {
@@ -245,6 +250,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         focus: localEdit.strategy,
                         keyword: localEdit.keyword,
                         searchVolume: localEdit.searchVolume,
+                        searchIntent: localEdit.searchIntent,
                         targetUrl: ""
                     }
                 } as any);
@@ -262,7 +268,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         title: localEdit.title,
                         strategy: localEdit.strategy,
                         keyword: localEdit.keyword,
-                        searchVolume: localEdit.searchVolume
+                        searchVolume: localEdit.searchVolume,
+                        searchIntent: localEdit.searchIntent
                     };
                     setLibraryData(updated);
                 }
@@ -275,7 +282,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         title: localEdit.title,
                         strategy: localEdit.strategy,
                         keyword: localEdit.keyword,
-                        searchVolume: localEdit.searchVolume
+                        searchVolume: localEdit.searchVolume,
+                        searchIntent: localEdit.searchIntent
                     };
                     setGeneratedData(updated);
                 }
@@ -301,7 +309,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             localEdit.title === active.title && 
             localEdit.strategy === active.strategy && 
             localEdit.keyword === (active.keyword || '') && 
-            localEdit.searchVolume === (active.searchVolume || 0)
+            localEdit.searchVolume === (active.searchVolume || 0) &&
+            localEdit.searchIntent === (active.searchIntent || '')
         ) return;
 
         const timer = setTimeout(async () => {
@@ -313,6 +322,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             focus: localEdit.strategy,
                             keyword: localEdit.keyword,
                             searchVolume: localEdit.searchVolume,
+                            searchIntent: localEdit.searchIntent,
                             targetUrl: ""
                         }
                     } as any);
@@ -330,7 +340,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             title: localEdit.title,
                             strategy: localEdit.strategy,
                             keyword: localEdit.keyword,
-                            searchVolume: localEdit.searchVolume
+                            searchVolume: localEdit.searchVolume,
+                            searchIntent: localEdit.searchIntent
                         };
                         setLibraryData(updated);
                     }
@@ -343,7 +354,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             title: localEdit.title,
                             strategy: localEdit.strategy,
                             keyword: localEdit.keyword,
-                            searchVolume: localEdit.searchVolume
+                            searchVolume: localEdit.searchVolume,
+                            searchIntent: localEdit.searchIntent
                         };
                         setGeneratedData(updated);
                     }
@@ -725,80 +737,107 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     </h3>
                                     )}
 
-                                    <div className="bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-6">
-                                        <h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-                                            <Sparkles className="w-4 h-4 text-purple-400"/> Enfoque Estratégico del Artículo
-                                        </h5>
-                                        <div className="max-h-[180px] overflow-y-auto custom-scrollbar">
-                                            {editingField === 'strategy' ? (
-                                                <textarea 
-                                                    autoFocus
-                                                    value={localEdit?.strategy || ''}
-                                                    onChange={(e) => handleFieldChange('strategy', e.target.value)}
-                                                    onBlur={() => { setEditingField(null); handleBlurSave(); }}
-                                                    className="w-full bg-transparent text-gray-300 text-xl leading-relaxed font-light outline-none resize-none min-h-[100px]"
-                                                />
-                                            ) : (
-                                                <p 
-                                                    onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('strategy')}
-                                                    className={`text-gray-300 text-xl leading-relaxed font-light transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-white' : ''}`}
-                                                >
-                                                    {localEdit?.strategy || currentData[activeArticleIdx]?.strategy}
-                                                </p>
-                                            )}
+                                    {localEdit?.strategy && (
+                                        <div className="bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-6">
+                                            <h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                                                <Sparkles className="w-4 h-4 text-purple-400"/> Enfoque Estratégico del Artículo
+                                            </h5>
+                                            <div className="max-h-[180px] overflow-y-auto custom-scrollbar">
+                                                {editingField === 'strategy' ? (
+                                                    <textarea 
+                                                        autoFocus
+                                                        value={localEdit?.strategy || ''}
+                                                        onChange={(e) => handleFieldChange('strategy', e.target.value)}
+                                                        onBlur={() => { setEditingField(null); handleBlurSave(); }}
+                                                        className="w-full bg-transparent text-gray-300 text-xl leading-relaxed font-light outline-none resize-none min-h-[100px]"
+                                                    />
+                                                ) : (
+                                                    <p 
+                                                        onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('strategy')}
+                                                        className={`text-gray-300 text-xl leading-relaxed font-light transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-white' : ''}`}
+                                                    >
+                                                        {localEdit?.strategy || currentData[activeArticleIdx]?.strategy}
+                                                    </p>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
 
                                     <div className="space-y-4">
                                         <div 
                                             className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group" 
                                         >
                                             <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
-                                                <Search className="w-3 h-3"/> Keyword SEO
+                                                <Brain className="w-3 h-3"/> Intención de Búsqueda
                                             </p>
-                                            {editingField === 'keyword' ? (
-                                                <input 
-                                                    autoFocus
-                                                    type="text"
-                                                    value={localEdit?.keyword || ''}
-                                                    onChange={(e) => handleFieldChange('keyword', e.target.value)}
-                                                    onBlur={() => { setEditingField(null); handleBlurSave(); }}
-                                                    className="w-full bg-transparent text-purple-300 font-bold text-lg text-center outline-none"
-                                                />
-                                            ) : (
-                                                <p 
-                                                    onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('keyword')}
-                                                    className={`text-purple-300 font-bold text-lg leading-tight break-words transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-purple-100' : ''}`}
-                                                >
-                                                    {localEdit?.keyword || currentData[activeArticleIdx]?.keyword}
-                                                </p>
-                                            )}
+                                            <select
+                                                value={localEdit?.searchIntent || ''}
+                                                onChange={(e) => { handleFieldChange('searchIntent', e.target.value); setTimeout(handleBlurSave, 100); }}
+                                                disabled={currentData[activeArticleIdx]?.isGenerated}
+                                                className="w-full bg-transparent text-purple-300 font-bold text-lg text-center outline-none appearance-none cursor-pointer disabled:cursor-default"
+                                            >
+                                                <option value="" className="bg-gray-900 text-gray-400">Seleccionar Intención...</option>
+                                                <option value="Inconsciente" className="bg-gray-900 text-white">Inconsciente</option>
+                                                <option value="Consciente del Problema" className="bg-gray-900 text-white">Consciente del Problema</option>
+                                                <option value="Consciente de la Solución" className="bg-gray-900 text-white">Consciente de la Solución</option>
+                                                <option value="Consciente del Producto" className="bg-gray-900 text-white">Consciente del Producto</option>
+                                                <option value="Totalmente Consciente" className="bg-gray-900 text-white">Totalmente Consciente</option>
+                                            </select>
                                         </div>
 
-                                        <div 
-                                            className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group" 
-                                        >
-                                            <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
-                                                <BarChart className="w-3 h-3"/> Vol. Búsqueda
-                                            </p>
-                                            {editingField === 'searchVolume' ? (
-                                                <input 
-                                                    autoFocus
-                                                    type="text"
-                                                    value={localEdit?.searchVolume || ''}
-                                                    onChange={(e) => handleFieldChange('searchVolume', e.target.value)}
-                                                    onBlur={() => { setEditingField(null); handleBlurSave(); }}
-                                                    className="w-full bg-transparent text-emerald-300 font-bold text-lg text-center outline-none"
-                                                />
-                                            ) : (
-                                                <p 
-                                                    onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('searchVolume')}
-                                                    className={`text-emerald-300 font-bold text-lg leading-tight break-words transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-emerald-100' : ''}`}
-                                                >
-                                                    {localEdit?.searchVolume || currentData[activeArticleIdx]?.searchVolume || 'N/A'}
+                                        {localEdit?.keyword && (
+                                            <div 
+                                                className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group" 
+                                            >
+                                                <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
+                                                    <Search className="w-3 h-3"/> Keyword SEO
                                                 </p>
-                                            )}
-                                        </div>
+                                                {editingField === 'keyword' ? (
+                                                    <input 
+                                                        autoFocus
+                                                        type="text"
+                                                        value={localEdit?.keyword || ''}
+                                                        onChange={(e) => handleFieldChange('keyword', e.target.value)}
+                                                        onBlur={() => { setEditingField(null); handleBlurSave(); }}
+                                                        className="w-full bg-transparent text-purple-300 font-bold text-lg text-center outline-none"
+                                                    />
+                                                ) : (
+                                                    <p 
+                                                        onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('keyword')}
+                                                        className={`text-purple-300 font-bold text-lg leading-tight break-words transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-purple-100' : ''}`}
+                                                    >
+                                                        {localEdit?.keyword || currentData[activeArticleIdx]?.keyword}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {localEdit?.searchVolume && (
+                                            <div 
+                                                className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group" 
+                                            >
+                                                <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
+                                                    <BarChart className="w-3 h-3"/> Vol. Búsqueda
+                                                </p>
+                                                {editingField === 'searchVolume' ? (
+                                                    <input 
+                                                        autoFocus
+                                                        type="text"
+                                                        value={localEdit?.searchVolume || ''}
+                                                        onChange={(e) => handleFieldChange('searchVolume', e.target.value)}
+                                                        onBlur={() => { setEditingField(null); handleBlurSave(); }}
+                                                        className="w-full bg-transparent text-emerald-300 font-bold text-lg text-center outline-none"
+                                                    />
+                                                ) : (
+                                                    <p 
+                                                        onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('searchVolume')}
+                                                        className={`text-emerald-300 font-bold text-lg leading-tight break-words transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-emerald-100' : ''}`}
+                                                    >
+                                                        {localEdit?.searchVolume || currentData[activeArticleIdx]?.searchVolume || 'N/A'}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
 
                                         {/* Botón de Acción Reubicado */}
                                         {!currentData[activeArticleIdx]?.isGenerated && (
