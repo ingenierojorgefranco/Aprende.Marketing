@@ -50,12 +50,16 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     articleCount = 0, planLimits, nextPlan, isSimulating = false,
     hideHeader = false, onArticleSelect, isEmbedded = false, embeddedProjectId
 }) => {
+    const [activeTab, setActiveTab] = useState<'library' | 'generated'>('library');
     const navigate = useNavigate();
     const context = useOutletContext() as any;
     const user = context?.user;
     const { id: routeProjectId } = useParams() as { id: string };
     const projectId = embeddedProjectId || routeProjectId;
-    const [activeTab, setActiveTab] = useState<'library' | 'generated'>('library');
+    const isRealAdmin = (user?.role === 'admin' || user?.email === 'jackfort@gmail.com') || (planLimits?.planName === 'admin' && !isSimulating);
+    
+    console.log(">>> ProjectStrategy_Content Rendering", { activeArticle, activeTab, isRealAdmin });
+    console.log(">>> Project Info:", { projectId, userEmail: user?.email });
     const [activeLibraryArticle, setActiveLibraryArticle] = useState(0);
     const [activeGeneratedArticle, setActiveGeneratedArticle] = useState(0);
     const [libraryData, setLibraryData] = useState<any[]>([]);
@@ -231,17 +235,38 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const handleBlurSave = async (overrideData?: any) => {
         const active = currentData[activeArticleIdx];
         const dataToSave = overrideData || localEdit;
-        console.log("Saving article data:", { id: active?.id, dataToSave });
-        if (!dataToSave || !active?.id || (String(active.id).startsWith('available-') && !isRealAdmin) || (active.isUnlocked === false && !isRealAdmin)) return;
+        
+        console.log(">>> handleBlurSave Attempt", { 
+            id: active?.id, 
+            dataToSave, 
+            isFromDb: active?.isFromDb,
+            activeIntent: active?.searchIntent
+        });
+        
+        if (!dataToSave || !active?.id) {
+            console.warn(">>> handleBlurSave: No data or ID", { dataToSave, activeId: active?.id });
+            return;
+        }
+        
+        if ((String(active.id).startsWith('available-') && !isRealAdmin) || (active.isUnlocked === false && !isRealAdmin)) {
+            console.warn(">>> handleBlurSave: Permissions restriction");
+            return;
+        }
 
         // Evitar guardado si no hay cambios reales
-        if (
-            dataToSave.title === active.title && 
-            dataToSave.strategy === active.strategy && 
-            dataToSave.keyword === (active.keyword || '') && 
-            dataToSave.searchVolume === (active.searchVolume || 0) &&
-            dataToSave.searchIntent === (active.searchIntent || '')
-        ) return;
+        const hasChanges = 
+            dataToSave.title !== active.title || 
+            dataToSave.strategy !== active.strategy || 
+            dataToSave.keyword !== (active.keyword || '') || 
+            String(dataToSave.searchVolume) !== String(active.searchVolume || 0) ||
+            dataToSave.searchIntent !== (active.searchIntent || '');
+
+        if (!hasChanges) {
+            console.log(">>> handleBlurSave: No changes detected");
+            return;
+        }
+
+        console.log(">>> handleBlurSave: Proceeding to save...");
 
         try {
             if (active.isFromDb) {
@@ -262,7 +287,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             // Actualizar localmente los datos para que la UI refleje el cambio
             if (activeTab === 'library') {
                 const updated = [...libraryData];
-                const idx = updated.findIndex(a => a.id === active.id);
+                const idx = updated.findIndex(a => String(a.id) === String(active.id));
                 if (idx !== -1) {
                     updated[idx] = {
                         ...updated[idx],
@@ -276,7 +301,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 }
             } else {
                 const updated = [...generatedData];
-                const idx = updated.findIndex(a => a.id === active.id);
+                const idx = updated.findIndex(a => String(a.id) === String(active.id));
                 if (idx !== -1) {
                     updated[idx] = {
                         ...updated[idx],
@@ -294,9 +319,39 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         }
     };
 
+    const handleSearchIntentChange = (val: string) => {
+        console.log(">>> handleSearchIntentChange:", val);
+        const active = currentData[activeArticleIdx];
+        if (!active) {
+            console.error(">>> handleSearchIntentChange: No active article");
+            return;
+        }
+
+        const baseData = localEdit || {
+            title: active.title,
+            strategy: active.strategy,
+            keyword: active.keyword || '',
+            searchVolume: active.searchVolume || 0,
+            searchIntent: active.searchIntent || ''
+        };
+
+        const updatedData = { ...baseData, searchIntent: val };
+        setLocalEdit(updatedData);
+        handleBlurSave(updatedData);
+    };
+
     const handleFieldChange = (field: string, value: any) => {
         // Actualizar solo el estado de edición local mientras el usuario escribe
-        const newEdit = { ...localEdit, [field]: value };
+        const active = currentData[activeArticleIdx];
+        const baseData = localEdit || {
+            title: active?.title || '',
+            strategy: active?.strategy || '',
+            keyword: active?.keyword || '',
+            searchVolume: active?.searchVolume || 0,
+            searchIntent: active?.searchIntent || ''
+        };
+        const newEdit = { ...baseData, [field]: value };
+        console.log(`>>> handleFieldChange [${field}]:`, value);
         setLocalEdit(newEdit);
     };
 
@@ -506,7 +561,6 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         }
     };
 
-    const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
     const maxArticles = planLimits?.maxArticles || 2;
     const currentArticleCount = linkedArticles.filter(a => a.isGenerated || a.isUnlocked).length;
     const isAtLimit = !isRealAdmin && !api.isUsingMockData() && currentArticleCount >= maxArticles;
@@ -776,7 +830,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             </p>
                                             <select
                                                 value={localEdit?.searchIntent || ''}
-                                                onChange={(e) => { const val = e.target.value; handleFieldChange('searchIntent', val); handleBlurSave({ ...localEdit, searchIntent: val }); }}
+                                                onChange={(e) => handleSearchIntentChange(e.target.value)}
                                                 disabled={currentData[activeArticleIdx]?.isGenerated && !isRealAdmin}
                                                 className={`w-full bg-transparent text-purple-300 font-bold text-lg text-center outline-none appearance-none cursor-pointer ${(currentData[activeArticleIdx]?.isGenerated && !isRealAdmin) ? 'disabled:cursor-default' : ''}`}
                                             >
