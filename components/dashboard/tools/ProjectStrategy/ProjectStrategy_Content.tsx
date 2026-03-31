@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, CheckCircle2, ChevronLeft, ChevronRight, TrendingUp, Loader2, Plus, Save, Unlock, Brain, Shield, Trash2 } from 'lucide-react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { PlanLimits, Plan, LandingPage, Article } from '../../../../types';
@@ -74,11 +74,27 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const itemsPerPage = 7;
 
     const currentData = activeTab === 'library' ? libraryData : generatedData;
+
+    // Lógica de Búsqueda
+    const [searchTerm, setSearchTerm] = useState('');
+    
+    const filteredData = useMemo(() => {
+        return currentData.filter(art => 
+            art.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            (art.keyword && art.keyword.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+    }, [currentData, searchTerm]);
+
     const activeArticleIdx = activeTab === 'library' ? activeLibraryArticle : activeGeneratedArticle;
     const setActiveArticleIdx = activeTab === 'library' ? setActiveLibraryArticle : setActiveGeneratedArticle;
 
-    const totalPages = Math.ceil(currentData.length / itemsPerPage);
-    const paginatedData = currentData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    // Resetear página al buscar o cambiar pestaña
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, activeTab]);
 
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -466,9 +482,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         }
     };
 
-    const handleSelectOne = (globalIdx: number) => {
-        setActiveArticleIdx(globalIdx);
-        setActiveArticle(globalIdx);
+    const handleSelectOne = (art: any) => {
+        const originalIdx = currentData.findIndex(a => a.id === art.id);
+        if (originalIdx !== -1) {
+            setActiveArticleIdx(originalIdx);
+            setActiveArticle(originalIdx);
+        }
     };
 
     const handleCloseAndReload = async () => {
@@ -651,6 +670,28 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 </div>
                             </div>
 
+                            {/* Buscador de Contenidos */}
+                            <div className="relative mb-6">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Search className="h-4 w-4 text-gray-500" />
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Buscar por título o keyword..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="block w-full pl-11 pr-4 py-3 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                                />
+                                {searchTerm && (
+                                    <button 
+                                        onClick={() => setSearchTerm('')}
+                                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white transition-colors"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                )}
+                            </div>
+
                             {/* Selector de Pestañas */}
                             <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
                                 <button 
@@ -669,9 +710,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             
                             <div id="psd-content-items-list" className="space-y-4 flex-1">
                                 {paginatedData.map((art: any, indexInPage: number) => {
-                                    const globalIdx = (currentPage - 1) * itemsPerPage + indexInPage;
-                                    const isSelected = selectedArticles.includes(globalIdx);
-                                    const isActive = activeArticleIdx === globalIdx;
+                                    const originalIdx = currentData.findIndex(a => a.id === art.id);
+                                    const isSelected = selectedArticles.includes(originalIdx);
+                                    const isActive = activeArticleIdx === originalIdx;
                                     const isGenerated = art.isGenerated;
                                     const isUnlocked = art.isUnlocked !== false;
                                     const isUnlockedButNotGenerated = isUnlocked && !isGenerated;
@@ -679,7 +720,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     return (
                                         <div 
                                             key={art.id || `merged-${indexInPage}`} 
-                                            onClick={() => handleSelectOne(globalIdx)}
+                                            onClick={() => handleSelectOne(art)}
                                             className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden 
                                                 ${isGenerated 
                                                     ? (isActive 
