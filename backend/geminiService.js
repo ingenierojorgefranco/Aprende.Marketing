@@ -62,6 +62,15 @@ const withRetries = async (fn, maxRetries = 3) => {
  */
 const cleanJsonString = (str) => {
     if (!str) return "";
+    
+    // Buscamos el primer '{' y el último '}' para extraer solo el bloque JSON
+    const firstBrace = str.indexOf('{');
+    const lastBrace = str.lastIndexOf('}');
+    
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        return str.substring(firstBrace, lastBrace + 1).trim();
+    }
+
     return str
         .replace(/```json/g, "")
         .replace(/```/g, "")

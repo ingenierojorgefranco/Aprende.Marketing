@@ -196,6 +196,7 @@ export const ProjectsList: React.FC = () => {
             }());
 
             await loadData();
+            setSelectedMasterProject(null);
         } catch (error: any) {
             clearInterval(progressInterval);
             clearInterval(timerInterval);
@@ -210,10 +211,7 @@ export const ProjectsList: React.FC = () => {
                 setGenerationStatus('idle');
             }
         } finally {
-            // No reseteamos selectedMasterProject aquí si hay error, para poder reintentar
-            if (generationStatus !== 'error') {
-                setSelectedMasterProject(null);
-            }
+            // No limpiamos aquí para permitir reintentar si hubo un error
         }
     };
 
