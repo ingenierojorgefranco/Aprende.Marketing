@@ -787,26 +787,28 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-purple-500" /></div>
                                         
                                         <div className="w-full text-left mb-8">
-                                            <h3 className="text-white mb-6 font-bold transition-colors" style={{ fontSize: '1.6rem', lineHeight: '2rem' }}>{currentData[activeArticleIdx].title}</h3>
+                                            <h3 className="text-white mb-6 font-bold transition-colors" style={{ fontSize: '1.6rem', lineHeight: '2rem', paddingTop: '1em', paddingBottom: '0.3em' }}>{currentData[activeArticleIdx].title}</h3>
                                             
-                                            <div className="bg-purple-500/5 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm mb-8">
+                                            <div className="bg-purple-500/5 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm mb-4">
                                                 <div className="flex items-center gap-2 mb-3">
                                                     <Brain className="w-5 h-5 text-purple-400" />
                                                     <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
                                                 </div>
-                                                <p className="text-white font-light leading-relaxed mb-6" style={{ fontSize: '1.1rem' }}>
-                                                    {currentData[activeArticleIdx].strategy}
-                                                </p>
-
-                                                <div className="pt-4 border-t border-purple-500/10">
-                                                    <div className="flex items-center gap-2 mb-3">
-                                                        <Target className="w-5 h-5 text-purple-400" />
-                                                        <span className="text-white font-bold text-xs uppercase tracking-widest">Estado de Consciencia</span>
-                                                    </div>
-                                                    <p className="text-purple-300 font-bold text-lg">
-                                                        {currentData[activeArticleIdx].searchIntent || 'Por determinar'}
+                                                <div className="max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
+                                                    <p className="text-white font-light leading-relaxed" style={{ fontSize: '1.1rem' }}>
+                                                        {currentData[activeArticleIdx].strategy}
                                                     </p>
                                                 </div>
+                                            </div>
+
+                                            <div className="bg-purple-500/5 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm mb-8">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <Target className="w-5 h-5 text-purple-400" />
+                                                    <span className="text-white font-bold text-xs uppercase tracking-widest">Estado de Consciencia</span>
+                                                </div>
+                                                <p className="text-purple-300 font-bold text-lg text-center">
+                                                    {currentData[activeArticleIdx].searchIntent || 'Por determinar'}
+                                                </p>
                                             </div>
                                         </div>
 
