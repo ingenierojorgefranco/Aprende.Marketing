@@ -188,8 +188,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
     useEffect(() => {
         const active = currentData[activeArticleIdx];
-        // Permitimos editar si no está generado y está DESBLOQUEADO (independiente de si es DB o JSON)
-        if (active && !active.isGenerated && active.isUnlocked !== false) {
+        if (active) {
             setLocalEdit({
                 title: active.title,
                 strategy: active.strategy,
@@ -622,13 +621,13 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     {art.title}
                                                 </h4>
                                                 {art.unlockedAt && (
-                                                    <p className="text-[10px] font-bold opacity-60 mt-1">
-                                                        Desbloqueado {formatRelativeTime(art.unlockedAt)}
+                                                    <p className="text-[0.9em] font-bold opacity-60 mt-1 pt-[10px]">
+                                                        Desbloqueado: {formatRelativeTime(art.unlockedAt)}
                                                     </p>
                                                 )}
                                                 {isGenerated && (
-                                                    <p className="text-[10px] font-bold opacity-60 mt-1">
-                                                        Redactado {formatRelativeTime(art.publishedAt || art.updatedAt || art.createdAt)}
+                                                    <p className="text-[0.9em] font-bold opacity-60 mt-1">
+                                                        Redactado: {formatRelativeTime(art.publishedAt || art.updatedAt || art.createdAt)}
                                                     </p>
                                                 )}
                                             </div>
@@ -659,14 +658,14 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-purple-500" /></div>
                                         
                                         <div className="w-full text-left mb-8">
-                                            <h3 className="text-white mb-6 font-medium tracking-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem' }}>{currentData[activeArticleIdx].title}</h3>
+                                            <h3 className="text-white mb-6 font-medium tracking-tight" style={{ fontSize: '1.6rem', lineHeight: '2rem' }}>{currentData[activeArticleIdx].title}</h3>
                                             
                                             <div className="bg-purple-500/5 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm mb-8">
                                                 <div className="flex items-center gap-2 mb-3">
                                                     <Brain className="w-5 h-5 text-purple-400" />
                                                     <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
                                                 </div>
-                                                <p className="text-white text-lg font-light leading-relaxed">
+                                                <p className="text-white font-light leading-relaxed" style={{ fontSize: '1.1rem' }}>
                                                     {currentData[activeArticleIdx].strategy}
                                                 </p>
                                             </div>
@@ -731,7 +730,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     ) : (
                                     <h3 
                                         onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('title')}
-                                        className={`text-3xl md:text-4xl font-bold text-white mb-6 leading-tight transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-purple-300' : ''}`}
+                                        className={`font-bold text-white mb-6 transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-purple-300' : ''}`}
+                                        style={{ fontSize: '1.6rem', lineHeight: '2rem' }}
                                     >
                                         {localEdit?.title || currentData[activeArticleIdx]?.title}
                                     </h3>
@@ -754,7 +754,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                 ) : (
                                                     <p 
                                                         onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('strategy')}
-                                                        className={`text-gray-300 text-xl leading-relaxed font-light transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-white' : ''}`}
+                                                        className={`text-gray-300 leading-relaxed font-light transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-white' : ''}`}
+                                                        style={{ fontSize: '1.1rem' }}
                                                     >
                                                         {localEdit?.strategy || currentData[activeArticleIdx]?.strategy}
                                                     </p>
