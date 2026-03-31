@@ -228,33 +228,34 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         }
     };
 
-    const handleBlurSave = async () => {
+    const handleBlurSave = async (overrideData?: any) => {
         const active = currentData[activeArticleIdx];
-        if (!localEdit || !active?.id || String(active.id).startsWith('available-') || active.isUnlocked === false) return;
+        const dataToSave = overrideData || localEdit;
+        if (!dataToSave || !active?.id || (String(active.id).startsWith('available-') && !isRealAdmin) || (active.isUnlocked === false && !isRealAdmin)) return;
 
         // Evitar guardado si no hay cambios reales
         if (
-            localEdit.title === active.title && 
-            localEdit.strategy === active.strategy && 
-            localEdit.keyword === (active.keyword || '') && 
-            localEdit.searchVolume === (active.searchVolume || 0) &&
-            localEdit.searchIntent === (active.searchIntent || '')
+            dataToSave.title === active.title && 
+            dataToSave.strategy === active.strategy && 
+            dataToSave.keyword === (active.keyword || '') && 
+            dataToSave.searchVolume === (active.searchVolume || 0) &&
+            dataToSave.searchIntent === (active.searchIntent || '')
         ) return;
 
         try {
             if (active.isFromDb) {
                 await api.updateArticle(active.id, {
-                    title: localEdit.title,
+                    title: dataToSave.title,
                     psychologicalStrategy: {
-                        focus: localEdit.strategy,
-                        keyword: localEdit.keyword,
-                        searchVolume: localEdit.searchVolume,
-                        searchIntent: localEdit.searchIntent,
+                        focus: dataToSave.strategy,
+                        keyword: dataToSave.keyword,
+                        searchVolume: dataToSave.searchVolume,
+                        searchIntent: dataToSave.searchIntent,
                         targetUrl: ""
                     }
                 } as any);
             } else if (typeof active.jsonIndex === 'number') {
-                await saveJsonArticle(active.jsonIndex, localEdit);
+                await saveJsonArticle(active.jsonIndex, dataToSave);
             }
 
             // Actualizar localmente los datos para que la UI refleje el cambio
@@ -658,7 +659,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-purple-500" /></div>
                                         
                                         <div className="w-full text-left mb-8">
-                                            <h3 className="text-white mb-6 font-medium tracking-tight" style={{ fontSize: '1.6rem', lineHeight: '2rem' }}>{currentData[activeArticleIdx].title}</h3>
+                                            <h3 className="text-white mb-6 font-bold transition-colors" style={{ fontSize: '1.6rem', lineHeight: '2rem' }}>{currentData[activeArticleIdx].title}</h3>
                                             
                                             <div className="bg-purple-500/5 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm mb-8">
                                                 <div className="flex items-center gap-2 mb-3">
@@ -729,8 +730,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         />
                                     ) : (
                                     <h3 
-                                        onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('title')}
-                                        className={`font-bold text-white mb-6 transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-purple-300' : ''}`}
+                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('title')}
+                                        className={`font-bold text-white mb-6 transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-purple-300' : ''}`}
                                         style={{ fontSize: '1.6rem', lineHeight: '2rem' }}
                                     >
                                         {localEdit?.title || currentData[activeArticleIdx]?.title}
@@ -753,8 +754,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     />
                                                 ) : (
                                                     <p 
-                                                        onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('strategy')}
-                                                        className={`text-gray-300 leading-relaxed font-light transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-white' : ''}`}
+                                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('strategy')}
+                                                        className={`text-gray-300 leading-relaxed font-light transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-white' : ''}`}
                                                         style={{ fontSize: '1.1rem' }}
                                                     >
                                                         {localEdit?.strategy || currentData[activeArticleIdx]?.strategy}
@@ -773,9 +774,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             </p>
                                             <select
                                                 value={localEdit?.searchIntent || ''}
-                                                onChange={(e) => { handleFieldChange('searchIntent', e.target.value); setTimeout(handleBlurSave, 100); }}
-                                                disabled={currentData[activeArticleIdx]?.isGenerated}
-                                                className="w-full bg-transparent text-purple-300 font-bold text-lg text-center outline-none appearance-none cursor-pointer disabled:cursor-default"
+                                                onChange={(e) => { const val = e.target.value; handleFieldChange('searchIntent', val); handleBlurSave({ ...localEdit, searchIntent: val }); }}
+                                                disabled={currentData[activeArticleIdx]?.isGenerated && !isRealAdmin}
+                                                className={`w-full bg-transparent text-purple-300 font-bold text-lg text-center outline-none appearance-none cursor-pointer ${(currentData[activeArticleIdx]?.isGenerated && !isRealAdmin) ? 'disabled:cursor-default' : ''}`}
                                             >
                                                 <option value="" className="bg-gray-900 text-gray-400">Seleccionar Intención...</option>
                                                 <option value="Inconsciente" className="bg-gray-900 text-white">Inconsciente</option>
@@ -786,7 +787,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             </select>
                                         </div>
 
-                                        {localEdit?.keyword && (
+                                        {(localEdit?.keyword || isRealAdmin) && (
                                             <div 
                                                 className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group" 
                                             >
@@ -804,8 +805,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     />
                                                 ) : (
                                                     <p 
-                                                        onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('keyword')}
-                                                        className={`text-purple-300 font-bold text-lg leading-tight break-words transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-purple-100' : ''}`}
+                                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('keyword')}
+                                                        className={`text-purple-300 font-bold text-lg leading-tight break-words transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-purple-100' : ''}`}
                                                     >
                                                         {localEdit?.keyword || currentData[activeArticleIdx]?.keyword}
                                                     </p>
@@ -813,7 +814,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             </div>
                                         )}
 
-                                        {localEdit?.searchVolume && (
+                                        {(localEdit?.searchVolume || isRealAdmin) && (
                                             <div 
                                                 className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group" 
                                             >
@@ -831,8 +832,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     />
                                                 ) : (
                                                     <p 
-                                                        onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('searchVolume')}
-                                                        className={`text-emerald-300 font-bold text-lg leading-tight break-words transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-emerald-100' : ''}`}
+                                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('searchVolume')}
+                                                        className={`text-emerald-300 font-bold text-lg leading-tight break-words transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-emerald-100' : ''}`}
                                                     >
                                                         {localEdit?.searchVolume || currentData[activeArticleIdx]?.searchVolume || 'N/A'}
                                                     </p>

@@ -400,20 +400,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                             <Mail className="w-7 h-7" />
                         </div>
                         <div>
-                            <h4 className="text-2xl font-bold text-white tracking-tight">Cronograma de Autoridad</h4>
+                            <h4 className="text-2xl font-bold text-white tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">Email Marketing: Secuencia de Nutrición</h4>
                             <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-1">Sincronizado con tus Artículos</p>
                         </div>
                     </div>
 
                     {/* BARRA DE PROGRESO DE LÍMITES */}
                     <div className="mb-10 p-6 bg-black/40 rounded-3xl border border-white/5 space-y-4">
-                        <div className="flex justify-between items-end">
-                            <div>
-                                <h5 className="text-white font-bold text-sm">Correos de Nutrición</h5>
-                            </div>
-                            <div className="text-sm font-semibold text-indigo-600">
-                                {emailsUsed} / {maxEmails}
-                            </div>
+                        <div className="flex justify-between items-center mb-2 text-sm">
+                            <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Correos de Nutrición</span>
+                            <span className="text-white font-bold">{emailsUsed} / {maxEmails}</span>
                         </div>
                         <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
                             <div 
@@ -444,9 +440,11 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                             {!isGenerated && <Lock className="w-4 h-4 text-gray-500" />}
                                             {email.subject}
                                         </h4>
-                                        <p className={`text-[10px] font-bold opacity-60 mt-1 uppercase tracking-widest`}>
-                                            {email.day}
-                                        </p>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <span className="px-2 py-0.5 rounded-md bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest">
+                                                {email.day}
+                                            </span>
+                                        </div>
                                     </div>
                                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 shrink-0 ${isGenerated ? 'bg-white border-white' : 'border-gray-600 group-hover:border-orange-400'}`}>
                                         {isGenerated && <Check className="w-4 h-4 font-bold text-emerald-600" />}
@@ -644,7 +642,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                     </div>
                                     
                                     <div className="w-full text-left mb-8">
-                                        <h3 className="text-white mb-6 font-medium tracking-tight text-3xl md:text-4xl leading-tight">
+                                        <h3 className="text-white mb-6 font-bold" style={{ fontSize: '1.6rem', lineHeight: '2rem' }}>
                                             {activeEmail.originalArticle.title}
                                         </h3>
                                         
@@ -655,7 +653,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                             </div>
                                             <div className="max-h-[180px] overflow-y-auto custom-scrollbar">
                                                 <p className="text-white text-lg font-light leading-relaxed">
-                                                    {activeEmail.originalArticle.description}
+                                                    {activeEmail.originalArticle.psychologicalStrategy?.focus || activeEmail.originalArticle.description}
                                                 </p>
                                             </div>
                                         </div>
@@ -666,9 +664,9 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                             <Lock className="w-10 h-10 text-orange-500" />
                                         </div>
                                         
-                                        <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Artículos Disponibles para Desbloquear</h4>
+                                        <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Contenidos Disponibles para Desbloquear</h4>
                                         <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10 text-lg">
-                                            Nuestro sistema ha generado este Artículo Estratégico por ti. Haz clic en Desbloquear para ver todo el contenido.
+                                            Nuestro sistema convertirá tu artículo de Blog en un Contenido optimizado para Email Marketing. Haz clic en Desbloquear para generar el correo electrónico.
                                         </p>
 
                                         <div className="w-full max-w-sm space-y-4">
@@ -687,13 +685,10 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" /> Desbloquear Artículo
+                                                        <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" /> Desbloquear Mensaje de Email
                                                     </>
                                                 )}
                                             </button>
-                                            <div className="flex items-center justify-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">
-                                                <Shield className="w-3 h-3" /> Acceso Instantáneo tras Desbloqueo
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
