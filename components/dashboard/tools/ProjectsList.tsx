@@ -148,7 +148,7 @@ export const ProjectsList: React.FC = () => {
         try {
             // Enviamos valores por defecto ya que la configuración se hará en la pestaña de estrategia
             const res = await api.unlockProject(selectedMasterProject.id, {
-                leadMagnetType: 'Clase Gratis / VSL',
+                leadMagnetType: '',
                 leadMagnetUrl: '',
                 affiliateLinks: [],
                 planSlug: 'starter'

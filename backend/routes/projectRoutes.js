@@ -109,7 +109,7 @@ router.post('/unlock/:id', async (req, res) => {
                 master.full_price, 
                 master.commission_rate, 
                 leadMagnetType || master.lead_magnet_type, 
-                leadMagnetUrl || '', 
+                '', 
                 master.sales_page_url, 
                 master.id,
                 planId,
