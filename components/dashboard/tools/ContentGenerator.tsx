@@ -23,6 +23,7 @@ interface ContentGeneratorProps {
         keyword: string;
         pageId: string;
         articleId?: string;
+        psychologicalStrategy?: any;
     };
     embeddedProjectId?: string;
     onClose?: () => void;
@@ -90,6 +91,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   const [validationError, setValidationError] = useState(false);
 
   const [strategyData, setStrategyData] = useState<any>(null);
+  const [initialPsychologicalStrategy, setInitialPsychologicalStrategy] = useState<any>(null);
   const [loadingStrategy, setLoadingStrategy] = useState(false);
 
   const [activeArticle, setActiveArticle] = useState(0);
@@ -246,6 +248,9 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         setKeyword(preFilledData.keyword || '');
         setSelectedPageId(preFilledData.pageId || '');
         setActiveArticleId(preFilledData.articleId);
+        if (preFilledData.psychologicalStrategy) {
+            setInitialPsychologicalStrategy(preFilledData.psychologicalStrategy);
+        }
         setIsAiGeneratedFlow(true);
         setStep(1); 
     }
@@ -260,7 +265,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   }, [preSelectedProjectId, userProjects, selectedProject, step]);
 
   useEffect(() => {
-    if (editArticleId && !preFilledData) {
+    if (editArticleId) {
         const loadArticle = async () => {
             setLoading(true);
             try {
@@ -477,7 +482,10 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
           seoScore: 0,
           metaTitle: finalTitle,
           metaDescription: result.metaDescription || '',
-          psychologicalStrategy: { targetUrl: ctaLink },
+          psychologicalStrategy: { 
+              ...(initialPsychologicalStrategy || {}),
+              targetUrl: ctaLink 
+          },
           status: 'published' as const,
           publishedAt: new Date(),
           isGenerated: true
@@ -577,7 +585,10 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       seoScore: seoScore,
       metaTitle: metaTitle,
       metaDescription: metaDescription,
-      psychologicalStrategy: { targetUrl: ctaLink },
+      psychologicalStrategy: { 
+          ...(initialPsychologicalStrategy || {}),
+          targetUrl: ctaLink 
+      },
       status: status,
       publishedAt: new Date(publishDate),
       isGenerated: true

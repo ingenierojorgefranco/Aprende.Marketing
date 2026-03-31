@@ -1088,7 +1088,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 objective: currentData[activeArticleIdx]?.strategy || '',
                                 keyword: currentData[activeArticleIdx]?.keyword || '',
                                 pageId: linkedPages.length === 1 ? linkedPages[0].id : '',
-                                articleId: currentData[activeArticleIdx]?.id
+                                articleId: currentData[activeArticleIdx]?.id,
+                                psychologicalStrategy: currentData[activeArticleIdx]?.psychologicalStrategy
                             }}
                             embeddedProjectId={projectId}
                             onClose={handleCloseAndReload}
