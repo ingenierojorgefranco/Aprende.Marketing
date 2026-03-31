@@ -129,7 +129,7 @@ export const ProjectWizard: React.FC = () => {
     
     const [fullPrice, setFullPrice] = useState<number>(0);
     const [commissionValue, setCommissionValue] = useState<number>(0);
-    const [leadMagnetType, setLeadMagnetType] = useState('Clase Gratis / VSL');
+    const [leadMagnetType, setLeadMagnetType] = useState('');
     const [leadMagnetUrl, setLeadMagnetUrl] = useState('');
     const [salesPageUrl, setSalesPageUrl] = useState('');
     const [isMaster, setIsMaster] = useState(false);

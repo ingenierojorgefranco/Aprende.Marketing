@@ -16,7 +16,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
     const [saving, setSaving] = useState(false);
     const [project, setProject] = useState<Project | null>(null);
     const [form, setForm] = useState({
-        leadMagnetType: 'Clase Gratis / VSL',
+        leadMagnetType: '',
         leadMagnetUrl: '',
         affiliateLinks: [
             { label: 'Checkout Principal', url: '' },
@@ -34,7 +34,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                 if (data) {
                     setProject(data);
                     setForm({
-                        leadMagnetType: data.leadMagnetType || 'Clase Gratis / VSL',
+                        leadMagnetType: data.leadMagnetType || '',
                         leadMagnetUrl: data.leadMagnetUrl || '',
                         affiliateLinks: data.affiliateLinks && data.affiliateLinks.length > 0 
                             ? data.affiliateLinks 
