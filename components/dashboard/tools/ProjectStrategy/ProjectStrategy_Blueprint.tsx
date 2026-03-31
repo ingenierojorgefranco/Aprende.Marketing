@@ -6,7 +6,7 @@ const ACQUISITION_STEPS = [
         icon: Clapperboard, 
         title: "1. Atracción de Audiencia", 
         subtitle: "Canales: Reels, anuncios en Instagram, Facebook o Google", 
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
         description: "Captar la atención de desconocidos y dirigirlos hacia el inicio de tu embudo de ventas.",
         masterclass: {
             importance: "La visibilidad es la gasolina de tu negocio; sin ojos en tu oferta, no hay crecimiento posible.",
@@ -39,7 +39,7 @@ const ACQUISITION_STEPS = [
         icon: Globe, 
         title: "2. Página de Captura (Landing Page)", 
         subtitle: "El Visitante ingresa a tu página de captura y se registra dejando sus datos para recibir el contenido gratuito (LeadMagnet).", 
-        videoUrl: "https://www.youtube.com/embed/SChXl9k5r6E",
+        videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
         description: "Convertir el tráfico frío en contactos calificados capturando sus datos de contacto.",
         masterclass: {
             importance: "Tu local comercial abierto 24/7; la primera impresión que define si el cliente se queda o se va.",
@@ -72,7 +72,7 @@ const ACQUISITION_STEPS = [
         icon: CheckCircle2, 
         title: "3. Página de Gracias", 
         subtitle: "Agradecimiento e instrucciones al Grupo de Whatsapp", 
-        videoUrl: "https://www.youtube.com/embed/A_dcakdMBow",
+        videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
         description: "Confirmar el registro exitoso y posteriormente guiar al lead hacia tu comunidad privada.",
         masterclass: {
             importance: "El momento de mayor atención de un lead es justo después de registrarse. Si no le das una instrucción clara, lo pierdes para siempre.",
@@ -105,7 +105,7 @@ const ACQUISITION_STEPS = [
         icon: Users, 
         title: "4. Comunidad", 
         subtitle: "Grupo de WhatsApp", 
-        videoUrl: "https://www.youtube.com/embed/YpS8Vf9e7hA",
+        videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
         description: "Nutrir a los prospectos en un entorno controlado para generar confianza y prueba social colectiva.",
         masterclass: {
             importance: "La venta es un proceso de confianza. El grupo de WhatsApp humaniza tu oferta y crea un sentido de pertenencia y prueba social inmediata.",
@@ -138,7 +138,7 @@ const ACQUISITION_STEPS = [
         icon: MessageCircle, 
         title: "5. Message Directo", 
         subtitle: "Conversación 1 a 1", 
-        videoUrl: "https://www.youtube.com/embed/8vY_566sP1s",
+        videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
         description: "Resolver dudas específicas de forma personalizada para eliminar barreras finales de compra.",
         masterclass: {
             importance: "Para productos de ticket medio/alto, el humano compra a humano. Resolver una duda específica por chat puede salvar el 50% de tus ventas caídas.",
@@ -171,7 +171,7 @@ const ACQUISITION_STEPS = [
         icon: FileText, 
         title: "6. Lead Magnet", 
         subtitle: "Contenido gratuito (PDF o Clase)", 
-        videoUrl: "https://www.youtube.com/embed/rP0v7v9S1aE",
+        videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
         description: "Entregar valor masivo de forma gratuita para activar la reciprocidad y demostrar autoridad técnica.",
         masterclass: {
             importance: "El sesgo de reciprocidad dicta que cuando das algo valioso gratis, la persona se siente inclinada a devolver el favor (comprando).",
@@ -204,7 +204,7 @@ const ACQUISITION_STEPS = [
         icon: Mail, 
         title: "7. Email Marketing", 
         subtitle: "Secuencia de nutrición y venta por correo.", 
-        videoUrl: "https://www.youtube.com/embed/uXWyP8H6R70",
+        videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
         description: "Recuperar the atención de los leads y educarlos mediante una secuencia lógica de persuasión.",
         masterclass: {
             importance: "El email marketing es the canal con mayor retorno de inversión. Te permite estar presente en la bandeja de entrada de tu cliente de forma personal y profesional.",
@@ -233,7 +233,7 @@ const ACQUISITION_STEPS = [
         icon: BookOpen, 
         title: "8. Artículos de Blog", 
         subtitle: "Contenido educativo para generar autoridad.", 
-        videoUrl: "https://www.youtube.com/embed/h_Y2E9O9M6k",
+        videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
         description: "Generar tráfico orgánico recurrente y posicionar tu marca como referente inagotable de conocimiento.",
         masterclass: {
             importance: "El contenido es the base de the autoridad. Un blog activo le dice a Google y a tus clientes que eres un referente serio en tu industria.",
@@ -262,7 +262,7 @@ const ACQUISITION_STEPS = [
         icon: RefreshCw, 
         title: "9. Lanzamiento por Whatsapp", 
         subtitle: "Estrategia de cierre masivo en grupos.", 
-        videoUrl: "https://www.youtube.com/embed/w7pYhp4Vpfw",
+        videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
         description: "Concentrar the demanda y generar una explosión de ventas mediante the escasez y urgencia grupal.",
         masterclass: {
             importance: "El lanzamiento por WhatsApp es the forma más rápida y efectiva de generar ingresos significativos concentrados en pocos días aprovechando the urgencia.",
@@ -291,7 +291,7 @@ const ACQUISITION_STEPS = [
         icon: MonitorPlay, 
         title: "10. Página de Venta", 
         subtitle: "Carta de ventas (VSL o texto)", 
-        videoUrl: "https://www.youtube.com/embed/jNQXAC9IVRw",
+        videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
         description: "Presentar the oferta de forma irresistible y facilitar the transición hacia el pago final.",
         masterclass: {
             importance: "Es el clímax del embudo. Aquí se justifica racionalmente el deseo emocional. Debe ser impecable, clara y eliminar cualquier riesgo percibido.",
@@ -324,7 +324,7 @@ const ACQUISITION_STEPS = [
         icon: ShoppingCart, 
         title: "11. Checkout", 
         subtitle: "Pasarela de Pago", 
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
         description: "Finalizar the transacción económica de forma segura, rápida y sin fricciones técnicas.",
         masterclass: {
             importance: "Es el punto más crítico. Cualquier duda técnica aquí se traduce en dinero perdido. Debe ser rápido, intuitivo y dar seguridad absoluta.",

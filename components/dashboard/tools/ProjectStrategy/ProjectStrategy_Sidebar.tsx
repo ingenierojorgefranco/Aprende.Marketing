@@ -24,24 +24,24 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         {
             module: "Analisis de tu Estrategia",
             items: [
-                { id: 'summary', label: 'Resumen Estratégico', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
+                { id: 'summary', label: 'Tu Negocio Digital', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
                 { id: 'hotlinks', label: 'Configura tus Hotlinks', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado" },
-                { id: 'growth', label: 'Proyección de Ingresos', icon: TrendingUp, module: "FUNDAMENTOS", description: "Escalabilidad año 1" },
-                { id: 'blueprint', label: 'Mapa de Ruta', icon: Map, module: "FUNDAMENTOS", description: "Flujo del cliente" },
-                { id: 'avatar', label: 'Diagnóstico de Avatar', icon: UserSearch, module: "FUNDAMENTOS", description: "Perfil psicológico" },
-                { id: 'psychology', label: 'Dolores vs Beneficios', icon: Brain, module: "FUNDAMENTOS", description: "Ingeniería de persuasión" },
-                { id: 'testimonials', label: 'Testimonios de Éxito', icon: MessageSquare, module: "FUNDAMENTOS", description: "Prueba social validada" },
+                { id: 'growth', label: '¿Cuánto Podrías Ganar?', icon: TrendingUp, module: "FUNDAMENTOS", description: "Proyección de Ingresos" },
+                { id: 'blueprint', label: 'Tu Estrategia de Ventas', icon: Map, module: "FUNDAMENTOS", description: "Ruta para Crecer y Ganar" },
+                { id: 'avatar', label: 'Tu Cliente Ideal', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto" },
+                { id: 'psychology', label: 'Transformación de tu Cliente', icon: Brain, module: "FUNDAMENTOS", description: "Dolores Vs Beneficios" },
+                { id: 'testimonials', label: 'Prueba Social', icon: MessageSquare, module: "FUNDAMENTOS", description: "Testimonios de Éxito" },
             ]
         },
         {
             module: "¿Qué creará nuestro sistema por ti?",
             items: [
-                { id: 'web', label: 'Tu Página de Captura.', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
-                { id: 'hooks', label: 'Hooks de Atracción', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
+                { id: 'web', label: 'Tu Página de Captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
+                { id: 'hooks', label: 'Tus Hooks de Atracción', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
                 { id: 'content', label: 'Tu Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
-                { id: 'email', label: 'Email Marketing: Secuencia de Conversión', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
-                { id: 'evergreen', label: 'Email Marketing: Secuencia de Nutrición', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
-                { id: 'whatsapp', label: 'Lanzamientos: Estrategia Whatsapp', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
+                { id: 'email', label: 'Email Marketing: Tu Secuencia de Conversión', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
+                { id: 'evergreen', label: 'Email Marketing: Tu Secuencia de Nutrición', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
+                { id: 'whatsapp', label: 'Tu estrategia de Lanzamientos en WhatsApp', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
             ]
         }
     ];

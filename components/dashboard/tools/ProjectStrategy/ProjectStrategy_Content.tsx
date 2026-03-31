@@ -128,7 +128,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     unlockedAt: a.unlockedAt,
                     publishedAt: a.publishedAt
                 }))
-                .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime());
+                .sort((a, b) => {
+                    const dateA = new Date(a.publishedAt || a.updatedAt || a.createdAt).getTime();
+                    const dateB = new Date(b.publishedAt || b.updatedAt || b.createdAt).getTime();
+                    return dateB - dateA;
+                });
 
             setGeneratedData(generated);
 
@@ -166,7 +170,13 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 !manualFromDb.some(m => m.title === j.title || m.keyword === j.keyword)
             );
 
-            const newLibrary = [...manualFromDb, ...suggestions];
+            let newLibrary = [...manualFromDb, ...suggestions];
+            
+            // Si no es admin, aleatorizar el orden de la biblioteca
+            if (!isRealAdmin) {
+                newLibrary = [...newLibrary].sort(() => Math.random() - 0.5);
+            }
+            
             setLibraryData(newLibrary);
 
             if (targetTitle) {
@@ -651,7 +661,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 </button>
                                 <button 
                                     onClick={() => setActiveTab('generated')}
-                                    className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                                    className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white' : (generatedData.length > 0 ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'text-gray-500 hover:text-white')}`}
                                 >
                                     Contenidos Generados
                                 </button>
@@ -670,10 +680,24 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <div 
                                             key={art.id || `merged-${indexInPage}`} 
                                             onClick={() => handleSelectOne(globalIdx)}
-                                            className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-600 border-emerald-500 text-white' : isSelected ? 'bg-blue-600 border-blue-500 text-white' : isUnlockedButNotGenerated ? (isActive ? 'bg-yellow-500/20 border-yellow-500 translate-x-2' : 'bg-yellow-500/10 border-yellow-500/50') : isActive ? 'bg-purple-900/20 border-purple-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
+                                            className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden 
+                                                ${isGenerated 
+                                                    ? (isActive 
+                                                        ? 'bg-emerald-600 border-emerald-500 text-white translate-x-2 border-l-4 border-l-white' 
+                                                        : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:translate-x-2 hover:border-l-4 hover:border-l-emerald-500') 
+                                                    : isSelected 
+                                                        ? 'bg-blue-600 border-blue-500 text-white translate-x-2 border-l-4 border-l-white' 
+                                                        : isUnlockedButNotGenerated 
+                                                            ? (isActive 
+                                                                ? 'bg-yellow-500/20 border-yellow-500 translate-x-2 border-l-4 border-l-yellow-500' 
+                                                                : 'bg-yellow-500/10 border-yellow-500/50 hover:translate-x-2 hover:border-l-4 hover:border-l-yellow-500') 
+                                                            : isActive 
+                                                                ? 'bg-purple-900/20 border-purple-500/50 translate-x-2 border-l-4 border-l-purple-500' 
+                                                                : 'bg-black/20 border-gray-800 hover:border-gray-700 hover:translate-x-2 hover:border-l-4 hover:border-l-purple-500'} 
+                                                ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
                                         >
                                             <div className="flex-1">
-                                                <h4 className={`font-medium text-lg leading-snug ${isGenerated || isSelected ? 'text-white' : isUnlockedButNotGenerated ? (isActive ? 'text-yellow-300' : 'text-yellow-400/80') : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
+                                                <h4 className={`font-medium text-lg leading-snug ${isGenerated ? (isActive ? 'text-white' : 'text-emerald-400') : isSelected ? 'text-white' : isUnlockedButNotGenerated ? (isActive ? 'text-yellow-300' : 'text-yellow-400/80') : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
                                                     {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
                                                     {art.title}
                                                 </h4>
@@ -683,12 +707,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     </p>
                                                 )}
                                                 {isGenerated && (
-                                                    <p className="text-[0.9em] font-bold opacity-60 mt-1">
+                                                    <p className={`text-[0.9em] font-bold opacity-60 mt-1 ${isActive ? 'text-white' : 'text-emerald-400'}`}>
                                                         Redactado: {formatRelativeTime(art.publishedAt || art.updatedAt || art.createdAt)}
                                                     </p>
                                                 )}
                                             </div>
-                                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isGenerated ? 'bg-white border-white' : isSelected ? 'bg-white border-white scale-110' : 'border-gray-600 group-hover:border-purple-400'}`}>
+                                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isGenerated ? (isActive ? 'bg-white border-white' : 'bg-emerald-500/20 border-emerald-500') : isSelected ? 'bg-white border-white scale-110' : 'border-gray-600 group-hover:border-purple-400'}`}>
                                                 {(isGenerated || isSelected) && <Check className={`w-4 h-4 font-bold ${isGenerated ? 'text-emerald-600' : 'text-blue-600'}`} />}
                                             </div>
                                         </div>
@@ -722,9 +746,19 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     <Brain className="w-5 h-5 text-purple-400" />
                                                     <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
                                                 </div>
-                                                <p className="text-white font-light leading-relaxed" style={{ fontSize: '1.1rem' }}>
+                                                <p className="text-white font-light leading-relaxed mb-6" style={{ fontSize: '1.1rem' }}>
                                                     {currentData[activeArticleIdx].strategy}
                                                 </p>
+
+                                                <div className="pt-4 border-t border-purple-500/10">
+                                                    <div className="flex items-center gap-2 mb-3">
+                                                        <Target className="w-5 h-5 text-purple-400" />
+                                                        <span className="text-white font-bold text-xs uppercase tracking-widest">Estado de Consciencia</span>
+                                                    </div>
+                                                    <p className="text-purple-300 font-bold text-lg">
+                                                        {currentData[activeArticleIdx].searchIntent || 'Por determinar'}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
 
