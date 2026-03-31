@@ -121,8 +121,8 @@ export const generateFullArticle = async (
     1. INTRODUCCIÓN OBLIGATORIA: El artículo DEBE comenzar tocando directamente uno o dos puntos de dolor (pains) del lector para generar interés inmediato. PROHIBIDO usar saludos genéricos como "Bienvenidos a nuestra comunidad" o similares.
     2. SIN CONCLUSIÓN: NO incluyas una sección de conclusión o cierre al final del texto. El artículo debe terminar con el contenido informativo y el CTA final.
     3. PÁRRAFOS MUY CORTOS: Cada párrafo debe tener un máximo de 2 a 3 líneas. Divide el contenido en fragmentos cortos y directos para facilitar la lectura rápida.
-    2. TÍTULO ÚNICO: Genera una variación del título base que sea única, viral y altamente atractiva, manteniendo el enfoque y la keyword (o una variación coherente de la misma).
-    3. BANNERS DE LLAMADO A LA ACCIÓN (CTA) REALES: 
+    4. TÍTULO ÚNICO: Genera una variación del título base que sea única, viral y altamente atractiva, manteniendo el enfoque y la keyword (o una variación coherente de la misma).
+    5. BANNERS DE LLAMADO A LA ACCIÓN (CTA) REALES: 
        - Inserta DOS banners de CTA en formato HTML real dentro del contenido (uno aproximadamente en la mitad y otro al final).
        - CADA BANNER DEBE TENER UN TEXTO PERSUASIVO DIFERENTE. No los repitas.
        - TONO PERSONALIZADO: El párrafo del CTA debe estar dirigido directamente al usuario que lee (usa "tú", "estás", "quieres", "puedes"). Evita el tono plural/colectivo en el banner.
@@ -141,9 +141,9 @@ export const generateFullArticle = async (
          </div>
        </div>
 
-    4. META DESCRIPTION: Genera una meta description optimizada (Máx 155 car.).
-    5. NO incluyas el Título Principal (H1) dentro del campo 'html'.
-    6. ASEGÚRATE de que el enlace en el botón sea "${ctaLink}" y tenga target="_blank".
+    6. META DESCRIPTION: Genera una meta description optimizada (Máx 155 car.).
+    7. NO incluyas el Título Principal (H1) dentro del campo 'html'.
+    8. ASEGÚRATE de que el enlace en el botón sea "${ctaLink}" y tenga target="_blank".
 
     Formato de Salida JSON: { "title": "Nuevo Título Viral", "html": "Contenido HTML...", "metaDescription": "..." }`;
 
@@ -158,7 +158,7 @@ export const generateFullArticle = async (
     };
 
     try {
-        const response = await callGeminiBackend(prompt, schema, true, "gemini-3-pro-preview", 16384);
+        const response = await callGeminiBackend(prompt, schema, true, "gemini-3-flash-preview", 0);
         if (response.text) {
             return JSON.parse(response.text);
         }
