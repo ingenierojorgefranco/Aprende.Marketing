@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import confetti from 'canvas-confetti';
-import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle, Wand2 } from 'lucide-react';
+import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle, Wand2, Search } from 'lucide-react';
 import { useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { UpgradeModal } from '../../UpgradeModal';
@@ -48,14 +48,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
   const [progress, setProgress] = useState(0);
   const [secondsElapsed, setSecondsElapsed] = useState(0);
-  const [activeKitTab, setActiveKitTab] = useState<'video' | 'ads' | 'thumbs' | 'publish'>('thumbs');
+  const [activeKitTab, setActiveKitTab] = useState<'video' | 'ads' | 'thumbs' | 'publish'>('video');
   const [openAccordion, setOpenAccordion] = useState<number | null>(0);
 
   const [saving, setSaving] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
 
+  const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<'library' | 'generated'>('library');
   const [libraryHooks, setLibraryHooks] = useState<any[]>([]);
   const [libraryTotal, setLibraryTotal] = useState(0);
@@ -113,8 +114,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (!projectId) return;
     setLoadingLibrary(true);
     try {
-        // Ahora pedimos exactamente 5 filtrados por el servidor para asegurar páginas llenas
-        const res = await api.getHooksLibrary(page, 5, masterId || undefined, projectId);
+        // Ahora pedimos exactamente 6 filtrados por el servidor para asegurar páginas llenas
+        const res = await api.getHooksLibrary(page, 6, masterId || undefined, projectId);
         setLibraryHooks(res.hooks);
         setLibraryTotal(res.total);
     } catch (e) {
@@ -335,13 +336,32 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const isCurrentUnlocked = (currentHook as any).isUnlocked || !(currentHook as any).masterHookId;
   const canGenerate = isCurrentUnlocked && !currentHook.isGenerated && !isRealAdmin;
 
+  const filteredHooks = useMemo(() => {
+    const currentData = activeTab === 'library' ? displayLibraryHooks : displayGeneratedHooks;
+    if (!searchTerm.trim()) return currentData;
+    
+    return currentData.filter(hook => 
+        (hook.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ((hook as any).psychological_strategy || hook.psychologicalStrategy || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [activeTab, displayLibraryHooks, displayGeneratedHooks, searchTerm]);
+
   const totalPages = activeTab === 'library' 
-    ? Math.ceil(libraryTotal / 5) 
-    : Math.ceil(displayGeneratedHooks.length / itemsPerPage);
+    ? Math.ceil(libraryTotal / 6) 
+    : Math.ceil(filteredHooks.length / itemsPerPage);
     
   const paginatedHooks = activeTab === 'library' 
-    ? displayLibraryHooks 
-    : displayGeneratedHooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    ? filteredHooks 
+    : filteredHooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Resetear página al buscar o cambiar pestaña
+  useEffect(() => {
+    setCurrentPage(1);
+    if (activeTab === 'library') {
+        setLibraryPage(1);
+        loadLibrary(1, masterParentId);
+    }
+  }, [searchTerm, activeTab]);
 
   const defaultKitContent = {
     script: "Aquí ingresa el guion del video persuasivo...",
@@ -722,6 +742,28 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
               </div>
             </div>
 
+            {/* Buscador de Hooks */}
+            <div className="relative mb-6">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Search className="h-4 w-4 text-gray-500" />
+                </div>
+                <input
+                    type="text"
+                    placeholder="Buscar hooks por título o estrategia..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="block w-full pl-11 pr-4 py-3 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all"
+                />
+                {searchTerm && (
+                    <button 
+                        onClick={() => setSearchTerm('')}
+                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white transition-colors"
+                    >
+                        <X className="h-4 w-4" />
+                    </button>
+                )}
+            </div>
+
             {/* Selector de Pestañas */}
             <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
               <button 
@@ -980,8 +1022,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
                         <div className="px-8 py-6 bg-black/20 border-b border-white/5">
                             <div className="w-full flex flex-wrap bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-inner">
-                                <button onClick={() => setActiveKitTab('thumbs')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'thumbs' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Video</button>
                                 <button onClick={() => setActiveKitTab('video')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'video' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>GUION</button>
+                                <button onClick={() => setActiveKitTab('thumbs')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'thumbs' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Video</button>
                                 <button onClick={() => setActiveKitTab('ads')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'ads' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Descripción</button>
                                 <button onClick={() => setActiveKitTab('publish')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'publish' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Publicar</button>
                             </div>
@@ -1205,7 +1247,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                                         <div className="aspect-video w-full rounded-xl overflow-hidden border border-white/10 bg-black mt-4">
                                                             <iframe 
                                                                 className="w-full h-full"
-                                                                src={`https://www.youtube.com/embed/dQw4w9WgXcQ`}
+                                                                src="https://www.youtube.com/embed/vGfXD9VbfXo"
                                                                 title={`Tutorial Paso ${idx + 1}`}
                                                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                                                 allowFullScreen
