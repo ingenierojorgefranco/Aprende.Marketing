@@ -347,11 +347,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   }, [activeTab, displayLibraryHooks, displayGeneratedHooks, searchTerm]);
 
   const totalPages = activeTab === 'library' 
-    ? Math.ceil(libraryTotal / 6) 
+    ? Math.ceil((manualHooks.length + libraryTotal) / itemsPerPage) 
     : Math.ceil(filteredHooks.length / itemsPerPage);
     
   const paginatedHooks = activeTab === 'library' 
-    ? filteredHooks 
+    ? filteredHooks.slice(0, itemsPerPage) 
     : filteredHooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   // Resetear página al buscar o cambiar pestaña
