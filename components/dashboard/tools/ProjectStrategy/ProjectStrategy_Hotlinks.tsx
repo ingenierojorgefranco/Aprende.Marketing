@@ -161,7 +161,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                     <div className="space-y-6">
                         <div className="space-y-3">
                             <label className="text-sm font-black text-emerald-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-3">
-                                <Rocket className="w-5 h-5" /> URL del Producto Digital de Hotmart
+                                <Rocket className="w-5 h-5" /> URL de Afiliación al Producto Digital
                             </label>
                             <div className="relative group">
                                 <input 
@@ -178,11 +178,11 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                                         rel="noopener noreferrer"
                                         className="absolute right-4 top-1/2 -translate-y-1/2 bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all border border-emerald-500/20"
                                     >
-                                        Probar Enlace
+                                        Afiliarme al Producto
                                     </a>
                                 )}
                             </div>
-                            <p className="text-[10px] text-gray-600 uppercase font-black tracking-widest ml-4">Este es el enlace directo a tu producto en Hotmart para que la IA lo use en tus estrategias.</p>
+                            <p className="text-[10px] text-gray-600 uppercase font-black tracking-widest ml-4">Con este enlace podrás afiliarte al producto digital en Hotmart para tener tus Enlaces de Afiliados y se te asignen las comisiones por cada venta del producto.</p>
                         </div>
                     </div>
 

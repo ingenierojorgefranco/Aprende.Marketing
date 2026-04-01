@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -609,6 +609,21 @@ export const ProjectWizard: React.FC = () => {
                                         </div>
                                         <p className="text-[10px] text-gray-500 italic">Esta imagen aparecerá en la "Biblioteca" del editor web para que el usuario pueda seleccionarla fácilmente.</p>
                                     </div>
+
+                                    {/* URL del Producto Digital (SOLO ADMIN) */}
+                                    <div className="space-y-4 pt-4 border-t border-blue-500/10">
+                                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                            <Rocket className="w-4 h-4 text-blue-400" /> URL del Producto Digital de Hotmart
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            value={digitalProductUrl} 
+                                            onChange={e => setDigitalProductUrl(e.target.value)} 
+                                            placeholder="https://app-vlc.hotmart.com/affiliate-links/..."
+                                            className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-xs text-blue-300 outline-none focus:border-blue-500"
+                                        />
+                                        <p className="text-[10px] text-gray-500 italic">Enlace de reclutamiento de Hotmart para que los usuarios se afilien.</p>
+                                    </div>
                                 </div>
                             )}
 
@@ -653,15 +668,6 @@ export const ProjectWizard: React.FC = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">URL del Producto Digital de Hotmart</label>
-                                <input 
-                                    type="text" 
-                                    value={digitalProductUrl} 
-                                    onChange={e => setDigitalProductUrl(e.target.value)} 
-                                    placeholder="https://app-vlc.hotmart.com/affiliate-links/..."
-                                    className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all mb-6"
-                                />
-
                                 <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Lead Magnet (Regalo)</label>
                                 <select value={leadMagnetType} onChange={e => setLeadMagnetType(e.target.value)} className={`w-full bg-black border ${errors.leadMagnetType ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all appearance-none cursor-pointer mb-4`}>
                                     <option value="">Selecciona tu Lead Magnet</option>
