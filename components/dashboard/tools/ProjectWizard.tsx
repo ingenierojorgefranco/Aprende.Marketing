@@ -131,6 +131,7 @@ export const ProjectWizard: React.FC = () => {
     const [commissionValue, setCommissionValue] = useState<number>(0);
     const [leadMagnetType, setLeadMagnetType] = useState('');
     const [leadMagnetUrl, setLeadMagnetUrl] = useState('');
+    const [digitalProductUrl, setDigitalProductUrl] = useState('');
     const [salesPageUrl, setSalesPageUrl] = useState('');
     const [isMaster, setIsMaster] = useState(false);
     
@@ -203,6 +204,7 @@ export const ProjectWizard: React.FC = () => {
                 }
                 setLeadMagnetType(proj.leadMagnetType || '');
                 setLeadMagnetUrl(proj.leadMagnetUrl || '');
+                setDigitalProductUrl(proj.digitalProductUrl || '');
                 setSalesPageUrl(proj.salesPageUrl || '');
                 setNiche(proj.niche || '');
                 setTargetAudience(proj.targetAudience || '');
@@ -289,6 +291,7 @@ export const ProjectWizard: React.FC = () => {
             leadMagnetType,
             leadMagnetUrl,
             salesPageUrl,
+            digitalProductUrl,
             niche: niche || name, 
             targetAudience: targetAudience || '',
             mainGoal: mainGoal || 'Venta Directa',
@@ -650,6 +653,15 @@ export const ProjectWizard: React.FC = () => {
                                 />
                             </div>
                             <div>
+                                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">URL del Producto Digital de Hotmart</label>
+                                <input 
+                                    type="text" 
+                                    value={digitalProductUrl} 
+                                    onChange={e => setDigitalProductUrl(e.target.value)} 
+                                    placeholder="https://app-vlc.hotmart.com/affiliate-links/..."
+                                    className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all mb-6"
+                                />
+
                                 <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Lead Magnet (Regalo)</label>
                                 <select value={leadMagnetType} onChange={e => setLeadMagnetType(e.target.value)} className={`w-full bg-black border ${errors.leadMagnetType ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all appearance-none cursor-pointer mb-4`}>
                                     <option value="">Selecciona tu Lead Magnet</option>

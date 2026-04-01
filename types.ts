@@ -550,7 +550,8 @@ export interface Project {
   commissionRate?: number;
   leadMagnetType?: string;
   leadMagnetUrl?: string; // */ Se añade para almacenar el enlace del regalo - 11/03/2025 15:45
-
+  digitalProductUrl?: string; // Nuevo: URL del producto digital de Hotmart
+  
   // Strategy Assets
   mainGoal: string; // "Venta Directa"
   painPoints: string[]; // ["No tienen tiempo", "Cursos caros", "Miedo a empezar"]

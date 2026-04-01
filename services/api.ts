@@ -578,6 +578,7 @@ export const api = {
               commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
               leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
               leadMagnetUrl: p.lead_magnet_url || p.leadMagnetUrl,
+              digitalProductUrl: p.digital_product_url || p.digitalProductUrl,
               createdAt: new Date(p.created_at || p.createdAt),
               isMaster: !!p.is_master,
               isUnlocked: !!p.is_unlocked,
@@ -609,6 +610,7 @@ export const api = {
             shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
             isMaster: true,
             leadMagnetUrl: p.lead_magnet_url || p.leadMagnetUrl,
+            digitalProductUrl: p.digital_product_url || p.digitalProductUrl,
             createdAt: new Date(p.created_at)
         };
     });
@@ -658,6 +660,7 @@ export const api = {
               commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
               leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
               leadMagnetUrl: p.lead_magnet_url || p.leadMagnetUrl,
+              digitalProductUrl: p.digital_product_url || p.digitalProductUrl,
               createdAt: new Date(p.created_at || p.createdAt),
               isMaster: !!p.is_master,
               masterParentId: p.master_parent_id

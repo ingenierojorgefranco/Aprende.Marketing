@@ -462,6 +462,7 @@ const initDb = async () => {
         ////////// Actualización: Columna para identificar el origen de un proyecto clonado - 05/03/2025 10:00 //////////
         await addColumnSafe(connection, 'projects', "master_parent_id INT NULL");
         ////////// Fin de actualización - 05/03/2025 10:00 //////////
+        await addColumnSafe(connection, 'projects', "digital_product_url VARCHAR(500)");
         
         /* */ /* Actualización: Eliminación de la creación de la columna redundante short_description en la tabla projects, centralizando su almacenamiento dentro de strategy_json - 25/06/2024 11:30 */
         // await addColumnSafe(connection, 'projects', "short_description VARCHAR(255)");

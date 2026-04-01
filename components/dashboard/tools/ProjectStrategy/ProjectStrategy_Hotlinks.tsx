@@ -18,6 +18,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
     const [form, setForm] = useState({
         leadMagnetType: '',
         leadMagnetUrl: '',
+        digitalProductUrl: '',
         affiliateLinks: [
             { label: 'Checkout Principal', url: '' },
             { label: 'Checkout con Descuento', url: '' }
@@ -36,6 +37,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                     setForm({
                         leadMagnetType: data.leadMagnetType || '',
                         leadMagnetUrl: data.leadMagnetUrl || '',
+                        digitalProductUrl: data.digitalProductUrl || '',
                         affiliateLinks: data.affiliateLinks && data.affiliateLinks.length > 0 
                             ? data.affiliateLinks 
                             : [
@@ -102,6 +104,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                 ...project,
                 leadMagnetType: form.leadMagnetType,
                 leadMagnetUrl: form.leadMagnetUrl,
+                digitalProductUrl: form.digitalProductUrl,
                 affiliateLinks: form.affiliateLinks
             } as any);
             
@@ -154,8 +157,37 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
             {/* --- FORMULARIO --- */}
             <div className="max-w-4xl mx-auto w-full bg-[#0B0B0B] border border-white/5 rounded-[3rem] p-8 md:p-12 shadow-2xl space-y-10">
                 <div className="space-y-8">
-                    {/* Lead Magnet */}
+                    {/* URL del Producto Digital */}
                     <div className="space-y-6">
+                        <div className="space-y-3">
+                            <label className="text-sm font-black text-emerald-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-3">
+                                <Rocket className="w-5 h-5" /> URL del Producto Digital de Hotmart
+                            </label>
+                            <div className="relative group">
+                                <input 
+                                    type="text" 
+                                    value={form.digitalProductUrl}
+                                    onChange={(e) => setForm({ ...form, digitalProductUrl: e.target.value })}
+                                    placeholder="https://app-vlc.hotmart.com/affiliate-links/..."
+                                    className="w-full bg-black border border-white/10 rounded-2xl py-5 px-8 text-white text-lg outline-none focus:border-emerald-500/50 transition-all shadow-inner placeholder:text-gray-800"
+                                />
+                                {form.digitalProductUrl && (
+                                    <a 
+                                        href={form.digitalProductUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all border border-emerald-500/20"
+                                    >
+                                        Probar Enlace
+                                    </a>
+                                )}
+                            </div>
+                            <p className="text-[10px] text-gray-600 uppercase font-black tracking-widest ml-4">Este es el enlace directo a tu producto en Hotmart para que la IA lo use en tus estrategias.</p>
+                        </div>
+                    </div>
+
+                    {/* Lead Magnet */}
+                    <div className="space-y-6 pt-10 border-t border-white/5">
                         <div className="space-y-3">
                             <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-[0.2em] ml-2">Tipo de Lead Magnet (Regalo)</label>
                             <select 
