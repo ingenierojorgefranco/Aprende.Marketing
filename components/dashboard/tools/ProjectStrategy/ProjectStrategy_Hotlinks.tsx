@@ -104,7 +104,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                 ...project,
                 leadMagnetType: form.leadMagnetType,
                 leadMagnetUrl: form.leadMagnetUrl,
-                digitalProductUrl: form.digitalProductUrl,
+                digitalProductUrl: project.masterParentId ? undefined : form.digitalProductUrl,
                 affiliateLinks: form.affiliateLinks
             } as any);
             
@@ -169,9 +169,15 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                                     value={form.digitalProductUrl}
                                     onChange={(e) => setForm({ ...form, digitalProductUrl: e.target.value })}
                                     placeholder="https://app-vlc.hotmart.com/affiliate-links/..."
-                                    className="w-full bg-black border border-white/10 rounded-2xl py-5 px-8 text-white text-lg outline-none focus:border-emerald-500/50 transition-all shadow-inner placeholder:text-gray-800"
+                                    disabled={!!project?.masterParentId}
+                                    className={`w-full bg-black border ${project?.masterParentId ? 'border-emerald-500/30 opacity-70' : 'border-white/10'} rounded-2xl py-5 px-8 text-white text-lg outline-none focus:border-emerald-500/50 transition-all shadow-inner placeholder:text-gray-800`}
                                 />
-                                {form.digitalProductUrl && (
+                                {project?.masterParentId && (
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-[10px] font-black text-emerald-400 uppercase bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20">
+                                        <CheckCircle2 className="w-4 h-4" /> Heredado del Maestro
+                                    </div>
+                                )}
+                                {!project?.masterParentId && form.digitalProductUrl && (
                                     <a 
                                         href={form.digitalProductUrl} 
                                         target="_blank" 
@@ -182,7 +188,11 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                                     </a>
                                 )}
                             </div>
-                            <p className="text-[10px] text-gray-600 uppercase font-black tracking-widest ml-4">Con este enlace podrás afiliarte al producto digital en Hotmart para tener tus Enlaces de Afiliados y se te asignen las comisiones por cada venta del producto.</p>
+                            <p className="text-[10px] text-gray-600 uppercase font-black tracking-widest ml-4">
+                                {project?.masterParentId 
+                                    ? "Este proyecto hereda automáticamente el enlace de afiliación del proyecto maestro."
+                                    : "Con este enlace podrás afiliarte al producto digital en Hotmart para tener tus Enlaces de Afiliados y se te asignen las comisiones por cada venta del producto."}
+                            </p>
                         </div>
                     </div>
 

@@ -115,7 +115,7 @@ router.post('/unlock/:id', async (req, res) => {
                 '', 
                 master.sales_page_url, 
                 master.id,
-                master.digital_product_url,
+                null, // No guardamos la URL en el duplicado, se heredará dinámicamente
                 planId,
                 planSlug
             ]
@@ -220,9 +220,12 @@ router.post('/analyze-site', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     let query = `
-      SELECT p.*, (p.user_id = ?) as is_owner,
+      SELECT p.*, parent.digital_product_url as parent_digital_product_url,
+             (p.user_id = ?) as is_owner,
              EXISTS(SELECT 1 FROM unlocked_projects up WHERE up.project_id = p.id AND up.user_id = ?) as is_unlocked
-      FROM projects p LEFT JOIN unlocked_projects up ON p.id = up.project_id AND up.user_id = ?
+      FROM projects p 
+      LEFT JOIN projects parent ON p.master_parent_id = parent.id
+      LEFT JOIN unlocked_projects up ON p.id = up.project_id AND up.user_id = ?
       WHERE p.user_id = ? ${req.user.role === 'admin' ? '' : 'AND p.is_master = 0'} ORDER BY p.updated_at DESC
     `;
     let params = [req.user.id, req.user.id, req.user.id, req.user.id];
@@ -239,7 +242,7 @@ router.get('/', async (req, res) => {
             key_benefits: safeParseJson(p.key_benefits),
             affiliate_links: safeParseJson(p.affiliate_links),
             strategy_json: safeParseJson(p.strategy_json),
-            digital_product_url: p.digital_product_url,
+            digital_product_url: p.digital_product_url || p.parent_digital_product_url,
             planId: p.plan_id ? String(p.plan_id) : undefined,
             planSlug: status.planName,
             isBlocked: status.isBlocked,
@@ -255,8 +258,11 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const [rows] = await pool.query(`
-        SELECT p.*, (p.user_id = ?) as is_owner
-        FROM projects p LEFT JOIN unlocked_projects up ON p.id = up.project_id AND up.user_id = ?
+        SELECT p.*, parent.digital_product_url as parent_digital_product_url,
+               (p.user_id = ?) as is_owner
+        FROM projects p 
+        LEFT JOIN projects parent ON p.master_parent_id = parent.id
+        LEFT JOIN unlocked_projects up ON p.id = up.project_id AND up.user_id = ?
         WHERE p.id = ? AND (p.user_id = ? OR up.user_id = ? OR ? = 'admin') LIMIT 1
     `, [req.user.id, req.user.id, req.params.id, req.user.id, req.user.id, req.user.role]);
     if (rows.length === 0) return res.status(404).json({ error: 'No encontrado' });
@@ -269,7 +275,7 @@ router.get('/:id', async (req, res) => {
     project.key_benefits = safeParseJson(project.key_benefits);
     project.affiliate_links = safeParseJson(project.affiliate_links);
     project.strategy_json = safeParseJson(project.strategy_json);
-    project.digital_product_url = project.digital_product_url;
+    project.digital_product_url = project.digital_product_url || project.parent_digital_product_url;
     project.planId = project.plan_id ? String(project.plan_id) : undefined;
     project.planSlug = status.planName;
     project.isBlocked = status.isBlocked;
@@ -313,12 +319,16 @@ router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, leadMagnetUrl, salesPageUrl, digitalProductUrl, isMaster } = req.body;
   try {
-    const [check] = await pool.query('SELECT user_id, is_master FROM projects WHERE id = ?', [id]);
+    const [check] = await pool.query('SELECT user_id, is_master, master_parent_id FROM projects WHERE id = ?', [id]);
     if (check.length === 0 || (check[0].user_id !== req.user.id && req.user.role !== 'admin')) return res.status(403).json({ error: 'No autorizado' });
     const isMasterFinal = (req.user.role === 'admin' && isMaster !== undefined) ? (isMaster ? 1 : 0) : check[0].is_master;
+    
+    // Si es un duplicado, no permitimos guardar una URL local, forzamos herencia
+    const finalDigitalProductUrl = check[0].master_parent_id ? null : digitalProductUrl;
+
     await pool.query(
       `UPDATE projects SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, multimedia_json=?, full_price=?, commission_rate=?, lead_magnet_type=?, lead_magnet_url=?, sales_page_url=?, digital_product_url=?, is_master=?, updated_at=NOW() WHERE id=?`,
-      [name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []), strategy_json ? JSON.stringify(strategy_json) : null, req.body.multimedia_json ? JSON.stringify(req.body.multimedia_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', digitalProductUrl || '', isMasterFinal, id]
+      [name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []), strategy_json ? JSON.stringify(strategy_json) : null, req.body.multimedia_json ? JSON.stringify(req.body.multimedia_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', finalDigitalProductUrl, isMasterFinal, id]
     );
     res.json({ message: 'Actualizado' });
   } catch (error) { res.status(500).json({ error: 'Error' }); }

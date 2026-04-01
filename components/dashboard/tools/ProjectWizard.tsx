@@ -134,6 +134,7 @@ export const ProjectWizard: React.FC = () => {
     const [digitalProductUrl, setDigitalProductUrl] = useState('');
     const [salesPageUrl, setSalesPageUrl] = useState('');
     const [isMaster, setIsMaster] = useState(false);
+    const [masterParentId, setMasterParentId] = useState<string | undefined>(undefined);
     
     const [niche, setNiche] = useState('');
     const [targetAudience, setTargetAudience] = useState('');
@@ -216,6 +217,7 @@ export const ProjectWizard: React.FC = () => {
                     { label: 'Hotlink con Descuento', url: '' }
                 ]);
                 setIsMaster(!!proj.isMaster);
+                setMasterParentId(proj.masterParentId);
                 setOriginalStrategyJson(proj.strategy_json);
                 if (proj.multimedia_json) {
                     setMultimedia({
@@ -291,7 +293,7 @@ export const ProjectWizard: React.FC = () => {
             leadMagnetType,
             leadMagnetUrl,
             salesPageUrl,
-            digitalProductUrl,
+            digitalProductUrl: masterParentId ? undefined : digitalProductUrl,
             niche: niche || name, 
             targetAudience: targetAudience || '',
             mainGoal: mainGoal || 'Venta Directa',
@@ -615,14 +617,26 @@ export const ProjectWizard: React.FC = () => {
                                         <label className="block text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                             <Rocket className="w-4 h-4 text-blue-400" /> URL del Producto Digital de Hotmart
                                         </label>
-                                        <input 
-                                            type="text" 
-                                            value={digitalProductUrl} 
-                                            onChange={e => setDigitalProductUrl(e.target.value)} 
-                                            placeholder="https://app-vlc.hotmart.com/affiliate-links/..."
-                                            className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-xs text-blue-300 outline-none focus:border-blue-500"
-                                        />
-                                        <p className="text-[10px] text-gray-500 italic">Enlace de reclutamiento de Hotmart para que los usuarios se afilien.</p>
+                                        <div className="relative">
+                                            <input 
+                                                type="text" 
+                                                value={digitalProductUrl} 
+                                                onChange={e => setDigitalProductUrl(e.target.value)} 
+                                                placeholder="https://app-vlc.hotmart.com/affiliate-links/..."
+                                                disabled={!!masterParentId}
+                                                className={`w-full bg-black border ${masterParentId ? 'border-blue-500/30 opacity-70' : 'border-gray-800'} rounded-xl px-4 py-3 text-xs text-blue-300 outline-none focus:border-blue-500`}
+                                            />
+                                            {masterParentId && (
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[8px] font-black text-blue-400 uppercase bg-blue-500/10 px-2 py-1 rounded-md border border-blue-500/20">
+                                                    <CheckCircle2 className="w-2 h-2" /> Heredado del Maestro
+                                                </div>
+                                            )}
+                                        </div>
+                                        <p className="text-[10px] text-gray-500 italic">
+                                            {masterParentId 
+                                                ? "Este proyecto es un duplicado. La URL se hereda automáticamente del proyecto maestro y no puede modificarse aquí."
+                                                : "Enlace de reclutamiento de Hotmart para que los usuarios se afilien."}
+                                        </p>
                                     </div>
                                 </div>
                             )}
