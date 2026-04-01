@@ -242,7 +242,7 @@ router.get('/', async (req, res) => {
             key_benefits: safeParseJson(p.key_benefits),
             affiliate_links: safeParseJson(p.affiliate_links),
             strategy_json: safeParseJson(p.strategy_json),
-            digital_product_url: p.digital_product_url || p.parent_digital_product_url,
+            digital_product_url: p.master_parent_id ? p.parent_digital_product_url : p.digital_product_url,
             planId: p.plan_id ? String(p.plan_id) : undefined,
             planSlug: status.planName,
             isBlocked: status.isBlocked,
@@ -275,7 +275,7 @@ router.get('/:id', async (req, res) => {
     project.key_benefits = safeParseJson(project.key_benefits);
     project.affiliate_links = safeParseJson(project.affiliate_links);
     project.strategy_json = safeParseJson(project.strategy_json);
-    project.digital_product_url = project.digital_product_url || project.parent_digital_product_url;
+    project.digital_product_url = project.master_parent_id ? project.parent_digital_product_url : project.digital_product_url;
     project.planId = project.plan_id ? String(project.plan_id) : undefined;
     project.planSlug = status.planName;
     project.isBlocked = status.isBlocked;
