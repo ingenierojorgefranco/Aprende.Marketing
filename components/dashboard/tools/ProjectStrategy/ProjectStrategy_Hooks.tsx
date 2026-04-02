@@ -27,6 +27,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const projectId = overrideProjectId || routeProjectId;
   const context = useOutletContext() as any;
   const user = context?.user;
+  const isRealAdmin = user?.role === 'admin';
   const isSimulating = context?.isSimulating;
   const hookCount = context?.hookCount;
   const planLimits = user?.planLimits;
@@ -332,12 +333,13 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const handleUpdateMessage = async (field: string, value: any) => {
-    if (!currentHook.id) return;
+  const handleUpdateMessage = async (field: string, value: any, hookIdOverride?: string) => {
+    const targetId = hookIdOverride || currentHook.id;
+    if (!targetId) return;
     try {
-        await api.updateProjectHook(currentHook.id, { [field]: value });
+        await api.updateProjectHook(targetId, { [field]: value });
         setHooks(prev => prev.map(h => {
-            if (h.id === currentHook.id) {
+            if (h.id === targetId) {
                 const updated = { ...h, [field]: value };
                 if (field === 'psychological_strategy') {
                     (updated as any).psychologicalStrategy = value;
@@ -360,7 +362,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     isGenerated: false 
   } as ProjectHook;
 
-  const isRealAdmin = user?.role === 'admin';
   const isCurrentUnlocked = (currentHook as any).isUnlocked || !(currentHook as any).masterHookId;
   const canGenerate = isCurrentUnlocked && !currentHook.isGenerated && !isRealAdmin;
 
@@ -847,19 +848,23 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         onClick={(e) => {
                           if (isRealAdmin) {
                             e.stopPropagation();
-                            handleUpdateMessage('isActive', hook.isActive === false ? true : false);
+                            handleUpdateMessage('isActive', hook.isActive === false ? true : false, hook.id);
                           }
                         }}
                         className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
                         isActive 
-                          ? (activeTab === 'library' ? (hook.isActive === false ? 'bg-gray-600 border-gray-600' : 'bg-orange-500 border-orange-500') : 'bg-emerald-500 border-emerald-500') 
-                          : (hook.isGenerated ? 'bg-emerald-500/10 border-emerald-500/20' : (hook.isActive === false ? 'border-gray-800 bg-black/40' : 'border-gray-600 group-hover:border-gray-500'))
+                          ? (activeTab === 'library' 
+                              ? (isRealAdmin ? (hook.isActive === false ? 'bg-gray-600 border-gray-600' : 'bg-emerald-500 border-emerald-500') : 'bg-orange-500 border-orange-500') 
+                              : 'bg-emerald-500 border-emerald-500') 
+                          : (isRealAdmin 
+                              ? (hook.isActive === false ? 'border-gray-800 bg-black/40' : 'bg-emerald-500/20 border-emerald-500/40')
+                              : (hook.isGenerated ? 'bg-emerald-500/10 border-emerald-500/20' : 'border-gray-600 group-hover:border-gray-500'))
                       } ${isRealAdmin ? 'cursor-pointer hover:scale-110' : ''}`}>
-                        {(isActive || hook.isGenerated || hook.isActive !== false) && (
+                        {(isActive || (isRealAdmin && hook.isActive !== false) || hook.isGenerated) && (
                           <Check className={`w-4 h-4 font-bold ${
                             isActive 
                               ? 'text-white' 
-                              : (hook.isGenerated ? 'text-emerald-500/40' : (hook.isActive === false ? 'text-transparent' : 'text-emerald-500/40'))
+                              : (isRealAdmin && hook.isActive !== false ? 'text-emerald-500/40' : (hook.isGenerated ? 'text-emerald-500/40' : 'text-transparent'))
                           }`} />
                         )}
                       </div>
