@@ -114,9 +114,19 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (!projectId) return;
     setLoadingLibrary(true);
     try {
-        // Ahora pedimos exactamente 6 filtrados por el servidor para asegurar páginas llenas
-        const res = await api.getHooksLibrary(page, 6, masterId || undefined, projectId);
-        setLibraryHooks(res.hooks);
+        const startOffset = (page - 1) * itemsPerPage;
+        const libraryStartOffset = Math.max(0, startOffset - manualHooks.length);
+        
+        const apiPage = Math.floor(libraryStartOffset / itemsPerPage) + 1;
+        const offsetInApiPage = libraryStartOffset % itemsPerPage;
+        
+        // Pedimos 12 para asegurar que tenemos suficientes elementos para el recorte local
+        const res = await api.getHooksLibrary(apiPage, 12, masterId || undefined, projectId);
+        
+        // Recortamos los 6 que necesitamos según el desfase de ganchos manuales
+        const slicedHooks = res.hooks.slice(offsetInApiPage, offsetInApiPage + itemsPerPage);
+        
+        setLibraryHooks(slicedHooks);
         setLibraryTotal(res.total);
     } catch (e) {
         console.error("Error cargando biblioteca:", e);
@@ -132,7 +142,22 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         return dateB - dateA;
     });
 
-  const displayLibraryHooks = libraryPage === 1 ? [...manualHooks, ...libraryHooks] : libraryHooks;
+  const displayLibraryHooks = useMemo(() => {
+    const start = (libraryPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    
+    // Ganchos manuales que caen en esta página
+    const manualSlice = manualHooks.slice(start, end);
+    
+    // Si la página no se llena con manuales, completamos con los de la biblioteca
+    if (manualSlice.length < itemsPerPage) {
+        const needed = itemsPerPage - manualSlice.length;
+        // libraryHooks ya viene cargado con el desfase correcto desde loadLibrary
+        manualSlice.push(...libraryHooks.slice(0, needed));
+    }
+    
+    return manualSlice;
+  }, [manualHooks, libraryHooks, libraryPage]);
 
   const displayGeneratedHooks = hooks
     .filter(h => h.isGenerated)
@@ -158,7 +183,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     };
     checkProject();
     loadHooks();
-  }, [projectId, activeTab, libraryPage]);
+  }, [projectId, activeTab, libraryPage, manualHooks.length]);
 
   useEffect(() => {
     const currentList = activeTab === 'library' ? displayLibraryHooks : displayGeneratedHooks;
