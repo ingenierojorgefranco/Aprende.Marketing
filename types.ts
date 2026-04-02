@@ -88,6 +88,7 @@ export interface ProjectHook {
   landingPageUrl?: string;
   contentJson: any;
   isGenerated: boolean;
+  isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

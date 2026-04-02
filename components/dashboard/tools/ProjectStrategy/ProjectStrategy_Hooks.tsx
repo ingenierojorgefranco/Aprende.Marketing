@@ -136,6 +136,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const manualHooks = hooks.filter(h => !h.isGenerated && !h.masterHookId)
+    .filter(h => isRealAdmin || h.isActive !== false) // Ocultar inactivos a no-admins
     .sort((a, b) => {
         const dateA = new Date((a as any).createdAt || 0).getTime();
         const dateB = new Date((b as any).createdAt || 0).getTime();
@@ -153,11 +154,13 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (manualSlice.length < itemsPerPage) {
         const needed = itemsPerPage - manualSlice.length;
         // libraryHooks ya viene cargado con el desfase correcto desde loadLibrary
-        manualSlice.push(...libraryHooks.slice(0, needed));
+        // Filtramos también los de la biblioteca para el usuario normal
+        const filteredLibrary = libraryHooks.filter(h => isRealAdmin || h.isActive !== false);
+        manualSlice.push(...filteredLibrary.slice(0, needed));
     }
     
     return manualSlice;
-  }, [manualHooks, libraryHooks, libraryPage]);
+  }, [manualHooks, libraryHooks, libraryPage, isRealAdmin]);
 
   const displayGeneratedHooks = hooks
     .filter(h => h.isGenerated)
@@ -840,16 +843,23 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                           </span>
                         )}
                       </div>
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                      <div 
+                        onClick={(e) => {
+                          if (isRealAdmin) {
+                            e.stopPropagation();
+                            handleUpdateMessage('isActive', hook.isActive === false ? true : false);
+                          }
+                        }}
+                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
                         isActive 
-                          ? (activeTab === 'library' ? 'bg-orange-500 border-orange-500' : 'bg-emerald-500 border-emerald-500') 
-                          : (hook.isGenerated ? 'bg-emerald-500/10 border-emerald-500/20' : 'border-gray-600 group-hover:border-gray-500')
-                      }`}>
-                        {(isActive || hook.isGenerated) && (
+                          ? (activeTab === 'library' ? (hook.isActive === false ? 'bg-gray-600 border-gray-600' : 'bg-orange-500 border-orange-500') : 'bg-emerald-500 border-emerald-500') 
+                          : (hook.isGenerated ? 'bg-emerald-500/10 border-emerald-500/20' : (hook.isActive === false ? 'border-gray-800 bg-black/40' : 'border-gray-600 group-hover:border-gray-500'))
+                      } ${isRealAdmin ? 'cursor-pointer hover:scale-110' : ''}`}>
+                        {(isActive || hook.isGenerated || hook.isActive !== false) && (
                           <Check className={`w-4 h-4 font-bold ${
                             isActive 
                               ? 'text-white' 
-                              : (hook.isGenerated ? 'text-emerald-500/40' : 'text-transparent')
+                              : (hook.isGenerated ? 'text-emerald-500/40' : (hook.isActive === false ? 'text-transparent' : 'text-emerald-500/40'))
                           }`} />
                         )}
                       </div>
