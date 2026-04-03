@@ -136,13 +136,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const manualHooks = hooks.filter(h => !h.isGenerated && !h.masterHookId)
-    .filter(h => isRealAdmin || h.isActive !== false) // Ocultar inactivos a no-admins
-    .sort((a, b) => {
-        const dateA = new Date((a as any).createdAt || 0).getTime();
-        const dateB = new Date((b as any).createdAt || 0).getTime();
-        return dateB - dateA;
-    });
+  const manualHooks = useMemo(() => {
+    return hooks.filter(h => !h.isGenerated && !h.masterHookId)
+      .filter(h => isRealAdmin || h.isActive !== false) // Ocultar inactivos a no-admins
+      .sort((a, b) => {
+          const dateA = new Date((a as any).createdAt || 0).getTime();
+          const dateB = new Date((b as any).createdAt || 0).getTime();
+          return dateB - dateA;
+      });
+  }, [hooks, isRealAdmin]);
 
   const displayLibraryHooks = useMemo(() => {
     const start = (libraryPage - 1) * itemsPerPage;

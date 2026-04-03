@@ -54,6 +54,7 @@ router.get('/project/:projectId', async (req, res) => {
                 psychologicalStrategy: h.psychological_strategy,
                 contentJson: safeParseJson(h.content_json),
                 isUnlocked: true,
+                isActive: !!h.is_active,
                 isGenerated: !!h.is_generated,
                 createdAt: h.created_at,
                 updatedAt: h.updated_at
@@ -67,6 +68,7 @@ router.get('/project/:projectId', async (req, res) => {
                 psychologicalStrategy: h.psychological_strategy,
                 contentJson: null,
                 isUnlocked: false,
+                isActive: !!h.is_active,
                 isGenerated: false
             }));
 
@@ -85,6 +87,7 @@ router.get('/project/:projectId', async (req, res) => {
                 landingPageUrl: h.landing_page_url,
                 contentJson: safeParseJson(h.content_json),
                 isUnlocked: true,
+                isActive: !!h.is_active,
                 isGenerated: !!h.is_generated,
                 createdAt: h.created_at,
                 updatedAt: h.updated_at
@@ -145,7 +148,7 @@ router.get('/library', async (req, res) => {
         // Obtener ganchos maestros paginados
         const [rows] = await pool.query(dataQuery, dataParams);
 
-        const hooks = rows.map(h => ({
+            const hooks = rows.map(h => ({
             id: String(h.id),
             masterHookId: String(h.id),
             title: h.title,
@@ -153,6 +156,7 @@ router.get('/library', async (req, res) => {
             projectName: h.project_name,
             contentJson: safeParseJson(h.content_json),
             isUnlocked: false,
+            isActive: !!h.is_active,
             isGenerated: !!h.is_generated,
             createdAt: h.created_at,
             updatedAt: h.updated_at
@@ -268,7 +272,7 @@ router.post('/unlock-more/:projectId', async (req, res) => {
  */
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
-    const { landingPageUrl, isGenerated, contentJson, title, psychologicalStrategy, psychological_strategy } = req.body;
+    const { landingPageUrl, isGenerated, contentJson, title, psychologicalStrategy, psychological_strategy, isActive } = req.body;
     const finalStrategy = psychological_strategy || psychologicalStrategy;
     try {
         await pool.query(
@@ -277,9 +281,10 @@ router.put('/:id', async (req, res) => {
                 is_generated = COALESCE(?, is_generated),
                 content_json = COALESCE(?, content_json),
                 title = COALESCE(?, title),
-                psychological_strategy = COALESCE(?, psychological_strategy)
+                psychological_strategy = COALESCE(?, psychological_strategy),
+                is_active = COALESCE(?, is_active)
              WHERE id = ?`,
-            [landingPageUrl, isGenerated, contentJson ? (typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson)) : null, title, finalStrategy, id]
+            [landingPageUrl, isGenerated, contentJson ? (typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson)) : null, title, finalStrategy, isActive, id]
         );
         
         res.json({ success: true });

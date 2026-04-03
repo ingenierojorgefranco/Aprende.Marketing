@@ -336,6 +336,7 @@ const initDb = async () => {
             landing_page_url VARCHAR(255),
             content_json JSON,
             is_generated BOOLEAN DEFAULT FALSE,
+            is_active BOOLEAN DEFAULT TRUE,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
@@ -545,6 +546,9 @@ const initDb = async () => {
 
         /* Actualización: Adición de columna landing_page_url a project_hooks para evitar errores de persistencia */
         await addColumnSafe(connection, 'project_hooks', "landing_page_url VARCHAR(255)");
+
+        /* Actualización: Adición de columna is_active a project_hooks para control de visibilidad */
+        await addColumnSafe(connection, 'project_hooks', "is_active BOOLEAN DEFAULT TRUE");
 
         /* Actualización: Columnas para separación de secuencias de email y persistencia de redirección - 21/03/2026 */
         await dropColumnSafe(connection, 'email_sequences', "type");
