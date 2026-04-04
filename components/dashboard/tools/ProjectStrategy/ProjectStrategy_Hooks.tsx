@@ -86,7 +86,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     setLoadingHooks(true);
     try {
         const data = await api.getProjectHooks(projectId);
-        console.log("[DEBUG_HOOKS] loadHooks - Ganchos del proyecto cargados:", data.map(h => ({ id: h.id, title: h.title, masterHookId: h.masterHookId, isActive: h.isActive })));
         setHooks(data);
         setLoadingHooks(false);
         return data;
@@ -118,7 +117,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     try {
         // Pedimos un lote grande (pool) para evitar huecos en la paginación local
         const res = await api.getHooksLibrary(1, 80, masterId || undefined, projectId);
-        console.log("[DEBUG_HOOKS] loadLibrary - Pool de biblioteca cargado:", res.hooks.map(h => ({ id: h.id, title: h.title })));
         setLibraryHooks(res.hooks);
         setLibraryTotal(res.total);
     } catch (e) {
@@ -130,28 +128,29 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const manualHooks = useMemo(() => {
     // Incluimos todos los ganchos que ya pertenecen al proyecto (manuales y añadidos de biblioteca)
-    const filtered = hooks.filter(h => !h.isGenerated)
+    return hooks.filter(h => !h.isGenerated)
       .filter(h => isRealAdmin || h.isActive !== false)
       .sort((a, b) => {
           const dateA = new Date((a as any).createdAt || 0).getTime();
           const dateB = new Date((b as any).createdAt || 0).getTime();
           return dateB - dateA;
       });
-    console.log("[DEBUG_HOOKS] manualHooks (useMemo) - Ganchos manuales/añadidos:", filtered.map(h => ({ id: h.id, title: h.title, masterHookId: h.masterHookId, isActive: h.isActive })));
-    return filtered;
   }, [hooks, isRealAdmin]);
 
   const displayLibraryHooks = useMemo(() => {
-    console.log("[DEBUG_HOOKS] displayLibraryHooks (useMemo) - Iniciando procesamiento. LibraryHooks count:", libraryHooks.length);
-    
     // 1. Sincronizamos el estado de los ganchos de la biblioteca con los del proyecto
     const enrichedLibrary = libraryHooks.map(lh => {
         // Buscamos si este gancho ya existe en el proyecto (por ID o por MasterID)
-        const projectVersion = hooks.find(h => h.id === lh.id || (h.masterHookId && h.masterHookId === lh.id));
+        // Normalizamos a String para evitar fallos por tipo (number vs string)
+        const projectVersion = hooks.find(h => String(h.id) === String(lh.id) || (h.masterHookId && String(h.masterHookId) === String(lh.id)));
         
         if (projectVersion) {
-            console.log(`[DEBUG_HOOKS] Enriqueciendo gancho de biblioteca: ${lh.title} (ID: ${lh.id}) -> Encontrado en proyecto con ID: ${projectVersion.id}, isActive: ${projectVersion.isActive}`);
-            return { ...lh, ...projectVersion };
+            const result = { ...lh, ...projectVersion };
+            // Si soy admin y no está desactivado explícitamente, forzamos verde
+            if (isRealAdmin && projectVersion.isActive !== false) {
+                result.isActive = true;
+            }
+            return result;
         }
         
         // Si soy admin y el gancho no está en el proyecto, forzamos verde (isActive: true)
@@ -164,10 +163,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
     // 2. Filtramos duplicados (los que ya están en el proyecto bajo cualquier forma)
     const filteredLibrary = enrichedLibrary.filter(lh => {
-        const alreadyInProject = hooks.some(h => !h.isGenerated && (h.id === lh.id || h.masterHookId === lh.id));
-        if (alreadyInProject) {
-            console.log(`[DEBUG_HOOKS] Deduplicando gancho: ${lh.title} (ID: ${lh.id}) - Ya existe en el proyecto.`);
-        }
+        const alreadyInProject = hooks.some(h => !h.isGenerated && (String(h.id) === String(lh.id) || (h.masterHookId && String(h.masterHookId) === String(lh.id))));
         return !alreadyInProject;
     });
 
@@ -182,7 +178,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         unifiedList = unifiedList.slice(0, 60);
     }
 
-    console.log("[DEBUG_HOOKS] displayLibraryHooks (useMemo) - Lista final unificada count:", unifiedList.length);
     return unifiedList;
   }, [manualHooks, libraryHooks, isRealAdmin, hooks]);
 
