@@ -854,20 +854,12 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                           }
                         }}
                         className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                        isActive 
-                          ? (activeTab === 'library' 
-                              ? (isRealAdmin ? (hook.isActive === false ? 'bg-gray-600 border-gray-600' : 'bg-emerald-500 border-emerald-500') : 'bg-orange-500 border-orange-500') 
-                              : 'bg-emerald-500 border-emerald-500') 
-                          : (isRealAdmin 
-                              ? (hook.isActive === false ? 'border-gray-800 bg-black/40' : 'bg-emerald-500/20 border-emerald-500/40')
-                              : (hook.isGenerated ? 'bg-emerald-500/10 border-emerald-500/20' : 'border-gray-600 group-hover:border-gray-500'))
+                        hook.isActive !== false
+                          ? (isActive ? 'bg-emerald-500 border-emerald-500' : 'bg-emerald-500/20 border-emerald-500/40')
+                          : 'border-gray-800 bg-black/40'
                       } ${isRealAdmin ? 'cursor-pointer hover:scale-110' : ''}`}>
-                        {(isActive || (isRealAdmin && hook.isActive !== false) || hook.isGenerated) && (
-                          <Check className={`w-4 h-4 font-bold ${
-                            isActive 
-                              ? 'text-white' 
-                              : (isRealAdmin && hook.isActive !== false ? 'text-emerald-500/40' : (hook.isGenerated ? 'text-emerald-500/40' : 'text-transparent'))
-                          }`} />
+                        {hook.isActive !== false && (
+                          <Check className={`w-4 h-4 font-bold ${isActive ? 'text-white' : 'text-emerald-500'}`} />
                         )}
                       </div>
                     </div>
