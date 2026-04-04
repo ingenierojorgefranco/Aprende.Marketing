@@ -844,6 +844,13 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             </div>
             
             <div className="space-y-4">
+              {isRealAdmin && activeTab === 'library' && !loadingLibrary && displayLibraryHooks.length > 0 && (
+                <div className="px-1 pb-1">
+                  <span className="text-orange-500/70 text-[10px] font-bold uppercase tracking-widest">
+                    {displayLibraryHooks.length} Hooks en la biblioteca
+                  </span>
+                </div>
+              )}
               {(activeTab === 'library' ? loadingLibrary : loadingHooks) ? (
                 <div className="flex justify-center py-10"><Loader2 className="animate-spin text-orange-400" /></div>
               ) : paginatedHooks.length > 0 ? (
