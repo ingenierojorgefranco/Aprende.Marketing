@@ -128,8 +128,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const manualHooks = useMemo(() => {
-    return hooks.filter(h => !h.isGenerated && !h.masterHookId)
-      .filter(h => isRealAdmin || h.isActive !== false) // Ocultar inactivos a no-admins
+    // Incluimos todos los ganchos que ya pertenecen al proyecto (manuales y añadidos de biblioteca)
+    return hooks.filter(h => !h.isGenerated)
+      .filter(h => isRealAdmin || h.isActive !== false)
       .sort((a, b) => {
           const dateA = new Date((a as any).createdAt || 0).getTime();
           const dateB = new Date((b as any).createdAt || 0).getTime();
@@ -140,22 +141,34 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const displayLibraryHooks = useMemo(() => {
     // 1. Sincronizamos el estado de los ganchos de la biblioteca con los del proyecto
     const enrichedLibrary = libraryHooks.map(lh => {
-        const projectVersion = hooks.find(h => h.id === lh.id);
-        return projectVersion ? { ...lh, ...projectVersion } : lh;
+        // Buscamos si este gancho ya existe en el proyecto (por ID o por MasterID)
+        const projectVersion = hooks.find(h => h.id === lh.id || (h.masterHookId && h.masterHookId === lh.id));
+        
+        if (projectVersion) {
+            return { ...lh, ...projectVersion };
+        }
+        
+        // Si soy admin y el gancho no está en el proyecto, forzamos verde (isActive: true)
+        if (isRealAdmin) {
+            return { ...lh, isActive: true };
+        }
+        
+        return lh;
     });
 
-    // 2. Filtramos duplicados (los que ya están en manualHooks)
+    // 2. Filtramos duplicados (los que ya están en el proyecto bajo cualquier forma)
     const filteredLibrary = enrichedLibrary.filter(lh => {
-        return !manualHooks.some(mh => mh.id === lh.id);
+        const alreadyInProject = hooks.some(h => !h.isGenerated && (h.id === lh.id || h.masterHookId === lh.id));
+        return !alreadyInProject;
     });
 
-    // 3. Unificamos: Manuales primero, luego Biblioteca
+    // 3. Unificamos: Manuales/Añadidos primero, luego Biblioteca disponible
     let unifiedList = [...manualHooks, ...filteredLibrary];
 
-    // 4. Aplicamos visibilidad (solo activos para no-admins)
+    // 4. Aplicamos visibilidad final (solo activos para no-admins)
     unifiedList = unifiedList.filter(h => isRealAdmin || h.isActive !== false);
 
-    // 5. Limitamos a 60 para usuarios normales (10 páginas), admins ven todo el pool
+    // 5. Limitamos a 60 para usuarios normales (10 páginas), admins ven todo el pool cargado
     if (!isRealAdmin) {
         unifiedList = unifiedList.slice(0, 60);
     }
