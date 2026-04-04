@@ -115,19 +115,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (!projectId) return;
     setLoadingLibrary(true);
     try {
-        const startOffset = (page - 1) * itemsPerPage;
-        const libraryStartOffset = Math.max(0, startOffset - manualHooks.length);
+        // Pedimos un lote grande (pool) para evitar huecos en la paginación local
+        const res = await api.getHooksLibrary(1, 80, masterId || undefined, projectId);
         
-        const apiPage = Math.floor(libraryStartOffset / itemsPerPage) + 1;
-        const offsetInApiPage = libraryStartOffset % itemsPerPage;
-        
-        // Pedimos 24 para asegurar que tenemos suficientes elementos tras filtrar duplicados
-        const res = await api.getHooksLibrary(apiPage, 24, masterId || undefined, projectId);
-        
-        // Enviamos los ganchos a partir del offset al estado
-        const slicedHooks = res.hooks.slice(offsetInApiPage);
-        
-        setLibraryHooks(slicedHooks);
+        setLibraryHooks(res.hooks);
         setLibraryTotal(res.total);
     } catch (e) {
         console.error("Error cargando biblioteca:", e);
@@ -147,34 +138,30 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   }, [hooks, isRealAdmin]);
 
   const displayLibraryHooks = useMemo(() => {
-    const start = (libraryPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    
-    // 1. Ganchos manuales del proyecto
-    const manualSlice = manualHooks.slice(start, end);
-    
-    // 2. Si falta espacio, completamos con la biblioteca
-    if (manualSlice.length < itemsPerPage) {
-        const needed = itemsPerPage - manualSlice.length;
-        
-        // Sincronizamos el estado de los ganchos de la biblioteca con los del proyecto
-        const enrichedLibrary = libraryHooks.map(lh => {
-            const projectVersion = hooks.find(h => h.id === lh.id);
-            return projectVersion ? { ...lh, ...projectVersion } : lh;
-        });
+    // 1. Sincronizamos el estado de los ganchos de la biblioteca con los del proyecto
+    const enrichedLibrary = libraryHooks.map(lh => {
+        const projectVersion = hooks.find(h => h.id === lh.id);
+        return projectVersion ? { ...lh, ...projectVersion } : lh;
+    });
 
-        // Filtramos duplicados y aplicamos visibilidad
-        const filteredLibrary = enrichedLibrary.filter(lh => {
-            const isDuplicate = manualHooks.some(mh => mh.id === lh.id);
-            const isVisible = isRealAdmin || lh.isActive !== false;
-            return !isDuplicate && isVisible;
-        });
+    // 2. Filtramos duplicados (los que ya están en manualHooks)
+    const filteredLibrary = enrichedLibrary.filter(lh => {
+        return !manualHooks.some(mh => mh.id === lh.id);
+    });
 
-        manualSlice.push(...filteredLibrary.slice(0, needed));
+    // 3. Unificamos: Manuales primero, luego Biblioteca
+    let unifiedList = [...manualHooks, ...filteredLibrary];
+
+    // 4. Aplicamos visibilidad (solo activos para no-admins)
+    unifiedList = unifiedList.filter(h => isRealAdmin || h.isActive !== false);
+
+    // 5. Limitamos a 60 para usuarios normales (10 páginas), admins ven todo el pool
+    if (!isRealAdmin) {
+        unifiedList = unifiedList.slice(0, 60);
     }
-    
-    return manualSlice;
-  }, [manualHooks, libraryHooks, libraryPage, isRealAdmin, hooks]);
+
+    return unifiedList;
+  }, [manualHooks, libraryHooks, isRealAdmin, hooks]);
 
   const displayGeneratedHooks = hooks
     .filter(h => h.isGenerated)
@@ -195,12 +182,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             }
             if (p?.isMaster) setIsMaster(true);
             
-            loadLibrary(libraryPage, p?.masterParentId ? String(p.masterParentId) : null);
+            // Cargamos el pool de la biblioteca si no lo tenemos
+            if (activeTab === 'library' && libraryHooks.length === 0) {
+                loadLibrary(1, p?.masterParentId ? String(p.masterParentId) : null);
+            }
         } catch (e) {}
     };
     checkProject();
     loadHooks();
-  }, [projectId, activeTab, libraryPage, manualHooks.length]);
+  }, [projectId, activeTab]);
 
   useEffect(() => {
     const currentList = activeTab === 'library' ? displayLibraryHooks : displayGeneratedHooks;
@@ -290,7 +280,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         setProgress(100);
 
         // Recargar biblioteca para que los huecos se llenen
-        loadLibrary(libraryPage, masterParentId);
+        loadLibrary(1, masterParentId);
         
         // Cargar los ganchos generados y cambiar a esa pestaña
         const freshHooks = await loadHooks();
@@ -402,12 +392,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     );
   }, [activeTab, displayLibraryHooks, displayGeneratedHooks, searchTerm]);
 
-  const totalPages = activeTab === 'library' 
-    ? Math.ceil(Math.max(manualHooks.length, libraryTotal) / itemsPerPage) 
-    : Math.ceil(filteredHooks.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredHooks.length / itemsPerPage);
     
   const paginatedHooks = activeTab === 'library' 
-    ? filteredHooks.slice(0, itemsPerPage) 
+    ? filteredHooks.slice((libraryPage - 1) * itemsPerPage, libraryPage * itemsPerPage) 
     : filteredHooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   // Resetear página al buscar o cambiar pestaña
