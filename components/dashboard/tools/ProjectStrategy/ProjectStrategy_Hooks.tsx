@@ -121,11 +121,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         const apiPage = Math.floor(libraryStartOffset / itemsPerPage) + 1;
         const offsetInApiPage = libraryStartOffset % itemsPerPage;
         
-        // Pedimos 12 para asegurar que tenemos suficientes elementos para el recorte local
-        const res = await api.getHooksLibrary(apiPage, 12, masterId || undefined, projectId);
+        // Pedimos 24 para asegurar que tenemos suficientes elementos tras filtrar duplicados
+        const res = await api.getHooksLibrary(apiPage, 24, masterId || undefined, projectId);
         
-        // Recortamos los 6 que necesitamos según el desfase de ganchos manuales
-        const slicedHooks = res.hooks.slice(offsetInApiPage, offsetInApiPage + itemsPerPage);
+        // Enviamos los ganchos a partir del offset al estado
+        const slicedHooks = res.hooks.slice(offsetInApiPage);
         
         setLibraryHooks(slicedHooks);
         setLibraryTotal(res.total);
@@ -150,20 +150,31 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     const start = (libraryPage - 1) * itemsPerPage;
     const end = start + itemsPerPage;
     
-    // Ganchos manuales que caen en esta página
+    // 1. Ganchos manuales del proyecto
     const manualSlice = manualHooks.slice(start, end);
     
-    // Si la página no se llena con manuales, completamos con los de la biblioteca
+    // 2. Si falta espacio, completamos con la biblioteca
     if (manualSlice.length < itemsPerPage) {
         const needed = itemsPerPage - manualSlice.length;
-        // libraryHooks ya viene cargado con el desfase correcto desde loadLibrary
-        // Filtramos también los de la biblioteca para el usuario normal
-        const filteredLibrary = libraryHooks.filter(h => isRealAdmin || h.isActive !== false);
+        
+        // Sincronizamos el estado de los ganchos de la biblioteca con los del proyecto
+        const enrichedLibrary = libraryHooks.map(lh => {
+            const projectVersion = hooks.find(h => h.id === lh.id);
+            return projectVersion ? { ...lh, ...projectVersion } : lh;
+        });
+
+        // Filtramos duplicados y aplicamos visibilidad
+        const filteredLibrary = enrichedLibrary.filter(lh => {
+            const isDuplicate = manualHooks.some(mh => mh.id === lh.id);
+            const isVisible = isRealAdmin || lh.isActive !== false;
+            return !isDuplicate && isVisible;
+        });
+
         manualSlice.push(...filteredLibrary.slice(0, needed));
     }
     
     return manualSlice;
-  }, [manualHooks, libraryHooks, libraryPage, isRealAdmin]);
+  }, [manualHooks, libraryHooks, libraryPage, isRealAdmin, hooks]);
 
   const displayGeneratedHooks = hooks
     .filter(h => h.isGenerated)
@@ -392,7 +403,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   }, [activeTab, displayLibraryHooks, displayGeneratedHooks, searchTerm]);
 
   const totalPages = activeTab === 'library' 
-    ? Math.ceil((manualHooks.length + libraryTotal) / itemsPerPage) 
+    ? Math.ceil(Math.max(manualHooks.length, libraryTotal) / itemsPerPage) 
     : Math.ceil(filteredHooks.length / itemsPerPage);
     
   const paginatedHooks = activeTab === 'library' 
