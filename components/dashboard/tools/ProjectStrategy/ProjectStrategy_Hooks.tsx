@@ -340,7 +340,21 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (!targetId) return;
     try {
         await api.updateProjectHook(targetId, { [field]: value });
+        
+        // Actualizar en el estado de ganchos del proyecto
         setHooks(prev => prev.map(h => {
+            if (h.id === targetId) {
+                const updated = { ...h, [field]: value };
+                if (field === 'psychological_strategy') {
+                    (updated as any).psychologicalStrategy = value;
+                }
+                return updated;
+            }
+            return h;
+        }));
+
+        // También actualizar en el estado de la biblioteca si existe allí
+        setLibraryHooks(prev => prev.map(h => {
             if (h.id === targetId) {
                 const updated = { ...h, [field]: value };
                 if (field === 'psychological_strategy') {
@@ -848,8 +862,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                       </div>
                       <div 
                         onClick={(e) => {
+                          e.stopPropagation();
                           if (isRealAdmin) {
-                            e.stopPropagation();
                             handleUpdateMessage('isActive', hook.isActive === false ? true : false, hook.id);
                           }
                         }}
