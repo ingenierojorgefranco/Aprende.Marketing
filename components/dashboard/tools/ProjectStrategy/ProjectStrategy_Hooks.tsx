@@ -168,7 +168,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     });
 
     // 3. Unificamos: Manuales/Añadidos primero, luego Biblioteca disponible
-    let unifiedList = [...manualHooks, ...filteredLibrary];
+    // Si es admin, restringimos exclusivamente a los ganchos del proyecto actual
+    let unifiedList = isRealAdmin ? [...manualHooks] : [...manualHooks, ...filteredLibrary];
 
     // 4. Aplicamos visibilidad final (solo activos para no-admins)
     unifiedList = unifiedList.filter(h => isRealAdmin || h.isActive !== false);
