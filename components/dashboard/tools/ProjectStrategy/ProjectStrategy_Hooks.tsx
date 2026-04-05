@@ -16,10 +16,14 @@ interface ProjectStrategy_HooksProps {
   overrideProjectId?: string;
 }
 
-const shuffleArray = (array: any[]) => {
+const seededShuffle = (array: any[], seed: number) => {
   const shuffled = [...array];
+  const random = (s: number) => {
+    const x = Math.sin(s) * 10000;
+    return x - Math.floor(x);
+  };
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(random(seed + i) * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
@@ -41,6 +45,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const hookCount = context?.hookCount;
   const planLimits = user?.planLimits;
   const initialSelectionDone = useRef(false);
+  const sessionSeed = useRef(Math.random());
   
   const [hooks, setHooks] = useState<ProjectHook[]>([]);
   const [loadingHooks, setLoadingHooks] = useState(true);
@@ -126,11 +131,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     try {
         // Pedimos un lote grande (pool) para evitar huecos en la paginación local
         const res = await api.getHooksLibrary(1, 80, masterId || undefined, projectId);
-        let hooksToSet = res.hooks;
-        if (!isRealAdmin) {
-            hooksToSet = shuffleArray(hooksToSet);
-        }
-        setLibraryHooks(hooksToSet);
+        setLibraryHooks(res.hooks);
         setLibraryTotal(res.total);
     } catch (e) {
         console.error("Error cargando biblioteca:", e);
@@ -182,7 +183,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
     // 3. Unificamos: Manuales/Añadidos primero, luego Biblioteca disponible
     // Si es admin, restringimos exclusivamente a los ganchos del proyecto actual
-    let unifiedList = isRealAdmin ? [...manualHooks] : [...manualHooks, ...filteredLibrary];
+    const libraryToDisplay = isRealAdmin ? [] : seededShuffle(filteredLibrary, sessionSeed.current);
+    let unifiedList = isRealAdmin ? [...manualHooks] : [...manualHooks, ...libraryToDisplay];
 
     // 4. Aplicamos visibilidad final (solo activos para no-admins)
     unifiedList = unifiedList.filter(h => isRealAdmin || h.isActive !== false);
