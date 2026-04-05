@@ -211,17 +211,57 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     loadHooks();
   }, [projectId, activeTab]);
 
-  useEffect(() => {
-    const currentList = activeTab === 'library' ? displayLibraryHooks : displayGeneratedHooks;
-    const currentIndex = activeTab === 'library' ? activeLibraryHook : activeHook;
+  const defaultKitContent = {
+    script: "Aquí ingresa el guion del video persuasivo...",
+    ads: "🔥 Aquí ingresa la descripción para tus anuncios...\n\n✅ Beneficio 1\n✅ Beneficio 2\n\n🔗 [LINK]",
+    videoUrl: "https://drive.google.com/file/d/18nIzeigNWVl6T2dhxuf34hlqAQKxHFAf/preview",
+    downloadUrl: "https://drive.google.com/file/d/18nIzeigNWVl6T2dhxuf34hlqAQKxHFAf/view",
+    thumbs: [
+      "Diseño Sugerido 1",
+      "Diseño Sugerido 2",
+      "Diseño Sugerido 3"
+    ]
+  };
+
+  const filteredHooks = useMemo(() => {
+    const currentData = activeTab === 'library' ? displayLibraryHooks : displayGeneratedHooks;
+    if (!searchTerm.trim()) return currentData;
     
-    if (currentList.length > 0 && currentList[currentIndex]) {
-        const hook = currentList[currentIndex];
-        setLocalTitle(hook.title || "");
-        setLocalStrategy((hook as any).psychological_strategy || hook.psychologicalStrategy || "");
+    return currentData.filter(hook => 
+        (hook.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ((hook as any).psychological_strategy || hook.psychologicalStrategy || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [activeTab, displayLibraryHooks, displayGeneratedHooks, searchTerm]);
+
+  const totalPages = Math.ceil(filteredHooks.length / itemsPerPage);
+    
+  const paginatedHooks = activeTab === 'library' 
+    ? filteredHooks.slice((libraryPage - 1) * itemsPerPage, libraryPage * itemsPerPage) 
+    : filteredHooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const currentHook = useMemo(() => {
+    return filteredHooks[activeTab === 'library' ? activeLibraryHook : activeHook] || { 
+      id: '', 
+      projectId: '', 
+      title: "Selecciona un gancho", 
+      psychologicalStrategy: "N/A", 
+      contentJson: null, 
+      isGenerated: false 
+    } as ProjectHook;
+  }, [filteredHooks, activeTab, activeLibraryHook, activeHook]);
+
+  const isCurrentUnlocked = (currentHook as any).isUnlocked || !(currentHook as any).masterHookId;
+  const canGenerate = isCurrentUnlocked && !currentHook.isGenerated && !isRealAdmin;
+
+  useEffect(() => {
+    if (currentHook && currentHook.id) {
+        setLocalTitle(currentHook.title || "");
+        setLocalStrategy((currentHook as any).psychological_strategy || currentHook.psychologicalStrategy || "");
         setIsEditingTitle(false);
+        setIsEditingScript(false);
+        setIsEditingAds(false);
     }
-  }, [activeHook, activeLibraryHook, hooks, libraryHooks, activeTab]);
+  }, [currentHook]);
 
   const [searchParams] = useSearchParams();
   const hookIdFromUrl = searchParams.get('hookId');
@@ -389,54 +429,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const currentHook: ProjectHook = (activeTab === 'library' ? displayLibraryHooks[activeLibraryHook] : displayGeneratedHooks[activeHook]) || { 
-    id: '', 
-    projectId: '', 
-    title: "Selecciona un gancho", 
-    psychologicalStrategy: "N/A", 
-    contentJson: null, 
-    isGenerated: false 
-  } as ProjectHook;
-
-  const isCurrentUnlocked = (currentHook as any).isUnlocked || !(currentHook as any).masterHookId;
-  const canGenerate = isCurrentUnlocked && !currentHook.isGenerated && !isRealAdmin;
-
-  const filteredHooks = useMemo(() => {
-    const currentData = activeTab === 'library' ? displayLibraryHooks : displayGeneratedHooks;
-    if (!searchTerm.trim()) return currentData;
-    
-    return currentData.filter(hook => 
-        (hook.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ((hook as any).psychological_strategy || hook.psychologicalStrategy || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [activeTab, displayLibraryHooks, displayGeneratedHooks, searchTerm]);
-
-  const totalPages = Math.ceil(filteredHooks.length / itemsPerPage);
-    
-  const paginatedHooks = activeTab === 'library' 
-    ? filteredHooks.slice((libraryPage - 1) * itemsPerPage, libraryPage * itemsPerPage) 
-    : filteredHooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
   // Resetear página al buscar o cambiar pestaña
   useEffect(() => {
     setCurrentPage(1);
+    setActiveHook(0);
+    setActiveLibraryHook(0);
     if (activeTab === 'library') {
         setLibraryPage(1);
         loadLibrary(1, masterParentId);
     }
   }, [searchTerm, activeTab]);
-
-  const defaultKitContent = {
-    script: "Aquí ingresa el guion del video persuasivo...",
-    ads: "🔥 Aquí ingresa la descripción para tus anuncios...\n\n✅ Beneficio 1\n✅ Beneficio 2\n\n🔗 [LINK]",
-    videoUrl: "https://drive.google.com/file/d/18nIzeigNWVl6T2dhxuf34hlqAQKxHFAf/preview",
-    downloadUrl: "https://drive.google.com/file/d/18nIzeigNWVl6T2dhxuf34hlqAQKxHFAf/view",
-    thumbs: [
-      "Diseño Sugerido 1",
-      "Diseño Sugerido 2",
-      "Diseño Sugerido 3"
-    ]
-  };
 
   const currentKit = currentHook.contentJson || defaultKitContent;
 
@@ -855,7 +857,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 <div className="flex justify-center py-10"><Loader2 className="animate-spin text-orange-400" /></div>
               ) : paginatedHooks.length > 0 ? (
                 paginatedHooks.map((hook: ProjectHook, idxInPage: number) => {
-                  const globalIdx = activeTab === 'library' ? idxInPage : (currentPage - 1) * itemsPerPage + idxInPage;
+                  const globalIdx = (activeTab === 'library' ? (libraryPage - 1) * itemsPerPage : (currentPage - 1) * itemsPerPage) + idxInPage;
                   const isActive = activeTab === 'library' ? activeLibraryHook === globalIdx : activeHook === globalIdx;
                   const isUnlocked = (hook as any).isUnlocked || activeTab === 'generated';
                   const isGenerated = hook.isGenerated;
