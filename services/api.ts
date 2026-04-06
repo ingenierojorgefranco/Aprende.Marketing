@@ -1027,6 +1027,7 @@ export const api = {
       if (article.metaDescription !== undefined) body.meta_description = article.metaDescription;
       if (article.status !== undefined) body.status = article.status;
       if (article.publishedAt !== undefined) body.published_at = article.publishedAt;
+      if (article.isActive !== undefined) body.is_active = article.isActive;
 
       await fetchWithFallback(`/articles/${id}`, {
           method: 'PUT',

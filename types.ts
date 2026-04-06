@@ -463,6 +463,7 @@ export interface Article {
   status: 'published' | 'draft' | 'scheduled';
   isGenerated?: boolean;
   isUnlocked?: boolean;
+  isActive?: boolean;
   unlockedAt?: string | Date;
   publishedAt: Date;
   createdAt: Date;

@@ -79,11 +79,13 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const [searchTerm, setSearchTerm] = useState('');
     
     const filteredData = useMemo(() => {
-        return currentData.filter(art => 
-            art.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-            (art.keyword && art.keyword.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
-    }, [currentData, searchTerm]);
+        return currentData
+            .filter(art => isRealAdmin || art.isActive !== false)
+            .filter(art => 
+                art.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                (art.keyword && art.keyword.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+    }, [currentData, searchTerm, isRealAdmin]);
 
     const activeArticleIdx = activeTab === 'library' ? activeLibraryArticle : activeGeneratedArticle;
     const setActiveArticleIdx = activeTab === 'library' ? setActiveLibraryArticle : setActiveGeneratedArticle;
@@ -139,6 +141,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     isFromDb: true,
                     isGenerated: true,
                     isUnlocked: true,
+                    isActive: a.isActive !== false,
                     slug: a.slug,
                     updatedAt: a.updatedAt,
                     createdAt: a.createdAt,
@@ -167,6 +170,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     isFromDb: true,
                     isGenerated: false,
                     isUnlocked: !!a.isUnlocked,
+                    isActive: a.isActive !== false,
                     slug: a.slug,
                     updatedAt: a.updatedAt,
                     createdAt: a.createdAt,
@@ -216,6 +220,22 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             console.error(e);
         } finally {
             setLoadingLocal(false);
+        }
+    };
+
+    const handleToggleActive = async (article: any) => {
+        if (!isRealAdmin || !article.id || String(article.id).startsWith('json-')) return;
+        
+        const newStatus = article.isActive === false ? true : false;
+        try {
+            await api.updateArticle(article.id, { isActive: newStatus });
+            
+            // Actualizar estado local
+            const updateList = (list: any[]) => list.map(a => a.id === article.id ? { ...a, isActive: newStatus } : a);
+            setLibraryData(prev => updateList(prev));
+            setGeneratedData(prev => updateList(prev));
+        } catch (e) {
+            console.error("Error toggling article status:", e);
         }
     };
 
@@ -742,7 +762,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                             : isActive 
                                                                 ? 'bg-purple-900/20 border-purple-500/50 translate-x-2 border-l-4 border-l-purple-500' 
                                                                 : 'bg-black/20 border-gray-800 hover:border-gray-700 hover:translate-x-2 hover:border-l-4 hover:border-l-purple-500'} 
-                                                ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
+                                                ${!isUnlocked ? 'opacity-60 grayscale' : ''}
+                                                ${art.isActive === false ? 'opacity-40 grayscale' : ''}`}
                                         >
                                             <div className="flex-1">
                                                 <h4 className={`font-medium text-lg leading-snug ${isGenerated ? (isActive ? 'text-white' : 'text-emerald-400') : isSelected ? 'text-white' : isUnlockedButNotGenerated ? (isActive ? 'text-yellow-300' : 'text-yellow-400/80') : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
@@ -760,8 +781,27 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     </p>
                                                 )}
                                             </div>
-                                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isGenerated ? (isActive ? 'bg-white border-white' : 'bg-emerald-500/20 border-emerald-500') : isSelected ? 'bg-white border-white scale-110' : 'border-gray-600 group-hover:border-purple-400'}`}>
-                                                {(isGenerated || isSelected) && <Check className={`w-4 h-4 font-bold ${isGenerated ? 'text-emerald-600' : 'text-blue-600'}`} />}
+                                            <div className="flex items-center gap-2">
+                                                {isRealAdmin && !String(art.id).startsWith('json-') && (
+                                                    <div 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleToggleActive(art);
+                                                        }}
+                                                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-110 ${
+                                                            art.isActive !== false
+                                                                ? (isActive ? 'bg-white border-white' : 'bg-emerald-500/20 border-emerald-500')
+                                                                : 'border-gray-800 bg-black/40'
+                                                        }`}
+                                                    >
+                                                        {art.isActive !== false && (
+                                                            <Check className={`w-4 h-4 font-bold ${isActive ? 'text-emerald-600' : 'text-emerald-500'}`} />
+                                                        )}
+                                                    </div>
+                                                )}
+                                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isGenerated ? (isActive ? 'bg-white border-white' : 'bg-emerald-500/20 border-emerald-500') : isSelected ? 'bg-white border-white scale-110' : 'border-gray-600 group-hover:border-purple-400'}`}>
+                                                    {(isGenerated || isSelected) && <Check className={`w-4 h-4 font-bold ${isGenerated ? 'text-emerald-600' : 'text-blue-600'}`} />}
+                                                </div>
                                             </div>
                                         </div>
                                     );

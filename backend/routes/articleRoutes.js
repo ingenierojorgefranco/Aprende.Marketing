@@ -29,6 +29,7 @@ router.get('/articles', authMiddleware, async (req, res) => {
         pageName: a.page_name,
         pageSubdomain: a.page_subdomain,
         isGenerated: !!a.is_generated,
+        isActive: !!a.is_active,
         psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
     }));
     res.json(mapped);
@@ -80,6 +81,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 pageSubdomain: a.page_subdomain,
                 isUnlocked: true,
                 isGenerated: !!a.is_generated,
+                isActive: !!a.is_active,
                 unlockedAt: a.unlocked_at,
                 psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
             }));
@@ -95,6 +97,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 pageSubdomain: undefined,
                 isUnlocked: false,
                 isGenerated: false,
+                isActive: !!a.is_active,
                 unlockedAt: null,
                 psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
                 content_html: null // No enviamos el contenido hasta que se desbloquee
@@ -121,6 +124,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 pageSubdomain: a.page_subdomain,
                 isUnlocked: true,
                 isGenerated: !!a.is_generated,
+                isActive: !!a.is_active,
                 unlockedAt: a.unlocked_at,
                 psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
             }));
@@ -154,9 +158,9 @@ router.post('/articles/unlock-article', authMiddleware, async (req, res) => {
         if (masterRows.length === 0) return res.status(404).json({ error: "Artículo maestro no encontrado" });
         const master = masterRows[0];
 
-        const fields = ['user_id', 'project_id', 'master_article_id', 'created_at', 'unlocked_at', 'status', 'is_generated'];
-        const placeholders = ['?', '?', '?', 'NOW()', 'NOW()', '?', '?'];
-        const values = [req.user.id, projectId, master.id, 'draft', 0];
+        const fields = ['user_id', 'project_id', 'master_article_id', 'created_at', 'unlocked_at', 'status', 'is_generated', 'is_active'];
+        const placeholders = ['?', '?', '?', 'NOW()', 'NOW()', '?', '?', '?'];
+        const values = [req.user.id, projectId, master.id, 'draft', 0, 1];
 
         const allowedFields = [
             'psychological_strategy', 'title', 'slug', 'description', 'content_html', 
@@ -206,6 +210,7 @@ router.get('/articles/:id', authMiddleware, async (req, res) => {
             projectName: a.project_name,
             pageId: a.page_id ? String(a.page_id) : undefined,
             isGenerated: !!a.is_generated,
+            isActive: !!a.is_active,
             psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
         };
         res.json(mapped);
@@ -233,7 +238,7 @@ router.post('/articles', authMiddleware, async (req, res) => {
       'page_id', 'project_id', 'is_generated', 'psychological_strategy', 
       'title', 'slug', 'description', 'content_html', 'featured_image', 
       'keyword', 'seo_score', 'meta_title', 'meta_description', 
-      'email_subject', 'email_body', 'status', 'published_at'
+      'email_subject', 'email_body', 'status', 'published_at', 'is_active'
     ];
 
     for (const field of allowedFields) {
@@ -241,7 +246,7 @@ router.post('/articles', authMiddleware, async (req, res) => {
         fields.push(field);
         placeholders.push('?');
         let val = body[field];
-        if (field === 'is_generated') val = val ? 1 : 0;
+        if (field === 'is_generated' || field === 'is_active') val = val ? 1 : 0;
         if (field === 'psychological_strategy' && typeof val === 'object') val = JSON.stringify(val);
         if (field === 'published_at' && val) val = new Date(val);
         values.push(val);
@@ -279,14 +284,14 @@ router.put('/articles/:id', authMiddleware, async (req, res) => {
       'page_id', 'project_id', 'is_generated', 'psychological_strategy', 
       'title', 'slug', 'description', 'content_html', 'featured_image', 
       'keyword', 'seo_score', 'meta_title', 'meta_description', 
-      'email_subject', 'email_body', 'status', 'published_at'
+      'email_subject', 'email_body', 'status', 'published_at', 'is_active'
     ];
 
     for (const field of allowedFields) {
       if (body.hasOwnProperty(field)) {
         updates.push(`${field} = ?`);
         let val = body[field];
-        if (field === 'is_generated') val = val ? 1 : 0;
+        if (field === 'is_generated' || field === 'is_active') val = val ? 1 : 0;
         if (field === 'psychological_strategy' && typeof val === 'object') val = JSON.stringify(val);
         if (field === 'published_at' && val) val = new Date(val);
         values.push(val);

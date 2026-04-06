@@ -410,6 +410,7 @@ const initDb = async () => {
                     email_body LONGTEXT,
                     psychological_strategy JSON NULL,
                     status VARCHAR(50) DEFAULT 'published',
+                    is_active BOOLEAN DEFAULT TRUE,
                     is_generated BOOLEAN DEFAULT FALSE,
                     unlocked_at DATETIME NULL,
                     published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -476,6 +477,7 @@ const initDb = async () => {
         await addColumnSafe(connection, 'articles', "meta_title VARCHAR(255)");
         await addColumnSafe(connection, 'articles', "meta_description TEXT");
         await addColumnSafe(connection, 'articles', "status VARCHAR(50) DEFAULT 'published'");
+        await addColumnSafe(connection, 'articles', "is_active BOOLEAN DEFAULT TRUE");
         await addColumnSafe(connection, 'articles', "published_at DATETIME DEFAULT CURRENT_TIMESTAMP");
         await addColumnSafe(connection, 'articles', "page_id INT NULL");
         await addColumnSafe(connection, 'articles', "project_id INT NULL");
