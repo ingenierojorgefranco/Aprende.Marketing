@@ -883,6 +883,7 @@ export const api = {
             pageSubdomain: a.page_subdomain,
             pageName: a.page_name,
             isGenerated: !!a.is_generated,
+            isActive: !!a.is_active,
             psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
             title: a.title,
             slug: a.slug,
@@ -912,6 +913,7 @@ export const api = {
             pageName: a.page_name,
             isGenerated: !!a.is_generated,
             isUnlocked: !!a.isUnlocked,
+            isActive: !!a.is_active,
             unlockedAt: a.unlockedAt,
             masterArticleId: a.master_article_id ? String(a.master_article_id) : undefined,
             psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
@@ -952,6 +954,7 @@ export const api = {
                 projectId: (a.project_id || a.projectId) ? String(a.project_id || a.projectId) : undefined,
                 masterArticleId: a.master_article_id ? String(a.master_article_id) : undefined,
                 pageId: a.page_id ? a.page_id.toString() : undefined,
+                isActive: !!a.is_active,
                 title: a.title,
                 slug: a.slug,
                 description: a.description || '',
@@ -996,7 +999,8 @@ export const api = {
                 meta_title: article.metaTitle,
                 meta_description: article.metaDescription,
                 status: article.status,
-                published_at: article.publishedAt
+                published_at: article.publishedAt,
+                is_active: article.isActive !== false
             })
         });
         clearCache('articles');
