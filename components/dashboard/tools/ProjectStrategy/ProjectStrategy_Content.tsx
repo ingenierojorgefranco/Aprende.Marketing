@@ -747,7 +747,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             <div className="flex-1">
                                                 <h4 className={`font-medium text-lg leading-snug ${isGenerated ? (isActive ? 'text-white' : 'text-emerald-400') : isSelected ? 'text-white' : isUnlockedButNotGenerated ? (isActive ? 'text-yellow-300' : 'text-yellow-400/80') : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
                                                     {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
-                                                    {art.title}
+                                                    {art.title || (isRealAdmin ? 'Sin Título' : '')}
                                                 </h4>
                                                 {art.unlockedAt && (
                                                     <p className="text-[0.9em] font-bold opacity-60 mt-1 pt-[10px]">
@@ -874,11 +874,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         className={`font-bold text-white mb-6 transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-purple-300' : ''}`}
                                         style={{ fontSize: '1.6rem', lineHeight: '2rem' }}
                                     >
-                                        {localEdit?.title || currentData[activeArticleIdx]?.title}
+                                        {localEdit?.title || currentData[activeArticleIdx]?.title || (isRealAdmin ? 'Añadir Título...' : '')}
                                     </h3>
                                     )}
 
-                                    {localEdit?.strategy && (
+                                    {(localEdit?.strategy || isRealAdmin) && (
                                         <div className="bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-6">
                                             <h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
                                                 <Sparkles className="w-4 h-4 text-purple-400"/> Enfoque Estratégico del Artículo
@@ -898,7 +898,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                         className={`text-gray-300 leading-relaxed font-light transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-white' : ''}`}
                                                         style={{ fontSize: '1.1rem' }}
                                                     >
-                                                        {localEdit?.strategy || currentData[activeArticleIdx]?.strategy}
+                                                        {localEdit?.strategy || currentData[activeArticleIdx]?.strategy || (isRealAdmin ? 'Añadir Enfoque Estratégico...' : '')}
                                                     </p>
                                                 )}
                                             </div>
