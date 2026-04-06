@@ -80,7 +80,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     
     const filteredData = useMemo(() => {
         return currentData
-            .filter(art => isRealAdmin || art.isActive !== false)
+            .filter(art => isRealAdmin || art.isActive === true)
             .filter(art => 
                 art.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                 (art.keyword && art.keyword.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -187,7 +187,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 id: `json-${originalIdx}`,
                 isUnlocked: false,
                 isFromDb: false,
-                isGenerated: false
+                isGenerated: false,
+                isActive: true
             })).filter(j => 
                 !manualFromDb.some(m => m.title === j.title || m.keyword === j.keyword)
             );
@@ -782,7 +783,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                 )}
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                {isRealAdmin && !String(art.id).startsWith('json-') && (
+                                                {isRealAdmin && !String(art.id).startsWith('json-') ? (
                                                     <div 
                                                         onClick={(e) => {
                                                             e.stopPropagation();
@@ -793,15 +794,17 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                                 ? (isActive ? 'bg-white border-white' : 'bg-emerald-500/20 border-emerald-500')
                                                                 : 'border-gray-800 bg-black/40'
                                                         }`}
+                                                        title={art.isActive !== false ? "Desactivar Artículo" : "Activar Artículo"}
                                                     >
                                                         {art.isActive !== false && (
                                                             <Check className={`w-4 h-4 font-bold ${isActive ? 'text-emerald-600' : 'text-emerald-500'}`} />
                                                         )}
                                                     </div>
+                                                ) : (
+                                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isGenerated ? (isActive ? 'bg-white border-white' : 'bg-emerald-500/20 border-emerald-500') : isSelected ? 'bg-white border-white scale-110' : 'border-gray-600 group-hover:border-purple-400'}`}>
+                                                        {(isGenerated || isSelected) && <Check className={`w-4 h-4 font-bold ${isGenerated ? 'text-emerald-600' : 'text-blue-600'}`} />}
+                                                    </div>
                                                 )}
-                                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isGenerated ? (isActive ? 'bg-white border-white' : 'bg-emerald-500/20 border-emerald-500') : isSelected ? 'bg-white border-white scale-110' : 'border-gray-600 group-hover:border-purple-400'}`}>
-                                                    {(isGenerated || isSelected) && <Check className={`w-4 h-4 font-bold ${isGenerated ? 'text-emerald-600' : 'text-blue-600'}`} />}
-                                                </div>
                                             </div>
                                         </div>
                                     );
