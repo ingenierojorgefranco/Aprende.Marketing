@@ -154,8 +154,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         return !alreadyInProject;
     });
 
+    console.log("--- DEBUG: displayLibraryHooks ---");
+    console.log("isRealAdmin:", isRealAdmin);
+    console.log("sessionSeed:", sessionSeed.current);
+    console.log("Total hooks en proyecto (Manuales/Desbloqueados):", projectHooks.length);
+    console.log("Total hooks en biblioteca maestra (No desbloqueados):", libraryPool.length);
+
     if (isRealAdmin) {
         // Admin: Ve solo los ganchos del proyecto en orden cronológico
+        console.log("Admin detectado: Mostrando solo ganchos del proyecto.");
         return projectHooks.sort((a, b) => {
             const dateA = new Date((a as any).createdAt || 0).getTime();
             const dateB = new Date((b as any).createdAt || 0).getTime();
@@ -174,12 +181,18 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         });
 
     // B. Biblioteca: Estrategia maestra restante (Aleatorio)
-    const randomLibrary = seededShuffle(libraryPool, sessionSeed.current)
-        .filter(h => h.isActive !== false);
+    console.log("IDs antes de aleatorizar:", libraryPool.slice(0, 5).map(h => h.id));
+    const shuffled = seededShuffle(libraryPool, sessionSeed.current);
+    console.log("IDs después de aleatorizar:", shuffled.slice(0, 5).map(h => h.id));
+
+    const randomLibrary = shuffled.filter(h => h.isActive !== false);
 
     // Unificamos: Prioridad arriba, Biblioteca aleatoria después
     const unifiedList = [...priorityHooks, ...randomLibrary].slice(0, 60);
     
+    console.log("Lista final (primeros 5 IDs):", unifiedList.slice(0, 5).map(h => h.id));
+    console.log("--- END DEBUG ---");
+
     return unifiedList;
   }, [hooks, libraryHooks, isRealAdmin]);
 
