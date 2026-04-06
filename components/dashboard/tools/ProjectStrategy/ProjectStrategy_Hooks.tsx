@@ -140,62 +140,48 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const manualHooks = useMemo(() => {
-    // Incluimos todos los ganchos que ya pertenecen al proyecto (manuales y añadidos de biblioteca)
-    return hooks.filter(h => !h.isGenerated)
-      .filter(h => isRealAdmin || h.isActive !== false)
-      .sort((a, b) => {
-          const dateA = new Date((a as any).createdAt || 0).getTime();
-          const dateB = new Date((b as any).createdAt || 0).getTime();
-          return dateB - dateA;
-      });
-  }, [hooks, isRealAdmin]);
-
   const displayLibraryHooks = useMemo(() => {
-    // 1. Sincronizamos el estado de los ganchos de la biblioteca con los del proyecto
-    const enrichedLibrary = libraryHooks.map(lh => {
-        // Buscamos si este gancho ya existe en el proyecto (por ID o por MasterID)
-        // Normalizamos a String para evitar fallos por tipo (number vs string)
-        const projectVersion = hooks.find(h => String(h.id) === String(lh.id) || (h.masterHookId && String(h.masterHookId) === String(lh.id)));
-        
-        if (projectVersion) {
-            const result = { ...lh, ...projectVersion };
-            // Si soy admin y no está desactivado explícitamente, forzamos verde
-            if (isRealAdmin && projectVersion.isActive !== false) {
-                result.isActive = true;
-            }
-            return result;
-        }
-        
-        // Si soy admin y el gancho no está en el proyecto, forzamos verde (isActive: true)
-        if (isRealAdmin) {
-            return { ...lh, isActive: true };
-        }
-        
-        return lh;
-    });
+    // 1. Ganchos del proyecto (Manuales + Desbloqueados que no son 'Generated')
+    const projectHooks = hooks.filter(h => !h.isGenerated);
 
-    // 2. Filtramos duplicados (los que ya están en el proyecto bajo cualquier forma)
-    const filteredLibrary = enrichedLibrary.filter(lh => {
-        const alreadyInProject = hooks.some(h => !h.isGenerated && (String(h.id) === String(lh.id) || (h.masterHookId && String(h.masterHookId) === String(lh.id))));
+    // 2. Ganchos de la biblioteca (Estrategia Maestra) que NO están en el proyecto
+    const libraryPool = libraryHooks.filter(lh => {
+        // Filtramos cualquier gancho que ya exista en el proyecto (sea manual, desbloqueado o generado)
+        const alreadyInProject = hooks.some(h => 
+            String(h.id) === String(lh.id) || 
+            (h.masterHookId && String(h.masterHookId) === String(lh.id))
+        );
         return !alreadyInProject;
     });
 
-    // 3. Unificamos: Manuales/Añadidos primero, luego Biblioteca disponible
-    // Si es admin, restringimos exclusivamente a los ganchos del proyecto actual
-    const libraryToDisplay = isRealAdmin ? [] : seededShuffle(filteredLibrary, sessionSeed.current);
-    let unifiedList = isRealAdmin ? [...manualHooks] : [...manualHooks, ...libraryToDisplay];
-
-    // 4. Aplicamos visibilidad final (solo activos para no-admins)
-    unifiedList = unifiedList.filter(h => isRealAdmin || h.isActive !== false);
-
-    // 5. Limitamos a 60 para usuarios normales (10 páginas), admins ven todo el pool cargado
-    if (!isRealAdmin) {
-        unifiedList = unifiedList.slice(0, 60);
+    if (isRealAdmin) {
+        // Admin: Ve solo los ganchos del proyecto en orden cronológico
+        return projectHooks.sort((a, b) => {
+            const dateA = new Date((a as any).createdAt || 0).getTime();
+            const dateB = new Date((b as any).createdAt || 0).getTime();
+            return dateB - dateA;
+        });
     }
 
+    // Usuario Normal:
+    // A. Prioridad: Manuales y Desbloqueados (Nuevos primero)
+    const priorityHooks = projectHooks
+        .filter(h => h.isActive !== false)
+        .sort((a, b) => {
+            const dateA = new Date((a as any).createdAt || 0).getTime();
+            const dateB = new Date((b as any).createdAt || 0).getTime();
+            return dateB - dateA;
+        });
+
+    // B. Biblioteca: Estrategia maestra restante (Aleatorio)
+    const randomLibrary = seededShuffle(libraryPool, sessionSeed.current)
+        .filter(h => h.isActive !== false);
+
+    // Unificamos: Prioridad arriba, Biblioteca aleatoria después
+    const unifiedList = [...priorityHooks, ...randomLibrary].slice(0, 60);
+    
     return unifiedList;
-  }, [manualHooks, libraryHooks, isRealAdmin, hooks]);
+  }, [hooks, libraryHooks, isRealAdmin]);
 
   const displayGeneratedHooks = hooks
     .filter(h => h.isGenerated)
