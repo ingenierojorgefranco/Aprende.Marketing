@@ -45,6 +45,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const hookCount = context?.hookCount;
   const planLimits = user?.planLimits;
   const initialSelectionDone = useRef(false);
+  const skipReset = useRef(false);
   const sessionSeed = useRef(Math.random());
   
   const [hooks, setHooks] = useState<ProjectHook[]>([]);
@@ -196,13 +197,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     return unifiedList;
   }, [hooks, libraryHooks, isRealAdmin]);
 
-  const displayGeneratedHooks = hooks
-    .filter(h => h.isGenerated)
-    .sort((a, b) => {
-        const dateA = new Date((a as any).updatedAt || (a as any).createdAt || 0).getTime();
-        const dateB = new Date((b as any).updatedAt || (b as any).createdAt || 0).getTime();
-        return dateB - dateA;
-    });
+  const displayGeneratedHooks = useMemo(() => {
+    return hooks
+        .filter(h => h.isGenerated)
+        .sort((a, b) => {
+            const dateA = new Date((a as any).updatedAt || (a as any).createdAt || 0).getTime();
+            const dateB = new Date((b as any).updatedAt || (b as any).createdAt || 0).getTime();
+            return dateB - dateA;
+        });
+  }, [hooks]);
 
   useEffect(() => {
     const checkProject = async () => {
@@ -285,6 +288,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         // Buscamos específicamente en los ganchos generados
         const index = displayGeneratedHooks.findIndex(h => String(h.id) === String(hookIdFromUrl));
         if (index !== -1) {
+            skipReset.current = true;
             setActiveTab('generated');
             setActiveHook(index);
             // Calcular y establecer la página correcta para la lista interna
@@ -444,7 +448,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   // Resetear página al buscar o cambiar pestaña
   useEffect(() => {
     // Si estamos procesando una selección inicial por URL, no reseteamos
-    if (hookIdFromUrl && !initialSelectionDone.current) return;
+    if (skipReset.current) {
+        skipReset.current = false;
+        return;
+    }
 
     setCurrentPage(1);
     setActiveHook(0);
@@ -453,7 +460,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         setLibraryPage(1);
         loadLibrary(1, masterParentId);
     }
-  }, [searchTerm, activeTab, hookIdFromUrl]);
+  }, [searchTerm, activeTab]);
 
   const currentKit = currentHook.contentJson || defaultKitContent;
 
