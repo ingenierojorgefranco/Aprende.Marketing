@@ -1222,41 +1222,22 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         <Layout className="w-6 h-6 text-emerald-400" /> Video
                                     </h5>
 
-                                    {/* Lógica condicional de video/descarga - 18/03/2026 */}
-                                    {((currentHook.contentJson?.videoUrl && currentHook.contentJson?.videoUrl !== defaultKitContent.videoUrl) || 
-                                      (currentHook.contentJson?.downloadUrl && currentHook.contentJson?.downloadUrl !== defaultKitContent.downloadUrl)) ? (
-                                        <>
-                                            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6">
-                                                <p className="text-white text-lg font-medium leading-relaxed">
-                                                    ¡Tu video personalizado está listo! A continuación puedes previsualizar el contenido que hemos diseñado para potenciar tu estrategia. No olvides usar el botón de descarga para guardarlo y empezar a usarlo en tus redes.
-                                                </p>
-                                            </div>
-                                            <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl">
-                                                <iframe 
-                                                    className="w-full h-full"
-                                                    src={currentKit.videoUrl}
-                                                    allow="autoplay"
-                                                ></iframe>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <div className="space-y-6">
-                                            <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-6">
-                                                <p className="text-white text-lg font-medium leading-relaxed">
-                                                    Actualmente no hay un video asignado a este hook. ¡Pero no te preocupes! En el siguiente tutorial te explicamos paso a paso cómo puedes crear tus propios videos de alto impacto de forma rápida y sencilla para maximizar tus resultados.
-                                                </p>
-                                            </div>
-                                            <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl">
-                                                <iframe 
-                                                    className="w-full h-full"
-                                                    src="https://www.youtube.com/embed/5sntDvgSKUo" 
-                                                    title="Tutorial de Creación de Videos"
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                                    allowFullScreen
-                                                ></iframe>
-                                            </div>
+                                    <div className="space-y-6">
+                                        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6">
+                                            <p className="text-white text-lg font-medium leading-relaxed">
+                                                ¡Tu video personalizado está listo! A continuación puedes previsualizar el contenido que hemos diseñado para potenciar tu estrategia. No olvides usar el botón de descarga para guardarlo y empezar a usarlo en tus redes.
+                                            </p>
                                         </div>
-                                    )}
+                                        <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl">
+                                            <iframe 
+                                                className="w-full h-full"
+                                                src="https://www.youtube.com/embed/vGfXD9VbfXo"
+                                                title="Video de YouTube"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                allowFullScreen
+                                            ></iframe>
+                                        </div>
+                                    </div>
 
                                     {/* SECCIÓN DE EDICIÓN DE URL PARA ADMIN */}
                                     {user?.role === 'admin' && (
@@ -1264,17 +1245,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                             <h6 className="text-white font-bold text-sm uppercase tracking-widest border-b border-white/5 pb-4 flex items-center gap-2">
                                                 <PenTool className="w-4 h-4 text-[#10B981]" /> Configuración de Enlaces (Admin)
                                             </h6>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1">URL del Video (Embed)</label>
-                                                    <input 
-                                                        type="text"
-                                                        value={currentKit.videoUrl || ''}
-                                                        onChange={(e) => handleUpdateKitJson('videoUrl', e.target.value)}
-                                                        className="w-full bg-black/60 border border-white/10 rounded-xl py-3 px-4 text-blue-400 font-mono text-xs outline-none focus:border-emerald-500 transition-all shadow-inner"
-                                                        placeholder="https://..."
-                                                    />
-                                                </div>
+                                            <div className="grid grid-cols-1 gap-6">
                                                 <div className="space-y-2">
                                                     <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1">URL de Descarga</label>
                                                     <input 
