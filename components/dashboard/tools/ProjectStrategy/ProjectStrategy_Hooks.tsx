@@ -893,7 +893,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             : 'text-white group-hover:text-white'
                         } flex items-center gap-2`}>
                             {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
-                            {hook.title}
+                            {isRealAdmin && hook.id && `${hook.id} - `}{hook.title}
                         </h4>
                         {isGenerated && activeTab === 'generated' && (
                           <span className="text-[10px] text-emerald-500/60 font-medium uppercase tracking-wider">
