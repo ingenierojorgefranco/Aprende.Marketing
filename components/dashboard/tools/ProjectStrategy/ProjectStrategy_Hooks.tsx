@@ -313,9 +313,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const executeUnlock = async () => {
-    const currentList = activeTab === 'library' ? displayLibraryHooks : displayGeneratedHooks;
-    const currentIndex = activeTab === 'library' ? activeLibraryHook : activeHook;
-    const hook = currentList[currentIndex];
+    const hook = currentHook;
     
     if (!hook || !projectId || !(hook as any).masterHookId) return;
     
