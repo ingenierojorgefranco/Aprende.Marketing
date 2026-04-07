@@ -228,8 +228,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const defaultKitContent = {
     script: "Aquí ingresa el guion del video persuasivo...",
     ads: "🔥 Aquí ingresa la descripción para tus anuncios...\n\n✅ Beneficio 1\n✅ Beneficio 2\n\n🔗 [LINK]",
-    videoUrl: "https://drive.google.com/file/d/18nIzeigNWVl6T2dhxuf34hlqAQKxHFAf/preview",
-    downloadUrl: "https://drive.google.com/file/d/18nIzeigNWVl6T2dhxuf34hlqAQKxHFAf/view",
+    videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
+    downloadUrl: "https://www.youtube.com/watch?v=vGfXD9VbfXo",
     thumbs: [
       "Diseño Sugerido 1",
       "Diseño Sugerido 2",
@@ -1295,9 +1295,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                                 href={currentKit.downloadUrl} 
                                                 target="_blank" 
                                                 rel="noopener noreferrer"
-                                                className="px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-emerald-900/20"
+                                                className="px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-orange-900/20"
                                             >
-                                                <Download className="w-5 h-5" /> Descargar Video
+                                                <Download className="w-5 h-5" /> Ver y Descargar Video
                                             </a>
                                         </div>
                                     )}
