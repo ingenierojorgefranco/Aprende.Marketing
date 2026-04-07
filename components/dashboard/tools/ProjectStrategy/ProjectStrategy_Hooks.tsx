@@ -443,6 +443,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   // Resetear página al buscar o cambiar pestaña
   useEffect(() => {
+    // Si estamos procesando una selección inicial por URL, no reseteamos
+    if (hookIdFromUrl && !initialSelectionDone.current) return;
+
     setCurrentPage(1);
     setActiveHook(0);
     setActiveLibraryHook(0);
@@ -450,7 +453,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         setLibraryPage(1);
         loadLibrary(1, masterParentId);
     }
-  }, [searchTerm, activeTab]);
+  }, [searchTerm, activeTab, hookIdFromUrl]);
 
   const currentKit = currentHook.contentJson || defaultKitContent;
 
