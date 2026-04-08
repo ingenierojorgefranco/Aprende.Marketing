@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext, Link } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { LandingPage, User, Project } from '../../../types';
-import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase, ChevronDown, ChevronUp, Info, Plus, ArrowLeft } from 'lucide-react';
+import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase, ChevronDown, ChevronUp, Info, Plus, ArrowLeft, ChevronRight } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
-import { Generator } from './Generator';
 
 interface DashboardContext {
   user: User;
@@ -111,6 +110,11 @@ export const MyPages: React.FC = () => {
     const closeDomainModal = () => {
         setShowDomainModal(false);
         setSelectedPageForDomain(null);
+    };
+
+    const handleProjectSelect = (projectId: string) => {
+        // Redirigir a la estrategia del proyecto en la sección de sistema web
+        navigate(`/dashboard/projects/${projectId}/strategy?section=web`);
     };
 
     if (loading) {
@@ -255,13 +259,73 @@ export const MyPages: React.FC = () => {
             {/* Content Area */}
             {isGeneratorOpen ? (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                    <Generator 
-                        onPageGenerated={(savedPage) => {
-                            setPages(prev => [savedPage, ...prev]);
-                            setIsGeneratorOpen(false);
-                        }} 
-                        onClose={() => setIsGeneratorOpen(false)}
-                    />
+                    <div className="mx-auto bg-gray-900 rounded-[2.5rem] shadow-2xl border border-white/5 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 max-w-5xl">
+                        <div className="bg-primary/10 p-8 text-center border-b border-primary/10 relative">
+                            <button onClick={() => setIsGeneratorOpen(false)} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+                                <ArrowLeft className="w-6 h-6" />
+                            </button>
+                            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
+                                <Zap className="w-8 h-8 text-primary" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Generador de Landing Pages IA</h2>
+                            <p className="text-gray-400 text-sm mt-2 uppercase tracking-widest">Paso 0: Selecciona tu Proyecto</p>
+                        </div>
+
+                        <div className="p-8 flex-1 overflow-y-auto">
+                            <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
+                                <div className="max-w-2xl mx-auto">
+                                    <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
+                                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Selecciona tu Proyecto</span>
+                                    </h2>
+                                    <p className="text-gray-400 text-lg leading-relaxed font-medium">Para generar una página que verdaderamente venda, nuestra inteligencia artificial necesita conocer tu estrategia, avatar y producto.</p>
+                                </div>
+
+                                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+                                    {/* CARD: CREAR NUEVO PROYECTO */}
+                                    <div 
+                                        className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-primary/50 hover:bg-primary/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
+                                        onClick={() => navigate('/dashboard/projects')}
+                                    >
+                                        <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-primary/10 group-hover:text-primary transition-all shadow-lg mb-6">
+                                            <Plus className="w-10 h-10" />
+                                        </div>
+                                        <h4 className="text-white font-black text-2xl group-hover:text-primary transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
+                                        <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar ganchos</p>
+                                    </div>
+
+                                    {projects.map((project) => (
+                                        <div 
+                                            key={project.id}
+                                            onClick={() => handleProjectSelect(project.id)}
+                                            className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-primary/50 hover:bg-primary/5 transition-all text-left group flex flex-col shadow-2xl cursor-pointer relative overflow-hidden h-full"
+                                        >
+                                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                            <div className="flex items-center gap-5 mb-8">
+                                                <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-primary/10 group-hover:text-primary transition-colors shadow-inner">
+                                                    <Briefcase className="w-8 h-8" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-white font-black text-2xl group-hover:text-primary transition-colors">{project.name}</h4>
+                                                    <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex-1 mb-10">
+                                                <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
+                                                <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                                    {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción estratégica.")}
+                                                </p>
+                                            </div>
+                                            <button 
+                                                className="w-full py-5 bg-primary hover:bg-indigo-600 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95"
+                                            >
+                                                Seleccionar <ChevronRight className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             ) : pages.length === 0 ? (
                 <div className="text-center py-20 bg-gray-900 rounded-2xl border border-dashed border-gray-700">
