@@ -391,56 +391,54 @@ export const EmailMarketing: React.FC = () => {
       </div>
 
       {/* NAVEGACIÓN POR PESTAÑAS */}
-      {!isWizardOpen && (
-        <div className="flex flex-wrap gap-4 border-b border-white/5 pb-2">
-            <button 
-                onClick={() => { setActiveTab('conversion'); setShowProjectSelection(false); }}
-                className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'conversion' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
-            >
-                <LayoutTemplate className="w-4 h-4" /> Secuencia de Conversión
-                {activeTab === 'conversion' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
-            </button>
-            <button 
-                onClick={() => { setActiveTab('nurturing'); setShowProjectSelection(false); }}
-                className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'nurturing' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
-            >
-                <Mail className="w-4 h-4" /> Emails de Nutrición
-                {activeTab === 'nurturing' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
-            </button>
-            <button 
-                onClick={() => setActiveTab('leads')}
-                className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'leads' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
-            >
-                <Users className="w-4 h-4" /> Leads
-                {activeTab === 'leads' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
-            </button>
-            <button 
-                onClick={() => setActiveTab('config')}
-                className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'config' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
-            >
-                <Settings className="w-4 h-4" /> Configuración
-                {activeTab === 'config' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
-            </button>
-        </div>
-      )}
+      <div className="flex flex-wrap gap-4 border-b border-white/5 pb-2">
+          <button 
+              onClick={() => { setActiveTab('conversion'); setShowProjectSelection(false); setIsWizardOpen(false); }}
+              className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'conversion' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
+          >
+              <LayoutTemplate className="w-4 h-4" /> Secuencia de Conversión
+              {activeTab === 'conversion' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
+          </button>
+          <button 
+              onClick={() => { setActiveTab('nurturing'); setShowProjectSelection(false); setIsWizardOpen(false); }}
+              className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'nurturing' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
+          >
+              <Mail className="w-4 h-4" /> Emails de Nutrición
+              {activeTab === 'nurturing' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
+          </button>
+          <button 
+              onClick={() => { setActiveTab('leads'); setIsWizardOpen(false); }}
+              className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'leads' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
+          >
+              <Users className="w-4 h-4" /> Leads
+              {activeTab === 'leads' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
+          </button>
+          <button 
+              onClick={() => { setActiveTab('config'); setIsWizardOpen(false); }}
+              className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'config' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
+          >
+              <Settings className="w-4 h-4" /> Configuración
+              {activeTab === 'config' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
+          </button>
+      </div>
 
-      {/* CONTENIDO DE PESTAÑAS O WIZARD */}
+      {/* CONTENIDO DE PESTAÑAS */}
       <div className="animate-in fade-in duration-500">
-        {isWizardOpen ? (
-          <EmailSequenceWizard 
-            type={wizardType}
-            onClose={() => {
-              setIsWizardOpen(false);
-              setSearchParams({}); // Clear params when closing
-              loadSequences(); // Refresh list
-            }} 
-          />
-        ) : (
-          <>
             {/* PESTAÑA: SECUENCIAS */}
             {(activeTab === 'conversion' || activeTab === 'nurturing') && (
             <div className="space-y-8 animate-in slide-in-from-left-4">
-                {loadingSequences ? (
+                {isWizardOpen && wizardType === activeTab ? (
+                  <EmailSequenceWizard 
+                    type={wizardType}
+                    onClose={() => {
+                      setIsWizardOpen(false);
+                      setSearchParams({}); // Clear params when closing
+                      loadSequences(); // Refresh list
+                    }} 
+                  />
+                ) : (
+                  <>
+                    {loadingSequences ? (
                     <div className="flex justify-center p-20 text-[#FF5A1F]"><Loader2 className="w-12 h-12 animate-spin" /></div>
                 ) : showProjectSelection ? (
                     <div className="mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative max-w-5xl animate-in fade-in zoom-in-95 duration-500">
@@ -641,6 +639,8 @@ export const EmailMarketing: React.FC = () => {
                         </button>
                     </div>
                 )}
+              </>
+            )}
             </div>
         )}
 
@@ -835,8 +835,6 @@ export const EmailMarketing: React.FC = () => {
                     </div>
                 </div>
             </div>
-        )}
-          </>
         )}
       </div>
 
