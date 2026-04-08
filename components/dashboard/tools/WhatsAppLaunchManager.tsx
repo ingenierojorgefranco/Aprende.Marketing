@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { WhatsAppLaunch, User, Project } from '../../../types';
-import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers, Crown, X, AlertCircle } from 'lucide-react';
+import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers, Crown, X, AlertCircle, ArrowLeft, ChevronRight } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { UpgradeModal } from '../UpgradeModal';
@@ -176,60 +176,70 @@ export const WhatsAppLaunchManager: React.FC = () => {
 
             {/* SECCIÓN: MIS LANZAMIENTOS O SELECCIÓN DE PROYECTO */}
             {showProjectSelection ? (
-                <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
-                    <div className="max-w-2xl mx-auto">
-                        <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase text-white">
-                            Selecciona tu <span className="text-emerald-500">Proyecto</span>
-                        </h2>
-                        <p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra inteligencia artificial necesita conocer tu estrategia y avatar para generar los mejores mensajes de lanzamiento.</p>
-                    </div>
-                    
-                    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
-                        {/* CARD: CREAR NUEVO PROYECTO */}
-                        <div 
-                            className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
-                            onClick={() => navigate('/dashboard/projects')}
-                        >
-                            <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-emerald-500/10 group-hover:text-emerald-500 transition-all shadow-lg mb-6">
-                                <Plus className="w-10 h-10" />
+                <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                    <div className="mx-auto bg-gray-900 rounded-[2.5rem] shadow-2xl border border-white/5 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 max-w-5xl">
+                        <div className="bg-emerald-600/10 p-8 text-center border-b border-emerald-500/10 relative">
+                            <button onClick={() => setShowProjectSelection(false)} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+                                <ArrowLeft className="w-6 h-6" />
+                            </button>
+                            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
+                                <Smartphone className="w-8 h-8 text-emerald-400" />
                             </div>
-                            <h4 className="text-white font-black text-2xl group-hover:text-emerald-500 transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
-                            <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar tu lanzamiento</p>
+                            <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Generador de Lanzamientos IA</h2>
+                            <p className="text-gray-400 text-sm mt-2 uppercase tracking-widest">Paso 0: Selecciona tu Proyecto</p>
                         </div>
 
-                        {projects.map((project) => (
-                            <div 
-                                key={project.id}
-                                onClick={() => navigate(`/dashboard/projects/${project.id}/strategy?section=whatsapp`)}
-                                className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all text-left group flex flex-col shadow-2xl cursor-pointer relative overflow-hidden h-full"
-                            >
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="flex items-center gap-5 mb-8">
-                                    <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-emerald-500/10 group-hover:text-emerald-500 transition-colors shadow-inner">
-                                        <Layers className="w-8 h-8" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h4 className="text-white font-black text-2xl group-hover:text-emerald-500 transition-colors">{project.name}</h4>
-                                        <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
-                                    </div>
+                        <div className="p-8 flex-1 overflow-y-auto">
+                            <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
+                                <div className="max-w-2xl mx-auto">
+                                    <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase text-white">
+                                        Selecciona tu <span className="text-emerald-500">Proyecto</span>
+                                    </h2>
+                                    <p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra inteligencia artificial necesita conocer tu estrategia y avatar para generar los mejores mensajes de lanzamiento.</p>
                                 </div>
-                                <div className="flex-1 mb-10">
-                                    <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción Estratégica</p>
-                                    <p className="text-gray-400 text-lg leading-relaxed font-medium line-clamp-3">{project.shortDescription || "Sin descripción estratégica."}</p>
-                                </div>
-                                <button className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95">
-                                    Seleccionar <Plus className="w-5 h-5" />
-                                </button>
-                            </div>
-                        ))}
-                    </div>
+                                
+                                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+                                    {/* CARD: CREAR NUEVO PROYECTO */}
+                                    <div 
+                                        className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
+                                        onClick={() => navigate('/dashboard/projects')}
+                                    >
+                                        <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-emerald-500/10 group-hover:text-emerald-500 transition-all shadow-lg mb-6">
+                                            <Plus className="w-10 h-10" />
+                                        </div>
+                                        <h4 className="text-white font-black text-2xl group-hover:text-emerald-500 transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
+                                        <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar tu lanzamiento</p>
+                                    </div>
 
-                    <button 
-                        onClick={() => setShowProjectSelection(false)}
-                        className="mt-12 flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-white/5"
-                    >
-                        <X className="w-4 h-4" /> Cancelar y Volver
-                    </button>
+                                    {projects.map((project) => (
+                                        <div 
+                                            key={project.id}
+                                            onClick={() => navigate(`/dashboard/projects/${project.id}/strategy?section=whatsapp`)}
+                                            className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all text-left group flex flex-col shadow-2xl cursor-pointer relative overflow-hidden h-full"
+                                        >
+                                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-green-500 opacity-80"></div>
+                                            <div className="flex items-center gap-5 mb-8">
+                                                <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-emerald-500/10 group-hover:text-emerald-500 transition-colors shadow-inner">
+                                                    <Layers className="w-8 h-8" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-white font-black text-2xl group-hover:text-emerald-500 transition-colors">{project.name}</h4>
+                                                    <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex-1 mb-10">
+                                                <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción Estratégica</p>
+                                                <p className="text-gray-400 text-lg leading-relaxed font-medium line-clamp-3">{project.shortDescription || "Sin descripción estratégica."}</p>
+                                            </div>
+                                            <button className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95">
+                                                Seleccionar <ChevronRight className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             ) : (
                 <>
