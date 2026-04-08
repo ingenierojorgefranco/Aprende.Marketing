@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Article, User, Project } from '../../../types';
-import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus, Briefcase, Unlock } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus, Briefcase, Unlock, ArrowLeft, ChevronRight } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
-import { ContentGenerator } from './ContentGenerator';
 
 interface DashboardContext {
   user: User;
@@ -53,6 +52,11 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   const [articleToRestrict, setArticleToRestrict] = useState<Article | null>(null);
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
   // ----------------------------------------------------
+
+  const handleProjectSelect = (projectId: string) => {
+      // Redirigir a la estrategia del proyecto en la sección de contenidos
+      navigate(`/dashboard/projects/${projectId}/strategy?section=content`);
+  };
 
   useEffect(() => {
       const loadInitialData = async () => {
@@ -265,31 +269,72 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       {/* SECCIÓN: MIS ARTÍCULOS O GENERADOR */}
       {isGeneratorOpen ? (
           <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-              <ContentGenerator 
-                  onSave={async (articleData) => {
-                      try {
-                          const isUpdate = articleData.id && !String(articleData.id).startsWith('json-') && !String(articleData.id).startsWith('available-');
-                          
-                          if (isUpdate) {
-                              await api.updateArticle(articleData.id!, articleData);
-                          } else {
-                              // Si es json- o available-, eliminamos el ID temporal para que la DB genere uno real
-                              const { id, ...dataToSave } = articleData;
-                              await api.saveArticle(dataToSave);
-                          }
-                          setIsGeneratorOpen(false);
-                          setRefreshTrigger(prev => prev + 1);
-                          setPage(1);
-                      } catch (e) {
-                          throw e;
-                      }
-                  }}
-                  onClose={() => {
-                      setIsGeneratorOpen(false);
-                      setRefreshTrigger(prev => prev + 1);
-                      setPage(1); // Forzar refresco al cerrar
-                  }}
-              />
+              <div className="mx-auto bg-gray-900 rounded-[2.5rem] shadow-2xl border border-white/5 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 max-w-5xl">
+                  <div className="bg-purple-600/10 p-8 text-center border-b border-purple-500/10 relative">
+                      <button onClick={() => setIsGeneratorOpen(false)} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+                          <ArrowLeft className="w-6 h-6" />
+                      </button>
+                      <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
+                          <PenTool className="w-8 h-8 text-purple-400" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Generador de Artículos IA</h2>
+                      <p className="text-gray-400 text-sm mt-2 uppercase tracking-widest">Paso 0: Selecciona tu Proyecto</p>
+                  </div>
+
+                  <div className="p-8 flex-1 overflow-y-auto">
+                      <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
+                          <div className="max-w-2xl mx-auto">
+                              <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
+                                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Selecciona tu Proyecto</span>
+                              </h2>
+                              <p className="text-gray-400 text-lg leading-relaxed font-medium">Para generar artículos que posicionen y vendan, nuestra IA necesita conocer tu estrategia y avatar.</p>
+                          </div>
+
+                          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+                              <div 
+                                  className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-purple-500/50 hover:bg-purple-500/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
+                                  onClick={() => navigate('/dashboard/projects')}
+                              >
+                                  <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-purple-500/10 group-hover:text-purple-500 transition-all shadow-lg mb-6">
+                                      <Plus className="w-10 h-10" />
+                                  </div>
+                                  <h4 className="text-white font-black text-2xl group-hover:text-purple-500 transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
+                                  <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para tu contenido</p>
+                              </div>
+
+                              {projects.map((project) => (
+                                  <div 
+                                      key={project.id}
+                                      onClick={() => handleProjectSelect(project.id)}
+                                      className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-purple-500/50 hover:bg-purple-500/5 transition-all text-left group flex flex-col shadow-2xl cursor-pointer relative overflow-hidden h-full"
+                                  >
+                                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                      <div className="flex items-center gap-5 mb-8">
+                                          <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-purple-500/10 group-hover:text-purple-500 transition-colors shadow-inner">
+                                              <Briefcase className="w-8 h-8" />
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                              <h4 className="text-white font-black text-2xl group-hover:text-purple-500 transition-colors">{project.name}</h4>
+                                              <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
+                                          </div>
+                                      </div>
+                                      <div className="flex-1 mb-10">
+                                          <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción Estratégica</p>
+                                          <p className="text-gray-400 text-lg leading-relaxed font-medium line-clamp-3">
+                                              {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción estratégica.")}
+                                          </p>
+                                      </div>
+                                      <button 
+                                          className="w-full py-5 bg-purple-600 hover:bg-purple-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-purple-900/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95"
+                                      >
+                                          Seleccionar <ChevronRight className="w-5 h-5" />
+                                      </button>
+                                  </div>
+                              ))}
+                          </div>
+                      </div>
+                  </div>
+              </div>
           </div>
       ) : (
           <>
