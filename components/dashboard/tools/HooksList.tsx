@@ -6,7 +6,6 @@ import { ProjectHook, User, Project, Plan } from '../../../types';
 import { Zap, Loader2, Trash2, Calendar, Sparkles, Brain, Target, Briefcase, ExternalLink, AlertTriangle, ChevronRight, ArrowLeft, X, Plus } from 'lucide-react';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 import { UpgradeModal } from '../UpgradeModal';
-import { ProjectStrategy_Hooks } from './ProjectStrategy/ProjectStrategy_Hooks';
 
 interface DashboardContext {
   user: User;
@@ -28,9 +27,6 @@ export const HooksList: React.FC = () => {
     const [wizardStep, setWizardStep] = useState(0);
     const [userProjects, setUserProjects] = useState<Project[]>([]);
     const [allPlans, setAllPlans] = useState<Plan[]>([]);
-    const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-    const [activeHookIdx, setActiveHookIdx] = useState(0);
-    // --------------------------------------------
 
     // --- Nuevo Estado para Restricción de Eliminación ---
     const [showRestrictionModal, setShowRestrictionModal] = useState(false);
@@ -101,12 +97,11 @@ export const HooksList: React.FC = () => {
             return;
         }
 
-        setSelectedProjectId(projectId);
-        setWizardStep(1);
+        // Redirigir a la estrategia del proyecto en la sección de hooks
+        navigate(`/dashboard/projects/${projectId}/strategy?section=hooks`);
     };
 
     const handleOpenWizard = () => {
-        setSelectedProjectId(null);
         setWizardStep(0);
         setIsWizardOpen(true);
     };
@@ -223,66 +218,53 @@ export const HooksList: React.FC = () => {
                     </div>
 
                     <div className="p-8 flex-1 overflow-y-auto relative">
-                        {wizardStep === 0 ? (
-                            <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
-                                <div className="max-w-2xl mx-auto">
-                                    <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
-                                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Selecciona tu Proyecto</span>
-                                    </h2>
-                                    <p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra inteligencia artificial necesita conocer tu estrategia y avatar para generar los mejores ganchos.</p>
-                                </div>
-                                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
-                                    {/* CARD: CREAR NUEVO PROYECTO */}
-                                    <div 
-                                        className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-orange-500/50 hover:bg-orange-500/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
-                                        onClick={() => navigate('/dashboard/projects')}
-                                    >
-                                        <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-orange-500/10 group-hover:text-orange-500 transition-all shadow-lg mb-6">
-                                            <Plus className="w-10 h-10" />
-                                        </div>
-                                        <h4 className="text-white font-black text-2xl group-hover:text-orange-500 transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
-                                        <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar ganchos</p>
+                        <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
+                            <div className="max-w-2xl mx-auto">
+                                <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Selecciona tu Proyecto</span>
+                                </h2>
+                                <p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra inteligencia artificial necesita conocer tu estrategia y avatar para generar los mejores ganchos.</p>
+                            </div>
+                            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+                                {/* CARD: CREAR NUEVO PROYECTO */}
+                                <div 
+                                    className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-orange-500/50 hover:bg-orange-500/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
+                                    onClick={() => navigate('/dashboard/projects')}
+                                >
+                                    <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-orange-500/10 group-hover:text-orange-500 transition-all shadow-lg mb-6">
+                                        <Plus className="w-10 h-10" />
                                     </div>
-
-                                    {userProjects.map((project) => (
-                                        <div 
-                                            key={project.id} 
-                                            className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-orange-500/50 hover:bg-orange-500/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full cursor-pointer" 
-                                            onClick={() => handleProjectSelect(project.id)}
-                                        >
-                                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                            <div className="flex items-center gap-5 mb-8">
-                                                <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-orange-500/10 group-hover:text-orange-500 transition-colors shadow-inner">
-                                                    <Briefcase className="w-8 h-8" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <h4 className="text-white font-black text-2xl group-hover:text-orange-500 transition-colors">{project.name}</h4>
-                                                    <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex-1 mb-10">
-                                                <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
-                                                <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p>
-                                            </div>
-                                            <button className="w-full py-5 bg-orange-600 hover:bg-orange-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-orange-900/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95">
-                                                Seleccionar <ChevronRight className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    ))}
+                                    <h4 className="text-white font-black text-2xl group-hover:text-orange-500 transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
+                                    <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar ganchos</p>
                                 </div>
+
+                                {userProjects.map((project) => (
+                                    <div 
+                                        key={project.id} 
+                                        className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-orange-500/50 hover:bg-orange-500/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full cursor-pointer" 
+                                        onClick={() => handleProjectSelect(project.id)}
+                                    >
+                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                        <div className="flex items-center gap-5 mb-8">
+                                            <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-orange-500/10 group-hover:text-orange-500 transition-colors shadow-inner">
+                                                <Briefcase className="w-8 h-8" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="text-white font-black text-2xl group-hover:text-orange-500 transition-colors">{project.name}</h4>
+                                                <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex-1 mb-10">
+                                            <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
+                                            <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p>
+                                        </div>
+                                        <button className="w-full py-5 bg-orange-600 hover:bg-orange-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-orange-900/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95">
+                                            Seleccionar <ChevronRight className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
-                        ) : (
-                            <div className="animate-in slide-in-from-right-4 duration-500">
-                                <ProjectStrategy_Hooks 
-                                    overrideProjectId={selectedProjectId!}
-                                    strategyData={null}
-                                    activeHook={activeHookIdx}
-                                    setActiveHook={setActiveHookIdx}
-                                    handleTooltipHover={() => {}}
-                                    handleTooltipLeave={() => {}}
-                                />
-                            </div>
-                        )}
+                        </div>
                     </div>
                 </div>
             ) : (
