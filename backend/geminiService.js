@@ -63,12 +63,24 @@ const withRetries = async (fn, maxRetries = 3) => {
 const cleanJsonString = (str) => {
     if (!str) return "";
     
-    // Buscamos el primer '{' y el último '}' para extraer solo el bloque JSON
+    // Buscamos el primer '{' o '[' y el último '}' o ']' para extraer solo el bloque JSON
     const firstBrace = str.indexOf('{');
+    const firstBracket = str.indexOf('[');
     const lastBrace = str.lastIndexOf('}');
+    const lastBracket = str.lastIndexOf(']');
     
-    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-        return str.substring(firstBrace, lastBrace + 1).trim();
+    let start = -1;
+    if (firstBrace !== -1 && firstBracket !== -1) start = Math.min(firstBrace, firstBracket);
+    else if (firstBrace !== -1) start = firstBrace;
+    else if (firstBracket !== -1) start = firstBracket;
+
+    let end = -1;
+    if (lastBrace !== -1 && lastBracket !== -1) end = Math.max(lastBrace, lastBracket);
+    else if (lastBrace !== -1) end = lastBrace;
+    else if (lastBracket !== -1) end = lastBracket;
+    
+    if (start !== -1 && end !== -1 && end > start) {
+        return str.substring(start, end + 1).trim();
     }
 
     return str
@@ -819,7 +831,7 @@ export const generateEmailSequenceContent = async (projectId, sequenceData, type
                 teacherInfo = strategy.teacher;
             }
             if (strategy.avatars && Array.isArray(strategy.avatars)) {
-                avatarInfo = strategy.avatars.map(a => `- ${a.name}: ${a.description}`).join('\n');
+                avatarInfo = strategy.avatars.map(a => `- ${a.name} (${a.archetype}): ${a.pain}`).join('\n');
             }
         } catch (e) {
             console.error("Error parseando strategy_json para teacherInfo/avatarInfo:", e);
@@ -894,6 +906,8 @@ export const generateEmailSequenceContent = async (projectId, sequenceData, type
 
     try {
         const cleaned = cleanJsonString(response);
+        // Log de diagnóstico para depurar el formato de la IA
+        process.stdout.write(`[GEMINI EMAIL SEQUENCE] Respuesta limpia: ${cleaned.substring(0, 100)}...\n`);
         const data = JSON.parse(cleaned);
         return data;
     } catch (e) {
