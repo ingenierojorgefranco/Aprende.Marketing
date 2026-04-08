@@ -240,34 +240,35 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 </div>
                 <div className="lg:col-span-9 min-w-0">
                     <Suspense fallback={<div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>}>
-                        <div key={activeSection} className="animate-in fade-in duration-300">
-                            {activeSection === 'summary' && <ProjectStrategy_Summary strategyData={strategyData} description={projectDescription} activeHeaderItem={activeHeaderItem} setActiveHeaderItem={setActiveHeaderItem} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
-                            {activeSection === 'hotlinks' && <ProjectStrategy_Hotlinks projectId={id} />}
-                            {activeSection === 'growth' && <ProjectStrategy_BusinessGrowth chartData={chartData} commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)} commissionRate={strategyData.meta?.commissionRate || 0} />}
-                            {activeSection === 'blueprint' && <ProjectStrategy_Blueprint handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
-                            {activeSection === 'avatar' && <ProjectStrategy_AvatarDiagnosis avatars={strategyData.avatars} psychology={strategyData.psychology} benefitsItems={strategyData.modules?.web?.landingPageTabs?.benefits?.items || []} />}
-                            {activeSection === 'psychology' && <ProjectStrategy_Psychology psychology={strategyData.psychology} benefitsItems={strategyData.modules?.web?.landingPageTabs?.benefits?.items || []} />}
-                            {activeSection === 'hooks' && <ProjectStrategy_Hooks strategyData={strategyData} activeHook={activeHook} setActiveHook={setActiveHook} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
-                            {activeSection === 'testimonials' && <ProjectStrategy_Testimonials strategyData={strategyData} />}
-                            {activeSection === 'web' && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData.modules?.web?.landingPageTabs} tyTabsData={strategyData.modules?.web?.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onEditPage={(pid: string) => navigate(`/dashboard/editor/${pid}`)} pageCount={globalPageCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
-                            {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
-                            {activeSection === 'email' && (
-                                <ProjectStrategy_Email 
-                                    projectId={id}
-                                    activeEmail={activeEmail} 
-                                    setActiveEmail={setActiveEmail} 
-                                    onUpgrade={() => setShowUpgradeModal(true)} 
-                                    features={user.planLimits?.features} 
-                                    planLimits={user.planLimits} 
-                                    nextPlan={nextPlan} 
-                                    isSimulating={isSimulating} 
-                                    activeType={activeEmailSequenceType} 
-                                    setActiveType={setActiveEmailSequenceType} 
-                                />
-                            )}
-                            {activeSection === 'evergreen' && <ProjectStrategy_Evergreen projectId={id} evergreenData={strategyData.modules.emails.evergreen} avatars={strategyData.avatars} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
-                            {activeSection === 'whatsapp' && <ProjectStrategy_WhatsApp activeWaScript={activeWaScript} setActiveWaScript={setActiveWaScript} onUpgrade={() => setShowUpgradeModal(true)} projectId={id} isSimulating={isSimulating} planLimits={user.planLimits} strategyData={strategyData} />}
-                        </div>
+                        {activeSection === 'summary' && <ProjectStrategy_Summary strategyData={strategyData} description={projectDescription} activeHeaderItem={activeHeaderItem} setActiveHeaderItem={setActiveHeaderItem} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
+                        {activeSection === 'hotlinks' && <ProjectStrategy_Hotlinks projectId={id} />}
+                        {activeSection === 'growth' && <ProjectStrategy_BusinessGrowth chartData={chartData} commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)} commissionRate={strategyData.meta?.commissionRate || 0} />}
+                        {activeSection === 'blueprint' && <ProjectStrategy_Blueprint handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
+                        {activeSection === 'avatar' && <ProjectStrategy_AvatarDiagnosis avatars={strategyData.avatars} psychology={strategyData.psychology} benefitsItems={strategyData.modules?.web?.landingPageTabs?.benefits?.items || []} />}
+                        {activeSection === 'psychology' && <ProjectStrategy_Psychology psychology={strategyData.psychology} benefitsItems={strategyData.modules?.web?.landingPageTabs?.benefits?.items || []} />}
+                        {activeSection === 'hooks' && <ProjectStrategy_Hooks strategyData={strategyData} activeHook={activeHook} setActiveHook={setActiveHook} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
+                        {activeSection === 'testimonials' && <ProjectStrategy_Testimonials strategyData={strategyData} />}
+                        {activeSection === 'web' && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData.modules?.web?.landingPageTabs} tyTabsData={strategyData.modules?.web?.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onEditPage={(pid: string) => navigate(`/dashboard/editor/${pid}`)} pageCount={globalPageCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
+                        {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
+                        {activeSection === 'email' && (
+                            <ProjectStrategy_Email 
+                                projectId={id}
+                                activeEmail={activeEmail} 
+                                setActiveEmail={setActiveEmail} 
+                                onUpgrade={() => setShowUpgradeModal(true)} 
+                                features={user.planLimits?.features} 
+                                planLimits={user.planLimits} 
+                                nextPlan={nextPlan} 
+                                isSimulating={isSimulating} 
+                                activeType={activeEmailSequenceType} 
+                                setActiveType={setActiveEmailSequenceType} 
+                                realMessages={realMessages}
+                                sequenceId={emailSequenceId}
+                                sequenceCount={sequenceCount}
+                            />
+                        )}
+                        {activeSection === 'evergreen' && <ProjectStrategy_Evergreen projectId={id} evergreenData={strategyData.modules.emails.evergreen} avatars={strategyData.avatars} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
+                        {activeSection === 'whatsapp' && <ProjectStrategy_WhatsApp activeWaScript={activeWaScript} setActiveWaScript={setActiveWaScript} onUpgrade={() => setShowUpgradeModal(true)} projectId={id} isSimulating={isSimulating} planLimits={user.planLimits} strategyData={strategyData} />}
                     </Suspense>
                 </div>
             </div>
