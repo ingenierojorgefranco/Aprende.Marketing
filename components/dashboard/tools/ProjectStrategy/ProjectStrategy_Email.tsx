@@ -62,6 +62,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
     // Carga autónoma de datos si no se proporcionan
     useEffect(() => {
+        const controller = new AbortController();
+        
         const loadAutonomousData = async () => {
             if (!projectId || (initialEmailData && initialAvatars && initialRealMessages.length > 0)) return;
             
@@ -71,6 +73,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     api.getProjectStrategy(projectId).catch(() => null),
                     api.getEmailSequences().catch(() => [])
                 ]);
+
+                if (controller.signal.aborted) return;
 
                 if (strategy) {
                     setAvatars(strategy.avatars || []);
@@ -86,19 +90,30 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 if (projectSequence) {
                     setSequenceId(projectSequence.id);
                     const messages = await api.getSequenceMessages(projectSequence.id);
+                    if (controller.signal.aborted) return;
                     setRealMessages(messages.filter((m: any) => m.type === activeType));
                 } else {
                     setSequenceId(null);
                     setRealMessages([]);
                 }
             } catch (err) {
-                console.error("Error en carga autónoma de emails:", err);
+                if (!controller.signal.aborted) {
+                    console.error("Error en carga autónoma de emails:", err);
+                }
             } finally {
-                setIsLoadingInternal(false);
+                if (!controller.signal.aborted) {
+                    setIsLoadingInternal(false);
+                }
             }
         };
 
         loadAutonomousData();
+
+        return () => {
+            controller.abort();
+            setIsLoadingInternal(false);
+            setIsGenerating(false);
+        };
     }, [projectId, activeType]);
 
     // Estados locales para permitir el refinamiento estratégico antes de la generación
@@ -139,15 +154,17 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [allSequences, setAllSequences] = useState<EmailSequence[]>([]);
 
     useEffect(() => {
+        let isMounted = true;
         const fetchSequences = async () => {
             try {
                 const sequences = await api.getEmailSequences();
-                setAllSequences(sequences);
+                if (isMounted) setAllSequences(sequences);
             } catch (e) {
                 console.error("Error fetching sequences:", e);
             }
         };
         fetchSequences();
+        return () => { isMounted = false; };
     }, []);
 
     const emailTypes = [
@@ -161,19 +178,23 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     ];
 
     useEffect(() => {
+        let isMounted = true;
         const loadContext = async () => {
             try {
                 const [pages, proj] = await Promise.all([
                     api.getPages(),
                     api.getProjectById(projectId)
                 ]);
-                setUserPages(pages);
-                if (proj) setProjectLinks(proj.affiliateLinks || []);
+                if (isMounted) {
+                    setUserPages(pages);
+                    if (proj) setProjectLinks(proj.affiliateLinks || []);
+                }
             } catch (e) {
                 console.error(e);
             }
         };
         loadContext();
+        return () => { isMounted = false; };
     }, [projectId]);
 
     // Sincronizar estados locales solo cuando realmente cambiamos de correo
