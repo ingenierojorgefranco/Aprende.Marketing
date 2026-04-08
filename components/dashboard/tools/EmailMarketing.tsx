@@ -443,83 +443,99 @@ export const EmailMarketing: React.FC = () => {
                 {loadingSequences ? (
                     <div className="flex justify-center p-20 text-[#FF5A1F]"><Loader2 className="w-12 h-12 animate-spin" /></div>
                 ) : showProjectSelection ? (
-                    <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center">
-                        <div className="max-w-2xl mx-auto">
+                    <div className="mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative max-w-5xl animate-in fade-in zoom-in-95 duration-500">
+                        <div className="bg-[#FF5A1F]/10 p-8 text-center border-b border-[#FF5A1F]/10 relative">
                             <button 
-                                onClick={() => setShowProjectSelection(false)}
-                                className="mb-6 flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-800 text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/5 group"
+                                onClick={() => setShowProjectSelection(false)} 
+                                className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition"
                             >
-                                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver
+                                <ArrowLeft className="w-6 h-6" />
                             </button>
-                            <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500">
-                                    Selecciona el proyecto para crear tu estrategia de {activeTab === 'conversion' ? 'Conversión' : 'Nutrición'}
-                                </span>
-                            </h2>
-                            <p className="text-gray-400 text-lg leading-relaxed font-medium">
-                                Para redactar correos que cierren ventas, nuestra IA necesita leer tu estrategia maestra. Selecciona un proyecto para visualizar su secuencia de 7 días.
-                            </p>
+                            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
+                                <Mail className="w-8 h-8 text-[#FF5A1F]" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Asistente de Secuencias de Email</h2>
+                            <div className="flex items-center justify-center gap-2 mt-4 text-sm">
+                                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-[#FF5A1F] text-white">0. Proyecto</span>
+                                <div className="w-4 h-px bg-gray-700"></div>
+                                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-gray-800 text-gray-500">1. Configuración</span>
+                            </div>
                         </div>
 
-                        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
-                            {projects.length > 0 ? (
-                                <>
-                                    {/* CARD: CREAR NUEVO PROYECTO */}
-                                    <div 
-                                        className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
-                                        onClick={() => navigate('/dashboard/projects')}
-                                    >
-                                        <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg mb-6">
-                                            <Plus className="w-10 h-10" />
-                                        </div>
-                                        <h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
-                                        <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar ganchos</p>
-                                    </div>
+                        <div className="p-8 md:p-12 flex-1 overflow-y-auto relative">
+                            <div className="space-y-12 text-center flex flex-col items-center">
+                                <div className="max-w-2xl mx-auto">
+                                    <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
+                                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500">
+                                            Selecciona el proyecto para crear tu estrategia de {activeTab === 'conversion' ? 'Conversión' : 'Nutrición'}
+                                        </span>
+                                    </h2>
+                                    <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                        Para redactar correos que cierren ventas, nuestra IA necesita leer tu estrategia maestra. Selecciona un proyecto para visualizar su secuencia de 7 días.
+                                    </p>
+                                </div>
 
-                                    {projects.map((project) => (
-                                        <div 
-                                            key={project.id}
-                                            className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full"
-                                        >
-                                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                            <div className="flex items-center gap-5 mb-8">
-                                                <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors shadow-inner">
-                                                    <Briefcase className="w-8 h-8" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors">{project.name}</h4>
-                                                    <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex-1 mb-10">
-                                                <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
-                                                <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p>
-                                            </div>
-                                            <button 
-                                                onClick={() => {
-                                                    setWizardType(activeTab === 'nurturing' ? 'nurturing' : 'conversion');
-                                                    setSearchParams({ projectId: project.id });
-                                                    setIsWizardOpen(true);
-                                                    setShowProjectSelection(false);
-                                                }}
-                                                className="w-full py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95"
+                                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+                                    {projects.length > 0 ? (
+                                        <>
+                                            {/* CARD: CREAR NUEVO PROYECTO */}
+                                            <div 
+                                                className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
+                                                onClick={() => navigate('/dashboard/projects')}
                                             >
-                                                Seleccionar <ChevronRight className="w-5 h-5" />
+                                                <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg mb-6">
+                                                    <Plus className="w-10 h-10" />
+                                                </div>
+                                                <h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
+                                                <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar ganchos</p>
+                                            </div>
+
+                                            {projects.map((project) => (
+                                                <div 
+                                                    key={project.id}
+                                                    className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full"
+                                                >
+                                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                    <div className="flex items-center gap-5 mb-8">
+                                                        <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors shadow-inner">
+                                                            <Briefcase className="w-8 h-8" />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors">{project.name}</h4>
+                                                            <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex-1 mb-10">
+                                                        <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
+                                                        <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p>
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => {
+                                                            setWizardType(activeTab === 'nurturing' ? 'nurturing' : 'conversion');
+                                                            setSearchParams({ projectId: project.id });
+                                                            setIsWizardOpen(true);
+                                                            setShowProjectSelection(false);
+                                                        }}
+                                                        className="w-full py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95"
+                                                    >
+                                                        Seleccionar <ChevronRight className="w-5 h-5" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </>
+                                    ) : (
+                                        <div className="md:col-span-3 py-20 bg-black/20 border border-dashed border-gray-800 rounded-[2rem] text-center">
+                                            <p className="text-gray-500 mb-6">Aún no tienes proyectos creados con estrategia.</p>
+                                            <button 
+                                                onClick={() => navigate('/dashboard/projects/create')}
+                                                className="px-8 py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20"
+                                            >
+                                                Crear mi primer proyecto
                                             </button>
                                         </div>
-                                    ))}
-                                </>
-                            ) : (
-                                <div className="md:col-span-3 py-20 bg-black/20 border border-dashed border-gray-800 rounded-[2rem] text-center">
-                                    <p className="text-gray-500 mb-6">Aún no tienes proyectos creados con estrategia.</p>
-                                    <button 
-                                        onClick={() => navigate('/dashboard/projects/create')}
-                                        className="px-8 py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20"
-                                    >
-                                        Crear mi primer proyecto
-                                    </button>
+                                    )}
                                 </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                 ) : sequences.filter(s => activeTab === 'conversion' ? (s.type === 'conversion' || !s.type) : s.type === 'nurturing').length > 0 ? (
