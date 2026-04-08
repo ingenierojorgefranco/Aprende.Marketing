@@ -18,10 +18,12 @@ interface ProjectStrategy_EvergreenProps {
     planLimits?: PlanLimits;
     nextPlan?: Plan | null;
     linkedArticles?: Article[];
+    hideHeader?: boolean;
 }
 
 export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps> = ({
-    projectId, evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features, planLimits, nextPlan, linkedArticles = []
+    projectId, evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features, planLimits, nextPlan, linkedArticles = [],
+    hideHeader = false
 }) => {
     const navigate = useNavigate();
     const { user } = useOutletContext() as any;
@@ -71,6 +73,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     if (linkedArticles.length === 0) {
         return (
             <div id="psd-evergreen-empty" className="space-y-12 animate-in fade-in duration-500 pt-8">
+            {!hideHeader && (
                 <div id="psd-evergreen-header" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                     <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-500/5">
                         <Sparkles className="w-4 h-4" /> Correos Electrónicos a largo plazo
@@ -97,6 +100,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                         </div>
                     </div>
                 </div>
+            )}
 
                 <div className="bg-[#111] p-16 rounded-[3rem] border border-white/5 text-center space-y-8 shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-10 opacity-5">
@@ -362,32 +366,34 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     return (
         <div id="psd-evergreen-section" className="space-y-12 animate-in fade-in duration-500 pt-8">
             {/* ENCABEZADO ESTRATÉGICO */}
-            <div id="psd-evergreen-header" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
-                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-500/5">
-                    <Sparkles className="w-4 h-4" /> Secuencia dinámica activa
-                </div>
-                <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
-                    Tu Estrategia <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">de Nutrición (Evergreen)</span>
-                </h3>
-                
-                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
-                    <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">
-                        Tienes {linkedArticles.length} artículos vinculados. El sistema ha programado estos correos para enviarse a partir del Día 8, manteniendo tu oferta presente sin ser invasivo.
-                    </p>
-                    <div className="hidden md:block w-px h-24 bg-orange-500/30"></div>
-                    <div 
-                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
-                    >
-                        <iframe 
-                            className="w-full h-full rounded-2xl"
-                            src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
-                            title="Video Tutorial" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
+            {!hideHeader && (
+                <div id="psd-evergreen-header" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
+                    <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-500/5">
+                        <Sparkles className="w-4 h-4" /> Secuencia dinámica activa
+                    </div>
+                    <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
+                        Tu Estrategia <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">de Nutrición (Evergreen)</span>
+                    </h3>
+                    
+                    <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
+                        <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">
+                            Tienes {linkedArticles.length} artículos vinculados. El sistema ha programado estos correos para enviarse a partir del Día 8, manteniendo tu oferta presente sin ser invasivo.
+                        </p>
+                        <div className="hidden md:block w-px h-24 bg-orange-500/30"></div>
+                        <div 
+                            className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
+                        >
+                            <iframe 
+                                className="w-full h-full rounded-2xl"
+                                src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
+                                title="Video Tutorial" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* CUADRÍCULA DE 12 COLUMNAS: LISTA + VISTA PREVIA */}
             <div id="psd-evergreen-grid" className="grid lg:grid-cols-12 gap-8 max-w-[85em] mx-auto">

@@ -10,6 +10,9 @@ import { api } from '../../../services/api';
 import { Project, User, Plan } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
 import { ProjectStrategy_Email } from './ProjectStrategy/ProjectStrategy_Email';
+import { ProjectStrategy_Evergreen } from './ProjectStrategy/ProjectStrategy_Evergreen';
+import { ProjectMasterStrategy } from '../../../services/strategySchema';
+import { Article } from '../../../types';
 
 interface DashboardContext {
     user: User;
@@ -31,6 +34,10 @@ export const EmailSequenceWizard: React.FC<{ onClose?: () => void, type?: 'conve
     const [loading, setLoading] = useState(false);
     const [activeEmailIdx, setActiveEmailIdx] = useState(0);
     const [nextPlan, setNextPlan] = useState<Plan | null>(null);
+
+    const [strategyData, setStrategyData] = useState<ProjectMasterStrategy | null>(null);
+    const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
+    const [activeEvergreenEmail, setActiveEvergreenEmail] = useState(0);
 
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [upgradeProjectId, setUpgradeProjectId] = useState<string | undefined>(undefined);
@@ -93,6 +100,26 @@ export const EmailSequenceWizard: React.FC<{ onClose?: () => void, type?: 'conve
 
             setSelectedProject(project);
             
+            if (type === 'nurturing') {
+                try {
+                    const [strategy, allPages, allArticles] = await Promise.all([
+                        api.getProjectStrategy(project.id).catch(() => null),
+                        api.getPages().catch(() => []),
+                        api.getArticles().catch(() => [])
+                    ]);
+                    
+                    if (strategy) setStrategyData(strategy);
+                    
+                    if (allPages && allArticles) {
+                        const projectPages = allPages.filter((p: any) => String(p.projectId) === String(project.id));
+                        const projectArts = allArticles.filter((a: any) => projectPages.some((p: any) => String(p.id) === String(a.pageId)));
+                        setLinkedArticles(projectArts);
+                    }
+                } catch (err) {
+                    console.error("Error fetching nurturing data:", err);
+                }
+            }
+
             if (urlDay) {
                 const dayIdx = parseInt(urlDay);
                 if (!isNaN(dayIdx) && dayIdx >= 0 && dayIdx < 7) {
@@ -230,16 +257,32 @@ export const EmailSequenceWizard: React.FC<{ onClose?: () => void, type?: 'conve
 
                 {step === 1 && selectedProject && (
                     <div className="animate-in slide-in-from-right-8 duration-700 h-full flex flex-col">
-                        <ProjectStrategy_Email 
-                            projectId={selectedProject.id}
-                            activeEmail={activeEmailIdx}
-                            setActiveEmail={setActiveEmailIdx}
-                            hideHeader={true}
-                            activeType={type}
-                            onUpgrade={() => setShowUpgradeModal(true)}
-                            features={user.planLimits?.features}
-                            planLimits={user.planLimits}
-                        />
+                        {type === 'conversion' ? (
+                            <ProjectStrategy_Email 
+                                projectId={selectedProject.id}
+                                activeEmail={activeEmailIdx}
+                                setActiveEmail={setActiveEmailIdx}
+                                hideHeader={true}
+                                activeType={type}
+                                onUpgrade={() => setShowUpgradeModal(true)}
+                                features={user.planLimits?.features}
+                                planLimits={user.planLimits}
+                            />
+                        ) : (
+                            <ProjectStrategy_Evergreen 
+                                projectId={selectedProject.id}
+                                evergreenData={strategyData?.modules?.emails?.evergreen || []}
+                                avatars={strategyData?.avatars || []}
+                                activeEvergreenEmail={activeEvergreenEmail}
+                                setActiveEvergreenEmail={setActiveEvergreenEmail}
+                                onUpgrade={() => setShowUpgradeModal(true)}
+                                features={user.planLimits?.features}
+                                planLimits={user.planLimits}
+                                nextPlan={nextPlan}
+                                linkedArticles={linkedArticles}
+                                hideHeader={true}
+                            />
+                        )}
                     </div>
                 )}
 
