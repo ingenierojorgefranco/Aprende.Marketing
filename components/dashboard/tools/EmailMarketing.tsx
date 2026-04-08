@@ -5,7 +5,6 @@ import { api } from '../../../services/api';
 /* */ /* Actualización: Importación de useNavigate para manejar redirección - 24/06/2024 15:15 */
 import { useNavigate, Link, useOutletContext, useSearchParams } from 'react-router-dom';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
-import { EmailSequenceWizard } from './EmailSequenceWizard';
 /* Fin de actualización - 24/06/2024 15:15 */
 
 export const EmailMarketing: React.FC = () => {
@@ -20,7 +19,6 @@ export const EmailMarketing: React.FC = () => {
   /* Fin de actualización - 24/06/2024 15:15 */
 
   const [activeTab, setActiveTab] = useState<'conversion' | 'nurturing' | 'leads' | 'config'>('conversion');
-  const [wizardType, setWizardType] = useState<'conversion' | 'nurturing'>('conversion');
   const [systemeIoKey, setSystemeIoKey] = useState('');
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [savingKey, setSavingKey] = useState(false);
@@ -43,7 +41,6 @@ export const EmailMarketing: React.FC = () => {
   const [newTagName, setNewTagName] = useState('');
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [showProjectSelection, setShowProjectSelection] = useState(false);
 
   // --- Nuevo Estado para Restricción de Eliminación ---
@@ -57,11 +54,6 @@ export const EmailMarketing: React.FC = () => {
     loadSequences();
     loadProjects();
     loadPlans();
-
-    // Check if we should open the wizard based on URL params
-    if (searchParams.get('projectId') || searchParams.get('day')) {
-      setIsWizardOpen(true);
-    }
   }, []);
 
   const loadProjects = async () => {
@@ -367,7 +359,6 @@ export const EmailMarketing: React.FC = () => {
                       <button 
                         onClick={() => {
                           setActiveTab('conversion');
-                          setWizardType('conversion');
                           setShowProjectSelection(true);
                         }}
                         className="w-full px-8 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
@@ -378,7 +369,6 @@ export const EmailMarketing: React.FC = () => {
                       <button 
                         onClick={() => {
                           setActiveTab('nurturing');
-                          setWizardType('nurturing');
                           setShowProjectSelection(true);
                         }}
                         className="w-full px-8 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
@@ -393,28 +383,28 @@ export const EmailMarketing: React.FC = () => {
       {/* NAVEGACIÓN POR PESTAÑAS */}
       <div className="flex flex-wrap gap-4 border-b border-white/5 pb-2">
           <button 
-              onClick={() => { setActiveTab('conversion'); setShowProjectSelection(false); setIsWizardOpen(false); }}
+              onClick={() => { setActiveTab('conversion'); setShowProjectSelection(false); }}
               className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'conversion' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
           >
               <LayoutTemplate className="w-4 h-4" /> Secuencia de Conversión
               {activeTab === 'conversion' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
           </button>
           <button 
-              onClick={() => { setActiveTab('nurturing'); setShowProjectSelection(false); setIsWizardOpen(false); }}
+              onClick={() => { setActiveTab('nurturing'); setShowProjectSelection(false); }}
               className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'nurturing' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
           >
               <Mail className="w-4 h-4" /> Emails de Nutrición
               {activeTab === 'nurturing' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
           </button>
           <button 
-              onClick={() => { setActiveTab('leads'); setIsWizardOpen(false); }}
+              onClick={() => { setActiveTab('leads'); }}
               className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'leads' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
           >
               <Users className="w-4 h-4" /> Leads
               {activeTab === 'leads' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
           </button>
           <button 
-              onClick={() => { setActiveTab('config'); setIsWizardOpen(false); }}
+              onClick={() => { setActiveTab('config'); }}
               className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'config' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
           >
               <Settings className="w-4 h-4" /> Configuración
@@ -427,18 +417,7 @@ export const EmailMarketing: React.FC = () => {
             {/* PESTAÑA: SECUENCIAS */}
             {(activeTab === 'conversion' || activeTab === 'nurturing') && (
             <div className="space-y-8 animate-in slide-in-from-left-4">
-                {isWizardOpen && wizardType === activeTab ? (
-                  <EmailSequenceWizard 
-                    type={wizardType}
-                    onClose={() => {
-                      setIsWizardOpen(false);
-                      setSearchParams({}); // Clear params when closing
-                      loadSequences(); // Refresh list
-                    }} 
-                  />
-                ) : (
-                  <>
-                    {loadingSequences ? (
+                {loadingSequences ? (
                     <div className="flex justify-center p-20 text-[#FF5A1F]"><Loader2 className="w-12 h-12 animate-spin" /></div>
                 ) : showProjectSelection ? (
                     <div className="mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative max-w-5xl animate-in fade-in zoom-in-95 duration-500">
@@ -509,10 +488,8 @@ export const EmailMarketing: React.FC = () => {
                                                     </div>
                                                     <button 
                                                         onClick={() => {
-                                                            setWizardType(activeTab === 'nurturing' ? 'nurturing' : 'conversion');
-                                                            setSearchParams({ projectId: project.id });
-                                                            setIsWizardOpen(true);
-                                                            setShowProjectSelection(false);
+                                                            const section = activeTab === 'nurturing' ? 'evergreen' : 'email';
+                                                            navigate(`/dashboard/projects/${project.id}/strategy?section=${section}`);
                                                         }}
                                                         className="w-full py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95"
                                                     >
@@ -541,7 +518,6 @@ export const EmailMarketing: React.FC = () => {
                         {/* Tarjeta de añadir nueva */}
                         <button 
                             onClick={() => {
-                              setWizardType(activeTab === 'nurturing' ? 'nurturing' : 'conversion');
                               setShowProjectSelection(true);
                             }}
                             className="bg-gray-900 border-2 border-dashed border-white/20 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px]"
@@ -605,9 +581,8 @@ export const EmailMarketing: React.FC = () => {
                                 <div className="flex flex-col gap-3 mt-10">
                                     <button 
                                         onClick={() => {
-                                          setWizardType(seq.type || 'conversion');
-                                          setSearchParams({ projectId: seq.projectId });
-                                          setIsWizardOpen(true);
+                                            const section = seq.type === 'nurturing' ? 'evergreen' : 'email';
+                                            navigate(`/dashboard/projects/${seq.projectId}/strategy?section=${section}`);
                                         }}
                                         className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg"
                                     >
@@ -630,7 +605,6 @@ export const EmailMarketing: React.FC = () => {
                         </div>
                         <button 
                             onClick={() => {
-                              setWizardType(activeTab === 'nurturing' ? 'nurturing' : 'conversion');
                               setShowProjectSelection(true);
                             }}
                             className="px-12 py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-lg uppercase tracking-widest rounded-2xl transition-all shadow-2xl shadow-[#FF5A1F]/20 transform hover:scale-105 active:scale-95"
@@ -639,8 +613,6 @@ export const EmailMarketing: React.FC = () => {
                         </button>
                     </div>
                 )}
-              </>
-            )}
             </div>
         )}
 
