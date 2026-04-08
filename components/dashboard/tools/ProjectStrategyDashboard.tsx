@@ -252,30 +252,14 @@ export const ProjectStrategyDashboard: React.FC = () => {
                         {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
                         {activeSection === 'email' && (
                             <ProjectStrategy_Email 
-                                emailData={
-                                    activeEmailSequenceType === 'conversion' 
-                                        ? (strategyData?.modules?.emails?.nurture || [
-                                            { id: 1, subject: 'Bienvenida + Valor', type: 'Bienvenida + Valor', objective: 'Entrega del Lead Magnet y bienvenida' },
-                                            { id: 2, subject: 'Romper Creencias', type: 'Romper Creencias', objective: 'Eliminar mitos y barreras mentales' },
-                                            { id: 3, subject: 'Historia / Conexión', type: 'Historia / Conexión', objective: 'Conectar emocionalmente con el avatar' },
-                                            { id: 4, subject: 'Educación + Autoridad', type: 'Educación + Autoridad', objective: 'Posicionarse como experto' },
-                                            { id: 5, subject: 'Objeciones', type: 'Objeciones', objective: 'Rebatir miedos y dudas frecuentes' },
-                                            { id: 6, subject: 'Caso de éxito', type: 'Caso de éxito', objective: 'Prueba social y resultados reales' },
-                                            { id: 7, subject: 'Cierre / Oferta', type: 'Cierre / Oferta', objective: 'Llamado a la acción final' }
-                                        ]) 
-                                        : []
-                                } 
-                                avatars={strategyData?.avatars || []} 
+                                projectId={id}
                                 activeEmail={activeEmail} 
                                 setActiveEmail={setActiveEmail} 
-                                features={user.planLimits?.features} 
                                 onUpgrade={() => setShowUpgradeModal(true)} 
+                                features={user.planLimits?.features} 
                                 planLimits={user.planLimits} 
                                 nextPlan={nextPlan} 
                                 isSimulating={isSimulating} 
-                                realMessages={realMessages} 
-                                sequenceId={emailSequenceId} 
-                                sequenceCount={sequenceCount}
                                 activeType={activeEmailSequenceType} 
                                 setActiveType={setActiveEmailSequenceType} 
                             />

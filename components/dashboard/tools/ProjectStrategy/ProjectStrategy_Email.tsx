@@ -6,8 +6,8 @@ import { PlanFeatures, PlanLimits, Plan, EmailMessage, EmailSequence, LandingPag
 import { api } from '../../../../services/api';
 
 interface ProjectStrategy_EmailProps {
-    emailData: any[];
-    avatars: any[];
+    emailData?: any[];
+    avatars?: any[];
     activeEmail: number;
     setActiveEmail: (idx: number) => void;
     onUpgrade: () => void;
@@ -22,15 +22,84 @@ interface ProjectStrategy_EmailProps {
     sequenceId?: string | null;
     activeType?: 'conversion' | 'nurturing';
     setActiveType?: (type: 'conversion' | 'nurturing') => void;
+
+    // Nuevas props para autonomía y unificación
+    projectId?: string;
+    hideHeader?: boolean;
 }
 
 export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
-    emailData, avatars, activeEmail, setActiveEmail, onUpgrade, features, planLimits, nextPlan, realMessages = [], isSimulating = false, sequenceCount = 0, sequenceId = null,
-    activeType = 'conversion', setActiveType
+    emailData: initialEmailData, avatars: initialAvatars, activeEmail, setActiveEmail, onUpgrade, features, planLimits, nextPlan, realMessages: initialRealMessages = [], isSimulating = false, sequenceCount: initialSequenceCount = 0, sequenceId: initialSequenceId = null,
+    activeType: initialActiveType = 'conversion', setActiveType,
+    projectId: propProjectId, hideHeader = false
 }) => {
     const navigate = useNavigate();
-    const { id: projectId } = useParams() as { id: string };
+    const { id: urlProjectId } = useParams() as { id: string };
+    const projectId = propProjectId || urlProjectId;
     const { user } = useOutletContext() as any;
+
+    // Estados para autonomía cuando se usa fuera de la estrategia
+    const [emailData, setEmailData] = useState<any[]>(initialEmailData || []);
+    const [avatars, setAvatars] = useState<any[]>(initialAvatars || []);
+    const [realMessages, setRealMessages] = useState<EmailMessage[]>(initialRealMessages);
+    const [sequenceId, setSequenceId] = useState<string | null>(initialSequenceId);
+    const [sequenceCount, setSequenceCount] = useState(initialSequenceCount);
+    const [activeType, setActiveTypeInternal] = useState<'conversion' | 'nurturing'>(initialActiveType);
+    const [isLoadingInternal, setIsLoadingInternal] = useState(false);
+
+    // Sincronizar props iniciales si cambian
+    useEffect(() => { if (initialEmailData) setEmailData(initialEmailData); }, [initialEmailData]);
+    useEffect(() => { if (initialAvatars) setAvatars(initialAvatars); }, [initialAvatars]);
+    useEffect(() => { if (initialRealMessages) setRealMessages(initialRealMessages); }, [initialRealMessages]);
+    useEffect(() => { if (initialSequenceId) setSequenceId(initialSequenceId); }, [initialSequenceId]);
+    useEffect(() => { if (initialSequenceCount) setSequenceCount(initialSequenceCount); }, [initialSequenceCount]);
+    useEffect(() => { if (initialActiveType) setActiveTypeInternal(initialActiveType); }, [initialActiveType]);
+
+    const handleSetActiveType = (type: 'conversion' | 'nurturing') => {
+        if (setActiveType) setActiveType(type);
+        setActiveTypeInternal(type);
+    };
+
+    // Carga autónoma de datos si no se proporcionan
+    useEffect(() => {
+        const loadAutonomousData = async () => {
+            if (!projectId || (initialEmailData && initialAvatars && initialRealMessages.length > 0)) return;
+            
+            setIsLoadingInternal(true);
+            try {
+                const [strategy, sequences] = await Promise.all([
+                    api.getProjectStrategy(projectId).catch(() => null),
+                    api.getEmailSequences().catch(() => [])
+                ]);
+
+                if (strategy) {
+                    setAvatars(strategy.avatars || []);
+                    if (activeType === 'conversion') {
+                        setEmailData(strategy.modules?.emails?.nurture || []);
+                    }
+                }
+
+                const activeProjectIds = new Set(sequences.filter(s => s.generatedDays && s.generatedDays.length > 0).map(s => s.projectId));
+                setSequenceCount(activeProjectIds.size);
+                
+                const projectSequence = sequences.find(s => String(s.projectId) === String(projectId) && s.type === activeType);
+                if (projectSequence) {
+                    setSequenceId(projectSequence.id);
+                    const messages = await api.getSequenceMessages(projectSequence.id);
+                    setRealMessages(messages.filter((m: any) => m.type === activeType));
+                } else {
+                    setSequenceId(null);
+                    setRealMessages([]);
+                }
+            } catch (err) {
+                console.error("Error en carga autónoma de emails:", err);
+            } finally {
+                setIsLoadingInternal(false);
+            }
+        };
+
+        loadAutonomousData();
+    }, [projectId, activeType]);
 
     // Estados locales para permitir el refinamiento estratégico antes de la generación
     const [localSubject, setLocalSubject] = useState('');
@@ -517,35 +586,37 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             )}
 
             {/* --- ENCABEZADO ESTRATÉGICO ACTUALIZADO --- */}
-            <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
-                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full border text-sm font-black uppercase tracking-[0.2em] shadow-lg bg-blue-500/10 border-blue-500/20 text-blue-400 shadow-blue-500/5">
-                    <Sparkles className="w-5 h-5" /> Correos de Conversión
-                </div>
-                
-                <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
-                    Email Marketing: <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-blue-400">
-                        Secuencia de Conversión (7 Días)
-                    </span>
-                </h3>
+            {!hideHeader && (
+                <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
+                    <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full border text-sm font-black uppercase tracking-[0.2em] shadow-lg bg-blue-500/10 border-blue-500/20 text-blue-400 shadow-blue-500/5">
+                        <Sparkles className="w-5 h-5" /> Correos de Conversión
+                    </div>
+                    
+                    <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
+                        Email Marketing: <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-blue-400">
+                            Secuencia de Conversión (7 Días)
+                        </span>
+                    </h3>
 
-                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
-                    <p className="flex-1 border-l-4 pl-8 py-2 border-blue-500">
-                        Hemos diseñado una secuencia de 7 correos electrónicos estratégicos diseñados para nutrir a tus prospectos y llevarlos paso a paso hacia la decisión de compra, utilizando gatillos mentales de autoridad, escasez y urgencia.
-                    </p>
-                    <div className="hidden md:block w-px h-24 bg-blue-500/30"></div>
-                    <div 
-                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
-                    >
-                        <iframe 
-                            className="w-full h-full rounded-2xl"
-                            src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
-                            title="Video Tutorial" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
+                    <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
+                        <p className="flex-1 border-l-4 pl-8 py-2 border-blue-500">
+                            Hemos diseñado una secuencia de 7 correos electrónicos estratégicos diseñados para nutrir a tus prospectos y llevarlos paso a paso hacia la decisión de compra, utilizando gatillos mentales de autoridad, escasez y urgencia.
+                        </p>
+                        <div className="hidden md:block w-px h-24 bg-blue-500/30"></div>
+                        <div 
+                            className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
+                        >
+                            <iframe 
+                                className="w-full h-full rounded-2xl"
+                                src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
+                                title="Video Tutorial" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             <div className="grid lg:grid-cols-12 gap-8">
                 {/* LEFT: EMAIL LIST */}
