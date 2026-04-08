@@ -693,7 +693,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             >
                 <iframe 
                     className="w-full h-full rounded-2xl"
-                    src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
+                    src="https://www.youtube.com/embed/bTV5aFTchJ8?rel=0&controls=1&showinfo=0" 
                     title="Video Tutorial" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                     allowFullScreen

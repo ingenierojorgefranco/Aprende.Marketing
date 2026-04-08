@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan, Project } from '../../../../types';
 import { Generator } from '../Generator';
@@ -42,6 +42,152 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     
     // Estado para el control de acordeón en el modal de dominios
     const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
+
+    // Estados para edición en línea
+    const [draftLpTabsData, setDraftLpTabsData] = useState<any>(null);
+    const [draftTyTabsData, setDraftTyTabsData] = useState<any>(null);
+    const [draftStrategy, setDraftStrategy] = useState<ProjectMasterStrategy | null>(null);
+    const [hasChanges, setHasChanges] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        if (lpTabsData) setDraftLpTabsData(lpTabsData);
+        if (tyTabsData) setDraftTyTabsData(tyTabsData);
+    }, [lpTabsData, tyTabsData]);
+
+    useEffect(() => {
+        if (strategy) setDraftStrategy(strategy);
+    }, [strategy]);
+
+    const handleUpdateLpDraft = (tab: string, field: string, value: string) => {
+        setDraftLpTabsData((prev: any) => {
+            const updated = {
+                ...prev,
+                [tab]: {
+                    ...prev[tab],
+                    [field]: value
+                }
+            };
+            return updated;
+        });
+        setHasChanges(true);
+    };
+
+    const handleUpdateTyDraft = (tab: string, field: string, value: string) => {
+        setDraftTyTabsData((prev: any) => {
+            const updated = {
+                ...prev,
+                [tab]: {
+                    ...prev[tab],
+                    content: {
+                        ...prev[tab].content,
+                        [field]: value
+                    }
+                }
+            };
+            return updated;
+        });
+        setHasChanges(true);
+    };
+
+    const handleUpdateStrategyDraft = (section: 'pains' | 'solutions', index: number, value: string, subfield?: 'title' | 'description') => {
+        setDraftStrategy((prev: any) => {
+            if (!prev) return prev;
+            const updatedPsychology = { ...prev.psychology };
+            const updatedList = [...updatedPsychology[section]];
+            
+            if (subfield) {
+                updatedList[index] = { ...updatedList[index], [subfield]: value };
+            } else {
+                updatedList[index] = value;
+            }
+            
+            updatedPsychology[section] = updatedList;
+            return { ...prev, psychology: updatedPsychology };
+        });
+        setHasChanges(true);
+    };
+
+    const handleSaveAll = async () => {
+        if (!projectId || !draftStrategy) return;
+        setIsSaving(true);
+        try {
+            const updatedStrategy = {
+                ...draftStrategy,
+                modules: {
+                    ...draftStrategy.modules,
+                    web: {
+                        ...draftStrategy.modules?.web,
+                        landingPageTabs: draftLpTabsData,
+                        thankYouPageTabs: draftTyTabsData
+                    }
+                }
+            };
+            await api.updateProject(projectId, { strategy_json: updatedStrategy } as any);
+            setStrategy(updatedStrategy);
+            setHasChanges(false);
+            alert("¡Cambios guardados correctamente!");
+        } catch (e) {
+            console.error(e);
+            alert("Error al guardar los cambios");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const EditableField = ({ value, onSave, multiline = false, className = "" }: { value: string, onSave: (val: string) => void, multiline?: boolean, className?: string }) => {
+        const [isEditing, setIsEditing] = useState(false);
+        const [localValue, setLocalValue] = useState(value);
+
+        useEffect(() => {
+            setLocalValue(value);
+        }, [value]);
+
+        if (isEditing) {
+            return (
+                <div className="relative w-full group/edit">
+                    {multiline ? (
+                        <textarea
+                            autoFocus
+                            className={`w-full p-2 bg-white border-2 border-primary rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/20 ${className}`}
+                            value={localValue}
+                            onChange={(e) => setLocalValue(e.target.value)}
+                            onBlur={() => {
+                                setIsEditing(false);
+                                if (localValue !== value) onSave(localValue);
+                            }}
+                        />
+                    ) : (
+                        <input
+                            autoFocus
+                            className={`w-full p-2 bg-white border-2 border-primary rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/20 ${className}`}
+                            value={localValue}
+                            onChange={(e) => setLocalValue(e.target.value)}
+                            onBlur={() => {
+                                setIsEditing(false);
+                                if (localValue !== value) onSave(localValue);
+                            }}
+                        />
+                    )}
+                    <div className="absolute -top-2 -right-2 bg-primary text-white p-1 rounded-full shadow-lg">
+                        <Check className="w-3 h-3" />
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div 
+                onClick={() => setIsEditing(true)}
+                className={`group/field cursor-pointer relative hover:bg-primary/5 p-1 rounded-lg transition-colors border border-transparent hover:border-primary/20 ${className}`}
+            >
+                {value}
+                <div className="absolute top-0 right-0 opacity-0 group-hover/field:opacity-100 transition-opacity p-1">
+                    <PenTool className="w-3 h-3 text-primary" />
+                </div>
+            </div>
+        );
+    };
 
     useEffect(() => {
         if (!selectedLpTab) {
@@ -120,14 +266,18 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     const renderLpContent = (tabKey: string) => {
         if (tabKey === 'hero') {
-            const data = lpTabsData?.hero;
+            const data = draftLpTabsData?.hero;
             if (!data) return null;
             return (
                 <div className="space-y-6 animate-in fade-in duration-500">
                     <div className="space-y-6">
                         <div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-lg text-[10px] font-black uppercase tracking-widest border border-primary/20">Lead Magnet Activo</div>
-                        <h4 className="text-gray-900 font-black text-3xl leading-tight">{data.h1}</h4>
-                        <p className="text-gray-600 text-lg leading-relaxed">{data.h2}</p>
+                        <h4 className="text-gray-900 font-black text-3xl leading-tight">
+                            <EditableField value={data.h1} onSave={(val) => handleUpdateLpDraft('hero', 'h1', val)} multiline />
+                        </h4>
+                        <div className="text-gray-600 text-lg leading-relaxed">
+                            <EditableField value={data.h2} onSave={(val) => handleUpdateLpDraft('hero', 'h2', val)} multiline />
+                        </div>
                         <div className="h-14 w-full bg-primary rounded-xl shadow-lg flex items-center justify-center text-white font-bold text-lg">RESERVAR MI CUPO</div>
                     </div>
                 </div>
@@ -135,7 +285,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         }
 
         if (tabKey === 'pain') {
-            const items = strategy?.psychology?.pains || [];
+            const items = draftStrategy?.psychology?.pains || [];
             return (
                 <div className="space-y-6 animate-in fade-in duration-500">
                     <div className="space-y-4">
@@ -144,7 +294,9 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             {items.map((item: string, i: number) => (
                                 <div key={i} className="flex gap-4 items-start p-4 bg-red-50 rounded-2xl border border-red-100">
                                     <XCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
-                                    <p className="text-gray-800 text-base leading-snug font-medium">{item}</p>
+                                    <div className="flex-1 text-gray-800 text-base leading-snug font-medium">
+                                        <EditableField value={item} onSave={(val) => handleUpdateStrategyDraft('pains', i, val)} multiline />
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -154,7 +306,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         }
 
         if (tabKey === 'benefits') {
-            const items = strategy?.psychology?.solutions || [];
+            const items = draftStrategy?.psychology?.solutions || [];
             return (
                 <div className="space-y-6 animate-in fade-in duration-500">
                     <div className="space-y-4">
@@ -166,9 +318,15 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 return (
                                     <div key={i} className="flex gap-4 items-center p-4 bg-emerald-50 rounded-[1.5rem] border border-emerald-100">
                                         <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
-                                        <div>
-                                            <p className="text-gray-900 font-bold text-base leading-tight">{title}</p>
-                                            {description && <p className="text-gray-600 text-sm mt-1">{description}</p>}
+                                        <div className="flex-1">
+                                            <div className="text-gray-900 font-bold text-base leading-tight">
+                                                <EditableField value={title} onSave={(val) => handleUpdateStrategyDraft('solutions', i, val, 'title')} />
+                                            </div>
+                                            {description && (
+                                                <div className="text-gray-600 text-sm mt-1">
+                                                    <EditableField value={description} onSave={(val) => handleUpdateStrategyDraft('solutions', i, val, 'description')} multiline />
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 );
@@ -183,14 +341,51 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     };
 
     const renderTyContent = (tabKey: string) => {
-        if (!tyTabsData) return null;
-        const data = tyTabsData[tabKey];
+        if (!draftTyTabsData) return null;
+        const data = draftTyTabsData[tabKey];
         if (!data) return null;
         return (
             <div className="space-y-6 animate-in fade-in duration-500">
-                {data.type === 'header' && (<div className="text-center flex flex-col items-center"><div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-8 border border-emerald-500/30"><Check className="w-10 h-10 text-emerald-400" /></div><h4 className="text-white font-black text-3xl mb-4 leading-tight">{data.content?.h1}</h4><p className="text-gray-400 text-lg">{data.content?.h2}</p></div>)}
-                {data.type === 'action' && (<div className="text-center"><div className="w-full h-2.5 bg-gray-800 rounded-full mb-10 overflow-hidden shadow-inner"><div className="w-[85%] h-full bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.4)] animate-pulse"></div></div><h4 className="text-white font-black text-2xl mb-6">{data.content?.h1}</h4><button className="w-full py-5 bg-[#25D366] rounded-2xl flex items-center justify-center gap-3 text-white font-black text-xl shadow-xl shadow-green-900/40">UNIRME AL GRUPO VIP</button></div>)}
-                {data.type === 'magnet' && (<div className="text-center flex flex-col items-center"><div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center mb-8 border border-primary/30"><Gift className="w-10 h-10 text-primary" /></div><h4 className="text-white font-black text-2xl mb-4 leading-tight">{data.content?.h1}</h4><p className="text-gray-400 text-lg mb-8">{data.content?.h2}</p><div className="w-full py-4 bg-gray-800 rounded-xl border border-gray-700 flex items-center justify-center gap-2 text-gray-300 font-bold"><Download className="w-5 h-5" /> DESCARGAR AHORA</div></div>)}
+                {data.type === 'header' && (
+                    <div className="text-center flex flex-col items-center">
+                        <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-8 border border-emerald-500/30">
+                            <Check className="w-10 h-10 text-emerald-400" />
+                        </div>
+                        <h4 className="text-white font-black text-3xl mb-4 leading-tight">
+                            <EditableField value={data.content?.h1} onSave={(val) => handleUpdateTyDraft(tabKey, 'h1', val)} multiline />
+                        </h4>
+                        <div className="text-gray-400 text-lg">
+                            <EditableField value={data.content?.h2} onSave={(val) => handleUpdateTyDraft(tabKey, 'h2', val)} multiline />
+                        </div>
+                    </div>
+                )}
+                {data.type === 'action' && (
+                    <div className="text-center">
+                        <div className="w-full h-2.5 bg-gray-800 rounded-full mb-10 overflow-hidden shadow-inner">
+                            <div className="w-[85%] h-full bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.4)] animate-pulse"></div>
+                        </div>
+                        <h4 className="text-white font-black text-2xl mb-6">
+                            <EditableField value={data.content?.h1} onSave={(val) => handleUpdateTyDraft(tabKey, 'h1', val)} multiline />
+                        </h4>
+                        <button className="w-full py-5 bg-[#25D366] rounded-2xl flex items-center justify-center gap-3 text-white font-black text-xl shadow-xl shadow-green-900/40">UNIRME AL GRUPO VIP</button>
+                    </div>
+                )}
+                {data.type === 'magnet' && (
+                    <div className="text-center flex flex-col items-center">
+                        <div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center mb-8 border border-primary/30">
+                            <Gift className="w-10 h-10 text-primary" />
+                        </div>
+                        <h4 className="text-white font-black text-2xl mb-4 leading-tight">
+                            <EditableField value={data.content?.h1} onSave={(val) => handleUpdateTyDraft(tabKey, 'h1', val)} multiline />
+                        </h4>
+                        <div className="text-gray-400 text-lg mb-8">
+                            <EditableField value={data.content?.h2} onSave={(val) => handleUpdateTyDraft(tabKey, 'h2', val)} multiline />
+                        </div>
+                        <div className="w-full py-4 bg-gray-800 rounded-xl border border-gray-700 flex items-center justify-center gap-2 text-gray-300 font-bold">
+                            <Download className="w-5 h-5" /> DESCARGAR AHORA
+                        </div>
+                    </div>
+                )}
             </div>
         );
     };
@@ -218,7 +413,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         >
                             <iframe 
                                 className="w-full h-full rounded-2xl"
-                                src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
+                                src="https://www.youtube.com/embed/WUqaWRJG92c?rel=0&controls=1&showinfo=0" 
                                 title="Video Tutorial" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowFullScreen
@@ -263,6 +458,23 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         ))}
                                     </div>
                                     {renderBrowserMockup(renderLpContent(selectedLpTab || 'hero'))}
+                                    
+                                    {hasChanges && (
+                                        <div className="pt-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                            <button 
+                                                onClick={handleSaveAll}
+                                                disabled={isSaving}
+                                                className="w-full py-4 bg-primary hover:bg-primary/90 text-white font-black rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+                                            >
+                                                {isSaving ? (
+                                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                                ) : (
+                                                    <Save className="w-5 h-5" />
+                                                )}
+                                                {isSaving ? "Guardando..." : "Guardar Cambios en la Estrategia"}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
