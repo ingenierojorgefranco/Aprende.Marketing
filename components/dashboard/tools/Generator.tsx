@@ -3,7 +3,7 @@ import confetti from 'canvas-confetti';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
 import { GeneratedPageContent, LandingPage, ColorPalette, StructureType, DestinationConfig, DestinationType, Project, User } from '../../../types';
-import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase, Plus, ArrowRight, ChevronRight, Info, AlertTriangle, X, CheckCircle, ExternalLink, PenTool, Wand2, Globe, ArrowLeft } from 'lucide-react';
+import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase, Plus, ArrowRight, ChevronRight, Info, AlertTriangle, X, CheckCircle, ExternalLink, PenTool, Wand2, Globe, ArrowLeft, PlayCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
 import { UpgradeModal } from '../UpgradeModal';
 
@@ -36,6 +36,8 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
   const [loadingMessage, setLoadingMessage] = useState('');
   const [generatedPageResult, setGeneratedPageResult] = useState<LandingPage | null>(null);
   const [secondsElapsed, setSecondsElapsed] = useState(0);
+  const [showDomainInside, setShowDomainInside] = useState(false);
+  const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
   // -----------------------------
 
   // Limit Check
@@ -51,7 +53,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
     whatsappPhone: '',
     whatsappMessage: 'Hola, quiero más información sobre...',
     palette: 'modern-blue' as ColorPalette,
-    structure: 'classic-sales' as StructureType
+    structure: 'vsl-focused' as StructureType
   });
   const [error, setError] = useState('');
 
@@ -416,6 +418,20 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
 
   const structures: { id: StructureType; name: string; desc: string; wireframe: React.ReactNode }[] = [
     { 
+      id: 'vsl-focused', 
+      name: 'Video Sales Letter (VSL)', 
+      desc: 'Foco en video explicativo + contenido detallado abajo.',
+      wireframe: (
+        <div className="w-full h-24 bg-gray-800 rounded border border-gray-700 flex flex-col gap-1 p-1 overflow-hidden opacity-70">
+           <div className="w-3/4 mx-auto h-2 bg-gray-600 rounded-sm mb-1"></div>
+           <div className="w-full h-12 bg-red-900/40 border border-red-900 rounded-sm flex items-center justify-center">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+           </div>
+           <div className="w-1/2 mx-auto h-3 bg-primary rounded-sm mt-1"></div>
+        </div>
+      )
+    },
+    { 
       id: 'classic-sales', 
       name: 'Carta de Ventas Clásica', 
       desc: 'Estructura larga, completa y persuasiva.',
@@ -428,20 +444,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
               <div className="flex-1 bg-gray-600 rounded-sm"></div>
               <div className="flex-1 bg-gray-600 rounded-sm"></div>
            </div>
-        </div>
-      )
-    },
-    { 
-      id: 'vsl-focused', 
-      name: 'Video Sales Letter (VSL)', 
-      desc: 'Foco en video explicativo + contenido detallado abajo.',
-      wireframe: (
-        <div className="w-full h-24 bg-gray-800 rounded border border-gray-700 flex flex-col gap-1 p-1 overflow-hidden opacity-70">
-           <div className="w-3/4 mx-auto h-2 bg-gray-600 rounded-sm mb-1"></div>
-           <div className="w-full h-12 bg-red-900/40 border border-red-900 rounded-sm flex items-center justify-center">
-              <div className="w-3 h-3 rounded-full bg-red-500"></div>
-           </div>
-           <div className="w-1/2 mx-auto h-3 bg-primary rounded-sm mt-1"></div>
         </div>
       )
     },
@@ -593,71 +595,207 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         {/* --- UI DE ÉXITO --- */}
         {generationStatus === 'success' && generatedPageResult && (
             <div className="fixed inset-0 z-[400] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-500 !mt-0">
-                <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
+                <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-[42rem] p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-600 via-emerald-400 to-emerald-600"></div>
                     
-                    <div className="w-24 h-24 bg-emerald-500/10 text-emerald-500 rounded-[2rem] flex items-center justify-center border border-emerald-500/20 shadow-lg shadow-emerald-900/10 scale-110 animate-bounce">
-                        <CheckCircle className="w-14 h-14" />
-                    </div>
+                    {!showDomainInside ? (
+                        <>
+                            <div className="w-24 h-24 bg-emerald-500/10 text-emerald-500 rounded-[2rem] flex items-center justify-center border border-emerald-500/20 shadow-lg shadow-emerald-900/10 scale-110 animate-bounce">
+                                <CheckCircle className="w-14 h-14" />
+                            </div>
 
-                    <div className="space-y-6">
-                        <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¡Tu Sistema de Ventas está 100% Activo!</h3>
-                        <div className="space-y-4 text-white text-xl leading-relaxed font-medium">
-                            <p>Todas las configuraciones técnicas, enlaces de seguimiento y formularios de captura han sido verificados. Tu embudo está listo para procesar visitantes y convertirlos en prospectos de alta calidad.</p>
-                        </div>
-                    </div>
+                            <div className="space-y-6">
+                                <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¡Tu página de captura ha sido creada correctamente!</h3>
+                                <div className="space-y-4 text-white text-xl leading-relaxed font-medium">
+                                    <p>Ya tienes tu página web lista y configurada para atraer y capturar audiencia interesada en el producto digital que deseas promocionar. <br /><br />usa los siguientes botones para visualizar y finalizar la configuración de tu página de captura.</p>
+                                </div>
+                            </div>
 
-                    <div className="w-full space-y-4 pt-4">
-                        {/* Fila 1 (Visualización) */}
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <a 
-                                href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
-                            >
-                                <ExternalLink className="w-5 h-5" /> Ver Página de Captura
-                            </a>
-                            <a 
-                                href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}/gracias`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex-1 bg-emerald-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-emerald-500 transform hover:scale-[1.03] active:scale-95"
-                            >
-                                <ExternalLink className="w-5 h-5" /> Ver Página de Gracias
-                            </a>
+                            <div className="w-full space-y-4 pt-4">
+                                {/* Fila 1 (Visualización) */}
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <a 
+                                        href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
+                                    >
+                                        <ExternalLink className="w-5 h-5" /> Ver Página de Captura
+                                    </a>
+                                    <a 
+                                        href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}/gracias`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 bg-emerald-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-emerald-500 transform hover:scale-[1.03] active:scale-95"
+                                    >
+                                        <ExternalLink className="w-5 h-5" /> Ver Página de Gracias
+                                    </a>
+                                </div>
+                                {/* Fila 2 (Gestión) */}
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <a 
+                                        href={window.location.hash.startsWith('#/') ? `#/dashboard/editor/${generatedPageResult.id}` : `/dashboard/editor/${generatedPageResult.id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 hover:bg-[#D94A1E] transform hover:scale-[1.03] active:scale-95"
+                                    >
+                                        <PenTool className="w-5 h-5" /> Editar Página de Captura
+                                    </a>
+                                    <button 
+                                        onClick={() => setShowDomainInside(true)}
+                                        className="flex-1 bg-blue-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-blue-500 transform hover:scale-[1.03] active:scale-95"
+                                    >
+                                        <Globe className="w-5 h-5" /> Asignar Dominio
+                                    </button>
+                                </div>
+                                
+                                {/* Botón Cerrar */}
+                                <div className="pt-4 flex justify-center">
+                                    <button 
+                                        onClick={onClose}
+                                        className="w-full py-4 bg-gray-800 text-gray-400 font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all hover:bg-gray-700 hover:text-white"
+                                    >
+                                        Cerrar
+                                    </button>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="w-full text-left animate-in slide-in-from-right-4 duration-300 max-h-[70vh] overflow-y-auto custom-scrollbar pr-2">
+                            <div className="text-center mb-8">
+                                <div className="w-20 h-20 bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/20 shadow-lg shadow-blue-500/10">
+                                    <Globe className="w-10 h-10 text-blue-500" />
+                                </div>
+                                <h2 className="text-3xl font-bold text-white mb-3">Asigna tu Dominio Personalizado</h2>
+                                <p className="text-gray-400 text-lg leading-relaxed max-w-xl mx-auto">
+                                    Conecta tu propio dominio (.com, .net, etc.) para profesionalizar tu marca, aumentar la confianza de tus clientes y disparar tus conversiones.
+                                </p>
+                            </div>
+
+                            {/* Video Tutorial Integrado */}
+                            <div className="mb-8 bg-black/40 border border-white/5 rounded-3xl p-6">
+                                <p className="text-white font-bold mb-4 flex items-center justify-center gap-2">
+                                    <PlayCircle className="w-5 h-5 text-primary" /> Mira el video completo para configurar tu dominio
+                                </p>
+                                <div className="aspect-video w-full bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+                                    <iframe 
+                                        className="w-full h-full"
+                                        src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                                        title="Tutorial Configuración de Dominio" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowFullScreen
+                                    ></iframe>
+                                </div>
+                            </div>
+
+                            {/* Sistema de Acordeón */}
+                            <div className="space-y-4 mb-8">
+                                <div className="border border-gray-800 rounded-2xl overflow-hidden">
+                                    <button 
+                                        onClick={() => setActiveAccordion(activeAccordion === 1 ? null : 1)}
+                                        className="w-full flex items-center justify-between p-5 bg-gray-850 hover:bg-gray-800 transition text-left"
+                                    >
+                                        <span className="font-bold text-white flex items-center gap-3">
+                                            <div className="w-7 h-7 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-xs font-black">1</div>
+                                            Comprar Dominio
+                                        </span>
+                                        {activeAccordion === 1 ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                                    </button>
+                                    {activeAccordion === 1 && (
+                                        <div className="p-6 bg-black/30 border-t border-gray-800 animate-in slide-in-from-top-2 text-center">
+                                            <p className="text-gray-300 text-lg leading-relaxed mb-6">
+                                                Si aún no tienes un dominio, te recomendamos comprarlo en <a href="https://name.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-bold">Name.com</a>. Es una de las plataformas más estables y fáciles de configurar con nuestro sistema.
+                                            </p>
+                                            <a 
+                                                href="https://www.name.com" 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-3 px-10 py-4 bg-primary hover:bg-indigo-600 text-white font-black rounded-2xl transition-all shadow-lg shadow-primary/20 transform hover:scale-105 active:scale-95 mb-4"
+                                            >
+                                                Comprar en Name.com <ExternalLink className="w-5 h-5" />
+                                            </a>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="border border-gray-800 rounded-2xl overflow-hidden">
+                                    <button 
+                                        onClick={() => setActiveAccordion(activeAccordion === 2 ? null : 2)}
+                                        className="w-full flex items-center justify-between p-5 bg-gray-850 hover:bg-gray-800 transition text-left"
+                                    >
+                                        <span className="font-bold text-white flex items-center gap-3">
+                                            <div className="w-7 h-7 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-xs font-black">2</div>
+                                            Configurar Registros DNS
+                                        </span>
+                                        {activeAccordion === 2 ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                                    </button>
+                                    {activeAccordion === 2 && (
+                                        <div className="p-6 bg-black/30 border-t border-gray-800 animate-in slide-in-from-top-2">
+                                            <p className="text-gray-300 text-lg mb-8 font-bold">Accede al panel de tu proveedor de dominio (Name.com, GoDaddy, etc.) y añade estos registros exactamente:</p>
+                                            <div className="overflow-hidden border border-gray-800 rounded-xl shadow-lg">
+                                                <table className="w-full text-base text-left">
+                                                    <thead className="bg-gray-800 text-gray-300 font-black uppercase tracking-widest">
+                                                        <tr>
+                                                            <th className="p-4">Tipo</th>
+                                                            <th className="p-4">Nombre / Host</th>
+                                                            <th className="p-4">Valor / Destino</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-800 text-gray-400 font-mono">
+                                                        <tr className="bg-black/40"><td className="p-4 font-bold text-blue-400">A</td><td className="p-4">@</td><td className="p-4">151.101.1.195</td></tr>
+                                                        <tr className="bg-black/20"><td className="p-4 font-bold text-blue-400">A</td><td className="p-4">@</td><td className="p-4">151.101.65.195</td></tr>
+                                                        <tr className="bg-black/40"><td className="p-4 font-bold text-blue-400">A</td><td className="p-4">@</td><td className="p-4">151.101.129.195</td></tr>
+                                                        <tr className="bg-black/20"><td className="p-4 font-bold text-blue-400">A</td><td className="p-4">@</td><td className="p-4">151.101.193.195</td></tr>
+                                                        <tr className="bg-black/40"><td className="p-4 font-bold text-purple-400">AAAA</td><td className="p-4">@</td><td className="p-4">2a04:4e42::403</td></tr>
+                                                        <tr className="bg-black/20"><td className="p-4 font-bold text-purple-400">AAAA</td><td className="p-4">@</td><td className="p-4">2a04:4e42:200::403</td></tr>
+                                                        <tr className="bg-black/40"><td className="p-4 font-bold text-purple-400">AAAA</td><td className="p-4">@</td><td className="p-4">2a04:4e42:400::403</td></tr>
+                                                        <tr className="bg-black/20"><td className="p-4 font-bold text-purple-400">AAAA</td><td className="p-4">@</td><td className="p-4">2a04:4e42:600::403</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="border border-gray-800 rounded-2xl overflow-hidden">
+                                    <button 
+                                        onClick={() => setActiveAccordion(activeAccordion === 3 ? null : 3)}
+                                        className="w-full flex items-center justify-between p-5 bg-gray-850 hover:bg-gray-800 transition text-left"
+                                    >
+                                        <span className="font-bold text-white flex items-center gap-3">
+                                            <div className="w-7 h-7 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-xs font-black">3</div>
+                                            Finalizar Configuración
+                                        </span>
+                                        {activeAccordion === 3 ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                                    </button>
+                                    {activeAccordion === 3 && (
+                                        <div className="p-8 bg-black/30 border-t border-gray-800 animate-in slide-in-from-top-2 text-center">
+                                            <p className="text-gray-300 text-lg leading-relaxed mb-8">
+                                                Una vez realizados los cambios en tu proveedor, la propagación puede tardar entre 1 y 24 horas. Para finalizar, haz clic en el botón de abajo para que nuestro equipo técnico active tu certificado de seguridad SSL y finalice la vinculación.
+                                            </p>
+                                            <a 
+                                                href={`https://wa.me/573146270784?text=${encodeURIComponent("Hola, me gustaria configurar un nombre de dominio a mi pagina web en www.aprende.marketing")}`}
+                                                target="_blank" 
+                                                rel="noopener noreferrer" 
+                                                className="inline-flex items-center gap-3 px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg rounded-2xl shadow-xl shadow-emerald-900/20 transition-all transform hover:scale-105 active:scale-95 mb-4"
+                                            >
+                                                <MessageCircle className="w-6 h-6" /> Quiero configurar mi dominio
+                                            </a>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="flex justify-center pt-4">
+                                <button 
+                                    onClick={() => setShowDomainInside(false)}
+                                    className="px-10 py-4 bg-gray-800 text-white font-black rounded-2xl transition-all hover:bg-gray-700 flex items-center gap-2"
+                                >
+                                    <ArrowLeft className="w-5 h-5" /> Volver Atrás
+                                </button>
+                            </div>
                         </div>
-                        {/* Fila 2 (Gestión) */}
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <a 
-                                href={window.location.hash.startsWith('#/') ? `#/dashboard/editor/${generatedPageResult.id}` : `/dashboard/editor/${generatedPageResult.id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 hover:bg-[#D94A1E] transform hover:scale-[1.03] active:scale-95"
-                            >
-                                <PenTool className="w-5 h-5" /> Editar Página de Captura
-                            </a>
-                            <button 
-                                onClick={() => {
-                                    setGenerationStatus('idle');
-                                    navigate('/dashboard/pages');
-                                }}
-                                className="flex-1 bg-blue-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-blue-500 transform hover:scale-[1.03] active:scale-95"
-                            >
-                                <Globe className="w-5 h-5" /> Asignar Dominio
-                            </button>
-                        </div>
-                        
-                        {/* Botón Cerrar */}
-                        <div className="pt-4 flex justify-center">
-                            <button 
-                                onClick={onClose}
-                                className="w-full py-4 bg-gray-800 text-gray-400 font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all hover:bg-gray-700 hover:text-white"
-                            >
-                                Cerrar
-                            </button>
-                        </div>
-                    </div>
+                    )}
                 </div>
             </div>
         )}
@@ -910,8 +1048,8 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                                 <div className="mb-3 pointer-events-none">
                                     {s.wireframe}
                                 </div>
-                                <h3 className={`font-bold text-sm mb-1 ${formData.structure === s.id ? 'text-primary' : 'text-white'}`}>{s.name}</h3>
-                                <p className="text-xs text-gray-500 leading-snug">{s.desc}</p>
+                                <h3 className={`font-bold mb-1 ${formData.structure === s.id ? 'text-primary' : 'text-white'}`} style={{ fontSize: '1rem' }}>{s.name}</h3>
+                                <p className="leading-snug" style={{ color: 'rgb(255 255 255)', fontSize: '1rem', paddingTop: '0.7em' }}>{s.desc}</p>
                             </div>
                         ))}
                         </div>
@@ -954,7 +1092,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                         </>
                         ) : (
                         <>
-                            <Sparkles className="w-5 h-5" /> Generar Landing Page
+                            <Sparkles className="w-5 h-5" /> Crear Página de Captura con 1 click
                         </>
                         )}
                     </button>
