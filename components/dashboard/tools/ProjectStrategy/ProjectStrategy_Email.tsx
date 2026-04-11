@@ -206,7 +206,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 setLocalRedirectType(pending.type);
                 setLocalRedirectUrl(pending.url);
             } else if (currentReal) {
-                const defaultType = currentReal.redirectType || 'lead_magnet';
+                // Estrategia: Días 1-3 Lead Magnet, Días 4-7 Hotlink
+                const strategicType = activeEmail < 3 ? 'lead_magnet' : 'hotlink';
+                const defaultType = currentReal.redirectType || strategicType;
                 setLocalRedirectType(defaultType);
                 
                 if (currentReal.redirectUrl) {
@@ -220,9 +222,14 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     setLocalRedirectUrl(undefined);
                 }
             } else {
-                // Default absoluto para correos no generados: Lead Magnet por defecto
-                setLocalRedirectType('lead_magnet');
-                setLocalRedirectUrl(currentProject?.leadMagnetUrl || undefined);
+                // Estrategia para correos no generados aún
+                const strategicType = activeEmail < 3 ? 'lead_magnet' : 'hotlink';
+                setLocalRedirectType(strategicType);
+                if (strategicType === 'lead_magnet') {
+                    setLocalRedirectUrl(currentProject?.leadMagnetUrl || undefined);
+                } else {
+                    setLocalRedirectUrl(projectLinks.length > 0 ? projectLinks[0].url : undefined);
+                }
             }
 
             setIsTypeLocked(true);
@@ -381,13 +388,26 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 const real = realMessages.find(m => m.dayIndex === idx + 1);
                 const pending = pendingConfigs[idx];
                 
+                // Estrategia: Días 1-3 Lead Magnet, Días 4-7 Hotlink
+                const strategicType = idx < 3 ? 'lead_magnet' : 'hotlink';
+                const finalType = pending?.type || real?.redirectType || strategicType;
+                let finalUrl = pending?.url || real?.redirectUrl;
+
+                if (!finalUrl) {
+                    if (finalType === 'lead_magnet') {
+                        finalUrl = currentProject?.leadMagnetUrl || '';
+                    } else if (finalType === 'hotlink' && projectLinks.length > 0) {
+                        finalUrl = projectLinks[0].url;
+                    }
+                }
+
                 return {
                     dayIndex: idx + 1,
                     subject: real?.subject || email.subject,
                     pilarType: real?.pilarType || email.type,
                     purpose: real?.purpose || email.objective,
-                    redirectType: pending?.type || real?.redirectType || 'lead_magnet',
-                    redirectUrl: pending?.url || real?.redirectUrl || (pending?.type === 'lead_magnet' || (!pending?.type && (real?.redirectType === 'lead_magnet' || !real?.redirectType)) ? currentProject?.leadMagnetUrl : (projectLinks.length > 0 ? projectLinks[0].url : ''))
+                    redirectType: finalType,
+                    redirectUrl: finalUrl
                 };
             });
 
