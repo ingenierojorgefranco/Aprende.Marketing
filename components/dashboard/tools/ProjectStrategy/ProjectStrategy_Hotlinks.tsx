@@ -170,12 +170,17 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                                     onChange={(e) => setForm({ ...form, digitalProductUrl: e.target.value })}
                                     placeholder="https://app-vlc.hotmart.com/affiliate-links/..."
                                     disabled={!!project?.masterParentId}
-                                    className={`w-full bg-black border ${project?.masterParentId ? 'border-emerald-500/30 opacity-70' : 'border-white/10'} rounded-2xl py-5 px-8 text-white text-lg outline-none focus:border-emerald-500/50 transition-all shadow-inner placeholder:text-gray-800`}
+                                    className={`w-full bg-black border ${project?.masterParentId ? 'border-emerald-500/30 opacity-70 pr-[180px]' : 'border-white/10'} rounded-2xl py-5 px-8 text-white text-lg outline-none focus:border-emerald-500/50 transition-all shadow-inner placeholder:text-gray-800`}
                                 />
                                 {project?.masterParentId && (
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-[10px] font-black text-emerald-400 uppercase bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20">
-                                        <CheckCircle2 className="w-4 h-4" /> Heredado del Maestro
-                                    </div>
+                                    <a 
+                                        href={form.digitalProductUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-[10px] font-black text-emerald-400 uppercase bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20 hover:bg-emerald-500 hover:text-white transition-all cursor-pointer"
+                                    >
+                                        <CheckCircle2 className="w-4 h-4" /> Afiliarme al Producto
+                                    </a>
                                 )}
                                 {!project?.masterParentId && form.digitalProductUrl && (
                                     <a 

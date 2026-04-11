@@ -11,6 +11,11 @@ const router = express.Router();
 //  HELPERS DE PROCESAMIENTO
 // ======================================================
 
+const DEFAULT_AFFILIATE_LINKS = [
+    { label: 'Hotlink_Precio_Full', url: '' },
+    { label: 'Hotlink_Precio_Descuento', url: '' }
+];
+
 const safeParseJson = (str) => {
     if (!str) return null;
     try {
@@ -94,6 +99,8 @@ router.post('/unlock/:id', async (req, res) => {
         // Se asegura que master_parent_id quede registrado para habilitar la visualización de ganchos del padre
         const finalLeadMagnetType = (leadMagnetType && leadMagnetType.trim() !== '') ? leadMagnetType : master.lead_magnet_type;
         
+        const finalAffiliateLinks = (affiliateLinks && affiliateLinks.length > 0) ? affiliateLinks : DEFAULT_AFFILIATE_LINKS;
+
         const [result] = await pool.query(
             `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, is_master, master_parent_id, digital_product_url, plan_id, plan_slug, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, NOW(), NOW())`,
@@ -108,7 +115,7 @@ router.post('/unlock/:id', async (req, res) => {
                 master.main_goal, 
                 master.pain_points, 
                 master.key_benefits, 
-                JSON.stringify(affiliateLinks || []), 
+                JSON.stringify(finalAffiliateLinks), 
                 master.full_price, 
                 master.commission_rate, 
                 finalLeadMagnetType, 
@@ -304,10 +311,12 @@ router.post('/', async (req, res) => {
     const planId = starterPlan[0]?.id || null;
     const planSlug = starterPlan[0]?.slug || 'starter';
 
+    const finalAffiliateLinks = (affiliateLinks && affiliateLinks.length > 0) ? affiliateLinks : DEFAULT_AFFILIATE_LINKS;
+
     const [result] = await pool.query(
       `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, multimedia_json, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, digital_product_url, is_master, plan_id, plan_slug, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-      [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []), strategy_json ? JSON.stringify(strategy_json) : null, req.body.multimedia_json ? JSON.stringify(req.body.multimedia_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', digitalProductUrl || '', isMasterFinal, planId, planSlug]
+      [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(finalAffiliateLinks), strategy_json ? JSON.stringify(strategy_json) : null, req.body.multimedia_json ? JSON.stringify(req.body.multimedia_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', digitalProductUrl || '', isMasterFinal, planId, planSlug]
     );
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name });
     clearLimitsCache(req.user.id);
