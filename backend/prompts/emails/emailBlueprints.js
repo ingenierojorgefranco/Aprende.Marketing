@@ -16,43 +16,45 @@ export const GLOBAL_CONFIG = {
 export const EMAIL_BLUEPRINTS = {
     'Bienvenida + Valor': {
         goal: "Dar la bienvenida al usuario, entregar el recurso prometido (lead magnet) y preparar el terreno para los siguientes correos.",
-        structure: "1. Asunto llamativo y natural (no spam)\n2. Preheader corto complementario\n3. Saludo cercano usando [Firstname]\n4. Bienvenida emocional (reconocer la decisión del usuario)\n5. Entrega del recurso con llamada a la acción (ej: acceder a guía, clase, etc.)\n6. Mini insight: explicar por qué la mayoría falla (sin atacar, pero generando conciencia)\n7. Introducción sutil a lo que vendrá en la secuencia (crear expectativa)\n8. Cierre cercano y humano",
+        structure: "1. Asunto llamativo y natural (no spam)\n2. Preheader corto complementario\n3. Saludo cercano usando [Firstname]\n4. Bienvenida emocional (reconocer la decisión del usuario de querer conocer o aprender más sobre la técnica o enfoque del curso, añade el nicho como tal del curso)\n5. Entrega del recurso con llamada a la acción (ej: acceder a la guía, clase profesional, etc.)\n6. Mini insight: explicar por qué la mayoría falla (sin atacar, pero generando conciencia)\n7. Introducción sutil a lo que vendrá en la secuencia (crear expectativa)\n8. Cierre cercano y humano",
         copywritingTips: "Usa un tono entusiasta y profesional. Haz que el usuario se sienta inteligente por haber tomado la decisión de descargar el material.",
         example: `Asunto: Aquí tienes lo prometido + algo importante que debes saber
 
 Hola [Firstname],
 
-Primero que nada, quiero darte la bienvenida.
+Primero que nada, quiero darte la bienvenida a muestra comunidad oficial de emprendedores y apasionados por la Resina Epóxica
 
-Acabas de dar un paso que muchas personas llevan tiempo posponiendo: empezar a hacer algo diferente para mejorar sus ingresos.
+Acabas de dar un paso que muchas personas llevan tiempo posponiendo: 
+
+- empezar a hacer algo diferente para mejorar sus ingresos.
 
 And eso ya dice mucho de ti.
 
-Tal como te prometí, aquí tienes tu acceso a [recurso / guía / clase gratuita]:
+Tal como te prometí, y para ir directo al granom aquí tienes tu acceso a nuestra [recurso / guía / clase gratuita]:
 
-👉 [Acceder ahora]
+👉 [Haz clic para ver la Clase/Guia/Recurso Gratuito]
 
-Pero antes de que entres, hay algo importante que debes entender.
+Pero espera!!! Antes de que entres a la Clase/Guia/Recurso Gratuito, hay algo importante que debes entender.
 
-La mayoría de personas falla no porque el método no funcione…
+La mayoría de personas falla y no tiene éxito en esta gran oportunidad no porque el método no funcione…
 sino porque no tienen una guía clara paso a paso.
 
-Saltar de video en video, probar cosas sin dirección o depender de “trucos rápidos” solo genera frustración.
+Saltar de video en video, probar cosas sin dirección o depender de “trucos rápidos” solo genera frustración y perdida de tiempo.
 
-Por eso, en los próximos días te voy a mostrar algo diferente.
+Por eso, en los próximos días te voy a compartir algo diferente que no te mostrarán en ningún otro lugar.
 
 No solo teoría…
 sino una forma real de empezar, incluso si sientes que no tienes experiencia o no sabes por dónde comenzar.
 
 Mi objetivo es simple:
 
-👉 ayudarte a que entiendas cómo convertir esto en una oportunidad real.
+👉 ayudarte a que entiendas cómo convertir esta técnica/metodologia/método en una oportunidad real.
 
-Por ahora, empieza por aquí:
+Pero por ahora, empieza ingresando a nuestra Clase/Guia/Recurso Gratuito:
 
-👉 [Acceder al contenido]
+👉 [Haz clic para ver la Clase/Guia/Recurso Gratuito]
 
-Nos vemos mañana, porque lo que viene puede cambiar completamente tu forma de ver esto.
+Nos vemos mañana, porque lo que viene puede cambiar completamente tu forma de ver esta oportunidad única.
 
 Un abrazo,
 
@@ -71,48 +73,56 @@ Preheader: Esto puede cambiar cómo ves tu futuro hoy
 
 Hola [Firstname],
 
-Déjame decirte algo directo:
+Ayer te compartí el acceso a la Clase/Guia/Recurso Gratuito y hoy quiero decirte algo que necesitas saber:
 
 No necesitas experiencia para empezar.
 
-Lo que necesitas es un sistema claro.
+Lo que necesitas es un sistema claro, que te funcione, un sistema diseñado para guiarte.
 
-La mayoría de personas cree que para ganar dinero en estética necesitas:
+La mayoría de personas cree que para ganar dinero con la poderosa técnica de Resina Epóxica necesitas:
 
-Años de práctica
-Talento natural
-O contactos
+- Años de práctica
+- Talento natural
+- O contactos
 
 Y eso no es verdad.
 
 👉 La realidad es mucho más simple:
 
-Las personas que hoy están ganando dinero con microblading empezaron igual que tú…
+Las personas que hoy están ganando dinero con Resina Epózica empezaron igual que tú…
 Con dudas, miedo… y cero experiencia.
 
 La única diferencia es que tuvieron una guía paso a paso.
 
 Porque cuando tienes:
+
 ✔️ Un método claro
 ✔️ Prácticas guiadas
 ✔️ Y un camino definido
 
-El proceso deja de ser confuso… y se vuelve ejecutable.
+El proceso deja de ser confuso… y se vuelve fácilmente realizable.
 
 Y ahí es donde todo cambia.
 
 Porque pasas de pensar:
 
-“Esto no es para mí”
+“Esto no es para mí y no soy capaz”
 
 A darte cuenta de:
 
-“Esto sí es posible… si alguien me guía.”
+“Esto sí es posible… si alguien me guía y me explica paso a paso.”
 
-Mañana te voy a contar algo importante…
+y justo por eso, Mañana te voy a contar algo importante…
 
-👉 La historia real de alguien que empezó desde cero
-y logró cambiar completamente su situación.
+👉 La historia real de una de las personas de más éxito que conozco que empezó desde cero
+y logró cambiar completamente su situación económica, laboral y personal.
+
+Esto será oro puro para tu vida.
+
+Por otro lado, si aún no has visto completa nuestra Clase/Guia/Recurso Gratuito:
+
+👉 [Haz clic para ver la Clase/Guia/Recurso Gratuito]
+
 
 Atenta.
 
