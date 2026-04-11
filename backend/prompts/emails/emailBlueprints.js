@@ -5,7 +5,8 @@
 export const GLOBAL_CONFIG = {
     tone: "Mentor-Amigo: Empático, cercano, basado en la experiencia personal y autoridad suave. Habla como alguien que ya recorrió el camino y entiende perfectamente las dudas del usuario.",
     formatting: "Párrafos cortos (máximo 2-3 líneas) para lectura rápida. Uso estratégico de emojis para guiar la vista. Usa negritas (<strong>) para resaltar conceptos clave y frases de alto impacto. Estructura visual limpia con espacios en blanco.",
-    avoid: "Promesas exageradas, lenguaje corporativo o robótico, bloques de texto densos, sonar como un vendedor agresivo."
+    avoid: "Promesas exageradas, lenguaje corporativo o robótico, bloques de texto densos, sonar como un vendedor agresivo.",
+    linkStrategy: "CRÍTICO: Adapta el tono al TIPO DE ENLACE. Si es Lead Magnet (Días 1-3), el tono es de entrega de regalo y ayuda desinteresada. Si es Hotlink (Días 4-7), el tono es de oportunidad, urgencia y transformación a través del producto de pago."
 };
 
 /**
@@ -268,9 +269,9 @@ Un abrazo,
 Tu Equipo`
     },
     'Objeciones': {
-        goal: "Eliminar las dudas más comunes (tiempo, dinero, capacidad) validando la emoción del usuario para reducir el riesgo percibido.",
+        goal: "Eliminar las dudas más comunes (tiempo, dinero, capacidad) validando la emotion del usuario para reducir el riesgo percibido.",
         structure: "1. Asunto que conecte con pensamientos internos\n2. Preheader breve\n3. Introducción validando dudas\n4. Lista de objeciones comunes\n5. Respuestas claras a cada objeción\n6. Reencuadre positivo (sí es posible)\n7. Pregunta poderosa que genere reflexión\n8. Transición al siguiente email",
-        copywritingTips: "Tono empático, cercano y humano. Validar las dudas del usuario (no atacarlas). Responder objeciones con lógica simple. Usar contraste (no es X, es Y). Generar Seguridad, Claridad y Control.",
+        copywritingTips: "Tono empático, cercano y humano. Validar las dudas del usuario (no atacarlas). Responder objeciones con lógica simple. Usar contraste (no es X, es Y). Generar Seguridad, Claridad y Control. ENFOQUE DE VENTA: Este correo dirige al HOTLINK, por lo que el cierre debe ser una invitación a la oferta.",
         constraints: "No vender agresivamente, no minimizar al usuario, no prometer resultados irreales. Longitud: 200–300 palabras. Objeciones a tratar: Falta de tiempo, Falta de experiencia, Miedo a fallar, Duda sobre inversión.",
         example: `Asunto: Sé lo que estás pensando…
 Preheader: Y es totalmente normal
@@ -342,7 +343,7 @@ Tu Equipo`
     'Caso de éxito': {
         goal: "Mostrar un caso de éxito realista para generar prueba social y confianza. Demostrar que sí funciona en la vida real, reducir el miedo final y activar el pensamiento: 'si ella pudo, yo también'.",
         structure: "1. Asunto basado en resultado o historia\n2. Preheader breve\n3. Introducción directa (esto es real)\n4. Presentación del caso (persona común)\n5. Inicio con dudas/miedos\n6. Proceso paso a paso (aprendizaje, práctica)\n7. Primeros resultados (pequeños logros)\n8. Resultado actual (mejora real)\n9. Reflexión final\n10. Pregunta al lector\n11. Transición al cierre (día siguiente)",
-        copywritingTips: "Usa storytelling realista (sin exagerar). Tono cercano, humano. Evitar promesas irreales. Mostrar progreso gradual (no éxito instantáneo). Enfócate en que el resultado viene de seguir un sistema.",
+        copywritingTips: "Usa storytelling realista (sin exagerar). Tono cercano, humano. Evitar promesas irreales. Mostrar progreso gradual (no éxito instantáneo). Enfócate en que el resultado viene de seguir un sistema. ENFOQUE DE VENTA: Este correo dirige al HOTLINK, vincula el éxito con el producto de pago.",
         constraints: "No exagerar ingresos, no usar lenguaje agresivo, mantener credibilidad. Longitud: 200–300 palabras.",
         example: `Asunto: Esto fue lo que pasó cuando decidió empezar
 Preheader: No fue magia… fue decisión
@@ -426,7 +427,7 @@ Tu Equipo`
     'Cierre / Oferta': {
         goal: "Cerrar la venta de forma clara, sin presión agresiva. Convertir sin fricción, dar claridad total del siguiente paso y activar la decisión (no presión).",
         structure: "1. Asunto directo (decisión)\n2. Preheader breve\n3. Recapitulación breve de lo aprendido\n4. Planteamiento de decisión (seguir igual vs avanzar)\n5. Reforzar que nunca hay momento perfecto\n6. Presentación de la oferta (sin exagerar)\n7. Lista de beneficios claros (3-5 puntos)\n8. CTA claro (acceder ahora)\n9. Cierre con pregunta reflexiva",
-        copywritingTips: "Tono firme pero cercano. Enfocado en decisión, no en presión. Lenguaje simple. Generar claridad. No es 'vender', es recoger la decisión que ya se viene formando.",
+        copywritingTips: "Tono firme pero cercano. Enfocado en decisión, no en presión. Lenguaje simple. Generar claridad. No es 'vender', es recoger la decisión que ya se viene formando. ENFOQUE DE VENTA: Este correo dirige al HOTLINK, es el empujón final.",
         constraints: "No usar urgencia falsa, no presionar agresivamente, no prometer resultados irreales, enfocarse en decisión personal. Longitud: 180–250 palabras.",
         example: `Asunto: Es tu momento de decidir
 Preheader: Puedes seguir igual… o empezar hoy

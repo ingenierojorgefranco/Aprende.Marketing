@@ -305,7 +305,11 @@ export const generateFullStrategy = async (projectId) => {
         
 
         INSTRUCCIONES PARA CONTENIDOS DE EMAIL emails (OBLIGATORIO):
-       Actúa como un Copywriter Senior experto en Marketing de Respuesta Directa. Tu misión es redactar una secuencia de titulos y contenidos de 7 correos electrónicos (Día 1 al Día 7) diseñada para convertir prospectos en compradores del producto
+       Actúa como un Copywriter Senior experto en Marketing de Respuesta Directa. Tu misión es redactar una secuencia de titulos y contenidos de 7 correos electrónicos (Día 1 al Día 7) diseñada para convertir prospectos en compradores del producto.
+        
+        ESTRATEGIA DE ENLACES (CRÍTICA):
+        - Días 1, 2 y 3: El objetivo es la ENTREGA DE VALOR. Los correos deben dirigir al Lead Magnet (Clase Gratuita/Regalo). Los títulos y el cuerpo deben generar deseo de consumo del regalo.
+        - Días 4, 5, 6 y 7: El objetivo es la CONVERSIÓN/VENTA. Los correos deben dirigir al Hotlink (Página de Ventas/Checkout). Los títulos y el cuerpo deben enfocarse en la oferta, beneficios del producto de pago, escasez y urgencia.
         
         REGLA DE COHERENCIA DE VERBOS:
         Si el Lead Magnet es un PDF, Guía o Ebook, utiliza verbos como "Descargar", "Leer", "Revisar el archivo".
@@ -876,6 +880,7 @@ export const generateEmailSequenceContent = async (projectId, sequenceData, type
         - Objetivo Psicológico: ${blueprint.goal}
         - Estructura Obligatoria: ${blueprint.structure}
         - Tips de Copywriting: ${blueprint.copywritingTips}
+        - TIPO DE ENLACE: ${s.redirectType === 'lead_magnet' ? 'REGALO / LEAD MAGNET (Clase/PDF)' : 'OFERTA / HOTLINK (Venta)'}
         ${blueprint.constraints ? `- RESTRICCIONES ESPECÍFICAS: ${blueprint.constraints}\n` : ''}
         ${blueprint.example ? `- EJEMPLO DE REFERENCIA (Mimetiza este estilo, ritmo y estructura, pero adáptalo al producto real):\n${blueprint.example}\n` : ''}
         - URL de Redirección: ${s.redirectUrl || '[LINK]'}
@@ -891,7 +896,10 @@ export const generateEmailSequenceContent = async (projectId, sequenceData, type
     - BOTÓN CTA: Incluye un botón de llamado a la acción (CTA) llamativo. Usa una etiqueta <a href="[URL_DE_REDIRECCION_DEL_DIA]"> con los siguientes estilos inline: 
       display: inline-block; padding: 15px 30px; background-color: #FF5A1F; color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: bold; margin: 30px 0;
       IMPORTANTE: Debes reemplazar [URL_DE_REDIRECCION_DEL_DIA] con la "URL de Redirección" proporcionada para el día correspondiente. Si la URL proporcionada es solo un slug (ej: "mi-pagina"), anteponle "${process.env.APP_URL || ''}/".
-      TEXTO DEL BOTÓN: ${type === 'conversion' ? 'El texto del botón debe ser un llamado a la acción directo de venta como "¡Haz clic para Unirte ahora!" o "¡Quiero mi acceso ahora!". Prohibido usar "Ver Clase Gratuita Ahora".' : 'El texto del botón debe invitar a leer más o profundizar en el valor aportado.'}
+      TEXTO DEL BOTÓN: El texto debe ser coherente con el TIPO DE ENLACE. 
+      Si el enlace es REGALO/LEAD MAGNET: Usa "Ver Clase Ahora", "Descargar Regalo", "Acceder al Contenido".
+      Si el enlace es OFERTA/HOTLINK: Usa "Quiero mi acceso ahora", "Unirme al programa", "Aprovechar oferta".
+      Prohibido usar textos genéricos como "Haga clic aquí".
     - FIRMA: Al final del cuerpo, añade una despedida cordial con el nombre de la profesora "<strong>${teacherInfo.name}</strong>" y en la línea de abajo su cargo "${teacherInfo.title || 'Especialista'}". No añadas textos adicionales de ayuda.
     - POSDATA (Pdta:): Después de la firma, añade una posdata usando estrictamente el prefijo "<strong>Pdta:</strong>". El contenido debe ser un consejo directo y persuasivo basado en: "${teacherInfo.transformation_tip}". No incluyas el texto "Tip de transformación".
     
