@@ -280,7 +280,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         // Actualización optimista del estado local para interactividad inmediata
         if (field === 'redirectType') {
             setLocalRedirectType(value);
-            // Guardar en configuración pendiente para persistencia entre pestañas
+            
             let defaultUrl = '';
             if (value === 'lead_magnet') {
                 defaultUrl = currentProject?.leadMagnetUrl || '';
@@ -288,11 +288,15 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 defaultUrl = projectLinks[0].url;
             }
 
+            // Si es externo, forzamos que esté en blanco como pidió el usuario
+            const finalUrl = value === 'external' ? '' : defaultUrl;
+            setLocalRedirectUrl(finalUrl);
+
             setPendingConfigs(prev => ({
                 ...prev,
                 [activeEmail]: { 
                     type: value, 
-                    url: prev[activeEmail]?.url || defaultUrl
+                    url: finalUrl
                 }
             }));
         }
@@ -1001,7 +1005,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                         <label className="block text-sm font-bold text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
                                             <Target className="w-4 h-4 text-orange-500" /> ¿Dónde dirigir a tu audiencia?
                                         </label>
-                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div 
                                                 onClick={() => {
                                                     if (!currentProject?.leadMagnetUrl) {
@@ -1051,19 +1055,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                     <p className="text-xs text-gray-500 font-medium leading-relaxed">Usa directamente tus enlaces de afiliado de Hotmart.</p>
                                                 </div>
                                             </div>
-
-                                            <div 
-                                                onClick={() => handleUpdateMessage('redirectType', 'external')}
-                                                className={`p-6 rounded-3xl border transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${localRedirectType === 'external' ? 'bg-purple-600/10 border-purple-500 ring-4 ring-purple-500/5' : 'bg-white/5 border-white/5 hover:border-white/10'}`}
-                                            >
-                                                <div className={`p-4 rounded-2xl transition-colors ${localRedirectType === 'external' ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/20' : 'bg-white/5 text-gray-500'}`}>
-                                                    <ExternalLink className="w-6 h-6" />
-                                                </div>
-                                                <div>
-                                                    <h4 className={`font-bold text-sm uppercase tracking-widest mb-1 ${localRedirectType === 'external' ? 'text-white' : 'text-gray-400'}`}>Link Externo</h4>
-                                                    <p className="text-xs text-gray-500 font-medium leading-relaxed">Cualquier otra página web externa que desees promocionar.</p>
-                                                </div>
-                                            </div>
                                         </div>
                                         
                                         <div className="mt-4">
@@ -1082,18 +1073,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                             <option key={p.id} value={p.id}>{p.name}</option>
                                                         ))}
                                                     </select>
-                                                </div>
-                                            )}
-
-                                            {localRedirectType === 'external' && (
-                                                <div className="animate-in fade-in slide-in-from-top-2">
-                                                    <input
-                                                        type="text"
-                                                        value={localRedirectUrl || ''}
-                                                        onChange={(e) => handleUpdateMessage('redirectUrl', e.target.value)}
-                                                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition"
-                                                        placeholder="https://ejemplo.com/tu-enlace"
-                                                    />
                                                 </div>
                                             )}
                                             
@@ -1162,6 +1141,43 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                             )}
                                                         </div>
                                                     )}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Sección de Link Externo */}
+                                        <div className="mt-8 pt-6 border-t border-white/5">
+                                            {localRedirectType !== 'external' ? (
+                                                <button 
+                                                    onClick={() => handleUpdateMessage('redirectType', 'external')}
+                                                    className="text-sm font-bold text-gray-500 hover:text-white transition-all flex items-center gap-2 ml-1 group"
+                                                >
+                                                    <div className="p-2 rounded-lg bg-white/5 group-hover:bg-purple-500/20 transition-all">
+                                                        <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-purple-400" />
+                                                    </div>
+                                                    ¿Tienes un enlace externo?
+                                                </button>
+                                            ) : (
+                                                <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                                                    <div className="flex items-center justify-between ml-1">
+                                                        <span className="text-xs font-bold text-purple-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                                                            <ExternalLink className="w-4 h-4" /> Enlace Externo Seleccionado
+                                                        </span>
+                                                        <button 
+                                                            onClick={() => handleUpdateMessage('redirectType', 'hotlink')}
+                                                            className="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-white transition-all"
+                                                        >
+                                                            [ Cambiar ]
+                                                        </button>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500 font-medium ml-1">Cualquier otra página web externa que desees promocionar.</p>
+                                                    <input
+                                                        type="text"
+                                                        value={localRedirectUrl || ''}
+                                                        onChange={(e) => handleUpdateMessage('redirectUrl', e.target.value)}
+                                                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none transition"
+                                                        placeholder="Escribe tu enlace externo"
+                                                    />
                                                 </div>
                                             )}
                                         </div>

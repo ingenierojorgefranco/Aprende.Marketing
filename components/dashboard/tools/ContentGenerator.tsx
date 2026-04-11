@@ -4,7 +4,7 @@ import { generateArticleTitles, generateArticleOutline, generateFullArticle, Art
 import { api } from '../../../services/api';
 import { Article, Project, LandingPage, User, AffiliateLink } from '../../../types';
 import { useParams, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
-import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle, Zap, Link as LinkIcon, ExternalLink, MousePointerClick, X, CheckCircle, Target, Wand2, PenTool, Eye } from 'lucide-react';
+import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle, Zap, Link as LinkIcon, ExternalLink, MousePointerClick, X, CheckCircle, Target, Wand2, PenTool, Eye, Gift } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 // Importing Sub-Components from relative sibling folder
@@ -65,7 +65,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   const [keyword, setKeyword] = useState('');
 
   const [isAiGeneratedFlow, setIsAiGeneratedFlow] = useState(false);
-  const [redirectType, setRedirectType] = useState<'landing' | 'hotlink' | 'external'>('landing');
+  const [redirectType, setRedirectType] = useState<'landing' | 'hotlink' | 'external' | 'lead_magnet'>('landing');
   const [showManualConfirm, setShowManualConfirm] = useState(false);
 
   const [userProjects, setUserProjects] = useState<Project[]>([]);
@@ -923,9 +923,32 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                             <div>
                                 <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">¿Dónde dirigir a tus visitantes?</label>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div 
+                                        onClick={() => { 
+                                            const proj = userProjects.find(p => p.id === selectedProject);
+                                            if (!proj?.leadMagnetUrl) {
+                                                alert("Para usar esta opción, primero debes configurar tu Lead Magnet en la sección de Hotlinks del proyecto.");
+                                                return;
+                                            }
+                                            setRedirectType('lead_magnet'); 
+                                            setCtaLink(proj.leadMagnetUrl);
+                                            setValidationError(false);
+                                        }} 
+                                        className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${redirectType === 'lead_magnet' ? 'bg-emerald-600/10 border-emerald-500 shadow-lg shadow-emerald-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
+                                    >
+                                        <div className={`p-4 rounded-2xl transition-colors ${redirectType === 'lead_magnet' ? 'bg-emerald-500 text-white' : 'bg-white/5 text-gray-500'}`}>
+                                            <Gift className="w-8 h-8" />
+                                        </div>
+                                        <div>
+                                            <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${redirectType === 'lead_magnet' ? 'text-white' : 'text-gray-400'}`}>Lead Magnet</h4>
+                                            <p className="text-[10px] text-gray-500 font-medium leading-relaxed">
+                                                {userProjects.find(p => p.id === selectedProject)?.leadMagnetUrl ? 'Regalo configurado listo.' : 'Configurar enlace de regalo.'}
+                                            </p>
+                                        </div>
+                                    </div>
+
                                     <div onClick={() => { setRedirectType('landing'); if (selectedPageId) handlePageRedirectSelect(selectedPageId); }} className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${redirectType === 'landing' ? 'bg-blue-600/10 border-blue-500 shadow-lg shadow-blue-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}><div className={`p-4 rounded-2xl transition-colors ${redirectType === 'landing' ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-500'}`}><Globe className="w-8 h-8" /></div><div><h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${redirectType === 'landing' ? 'text-white' : 'text-gray-400'}`}>Landing Page</h4><p className="text-[10px] text-gray-500 font-medium leading-relaxed">Envía el tráfico a una de tus páginas internas.</p></div></div>
                                     <div onClick={() => { setRedirectType('hotlink'); setCtaLink(''); }} className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${redirectType === 'hotlink' ? 'bg-[#FF5A1F]/10 border-[#FF5A1F] shadow-lg shadow-orange-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}><div className={`p-4 rounded-2xl transition-colors ${redirectType === 'hotlink' ? 'bg-[#FF5A1F] text-white' : 'bg-white/5 text-gray-500'}`}><LinkIcon className="w-8 h-8" /></div><div><h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${redirectType === 'hotlink' ? 'text-white' : 'text-gray-400'}`}>Hotlink Proyecto</h4><p className="text-[10px] text-gray-500 font-medium leading-relaxed">Usa tus enlaces de afiliado de Hotmart.</p></div></div>
-                                    <div onClick={() => { setRedirectType('external'); setCtaLink(''); }} className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${redirectType === 'external' ? 'bg-purple-600/10 border-purple-500 shadow-lg shadow-purple-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}><div className={`p-4 rounded-2xl transition-colors ${redirectType === 'external' ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-500'}`}><ExternalLink className="w-8 h-8" /></div><div><h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${redirectType === 'external' ? 'text-white' : 'text-gray-400'}`}>Link Externo</h4><p className="text-[10px] text-gray-500 font-medium leading-relaxed">Cualquier otra página web externa.</p></div></div>
                                 </div>
                                 <div className="mt-4">
                                     {redirectType === 'landing' && (
@@ -945,22 +968,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                                             )}
                                         </div>
                                     )}
-                                    {redirectType === 'external' && (
-                                        <div className="animate-in fade-in slide-in-from-top-2 relative">
-                                            <input 
-                                                type="text" 
-                                                value={ctaLink} 
-                                                onChange={(e) => { setCtaLink(e.target.value); setValidationError(false); }} 
-                                                className={`w-full bg-black border ${validationError && !ctaLink ? 'border-red-500 ring-2 ring-red-500/20' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition`} 
-                                                placeholder="https://ejemplo.com/tu-enlace" 
-                                            />
-                                            {validationError && !ctaLink && (
-                                                <div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse">
-                                                    <AlertTriangle className="w-3 h-3" /> Enlace externo obligatorio
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
+                                    
                                     {redirectType === 'hotlink' && (
                                         <div className="animate-in fade-in slide-in-from-top-2 space-y-4">
                                             {isAddingNewLink ? (
@@ -990,6 +998,54 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                                                     )}
                                                 </div>
                                             )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Sección de Link Externo */}
+                                <div className="mt-8 pt-6 border-t border-white/5">
+                                    {redirectType !== 'external' ? (
+                                        <button 
+                                            onClick={() => {
+                                                setRedirectType('external');
+                                                setCtaLink('');
+                                                setValidationError(false);
+                                            }}
+                                            className="text-sm font-bold text-gray-500 hover:text-white transition-all flex items-center gap-2 ml-1 group"
+                                        >
+                                            <div className="p-2 rounded-lg bg-white/5 group-hover:bg-purple-500/20 transition-all">
+                                                <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-purple-400" />
+                                            </div>
+                                            ¿Tienes un enlace externo?
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                                            <div className="flex items-center justify-between ml-1">
+                                                <span className="text-xs font-bold text-purple-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                                                    <ExternalLink className="w-4 h-4" /> Enlace Externo Seleccionado
+                                                </span>
+                                                <button 
+                                                    onClick={() => setRedirectType('hotlink')}
+                                                    className="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-white transition-all"
+                                                >
+                                                    [ Cambiar ]
+                                                </button>
+                                            </div>
+                                            <p className="text-xs text-gray-500 font-medium ml-1">Cualquier otra página web externa que desees promocionar.</p>
+                                            <div className="relative">
+                                                <input 
+                                                    type="text" 
+                                                    value={ctaLink} 
+                                                    onChange={(e) => { setCtaLink(e.target.value); setValidationError(false); }} 
+                                                    className={`w-full bg-black border ${validationError && !ctaLink ? 'border-red-500 ring-2 ring-red-500/20' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none transition`} 
+                                                    placeholder="Escribe tu enlace externo" 
+                                                />
+                                                {validationError && !ctaLink && (
+                                                    <div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse">
+                                                        <AlertTriangle className="w-3 h-3" /> Enlace externo obligatorio
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     )}
                                 </div>

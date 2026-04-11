@@ -52,7 +52,7 @@ Mi objetivo es simple:
 
 Pero por ahora, empieza ingresando a nuestra Clase/Guia/Recurso Gratuito:
 
-👉 [Haz clic para ver la Clase/Guia/Recurso Gratuito]
+👉 [Haz clic para ver la Clase Gratuita / Guia Gratuita / Recurso Gratuito (Segun el LeadMagnet)]
 
 Nos vemos mañana, porque lo que viene puede cambiar completamente tu forma de ver esta oportunidad única.
 
@@ -61,7 +61,9 @@ Un abrazo,
 [Nombre del Profesor]
 [Cargo del Profesor]
 
-Pdata: Piensa que hoy es el gran cambio que has esperado en tu vida, hoy tienes en tus manos la posibilidad de lograr lo que siempre has imaginado.`
+Pdata: Piensa que hoy es el gran cambio que has esperado en tu vida, hoy tienes en tus manos la posibilidad de lograr lo que siempre has imaginado.
+
+`
     },
     'Romper Creencias': {
         goal: "Romper creencias limitantes del usuario sobre empezar desde cero.",
@@ -119,15 +121,21 @@ y logró cambiar completamente su situación económica, laboral y personal.
 
 Esto será oro puro para tu vida.
 
-Por otro lado, si aún no has visto completa nuestra Clase/Guia/Recurso Gratuito:
+Por otro lado, si aún no has ingresado a nuestra Clase/Guia/Recurso Gratuito, haz clic en el siguiente enlace.
+No pierdas esta gran oportunidad de conocer todos los detalles de esta técnica que está cambiando la vida de miles de personas en todo el mundo.
 
-👉 [Haz clic para ver la Clase/Guia/Recurso Gratuito]
+👉 [Haz clic para ver la Clase Gratuita / Guia Gratuita / Recurso Gratuito (Segun el LeadMagnet)]
 
 
 Atenta.
 
-Un abrazo,
-Tu Equipo`
+[Nombre del Profesor]
+[Cargo del Profesor]
+
+Pdata: Piensa que hoy es el gran cambio que has esperado en tu vida, hoy tienes en tus manos la posibilidad de lograr lo que siempre has imaginado.
+
+
+`
     },
     'Historia / Conexión': {
         goal: "Generar conexión emocional profunda a través de una historia realista de identificación.",
@@ -139,13 +147,11 @@ Preheader: Hasta que decidió intentarlo…
 
 Hola [Firstname],
 
-Quiero contarte algo que probablemente te suene familiar…
+Quiero contarte la historia de Adriana. Ella trabajaba de 8 a 6, muchas horas ganando el sueldo mínimo y sintiendo que su vida estaba estancada en un empleo que no le permitía soñar. 😔
 
-Hace no mucho, una chica estaba exactamente donde tú estás ahora.
-
-Trabajando muchas horas…
-Ganando menos de lo que merecía…
-Y sintiendo que su vida no avanzaba.
+- Trabajando muchas horas…
+- Ganando menos de lo que merecía…
+- Y sintiendo que su vida no avanzaba.
 
 Tenía miedo.
 
@@ -156,7 +162,7 @@ Miedo a no ser capaz.
 Y lo más duro…
 
 👉 Sentía que otras personas avanzaban…
-mientras ella seguía en el mismo lugar.
+mientras el seguía en el mismo lugar.
 
 Un día tomó una decisión simple:
 
@@ -190,15 +196,33 @@ Ahora te hago una pregunta:
 
 👉 ¿Y si dentro de unos meses eres tú la que cuenta esta historia?
 
-Mañana voy a enseñarte algo clave:
+Hoy te cuento que eso es posible, pero no es algo mágico, es algo que requiere acción, paciencia y dedicación.
 
+Lo bueno es que hoy puedes empezar ingresado a nuestra Clase/Guia/Recurso Gratuito
+No pierdas esta gran oportunidad de conocer todos los detalles de esta técnica que está cambiando la vida de miles de personas en todo el mundo.
+
+👉 [Haz clic para ver la Clase Gratuita / Guia Gratuita / Recurso Gratuito (Segun el LeadMagnet)]
+
+
+
+Por otro lado, Mañana te voy a enseñar lo que necesitas para entender de primera mano
 Cómo funciona realmente este proceso por dentro
+
 (y por qué sí puedes lograrlo).
+Espera mi correo de mañana, te encantará.
 
 Nos vemos mañana.
 
-Un abrazo,
-Tu Equipo`
+[Nombre del Profesor]
+[Cargo del Profesor]
+
+Pdata: Piensa que hoy es el gran cambio que has esperado en tu vida, hoy tienes en tus manos la posibilidad de lograr lo que siempre has imaginado.
+
+
+`
+
+
+
     },
     'Educación + Autoridad': {
         goal: "Educar al usuario y posicionar autoridad explicando el proceso de forma clara y simple para reducir la incertidumbre.",
@@ -275,8 +299,13 @@ Porque sí… es normal tenerlas.
 
 Nos vemos mañana.
 
-Un abrazo,
-Tu Equipo`
+[Nombre del Profesor]
+[Cargo del Profesor]
+
+Pdata: Piensa que hoy es el gran cambio que has esperado en tu vida, hoy tienes en tus manos la posibilidad de lograr lo que siempre has imaginado.
+
+
+`
     },
     'Objeciones': {
         goal: "Eliminar las dudas más comunes (tiempo, dinero, capacidad) validando la emotion del usuario para reducir el riesgo percibido.",
@@ -347,8 +376,14 @@ cuando alguien decide dar el paso.
 
 Nos vemos mañana.
 
-Un abrazo,
-Tu Equipo`
+[Nombre del Profesor]
+[Cargo del Profesor]
+
+Pdata: Piensa que hoy es el gran cambio que has esperado en tu vida, hoy tienes en tus manos la posibilidad de lograr lo que siempre has imaginado.
+
+
+
+`
     },
     'Caso de éxito': {
         goal: "Mostrar un caso de éxito realista para generar prueba social y confianza. Demostrar que sí funciona en la vida real, reducir el miedo final y activar el pensamiento: 'si ella pudo, yo también'.",
@@ -431,8 +466,13 @@ Te voy a mostrar exactamente cómo dar el siguiente paso.
 
 Nos vemos ahí.
 
-Un abrazo,
-Tu Equipo`
+[Nombre del Profesor]
+[Cargo del Profesor]
+
+Pdata: Piensa que hoy es el gran cambio que has esperado en tu vida, hoy tienes en tus manos la posibilidad de lograr lo que siempre has imaginado.
+
+
+`
     },
     'Cierre / Oferta': {
         goal: "Cerrar la venta de forma clara, sin presión agresiva. Convertir sin fricción, dar claridad total del siguiente paso y activar la decisión (no presión).",
@@ -503,7 +543,14 @@ La decisión es tuya.
 
 Un abrazo,
 
-Tu Equipo`
+[Nombre del Profesor]
+[Cargo del Profesor]
+
+Pdata: Piensa que hoy es el gran cambio que has esperado en tu vida, hoy tienes en tus manos la posibilidad de lograr lo que siempre has imaginado.
+
+
+
+`
     },
     'Evergreen / Nutrición': {
         goal: "Generar confianza y autoridad a través de la empatía, validando las dudas del usuario y guiándolo hacia contenido de valor (artículo) que resuelva un problema específico.",
@@ -547,8 +594,10 @@ Con cariño y la voz de alguien que también empezó desde cero,
 
 [Nombre del Profesor]
 
-PD: Si te animas a avanzar mucho más y en menos tiempo, en el siguiente enlace puedes ver todos los detalles de mi formación [Nombre del Producto], donde te incluyo bonos exclusivos para lograr mejores resultados.
-Haz clic aquí para ver los detalles.`
+Pdata: Piensa que hoy es el gran cambio que has esperado en tu vida, hoy tienes en tus manos la posibilidad de lograr lo que siempre has imaginado.
+
+
+`
     },
     'default': {
         goal: "Aportar valor y mantener el interés del prospecto en el producto.",
