@@ -502,8 +502,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         ) : linkedPages.length > 0 ? (
                             <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-[47rem] p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
                                 <CheckCircle2 className="w-16 h-16 text-emerald-500" />
-                                <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">✅ Tu sistema ya está listo para empezar</h3>
-                                <p className="text-gray-400 text-lg font-medium leading-relaxed max-w-2xl">Hemos configurado y verificado todo por ti:<br />tu página de captura, enlaces y formularios ya están funcionando correctamente.</p>
+                                <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">¡Tu página de captura ha sido creada correctamente!</h3>
+                                <p className="text-white text-lg font-medium leading-relaxed max-w-2xl">Ya tienes tu página web lista y configurada para atraer y capturar audiencia interesada en el producto digital que deseas promocionar. <br /><br />usa los siguientes botones para visualizar y finalizar la configuración de tu página de captura.</p>
                                 
                                 <div className="w-full space-y-4">
                                     {/* Fila 1 - Visualización */}
@@ -517,13 +517,13 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                             href={window.location.hash.startsWith('#/') ? `#/dashboard/editor/${linkedPages[0].id}` : `/dashboard/editor/${linkedPages[0].id}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-10 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all flex items-center justify-center gap-2"
+                                            className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-10 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all flex items-center justify-center gap-3"
                                         >
                                             <PenTool className="w-5 h-5" /> Editar Página de Captura
                                         </a>
                                         <button 
                                             onClick={() => setShowDomainModal(true)} 
-                                            className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition border shadow-xl transform hover:scale-[1.03] ${
+                                            className={`flex-1 py-4 rounded-2xl font-black flex items-center justify-center gap-3 transition border shadow-xl transform hover:scale-[1.03] ${
                                                 linkedPages[0].customDomain 
                                                 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-white" 
                                                 : "bg-blue-500/10 text-blue-400 border-blue-500/30 hover:bg-blue-600 hover:text-white"

@@ -34,7 +34,7 @@ export interface EmailMessage {
   isGenerated: boolean;
   type: 'conversion' | 'nurturing';
   createdAt?: Date | string;
-  redirectType?: 'landing' | 'hotlink' | 'external';
+  redirectType?: 'landing' | 'hotlink' | 'external' | 'lead_magnet';
   redirectUrl?: string;
 }
 /* Fin de actualización - 24/06/2024 16:20 */

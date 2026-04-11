@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
-import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, BookOpen, Shield } from 'lucide-react';
+import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, BookOpen, Shield, Gift } from 'lucide-react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { PlanFeatures, PlanLimits, Plan, EmailMessage, EmailSequence, LandingPage, AffiliateLink } from '../../../../types';
+import { PlanFeatures, PlanLimits, Plan, EmailMessage, EmailSequence, LandingPage, AffiliateLink, Project } from '../../../../types';
 import { api } from '../../../../services/api';
 
 interface ProjectStrategy_EmailProps {
@@ -119,11 +119,11 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const subjectRef = useRef<HTMLTextAreaElement>(null);
 
     // Estados locales para interactividad inmediata de redirección
-    const [localRedirectType, setLocalRedirectType] = useState<'landing' | 'hotlink' | 'external' | undefined>(undefined);
+    const [localRedirectType, setLocalRedirectType] = useState<'landing' | 'hotlink' | 'external' | 'lead_magnet' | undefined>(undefined);
     const [localRedirectUrl, setLocalRedirectUrl] = useState<string | undefined>(undefined);
 
     // NUEVO: Estado para configuraciones de redirección pendientes (locales e independientes por correo)
-    const [pendingConfigs, setPendingConfigs] = useState<Record<number, { type: 'landing' | 'hotlink' | 'external', url: string }>>({});
+    const [pendingConfigs, setPendingConfigs] = useState<Record<number, { type: 'landing' | 'hotlink' | 'external' | 'lead_magnet', url: string }>>({});
 
     // Referencia para rastrear el cambio de correo activo y evitar resets accidentales
     const lastActiveEmailRef = useRef<number>(activeEmail);
@@ -131,6 +131,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     // Estados para redirección
     const [userPages, setUserPages] = useState<LandingPage[]>([]);
     const [projectLinks, setProjectLinks] = useState<AffiliateLink[]>([]);
+    const [currentProject, setCurrentProject] = useState<Project | null>(null);
     const [isAddingNewLink, setIsAddingNewLink] = useState(false);
     const [newLinkLabel, setNewLinkLabel] = useState('');
     const [newLinkUrl, setNewLinkUrl] = useState('');
@@ -167,7 +168,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     api.getProjectById(projectId)
                 ]);
                 setUserPages(pages);
-                if (proj) setProjectLinks(proj.affiliateLinks || []);
+                if (proj) {
+                    setProjectLinks(proj.affiliateLinks || []);
+                    setCurrentProject(proj);
+                }
             } catch (e) {
                 console.error(e);
             }
@@ -202,11 +206,13 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 setLocalRedirectType(pending.type);
                 setLocalRedirectUrl(pending.url);
             } else if (currentReal) {
-                const defaultType = currentReal.redirectType || 'hotlink';
+                const defaultType = currentReal.redirectType || 'lead_magnet';
                 setLocalRedirectType(defaultType);
                 
                 if (currentReal.redirectUrl) {
                     setLocalRedirectUrl(currentReal.redirectUrl);
+                } else if (defaultType === 'lead_magnet' && currentProject?.leadMagnetUrl) {
+                    setLocalRedirectUrl(currentProject.leadMagnetUrl);
                 } else if (defaultType === 'hotlink' && projectLinks.length > 0) {
                     // Por defecto el primer link real (segundo de la lista visual)
                     setLocalRedirectUrl(projectLinks[0].url);
@@ -214,9 +220,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     setLocalRedirectUrl(undefined);
                 }
             } else {
-                // Default absoluto para correos no generados: Hotlink + Primer enlace disponible
-                setLocalRedirectType('hotlink');
-                setLocalRedirectUrl(projectLinks.length > 0 ? projectLinks[0].url : undefined);
+                // Default absoluto para correos no generados: Lead Magnet por defecto
+                setLocalRedirectType('lead_magnet');
+                setLocalRedirectUrl(currentProject?.leadMagnetUrl || undefined);
             }
 
             setIsTypeLocked(true);
@@ -268,11 +274,18 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         if (field === 'redirectType') {
             setLocalRedirectType(value);
             // Guardar en configuración pendiente para persistencia entre pestañas
+            let defaultUrl = '';
+            if (value === 'lead_magnet') {
+                defaultUrl = currentProject?.leadMagnetUrl || '';
+            } else if (value === 'hotlink' && projectLinks.length > 0) {
+                defaultUrl = projectLinks[0].url;
+            }
+
             setPendingConfigs(prev => ({
                 ...prev,
                 [activeEmail]: { 
                     type: value, 
-                    url: prev[activeEmail]?.url || (value === 'hotlink' && projectLinks.length > 0 ? projectLinks[0].url : '') 
+                    url: prev[activeEmail]?.url || defaultUrl
                 }
             }));
         }
@@ -373,8 +386,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     subject: real?.subject || email.subject,
                     pilarType: real?.pilarType || email.type,
                     purpose: real?.purpose || email.objective,
-                    redirectType: pending?.type || real?.redirectType || 'hotlink',
-                    redirectUrl: pending?.url || real?.redirectUrl || (projectLinks.length > 0 ? projectLinks[0].url : '')
+                    redirectType: pending?.type || real?.redirectType || 'lead_magnet',
+                    redirectUrl: pending?.url || real?.redirectUrl || (pending?.type === 'lead_magnet' || (!pending?.type && (real?.redirectType === 'lead_magnet' || !real?.redirectType)) ? currentProject?.leadMagnetUrl : (projectLinks.length > 0 ? projectLinks[0].url : ''))
                 };
             });
 
@@ -968,7 +981,31 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                         <label className="block text-sm font-bold text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
                                             <Target className="w-4 h-4 text-orange-500" /> ¿Dónde dirigir a tu audiencia?
                                         </label>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                            <div 
+                                                onClick={() => {
+                                                    if (!currentProject?.leadMagnetUrl) {
+                                                        alert("Para usar esta opción, primero debes configurar tu Lead Magnet en la sección de Hotlinks.");
+                                                        navigate(`/dashboard/projects/${projectId}/strategy?section=hotlinks`);
+                                                        return;
+                                                    }
+                                                    handleUpdateMessage('redirectType', 'lead_magnet');
+                                                }}
+                                                className={`p-6 rounded-3xl border transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${localRedirectType === 'lead_magnet' ? 'bg-emerald-600/10 border-emerald-500 ring-4 ring-emerald-500/5' : 'bg-white/5 border-white/5 hover:border-white/10'}`}
+                                            >
+                                                <div className={`p-4 rounded-2xl transition-colors ${localRedirectType === 'lead_magnet' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-gray-500'}`}>
+                                                    <Gift className="w-6 h-6" />
+                                                </div>
+                                                <div>
+                                                    <h4 className={`font-bold text-sm uppercase tracking-widest mb-1 ${localRedirectType === 'lead_magnet' ? 'text-white' : 'text-gray-400'}`}>Lead Magnet</h4>
+                                                    <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                                                        {currentProject?.leadMagnetUrl 
+                                                            ? `Regalo: ${currentProject.leadMagnetType || 'Configurado'}` 
+                                                            : 'Configurar enlace'}
+                                                    </p>
+                                                </div>
+                                            </div>
+
                                             <div 
                                                 onClick={() => handleUpdateMessage('redirectType', 'landing')}
                                                 className={`p-6 rounded-3xl border transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${localRedirectType === 'landing' ? 'bg-blue-600/10 border-blue-500 ring-4 ring-blue-500/5' : 'bg-white/5 border-white/5 hover:border-white/10'}`}
