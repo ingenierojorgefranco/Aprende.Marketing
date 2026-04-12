@@ -39,6 +39,19 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
          setBlogLoading(true);
          api.getPublicArticle(articleSlug).then(article => {
              setCurrentArticle(article);
+             
+             // Actualizar Título y Meta Description para SEO
+             if (article) {
+                 document.title = article.metaTitle || article.title;
+                 let metaDesc = document.querySelector('meta[name="description"]');
+                 if (!metaDesc) {
+                     metaDesc = document.createElement('meta');
+                     metaDesc.setAttribute('name', 'description');
+                     document.head.appendChild(metaDesc);
+                 }
+                 metaDesc.setAttribute('content', article.metaDescription || article.description || '');
+             }
+
              // Cargar recomendados si tenemos el pageId
              if (pageId && article) {
                  api.getPublicBlogArticles(pageId).then(allArticles => {

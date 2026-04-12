@@ -87,6 +87,12 @@ export const LivePage: React.FC<LivePageProps> = ({
               // Clean URL (remove query params)
               const canonicalUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
               canonicalLink.setAttribute('href', canonicalUrl);
+          } else {
+              // If it's a system domain, we might want to remove canonical if it exists or just ensure noindex is enough
+              const canonicalLink = document.querySelector('link[rel="canonical"]');
+              if (canonicalLink) {
+                  canonicalLink.remove();
+              }
           }
       }
   }, [isMobilePreview]);

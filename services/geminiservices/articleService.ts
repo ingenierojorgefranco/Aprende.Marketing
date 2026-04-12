@@ -8,15 +8,16 @@ export interface ArticleTitleIdea {
 }
 
 export const generateArticleTitles = async (topic: string, objective: string, keyword: string): Promise<ArticleTitleIdea[]> => {
-    const prompt = `Genera 4 títulos virales para un artículo sobre: "${topic}".
+    const prompt = `Genera 4 títulos virales y optimizados para SEO para un artículo sobre: "${topic}".
     Objetivo: "${objective}".
     ${keyword ? `Keyword SEO: "${keyword}"` : ''}
 
-    REGLAS ESTRICTAS:
-    1. Longitud máxima: 60 caracteres por título.
-    2. En el campo 'title' devuelve SOLO el texto del título.
-    3. NO generes descripciones. Deja el campo 'description' como una cadena vacía "".
-    4. PRIORIDAD: Coherencia gramatical y contexto. Si la keyword SEO no encaja de forma natural (ej: "errores microblading"), adáptala ligeramente (ej: "Evita estos errores comunes en el microblading") para que el título sea profesional y legible.
+    REGLAS ESTRICTAS DE COPYWRITING:
+    1. APLICA ESTEROIDES: Actúa como un experto en copywriting y SEO. Los títulos deben tener un altísimo CTR, ser provocativos pero profesionales, y cumplir con las mejores prácticas SEO.
+    2. CONTEXTO: No pierdas el contexto del tema original, pero mejóralo para que sea irresistible.
+    3. LONGITUD: Máximo 60 caracteres por título para evitar recortes en Google.
+    4. En el campo 'title' devuelve SOLO el texto del título.
+    5. NO generes descripciones. Deja el campo 'description' como una cadena vacía "".
     
     Devuelve JSON Array: [{ "title": "...", "description": "" }]`;
 
@@ -99,11 +100,12 @@ export const generateFullArticle = async (
         `;
     }
 
-    const prompt = `Actúa como un experto cercano y empático que le habla directamente al lector (usa "tú", "te", "tu", "estás"). El texto debe sentirse como si una persona le hablara directamente al usuario final.
+    const prompt = `Actúa como un experto cercano y empático que le habla directamente al lector (usa "tú", "te", "tu", "estás"). El texto debe sentirse como si una persona le hablara directamente al usuario final, como un mentor o consejero.
     
     REGLAS DE PERSONA:
+    - Actúa como un consejero experto que entiende profundamente al lector.
     - NO menciones nombres propios de personas (ni el tuyo ni de otros).
-    - NO cuentes anécdotas personales, historias de vida o detalles privados.
+    - NO cuentas anécdotas personales, historias de vida o detalles privados.
     - Mantén un enfoque 100% informativo, educativo y profesional.
     - Dirígete al lector de forma personal, cercana y empática.
 
@@ -118,34 +120,34 @@ export const generateFullArticle = async (
     ${projectStrategy}
 
     REGLAS DE REDACCIÓN Y ESTRUCTURA:
-    1. INTRODUCCIÓN OBLIGATORIA: El artículo DEBE comenzar tocando directamente uno o dos puntos de dolor (pains) del lector para generar interés inmediato. PROHIBIDO usar saludos genéricos como "Bienvenidos a nuestra comunidad" o similares.
-    2. SIN CONCLUSIÓN: NO incluyas una sección de conclusión o cierre al final del texto. El artículo debe terminar con el contenido informativo y el CTA final.
-    3. PÁRRAFOS MUY CORTOS: Cada párrafo debe tener un máximo de 2 a 3 líneas. Divide el contenido en fragmentos cortos y directos para facilitar la lectura rápida.
-    4. TÍTULO ÚNICO: Genera una variación del título base que sea única, viral y altamente atractiva, manteniendo el enfoque y la keyword (o una variación coherente de la misma).
-    5. BANNERS DE LLAMADO A LA ACCIÓN (CTA) REALES: 
+    1. TÍTULO CON ESTEROIDES: Genera una variación del título base que sea única, viral y altamente atractiva. Debe tener buen contexto, cumplir con las mejores prácticas SEO y obtener el máximo CTR sin perder el contexto del título original. Optimiza longitud y enfoque.
+    2. INTRODUCCIÓN EMPÁTICA OBLIGATORIA: El artículo DEBE comenzar con una pregunta directamente relacionada con la necesidad o el problema del lector. Inmediatamente después, habla como un consejero que entiende su dolor, atacando directamente sus frustraciones para conectar emocionalmente. PROHIBIDO usar saludos genéricos.
+    3. SIN CONCLUSIÓN: NO incluyas una sección de conclusión o cierre al final del texto. El artículo debe terminar con el contenido informativo y el CTA final.
+    4. PÁRRAFOS MUY CORTOS: Cada párrafo debe tener un máximo de 2 a 3 líneas. Divide el contenido en fragmentos cortos y directos para facilitar la lectura rápida.
+    5. BANNERS DE LLAMADO A LA ACCIÓN (CTA) CONTEXTUALIZADOS: 
        - Inserta DOS banners de CTA en formato HTML real dentro del contenido (uno aproximadamente en la mitad y otro al final).
+       - PÁRRAFO DE DOLOR PRE-CTA: Antes de cada banner de CTA, DEBES incluir un párrafo corto que toque el dolor de la persona, le haga una pregunta y luego enfoque el contenido hacia el CTA.
+       - ENFOQUE DEL CTA: Si el objetivo menciona una "clase gratuita", enfoca el CTA a invitar al usuario a mejorar sus habilidades con esa clase. Si es una "guía", enfócalo a descargar la guía. Adapta el contexto del banner al tipo de Lead Magnet.
        - CADA BANNER DEBE TENER UN TEXTO PERSUASIVO DIFERENTE. No los repitas.
-       - TONO PERSONALIZADO: El párrafo del CTA debe estar dirigido directamente al usuario que lee (usa "tú", "estás", "quieres", "puedes"). Evita el tono plural/colectivo en el banner.
-       - BOTÓN EN PRIMERA PERSONA: El texto del botón debe ser un deseo del usuario (ej: "QUIERO INGRESAR A LA CLASE GRATUITA", "SÍ, DESEO EMPEZAR AHORA", "QUIERO MI TRANSFORMACIÓN").
-       - El primer banner debe enfocarse en despertar curiosidad y el deseo de transformación personal.
-       - El segundo banner (al final) debe ser un cierre potente invitando a la acción inmediata.
-       - Usa EXACTAMENTE esta estructura HTML para los banners, adaptando los textos internos para que sean altamente motivadores y persuasivos:
+       - TONO PERSONALIZADO: El párrafo del CTA debe estar dirigido directamente al usuario que lee (usa "tú", "estás", "quieres", "puedes").
+       - BOTÓN EN PRIMERA PERSONA: El texto del botón debe ser un deseo del usuario (ej: "QUIERO INGRESAR A LA CLASE GRATUITA", "SÍ, DESEO EMPEZAR AHORA").
+       - Usa EXACTAMENTE esta estructura HTML para los banners:
 
        <div style="margin: 4rem 0; padding: 2.5rem; border-radius: 2.5rem; background: linear-gradient(to bottom right, #111827, #000000); border: 1px solid rgba(255,255,255,0.1); text-align: center; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
          <div style="position: relative; z-index: 10;">
-           <h3 style="font-size: 2.25rem; font-weight: 900; margin-bottom: 1rem; color: #ffffff; text-transform: uppercase; letter-spacing: -0.025em; font-style: italic;">[TEXTO PERSUASIVO PERSONALIZADO AQUÍ]</h3>
-           <p style="font-size: 1.25rem; color: #d1d5db; margin-bottom: 2rem; max-width: 42rem; margin-left: auto; margin-right: auto; line-height: 1.625;">[DESCRIPCIÓN MOTIVADORA DIRIGIDA A "TI" AQUÍ]</p>
+           <h3 style="font-size: 2.25rem; font-weight: 900; margin-bottom: 1rem; color: #ffffff; text-transform: uppercase; letter-spacing: -0.025em; font-style: italic;">[TEXTO PERSUASIVO CONTEXTUALIZADO AQUÍ]</h3>
+           <p style="font-size: 1.25rem; color: #d1d5db; margin-bottom: 2rem; max-width: 42rem; margin-left: auto; margin-right: auto; line-height: 1.625;">[DESCRIPCIÓN MOTIVADORA ENFOCADA AL LEAD MAGNET AQUÍ]</p>
            <a href="${ctaLink}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.75rem; font-weight: 900; padding: 1.25rem 2.5rem; border-radius: 1rem; background-color: #FF5A1F; color: #ffffff; text-decoration: none; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.875rem;">
              [TEXTO BOTÓN EN PRIMERA PERSONA AQUÍ]
            </a>
          </div>
        </div>
 
-    6. META DESCRIPTION: Genera una meta description optimizada (Máx 155 car.).
+    6. META DESCRIPTION: Genera una meta description optimizada para buscadores (Máx 155 car.).
     7. NO incluyas el Título Principal (H1) dentro del campo 'html'.
     8. ASEGÚRATE de que el enlace en el botón sea "${ctaLink}" y tenga target="_blank".
 
-    Formato de Salida JSON: { "title": "Nuevo Título Viral", "html": "Contenido HTML...", "metaDescription": "..." }`;
+    Formato de Salida JSON: { "title": "Título Optimizado con Esteroides", "html": "Contenido HTML...", "metaDescription": "..." }`;
 
     const schema = {
         type: Type.OBJECT,
