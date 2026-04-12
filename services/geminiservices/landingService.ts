@@ -139,13 +139,19 @@ export const generateLandingPageContent = async (
     }
   }`;
 
-  const prompt = `Actúa como un experto en copywriting and marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
-  El objetivo es "${goal}". La audiencia objetivo es "${targetAudience}".
+  const prompt = `Actúa como un experto en copywriting y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
+  El objetivo es "${goal}". 
+  
+  CONTEXTO DE AUDIENCIA (PRIORIDAD ALTA PARA EL COPY):
+  "${targetAudience}"
+  
   La oferta es de tipo "${offerType}".
   ${ctaContext}
   
   ${projectStrategy}
 
+  INSTRUCCIÓN CRÍTICA: Utiliza los detalles de la audiencia proporcionados arriba para que cada frase, beneficio y dolor resuene directamente con sus necesidades específicas. Si el contexto menciona dolores o deseos específicos, úsalos como base para el Hero y los beneficios.
+  
   REQUERIMIENTO DE VELOCIDAD: No generes código SVG para logos. Solo genera los textos persuasivos.
   
   Estructura JSON requerida (Responde exactamente con esta forma):

@@ -112,13 +112,21 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
           
           if (proj.strategy_json) {
               const s = proj.strategy_json;
-              if (s.avatars && Array.isArray(s.avatars) && s.avatars.length > 0) {
-                  const main = s.avatars[0];
-                  audienceInfo = `${main.archetype}. Su principal dolor es: ${main.pain}. Su gran deseo: ${main.desire}`;
-              } 
-              else if (s.avatar && s.avatar.story) {
-                  audienceInfo = s.avatar.story;
-              }
+              
+              // Mejora: Extracción profunda de contexto estratégico para alimentar el generador
+              const avatarContext = s.avatars && Array.isArray(s.avatars) && s.avatars.length > 0 
+                  ? s.avatars.map((a: any) => `${a.archetype}: ${a.pain}. Deseo: ${a.desire}`).join(" | ")
+                  : (s.avatar?.story || "");
+
+              const painsContext = s.psychology?.pains && Array.isArray(s.psychology.pains)
+                  ? `Dolores principales: ${s.psychology.pains.join(", ")}`
+                  : "";
+
+              const solutionsContext = s.psychology?.solutions && Array.isArray(s.psychology.solutions)
+                  ? `Soluciones clave: ${s.psychology.solutions.map((sol: any) => typeof sol === 'string' ? sol : sol.title).join(", ")}`
+                  : "";
+
+              audienceInfo = [avatarContext, painsContext, solutionsContext].filter(Boolean).join(". ");
           }
 
           setFormData(prev => ({

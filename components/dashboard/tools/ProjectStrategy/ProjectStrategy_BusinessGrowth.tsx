@@ -129,155 +129,8 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                         <TrendingUp className="w-[30rem] h-[30rem] text-emerald-500" />
                     </div>
                     
-                    <div className="relative z-10 h-[450px] w-full mb-12">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
-                            <div>
-                                <h4 className="text-[2rem] font-black text-white tracking-tight flex items-center gap-3">
-                                    Retorno de Inversión Estimado (Año 1)
-                                </h4>
-                                <p className="text-gray-300 text-[1.2rem] leading-[1.8] font-light mt-1 pt-[10px]">Cálculo basado en una tasa de cierre promedio del 5% en WhatsApp.</p>
-                            </div>
-                            
-                            <div className="flex gap-4">
-                                <div className="bg-black/40 border border-emerald-500/30 p-6 rounded-[2rem] flex items-center gap-6 shadow-2xl">
-                                    <div className="p-4 bg-emerald-500/20 rounded-2xl text-emerald-400 shadow-lg shadow-emerald-500/10"><DollarSign className="w-8 h-8"/></div>
-                                    <div>
-                                        <p className="text-xs text-gray-500 font-black uppercase tracking-[0.2em] mb-1">Meta de ingresos</p>
-                                        <p className="text-white font-black text-3xl md:text-4xl tracking-tighter leading-none">${formatValue(totalIncome)} USD</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={adjustedChartData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
-                                <defs>
-                                    <linearGradient id="colorIncomeMain" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
-                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="10 10" vertical={false} stroke="#ffffff" strokeOpacity={0.05} />
-                                <XAxis 
-                                    dataKey="month" 
-                                    tick={{ fill: '#6b7280', fontSize: 13, fontWeight: 'bold' }} 
-                                    axisLine={false}
-                                    tickLine={false}
-                                    dy={10}
-                                />
-                                <YAxis 
-                                    tickFormatter={(value) => `$${formatValue(value)} USD`}
-                                    tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 'bold' }} 
-                                    axisLine={false}
-                                    tickLine={false}
-                                    width={100}
-                                />
-                                <Tooltip content={<CustomTooltip commissionValue={commissionValue} />} cursor={{ stroke: '#10b981', strokeWidth: 2 }} />
-                                <Area 
-                                    type="monotone" 
-                                    dataKey="income" 
-                                    stroke="#10b981" 
-                                    strokeWidth={5}
-                                    fillOpacity={1} 
-                                    fill="url(#colorIncomeMain)" 
-                                    activeDot={{ r: 10, strokeWidth: 4, stroke: '#000', fill: '#10b981' }}
-                                    animationDuration={2500}
-                                    animationEasing="ease-in-out"
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
-
-                        {/* --- INDICADORES DE ETAPA EN LA GRÁFICA --- */}
-                        <div className="relative z-10 mt-0" style={{ paddingLeft: '56px', paddingRight: '7px', paddingTop: '15px' }}>
-                            <div className="flex w-full h-10 rounded-full overflow-hidden bg-gray-800/50 p-1">
-                                <div className="h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] rounded-l-full flex items-center justify-center text-[11px] font-black text-white uppercase tracking-[0.2em]" style={{ width: '16.6%' }}>
-                                    Etapa 1
-                                </div>
-                                <div className="h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)] flex items-center justify-center text-[11px] font-black text-white uppercase tracking-[0.2em]" style={{ width: '25%' }}>
-                                    Etapa 2
-                                </div>
-                                <div className="h-full bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.5)] rounded-r-full flex items-center justify-center text-[11px] font-black text-white uppercase tracking-[0.2em]" style={{ width: '58.4%' }}>
-                                    Etapa 3
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* --- ROADMAP DE EJECUCIÓN (PASO A PASO) --- */}
-                    <div className="relative z-10 pt-20 border-t border-white/5 mb-16 px-4 mt-80">
-                        <h4 className="text-[2rem] font-black text-white mb-10 text-center uppercase tracking-widest opacity-80">Cómo se generan los ingresos (paso a paso)</h4>
-                        <div className="flex flex-col gap-10">
-                            {[
-                                {
-                                    title: "Etapa 1 - Preparación",
-                                    subtitle: "(Meses 1 - 2)",
-                                    icon: Clock,
-                                    color: "text-blue-400",
-                                    bg: "bg-blue-500/10",
-                                    items: [
-                                        "Nuestro sistema creará de forma automática tus guiones de videos, páginas de ventas, secuencias de correos y los artículos de blog optimizados para atraer personas interesadas en tu producto digital.",
-                                        "Publicas tus contenidos en redes sociales como YouTube, Instagram, Facebook y Tik Tok para atraer a tus primeros visitantes.",
-                                        "Personas interesadas empezarán a llegar a tu página de captura, se registrarán para tener acceso a tu LeadMagnet y unirán a tu comunidad de WhatsApp."
-                                    ],
-                                    objective: "Objetivo: Construir tu activo digital para atraer clientes"
-                                },
-                                {
-                                    title: "Etapa 2 – Primeras Ventas",
-                                    subtitle: "(Meses 3 - 5)",
-                                    icon: TrendingUp,
-                                    color: "text-emerald-400",
-                                    bg: "bg-emerald-500/10",
-                                    items: [
-                                        "Tus artículos de blog y videos en redes sociales ganarán autoridad en los algoritmos con el tiempo, atrayendo nuevo tráfico orgánico cualificado sin costo adicional.",
-                                        "La audiencia que ya se ha registrado en tu pagina de captura recibirá correos electrónicos masivos y contenidos de alto valor que compartirás a través de Whatsapp, esto generará confianza e interés por parte de tus comunidad.",
-                                        "Realizarás tus primeros cierres de venta reales gracias a la confianza generada por tu ecosistema de contenidos, el seguimiento persuasivo y nuestra estrategia de Lanzamientos que ejecutaremos vía WhatsApp."
-                                    ],
-                                    objective: "Objetivo: validar que tu estrategia digital funciona y genera resultados"
-                                },
-                                {
-                                    title: "Etapa 3 – Crecimiento acumulativo",
-                                    subtitle: "(Meses 6 - 12)",
-                                    icon: Zap,
-                                    color: "text-amber-400",
-                                    bg: "bg-amber-500/10",
-                                    items: [
-                                        "A Larzo plazo tanto los Reels, como los videos Largos, Articulos de Blog y todos los contenidos educativos que compartas se convertirán en un activo digital que educa, persuade y vende por ti las 24 horas del día de forma incansable.",
-                                        "El número de prospectos interesados en obtener más información sobre tu producto digital se estabiliza y crece exponencialmente, permitiéndote predecir tus resultados y comisiones con mayor precisión.",
-                                        "Tu sistema alcanza su punto de madurez operativa, generando ingresos recurrentes y permitiéndote escalar tu negocio al siguiente nivel gracias a los contenidos generados y las estrategias de lanzamientos operativas."
-                                    ],
-                                    objective: "Objetivo: ingresos más predecibles"
-                                }
-                            ].map((phase, i) => (
-                                <div key={i} className="bg-black/30 border border-gray-800/50 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden group/phase hover:border-gray-700 transition-all shadow-2xl">
-                                    <div className="flex flex-col md:flex-row md:items-center gap-6 mb-10 border-b border-white/5 pb-8">
-                                        <div className={`p-4 rounded-2xl ${phase.bg} ${phase.color} shadow-lg`}>
-                                            <phase.icon className="w-8 h-8" />
-                                        </div>
-                                        <div>
-                                            {phase.subtitle && <p className="text-gray-500 text-[1.2rem] font-medium mt-1 pt-[10px]">{phase.subtitle}</p>}
-                                            <h5 className="text-[2rem] font-black text-white tracking-tight leading-tight">{phase.title}</h5>
-                                        </div>
-                                        <div className={`md:ml-auto px-6 py-2 rounded-full border border-white/10 h-fit ${phase.color} text-[1.2rem] font-light leading-relaxed pt-[10px]`}>
-                                            {phase.objective}
-                                        </div>
-                                    </div>
-                                    <ul className="flex flex-col gap-6">
-                                        {phase.items.map((item, idx) => (
-                                            <li key={idx} className="bg-white/5 border border-white/5 p-6 rounded-2xl flex items-start gap-4 hover:border-gray-700 transition-all duration-300 group/point">
-                                                <div className={`p-1.5 rounded-full ${phase.bg} ${phase.color} shrink-0 mt-0.5 group-hover/point:scale-110 transition-transform`}>
-                                                    <Check className="w-4 h-4" />
-                                                </div>
-                                                <span className="text-white text-[1.2rem] leading-relaxed font-light">{item}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
                     {/* --- PROYECCIÓN DE INGRESOS (DINÁMICA BASADA EN COMISIÓN REAL) --- */}
-                    <div className="relative z-10 pt-16 border-t border-white/5 mb-16">
+                    <div className="relative z-10 pt-8 mb-16">
                         <div className="flex flex-col items-center gap-16 max-w-4xl mx-auto">
                             {/* Panel: Configuración Centrado */}
                             <div className="space-y-8 w-full flex flex-col items-center text-center">
@@ -352,6 +205,153 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     </p>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div className="relative z-10 h-[450px] w-full mb-12 pt-16 border-t border-white/5">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+                            <div>
+                                <h4 className="text-[2rem] font-black text-white tracking-tight flex items-center gap-3">
+                                    Retorno de Inversión Estimado (Año 1)
+                                </h4>
+                                <p className="text-gray-300 text-[1.2rem] leading-[1.8] font-light mt-1 pt-[10px]">Cálculo basado en una tasa de cierre promedio del 5% en WhatsApp.</p>
+                            </div>
+                            
+                            <div className="flex gap-4">
+                                <div className="bg-black/40 border border-emerald-500/30 p-6 rounded-[2rem] flex items-center gap-6 shadow-2xl">
+                                    <div className="p-4 bg-emerald-500/20 rounded-2xl text-emerald-400 shadow-lg shadow-emerald-500/10"><DollarSign className="w-8 h-8"/></div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 font-black uppercase tracking-[0.2em] mb-1">Meta de ingresos</p>
+                                        <p className="text-white font-black text-3xl md:text-4xl tracking-tighter leading-none">${formatValue(totalIncome)} USD</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={adjustedChartData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
+                                <defs>
+                                    <linearGradient id="colorIncomeMain" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
+                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="10 10" vertical={false} stroke="#ffffff" strokeOpacity={0.05} />
+                                <XAxis 
+                                    dataKey="month" 
+                                    tick={{ fill: '#6b7280', fontSize: 13, fontWeight: 'bold' }} 
+                                    axisLine={false}
+                                    tickLine={false}
+                                    dy={10}
+                                />
+                                <YAxis 
+                                    tickFormatter={(value) => `$${formatValue(value)} USD`}
+                                    tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 'bold' }} 
+                                    axisLine={false}
+                                    tickLine={false}
+                                    width={100}
+                                />
+                                <Tooltip content={<CustomTooltip commissionValue={commissionValue} />} cursor={{ stroke: '#10b981', strokeWidth: 2 }} />
+                                <Area 
+                                    type="monotone" 
+                                    dataKey="income" 
+                                    stroke="#10b981" 
+                                    strokeWidth={5}
+                                    fillOpacity={1} 
+                                    fill="url(#colorIncomeMain)" 
+                                    activeDot={{ r: 10, strokeWidth: 4, stroke: '#000', fill: '#10b981' }}
+                                    animationDuration={2500}
+                                    animationEasing="ease-in-out"
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+
+                        {/* --- INDICADORES DE ETAPA EN LA GRÁFICA --- */}
+                        <div className="relative z-10 mt-0" style={{ paddingLeft: '56px', paddingRight: '7px', paddingTop: '15px' }}>
+                            <div className="flex w-full h-10 rounded-full overflow-hidden bg-gray-800/50 p-1">
+                                <div className="h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] rounded-l-full flex items-center justify-center text-[11px] font-black text-white uppercase tracking-[0.2em]" style={{ width: '16.6%' }}>
+                                    Etapa 1
+                                </div>
+                                <div className="h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)] flex items-center justify-center text-[11px] font-black text-white uppercase tracking-[0.2em]" style={{ width: '25%' }}>
+                                    Etapa 2
+                                </div>
+                                <div className="h-full bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.5)] rounded-r-full flex items-center justify-center text-[11px] font-black text-white uppercase tracking-[0.2em]" style={{ width: '58.4%' }}>
+                                    Etapa 3
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* --- ROADMAP DE EJECUCIÓN (PASO A PASO) --- */}
+                    <div className="relative z-10 pt-20 border-t border-white/5 mb-16 px-4">
+                        <h4 className="text-[2rem] font-black text-white mb-10 text-center uppercase tracking-widest opacity-80">Cómo se generan los ingresos (paso a paso)</h4>
+                        <div className="flex flex-col gap-10">
+                            {[
+                                {
+                                    title: "Etapa 1 - Preparación",
+                                    subtitle: "(Meses 1 - 2)",
+                                    icon: Clock,
+                                    color: "text-blue-400",
+                                    bg: "bg-blue-500/10",
+                                    items: [
+                                        "Nuestro sistema creará de forma automática tus guiones de videos, páginas de ventas, secuencias de correos y los artículos de blog optimizados para atraer personas interesadas en tu producto digital.",
+                                        "Publicas tus contenidos en redes sociales como YouTube, Instagram, Facebook y Tik Tok para atraer a tus primeros visitantes.",
+                                        "Personas interesadas empezarán a llegar a tu página de captura, se registrarán para tener acceso a tu LeadMagnet y unirán a tu comunidad de WhatsApp."
+                                    ],
+                                    objective: "Objetivo: Construir tu activo digital para atraer clientes"
+                                },
+                                {
+                                    title: "Etapa 2 – Primeras Ventas",
+                                    subtitle: "(Meses 3 - 5)",
+                                    icon: TrendingUp,
+                                    color: "text-emerald-400",
+                                    bg: "bg-emerald-500/10",
+                                    items: [
+                                        "Tus artículos de blog y videos en redes sociales ganarán autoridad en los algoritmos con el tiempo, atrayendo nuevo tráfico orgánico cualificado sin costo adicional.",
+                                        "La audiencia que ya se ha registrado en tu pagina de captura recibirá correos electrónicos masivos y contenidos de alto valor que compartirás a través de Whatsapp, esto generará confianza e interés por parte de tus comunidad.",
+                                        "Realizarás tus primeros cierres de venta reales gracias a la confianza generada por tu ecosistema de contenidos, el seguimiento persuasivo y nuestra estrategia de Lanzamientos que ejecutaremos vía WhatsApp."
+                                    ],
+                                    objective: "Objetivo: validar que tu estrategia digital funciona y genera resultados"
+                                },
+                                {
+                                    title: "Etapa 3 – Crecimiento acumulativo",
+                                    subtitle: "(Meses 6 - 12)",
+                                    icon: Zap,
+                                    color: "text-amber-400",
+                                    bg: "bg-amber-500/10",
+                                    items: [
+                                        "A Larzo plazo tanto los Reels, como los videos Largos, Articulos de Blog y todos los contenidos educativos que compartas se convertirán en un activo digital que educa, persuade y vende por ti las 24 horas del día de forma incansable.",
+                                        "El número de prospectos interesados en obtener más información sobre tu producto digital se estabiliza y crece exponencialmente, permitiéndote predecir tus resultados y comisiones con mayor precisión.",
+                                        "Tu sistema alcanza su punto de madurez operativa, generando ingresos recurrentes y permitiéndote escalar tu negocio al siguiente nivel gracias a los contenidos generados y las estrategias de lanzamientos operativas."
+                                    ],
+                                    objective: "Objetivo: ingresos más predecibles"
+                                }
+                            ].map((phase, i) => (
+                                <div key={i} className="bg-black/30 border border-gray-800/50 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden group/phase hover:border-gray-700 transition-all shadow-2xl">
+                                    <div className="flex flex-col md:flex-row md:items-center gap-6 mb-10 border-b border-white/5 pb-8">
+                                        <div className={`p-4 rounded-2xl ${phase.bg} ${phase.color} shadow-lg`}>
+                                            <phase.icon className="w-8 h-8" />
+                                        </div>
+                                        <div>
+                                            {phase.subtitle && <p className="text-gray-500 text-[1.2rem] font-medium mt-1 pt-[10px]">{phase.subtitle}</p>}
+                                            <h5 className="text-[2rem] font-black text-white tracking-tight leading-tight">{phase.title}</h5>
+                                        </div>
+                                        <div className={`md:ml-auto px-6 py-2 rounded-full border border-white/10 h-fit ${phase.color} text-[1.2rem] font-light leading-relaxed pt-[10px]`}>
+                                            {phase.objective}
+                                        </div>
+                                    </div>
+                                    <ul className="flex flex-col gap-6">
+                                        {phase.items.map((item, idx) => (
+                                            <li key={idx} className="bg-white/5 border border-white/5 p-6 rounded-2xl flex items-start gap-4 hover:border-gray-700 transition-all duration-300 group/point">
+                                                <div className={`p-1.5 rounded-full ${phase.bg} ${phase.color} shrink-0 mt-0.5 group-hover/point:scale-110 transition-transform`}>
+                                                    <Check className="w-4 h-4" />
+                                                </div>
+                                                <span className="text-white text-[1.2rem] leading-relaxed font-light">{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
