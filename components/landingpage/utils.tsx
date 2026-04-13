@@ -13,13 +13,21 @@ export const getIcon = (name: string | undefined, defaultIcon: any) => {
 };
 
 export const renderRichText = (text: string, className: string = "") => {
-    // Replace newlines with <br>
-    const formattedText = text ? text.replace(/\n/g, '<br />') : '';
+    if (!text) return null;
+    
+    // Split by double newlines to create paragraphs
+    const paragraphs = text.split(/\n\n+/);
+    
     return (
-      <div 
-          className={className} 
-          dangerouslySetInnerHTML={{ __html: formattedText }} 
-      />
+      <div className={className}>
+        {paragraphs.map((p, i) => (
+          <p 
+            key={i} 
+            className={i > 0 ? "mt-6" : ""}
+            dangerouslySetInnerHTML={{ __html: p.replace(/\n/g, '<br />') }} 
+          />
+        ))}
+      </div>
     );
 };
 

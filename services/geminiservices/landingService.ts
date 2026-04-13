@@ -155,8 +155,10 @@ export const generateLandingPageContent = async (
   INSTRUCCIÓN DE CARTA DE VENTAS (SECCIÓN INTRO):
   La sección "intro" NO debe ser un párrafo genérico. Debe ser una CARTA DE VENTAS poderosa y profesional.
   - El campo "intro.title" debe ser un titular de carta de ventas que detenga el scroll (ej: "Lee esto solo si quieres dejar de perder dinero...").
+  - Usa etiquetas <mark> en el "intro.title" para resaltar la promesa o el beneficio más impactante del título.
   - El campo "intro.description" debe contener el cuerpo de la carta. Escríbela en primera persona o como una recomendación experta.
-  - Usa etiquetas <mark> para resaltar las frases o palabras más importantes (se verán con fondo amarillo).
+  - REGLA DE LEGIBILIDAD: Divide el texto en PÁRRAFOS MUY CORTOS (máximo 2-3 líneas por párrafo). Usa doble salto de línea entre párrafos.
+  - Usa etiquetas <mark> para resaltar las frases o palabras más importantes en el cuerpo de la carta (se verán con fondo amarillo).
   - Toca dolores profundos, muestra empatía y presenta la solución como la oportunidad definitiva.
   - Debe ser extensa y persuasiva, llevando al usuario de la mano hacia el deseo.
 
