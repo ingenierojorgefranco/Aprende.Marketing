@@ -92,7 +92,7 @@ export const generateLandingPageContent = async (
     "testimonialTitle": "string",
     "hero": { "headline": "string", "subheadline": "string", "ctaText": "string" },
     "testimonials": [{"name": "string", "text": "string", "rating": number, "image": "string"}],
-    "intro": { "title": "string", "description": "string", "items": [{"title": "string", "description": "string"}] },
+    "intro": { "title": "string", "description": "string" },
     "benefits": { "title": "string", "items": [{"title": "string", "description": "string"}] },
     "whatYouWillLearn": { "title": "string", "items": ["string"] },
     "faq": [{"question": "string", "answer": "string"}],
@@ -154,9 +154,12 @@ export const generateLandingPageContent = async (
   
   INSTRUCCIÓN DE CARTA DE VENTAS (SECCIÓN INTRO):
   La sección "intro" NO debe ser un párrafo genérico. Debe ser una CARTA DE VENTAS poderosa y profesional.
-  - El campo "intro.title" debe ser un titular de carta de ventas que detenga el scroll (ej: "Lee esto solo si quieres dejar de perder dinero...").
+  - El campo "intro.title" debe ser un titular de carta de ventas que detenga el scroll. Usa etiquetas <mark> para resaltar las palabras más impactantes del título.
   - El campo "intro.description" debe contener el cuerpo de la carta. Escríbela en primera persona o como una recomendación experta.
-  - Usa etiquetas <mark> para resaltar las frases o palabras más importantes (se verán con fondo amarillo).
+  - Usa etiquetas <mark> para resaltar las frases o palabras más importantes dentro del texto.
+  - IMPORTANTE: Los párrafos deben ser CORTOS (máximo 2-3 líneas) para facilitar la lectura rápida.
+  - DESGLOSE: Usa subtítulos (etiquetas <h3> o <h4>) para dividir la carta en secciones lógicas.
+  - LLAMADO A LA ACCIÓN: Inserta el marcador exacto [CTA_BUTTON] en 3 o 4 puntos estratégicos de la carta donde el texto invite naturalmente a tomar acción.
   - Toca dolores profundos, muestra empatía y presenta la solución como la oportunidad definitiva.
   - Debe ser extensa y persuasiva, llevando al usuario de la mano hacia el deseo.
 
@@ -168,7 +171,7 @@ export const generateLandingPageContent = async (
   Instrucciones de contenido:
   1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
   2. Testimonios: 3 testimonios cortos y realistas (usa los del proyecto si se proporcionaron, incluyendo su 'image' URL si existe).
-  3. Intro: Carta de ventas poderosa (descrita arriba). Genera 'items' (3-5 bullets de impacto).
+  3. Intro: Carta de ventas poderosa (descrita arriba). NO generes 'items' para esta sección.
   4. Beneficios: Lista detallada (usa los proporcionados en el contexto si existen).
   5. Lo que aprenderás: 4-6 puntos clave (basados en dolores si existen).
   6. FAQ: 4 preguntas que maten objeciones.
