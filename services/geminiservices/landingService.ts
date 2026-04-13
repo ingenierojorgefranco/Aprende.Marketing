@@ -152,6 +152,14 @@ export const generateLandingPageContent = async (
 
   INSTRUCCIÓN CRÍTICA: Utiliza los detalles de la audiencia proporcionados arriba para que cada frase, beneficio y dolor resuene directamente con sus necesidades específicas. Si el contexto menciona dolores o deseos específicos, úsalos como base para el Hero y los beneficios.
   
+  INSTRUCCIÓN DE CARTA DE VENTAS (SECCIÓN INTRO):
+  La sección "intro" NO debe ser un párrafo genérico. Debe ser una CARTA DE VENTAS poderosa y profesional.
+  - El campo "intro.title" debe ser un titular de carta de ventas que detenga el scroll (ej: "Lee esto solo si quieres dejar de perder dinero...").
+  - El campo "intro.description" debe contener el cuerpo de la carta. Escríbela en primera persona o como una recomendación experta.
+  - Usa etiquetas <mark> para resaltar las frases o palabras más importantes (se verán con fondo amarillo).
+  - Toca dolores profundos, muestra empatía y presenta la solución como la oportunidad definitiva.
+  - Debe ser extensa y persuasiva, llevando al usuario de la mano hacia el deseo.
+
   REQUERIMIENTO DE VELOCIDAD: No generes código SVG para logos. Solo genera los textos persuasivos.
   
   Estructura JSON requerida (Responde exactamente con esta forma):
@@ -160,7 +168,7 @@ export const generateLandingPageContent = async (
   Instrucciones de contenido:
   1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
   2. Testimonios: 3 testimonios cortos y realistas (usa los del proyecto si se proporcionaron, incluyendo su 'image' URL si existe).
-  3. Intro: Qué es el producto. Genera 'items' (3 bullets).
+  3. Intro: Carta de ventas poderosa (descrita arriba). Genera 'items' (3-5 bullets de impacto).
   4. Beneficios: Lista detallada (usa los proporcionados en el contexto si existen).
   5. Lo que aprenderás: 4-6 puntos clave (basados en dolores si existen).
   6. FAQ: 4 preguntas que maten objeciones.

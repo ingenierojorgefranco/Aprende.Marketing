@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+mark {
+    background-color: #fef08a; /* yellow-200 */
+    color: inherit;
+    padding: 0 0.2em;
+    border-radius: 0.2em;
+    font-weight: 600;
+}
+
+.sales-letter-body mark {
+    background-color: #fde047; /* yellow-300 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
