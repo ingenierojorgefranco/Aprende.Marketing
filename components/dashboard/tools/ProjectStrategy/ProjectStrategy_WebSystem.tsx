@@ -47,7 +47,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [draftLpTabsData, setDraftLpTabsData] = useState<any>(null);
     const [draftTyTabsData, setDraftTyTabsData] = useState<any>(null);
     const [draftStrategy, setDraftStrategy] = useState<ProjectMasterStrategy | null>(null);
-    const [hasChanges, setHasChanges] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
@@ -59,80 +58,78 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         if (strategy) setDraftStrategy(strategy);
     }, [strategy]);
 
-    const handleUpdateLpDraft = (tab: string, field: string, value: string) => {
-        setDraftLpTabsData((prev: any) => {
-            const updated = {
-                ...prev,
-                [tab]: {
-                    ...prev[tab],
-                    [field]: value
-                }
-            };
-            return updated;
-        });
-        setHasChanges(true);
-    };
+    const performAutoSave = async (updatedLp?: any, updatedTy?: any, updatedStrat?: any) => {
+        if (!projectId) return;
+        const stratToUse = updatedStrat || draftStrategy;
+        if (!stratToUse) return;
 
-    const handleUpdateTyDraft = (tab: string, field: string, value: string) => {
-        setDraftTyTabsData((prev: any) => {
-            const updated = {
-                ...prev,
-                [tab]: {
-                    ...prev[tab],
-                    content: {
-                        ...prev[tab].content,
-                        [field]: value
-                    }
-                }
-            };
-            return updated;
-        });
-        setHasChanges(true);
-    };
-
-    const handleUpdateStrategyDraft = (section: 'pains' | 'solutions', index: number, value: string, subfield?: 'title' | 'description') => {
-        setDraftStrategy((prev: any) => {
-            if (!prev) return prev;
-            const updatedPsychology = { ...prev.psychology };
-            const updatedList = [...updatedPsychology[section]];
-            
-            if (subfield) {
-                updatedList[index] = { ...updatedList[index], [subfield]: value };
-            } else {
-                updatedList[index] = value;
-            }
-            
-            updatedPsychology[section] = updatedList;
-            return { ...prev, psychology: updatedPsychology };
-        });
-        setHasChanges(true);
-    };
-
-    const handleSaveAll = async () => {
-        if (!projectId || !draftStrategy) return;
         setIsSaving(true);
         try {
+            const lpToUse = updatedLp || draftLpTabsData;
+            const tyToUse = updatedTy || draftTyTabsData;
+
             const updatedStrategy = {
-                ...draftStrategy,
+                ...stratToUse,
                 modules: {
-                    ...draftStrategy.modules,
+                    ...(stratToUse.modules || {}),
                     web: {
-                        ...draftStrategy.modules?.web,
-                        landingPageTabs: draftLpTabsData,
-                        thankYouPageTabs: draftTyTabsData
+                        ...(stratToUse.modules?.web || {}),
+                        landingPageTabs: lpToUse,
+                        thankYouPageTabs: tyToUse
                     }
                 }
             };
             await api.updateProject(projectId, { strategy_json: updatedStrategy } as any);
-            setStrategy(updatedStrategy);
-            setHasChanges(false);
-            alert("¡Cambios guardados correctamente!");
+            setStrategy(updatedStrategy as any);
         } catch (e) {
-            console.error(e);
-            alert("Error al guardar los cambios");
+            console.error("Error al guardar automáticamente:", e);
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const handleUpdateLpDraft = (tab: string, field: string, value: string) => {
+        const updated = {
+            ...draftLpTabsData,
+            [tab]: {
+                ...draftLpTabsData[tab],
+                [field]: value
+            }
+        };
+        setDraftLpTabsData(updated);
+        performAutoSave(updated, draftTyTabsData, draftStrategy);
+    };
+
+    const handleUpdateTyDraft = (tab: string, field: string, value: string) => {
+        const updated = {
+            ...draftTyTabsData,
+            [tab]: {
+                ...draftTyTabsData[tab],
+                content: {
+                    ...draftTyTabsData[tab].content,
+                    [field]: value
+                }
+            }
+        };
+        setDraftTyTabsData(updated);
+        performAutoSave(draftLpTabsData, updated, draftStrategy);
+    };
+
+    const handleUpdateStrategyDraft = (section: 'pains' | 'solutions', index: number, value: string, subfield?: 'title' | 'description') => {
+        if (!draftStrategy) return;
+        const updatedPsychology = { ...draftStrategy.psychology };
+        const updatedList = [...updatedPsychology[section]];
+        
+        if (subfield) {
+            updatedList[index] = { ...(updatedList[index] as any), [subfield]: value };
+        } else {
+            updatedList[index] = value;
+        }
+        
+        updatedPsychology[section] = updatedList;
+        const updatedStrat = { ...draftStrategy, psychology: updatedPsychology };
+        setDraftStrategy(updatedStrat);
+        performAutoSave(draftLpTabsData, draftTyTabsData, updatedStrat);
     };
 
     const EditableField = ({ value, onSave, multiline = false, className = "" }: { value: string, onSave: (val: string) => void, multiline?: boolean, className?: string }) => {
@@ -431,7 +428,15 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         <Globe className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="text-2xl font-black text-white">Página de Captura</h4>
+                                        <h4 className="text-2xl font-black text-white flex items-center gap-3">
+                                            Página de Captura
+                                            {isSaving && (
+                                                <span className="flex items-center gap-2 text-blue-400 text-xs font-medium animate-pulse">
+                                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                                    Guardando...
+                                                </span>
+                                            )}
+                                        </h4>
                                     </div>
                                 </div>
                                 {loadingLocal && (
@@ -458,23 +463,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         ))}
                                     </div>
                                     {renderBrowserMockup(renderLpContent(selectedLpTab || 'hero'))}
-                                    
-                                    {hasChanges && (
-                                        <div className="pt-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                            <button 
-                                                onClick={handleSaveAll}
-                                                disabled={isSaving}
-                                                className="w-full py-4 bg-primary hover:bg-primary/90 text-white font-black rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-                                            >
-                                                {isSaving ? (
-                                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                                ) : (
-                                                    <Save className="w-5 h-5" />
-                                                )}
-                                                {isSaving ? "Guardando..." : "Guardar Cambios en la Estrategia"}
-                                            </button>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         </div>
@@ -482,7 +470,20 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         <div className="xl:col-span-1 flex flex-col items-center justify-center gap-4 py-8"><div className="hidden xl:flex flex-col items-center gap-4"><div className="h-24 w-px bg-gradient-to-b from-blue-500 to-emerald-500"></div><div className="w-14 h-14 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-lg"><ArrowRight className="w-8 h-8" /></div><div className="h-24 w-px bg-gradient-to-b from-emerald-500 to-emerald-700"></div></div></div>
 
                         <div className="xl:col-span-5 space-y-8 flex flex-col h-full">
-                            <div className="flex items-center gap-3"><div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400"><CheckCircle2 className="w-6 h-6" /></div><h4 className="text-2xl font-black text-white">Página de Gracias</h4></div>
+                            <div className="flex items-center gap-3">
+                                <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400">
+                                    <CheckCircle2 className="w-6 h-6" />
+                                </div>
+                                <h4 className="text-2xl font-black text-white flex items-center gap-3">
+                                    Página de Gracias
+                                    {isSaving && (
+                                        <span className="flex items-center gap-2 text-emerald-400 text-xs font-medium animate-pulse">
+                                            <Loader2 className="w-3 h-3 animate-spin" />
+                                            Guardando...
+                                        </span>
+                                    )}
+                                </h4>
+                            </div>
                             <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative">
                                 <div className="flex-1 space-y-8">
                                     <div className="space-y-4">
