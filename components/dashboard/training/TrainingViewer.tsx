@@ -194,6 +194,27 @@ export const TrainingViewer: React.FC = () => {
       }
   };
 
+  // Helper to transform YouTube/Vimeo URLs to embed format
+  const getEmbedUrl = (url: string) => {
+    if (!url) return '';
+    
+    // YouTube
+    const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    const ytMatch = url.match(ytRegex);
+    if (ytMatch && ytMatch[1]) {
+      return `https://www.youtube.com/embed/${ytMatch[1]}?rel=0&autoplay=0`;
+    }
+    
+    // Vimeo
+    const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)([0-9]+)/i;
+    const vimeoMatch = url.match(vimeoRegex);
+    if (vimeoMatch && vimeoMatch[1]) {
+      return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=0`;
+    }
+    
+    return url;
+  };
+
   if (loading) {
       return (
           <div className="flex flex-col items-center justify-center h-96 text-gray-400">
@@ -300,7 +321,7 @@ export const TrainingViewer: React.FC = () => {
              {currentLesson ? (
                  <iframe 
                    key={currentLesson.id} // Key forces reload on change
-                   src={currentLesson.video_url?.replace('autoplay=1', 'autoplay=0')} 
+                   src={getEmbedUrl(currentLesson.video_url)} 
                    className="absolute inset-0 w-full h-full z-10"
                    title={currentLesson.title}
                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
