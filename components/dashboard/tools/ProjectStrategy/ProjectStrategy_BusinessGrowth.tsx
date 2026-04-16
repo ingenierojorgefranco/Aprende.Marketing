@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { TrendingUp, Calendar, Sparkles, DollarSign, ArrowUpRight, Users, Clock, Zap, Check, AlertTriangle, ArrowRight } from 'lucide-react';
+import { TrendingUp, Calendar, Sparkles, DollarSign, ArrowUpRight, Users, Clock, Zap, Check, AlertTriangle, ArrowRight, Play } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 
 interface ProjectStrategy_BusinessGrowthProps {
@@ -92,33 +92,48 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
     const leadScenarios = [50, 100, 200, 500, 1000];
 
     return (
-        <div id="psd-business-growth-section" className="space-y-16 pt-8">
+        <div id="psd-business-growth-section" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen">
             
-            <div id="psd-business-header" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
-                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-500/5">
-                    <TrendingUp className="w-5 h-5" /> Proyección de Ingresos a 1 Año
-                </div>
-                <h3 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 leading-tight tracking-tight max-w-4xl">
-                    ¿Cuánto podrías ganar con nuestra estrategia?
-                </h3>
-                
-                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light pt-[10px]">
-                    <div className="flex-1 border-l-4 border-emerald-500 pl-8 py-2">
-                        <p>
+            {/* Div agrupador para encabezado y video (seccion_encabezado) */}
+            <div className="seccion_encabezado space-y-12">
+                {/* --- HEADER SECCIÓN --- */}
+                <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
+                    {/* Degradado superior sutil */}
+                    <div className="absolute inset-x-0 -top-24 h-[600px] bg-emerald-600/10 blur-[140px] -z-10 rounded-full" />
+                    
+                    <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
+                        <TrendingUp className="w-4 h-4" /> Proyección de Ingresos a 1 Año
+                    </div>
+                    
+                    <div className="space-y-4 px-4">
+                        <h3 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 tracking-tight leading-none">
+                            ¿Cuánto podrías ganar con nuestra estrategia?
+                        </h3>
+                        <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
                             Nuestro sistema está diseñado para ayudarte a construir un negocio digital que te permita generar ingresos progresivos. Sin embargo, no es una fórmula mágica, requiere tiempo y dedicación, si quieres tener resultados plantéate desarrollar tu estrategia por mínimo 1 año.
                         </p>
                     </div>
-                    <div className="hidden md:block w-px h-24 bg-teal-500/30"></div>
-                    <div 
-                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
-                    >
-                        <iframe 
-                            className="w-full h-full rounded-2xl"
-                            src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
-                            title="Video Tutorial" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
+                </div>
+
+                {/* --- VIDEO EXPLICATIVO --- */}
+                <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
+                    <div className="inline-flex items-center gap-3 text-emerald-300 font-extrabold uppercase tracking-widest text-sm bg-emerald-500/5 px-8 py-4 rounded-2xl border border-emerald-500/10 backdrop-blur-sm mx-auto">
+                        <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
+                    </div>
+                    
+                    <div className="group relative">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600/20 to-teal-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
+                        
+                        <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-emerald-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
+                                title="Video Tutorial Growth" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
                     </div>
                 </div>
             </div>
