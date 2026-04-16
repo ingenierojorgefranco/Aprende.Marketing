@@ -821,10 +821,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
               <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                 <div className="flex justify-between items-center mb-2 text-sm">
                   <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Hooks Desbloqueados</span>
-                  <span className="text-white font-bold">{currentHooksCount} / {maxHooks}</span>
+                  <span className="text-white font-bold">{currentHooksCount} / {isRealAdmin ? '∞' : maxHooks}</span>
                 </div>
                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                  <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-orange-500" style={{ width: `${usagePercent}%` }}></div>
+                  <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-orange-500" style={{ width: `${isRealAdmin ? (currentHooksCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                 </div>
               </div>
             </div>
