@@ -26,7 +26,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     hideHeader = false
 }) => {
     const navigate = useNavigate();
-    const { user } = useOutletContext() as any;
+    const { user, isSimulating } = useOutletContext() as any;
     const [generatingId, setGeneratingId] = useState<string | null>(null);
     const [copySuccess, setCopySuccess] = useState<string | null>(null);
     const [nurturingMessages, setNurturingMessages] = useState<EmailMessage[]>([]);
@@ -127,13 +127,14 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     }
 
     // Lógica de límites
+    const isRealAdmin = (planLimits?.planName === 'admin' || user?.role === 'admin') && !isSimulating;
     const emailsUsed = nurturingMessages.length;
     const maxEmails = planLimits?.maxEmailSequencesNurturing || 0;
     const usagePercent = maxEmails > 0 ? Math.min(100, (emailsUsed / maxEmails) * 100) : 0;
-    const isLimitReached = maxEmails > 0 && emailsUsed >= maxEmails;
+    const isLimitReached = !isRealAdmin && maxEmails > 0 && emailsUsed >= maxEmails;
 
     // Color de la barra de progreso
-    const progressColor = usagePercent > 90 ? 'bg-red-500' : usagePercent > 70 ? 'bg-orange-500' : 'bg-blue-500';
+    const progressColor = (usagePercent > 90 && !isRealAdmin) ? 'bg-red-500' : usagePercent > 70 ? 'bg-orange-500' : 'bg-blue-500';
 
     // Sincronizar estados locales cuando cambiamos de correo
     useEffect(() => {

@@ -523,7 +523,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         }
     };
 
-    const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
+    const isRealAdmin = (planLimits?.planName === 'admin' || user?.role === 'admin') && !isSimulating;
     const maxLaunches = planLimits?.maxWhatsAppLaunches || 1;
     const launchUsed = launchCount;
     const usagePercent = Math.min(100, (launchUsed / maxLaunches) * 100);

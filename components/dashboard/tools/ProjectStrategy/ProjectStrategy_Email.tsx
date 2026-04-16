@@ -464,7 +464,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     };
 
     // Lógica de límites
-    const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
+    const isRealAdmin = (planLimits?.planName === 'admin' || user?.role === 'admin') && !isSimulating;
     
     // Recalcular sequenceUsed basado en la lógica solicitada:
     // En conversión se cuenta por secuencia (si tiene al menos un correo generado)

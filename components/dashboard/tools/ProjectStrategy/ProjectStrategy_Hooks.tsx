@@ -40,10 +40,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const projectId = overrideProjectId || routeProjectId;
   const context = useOutletContext() as any;
   const user = context?.user;
-  const isRealAdmin = user?.role === 'admin';
   const isSimulating = context?.isSimulating;
   const hookCount = context?.hookCount;
   const planLimits = user?.planLimits;
+  const isRealAdmin = (planLimits?.planName === 'admin' || user?.role === 'admin') && !isSimulating;
   const initialSelectionDone = useRef(false);
   const skipReset = useRef(false);
   const sessionSeed = useRef(Math.random());
