@@ -128,43 +128,46 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-12 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen">
-            {/* --- HEADER SECCIÓN --- */}
-            <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
-                {/* Degradado superior sutil */}
-                <div className="absolute inset-x-0 -top-24 h-[600px] bg-blue-600/10 blur-[140px] -z-10 rounded-full" />
-                
-                <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
-                    <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6]" />
-                    <LinkIcon className="w-4 h-4" /> Hotlinks
-                </div>
-                
-                <div className="space-y-4 px-4">
-                    <h3 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-none">
-                        Configura tus <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Hotlinks</span>
-                    </h3>
-                    <p className="text-gray-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto font-normal">
-                        Configura tus enlaces ahora para que el sistema pueda automatizar tus ventas. Si no sabes cómo obtenerlos, mira el tutorial de abajo.
-                    </p>
-                </div>
-            </div>
-
-            {/* --- VIDEO EXPLICATIVO --- */}
-            <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
-                <div className="inline-flex items-center gap-3 text-blue-400 font-extrabold uppercase tracking-widest text-sm bg-blue-500/5 px-8 py-4 rounded-2xl border border-blue-500/10 backdrop-blur-sm mx-auto">
-                    <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
-                </div>
-                
-                <div className="group relative">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
+            {/* Div agrupador para encabezado y video */}
+            <div className="seccion_encabezado space-y-12">
+                {/* --- HEADER SECCIÓN --- */}
+                <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
+                    {/* Degradado superior sutil */}
+                    <div className="absolute inset-x-0 -top-24 h-[600px] bg-blue-600/10 blur-[140px] -z-10 rounded-full" />
                     
-                    <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-blue-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
-                        <iframe 
-                            className="w-full h-full"
-                            src="https://www.youtube.com/embed/2yez3O8ibzA?rel=0&controls=1&showinfo=0" 
-                            title="Video Tutorial Hotlinks" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
+                    <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
+                        <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6]" />
+                        <LinkIcon className="w-4 h-4" /> Hotlinks
+                    </div>
+                    
+                    <div className="space-y-4 px-4">
+                        <h3 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-none">
+                            Configura tus <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Hotlinks</span>
+                        </h3>
+                        <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
+                            Configura tus enlaces ahora para que el sistema pueda automatizar tus ventas. Si no sabes cómo obtenerlos, mira el tutorial de abajo.
+                        </p>
+                    </div>
+                </div>
+
+                {/* --- VIDEO EXPLICATIVO --- */}
+                <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-0">
+                    <div className="inline-flex items-center gap-3 text-blue-400 font-extrabold uppercase tracking-widest text-sm bg-blue-500/5 px-8 py-4 rounded-2xl border border-blue-500/10 backdrop-blur-sm mx-auto">
+                        <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
+                    </div>
+                    
+                    <div className="group relative">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
+                        
+                        <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-blue-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/2yez3O8ibzA?rel=0&controls=1&showinfo=0" 
+                                title="Video Tutorial Hotlinks" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -177,7 +180,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                             {/* URL del Producto Digital */}
                             <div className="space-y-6">
                                 <div className="space-y-4 text-left">
-                                    <label className="text-[12px] font-bold text-emerald-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-3">
+                                    <label className="text-[1.2rem] font-bold text-emerald-400 ml-2 flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                                             <Rocket className="w-4 h-4" />
                                         </div>
@@ -190,7 +193,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                                             onChange={(e) => setForm({ ...form, digitalProductUrl: e.target.value })}
                                             placeholder="https://app-vlc.hotmart.com/affiliate-links/..."
                                             disabled={!!project?.masterParentId}
-                                            className={`w-full bg-black/40 border ${project?.masterParentId ? 'border-emerald-500/20 opacity-70 pr-[180px]' : 'border-blue-500/10'} rounded-2xl py-6 px-8 text-white text-lg outline-none focus:border-blue-500/40 transition-all placeholder:text-gray-600`}
+                                            className={`w-full bg-[#1b2e37] border ${project?.masterParentId ? 'border-emerald-500/20 opacity-70 pr-[180px]' : 'border-blue-500/10'} rounded-2xl py-6 px-8 text-white text-lg outline-none focus:border-blue-500/40 transition-all placeholder:text-gray-600`}
                                         />
                                         {project?.masterParentId && (
                                             <a 
@@ -224,12 +227,17 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                             {/* Lead Magnet */}
                             <div className="space-y-8 pt-12 border-t border-blue-500/5 text-left">
                                 <div className="space-y-4">
-                                    <label className="text-[12px] font-bold text-blue-400 uppercase tracking-[0.2em] ml-2">¿Qué vas a regalar para atraer clientes? (Regalo / Lead Magnet)</label>
+                                    <label className="text-[1.2rem] font-bold text-emerald-400 ml-2 flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                            <Gift className="w-4 h-4" />
+                                        </div>
+                                        ¿Qué vas a regalar para atraer clientes? (Regalo / Lead Magnet)
+                                    </label>
                                     <div className="relative">
                                         <select 
                                             value={form.leadMagnetType} 
                                             onChange={(e) => setForm({ ...form, leadMagnetType: e.target.value })}
-                                            className="w-full bg-black/40 border border-blue-500/10 rounded-2xl py-6 px-8 text-white text-lg outline-none focus:border-blue-500/40 transition-all appearance-none cursor-pointer"
+                                            className="w-full bg-[#1b2e37] border border-blue-500/10 rounded-2xl py-6 px-8 text-white text-lg outline-none focus:border-blue-500/40 transition-all appearance-none cursor-pointer"
                                         >
                                             <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
                                             <option value="Clase Gratis / VSL">Clase Gratis / Carta de Ventas en Video</option>
@@ -240,7 +248,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                                 </div>
 
                                 <div className="space-y-4">
-                                    <label className="text-[12px] font-bold text-blue-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-3">
+                                    <label className="text-[1.2rem] font-bold text-emerald-400 pt-[1em] ml-2 flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
                                             <Gift className="w-4 h-4" />
                                         </div>
@@ -251,7 +259,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                                         value={form.leadMagnetUrl}
                                         onChange={(e) => setForm({ ...form, leadMagnetUrl: e.target.value })}
                                         placeholder="https://pega-aqui-tu-link-de-google-drive-o-clase.com"
-                                        className={`w-full bg-black/40 border ${errors.leadMagnetUrl ? 'border-red-500/50' : 'border-blue-500/10'} rounded-2xl py-6 px-8 text-white text-lg outline-none focus:border-blue-500/40 transition-all placeholder:text-gray-600`}
+                                        className={`w-full bg-[#1b2e37] border ${errors.leadMagnetUrl ? 'border-red-500/50' : 'border-blue-500/10'} rounded-2xl py-6 px-8 text-white text-lg outline-none focus:border-blue-500/40 transition-all placeholder:text-gray-600`}
                                     />
                                     {errors.leadMagnetUrl && (
                                         <p className="text-red-400/80 text-[12px] font-bold uppercase tracking-widest mt-2 ml-4 flex items-center gap-2">
@@ -264,7 +272,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                             {/* Affiliate Links */}
                             <div className="pt-12 border-t border-blue-500/5 space-y-10 text-left">
                                 <div className="flex justify-between items-center px-2">
-                                    <label className="text-[12px] font-bold text-blue-300 uppercase tracking-[0.2em] flex items-center gap-3">
+                                    <label className="text-[1.2rem] font-bold text-emerald-400 pt-[1em] flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
                                             <CartIcon className="w-4 h-4" />
                                         </div>
@@ -281,12 +289,15 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                                 <div className="grid grid-cols-1 gap-8">
                                     {form.affiliateLinks.map((link, idx) => (
                                         <div key={idx} className="bg-white/[0.03] border border-blue-500/10 rounded-[2.5rem] p-8 md:p-10 space-y-8 transition-all relative">
-                                            <button 
-                                                onClick={() => handleRemoveLink(idx)} 
-                                                className="absolute top-6 right-6 p-2 text-gray-500 hover:text-red-500 transition-all"
-                                            >
-                                                <X className="w-5 h-5"/>
-                                            </button>
+                                            {/* Ocultar botón de borrar para enlaces por defecto */}
+                                            {link.label !== 'Hotlink_Precio_Full' && link.label !== 'Hotlink_Precio_Descuento' && (
+                                                <button 
+                                                    onClick={() => handleRemoveLink(idx)} 
+                                                    className="absolute top-6 right-6 p-2 text-gray-500 hover:text-red-500 transition-all"
+                                                >
+                                                    <X className="w-5 h-5"/>
+                                                </button>
+                                            )}
                                             
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                 <div className="space-y-4">
@@ -296,7 +307,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                                                         value={link.label}
                                                         onChange={(e) => handleUpdateLink(idx, 'label', e.target.value)}
                                                         placeholder="Ej: Checkout Principal"
-                                                        className="w-full bg-black/40 border border-blue-500/10 rounded-xl py-5 px-6 text-white text-base outline-none focus:border-blue-500/40 transition-all"
+                                                        className="w-full bg-[#1b2e37] border border-blue-500/10 rounded-xl py-5 px-6 text-white text-base outline-none focus:border-blue-500/40 transition-all"
                                                     />
                                                 </div>
                                                 
@@ -307,7 +318,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                                                         value={link.url}
                                                         onChange={(e) => handleUpdateLink(idx, 'url', e.target.value)}
                                                         placeholder="https://go.hotmart.com/..."
-                                                        className={`w-full bg-black/40 border ${errors.affiliateLinks && !link.url.trim() ? 'border-red-500/40' : 'border-blue-500/10'} rounded-xl py-5 px-6 text-emerald-400 font-mono text-base outline-none focus:border-blue-500/40 transition-all`}
+                                                        className={`w-full bg-[#1b2e37] border ${errors.affiliateLinks && !link.url.trim() ? 'border-red-500/40' : 'border-blue-500/10'} rounded-xl py-5 px-6 text-emerald-400 font-mono text-base outline-none focus:border-blue-500/40 transition-all`}
                                                     />
                                                 </div>
                                             </div>
@@ -318,7 +329,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                         </div>
 
                         {/* Botón Guardar */}
-                        <div className="pt-12 flex flex-col items-center space-y-8">
+                        <div className="pt-6 flex flex-col items-center space-y-8">
                             <button 
                                 onClick={handleSave}
                                 disabled={saving}
