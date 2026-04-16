@@ -464,7 +464,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     };
 
     // Lógica de límites
-    const isRealAdmin = (planLimits?.planName === 'admin' || user?.role === 'admin') && !isSimulating;
+    const isRealAdmin = (user?.role === 'admin' || planLimits?.planName === 'admin') && !isSimulating;
     
     // Recalcular sequenceUsed basado en la lógica solicitada:
     // En conversión se cuenta por secuencia (si tiene al menos un correo generado)
@@ -670,10 +670,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                             <div className="flex justify-between items-center mb-2 text-sm">
                                 <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Secuencias creadas</span>
-                                <span className="text-white font-bold">{sequenceUsed} / {maxSequences}</span>
+                                <span className="text-white font-bold">{sequenceUsed} / {isRealAdmin ? '∞' : maxSequences}</span>
                             </div>
                             <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
+                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (sequenceUsed > 0 ? 100 : 0) : usagePercent}%` }}></div>
                             </div>
                         </div>
                     </div>

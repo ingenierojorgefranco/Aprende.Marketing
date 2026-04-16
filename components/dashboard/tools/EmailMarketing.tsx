@@ -259,7 +259,7 @@ export const EmailMarketing: React.FC = () => {
       }
   };
 
-  const isRealAdmin = user.role === 'admin' && !isSimulating;
+  const isRealAdmin = (user.role === 'admin' || effectiveLimits?.planName === 'admin') && !isSimulating;
   
   const conversionSequences = sequences.filter(s => s.type === 'conversion' || !s.type);
   const nurturingSequences = sequences.filter(s => s.type === 'nurturing');
