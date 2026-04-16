@@ -142,7 +142,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   };
 
   const handleCreate = () => {
-      const isRealAdmin = user.role === 'admin' && !isSimulating;
+      const isRealAdmin = (user.role === 'admin' || user.planLimits?.planName === 'admin') && !isSimulating;
       const maxArticles = user.planLimits?.maxArticles || 1;
       
       // Check Limit before creating (unless real admin)
@@ -165,7 +165,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   }
 
   // Plan Logic
-  const isRealAdmin = user.role === 'admin' && !isSimulating;
+  const isRealAdmin = (user.role === 'admin' || user.planLimits?.planName === 'admin') && !isSimulating;
   const maxArticles = user.planLimits?.maxArticles || 1;
   const usagePercent = Math.min(100, (articleCount / maxArticles) * 100);
   const isAtLimit = !isRealAdmin && articleCount >= maxArticles;

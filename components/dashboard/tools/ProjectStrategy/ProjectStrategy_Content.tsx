@@ -56,7 +56,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const user = context?.user;
     const { id: routeProjectId } = useParams() as { id: string };
     const projectId = embeddedProjectId || routeProjectId;
-    const isRealAdmin = (user?.role === 'admin' || user?.email === 'jackfort@gmail.com') || (planLimits?.planName === 'admin' && !isSimulating);
+    const isRealAdmin = (user?.role === 'admin' || planLimits?.planName === 'admin') && !isSimulating;
     
     console.log(">>> ProjectStrategy_Content Rendering", { activeArticle, activeTab, isRealAdmin });
     console.log(">>> Project Info:", { projectId, userEmail: user?.email });
@@ -690,10 +690,10 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                                     <div className="flex justify-between items-center mb-2 text-sm">
                                         <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Artículos Generados/Desbloqueados</span>
-                                        <span className="text-white font-bold">{currentArticleCount} / {maxArticles}</span>
+                                        <span className="text-white font-bold">{currentArticleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                                     </div>
                                     <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                        <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-purple-500" style={{ width: `${usagePercent}%` }}></div>
+                                        <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-purple-500" style={{ width: `${isRealAdmin ? (currentArticleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                     </div>
                                 </div>
                             </div>
