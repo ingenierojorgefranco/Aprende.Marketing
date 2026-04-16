@@ -523,7 +523,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         }
     };
 
-    const isRealAdmin = (planLimits?.planName === 'admin' || user?.role === 'admin') && !isSimulating;
+    const isRealAdmin = (user?.role === 'admin' || planLimits?.planName === 'admin') && !isSimulating;
     const maxLaunches = planLimits?.maxWhatsAppLaunches || 1;
     const launchUsed = launchCount;
     const usagePercent = Math.min(100, (launchUsed / maxLaunches) * 100);
@@ -704,10 +704,10 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                                             <div className="flex justify-between items-center mb-2 text-sm">
                                                 <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Lanzamientos creados</span>
-                                                <span className="text-white font-bold">{launchUsed} / {maxLaunches}</span>
+                                                <span className="text-white font-bold">{launchUsed} / {isRealAdmin ? '∞' : maxLaunches}</span>
                                             </div>
                                             <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
+                                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (launchUsed > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                             </div>
                                         </div>
                                     </div>
