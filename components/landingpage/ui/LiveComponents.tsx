@@ -130,7 +130,7 @@ export const Navbar = ({
 
     // Navbar Logic
     const currentTextColor = isScrolled ? ds.nav.stickyText : ds.nav.transparentText;
-    const currentBg = isScrolled ? `${ds.nav.stickyBg} ${ds.nav.stickyBorder} border-b` : 'bg-transparent border-b border-white/5';
+    const currentBg = isScrolled ? `${ds.nav.stickyBg} ${ds.nav.stickyBorder} border-b` : `${ds.nav.transparentBg} border-b border-white/5`;
 
     // Menú establecido como valor establecido (Fijo)
     const navLinks = [
