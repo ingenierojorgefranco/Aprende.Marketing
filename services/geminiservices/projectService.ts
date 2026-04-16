@@ -22,9 +22,9 @@ export const generateProjectStrategy = async (
     - Descripción: "${description}"
 
     Necesito que generes una estrategia base en formato JSON.
-    1. Define una "targetAudience" (Audiencia Objetivo/Avatar) detallada en 1 párrafo.
-    2. Genera 5 "painPoints" (Puntos de Dolor) profundos y emocionales que tenga este avatar.
-    3. Genera 5 "keyBenefits" (Beneficios Clave) persuasivos que resuelvan esos dolores.
+    1. Define una "targetAudience" (Audiencia Objetivo/Avatar) detallada en 1 párrafo. REGLA: Debe ser inclusiva para 3 perfiles: Emprendedor, Hobby/Creativo y Propietario/Personal.
+    2. Genera 5 "painPoints" (Puntos de Dolor) profundos y emocionales que tenga este avatar. PROHIBIDO incluir años específicos (ej: 2024).
+    3. Genera 5 "keyBenefits" (Beneficios Clave) persuasivos que resuelvan esos dolores de forma atemporal.
 
     Responde SOLO en JSON válido.`;
 

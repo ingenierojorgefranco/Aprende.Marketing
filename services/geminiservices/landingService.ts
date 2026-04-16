@@ -80,7 +80,7 @@ export const generateLandingPageContent = async (
       ${testimonialsText}
       - Descripción del Proyecto: ${pDesc}.
       
-      REGLA OBLIGATORIA: Si te he proporcionado los Títulos (h1, h2), Dolores, Beneficios y Testimonios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
+      REGLA OBLIGATORIA: Si te he proporcionado los Títulos (h1, h2), Dolores, Beneficios y Testimonios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo. PROHIBIDO incluir años específicos (ej: 2024, 2025). El enfoque debe ser general para abarcar múltiples perfiles de avatar.
       `;
   }
 
@@ -150,6 +150,10 @@ export const generateLandingPageContent = async (
   
   ${projectStrategy}
 
+  INSTRUCCIONES CRÍTICAS DE REDACCIÓN:
+  1. PROHIBIDO incluir años específicos (ej: 2024, 2025). El contenido debe ser atemporal (evergreen).
+  2. Los titulares (Hero) y la descripción (Intro) deben tener un enfoque GENERAL que resuene con los 3 perfiles de avatar: el que busca un negocio rentable, el que busca un hobby creativo y el propietario que busca mejoras personales. Unifica sus deseos en una promesa de transformación potente.
+  
   INSTRUCCIÓN CRÍTICA: Utiliza los detalles de la audiencia proporcionados arriba para que cada frase, beneficio y dolor resuene directamente con sus necesidades específicas. Si el contexto menciona dolores o deseos específicos, úsalos como base para el Hero y los beneficios.
   
   INSTRUCCIÓN DE CARTA DE VENTAS (SECCIÓN INTRO):

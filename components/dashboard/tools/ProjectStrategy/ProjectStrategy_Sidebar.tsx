@@ -22,26 +22,31 @@ interface ProjectStrategy_SidebarProps {
 export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = ({ activeSection, onSectionChange }) => {
     const menuItems: { module: string; items: SidebarItem[] }[] = [
         {
-            module: "Analisis de tu Estrategia",
+            module: "ETAPA 1: LOS CIMIENTOS (FUNDAMENTOS)",
             items: [
-                { id: 'summary', label: 'Tu Negocio Digital', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
-                { id: 'hotlinks', label: 'Configura tus Hotlinks', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado" },
-                { id: 'growth', label: '¿Cuánto Podrías Ganar?', icon: TrendingUp, module: "FUNDAMENTOS", description: "Proyección de Ingresos" },
-                { id: 'blueprint', label: 'Tu Estrategia de Ventas', icon: Map, module: "FUNDAMENTOS", description: "Ruta para Crecer y Ganar" },
-                { id: 'avatar', label: 'Tu Cliente Ideal', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto" },
-                { id: 'psychology', label: 'Transformación de tu Cliente', icon: Brain, module: "FUNDAMENTOS", description: "Dolores Vs Beneficios" },
-                { id: 'testimonials', label: 'Prueba Social', icon: MessageSquare, module: "FUNDAMENTOS", description: "Testimonios de Éxito" },
+                { id: 'summary', label: '1. Tu Nuevo Negocio Digital', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
+                { id: 'hotlinks', label: '2. Configura tus Enlaces de Afiliado', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado" },
+                { id: 'growth', label: '3. Proyección de tus Ganancias', icon: TrendingUp, module: "FUNDAMENTOS", description: "Proyección de Ingresos" },
+                { id: 'blueprint', label: '4. Tu Mapa de Ruta (Blueprint)', icon: Map, module: "FUNDAMENTOS", description: "Ruta para Crecer y Ganar" },
             ]
         },
         {
-            module: "¿Qué creará nuestro sistema por ti?",
+            module: "ETAPA 2: TU MERCADO Y CLIENTE",
             items: [
-                { id: 'web', label: 'Tu Página de Captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
-                { id: 'hooks', label: 'Tus Hooks de Atracción', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
-                { id: 'content', label: 'Tu Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
-                { id: 'email', label: 'Email Marketing: Tu Secuencia de Conversión', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
-                { id: 'evergreen', label: 'Email Marketing: Tu Secuencia de Nutrición', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
-                { id: 'whatsapp', label: 'Tu estrategia de Lanzamientos en WhatsApp', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
+                { id: 'avatar', label: '5. Conoce a tu Comprador Ideal', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto" },
+                { id: 'psychology', label: '6. Entiende su Mentalidad', icon: Brain, module: "FUNDAMENTOS", description: "Dolores Vs Beneficios" },
+                { id: 'testimonials', label: '7. Los Testimonios de tu Producto', icon: MessageSquare, module: "FUNDAMENTOS", description: "Testimonios de Éxito" },
+            ]
+        },
+        {
+            module: "ETAPA 3: TU SISTEMA DE VENTAS (LISTO PARA USAR)",
+            items: [
+                { id: 'web', label: '8. Mira tu Página de Captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
+                { id: 'hooks', label: '9. Tus Ganchos de Venta (Hooks)', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
+                { id: 'content', label: '10. Tu Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
+                { id: 'email', label: '11. Emails: Secuencia de Venta', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
+                { id: 'evergreen', label: '12. Emails: Secuencia de Confianza', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
+                { id: 'whatsapp', label: '13. Scripts de WhatsApp (Cierre)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
             ]
         }
     ];
