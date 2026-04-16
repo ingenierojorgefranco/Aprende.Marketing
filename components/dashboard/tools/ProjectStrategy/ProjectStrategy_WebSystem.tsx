@@ -20,6 +20,7 @@ interface ProjectStrategy_WebSystemProps {
     onEditPage: (id: string) => void;
     pageCount?: number;
     planLimits?: PlanLimits;
+    userRole?: string;
     onUpgrade?: () => void;
     nextPlan?: Plan | null;
     isSimulating?: boolean;
@@ -28,7 +29,7 @@ interface ProjectStrategy_WebSystemProps {
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
     projectId, lpTabsData, tyTabsData,
     selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, onEditPage,
-    pageCount = 0, planLimits, isSimulating = false, onUpgrade
+    pageCount = 0, planLimits, userRole, isSimulating = false, onUpgrade
 }) => {
     const [showPagesModal, setShowPagesModal] = useState(false);
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
@@ -238,7 +239,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         window.location.reload();
     };
 
-    const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
+    const isRealAdmin = (planLimits?.planName === 'admin' || userRole === 'admin') && !isSimulating;
     const maxLandings = planLimits?.maxLandings || 3;
     const maxDomains = planLimits?.maxDomains || 1;
     const usagePercent = Math.min(100, (pageCount / maxLandings) * 100);
