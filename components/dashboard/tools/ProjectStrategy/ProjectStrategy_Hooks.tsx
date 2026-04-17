@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import confetti from 'canvas-confetti';
-import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle, Wand2, Search } from 'lucide-react';
+import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle, Wand2, Search, Play } from 'lucide-react';
 import { useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { UpgradeModal } from '../../UpgradeModal';
@@ -662,7 +662,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
   return (
-    <div className="space-y-16">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen">
       <style>{`
         @keyframes loading-shine {
           0% { transform: translateX(-100%); }
@@ -672,34 +672,50 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
           animation: loading-shine 2s infinite;
         }
       `}</style>
-      {/* CABECERA ESTRATÉGICA */}
+      
+      {/* Div agrupador para encabezado y video (seccion_encabezado) */}
       {!overrideProjectId && (
-        <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
-          <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-500/5">
-            <Zap className="w-5 h-5 fill-current" /> Hooks de Atracción de Audiencia
-          </div>
-          
-          <h3 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 leading-tight tracking-tight max-w-4xl">
-            Hooks de Atracción
-          </h3>
-          
-          <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
-            <p className="flex-1 border-l-4 border-orange-500 pl-8 py-2">
-              Un Hook no es solo una pregunta; es el puente que detiene el scroll de tu cliente ideal. Hemos diseñado estos ganchos para atacar directamente los deseos de libertad y crecimiento de tu avatar.
-            </p>
-            <div className="hidden md:block w-px h-24 bg-orange-500/30"></div>
-            <div 
-              className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
-            >
-                <iframe 
-                    className="w-full h-full rounded-2xl"
-                    src="https://www.youtube.com/embed/bTV5aFTchJ8?rel=0&controls=1&showinfo=0" 
-                    title="Video Tutorial" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowFullScreen
-                ></iframe>
+        <div className="seccion_encabezado space-y-12 mb-20">
+            {/* --- HEADER SECCIÓN --- */}
+            <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
+                {/* Degradado superior sutil */}
+                <div className="absolute inset-x-0 -top-24 h-[600px] bg-orange-600/10 blur-[140px] -z-10 rounded-full" />
+                
+                <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
+                    <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_#f97316]" />
+                    <Zap className="w-4 h-4 fill-current" /> Hooks de Atracción de Audiencia
+                </div>
+                
+                <div className="space-y-4 px-4">
+                    <h3 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 tracking-tight leading-none">
+                        Hooks de Atracción
+                    </h3>
+                    <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
+                      Un Hook no es solo una pregunta; es el puente que detiene el scroll de tu cliente ideal. Hemos diseñado estos ganchos para atacar directamente los deseos de libertad y crecimiento de tu avatar.
+                    </p>
+                </div>
             </div>
-          </div>
+
+            {/* --- VIDEO EXPLICATIVO --- */}
+            <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
+                <div className="inline-flex items-center gap-3 text-orange-300 font-extrabold uppercase tracking-widest text-sm bg-orange-500/5 px-8 py-4 rounded-2xl border border-orange-500/10 backdrop-blur-sm mx-auto">
+                    <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
+                </div>
+                
+                <div className="group relative">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-orange-600/20 to-amber-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
+                    
+                    <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-orange-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
+                        <iframe 
+                            className="w-full h-full"
+                            src="https://www.youtube.com/embed/bTV5aFTchJ8?rel=0&controls=1&showinfo=0" 
+                            title="Video Tutorial Hooks" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
+                    </div>
+                </div>
+            </div>
         </div>
       )}
 

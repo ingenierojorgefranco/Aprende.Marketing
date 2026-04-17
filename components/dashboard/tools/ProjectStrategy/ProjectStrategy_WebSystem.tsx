@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp, Save } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp, Save, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan, Project } from '../../../../types';
 import { Generator } from '../Generator';
@@ -396,26 +396,48 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     return (
         <>
-            <div className="space-y-24">
-                <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
-                    <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg"><Monitor className="w-5 h-5" /> Crea tu Página Web Profesional en Minutos</div>
-                    <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl" style={{
-                        lineHeight: '1.1em'
-                    }}>Activa tu Página Web Profesional<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400"> y captura clientes en automático</span></h3>
-                    
-                    <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
-                        <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">Imagina que pudieses crear tu propia página web profesional que capture clientes interesados todos los días. Hoy es ese dia, nuestra Inteligencia Artificial creará por ti, tu propia página web de Personalizada (LandingPage) en Minutos.</p>
-                        <div className="hidden md:block w-px h-24 bg-cyan-500/30"></div>
-                        <div 
-                            className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
-                        >
-                            <iframe 
-                                className="w-full h-full rounded-2xl"
-                                src="https://www.youtube.com/embed/WUqaWRJG92c?rel=0&controls=1&showinfo=0" 
-                                title="Video Tutorial" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-24 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen">
+                
+                {/* Div agrupador para encabezado y video (seccion_encabezado) */}
+                <div className="seccion_encabezado space-y-12">
+                    {/* --- HEADER SECCIÓN --- */}
+                    <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
+                        {/* Degradado superior sutil */}
+                        <div className="absolute inset-x-0 -top-24 h-[600px] bg-blue-600/10 blur-[140px] -z-10 rounded-full" />
+                        
+                        <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
+                            <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6]" />
+                            <Monitor className="w-4 h-4" /> Crea tu Página Web Profesional en Minutos
+                        </div>
+                        
+                        <div className="space-y-4 px-4">
+                            <h3 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-none text-center max-w-5xl mx-auto">
+                                Activa tu Página Web Profesional<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400"> y captura clientes en automático</span>
+                            </h3>
+                            <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
+                                Imagina que pudieses crear tu propia página web profesional que capture clientes interesados todos los días. Hoy es ese día, nuestra Inteligencia Artificial creará por ti tu propia página web personalizada (Landing Page) en minutos.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* --- VIDEO EXPLICATIVO --- */}
+                    <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
+                        <div className="inline-flex items-center gap-3 text-blue-300 font-extrabold uppercase tracking-widest text-sm bg-blue-500/5 px-8 py-4 rounded-2xl border border-blue-500/10 backdrop-blur-sm mx-auto">
+                            <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
+                        </div>
+                        
+                        <div className="group relative">
+                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
+                            
+                            <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-blue-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
+                                <iframe 
+                                    className="w-full h-full"
+                                    src="https://www.youtube.com/embed/WUqaWRJG92c?rel=0&controls=1&showinfo=0" 
+                                    title="Video Tutorial Web System" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowFullScreen
+                                ></iframe>
+                            </div>
                         </div>
                     </div>
                 </div>

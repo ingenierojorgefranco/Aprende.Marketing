@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
-import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, BookOpen, Shield, Gift } from 'lucide-react';
+import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, BookOpen, Shield, Gift, Play } from 'lucide-react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, EmailMessage, EmailSequence, LandingPage, AffiliateLink, Project } from '../../../../types';
 import { api } from '../../../../services/api';
@@ -524,7 +524,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     };
 
     return (
-        <div id="psd-email-section" className="pt-8">
+        <div id="psd-email-section" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen pt-8">
             <style>{`
                 @keyframes loading-shine {
                     0% { transform: translateX(-100%); }
@@ -607,7 +607,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                             </p>
                         </div>
 
-                        <div className="w-full max-w-sm pt-4">
+                        <div className="w-full max-sm pt-4">
                             <button 
                                 onClick={() => window.location.reload()}
                                 className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-blue-900/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
@@ -624,32 +624,45 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
             {/* --- ENCABEZADO ESTRATÉGICO ACTUALIZADO --- */}
             {!hideHeader && (
-                <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
-                    <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full border text-sm font-black uppercase tracking-[0.2em] shadow-lg bg-blue-500/10 border-blue-500/20 text-blue-400 shadow-blue-500/5">
-                        <Sparkles className="w-5 h-5" /> Correos de Conversión
+                <div className="seccion_encabezado space-y-12 mb-20">
+                    {/* --- HEADER SECCIÓN --- */}
+                    <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
+                        {/* Degradado superior sutil */}
+                        <div className="absolute inset-x-0 -top-24 h-[600px] bg-blue-600/10 blur-[140px] -z-10 rounded-full" />
+                        
+                        <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
+                            <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6]" />
+                            <Sparkles className="w-4 h-4" /> Correos de Conversión
+                        </div>
+                        
+                        <div className="space-y-4 px-4">
+                            <h3 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-none text-center max-w-5xl mx-auto">
+                                Email Marketing: <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-blue-400">Secuencia de Conversión (7 Días)</span>
+                            </h3>
+                            <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
+                                Hemos diseñado una secuencia de 7 correos electrónicos estratégicos diseñados para nutrir a tus prospectos y llevarlos paso a paso hacia la decisión de compra, utilizando gatillos mentales de autoridad, escasez y urgencia.
+                            </p>
+                        </div>
                     </div>
-                    
-                    <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
-                        Email Marketing: <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-blue-400">
-                            Secuencia de Conversión (7 Días)
-                        </span>
-                    </h3>
 
-                    <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
-                        <p className="flex-1 border-l-4 pl-8 py-2 border-blue-500">
-                            Hemos diseñado una secuencia de 7 correos electrónicos estratégicos diseñados para nutrir a tus prospectos y llevarlos paso a paso hacia la decisión de compra, utilizando gatillos mentales de autoridad, escasez y urgencia.
-                        </p>
-                        <div className="hidden md:block w-px h-24 bg-blue-500/30"></div>
-                        <div 
-                            className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
-                        >
-                            <iframe 
-                                className="w-full h-full rounded-2xl"
-                                src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
-                                title="Video Tutorial" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
+                    {/* --- VIDEO EXPLICATIVO --- */}
+                    <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
+                        <div className="inline-flex items-center gap-3 text-blue-300 font-extrabold uppercase tracking-widest text-sm bg-blue-500/5 px-8 py-4 rounded-2xl border border-blue-500/10 backdrop-blur-sm mx-auto">
+                            <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
+                        </div>
+                        
+                        <div className="group relative">
+                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-blue-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
+                            
+                            <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-blue-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
+                                <iframe 
+                                    className="w-full h-full"
+                                    src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
+                                    title="Video Tutorial Email" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowFullScreen
+                                ></iframe>
+                            </div>
                         </div>
                     </div>
                 </div>

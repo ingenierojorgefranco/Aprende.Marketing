@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { MessageCircle, Check, Copy, Calendar, Clock, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2, Crown, X, Loader2, AlertTriangle, CheckCircle2, Target, Shield } from 'lucide-react';
+import { MessageCircle, Check, Copy, Calendar, Clock, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2, Crown, X, Loader2, AlertTriangle, CheckCircle2, Target, Shield, Play } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { PlanLimits, WhatsAppLaunchMessage, WhatsAppLaunch } from '../../../../types';
@@ -550,7 +550,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     };
 
     return (
-        <div id="psd-whatsapp-section" className="pt-8 relative">
+        <div id="psd-whatsapp-section" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen pt-8 relative">
             <style>{`
                 @keyframes confetti-fall { 0% { transform: translateY(-100%) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
                 .confetti { position: absolute; width: 8px; height: 8px; animation: confetti-fall 3s linear forwards; top: -10px; z-index: 210; pointer-events: none; }
@@ -639,25 +639,45 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 </div>
             )}
 
-            <div id="psd-whatsapp-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
-                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg"><MessageCircle className="w-5 h-5" /> Resumen estratégico</div>
-                <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">Secuencia de Lanzamiento <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400"><b>Lanzamiento vía WhatsApp</b></span></h3>
-                
-                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
-                    <p className="flex-1 border-l-4 border-green-500 pl-8 py-2">
-                        El cierre por WhatsApp permite humanizar la venta y generar picos de facturación masiva. Nuestra estrategia divide el lanzamiento en 12 momentos críticos divididos en 4 fases psicológicas.
-                    </p>
-                    <div className="hidden md:block w-px h-24 bg-emerald-500/30"></div>
-                    <div 
-                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
-                    >
-                        <iframe 
-                            className="w-full h-full rounded-2xl"
-                            src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
-                            title="Video Tutorial" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
+            <div className="seccion_encabezado space-y-12 mb-20">
+                {/* --- HEADER SECCIÓN --- */}
+                <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
+                    {/* Degradado superior sutil */}
+                    <div className="absolute inset-x-0 -top-24 h-[600px] bg-emerald-600/10 blur-[140px] -z-10 rounded-full" />
+                    
+                    <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
+                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#10b981]" />
+                        <MessageCircle className="w-4 h-4" /> Resumen estratégico
+                    </div>
+                    
+                    <div className="space-y-4 px-4">
+                        <h3 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-none text-center max-w-5xl mx-auto">
+                            Secuencia de Lanzamiento <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">Lanzamiento vía WhatsApp</span>
+                        </h3>
+                        <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
+                            El cierre por WhatsApp permite humanizar la venta y generar picos de facturación masiva. Nuestra estrategia divide el lanzamiento en 12 momentos críticos divididos en 4 fases psicológicas.
+                        </p>
+                    </div>
+                </div>
+
+                {/* --- VIDEO EXPLICATIVO --- */}
+                <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
+                    <div className="inline-flex items-center gap-3 text-emerald-300 font-extrabold uppercase tracking-widest text-sm bg-emerald-500/5 px-8 py-4 rounded-2xl border border-emerald-500/10 backdrop-blur-sm mx-auto">
+                        <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
+                    </div>
+                    
+                    <div className="group relative">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600/20 to-green-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
+                        
+                        <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-emerald-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
+                                title="Video Tutorial WhatsApp" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
                     </div>
                 </div>
             </div>
