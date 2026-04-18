@@ -203,8 +203,13 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                         
                         <div className="relative z-10 flex flex-col lg:flex-row gap-16 lg:items-center">
                             <div className="space-y-10 flex-1">
-                                <div className="w-28 h-28 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
-                                    <Sparkles className="w-10 h-10 text-purple-400" />
+                                <div className="flex flex-col gap-6">
+                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-200 text-xs font-bold uppercase tracking-widest w-fit">
+                                        <Users className="w-3.5 h-3.5" /> Avatar: Laura — La Emprendedora
+                                    </div>
+                                    <div className="w-28 h-28 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
+                                        <Sparkles className="w-10 h-10 text-purple-400" />
+                                    </div>
                                 </div>
                                 <h3 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight">Si buscas crear tu propio negocio y reinventarte profesionalmente</h3>
                             </div>
@@ -240,8 +245,13 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                         
                         <div className="relative z-10 flex flex-col lg:flex-row gap-16 lg:items-center">
                             <div className="space-y-10 flex-1">
-                                <div className="w-28 h-28 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
-                                    <TrendingUp className="w-10 h-10 text-blue-400" />
+                                <div className="flex flex-col gap-6">
+                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-200 text-xs font-bold uppercase tracking-widest w-fit">
+                                        <Users className="w-3.5 h-3.5" /> Avatar: Mónica — La Profesional
+                                    </div>
+                                    <div className="w-28 h-28 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
+                                        <TrendingUp className="w-10 h-10 text-blue-400" />
+                                    </div>
                                 </div>
                                 <h3 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight">Si ya estás en el sector belleza y quieres dominar la técnica más top</h3>
                             </div>
@@ -277,8 +287,13 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                         
                         <div className="relative z-10 flex flex-col lg:flex-row gap-16 lg:items-center">
                             <div className="space-y-10 flex-1">
-                                <div className="w-28 h-28 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
-                                    <UserCheck className="w-10 h-10 text-emerald-400" />
+                                <div className="flex flex-col gap-6">
+                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-200 text-xs font-bold uppercase tracking-widest w-fit">
+                                        <Users className="w-3.5 h-3.5" /> Avatar: Ana — La Mamá Reinventora
+                                    </div>
+                                    <div className="w-28 h-28 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
+                                        <UserCheck className="w-10 h-10 text-emerald-400" />
+                                    </div>
                                 </div>
                                 <h3 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight">Si te da miedo fallar por falta de experiencia pero buscas respaldo</h3>
                             </div>
