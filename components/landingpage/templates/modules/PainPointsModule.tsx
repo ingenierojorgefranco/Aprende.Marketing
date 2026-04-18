@@ -10,66 +10,65 @@ interface PainPointsModuleProps {
 export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds }) => {
   const avatars = [
     {
-      title: "La Emprendedora",
-      subtitle: "Buscando su primer negocio",
-      icon: <Sparkles className="w-6 h-6 text-purple-500" />,
-      gradient: "from-purple-50 to-white",
+      title: "Si buscas crear tu propio negocio y reinventarte profesionalmente",
+      icon: <Sparkles className="w-10 h-10 text-purple-400" />,
+      gradient: "from-[#1a0b2e] via-[#12061d] to-[#0f041d]",
       points: [
-        "Sientes que estás estancada en un trabajo que no te apasiona.",
-        "Tienes miedo de emprender por no tener experiencia previa.",
-        "Buscas una oportunidad real para ser tu propia jefa."
+        "Sientes que es el momento de dejar de trabajar para otros y construir algo propio.",
+        "Buscas una habilidad rentable que puedas iniciar desde cero sin complicaciones.",
+        "Deseas libertad de tiempo para disfrutar con tu familia mientras generas ingresos altos."
       ]
     },
     {
-      title: "La Especialista",
-      subtitle: "Buscando subir de nivel",
-      icon: <UserCheck className="w-6 h-6 text-blue-500" />,
-      gradient: "from-blue-50 to-white",
+      title: "Si ya estás en el sector belleza y quieres dominar la técnica más top",
+      icon: <TrendingUp className="w-10 h-10 text-blue-400" />,
+      gradient: "from-[#0f172a] via-[#0b1120] to-[#090e1a]",
       points: [
-        "Ya estás en el mundo de la belleza pero tus ingresos son bajos.",
-        "Sientes que te faltan técnicas modernas para cobrar más.",
-        "Quieres certificarte para generar más confianza en tus clientes."
+        "Quieres diferenciarte de la competencia ofreciendo resultados ultra-naturales.",
+        "Buscas aumentar el ticket promedio de tus servicios con procedimientos de alto valor.",
+        "Necesitas perfeccionar tu técnica para ganar la confianza total de tus clientes."
       ]
     },
     {
-      title: "La Visionaria",
-      subtitle: "Buscando libertad financiera",
-      icon: <TrendingUp className="w-6 h-6 text-emerald-500" />,
-      gradient: "from-emerald-50 to-white",
+      title: "Si te da miedo fallar por falta de experiencia pero buscas respaldo",
+      icon: <UserCheck className="w-10 h-10 text-emerald-400" />,
+      gradient: "from-[#061a14] via-[#04120e] to-[#030d0a]",
       points: [
-        "Buscas un servicio de alta demanda con alto margen de ganancia.",
-        "Quieres manejar tu propio tiempo sin depender de un horario.",
-        "Deseas construir un negocio escalable con clientes recurrentes."
+        "Te preocupa no tener 'talento' artístico, pero buscas un método paso a paso probado.",
+        "Tienes miedo a realizar una inversión y no recuperar el dinero rápidamente.",
+        "Buscas una certificación que realmente te abra puertas en el mercado profesional."
       ]
     }
   ];
 
   return (
-    <section id="dolores" className={`py-16 ${ds.features.sectionBg}`}>
-        <div className="max-w-6xl mx-auto px-6 text-center mb-24">
-            <h2 className="text-4xl md:text-5xl font-['Verdana'] font-extrabold mb-4 text-[#2d1b4d]">Esta clase es para ti si...</h2>
-            <p className="text-xl text-gray-600 mb-16 max-w-2xl mx-auto">Identifica tu perfil y descubre cómo esta formación transformará tu futuro profesional.</p>
+    <section id="dolores" className={`py-24 ${ds.features.sectionBg}`}>
+        <div className="max-w-7xl mx-auto px-6 text-center mb-32">
+            <h2 className="text-4xl md:text-6xl font-['Verdana'] font-extrabold mb-8 text-[#2d1b4d] leading-tight tracking-tight">Esta clase es para ti si...</h2>
+            <p className="text-2xl text-gray-600 mb-20 max-w-3xl mx-auto font-medium leading-relaxed">Hemos diseñado esta sesión para 3 perfiles específicos. Encuentra el tuyo:</p>
             
-            <div className="grid lg:grid-cols-3 gap-8 text-left">
+            <div className="max-w-6xl mx-auto flex flex-col gap-16 text-left">
                 {avatars.map((avatar, idx) => (
-                    <div key={idx} className={`relative p-10 rounded-[2.5rem] border border-gray-100 bg-gradient-to-br ${avatar.gradient} shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group overflow-hidden`}>
-                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
-                           {React.cloneElement(avatar.icon as any, { size: 96 })}
+                    <div key={idx} className={`relative p-12 md:p-20 rounded-[4rem] border border-white/10 bg-gradient-to-br ${avatar.gradient} shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] hover:shadow-purple-500/10 transition-all duration-700 hover:-translate-y-2 group overflow-hidden backdrop-blur-sm`}>
+                        <div className="absolute top-0 right-0 p-16 opacity-[0.03] group-hover:opacity-[0.06] group-hover:scale-110 transition-all duration-700">
+                           {React.cloneElement(avatar.icon as any, { size: 300 })}
                         </div>
                         
-                        <div className="relative z-10 space-y-6">
-                            <div className="w-14 h-14 rounded-2xl bg-white shadow-md flex items-center justify-center">
-                                {avatar.icon}
+                        <div className="relative z-10 flex flex-col lg:flex-row gap-16 lg:items-center">
+                            <div className="space-y-10 flex-1">
+                                <div className="w-28 h-28 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
+                                    {avatar.icon}
+                                </div>
+                                <h3 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight">{avatar.title}</h3>
                             </div>
-                            <div>
-                                <h3 className="text-2xl font-black text-[#2d1b4d]">{avatar.title}</h3>
-                                <p className="text-sm font-bold uppercase tracking-widest text-gray-400 mt-1">{avatar.subtitle}</p>
-                            </div>
-                            <div className="space-y-4 pt-4 border-t border-gray-100">
+                            
+                            <div className="lg:w-[45%] space-y-8 lg:pl-16 lg:border-l border-white/10">
                                 {avatar.points.map((point, pIdx) => (
-                                    <div key={pIdx} className="flex gap-3">
-                                        <CheckCircle2 className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
-                                        <p className="text-gray-600 leading-relaxed font-medium">{point}</p>
+                                    <div key={pIdx} className="flex gap-6">
+                                        <div className="mt-3 shrink-0">
+                                            <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.8)]"></div>
+                                        </div>
+                                        <p className="text-gray-200 text-[1.4rem] leading-relaxed font-medium">{point}</p>
                                     </div>
                                 ))}
                             </div>
