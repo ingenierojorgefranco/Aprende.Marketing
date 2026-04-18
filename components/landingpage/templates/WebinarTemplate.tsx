@@ -36,16 +36,13 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
          <UrgencyBar content={content} ds={ds} />
          <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} hasUrgencyBar={true} />
          
-         <header id="webinar-hero" className={`relative py-24 lg:py-32 ${ds.hero.bgGradient}`}>
+         <header id="webinar-hero" className={`relative pt-24 lg:pt-32 pb-[4rem] ${ds.hero.bgGradient}`}>
             <div className="w-full max-w-5xl mx-auto px-6 flex flex-col items-center text-center gap-10">
                 
                 {/* 1. Badges */}
                 <div className="flex flex-wrap gap-3 justify-center items-center pt-[3em]">
-                    <div id="webinar-live-badge" className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold ${ds.badges.liveBg} ${ds.badges.liveText} ${ds.badges.liveBorder}`}>
-                        <span className="flex h-2 w-2 rounded-full bg-current animate-pulse"></span> EN VIVO
-                    </div>
                     {content.topTagline && (
-                        <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold ${ds.hero.badgeBg} ${ds.hero.badgeText} ${ds.hero.badgeBorder}`}>
+                        <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold ${ds.hero.badgeBg} ${ds.hero.badgeText} ${ds.hero.badgeBorder} font-['Verdana'] text-[1.2em] pt-[0.9em] pb-[0.7em] pl-[1.5em] pr-[1.5em] mt-[2em]`}>
                             {content.topTagline}
                         </div>
                     )}
@@ -53,10 +50,10 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
 
                 {/* 2. Headlines */}
                 <div className="space-y-4 max-w-4xl mx-auto">
-                    {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-tight ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-5xl md:text-7xl'}`, ds.hero.highlightGradient)}
+                    {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-[1.2] font-['Verdana'] ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-[3.8rem]'}`, ds.hero.highlightGradient)}
                     
                     <div id="subtitulo-principal">
-                       {renderRichText(content.hero.subheadline, `text-xl opacity-90 leading-tight max-w-2xl mx-auto ${ds.hero.subtitleColor} ${isMobilePreview ? '' : 'md:text-2xl'}`)}
+                       {renderRichText(content.hero.subheadline, `opacity-90 font-normal mt-[1.2em] text-[1.6em] leading-[1.4em] max-w-[54rem] mx-auto ${ds.hero.subtitleColor}`)}
                     </div>
                 </div>
                 
