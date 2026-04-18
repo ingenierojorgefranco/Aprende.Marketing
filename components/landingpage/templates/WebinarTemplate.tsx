@@ -83,10 +83,9 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                     <div className="bg-white/5 backdrop-blur-md border border-white/10 p-10 md:p-12 rounded-[3.5rem] w-full shadow-2xl space-y-8">
                         
                         <div className="space-y-2">
-                            <h3 className="text-3xl md:text-5xl font-black">{content.hero.spotsLeft || "✨ ¡Solo 5 cupos disponibles!"}</h3>
+                            <h3 className="text-3xl md:text-5xl font-black text-yellow-400">{content.hero.spotsLeft || "✨ ¡Solo 5 cupos disponibles!"}</h3>
                             <div className="space-y-1">
-                                <h4 className="text-xl md:text-2xl font-bold opacity-80 italic">No te quedes por fuera</h4>
-                                <p className="text-sm md:text-base font-bold uppercase tracking-[0.2em] opacity-60">Las inscripciones a la clase gratuita finalizan en</p>
+                                <p className="opacity-60 font-['Verdana'] tracking-normal pt-[0.8em] text-[1.2em] font-normal">Cerramos inscripciones a la clase gratuita en</p>
                             </div>
                         </div>
                         

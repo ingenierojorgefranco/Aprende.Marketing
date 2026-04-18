@@ -45,7 +45,6 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds 
     <section id="dolores" className={`py-24 ${ds.features.sectionBg}`}>
         <div className="max-w-7xl mx-auto px-6 text-center mb-32">
             <h2 className="text-4xl md:text-6xl font-['Verdana'] font-extrabold mb-8 text-[#2d1b4d] leading-tight tracking-tight">Esta clase es para ti si...</h2>
-            <p className="text-2xl text-gray-600 mb-20 max-w-3xl mx-auto font-medium leading-relaxed">Hemos diseñado esta sesión para 3 perfiles específicos. Encuentra el tuyo:</p>
             
             <div className="max-w-6xl mx-auto flex flex-col gap-16 text-left">
                 {avatars.map((avatar, idx) => (
