@@ -4,7 +4,7 @@ import {
     Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, 
     Layout, Mail, MessageSquare, FileText, MousePointer2, 
     Sparkles, Zap, ShieldAlert, XCircle, 
-    Target, Users, Globe, Play 
+    Target, Users, Globe, Play, TrendingUp, UserCheck
 } from 'lucide-react';
 import { api } from '../../../../services/api';
 import { LandingPage } from '../../../../types';
@@ -187,6 +187,124 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                             </div>
                         );
                     })}
+                </div>
+            </div>
+
+            {/* --- SECCIÓN QUEMADA: ESTA CLASE ES PARA TI SI... --- */}
+            <div className="max-w-[75em] mx-auto px-6 text-center mt-32 space-y-16">
+                <h2 className="text-4xl md:text-6xl font-['Verdana'] font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 leading-tight tracking-tight">Esta clase es para ti si...</h2>
+                
+                <div className="flex flex-col gap-16 text-left">
+                    {/* Perfil 1 */}
+                    <div className="relative p-12 md:p-20 rounded-[4rem] border border-white/10 bg-gradient-to-br from-[#1a0b2e] via-[#12061d] to-[#0f041d] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] hover:shadow-purple-500/10 transition-all duration-700 hover:-translate-y-2 group overflow-hidden backdrop-blur-sm">
+                        <div className="absolute top-0 right-0 p-16 opacity-[0.03] group-hover:opacity-[0.06] group-hover:scale-110 transition-all duration-700">
+                           <Sparkles size={300} />
+                        </div>
+                        
+                        <div className="relative z-10 flex flex-col lg:flex-row gap-16 lg:items-center">
+                            <div className="space-y-10 flex-1">
+                                <div className="w-28 h-28 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
+                                    <Sparkles className="w-10 h-10 text-purple-400" />
+                                </div>
+                                <h3 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight">Si buscas crear tu propio negocio y reinventarte profesionalmente</h3>
+                            </div>
+                            
+                            <div className="lg:w-[45%] space-y-8 lg:pl-16 lg:border-l border-white/10">
+                                <div className="flex gap-6">
+                                    <div className="mt-3 shrink-0">
+                                        <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.8)]"></div>
+                                    </div>
+                                    <p className="text-gray-200 text-[1.4rem] leading-relaxed font-medium">Sientes que es el momento de dejar de trabajar para otros y construir algo propio.</p>
+                                </div>
+                                <div className="flex gap-6">
+                                    <div className="mt-3 shrink-0">
+                                        <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.8)]"></div>
+                                    </div>
+                                    <p className="text-gray-200 text-[1.4rem] leading-relaxed font-medium">Buscas una habilidad rentable que puedas iniciar desde cero sin complicaciones.</p>
+                                </div>
+                                <div className="flex gap-6">
+                                    <div className="mt-3 shrink-0">
+                                        <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.8)]"></div>
+                                    </div>
+                                    <p className="text-gray-200 text-[1.4rem] leading-relaxed font-medium">Deseas libertad de tiempo para disfrutar con tu familia mientras generas ingresos altos.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Perfil 2 */}
+                    <div className="relative p-12 md:p-20 rounded-[4rem] border border-white/10 bg-gradient-to-br from-[#0f172a] via-[#0b1120] to-[#090e1a] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] hover:shadow-blue-500/10 transition-all duration-700 hover:-translate-y-2 group overflow-hidden backdrop-blur-sm">
+                        <div className="absolute top-0 right-0 p-16 opacity-[0.03] group-hover:opacity-[0.06] group-hover:scale-110 transition-all duration-700">
+                           <TrendingUp size={300} />
+                        </div>
+                        
+                        <div className="relative z-10 flex flex-col lg:flex-row gap-16 lg:items-center">
+                            <div className="space-y-10 flex-1">
+                                <div className="w-28 h-28 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
+                                    <TrendingUp className="w-10 h-10 text-blue-400" />
+                                </div>
+                                <h3 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight">Si ya estás en el sector belleza y quieres dominar la técnica más top</h3>
+                            </div>
+                            
+                            <div className="lg:w-[45%] space-y-8 lg:pl-16 lg:border-l border-white/10">
+                                <div className="flex gap-6">
+                                    <div className="mt-3 shrink-0">
+                                        <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-500 shadow-[0_0_20px_rgba(37,99,235,0.8)]"></div>
+                                    </div>
+                                    <p className="text-gray-200 text-[1.4rem] leading-relaxed font-medium">Quieres diferenciarte de la competencia ofreciendo resultados ultra-naturales.</p>
+                                </div>
+                                <div className="flex gap-6">
+                                    <div className="mt-3 shrink-0">
+                                        <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-500 shadow-[0_0_20px_rgba(37,99,235,0.8)]"></div>
+                                    </div>
+                                    <p className="text-gray-200 text-[1.4rem] leading-relaxed font-medium">Buscas aumentar el ticket promedio de tus servicios con procedimientos de alto valor.</p>
+                                </div>
+                                <div className="flex gap-6">
+                                    <div className="mt-3 shrink-0">
+                                        <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-500 shadow-[0_0_20px_rgba(37,99,235,0.8)]"></div>
+                                    </div>
+                                    <p className="text-gray-200 text-[1.4rem] leading-relaxed font-medium">Necesitas perfeccionar tu técnica para ganar la confianza total de tus clientes.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Perfil 3 */}
+                    <div className="relative p-12 md:p-20 rounded-[4rem] border border-white/10 bg-gradient-to-br from-[#061a14] via-[#04120e] to-[#030d0a] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] hover:shadow-emerald-500/10 transition-all duration-700 hover:-translate-y-2 group overflow-hidden backdrop-blur-sm">
+                        <div className="absolute top-0 right-0 p-16 opacity-[0.03] group-hover:opacity-[0.06] group-hover:scale-110 transition-all duration-700">
+                           <UserCheck size={300} />
+                        </div>
+                        
+                        <div className="relative z-10 flex flex-col lg:flex-row gap-16 lg:items-center">
+                            <div className="space-y-10 flex-1">
+                                <div className="w-28 h-28 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
+                                    <UserCheck className="w-10 h-10 text-emerald-400" />
+                                </div>
+                                <h3 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight">Si te da miedo fallar por falta de experiencia pero buscas respaldo</h3>
+                            </div>
+                            
+                            <div className="lg:w-[45%] space-y-8 lg:pl-16 lg:border-l border-white/10">
+                                <div className="flex gap-6">
+                                    <div className="mt-3 shrink-0">
+                                        <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-emerald-600 to-green-500 shadow-[0_0_20px_rgba(5,150,105,0.8)]"></div>
+                                    </div>
+                                    <p className="text-gray-200 text-[1.4rem] leading-relaxed font-medium">Te preocupa no tener 'talento' artístico, pero buscas un método paso a paso probado.</p>
+                                </div>
+                                <div className="flex gap-6">
+                                    <div className="mt-3 shrink-0">
+                                        <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-emerald-600 to-green-500 shadow-[0_0_20px_rgba(5,150,105,0.8)]"></div>
+                                    </div>
+                                    <p className="text-gray-200 text-[1.4rem] leading-relaxed font-medium">Tienes miedo a realizar una inversión y no recuperar el dinero rápidamente.</p>
+                                </div>
+                                <div className="flex gap-6">
+                                    <div className="mt-3 shrink-0">
+                                        <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-emerald-600 to-green-500 shadow-[0_0_20px_rgba(5,150,105,0.8)]"></div>
+                                    </div>
+                                    <p className="text-gray-200 text-[1.4rem] leading-relaxed font-medium">Buscas una certificación que realmente te abra puertas en el mercado profesional.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
