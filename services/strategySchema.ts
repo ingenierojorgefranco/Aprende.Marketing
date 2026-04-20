@@ -46,11 +46,21 @@ export interface ProjectMasterStrategy {
         objection: string;
         interests: string; 
         behavior: string;  
+        detailed_pains?: string[]; // Nuevo: Lista detallada de dolores para UI premium
         motivations: { dinero: number; tiempo: number; estatus: number; seguridad: number };
     }>;
     psychology: {
-        pains: string[];
-        solutions: string[];
+        pains: Array<{ text: string; avatarId: number }>;
+        solutions: Array<{ title: string; description?: string; avatarId: number }>;
+        learningModules?: Array<{   // Nuevo: Módulos de aprendizaje dinámicos para dashboard/landing
+            title: string;
+            description: string;
+            icon: string;
+            color: string;
+            glow: string;
+            bg: string;
+            border: string;
+        }>;
         awarenessStages: {
             stage1_pain: string;
             stage2_solution: string;

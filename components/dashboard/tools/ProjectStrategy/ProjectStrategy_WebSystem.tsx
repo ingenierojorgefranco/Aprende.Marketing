@@ -116,18 +116,20 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         performAutoSave(draftLpTabsData, updated, draftStrategy);
     };
 
-    const handleUpdateStrategyDraft = (section: 'pains' | 'solutions', index: number, value: string, subfield?: 'title' | 'description') => {
+    const handleUpdateStrategyDraft = (section: 'pains' | 'solutions', index: number, value: string, subfield?: 'text' | 'title' | 'description') => {
         if (!draftStrategy) return;
         const updatedPsychology = { ...draftStrategy.psychology };
-        const updatedList = [...updatedPsychology[section]];
+        const updatedList = [...(updatedPsychology[section] as any[])];
         
         if (subfield) {
-            updatedList[index] = { ...(updatedList[index] as any), [subfield]: value };
+            updatedList[index] = { ...updatedList[index], [subfield]: value };
+        } else if (section === 'pains') {
+            updatedList[index] = { ...updatedList[index], text: value };
         } else {
-            updatedList[index] = value;
+            updatedList[index] = { ...updatedList[index], title: value };
         }
         
-        updatedPsychology[section] = updatedList;
+        (updatedPsychology as any)[section] = updatedList;
         const updatedStrat = { ...draftStrategy, psychology: updatedPsychology };
         setDraftStrategy(updatedStrat);
         performAutoSave(draftLpTabsData, draftTyTabsData, updatedStrat);
@@ -289,14 +291,17 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     <div className="space-y-4">
                         <h4 className="text-gray-900 font-black text-2xl mb-6">¿Te sientes identificada?</h4>
                         <div className="space-y-3">
-                            {items.map((item: string, i: number) => (
-                                <div key={i} className="flex gap-4 items-start p-4 bg-red-50 rounded-2xl border border-red-100">
-                                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
-                                    <div className="flex-1 text-gray-800 text-base leading-snug font-medium">
-                                        <EditableField value={item} onSave={(val) => handleUpdateStrategyDraft('pains', i, val)} multiline />
+                            {items.map((item: any, i: number) => {
+                                const painText = typeof item === 'string' ? item : item.text;
+                                return (
+                                    <div key={i} className="flex gap-4 items-start p-4 bg-red-50 rounded-2xl border border-red-100">
+                                        <XCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
+                                        <div className="flex-1 text-gray-800 text-base leading-snug font-medium">
+                                            <EditableField value={painText} onSave={(val) => handleUpdateStrategyDraft('pains', i, val)} multiline />
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

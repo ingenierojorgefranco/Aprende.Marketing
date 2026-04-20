@@ -290,12 +290,13 @@ export const generateFullStrategy = async (projectId) => {
         INSTRUCCIONES PARA LA PSICOLOGÍA (OBLIGATORIO):
         Genera un análisis de miedos, objeciones y motivaciones reales para este nicho.
 
+        Genera exactamente 9 dolores (pains) y 9 soluciones (solutions) vinculadas: 3 para el Avatar 1, 3 para el Avatar 2 y 3 para el Avatar 3.
+
         Instrucciones para Pains:
-        Es importante personalizar los contenidos al usuario, por ejemplo en vez de decir Inestabilidad financiera por depender de un sueldo mínimo o empleos temporales., podrias decir ¿Sientes inestabilidad financiera por depender de un sueldo mínimo o empleos temporales?, este es tan solo un ejemplo, no lo copies pero si ten en cuenta el formato para cuando crees los contenidos, usa un lenguaje natural, cercano al usuario, haz que tenga relaciones con lo descrito en el titulo principal h1 y subtitulo h2
+        Es importante personalizar los contenidos al usuario, usa un lenguaje natural, cercano al usuario, haz que tenga relaciones con lo descrito en el titulo principal h1 y subtitulo h2. Cada dolor debe ser un objeto con { "text": "...", "avatarId": number }.
 
         Instrucciones para solutions:
-        Es importante personalizar los contenidos al usuario, haz que cada solucion sea una respuesta al dolor puntual que esta intentando resolver, esta solucion debe conectar con la persona, ser concisa, bien detallada y altamente persuasiva, usa un lenguaje natural, cercano al usuario, haz que tenga relaciones con lo descrito en el titulo principal h1 y subtitulo h2
-
+        Es importante personalizar los contenidos al usuario, haz que cada solucion sea una respuesta al dolor puntual que esta intentando resolver. Cada solución debe ser un objeto con { "title": "...", "description": "...", "avatarId": number }.
 
         INSTRUCCIONES PARA CONTENIDOS DE BLOG content (OBLIGATORIO):
         ${isCloned 
@@ -458,39 +459,27 @@ export const generateFullStrategy = async (projectId) => {
 
           psychology: {
             pains: [
-                "Identifica un dolor agudo del Avatar 3 relacionado con la falta de ingresos o estabilidad en este nicho. (Este es el Dolor 1, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
-                "Detecta una frustración técnica o de aprendizaje específica que detiene al avatar 2.  (Este es el Dolor 2, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
-                "Analiza el miedo al fracaso o a la pérdida de tiempo o dinero en este mercado para el Avatar 1. (Este es el Dolor 3, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
-                "Describe la sensación de estancamiento profesional o personal del Avatar 3. (Este es el Dolor 4, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
-                "Identifica la presión social o familiar que siente el avatar 2 por no tener resultados. (Este es el Dolor 5, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
-                "Analiza el agotamiento por métodos tradicionales que no funcionan en este sector para el Avatar 1. (Este es el Dolor 6, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
+                { "text": "Dolor 1 específico para Avatar 1", "avatarId": 1 },
+                { "text": "Dolor 2 específico para Avatar 1", "avatarId": 1 },
+                { "text": "Dolor 3 específico para Avatar 1", "avatarId": 1 },
+                { "text": "Dolor 1 específico para Avatar 2", "avatarId": 2 },
+                { "text": "Dolor 2 específico para Avatar 2", "avatarId": 2 },
+                { "text": "Dolor 3 específico para Avatar 2", "avatarId": 2 },
+                { "text": "Dolor 1 específico para Avatar 3", "avatarId": 3 },
+                { "text": "Dolor 2 específico para Avatar 3", "avatarId": 3 },
+                { "text": "Dolor 3 específico para Avatar 3", "avatarId": 3 }
             ],
             "solutions": [
-            {
-                "title": "Título corto, enfocado al usuario como Solucion al Dolor 1", 
-                "description": "Descripción corta, persuasiva y enfocada al usuario que explica la transformación del Dolor 1"
-            },
-            {
-                "title": "Título corto, enfocado al usuario como Solucion al Dolor 2", 
-                "description": "Descripción corta, persuasiva y enfocada al usuario que explica la transformación del Dolor 2"
-            },
-            {
-                "title": "Título corto, enfocado al usuario como Solucion al Dolor 3", 
-                "description": "Descripción corta, persuasiva y enfocada al usuario que explica la transformación del Dolor 3"
-            },
-            {
-                "title": "Título corto, enfocado al usuario como Solucion al Dolor 4", 
-                "description": "Descripción corta, persuasiva y enfocada al usuario que explica la transformación del Dolor 4"
-            },
-            {
-                "title": "Título corto, enfocado al usuario como Solucion al Dolor 5", 
-                "description": "Descripción corta, persuasiva y enfocada al usuario que explica la transformación del Dolor 5"
-            },
-            {
-                "title": "Título corto, enfocado al usuario como Solucion al Dolor 6", 
-                "description": "Descripción corta, persuasiva y enfocada al usuario que explica la transformación del Dolor 6"
-            }
-        ],
+                { "title": "Solución 1 para Avatar 1", "description": "...", "avatarId": 1 },
+                { "title": "Solución 2 para Avatar 1", "description": "...", "avatarId": 1 },
+                { "title": "Solución 3 para Avatar 1", "description": "...", "avatarId": 1 },
+                { "title": "Solución 1 para Avatar 2", "description": "...", "avatarId": 2 },
+                { "title": "Solución 2 para Avatar 2", "description": "...", "avatarId": 2 },
+                { "title": "Solución 3 para Avatar 2", "description": "...", "avatarId": 2 },
+                { "title": "Solución 1 para Avatar 3", "description": "...", "avatarId": 3 },
+                { "title": "Solución 2 para Avatar 3", "description": "...", "avatarId": 3 },
+                { "title": "Solución 3 para Avatar 3", "description": "...", "avatarId": 3 }
+            ],
             awarenessStages: {
                 stage1_pain: "Analiza el nivel de consciencia del avatar sobre su dolor principal en este nicho específico.",
                 stage2_solution: "Analiza la percepción del avatar sobre las soluciones existentes y por qué esta es la ideal.",

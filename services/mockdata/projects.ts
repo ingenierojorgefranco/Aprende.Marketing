@@ -53,6 +53,11 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             desire: "Generar ingresos propios ofreciendo servicios de alto valor",
             emotional_reason: "Sentirse libre financieramente para no tener que dar explicaciones de sus gastos y tener estabilidad.",
             objection: "Desconfía de promesas vacías en cursos online",
+            detailed_pains: [
+                "Sientes que es el momento de dejar de trabajar para otros y construir algo propio.",
+                "Buscas una habilidad rentable que puedas iniciar desde cero sin complicaciones.",
+                "Deseas libertad de tiempo para disfrutar con tu familia mientras generas ingresos altos."
+            ],
             motivations: { dinero: 90, tiempo: 80, estatus: 70, seguridad: 60 }
         },
         {
@@ -68,11 +73,16 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             desire: "Rentabilidad y Escalar",
             emotional_reason: "Ser reconocida como la mejor experta en su zona y elevar su estatus social.",
             objection: "No tengo tiempo para estudiar",
+            detailed_pains: [
+                "Quieres diferenciarte de la competencia ofreciendo resultados ultra-naturales.",
+                "Buscas aumentar el ticket promedio de tus servicios con procedimientos de alto valor.",
+                "Necesitas perfeccionar tu técnica para ganar la confianza total de tus clientes."
+            ],
             motivations: { dinero: 95, tiempo: 60, estatus: 70, seguridad: 80 }
         },
         {
             id: 3,
-            name: "Ana \"La Mamá Reinvitadora\"",
+            name: "Ana \"La Mamá Reinventora\"",
             archetype: "Madre Emprendedora",
             age: "28-38 años",
             quote: "Busco independencia financiera para estar con mis hijos.",
@@ -83,27 +93,113 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             desire: "Seguridad y Flexibilidad",
             emotional_reason: "Recuperar su identidad profesional más allá de ser solo mamá.",
             objection: "Miedo a la inversión inicial",
+            detailed_pains: [
+                "Te preocupa no tener 'talento' artístico, pero buscas un método paso a paso probado.",
+                "Tienes miedo a realizar una inversión y no recuperar el dinero rápidamente.",
+                "Buscas una certificación que realmente te abra puertas en el mercado profesional."
+            ],
             motivations: { dinero: 70, tiempo: 100, estatus: 50, seguridad: 90 }
         }
     ],
     psychology: {
         pains: [
-            "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
-            "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación.",
-            "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola a la hora de practicar.",
-            "Ves pasar oportunidades de éxito en Instagram, pero te falta la guía técnica para dar el paso con seguridad.",
-            "Te apasiona la estética pero no sabes cómo convertir esa pasión en un negocio de autoempleo rentable.",
-            "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium.",
-            "Te detiene el miedo a las promesas vacías de internet que no enseñan nada realmente útil para tu futuro."
+            { "text": "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.", "avatarId": 3 },
+            { "text": "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación.", "avatarId": 2 },
+            { "text": "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola a la hora de practicar.", "avatarId": 2 },
+            { "text": "Ves pasar oportunidades de éxito en Instagram, pero te falta la guía técnica para dar el paso con seguridad.", "avatarId": 1 },
+            { "text": "Te apasiona la estética pero no sabes cómo convertir esa pasión en un negocio de autoempleo rentable.", "avatarId": 3 },
+            { "text": "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium.", "avatarId": 1 }
         ],
         solutions: [
-            "Técnica de alta rentabilidad que permite cobrar lo que realmente vales por menos tiempo de trabajo. Maximiza tu tiempo generando servicios de alto impacto económico.",
-            "Certificación profesional y acompañamiento que eliminan todo temor a cometer errores técnicos.",
-            "Metodología 100% práctica basada en resultados reales, con soporte paso a paso.",
-            "Estrategia probada de captación de clientes en Instagram para llenar tu agenda con seguridad.",
-            "Plan de negocio detallado para convertir tu talento en una empresa de estética rentable.",
-            "Hoja de ruta para el autoempleo de alto valor, dándote la libertad de ser tu propia jefa.",
-            "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real."
+            { "title": "Técnica de alta rentabilidad", "description": "Maximiza tu tiempo generando servicios de alto impacto económico.", "avatarId": 3 },
+            { "title": "Certificación profesional", "description": "Acompañamiento que elimina todo temor a cometer errores técnicos.", "avatarId": 2 },
+            { "title": "Metodología 100% práctica", "description": "Soporte paso a paso basado en resultados reales.", "avatarId": 2 },
+            { "title": "Estrategia de captación", "description": "Llena tu agenda con seguridad usando Instagram.", "avatarId": 1 },
+            { "title": "Plan de negocio detallado", "description": "Convierte tu talento en una empresa de estética rentable.", "avatarId": 3 },
+            { "title": "Hoja de ruta premium", "description": "Libertad para ser tu propia jefa con autoempleo de valor.", "avatarId": 1 }
+        ],
+        learningModules: [
+            {
+                title: "Habilidad desde Cero",
+                description: "Descubre cómo dominar la técnica de microblading sin necesidad de talento artístico previo, siguiendo un mapa paso a paso.",
+                icon: "Sparkles",
+                color: "text-purple-400",
+                bg: "from-[#1a0b2e] via-[#12061d] to-[#0f041d]",
+                border: "border-white/10",
+                glow: "hover:shadow-purple-500/20"
+            },
+            {
+                title: "Visajismo Matemático",
+                description: "Aprende el método de diseño digital para lograr simetrías perfectas en cada rostro, garantizando resultados profesionales siempre.",
+                icon: "Target",
+                color: "text-blue-400",
+                bg: "from-[#0f172a] via-[#0b1120] to-[#090e1a]",
+                border: "border-white/10",
+                glow: "hover:shadow-blue-500/20"
+            },
+            {
+                title: "Negocio de Alta Rentabilidad",
+                description: "Entiende el modelo de negocio detrás del Microblading que te permite recuperar tu inversión con tan solo tus primeras 2 clientas.",
+                icon: "TrendingUp",
+                color: "text-emerald-400",
+                bg: "from-[#061a14] via-[#04120e] to-[#030d0a]",
+                border: "border-white/10",
+                glow: "hover:shadow-emerald-500/20"
+            },
+            {
+                title: "Técnica Pelo a Pelo Top",
+                description: "Domina la técnica más demandada en estudios internacionales para ofrecer un acabado ultra-natural que tus clientes amarán.",
+                icon: "CheckCircle2",
+                color: "text-purple-400",
+                bg: "from-[#1a0b2e] via-[#12061d] to-[#0f041d]",
+                border: "border-white/10",
+                glow: "hover:shadow-purple-500/20"
+            },
+            {
+                title: "Certificación y Respaldo",
+                description: "Obtén el reconocimiento profesional que necesitas para abrirte puertas en el sector de la belleza y trabajar con total seguridad.",
+                icon: "UserCheck",
+                color: "text-blue-400",
+                bg: "from-[#0f172a] via-[#0b1120] to-[#090e1a]",
+                border: "border-white/10",
+                glow: "hover:shadow-blue-500/20"
+            },
+            {
+                title: "Gestión de Tiempo Libre",
+                description: "Aprende a diseñar tu propio horario de trabajo para disfrutar de tu familia mientras generas ingresos de nivel profesional.",
+                icon: "Sparkles",
+                color: "text-emerald-400",
+                bg: "from-[#061a14] via-[#04120e] to-[#030d0a]",
+                border: "border-white/10",
+                glow: "hover:shadow-emerald-500/20"
+            },
+            {
+                title: "Confianza con el Cliente",
+                description: "Estrategias psicológicas para ganar la confianza total de tus clientes antes de siquiera tocar la herramienta de trabajo.",
+                icon: "TrendingUp",
+                color: "text-purple-400",
+                bg: "from-[#1a0b2e] via-[#12061d] to-[#0f041d]",
+                border: "border-white/10",
+                glow: "hover:shadow-purple-500/20"
+            },
+            {
+                title: "Acompañamiento VIP",
+                description: "Nunca estarás sola. Te guiamos en cada paso de tu formación para asegurar que te conviertas en una experta certificada.",
+                icon: "UserCheck",
+                color: "text-blue-400",
+                bg: "from-[#0f172a] via-[#0b1120] to-[#090e1a]",
+                border: "border-white/10",
+                glow: "hover:shadow-blue-500/20"
+            },
+            {
+                title: "Diferenciación de Mercado",
+                description: "Cómo posicionarte como una autoridad en tu ciudad y cobrar el valor real de tus servicios diferenciándote de la competencia.",
+                icon: "Target",
+                color: "text-emerald-400",
+                bg: "from-[#061a14] via-[#04120e] to-[#030d0a]",
+                border: "border-white/10",
+                glow: "hover:shadow-emerald-500/20"
+            }
         ],
         awarenessStages: {
             stage1_pain: "Frustración por trabajar jornadas agotadoras sin estabilidad económica real.",
