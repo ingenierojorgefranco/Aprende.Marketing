@@ -80,9 +80,9 @@ export const generateLandingPageContent = async (
       }
 
       projectStrategy = `
-      CONTEXTO ESTRATÉGICO DEL PROYECTO (ORDEN DE PRIORIDAD MÁXIMA):
+      --- BASE DE DATOS ESTRATÉGICA (OBLIGATORIO USAR): ---
       - Nombre del Producto: "${pName}"
-      - Tono de Voz de Marca: "${pTone}" (Usa este tono en TODO el copy).
+      - Tono de Voz de Marca: "${pTone}"
       ${mandatoryHeadlines}
       ${painsText}
       ${learningContext}
@@ -90,7 +90,7 @@ export const generateLandingPageContent = async (
       ${testimonialsText}
       - Descripción del Proyecto: ${pDesc}.
       
-      REGLA OBLIGATORIA DE CERO INVENCIÓN: Si te he proporcionado los Títulos (h1, h2), Dolores, Transformaciones (learningContext), Beneficios y Testimonios arriba, UTILÍZALOS PALABRA POR PALABRA. No inventes temas técnicos nuevos. El valor "learningContext" DEBE ir en la sección "whatYouWillLearn" como promesas de descubrimiento. PROHIBIDO incluir años específicos.
+      INSTRUCCIÓN DE CONTROL TOTAL: He proporcionado arriba los Títulos, Dolores, Transformaciones y Beneficios. NO TIENES PERMISO PARA GENERAR NUEVOS. Tu única tarea es insertarlos en los campos correspondientes del JSON ("hero.headline", "hero.subheadline", "benefits.items", "whatYouWillLearn.items", "testimonials") exactamente como aparecen. Prohibido inventar contenido de marketing paralelo.
       `;
   }
 
@@ -280,10 +280,11 @@ export const generateLandingPageContent = async (
                     ? pStrategy.modules.web.landingPageTabs.benefits.items 
                     : (Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : []);
 
+            // FUERZA BRUTA: Sobrescribir cualquier invención de la IA con los datos reales de la estrategia
             if (rawBenefits.length > 0) {
                 content.benefits.items = rawBenefits.slice(0, 6).map((b: any) => ({
-                    title: typeof b === 'string' ? b : (b.title || ""),
-                    description: typeof b === 'string' ? "" : (b.description || b.desc || ""), 
+                    title: typeof b === 'object' ? (b.title || "") : String(b),
+                    description: typeof b === 'object' ? (b.description || b.desc || "") : "", 
                     icon: b.icon || "Sparkles",
                     color: b.color || "blue"
                 }));
@@ -295,7 +296,7 @@ export const generateLandingPageContent = async (
                 : [];
 
             if (rawModules.length > 0) {
-                content.whatYouWillLearn.items = rawModules.slice(0, 6).map((m: any) => `${m.title}: ${m.description}`);
+                content.whatYouWillLearn.items = rawModules.slice(0, 9).map((m: any) => `${m.title}: ${m.description}`);
                 content.whatYouWillLearn.title = "Lo que descubrirás en esta clase exclusiva";
             } else {
                 // Fallback a dolores si no hay módulos (corrigiendo bug [object Object])
