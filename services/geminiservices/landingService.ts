@@ -41,16 +41,25 @@ export const generateLandingPageContent = async (
       // 2. Extraer Dolores (Pains) - Prioriza strategy_json (Informe Maestro), sino busca en campos básicos - 01/01/2026 13:05
       let extractedPains: string[] = [];
       if (pStrategy?.psychology?.pains && pStrategy.psychology.pains.length > 0) {
-          extractedPains = pStrategy.psychology.pains.map((p: any) => typeof p === 'object' ? p.text : String(p));
+          extractedPains = pStrategy.psychology.pains.map((p: any) => typeof p === 'object' ? (p.text || p.title || "") : String(p));
       } else if (Array.isArray(projectContext.painPoints)) {
           extractedPains = projectContext.painPoints.map(p => String(p));
       }
       
       const painsText = (extractedPains.length > 0) 
-          ? `- Dolores del Cliente (USA ESTOS 6 PUNTOS EXACTAMENTE): ${extractedPains.slice(0, 6).join(", ")}` 
+          ? `- Dolores del Cliente (USA ESTOS PUNTOS PARA EMPATIZAR): ${extractedPains.slice(0, 9).join(", ")}` 
           : "";
 
-      // 3. Extraer Beneficios - Prioriza psychology.solutions, sino busca en campos básicos
+      // 3. Extraer Transformaciones (Lo que aprenderás) - REGLA CRÍTICA
+      let extractedLearning: string[] = [];
+      if (pStrategy?.psychology?.learningModules && pStrategy.psychology.learningModules.length > 0) {
+          extractedLearning = pStrategy.psychology.learningModules.map((m: any) => `${m.title}: ${m.description}`);
+      }
+      const learningContext = (extractedLearning.length > 0)
+          ? `- Transformaciones/Lo que aprenderás (COPIA ESTO EXACTAMENTE): ${extractedLearning.join(" | ")}`
+          : "";
+
+      // 4. Extraer Beneficios - Prioriza psychology.solutions, sino busca en campos básicos
       let extractedBenefitsData: any[] = [];
       if (pStrategy?.psychology?.solutions && pStrategy.psychology.solutions.length > 0) {
           extractedBenefitsData = pStrategy.psychology.solutions;
@@ -76,11 +85,12 @@ export const generateLandingPageContent = async (
       - Tono de Voz de Marca: "${pTone}" (Usa este tono en TODO el copy).
       ${mandatoryHeadlines}
       ${painsText}
+      ${learningContext}
       ${benefitsText}
       ${testimonialsText}
       - Descripción del Proyecto: ${pDesc}.
       
-      REGLA OBLIGATORIA: Si te he proporcionado los Títulos (h1, h2), Dolores, Beneficios y Testimonios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo. PROHIBIDO incluir años específicos (ej: 2024, 2025). El enfoque debe ser general para abarcar múltiples perfiles de avatar.
+      REGLA OBLIGATORIA DE CERO INVENCIÓN: Si te he proporcionado los Títulos (h1, h2), Dolores, Transformaciones (learningContext), Beneficios y Testimonios arriba, UTILÍZALOS PALABRA POR PALABRA. No inventes temas técnicos nuevos. El valor "learningContext" DEBE ir en la sección "whatYouWillLearn" como promesas de descubrimiento. PROHIBIDO incluir años específicos.
       `;
   }
 
@@ -279,14 +289,24 @@ export const generateLandingPageContent = async (
                 }));
             }
 
-            let rawPains = (pStrategy?.psychology?.pains && pStrategy.psychology.pains.length > 0)
-                ? pStrategy.psychology.pains
-                : (Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : []);
+            // SINCRO FORZADA DE TRANSFORMACIONES (Lo que aprenderás)
+            let rawModules = (pStrategy?.psychology?.learningModules && pStrategy.psychology.learningModules.length > 0)
+                ? pStrategy.psychology.learningModules
+                : [];
 
-            if (rawPains.length > 0) {
-                content.whatYouWillLearn.items = rawPains.slice(0, 6).map((p: any) => String(p));
-                content.whatYouWillLearn.title = "¿Te sientes identificado con alguna de estas situaciones?";
-                content.whatYouWillLearn.icon = "AlertTriangle";
+            if (rawModules.length > 0) {
+                content.whatYouWillLearn.items = rawModules.slice(0, 6).map((m: any) => `${m.title}: ${m.description}`);
+                content.whatYouWillLearn.title = "Lo que descubrirás en esta clase exclusiva";
+            } else {
+                // Fallback a dolores si no hay módulos (corrigiendo bug [object Object])
+                let rawPains = (pStrategy?.psychology?.pains && pStrategy.psychology.pains.length > 0)
+                    ? pStrategy.psychology.pains
+                    : (Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : []);
+
+                if (rawPains.length > 0) {
+                    content.whatYouWillLearn.items = rawPains.slice(0, 6).map((p: any) => typeof p === 'object' ? (p.text || p.title || "") : String(p));
+                    content.whatYouWillLearn.title = "¿Te sientes identificado con alguna de estas situaciones?";
+                }
             }
 
             // SINCRO FORZADA DE TESTIMONIOS: Si la estrategia tiene testimonios, los copiamos íntegros a la landing
