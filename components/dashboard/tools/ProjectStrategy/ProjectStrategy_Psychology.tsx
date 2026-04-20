@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { 
     Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, 
     Play, TrendingUp, UserCheck, CheckCircle2, Users, Sparkles,
-    Target, Star, Zap, Lightbulb, Shield, Globe
+    Target, Star, Zap, Lightbulb, Shield, Globe, Loader2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { api } from '../../../../services/api';
@@ -34,7 +34,20 @@ interface ProjectStrategy_PsychologyProps {
 export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProps> = ({ strategy, benefitsItems = [] }) => {
     const { id: projectId } = useParams() as { id: string };
     const [linkedLanding, setLinkedLanding] = useState<LandingPage | null>(null);
-    const { avatars, psychology } = strategy;
+
+    // Guardia de carga para evitar errores de desestructuración si la estrategia es null/undefined
+    if (!strategy) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-center">
+                    <Loader2 className="w-10 h-10 animate-spin text-orange-500 mx-auto mb-4" />
+                    <p className="text-gray-400">Cargando análisis psicológico...</p>
+                </div>
+            </div>
+        );
+    }
+
+    const { avatars = [], psychology = { pains: [], solutions: [], awarenessStages: { stage1_pain: '', stage2_solution: '', stage3_barrier: '' }, conversionStrategy: { mainFocus: [], tacticalNote: '' } } } = strategy;
 
     useEffect(() => {
         const checkLanding = async () => {

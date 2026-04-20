@@ -87,8 +87,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
             if (projectDetails) setProjectDescription(projectDetails.description || '');
 
-            if (strategy && strategy.meta && strategy.meta.insights) {
-                if (strategy.meta.insights.overview?.items) {
+            if (strategy) {
+                if (strategy.meta && strategy.meta.insights && strategy.meta.insights.overview?.items) {
                     strategy.meta.insights.overview.items = strategy.meta.insights.overview.items.map((item: any) => ({
                         ...item,
                         icon: typeof item.icon === 'string' ? iconMap[item.icon] || Sparkles : (item.icon || Sparkles)
@@ -207,7 +207,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
         </div>
     );
 
-    if (!strategyData) return (
+    if (!strategyData || typeof strategyData !== 'object') return (
         <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 animate-in fade-in">
             <h2 className="text-3xl font-black mb-4 text-center">Datos incompletos</h2>
             <button onClick={handleGenerateStrategy} disabled={generating} className="px-10 py-5 bg-primary text-white rounded-2xl font-black text-xl flex items-center gap-4">
@@ -245,11 +245,11 @@ export const ProjectStrategyDashboard: React.FC = () => {
                         {activeSection === 'growth' && <ProjectStrategy_BusinessGrowth chartData={chartData} commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)} commissionRate={strategyData.meta?.commissionRate || 0} />}
                         {activeSection === 'blueprint' && <ProjectStrategy_Blueprint handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
                         {activeSection === 'avatar' && <ProjectStrategy_AvatarDiagnosis avatars={strategyData.avatars} psychology={strategyData.psychology} benefitsItems={strategyData.modules?.web?.landingPageTabs?.benefits?.items || []} />}
-                        {activeSection === 'psychology' && <ProjectStrategy_Psychology psychology={strategyData.psychology} benefitsItems={strategyData.modules?.web?.landingPageTabs?.benefits?.items || []} />}
+                        {activeSection === 'psychology' && <ProjectStrategy_Psychology strategy={strategyData} benefitsItems={strategyData.modules?.web?.landingPageTabs?.benefits?.items || []} />}
                         {activeSection === 'hooks' && <ProjectStrategy_Hooks strategyData={strategyData} activeHook={activeHook} setActiveHook={setActiveHook} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
                         {activeSection === 'testimonials' && <ProjectStrategy_Testimonials strategyData={strategyData} />}
                         {activeSection === 'web' && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData.modules?.web?.landingPageTabs} tyTabsData={strategyData.modules?.web?.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onEditPage={(pid: string) => navigate(`/dashboard/editor/${pid}`)} pageCount={globalPageCount} planLimits={user.planLimits} userRole={user.role} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
-                        {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
+                        {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules?.content || []} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
                         {activeSection === 'email' && (
                             <ProjectStrategy_Email 
                                 projectId={id}
@@ -267,7 +267,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                 sequenceCount={sequenceCount}
                             />
                         )}
-                        {activeSection === 'evergreen' && <ProjectStrategy_Evergreen projectId={id} evergreenData={strategyData.modules.emails.evergreen} avatars={strategyData.avatars} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
+                        {activeSection === 'evergreen' && <ProjectStrategy_Evergreen projectId={id} evergreenData={strategyData.modules?.emails?.evergreen || []} avatars={strategyData.avatars || []} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
                         {activeSection === 'whatsapp' && <ProjectStrategy_WhatsApp activeWaScript={activeWaScript} setActiveWaScript={setActiveWaScript} onUpgrade={() => setShowUpgradeModal(true)} projectId={id} isSimulating={isSimulating} planLimits={user.planLimits} strategyData={strategyData} />}
                     </Suspense>
                 </div>

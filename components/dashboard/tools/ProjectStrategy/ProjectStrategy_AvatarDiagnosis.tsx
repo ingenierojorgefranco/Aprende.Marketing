@@ -26,7 +26,11 @@ interface ProjectStrategy_AvatarDiagnosisProps {
     };
 }
 
-export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDiagnosisProps> = ({ avatars, psychology, benefitsItems = [] }) => {
+export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDiagnosisProps> = ({ 
+    avatars = [], 
+    psychology = { pains: [], solutions: [], awarenessStages: { stage1_pain: '', stage2_solution: '', stage3_barrier: '' }, conversionStrategy: { mainFocus: [], tacticalNote: '' } }, 
+    benefitsItems = [] 
+}) => {
     const getAvatarRoleBadge = (idx: number) => {
         const badges = [
             { label: "Avatar Principal — Perfil de Atracción", gradient: "from-pink-600 to-rose-600" },

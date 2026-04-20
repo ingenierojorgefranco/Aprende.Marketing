@@ -673,22 +673,62 @@ export const api = {
   },
 
   getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy | null> => {
-      if (isMockMode) {
-          const proj = localProjects.find(p => p.id === id);
+      // En modo mock o local, siempre retornamos algo para evitar pantallas en blanco
+      if (isMockMode || window.location.hostname === 'localhost' || window.location.hostname.includes('ais-dev')) {
+          const proj = localProjects.find(p => String(p.id) === String(id));
           if (proj && proj.strategy_json) return Promise.resolve(proj.strategy_json as ProjectMasterStrategy);
-          return Promise.resolve(MOCK_MASTER_STRATEGY);
+          
+          if (isMockMode) {
+            console.log("🛠️ Inyectando MOCK_MASTER_STRATEGY por defecto para ID:", id);
+            return Promise.resolve(MOCK_MASTER_STRATEGY);
+          }
       }
+
       if (apiCache.masterStrategies[id]) return apiCache.masterStrategies[id];
       try {
           const project = await api.getProjectById(id);
           if (project && project.strategy_json) {
-              const strategy = project.strategy_json as ProjectMasterStrategy;
-              apiCache.masterStrategies[id] = strategy;
-              return strategy;
+              try {
+                  const strategy = typeof project.strategy_json === 'string' 
+                    ? JSON.parse(project.strategy_json) 
+                    : project.strategy_json;
+                  
+                  if (strategy && typeof strategy === 'object') {
+                      apiCache.masterStrategies[id] = strategy;
+                      return strategy;
+                  }
+              } catch (e) {
+                  console.error("Error parsing strategy_json:", e);
+              }
           }
-          return null;
+          // Si no hay estrategia o está corrupta, retornamos un objeto mínimo para evitar crasheos en los componentes
+          return {
+              meta: { projectName: "Cargando...", createdAt: "", niche: "", productType: "", objective: "", price: 0, commissionRate: 0, projection: [], insights: { overview: { title: "", items: [] }, niche: { title: "", description: "" }, product: { title: "", description: "" }, objective: { title: "", description: "" } } },
+              avatars: [],
+              psychology: { pains: [], solutions: [], awarenessStages: { stage1_pain: "", stage2_solution: "", stage3_barrier: "" }, conversionStrategy: { mainFocus: [], tacticalNote: "" } },
+              modules: { 
+                  web: { landingPageTabs: {}, thankYouPageTabs: {} }, 
+                  content: [],
+                  emails: { conversion: [], nurturing: [], evergreen: [] },
+                  whatsapp: { scripts: [] },
+                  training: { modules: [] },
+                  crm: { pipelines: [] }
+              }
+          } as any as ProjectMasterStrategy;
       } catch (e: any) {
-          return null;
+          return {
+              meta: { projectName: "Cargando...", createdAt: "", niche: "", productType: "", objective: "", price: 0, commissionRate: 0, projection: [], insights: { overview: { title: "", items: [] }, niche: { title: "", description: "" }, product: { title: "", description: "" }, objective: { title: "", description: "" } } },
+              avatars: [],
+              psychology: { pains: [], solutions: [], awarenessStages: { stage1_pain: "", stage2_solution: "", stage3_barrier: "" }, conversionStrategy: { mainFocus: [], tacticalNote: "" } },
+              modules: { 
+                  web: { landingPageTabs: {}, thankYouPageTabs: {} }, 
+                  content: [],
+                  emails: { conversion: [], nurturing: [], evergreen: [] },
+                  whatsapp: { scripts: [] },
+                  training: { modules: [] },
+                  crm: { pipelines: [] }
+              }
+          } as any as ProjectMasterStrategy;
       }
   },
 
