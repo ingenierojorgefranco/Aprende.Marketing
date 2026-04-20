@@ -292,14 +292,16 @@ export const generateFullStrategy = async (projectId) => {
 
         Genera exactamente 9 dolores (pains) y 9 soluciones (solutions) vinculadas: 3 para el Avatar 1, 3 para el Avatar 2 y 3 para el Avatar 3.
 
-        Instrucciones para Pains:
-        NO uses descripciones técnicas o de gestión. Genera dolores EMOCIONALES y SITUACIONALES escritos en PRIMERA o SEGUNDA persona (ej: "Sientes que...", "Buscas...", "Deseas..."). El usuario debe sentirse identificado inmediatamente con una situación real de su vida. Cada dolor debe ser un objeto con { "text": "...", "avatarId": number }. Es fundamental que los dolores conecten con los deseos de libertad, dinero, tiempo o reconocimiento que desea el avatar.
+        Instrucciones para Pains (Agitación del Dolor):
+        NO uses descripciones técnicas o de gestión. Genera dolores ALTAMENTE PERSUASIVOS que "toquen el nervio" emocional. Enfócate en la frustración, el miedo o la invisibilidad. Usa verbos de acción emocional (frustra, agota, aterra, duele) y describe una consecuencia visual o mental real (ej: ver tu agenda vacía, sentir un nudo en el estómago, sentirte invisible frente a competidores con menos talento). Escribe en PRIMERA o SEGUNDA persona. El usuario debe sentir que conoces su situación mejor que él mismo. Cada dolor debe ser un objeto con { "text": "...", "avatarId": number }.
 
         Instrucciones para solutions:
         Es importante personalizar los contenidos al usuario, haz que cada solucion sea una respuesta al dolor puntual que esta intentando resolver. Cada solución debe ser un objeto con { "title": "...", "description": "...", "avatarId": number }.
 
-        Instrucciones para learningModules:
-        Genera exactamente 9 módulos de aprendizaje (3 por cada avatar) que respondan directamente a los dolores (pains) generados. Cada módulo debe tener la siguiente estructura: 
+        Instrucciones para learningModules (Transformaciones de Valor):
+        Genera exactamente 9 bloques de transformación (3 por cada avatar) que respondan directamente a los dolores (pains) generados. 
+        REGLA CRÍTICA DE COHERENCIA: Prohibido inventar temas técnicos o capítulos de un curso. Cada título y descripción debe ser el beneficio directo o la transformación que el usuario "descubrirá" para resolver su dolor.
+        Usa un lenguaje de descubrimiento y promesa (ej: "Descubrirás el secreto para...", "El método exacto que necesitas para...", "La clave definitiva para..."). Cada módulo debe tener la siguiente estructura: 
         { "title": "...", "description": "...", "icon": "Brain|Target|Users|TrendingUp|Zap|Star|Shield", "color": "text-blue-400|text-emerald-400|text-purple-400", "bg": "bg-blue-500/10|bg-emerald-500/10|bg-purple-500/10", "border": "border-blue-500/20|border-emerald-500/20|border-purple-500/20", "glow": "hover:shadow-blue-500/10|hover:shadow-emerald-500/10|hover:shadow-purple-500/10", "avatarId": number }.
         Reglas de estilo:
         - Avatar 1: Usa tonos Blue/Cyan (color: text-blue-400, bg: bg-blue-500/10, border: border-blue-500/20, glow: hover:shadow-blue-500/10).
