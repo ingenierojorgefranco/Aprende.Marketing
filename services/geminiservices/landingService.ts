@@ -32,8 +32,8 @@ export const generateLandingPageContent = async (
       const pStrategy = projectContext.strategy_json ? JSON.parse(JSON.stringify(projectContext.strategy_json)) : null;
 
       // 1. Extraer Títulos definidos en la estrategia (Web Blueprint) - 12/03/2025 10:00
-      const pH1 = pStrategy?.modules?.web?.landingPageTabs?.hero?.h1 ? String(pStrategy.modules.web.landingPageTabs.hero.h1) : "";
-      const pH2 = pStrategy?.modules?.web?.landingPageTabs?.hero?.h2 ? String(pStrategy.modules.web.landingPageTabs.hero.h2) : "";
+      const pH1 = pStrategy?.landingPageTabs?.hero?.h1 || pStrategy?.modules?.web?.landingPageTabs?.hero?.h1 || "";
+      const pH2 = pStrategy?.landingPageTabs?.hero?.h2 || pStrategy?.modules?.web?.landingPageTabs?.hero?.h2 || "";
       const mandatoryHeadlines = (pH1 && pH2) 
           ? `- Título Principal OBLIGATORIO (h1): "${pH1}"\n      - Subtítulo OBLIGATORIO (h2): "${pH2}"`
           : "";
@@ -41,7 +41,7 @@ export const generateLandingPageContent = async (
       // 2. Extraer Dolores (Pains) - Prioriza strategy_json (Informe Maestro), sino busca en campos básicos - 01/01/2026 13:05
       let extractedPains: string[] = [];
       if (pStrategy?.psychology?.pains && pStrategy.psychology.pains.length > 0) {
-          extractedPains = pStrategy.psychology.pains.map((p: any) => String(p));
+          extractedPains = pStrategy.psychology.pains.map((p: any) => typeof p === 'object' ? p.text : String(p));
       } else if (Array.isArray(projectContext.painPoints)) {
           extractedPains = projectContext.painPoints.map(p => String(p));
       }

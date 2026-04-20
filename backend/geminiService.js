@@ -241,7 +241,7 @@ export const generateFullStrategy = async (projectId) => {
         //const step1Prompt = ``;
         
         
-        const step1Prompt = `Eres un Estratega Senior de Marketing Digital. Tu misión es generar el ADN de marketing, 3 perfiles de Avatar extremadamente detallados y la psicología profunda del consumidor para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}".
+        const step1Prompt = `Eres un Experto en Copywriting y Estratega de Marketing de Respuesta Directa con un enfoque psicológico profundo. Tu misión es generar el ADN de marketing, 3 perfiles de Avatar extremadamente detallados y la psicología profunda del consumidor para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}".
 
         Descripción del producto (Extrae de aquí los datos del profesor si están disponibles):
         "${description}"
@@ -293,10 +293,18 @@ export const generateFullStrategy = async (projectId) => {
         Genera exactamente 9 dolores (pains) y 9 soluciones (solutions) vinculadas: 3 para el Avatar 1, 3 para el Avatar 2 y 3 para el Avatar 3.
 
         Instrucciones para Pains:
-        Es importante personalizar los contenidos al usuario, usa un lenguaje natural, cercano al usuario, haz que tenga relaciones con lo descrito en el titulo principal h1 y subtitulo h2. Cada dolor debe ser un objeto con { "text": "...", "avatarId": number }.
+        NO uses descripciones técnicas o de gestión. Genera dolores EMOCIONALES y SITUACIONALES escritos en PRIMERA o SEGUNDA persona (ej: "Sientes que...", "Buscas...", "Deseas..."). El usuario debe sentirse identificado inmediatamente con una situación real de su vida. Cada dolor debe ser un objeto con { "text": "...", "avatarId": number }. Es fundamental que los dolores conecten con los deseos de libertad, dinero, tiempo o reconocimiento que desea el avatar.
 
         Instrucciones para solutions:
         Es importante personalizar los contenidos al usuario, haz que cada solucion sea una respuesta al dolor puntual que esta intentando resolver. Cada solución debe ser un objeto con { "title": "...", "description": "...", "avatarId": number }.
+
+        Instrucciones para learningModules:
+        Genera exactamente 9 módulos de aprendizaje (3 por cada avatar) que respondan directamente a los dolores (pains) generados. Cada módulo debe tener la siguiente estructura: 
+        { "title": "...", "description": "...", "icon": "Brain|Target|Users|TrendingUp|Zap|Star|Shield", "color": "text-blue-400|text-emerald-400|text-purple-400", "bg": "bg-blue-500/10|bg-emerald-500/10|bg-purple-500/10", "border": "border-blue-500/20|border-emerald-500/20|border-purple-500/20", "glow": "hover:shadow-blue-500/10|hover:shadow-emerald-500/10|hover:shadow-purple-500/10", "avatarId": number }.
+        Reglas de estilo:
+        - Avatar 1: Usa tonos Blue/Cyan (color: text-blue-400, bg: bg-blue-500/10, border: border-blue-500/20, glow: hover:shadow-blue-500/10).
+        - Avatar 2: Usa tonos Emerald/Green (color: text-emerald-400, bg: bg-emerald-500/10, border: border-emerald-500/20, glow: hover:shadow-emerald-500/10).
+        - Avatar 3: Usa tonos Purple/Pink (color: text-purple-400, bg: bg-purple-500/10, border: border-purple-500/20, glow: hover:shadow-purple-500/10).
 
         INSTRUCCIONES PARA CONTENIDOS DE BLOG content (OBLIGATORIO):
         ${isCloned 
@@ -485,7 +493,18 @@ export const generateFullStrategy = async (projectId) => {
                 stage2_solution: "Analiza la percepción del avatar sobre las soluciones existentes y por qué esta es la ideal.",
                 stage3_barrier: "Analiza la barrera mental o duda técnica específica que impide al avatar comprar ahora mismo."
             },
-    }
+            learningModules: [
+                { "title": "Módulo 1 para Avatar 1", "description": "...", "icon": "Brain", "color": "text-blue-400", "bg": "bg-blue-500/10", "border": "border-blue-500/20", "glow": "hover:shadow-blue-500/10", "avatarId": 1 },
+                { "title": "Módulo 2 para Avatar 1", "description": "...", "icon": "Target", "color": "text-blue-400", "bg": "bg-blue-500/10", "border": "border-blue-500/20", "glow": "hover:shadow-blue-500/10", "avatarId": 1 },
+                { "title": "Módulo 3 para Avatar 1", "description": "...", "icon": "Zap", "color": "text-blue-400", "bg": "bg-blue-500/10", "border": "border-blue-500/20", "glow": "hover:shadow-blue-500/10", "avatarId": 1 },
+                { "title": "Módulo 1 para Avatar 2", "description": "...", "icon": "Shield", "color": "text-emerald-400", "bg": "bg-emerald-500/10", "border": "border-emerald-500/20", "glow": "hover:shadow-emerald-500/10", "avatarId": 2 },
+                { "title": "Módulo 2 para Avatar 2", "description": "...", "icon": "Star", "color": "text-emerald-400", "bg": "bg-emerald-500/10", "border": "border-emerald-500/20", "glow": "hover:shadow-emerald-500/10", "avatarId": 2 },
+                { "title": "Módulo 3 para Avatar 2", "description": "...", "icon": "Users", "color": "text-emerald-400", "bg": "bg-emerald-500/10", "border": "border-emerald-500/20", "glow": "hover:shadow-emerald-500/10", "avatarId": 2 },
+                { "title": "Módulo 1 para Avatar 3", "description": "...", "icon": "TrendingUp", "color": "text-purple-400", "bg": "bg-purple-500/10", "border": "border-purple-500/20", "glow": "hover:shadow-purple-500/10", "avatarId": 3 },
+                { "title": "Módulo 2 para Avatar 3", "description": "...", "icon": "Sparkles", "color": "text-purple-400", "bg": "bg-purple-500/10", "border": "border-purple-500/20", "glow": "hover:shadow-purple-500/10", "avatarId": 3 },
+                { "title": "Módulo 3 para Avatar 3", "description": "...", "icon": "Lightbulb", "color": "text-purple-400", "bg": "bg-purple-500/10", "border": "border-purple-500/20", "glow": "hover:shadow-purple-500/10", "avatarId": 3 }
+            ]
+        },
 
 
 

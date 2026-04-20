@@ -47,7 +47,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
         );
     }
 
-    const { avatars = [], psychology = { pains: [], solutions: [], awarenessStages: { stage1_pain: '', stage2_solution: '', stage3_barrier: '' }, conversionStrategy: { mainFocus: [], tacticalNote: '' } } } = strategy;
+    const { avatars = [], psychology = { pains: [], solutions: [], awarenessStages: { stage1_pain: '', stage2_solution: '', stage3_barrier: '' }, conversionStrategy: { mainFocus: [], tacticalNote: '' }, learningModules: [] } } = strategy;
 
     useEffect(() => {
         const checkLanding = async () => {
@@ -63,7 +63,17 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
         checkLanding();
     }, [projectId]);
 
-    const learningModules = (psychology.learningModules || []) as any[];
+    const learningModules = (psychology.learningModules && psychology.learningModules.length > 0) 
+        ? psychology.learningModules 
+        : (psychology.solutions || []).map((sol: any, idx: number) => ({
+            title: typeof sol === 'object' ? sol.title : "Módulo de aprendizaje",
+            description: typeof sol === 'object' ? sol.description : sol,
+            icon: idx % 3 === 0 ? 'Brain' : idx % 3 === 1 ? 'Target' : 'Zap',
+            color: idx < 3 ? 'text-blue-400' : idx < 6 ? 'text-emerald-400' : 'text-purple-400',
+            bg: idx < 3 ? 'bg-blue-500/10' : idx < 6 ? 'bg-emerald-500/10' : 'bg-purple-500/10',
+            border: idx < 3 ? 'border-blue-500/20' : idx < 6 ? 'border-emerald-500/20' : 'border-purple-500/20',
+            glow: idx < 3 ? 'hover:shadow-blue-500/10' : idx < 6 ? 'hover:shadow-emerald-500/10' : 'hover:shadow-purple-500/10'
+        }));
 
     return (
         <div id="psd-psychology-section" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen">
