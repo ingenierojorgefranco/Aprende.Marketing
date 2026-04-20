@@ -8,12 +8,14 @@ interface PainPointsModuleProps {
 }
 
 export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds }) => {
+  const learningItems = content.whatYouWillLearn.items || [];
+  
   const avatars = [
     {
       title: "Si buscas crear tu propio negocio y reinventarte profesionalmente",
       icon: <Sparkles className="w-10 h-10 text-purple-400" />,
       gradient: "from-[#1a0b2e] via-[#12061d] to-[#0f041d]",
-      points: [
+      points: learningItems.slice(0, 3).length > 0 ? learningItems.slice(0, 3) : [
         "Sientes que es el momento de dejar de trabajar para otros y construir algo propio.",
         "Buscas una habilidad rentable que puedas iniciar desde cero sin complicaciones.",
         "Deseas libertad de tiempo para disfrutar con tu familia mientras generas ingresos altos."
@@ -23,7 +25,7 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds 
       title: "Si ya estás en el sector belleza y quieres dominar la técnica más top",
       icon: <TrendingUp className="w-10 h-10 text-blue-400" />,
       gradient: "from-[#0f172a] via-[#0b1120] to-[#090e1a]",
-      points: [
+      points: learningItems.slice(3, 6).length > 0 ? learningItems.slice(3, 6) : [
         "Quieres diferenciarte de la competencia ofreciendo resultados ultra-naturales.",
         "Buscas aumentar el ticket promedio de tus servicios con procedimientos de alto valor.",
         "Necesitas perfeccionar tu técnica para ganar la confianza total de tus clientes."
@@ -33,13 +35,41 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds 
       title: "Si te da miedo fallar por falta de experiencia pero buscas respaldo",
       icon: <UserCheck className="w-10 h-10 text-emerald-400" />,
       gradient: "from-[#061a14] via-[#04120e] to-[#030d0a]",
-      points: [
+      points: learningItems.slice(6, 9).length > 0 ? learningItems.slice(6, 9) : [
         "Te preocupa no tener 'talento' artístico, pero buscas un método paso a paso probado.",
         "Tienes miedo a realizar una inversión y no recuperar el dinero rápidamente.",
         "Buscas una certificación que realmente te abra puertas en el mercado profesional."
       ]
     }
   ];
+
+  const benefitsGrid = (content.benefits.items && content.benefits.items.length > 0) 
+    ? content.benefits.items.slice(0, 9).map(b => ({
+        title: b.title,
+        desc: b.description || "Descubre el camino exacto para dominar esta habilidad y transformar tu carrera profesional.",
+        icon: b.icon === 'Target' ? <Target className="w-10 h-10 text-blue-400" /> : 
+              b.icon === 'TrendingUp' ? <TrendingUp className="w-10 h-10 text-emerald-400" /> : 
+              b.icon === 'UserCheck' ? <UserCheck className="w-10 h-10 text-blue-400" /> :
+              b.icon === 'CheckCircle2' ? <CheckCircle2 className="w-10 h-10 text-purple-400" /> :
+              <Sparkles className="w-10 h-10 text-purple-400" />,
+        bg: b.color === 'blue' ? "from-[#0f172a] via-[#0b1120] to-[#090e1a]" :
+            b.color === 'emerald' || b.color === 'green' ? "from-[#061a14] via-[#04120e] to-[#030d0a]" :
+            "from-[#1a0b2e] via-[#12061d] to-[#0f041d]",
+        border: "border-white/10",
+        glow: b.color === 'blue' ? "hover:shadow-blue-500/20" :
+              b.color === 'emerald' || b.color === 'green' ? "hover:shadow-emerald-500/20" :
+              "hover:shadow-purple-500/20"
+      }))
+    : [
+        {
+            title: "Habilidad desde Cero",
+            desc: "Descubre cómo dominar la técnica de microblading sin necesidad de talento artístico previo, siguiendo un mapa paso a paso.",
+            icon: <Sparkles className="w-10 h-10 text-purple-400" />,
+            bg: "from-[#1a0b2e] via-[#12061d] to-[#0f041d]",
+            border: "border-white/10",
+            glow: "hover:shadow-purple-500/20"
+        }
+    ];
 
   return (
     <section id="dolores" className={`py-24 ${ds.features.sectionBg}`}>
@@ -101,80 +131,7 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds 
             </div>
 
             <div className="grid gap-8 md:grid-cols-3 text-left">
-                {[
-                    {
-                        title: "Habilidad desde Cero",
-                        desc: "Descubre cómo dominar la técnica de microblading sin necesidad de talento artístico previo, siguiendo un mapa paso a paso.",
-                        icon: <Sparkles className="w-10 h-10 text-purple-400" />,
-                        bg: "from-[#1a0b2e] via-[#12061d] to-[#0f041d]",
-                        border: "border-white/10",
-                        glow: "hover:shadow-purple-500/20"
-                    },
-                    {
-                        title: "Visajismo Matemático",
-                        desc: "Aprende el método de diseño digital para lograr simetrías perfectas en cada rostro, garantizando resultados profesionales siempre.",
-                        icon: <Target className="w-10 h-10 text-blue-400" />,
-                        bg: "from-[#0f172a] via-[#0b1120] to-[#090e1a]",
-                        border: "border-white/10",
-                        glow: "hover:shadow-blue-500/20"
-                    },
-                    {
-                        title: "Negocio de Alta Rentabilidad",
-                        desc: "Entiende el modelo de negocio detrás del Microblading que te permite recuperar tu inversión con tan solo tus primeras 2 clientas.",
-                        icon: <TrendingUp className="w-10 h-10 text-emerald-400" />,
-                        bg: "from-[#061a14] via-[#04120e] to-[#030d0a]",
-                        border: "border-white/10",
-                        glow: "hover:shadow-emerald-500/20"
-                    },
-                    {
-                        title: "Técnica Pelo a Pelo Top",
-                        desc: "Domina la técnica más demandada en estudios internacionales para ofrecer un acabado ultra-natural que tus clientes amarán.",
-                        icon: <CheckCircle2 className="w-10 h-10 text-purple-400" />,
-                        bg: "from-[#1a0b2e] via-[#12061d] to-[#0f041d]",
-                        border: "border-white/10",
-                        glow: "hover:shadow-purple-500/20"
-                    },
-                    {
-                        title: "Certificación y Respaldo",
-                        desc: "Obtén el reconocimiento profesional que necesitas para abrirte puertas en el sector de la belleza y trabajar con total seguridad.",
-                        icon: <UserCheck className="w-10 h-10 text-blue-400" />,
-                        bg: "from-[#0f172a] via-[#0b1120] to-[#090e1a]",
-                        border: "border-white/10",
-                        glow: "hover:shadow-blue-500/20"
-                    },
-                    {
-                        title: "Gestión de Tiempo Libre",
-                        desc: "Aprende a diseñar tu propio horario de trabajo para disfrutar de tu familia mientras generas ingresos de nivel profesional.",
-                        icon: <Sparkles className="w-10 h-10 text-emerald-400" />,
-                        bg: "from-[#061a14] via-[#04120e] to-[#030d0a]",
-                        border: "border-white/10",
-                        glow: "hover:shadow-emerald-500/20"
-                    },
-                    {
-                        title: "Confianza con el Cliente",
-                        desc: "Estrategias psicológicas para ganar la confianza total de tus clientes antes de siquiera tocar la herramienta de trabajo.",
-                        icon: <TrendingUp className="w-10 h-10 text-purple-400" />,
-                        bg: "from-[#1a0b2e] via-[#12061d] to-[#0f041d]",
-                        border: "border-white/10",
-                        glow: "hover:shadow-purple-500/20"
-                    },
-                    {
-                        title: "Acompañamiento VIP",
-                        desc: "Nunca estarás sola. Te guiamos en cada paso de tu formación para asegurar que te conviertas en una experta certificada.",
-                        icon: <UserCheck className="w-10 h-10 text-blue-400" />,
-                        bg: "from-[#0f172a] via-[#0b1120] to-[#090e1a]",
-                        border: "border-white/10",
-                        glow: "hover:shadow-blue-500/20"
-                    },
-                    {
-                        title: "Diferenciación de Mercado",
-                        desc: "Cómo posicionarte como una autoridad en tu ciudad y cobrar el valor real de tus servicios diferenciándote de la competencia.",
-                        icon: <Target className="w-10 h-10 text-emerald-400" />,
-                        bg: "from-[#061a14] via-[#04120e] to-[#030d0a]",
-                        border: "border-white/10",
-                        glow: "hover:shadow-emerald-500/20"
-                    }
-                ].map((item, idx) => (
+                {benefitsGrid.map((item, idx) => (
                     <div key={idx} className={`relative p-10 rounded-[3.5rem] border bg-gradient-to-br ${item.bg} ${item.border} shadow-2xl transition-all duration-700 group overflow-hidden ${item.glow} backdrop-blur-sm hover:-translate-y-2`}>
                         <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.07] group-hover:scale-125 transition-all duration-700 pointer-events-none">
                             {React.cloneElement(item.icon as any, { size: 180 })}
