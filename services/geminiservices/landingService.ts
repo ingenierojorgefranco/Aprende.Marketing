@@ -160,9 +160,10 @@ export const generateLandingPageContent = async (
   
   ${projectStrategy}
 
-  INSTRUCCIONES CRÍTICAS DE REDACCIÓN:
-  1. PROHIBIDO incluir años específicos (ej: 2024, 2025). El contenido debe ser atemporal (evergreen).
-  2. Los titulares (Hero) y la descripción (Intro) deben tener un enfoque GENERAL que resuene con los 3 perfiles de avatar: el que busca un negocio rentable, el que busca un hobby creativo y el propietario que busca mejoras personales. Unifica sus deseos en una promesa de transformación potente.
+  INSTRUCCIONES DE CONTROL DE DATOS (CRÍTICO):
+  1. SECCIONES BLOQUEADAS: Las secciones "testimonials", "benefits.items" y "whatYouWillLearn.items" están bloqueadas. DEVUELVE ARRAYS VACÍOS [] para estas claves. NO generes contenido original para ellas, ya que se inyectarán desde el sistema.
+  2. PROHIBIDO incluir años específicos (ej: 2024, 2025). El contenido debe ser atemporal (evergreen).
+  3. Los titulares (Hero) y la descripción (Intro) deben tener un enfoque GENERAL que resuene con los 3 perfiles de avatar.
   
   INSTRUCCIÓN CRÍTICA: Utiliza los detalles de la audiencia proporcionados arriba para que cada frase, beneficio y dolor resuene directamente con sus necesidades específicas. Si el contexto menciona dolores o deseos específicos, úsalos como base para el Hero y los beneficios.
   
@@ -267,22 +268,21 @@ export const generateLandingPageContent = async (
         if (projectContext) {
             const pStrategy = projectContext.strategy_json ? JSON.parse(JSON.stringify(projectContext.strategy_json)) : null;
 
-            // SOBRESCRITURA DE SEGURIDAD: Forzar Títulos (Headline/Subheadline) desde la Estrategia Maestra
-            const pH1 = pStrategy?.modules?.web?.landingPageTabs?.hero?.h1;
-            const pH2 = pStrategy?.modules?.web?.landingPageTabs?.hero?.h2;
+            // 1. INYECCIÓN OBLIGATORIA DE TÍTULOS (ESTRATEGIA)
+            const pH1 = pStrategy?.landingPageTabs?.hero?.h1 || pStrategy?.modules?.web?.landingPageTabs?.hero?.h1;
+            const pH2 = pStrategy?.landingPageTabs?.hero?.h2 || pStrategy?.modules?.web?.landingPageTabs?.hero?.h2;
             if (pH1) content.hero.headline = pH1;
             if (pH2) content.hero.subheadline = pH2;
 
-            // SOBRESCRITURA DE SEGURIDAD: Invertir prioridad para usar psychology.solutions antes que los campos básicos
+            // 2. INYECCIÓN OBLIGATORIA DE BENEFICIOS (ESTRATEGIA)
             let rawBenefits = (pStrategy?.psychology?.solutions && pStrategy.psychology.solutions.length > 0)
                 ? pStrategy.psychology.solutions
                 : (pStrategy?.modules?.web?.landingPageTabs?.benefits?.items && pStrategy.modules.web.landingPageTabs.benefits.items.length > 0)
                     ? pStrategy.modules.web.landingPageTabs.benefits.items 
                     : (Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : []);
 
-            // FUERZA BRUTA: Sobrescribir cualquier invención de la IA con los datos reales de la estrategia
             if (rawBenefits.length > 0) {
-                content.benefits.items = rawBenefits.slice(0, 6).map((b: any) => ({
+                content.benefits.items = rawBenefits.slice(0, 9).map((b: any) => ({
                     title: typeof b === 'object' ? (b.title || "") : String(b),
                     description: typeof b === 'object' ? (b.description || b.desc || "") : "", 
                     icon: b.icon || "Sparkles",
@@ -290,7 +290,7 @@ export const generateLandingPageContent = async (
                 }));
             }
 
-            // SINCRO FORZADA DE TRANSFORMACIONES (Lo que aprenderás)
+            // 3. INYECCIÓN OBLIGATORIA DE TRANSFORMACIONES (ESTRATEGIA)
             let rawModules = (pStrategy?.psychology?.learningModules && pStrategy.psychology.learningModules.length > 0)
                 ? pStrategy.psychology.learningModules
                 : [];
@@ -299,20 +299,25 @@ export const generateLandingPageContent = async (
                 content.whatYouWillLearn.items = rawModules.slice(0, 9).map((m: any) => `${m.title}: ${m.description}`);
                 content.whatYouWillLearn.title = "Lo que descubrirás en esta clase exclusiva";
             } else {
-                // Fallback a dolores si no hay módulos (corrigiendo bug [object Object])
                 let rawPains = (pStrategy?.psychology?.pains && pStrategy.psychology.pains.length > 0)
                     ? pStrategy.psychology.pains
                     : (Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : []);
-
+                
                 if (rawPains.length > 0) {
-                    content.whatYouWillLearn.items = rawPains.slice(0, 6).map((p: any) => typeof p === 'object' ? (p.text || p.title || "") : String(p));
+                    content.whatYouWillLearn.items = rawPains.slice(0, 9).map((p: any) => typeof p === 'object' ? (p.text || p.title || "") : String(p));
                     content.whatYouWillLearn.title = "¿Te sientes identificado con alguna de estas situaciones?";
                 }
             }
 
-            // SINCRO FORZADA DE TESTIMONIOS: Si la estrategia tiene testimonios, los copiamos íntegros a la landing
-            if (pStrategy?.modules?.testimonials && pStrategy.modules.testimonials.length > 0) {
-                content.testimonials = pStrategy.modules.testimonials.slice(0, 3).map((t: any) => ({
+            // 4. INYECCIÓN OBLIGATORIA DE TESTIMONIOS (ESTRATEGIA)
+            let rawTestimonials = (pStrategy?.modules?.testimonials && pStrategy.modules.testimonials.length > 0)
+                ? pStrategy.modules.testimonials
+                : (pStrategy?.modules?.testimonials && pStrategy.modules.testimonials.length > 0)
+                    ? pStrategy.modules.testimonials
+                    : [];
+
+            if (rawTestimonials.length > 0) {
+                content.testimonials = rawTestimonials.slice(0, 3).map((t: any) => ({
                     name: String(t.name || ""),
                     text: String(t.text || ""),
                     rating: 5,
