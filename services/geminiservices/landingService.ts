@@ -101,10 +101,7 @@ export const generateLandingPageContent = async (
     "navCta": "string",
     "testimonialTitle": "string",
     "hero": { "headline": "string", "subheadline": "string", "ctaText": "string" },
-    "testimonials": [{"name": "string", "text": "string", "rating": number, "image": "string"}],
     "intro": { "title": "string", "description": "string", "items": [{"title": "string", "description": "string"}] },
-    "benefits": { "title": "string", "items": [{"title": "string", "description": "string"}] },
-    "whatYouWillLearn": { "title": "string", "items": ["string"] },
     "faq": [{"question": "string", "answer": "string"}],
     "instructor": { "name": "string", "bio": "string" },
     "footer": { "copyright": "string", "contact": "string" },
@@ -160,8 +157,8 @@ export const generateLandingPageContent = async (
   
   ${projectStrategy}
 
-  INSTRUCCIONES DE CONTROL DE DATOS (CRÍTICO):
-  1. SECCIONES BLOQUEADAS: Las secciones "testimonials", "benefits.items" y "whatYouWillLearn.items" están bloqueadas. DEVUELVE ARRAYS VACÍOS [] para estas claves. NO generes contenido original para ellas, ya que se inyectarán desde el sistema.
+  INSTRUCCIONES DE CONTROL DE DATOS (MÁXIMA PRIORIDAD):
+  1. SECCIONES ELIMINADAS: NO GENERES NI INCLUYAS las secciones "testimonials", "benefits" ni "whatYouWillLearn" en tu respuesta. Han sido eliminadas del esquema para evitar redundancia. Céntrate únicamente en el Hero, la Intro y el FAQ.
   2. PROHIBIDO incluir años específicos (ej: 2024, 2025). El contenido debe ser atemporal (evergreen).
   3. Los titulares (Hero) y la descripción (Intro) deben tener un enfoque GENERAL que resuene con los 3 perfiles de avatar.
   
@@ -184,13 +181,10 @@ export const generateLandingPageContent = async (
 
   Instrucciones de contenido:
   1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
-  2. Testimonios: 3 testimonios cortos y realistas (usa los del proyecto si se proporcionaron, incluyendo su 'image' URL si existe).
-  3. Intro: Carta de ventas poderosa (descrita arriba). Genera 'items' (3-5 bullets de impacto).
-  4. Beneficios: Lista detallada (usa los proporcionados en el contexto si existen).
-  5. Lo que aprenderás: 4-6 puntos clave (basados en dolores si existen).
-  6. FAQ: 4 preguntas que maten objeciones.
-  7. Instructor: Nombre y biografía.
-  8. Footer: Copyright y contacto.
+  2. Intro: Carta de ventas poderosa (descrita arriba). Genera 'items' (3-5 bullets de impacto).
+  3. FAQ: 4 preguntas que maten objeciones.
+  4. Instructor: Nombre y biografía.
+  5. Footer: Copyright y contacto.
   9. BLUEPRINT DE PÁGINA DE GRACIAS (Usa estos valores como base y adáptalos sutilmente al nicho):
      - headline: "PERFECTO, YA TIENES EL ACCESO A LA CLASE DE ... (Añade aquí la Clase)"
      - subheadline: "Sigue estos 2 pasos sencillos para asegurar tu cupo y recibir tu material de preparación gratuito."
