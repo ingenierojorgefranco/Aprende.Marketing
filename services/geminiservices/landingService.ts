@@ -100,6 +100,11 @@ export const generateLandingPageContent = async (
     "topTagline": "string",
     "navCta": "string",
     "testimonialTitle": "string",
+    "whatYouWillLearn": {
+      "title": "string",
+      "avatarTitles": ["Resumen persuasivo para Avatar 1", "Resumen persuasivo para Avatar 2", "Resumen persuasivo para Avatar 3"],
+      "items": ["Dolor 1 Avatar 1", "Dolor 2 Avatar 1", "Dolor 3 Avatar 1", "Dolor 1 Avatar 2", "Dolor 2 Avatar 2", "Dolor 3 Avatar 2", "Dolor 1 Avatar 3", "Dolor 2 Avatar 3", "Dolor 3 Avatar 3"]
+    },
     "hero": { "headline": "string", "subheadline": "string", "ctaText": "string" },
     "intro": { "title": "string", "description": "string", "items": [{"title": "string", "description": "string"}] },
     "faq": [{"question": "string", "answer": "string"}],
@@ -158,9 +163,12 @@ export const generateLandingPageContent = async (
   ${projectStrategy}
 
   INSTRUCCIONES DE CONTROL DE DATOS (MÁXIMA PRIORIDAD):
-  1. SECCIONES ELIMINADAS: NO GENERES NI INCLUYAS las secciones "testimonials", "benefits" ni "whatYouWillLearn" en tu respuesta. Han sido eliminadas del esquema para evitar redundancia. Céntrate únicamente en el Hero, la Intro y el FAQ.
+  1. SECCIONES ELIMINADAS: NO GENERES NI INCLUYAS las secciones "testimonials" ni "benefits" en tu respuesta. Han sido eliminadas del esquema para evitar redundancia. Céntrate únicamente en el Hero, la Intro, el FAQ y la Identificación de Dolores (whatYouWillLearn).
   2. PROHIBIDO incluir años específicos (ej: 2024, 2025). El contenido debe ser atemporal (evergreen).
   3. Los titulares (Hero) y la descripción (Intro) deben tener un enfoque GENERAL que resuene con los 3 perfiles de avatar.
+  4. IDENTIFICACIÓN DE DOLORES (whatYouWillLearn): 
+     - Genera 3 frases cortas y poderosas para "avatarTitles" que identifiquen a cada perfil según su deseo o miedo principal.
+     - Genera 9 "items" (3 por cada avatar) que toquen dolores específicos y realistas.
   
   INSTRUCCIÓN CRÍTICA: Utiliza los detalles de la audiencia proporcionados arriba para que cada frase, beneficio y dolor resuene directamente con sus necesidades específicas. Si el contexto menciona dolores o deseos específicos, úsalos como base para el Hero y los beneficios.
   
@@ -247,6 +255,15 @@ export const generateLandingPageContent = async (
         if (!content.testimonialSubtitle) content.testimonialSubtitle = "Resultados reales de alumnos";
         if (!content.closingOfferText) content.closingOfferText = "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder.";
         
+        // Títulos de testimonios dinámicos según el destino
+        if (destination.type === 'form') {
+            content.testimonialTitle = "Ellos ya se registraron en nuestra clase gratuita";
+        } else if (destination.type === 'whatsapp') {
+            content.testimonialTitle = "Ellos ya se unieron y están transformando su historia";
+        } else {
+            content.testimonialTitle = "Ellos ya se registraron y descargaron nuestra guía";
+        }
+
         if (content.testimonials && Array.isArray(content.testimonials)) {
             const randomLocations = ["Bogotá, CO", "CDMX, MX", "Lima, PE", "Santiago, CL", "Madrid, ES", "Quito, EC", "Medellín, CO", "Buenos Aires, AR"];
             content.testimonials.forEach(t => {
@@ -278,21 +295,17 @@ export const generateLandingPageContent = async (
                     : (Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : []);
 
             if (rawBenefits.length > 0) {
-                content.benefits.items = rawBenefits.slice(0, 9).map((b: any) => ({
+                const defaultColors = ['purple', 'blue', 'green', 'emerald', 'orange', 'red', 'teal'];
+                content.benefits.items = rawBenefits.slice(0, 9).map((b: any, idx: number) => ({
                     title: typeof b === 'object' ? (b.title || "") : String(b),
                     description: typeof b === 'object' ? (b.description || b.desc || "") : "", 
                     icon: b.icon || "Sparkles",
-                    color: b.color || "blue"
+                    color: b.color || defaultColors[idx % defaultColors.length]
                 }));
             }
 
             // 3. INYECCIÓN OBLIGATORIA DE TRANSFORMACIONES (ESTRATEGIA)
             content.whatYouWillLearn.title = "Esta clase es para ti si...";
-            content.whatYouWillLearn.avatarTitles = [
-                "Si buscas crear tu propio negocio y reinventarte profesionalmente",
-                "Si ya estás en el sector belleza y quieres dominar la técnica más top",
-                "Si te da miedo fallar por falta de experiencia pero buscas respaldo"
-            ];
             content.whatYouWillLearn.avatarIcons = ["Sparkles", "TrendingUp", "UserCheck"];
 
             let rawModules = (pStrategy?.psychology?.learningModules && pStrategy.psychology.learningModules.length > 0)

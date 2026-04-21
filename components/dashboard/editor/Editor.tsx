@@ -826,6 +826,11 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
 
   const structures: { id: StructureType; name: string; wireframe: React.ReactNode }[] = [
     { 
+      id: 'webinar-funnel', 
+      name: 'Webinar', 
+      wireframe: <div className="w-full h-16 bg-gray-800 rounded flex gap-1 p-1 opacity-70"><div className="w-1/2 flex flex-col gap-1"><div className="w-full h-2 bg-gray-600 rounded-sm"></div><div className="w-full h-2 bg-gray-600 rounded-sm"></div></div><div className="w-1/2 bg-gray-700 rounded-sm"></div></div>
+    },
+    { 
       id: 'classic-sales', 
       name: 'Carta Clásica', 
       wireframe: <div className="w-full h-16 bg-gray-800 rounded flex flex-col gap-1 p-1 opacity-70"><div className="w-full h-2 bg-gray-600 rounded-sm"></div><div className="w-2/3 h-2 bg-gray-600 rounded-sm"></div><div className="flex-1 bg-gray-700 rounded-sm"></div></div>
@@ -834,11 +839,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       id: 'vsl-focused', 
       name: 'VSL (Video)', 
       wireframe: <div className="w-full h-16 bg-gray-800 rounded flex flex-col gap-1 p-1 opacity-70"><div className="w-full h-8 bg-red-900/40 border border-red-900 rounded-sm flex items-center justify-center"><div className="w-2 h-2 rounded-full bg-red-500"></div></div><div className="w-1/2 mx-auto h-2 bg-primary rounded-sm"></div></div>
-    },
-    { 
-      id: 'webinar-funnel', 
-      name: 'Webinar', 
-      wireframe: <div className="w-full h-16 bg-gray-800 rounded flex gap-1 p-1 opacity-70"><div className="w-1/2 flex flex-col gap-1"><div className="w-full h-2 bg-gray-600 rounded-sm"></div><div className="w-full h-2 bg-gray-600 rounded-sm"></div></div><div className="w-1/2 bg-gray-700 rounded-sm"></div></div>
     },
     { 
       id: 'minimal-capture', 
@@ -908,8 +908,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
               {/* Tabs */}
               <div className="flex border-b border-gray-800 shrink-0">
                   <button onClick={() => setActiveTab('content')} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition ${activeTab === 'content' ? 'text-white border-b-2 border-primary bg-gray-800/50' : 'text-gray-500 hover:text-gray-300'}`}><Type className="w-4 h-4" /> Contenido</button>
-                  <button onClick={() => setActiveTab('thankyou')} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition ${activeTab === 'thankyou' ? 'text-white border-b-2 border-green-500 bg-gray-800/50' : 'text-gray-500 hover:text-gray-300'}`}><CheckCircle className="w-4 h-4" /> Gracias</button>
                   <button onClick={() => setActiveTab('design')} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition ${activeTab === 'design' ? 'text-white border-b-2 border-primary bg-gray-800/50' : 'text-gray-500 hover:text-gray-300'}`}><Palette className="w-4 h-4" /> Diseño</button>
+                  <button onClick={() => setActiveTab('thankyou')} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition ${activeTab === 'thankyou' ? 'text-white border-b-2 border-green-500 bg-gray-800/50' : 'text-gray-500 hover:text-gray-300'}`}><CheckCircle className="w-4 h-4" /> Gracias</button>
                   <button onClick={() => setActiveTab('settings')} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition ${activeTab === 'settings' ? 'text-white border-b-2 border-primary bg-gray-800/50' : 'text-gray-500 hover:text-gray-300'}`}><Settings className="w-4 h-4" /> Ajustes</button>
               </div>
 
@@ -965,16 +965,10 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                 </div>
                             </div>
 
-                            {/* Controles de Urgencia (Relocated) */}
                             <div className="pt-4 border-t border-gray-800 space-y-4">
-                                <h4 className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-widest">Controles de Urgencia</h4>
                                 <div>
-                                    <Label>Etiqueta del Temporizador</Label>
+                                    <Label>Etiqueta de barra de urgencia</Label>
                                     <Input value={content.capture?.timerLabel || ''} onChange={(e) => updateCaptureField('timerLabel', e.target.value)} placeholder="Ej: La sesión expira en:" />
-                                </div>
-                                <div>
-                                    <Label>Tiempo de Expiración (Minutos)</Label>
-                                    <Input type="number" value={content.capture?.timerDuration || 15} onChange={(e) => updateCaptureField('timerDuration', parseInt(e.target.value) || 0)} />
                                 </div>
                             </div>
                         </SectionContent>
@@ -1065,6 +1059,10 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                             <div className="space-y-4">
                                 <h4 className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Prueba Social y Seguridad</h4>
                                 <div>
+                                    <Label>Cronometro de urgencia CTA (Minutos)</Label>
+                                    <Input type="number" value={content.capture?.timerDuration || 15} onChange={(e) => updateCaptureField('timerDuration', parseInt(e.target.value) || 0)} />
+                                </div>
+                                <div>
                                     <Label>Contador Alumnos (Número)</Label>
                                     <Input value={content.hero.socialProofCount || ''} onChange={(e) => updateNestedField('hero', 'socialProofCount', e.target.value)} placeholder="Ej: 2,458" />
                                 </div>
@@ -1100,7 +1098,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
                                                 Bloque {idx + 1}
                                             </div>
-                                            <h4 className="text-sm font-bold text-white uppercase tracking-widest opacity-70">Configuración de Avatar</h4>
+                                            <h4 className="text-sm font-bold text-white uppercase tracking-widest opacity-70">Dolores de Avatar {idx + 1}</h4>
                                         </div>
                                         
                                         <div>
@@ -1117,31 +1115,56 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                             />
                                         </div>
 
-                                        <div>
-                                            <Label>Dolores del Bloque (Máx 3, uno por línea)</Label>
-                                            <textarea 
-                                                className="w-full bg-gray-900 border border-gray-800 rounded-lg p-3 text-sm min-h-[100px] text-gray-300 focus:ring-1 focus:ring-primary outline-none transition-all"
-                                                value={(content.whatYouWillLearn.items || []).slice(idx * 3, idx * 3 + 3).join('\n')}
-                                                onChange={(e) => {
-                                                    const lines = e.target.value.split('\n');
-                                                    const totalItems = [...(content.whatYouWillLearn.items || [])];
-                                                    
-                                                    // Rellenar hasta tener al menos indices suficientes
-                                                    while(totalItems.length < 9) totalItems.push("");
-
-                                                    for(let i = 0; i < 3; i++) {
-                                                        totalItems[idx * 3 + i] = lines[i] || "";
-                                                    }
-                                                    
-                                                    setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, items: totalItems}});
-                                                }}
-                                                placeholder={"Dolor 1\nDolor 2\nDolor 3"}
-                                            />
-                                            <p className="text-[10px] text-gray-500 mt-1 italic tracking-tight opacity-80">* Los dolores se agrupan automáticamente de 3 en 3 por avatar.</p>
+                                        <div className="space-y-3">
+                                            <Label>Dolores del Bloque</Label>
+                                            {[0, 1, 2].map((pIdx) => (
+                                                <div key={pIdx} className="flex gap-2 items-center">
+                                                    <div className="w-6 h-6 shrink-0 rounded-full bg-gray-800 flex items-center justify-center text-[10px] text-gray-400 font-bold border border-gray-700">
+                                                        {pIdx + 1}
+                                                    </div>
+                                                    <Input 
+                                                        value={content.whatYouWillLearn.items?.[idx * 3 + pIdx] || ""} 
+                                                        onChange={(e) => {
+                                                            const totalItems = [...(content.whatYouWillLearn.items || [])];
+                                                            while(totalItems.length < 9) totalItems.push("");
+                                                            totalItems[idx * 3 + pIdx] = e.target.value;
+                                                            setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, items: totalItems}});
+                                                        }}
+                                                        placeholder={`Dolor ${pIdx + 1}...`}
+                                                    />
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 ))}
                              </div>
+                        </SectionContent>
+
+                        {/* 7. Benefits (Existing) - Moved after Dolores */}
+                        <SectionHeader id="benefits" title="Beneficios" icon={Award} openSection={openSection} toggleSection={toggleSection} />
+                        <SectionContent id="benefits" openSection={openSection}>
+                            <div><Label>Título de Sección</Label><Input value={content.benefits.title} onChange={(e) => setContent({...content, benefits: {...content.benefits, title: e.target.value}})} /></div>
+                            <div className="mt-3"><Label>Subtítulo de Sección</Label><Input value={content.benefits.subtitle || ''} onChange={(e) => setContent({...content, benefits: { ...content.benefits, subtitle: e.target.value }})} /></div>
+                            <div className="space-y-4 mt-4">
+                                {(content.benefits.items || []).map((item, i) => (
+                                    <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
+                                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition"><button onClick={() => removeItem('benefits', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
+                                        <div className="flex gap-4 mb-2">
+                                            <div className="flex-1"><Label>Título del Beneficio</Label><Input value={item.title} onChange={(e) => updateBenefitItem(i, 'title', e.target.value)} /></div>
+                                            <div>
+                                                <Label>Icono</Label>
+                                                <IconPicker selected={item.icon} onChange={(icon) => updateBenefitItem(i, 'icon', icon)} />
+                                            </div>
+                                        </div>
+                                        <div className="mb-2">
+                                            <Label>Color de Acento</Label>
+                                            <ColorPicker selected={item.color} onChange={(color) => updateBenefitItem(i, 'color', color)} />
+                                        </div>
+                                        <div><Label>Descripción</Label><RichTextArea value={item.description} onChange={(e) => updateBenefitItem(i, 'description', e.target.value)} className="min-h-[60px]" /></div>
+                                    </div>
+                                ))}
+                                <button onClick={() => addItem('benefits')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Beneficio</button>
+                            </div>
                         </SectionContent>
 
                         {/* 5. Testimonials (Existing) */}
@@ -1184,7 +1207,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                         </SectionContent>
 
                         {/* 6. Intro Section (Existing) */}
-                        <SectionHeader id="intro" title="Introducción" icon={Image} openSection={openSection} toggleSection={toggleSection} />
+                        <SectionHeader id="intro" title="Carta de Ventas" icon={Image} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="intro" openSection={openSection}>
                             <div><Label>Título de Sección</Label><Input value={content.intro.title} onChange={(e) => updateNestedField('intro', 'title', e.target.value)} /></div>
                             <div><Label>Descripción</Label><RichTextArea value={content.intro.description} onChange={(e) => updateNestedField('intro', 'description', e.target.value)} className="h-32" /></div>
@@ -1223,33 +1246,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                     ))}
                                     <button onClick={() => addItem('introItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Punto Clave</button>
                                 </div>
-                            </div>
-                        </SectionContent>
-
-                        {/* 7. Benefits (Existing) */}
-                        <SectionHeader id="benefits" title="Beneficios" icon={Award} openSection={openSection} toggleSection={toggleSection} />
-                        <SectionContent id="benefits" openSection={openSection}>
-                            <div><Label>Título de Sección</Label><Input value={content.benefits.title} onChange={(e) => setContent({...content, benefits: {...content.benefits, title: e.target.value}})} /></div>
-                            <div className="mt-3"><Label>Subtítulo de Sección</Label><Input value={content.benefits.subtitle || ''} onChange={(e) => setContent({...content, benefits: { ...content.benefits, subtitle: e.target.value }})} /></div>
-                            <div className="space-y-4 mt-4">
-                                {(content.benefits.items || []).map((item, i) => (
-                                    <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
-                                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition"><button onClick={() => removeItem('benefits', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
-                                        <div className="flex gap-4 mb-2">
-                                            <div className="flex-1"><Label>Título del Beneficio</Label><Input value={item.title} onChange={(e) => updateBenefitItem(i, 'title', e.target.value)} /></div>
-                                            <div>
-                                                <Label>Icono</Label>
-                                                <IconPicker selected={item.icon} onChange={(icon) => updateBenefitItem(i, 'icon', icon)} />
-                                            </div>
-                                        </div>
-                                        <div className="mb-2">
-                                            <Label>Color de Acento</Label>
-                                            <ColorPicker selected={item.color} onChange={(color) => updateBenefitItem(i, 'color', color)} />
-                                        </div>
-                                        <div><Label>Descripción</Label><RichTextArea value={item.description} onChange={(e) => updateBenefitItem(i, 'description', e.target.value)} className="min-h-[60px]" /></div>
-                                    </div>
-                                ))}
-                                <button onClick={() => addItem('benefits')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Beneficio</button>
                             </div>
                         </SectionContent>
 

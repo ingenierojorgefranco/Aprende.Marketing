@@ -1,15 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GeneratedPageContent } from '../../../../types';
 import { ScanFace, Palette, Feather } from 'lucide-react';
 import { renderRichText } from '../../utils';
+import { RegistrationModal } from '../../ui/LiveComponents';
 
 interface IntroModuleProps {
   content: GeneratedPageContent;
   ds: any;
   isMobilePreview: boolean;
+  pageId?: string;
+  basePath?: string;
 }
 
-export const IntroModule: React.FC<IntroModuleProps> = ({ content, ds, isMobilePreview }) => {
+export const IntroModule: React.FC<IntroModuleProps> = ({ content, ds, isMobilePreview, pageId, basePath }) => {
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <section id="introduccion" className={`py-24 relative overflow-hidden ${ds.intro.sectionBg}`}>
         <div className="w-full max-w-[60em] mx-auto px-6">
@@ -32,16 +37,17 @@ export const IntroModule: React.FC<IntroModuleProps> = ({ content, ds, isMobileP
                     </div>
                     
                     <div className="mt-20 flex justify-center">
-                        <a 
-                            href="#captura" 
+                        <button 
+                            onClick={() => setShowModal(true)}
                             className={`px-10 py-5 rounded-full text-xl font-black uppercase tracking-wide shadow-xl transition-all hover:scale-105 active:scale-95 text-center ${ds.buttons.primary}`}
                         >
                             {content.hero.ctaText || "¡Quiero mi Acceso Ahora!"}
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+        {showModal && <RegistrationModal content={content} ds={ds} onClose={() => setShowModal(false)} pageId={pageId} basePath={basePath} />}
     </section>
   );
 };

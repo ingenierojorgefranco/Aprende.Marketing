@@ -28,15 +28,15 @@ const getIconByName = (name?: string, defaultIcon?: any) => {
 };
 
 const getModuleColors = (color: string = 'purple') => {
-    const map: Record<string, { bg: string, glow: string }> = {
-        blue: { bg: "from-[#0f172a] via-[#0b1120] to-[#090e1a]", glow: "hover:shadow-blue-500/20" },
-        purple: { bg: "from-[#1a0b2e] via-[#12061d] to-[#0f041d]", glow: "hover:shadow-purple-500/20" },
-        green: { bg: "from-[#061a14] via-[#04120e] to-[#030d0a]", glow: "hover:shadow-emerald-500/20" },
-        emerald: { bg: "from-[#061a14] via-[#04120e] to-[#030d0a]", glow: "hover:shadow-emerald-500/20" },
-        orange: { bg: "from-[#2d1205] via-[#1c0a02] to-[#120601]", glow: "hover:shadow-orange-500/20" },
-        red: { bg: "from-[#2a0505] via-[#1a0202] to-[#110101]", glow: "hover:shadow-red-500/20" },
-        yellow: { bg: "from-[#2a2a05] via-[#1a1a02] to-[#111101]", glow: "hover:shadow-yellow-500/20" },
-        teal: { bg: "from-[#052a2a] via-[#021a1a] to-[#011111]", glow: "hover:shadow-teal-500/20" }
+    const map: Record<string, { bg: string, glow: string, border: string }> = {
+        blue: { bg: "from-[#0f172a] via-[#1e293b] to-[#0f172a]", glow: "hover:shadow-blue-500/20", border: "border-blue-500/20" },
+        purple: { bg: "from-[#1a0b2e] via-[#2d1b4d] to-[#1a0b2e]", glow: "hover:shadow-purple-500/20", border: "border-purple-500/20" },
+        green: { bg: "from-[#061a14] via-[#064e3b] to-[#061a14]", glow: "hover:shadow-emerald-500/20", border: "border-emerald-500/20" },
+        emerald: { bg: "from-[#061a14] via-[#064e3b] to-[#061a14]", glow: "hover:shadow-emerald-500/20", border: "border-emerald-500/20" },
+        orange: { bg: "from-[#2d1205] via-[#7c2d12] to-[#2d1205]", glow: "hover:shadow-orange-500/20", border: "border-orange-500/20" },
+        red: { bg: "from-[#2a0505] via-[#7f1d1d] to-[#2a0505]", glow: "hover:shadow-red-500/20", border: "border-red-500/20" },
+        yellow: { bg: "from-[#2a2a05] via-[#71710a] to-[#2a2a05]", glow: "hover:shadow-yellow-500/20", border: "border-yellow-500/20" },
+        teal: { bg: "from-[#052a2a] via-[#134e4a] to-[#052a2a]", glow: "hover:shadow-teal-500/20", border: "border-teal-500/20" }
     };
     return map[color] || map.purple;
 };
@@ -83,7 +83,7 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
           desc: m.description || m.desc || "Aprende de los mejores expertos del sector.",
           icon: getIconByName(m.icon, <Sparkles className="w-10 h-10 text-purple-400" />),
           bg: colors.bg,
-          border: m.border || "border-white/10",
+          border: colors.border,
           glow: colors.glow
       };
   });
