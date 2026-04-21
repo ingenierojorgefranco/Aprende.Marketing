@@ -302,11 +302,11 @@ export const generateFullStrategy = async (projectId) => {
         Genera exactamente 9 bloques de transformación (3 por cada avatar) que respondan directamente a los dolores (pains) generados. 
         REGLA CRÍTICA DE COHERENCIA: Prohibido inventar temas técnicos o capítulos de un curso. Cada título y descripción debe ser el beneficio directo o la transformación que el usuario "descubrirá" para resolver su dolor.
         Usa un lenguaje de descubrimiento y promesa (ej: "Descubrirás el secreto para...", "El método exacto que necesitas para...", "La clave definitiva para..."). Cada módulo debe tener la siguiente estructura: 
-        { "title": "...", "description": "...", "icon": "Brain|Target|Users|TrendingUp|Zap|Star|Shield", "color": "text-blue-400|text-emerald-400|text-purple-400", "bg": "bg-blue-500/10|bg-emerald-500/10|bg-purple-500/10", "border": "border-blue-500/20|border-emerald-500/20|border-purple-500/20", "glow": "hover:shadow-blue-500/10|hover:shadow-emerald-500/10|hover:shadow-purple-500/10", "avatarId": number }.
-        Reglas de estilo:
-        - Avatar 1: Usa tonos Blue/Cyan (color: text-blue-400, bg: bg-blue-500/10, border: border-blue-500/20, glow: hover:shadow-blue-500/10).
-        - Avatar 2: Usa tonos Emerald/Green (color: text-emerald-400, bg: bg-emerald-500/10, border: border-emerald-500/20, glow: hover:shadow-emerald-500/10).
-        - Avatar 3: Usa tonos Purple/Pink (color: text-purple-400, bg: bg-purple-500/10, border: border-purple-500/20, glow: hover:shadow-purple-500/10).
+        { "title": "...", "description": "...", "icon": "Brain|Target|Users|TrendingUp|Zap|Star|Shield", "color": "text-blue-400|text-emerald-400|text-purple-400", "bg": "from-[#0f172a] via-[#0b1120] to-[#090e1a]|from-[#061a14] via-[#04120e] to-[#030d0a]|from-[#1a0b2e] via-[#12061d] to-[#0f041d]", "border": "border-white/10", "glow": "hover:shadow-blue-500/20|hover:shadow-emerald-500/20|hover:shadow-purple-500/20", "avatarId": number }.
+        Reglas de estilo (OBLIGATORIO - USAR DEGRADADOS SÓLIDOS Y OSCUROS):
+        - Avatar 1: Usa tonos Blue/Cyan (color: text-blue-400, bg: from-[#0f172a] via-[#0b1120] to-[#090e1a], border: border-white/10, glow: hover:shadow-blue-500/20).
+        - Avatar 2: Usa tonos Emerald/Green (color: text-emerald-400, bg: from-[#061a14] via-[#04120e] to-[#030d0a], border: border-white/10, glow: hover:shadow-emerald-500/20).
+        - Avatar 3: Usa tonos Purple/Pink (color: text-purple-400, bg: from-[#1a0b2e] via-[#12061d] to-[#0f041d], border: border-white/10, glow: hover:shadow-purple-500/20).
 
         INSTRUCCIONES PARA CONTENIDOS DE BLOG content (OBLIGATORIO):
         ${isCloned 
@@ -405,8 +405,8 @@ export const generateFullStrategy = async (projectId) => {
                 "overview": { 
                     "title": "Estrategia General", 
                     "items": [
-                        { "label": "Producto", "value": "${productName}", "icon": "BookOpen", "color": "text-pink-400", "bg": "bg-pink-500/10", "border": "border-pink-500/20" },
-                        { "label": "Nicho", "value": "${niche}", "icon": "Sparkles", "color": "text-purple-400", "bg": "bg-purple-500/10", "border": "border-purple-500/20" }
+                        { "label": "Producto", "value": "${productName}", "icon": "BookOpen", "color": "text-pink-400", "bg": "from-[#2e0b1a] via-[#1d0612] to-[#1d0412]", "border": "border-white/10" },
+                        { "label": "Nicho", "value": "${niche}", "icon": "Sparkles", "color": "text-purple-400", "bg": "from-[#1a0b2e] via-[#12061d] to-[#0f041d]", "border": "border-white/10" }
                     ] 
                 }
             }
@@ -496,15 +496,15 @@ export const generateFullStrategy = async (projectId) => {
                 stage3_barrier: "Analiza la barrera mental o duda técnica específica que impide al avatar comprar ahora mismo."
             },
             learningModules: [
-                { "title": "Módulo 1 para Avatar 1", "description": "...", "icon": "Brain", "color": "text-blue-400", "bg": "bg-blue-500/10", "border": "border-blue-500/20", "glow": "hover:shadow-blue-500/10", "avatarId": 1 },
-                { "title": "Módulo 2 para Avatar 1", "description": "...", "icon": "Target", "color": "text-blue-400", "bg": "bg-blue-500/10", "border": "border-blue-500/20", "glow": "hover:shadow-blue-500/10", "avatarId": 1 },
-                { "title": "Módulo 3 para Avatar 1", "description": "...", "icon": "Zap", "color": "text-blue-400", "bg": "bg-blue-500/10", "border": "border-blue-500/20", "glow": "hover:shadow-blue-500/10", "avatarId": 1 },
-                { "title": "Módulo 1 para Avatar 2", "description": "...", "icon": "Shield", "color": "text-emerald-400", "bg": "bg-emerald-500/10", "border": "border-emerald-500/20", "glow": "hover:shadow-emerald-500/10", "avatarId": 2 },
-                { "title": "Módulo 2 para Avatar 2", "description": "...", "icon": "Star", "color": "text-emerald-400", "bg": "bg-emerald-500/10", "border": "border-emerald-500/20", "glow": "hover:shadow-emerald-500/10", "avatarId": 2 },
-                { "title": "Módulo 3 para Avatar 2", "description": "...", "icon": "Users", "color": "text-emerald-400", "bg": "bg-emerald-500/10", "border": "border-emerald-500/20", "glow": "hover:shadow-emerald-500/10", "avatarId": 2 },
-                { "title": "Módulo 1 para Avatar 3", "description": "...", "icon": "TrendingUp", "color": "text-purple-400", "bg": "bg-purple-500/10", "border": "border-purple-500/20", "glow": "hover:shadow-purple-500/10", "avatarId": 3 },
-                { "title": "Módulo 2 para Avatar 3", "description": "...", "icon": "Sparkles", "color": "text-purple-400", "bg": "bg-purple-500/10", "border": "border-purple-500/20", "glow": "hover:shadow-purple-500/10", "avatarId": 3 },
-                { "title": "Módulo 3 para Avatar 3", "description": "...", "icon": "Lightbulb", "color": "text-purple-400", "bg": "bg-purple-500/10", "border": "border-purple-500/20", "glow": "hover:shadow-purple-500/10", "avatarId": 3 }
+                { "title": "Módulo 1 para Avatar 1", "description": "...", "icon": "Brain", "color": "text-blue-400", "bg": "from-[#0f172a] via-[#0b1120] to-[#090e1a]", "border": "border-white/10", "glow": "hover:shadow-blue-500/20", "avatarId": 1 },
+                { "title": "Módulo 2 para Avatar 1", "description": "...", "icon": "Target", "color": "text-blue-400", "bg": "from-[#0f172a] via-[#0b1120] to-[#090e1a]", "border": "border-white/10", "glow": "hover:shadow-blue-500/20", "avatarId": 1 },
+                { "title": "Módulo 3 para Avatar 1", "description": "...", "icon": "Zap", "color": "text-blue-400", "bg": "from-[#0f172a] via-[#0b1120] to-[#090e1a]", "border": "border-white/10", "glow": "hover:shadow-blue-500/20", "avatarId": 1 },
+                { "title": "Módulo 1 para Avatar 2", "description": "...", "icon": "Shield", "color": "text-emerald-400", "bg": "from-[#061a14] via-[#04120e] to-[#030d0a]", "border": "border-white/10", "glow": "hover:shadow-emerald-500/20", "avatarId": 2 },
+                { "title": "Módulo 2 para Avatar 2", "description": "...", "icon": "Star", "color": "text-emerald-400", "bg": "from-[#061a14] via-[#04120e] to-[#030d0a]", "border": "border-white/10", "glow": "hover:shadow-emerald-500/20", "avatarId": 2 },
+                { "title": "Módulo 3 para Avatar 2", "description": "...", "icon": "Users", "color": "text-emerald-400", "bg": "from-[#061a14] via-[#04120e] to-[#030d0a]", "border": "border-white/10", "glow": "hover:shadow-emerald-500/20", "avatarId": 2 },
+                { "title": "Módulo 1 para Avatar 3", "description": "...", "icon": "TrendingUp", "color": "text-purple-400", "bg": "from-[#1a0b2e] via-[#12061d] to-[#0f041d]", "border": "border-white/10", "glow": "hover:shadow-purple-500/20", "avatarId": 3 },
+                { "title": "Módulo 2 para Avatar 3", "description": "...", "icon": "Sparkles", "color": "text-purple-400", "bg": "from-[#1a0b2e] via-[#12061d] to-[#0f041d]", "border": "border-white/10", "glow": "hover:shadow-purple-500/20", "avatarId": 3 },
+                { "title": "Módulo 3 para Avatar 3", "description": "...", "icon": "Lightbulb", "color": "text-purple-400", "bg": "from-[#1a0b2e] via-[#12061d] to-[#0f041d]", "border": "border-white/10", "glow": "hover:shadow-purple-500/20", "avatarId": 3 }
             ]
         },
 
