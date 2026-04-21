@@ -4,6 +4,7 @@ import { Navbar, Footer, UrgencyBar, RegistrationModal, HeroMedia } from '../ui/
 import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
 import { Check, ArrowRight, Star, MessageCircle, User, Target, HelpCircle, Sparkles, ShieldCheck, Zap } from 'lucide-react';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
+import { PainPointsModule } from './modules/PainPointsModule';
 
 interface TemplateProps {
   content: GeneratedPageContent;
@@ -79,45 +80,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                   </button>
              </header>
 
-             <div className="max-w-3xl mx-auto px-6">
-                 <hr className="mb-16 border-slate-100" />
-
-                 {/* 2. Pain Points */}
-                 <section className="mb-24">
-                    <h2 className="text-3xl font-bold mb-8 text-slate-900">{content.whatYouWillLearn.title || "¿Te suena familiar?"}</h2>
-                    <div className="space-y-6">
-                        {(pains.length > 0 ? pains.slice(0, 6).map((p: any) => p.text) : (content.whatYouWillLearn.items || [])).map((point: string, i: number) => (
-                            <div key={i} className="flex gap-4 items-start p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                                <div className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0 mt-1">
-                                    <span className="font-bold text-xs">✕</span>
-                                </div>
-                                <p className="text-lg text-slate-700 leading-relaxed">{point}</p>
-                            </div>
-                        ))}
-                    </div>
-                 </section>
-             </div>
-
-             {/* 3. Benefits - Vertical Cards with better spacing */}
-             <section className="bg-slate-50 py-24 border-y border-slate-100">
-                <div className="max-w-6xl mx-auto px-6">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-black mb-4 text-slate-900">{content.benefits.title || "Tu Arsenal para el Éxito"}</h2>
-                        <p className="text-xl text-slate-500 max-w-2xl mx-auto">{content.benefits.subtitle || "Todo lo que necesitas para dominar esta técnica y facturar con confianza."}</p>
-                    </div>
-                    <div className="grid md:grid-cols-3 gap-8">
-                        {((project?.strategy_json?.psychology?.learningModules && project.strategy_json.psychology.learningModules.length > 0) ? project.strategy_json.psychology.learningModules : (content.benefits.items || [])).map((benefit: any, i: number) => (
-                            <div key={i} className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col items-center text-center transition-all hover:-translate-y-2 hover:shadow-xl">
-                                <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6">
-                                    {getIcon(benefit.icon, <Zap className="w-8 h-8" />)}
-                                </div>
-                                <h3 className="font-bold text-2xl mb-4 text-slate-900">{benefit.title}</h3>
-                                <p className="text-slate-600 leading-relaxed">{benefit.description}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-             </section>
+             <PainPointsModule content={content} ds={ds} project={project} />
 
              <div className="w-full">
                  {/* 4. Testimonials - WhatsApp Module */}

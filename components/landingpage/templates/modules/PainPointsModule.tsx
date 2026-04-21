@@ -119,7 +119,7 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
 
   return (
     <section id="dolores" className={`py-24 ${ds.features.sectionBg}`}>
-        <div className="max-w-7xl mx-auto px-6 text-center mb-32">
+        <div id="puntos-dolor-avatars" className="max-w-7xl mx-auto px-6 text-center mb-32">
             <h2 className="text-4xl md:text-6xl font-['Verdana'] font-extrabold mb-8 text-[#2d1b4d] leading-tight tracking-tight">Esta clase es para ti si...</h2>
             
             <div className="max-w-6xl mx-auto flex flex-col gap-16 text-left">
@@ -153,24 +153,8 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
             </div>
         </div>
 
-        <div className="max-w-4xl mx-auto px-6 text-center">
-            <h2 className={`text-3xl md:text-4xl font-black mb-4 ${ds.features.titleColor}`}>{content.whatYouWillLearn.title || "¿Es para ti esta clase?"}</h2>
-            <p className={`text-xl font-medium mb-12 ${ds.features.descColor}`}>Si te pasa que…</p>
-            <div className="grid md:grid-cols-2 gap-8 text-left">
-                {(pains.length > 0 ? pains.slice(0, 6).map((p: any) => p.text) : (content.whatYouWillLearn.items || [])).map((item: string, idx: number) => (
-                    <div key={idx} className={`group relative flex items-center gap-5 p-8 rounded-[2rem] border transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl overflow-hidden ${ds.features.cardBorder} bg-gradient-to-br from-white via-white to-gray-50/50`}>
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner bg-red-50 border border-red-100/50`}>
-                            <XCircle className="w-6 h-6 text-red-500" />
-                        </div>
-                        <p className={`relative z-10 text-[1.1rem] md:text-[1.2rem] leading-relaxed font-semibold tracking-tight ${ds.features.descColor}`}>{item}</p>
-                    </div>
-                ))}
-            </div>
-        </div>
-
         {/* NUEVA SECCIÓN QUEMADA: LO QUE APRENDERÁS EN NUESTRA CLASE */}
-        <div className="max-w-7xl mx-auto px-6 text-center mt-32 mb-16">
+        <div id="temario-exclusivo" className="max-w-7xl mx-auto px-6 text-center mt-32 mb-16">
             <div className="mb-20">
                 <h2 className="text-4xl md:text-6xl font-['Verdana'] font-extrabold mb-8 text-[#2d1b4d] leading-tight tracking-tight">Lo que aprenderás en nuestra clase</h2>
                 <div className={`h-1.5 w-24 rounded-full mx-auto bg-gradient-to-r from-purple-600 to-pink-500 shadow-[0_0_15px_rgba(168,85,247,0.5)]`}></div>
@@ -178,7 +162,7 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
 
             <div className="grid gap-8 md:grid-cols-3 text-left">
                 {benefitsGrid.map((item: any, idx: number) => (
-                    <div key={idx} className={`relative p-10 rounded-[3.5rem] border bg-gradient-to-br ${item.bg} ${item.border} shadow-2xl transition-all duration-700 group overflow-hidden ${item.glow} backdrop-blur-sm hover:-translate-y-2`}>
+                    <div key={idx} className={`relative p-10 rounded-[3.5rem] border bg-gradient-to-br ${item.bg} ${item.border} shadow-2xl transition-all duration-700 group overflow-hidden ${item.glow} hover:-translate-y-2`}>
                         <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.07] group-hover:scale-125 transition-all duration-700 pointer-events-none">
                             {React.cloneElement(item.icon as any, { size: 180 })}
                         </div>

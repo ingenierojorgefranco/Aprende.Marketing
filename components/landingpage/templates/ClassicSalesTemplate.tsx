@@ -11,7 +11,6 @@ import { PainPointsModule } from './modules/PainPointsModule';
 import { StepsModule } from './modules/StepsModule';
 import { FinalCtaModule } from './modules/FinalCtaModule';
 import { CtaBlockModule } from './modules/CtaBlockModule';
-import { BenefitsModule } from './modules/BenefitsModule';
 
 interface TemplateProps {
   content: GeneratedPageContent;
@@ -70,14 +69,6 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
         </header>
 
         <PainPointsModule content={content} ds={ds} project={project} />
-        
-        <BenefitsModule 
-            content={content} 
-            ds={ds} 
-            project={project}
-            isMobilePreview={isMobilePreview} 
-            showSeparator={true}
-        />
 
         <WhatsAppTestimonials 
             testimonials={content.testimonials} 

@@ -11,7 +11,6 @@ import { PainPointsModule } from './modules/PainPointsModule';
 import { StepsModule } from './modules/StepsModule';
 import { FinalCtaModule } from './modules/FinalCtaModule';
 import { CtaBlockModule } from './modules/CtaBlockModule';
-import { BenefitsModule } from './modules/BenefitsModule';
 
 interface TemplateProps {
   content: GeneratedPageContent;
@@ -78,15 +77,6 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, project, isM
                         <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
                     </button>
                 </div>
-
-                <BenefitsModule 
-                    content={content} 
-                    ds={ds} 
-                    project={project}
-                    isMobilePreview={isMobilePreview} 
-                    className="bg-gray-50 border-y border-gray-100"
-                    fallbackSubtitle="No pierdas esta gran oportunidad, Regístrate y recibe todos los Beneficios"
-                />
 
                 <WhatsAppTestimonials 
                     testimonials={content.testimonials} 
