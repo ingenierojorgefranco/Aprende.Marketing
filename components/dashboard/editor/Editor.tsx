@@ -385,6 +385,48 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   
   const [openSection, setOpenSection] = useState<string | null>('header');
 
+  // --- INITIALIZATION SYNC FROM PROJECT ---
+  useEffect(() => {
+    if (linkedProject && linkedProject.strategy_json) {
+       const projectPains = linkedProject.strategy_json.psychology?.pains?.map((p: any) => p.text) || [];
+       const projectModules = linkedProject.strategy_json.psychology?.learningModules || [];
+
+       setContent(prev => {
+           let updated = { ...prev };
+           let changed = false;
+
+           // Sincronizar Dolores si la landing está vacía o es diferente
+           if (projectPains.length > 0 && JSON.stringify(prev.whatYouWillLearn.items) !== JSON.stringify(projectPains)) {
+               updated = {
+                   ...updated,
+                   whatYouWillLearn: { ...updated.whatYouWillLearn, items: projectPains }
+               };
+               changed = true;
+           }
+           
+           // Sincronizar Módulos/Beneficios si la landing es diferente
+           if (projectModules.length > 0) {
+               const mappedBenefits = projectModules.map((m: any) => ({
+                   title: m.title,
+                   description: m.description,
+                   icon: m.icon,
+                   color: m.color
+               }));
+               
+               if (JSON.stringify(prev.benefits.items.map((b: any) => b.title + b.description)) !== JSON.stringify(mappedBenefits.map((b: any) => b.title + b.description))) {
+                   updated = {
+                       ...updated,
+                       benefits: { ...updated.benefits, items: mappedBenefits }
+                   };
+                   changed = true;
+               }
+           }
+
+           return changed ? updated : prev;
+       });
+    }
+  }, [linkedProjectId, userProjects]);
+
   const linkedProject = userProjects.find(p => String(p.id) === String(linkedProjectId));
   const masterProject = masterLibrary.find(p => String(p.id) === String(linkedProject?.masterParentId)) || (linkedProject?.isMaster ? linkedProject : null);
 
@@ -602,15 +644,132 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       });
   };
 
+  // --- SYNC LOGIC: whatYouWillLearn <-> Project Strategy ---
+  useEffect(() => {
+    if (linkedProjectId && content.whatYouWillLearn.items) {
+      setUserProjects(prev => {
+        const proj = prev.find(p => String(p.id) === String(linkedProjectId));
+        if (!proj || !proj.strategy_json) return prev;
+
+        const currentPains = proj.strategy_json.psychology?.pains || [];
+        const newPainsText = content.whatYouWillLearn.items;
+        
+        // Verificamos si realmente han cambiado para evitar bucles infinitos
+        const currentPainsText = currentPains.map((p: any) => p.text);
+        const isPainsDifferent = JSON.stringify(currentPainsText) !== JSON.stringify(newPainsText);
+
+        if (isPainsDifferent) {
+          const updatedPains = newPainsText.map((text: string, idx: number) => {
+            const existing = currentPains[idx];
+            return {
+              id: existing?.id || `pain-${Date.now()}-${idx}`,
+              text: text,
+              avatarId: existing?.avatarId || (idx % 3) + 1
+            };
+          });
+
+          return prev.map((p: Project) => {
+             if (String(p.id) === String(linkedProjectId)) {
+                 return {
+                    ...p,
+                    strategy_json: {
+                      ...p.strategy_json,
+                      psychology: {
+                        ...p.strategy_json.psychology,
+                        pains: updatedPains
+                      }
+                    }
+                 };
+             }
+             return p;
+          });
+        }
+        return prev;
+      });
+    }
+  }, [content.whatYouWillLearn.items, linkedProjectId]);
+
+  // --- SYNC LOGIC: benefits <-> Project LearningModules ---
+  useEffect(() => {
+    if (linkedProjectId && content.benefits.items) {
+      setUserProjects(prev => {
+        const proj = prev.find(p => String(p.id) === String(linkedProjectId));
+        if (!proj || !proj.strategy_json) return prev;
+
+        const currentModules = proj.strategy_json.psychology?.learningModules || [];
+        const newModules = content.benefits.items;
+        
+        const isModulesDifferent = JSON.stringify(currentModules.map((m: any) => m.title + m.description)) !== JSON.stringify(newModules.map(m => m.title + m.description));
+
+        if (isModulesDifferent) {
+          const updatedModules = newModules.map((m, idx) => {
+            const existing = currentModules[idx];
+            return {
+              title: m.title,
+              description: m.description,
+              icon: m.icon || existing?.icon || 'Sparkles',
+              color: m.color || existing?.color || 'purple',
+              glow: existing?.glow || 'hover:shadow-purple-500/20',
+              bg: existing?.bg || 'from-[#1a0b2e] via-[#12061d] to-[#0f041d]',
+              border: existing?.border || 'border-white/10'
+            };
+          });
+
+          return prev.map(p => {
+             if (String(p.id) === String(linkedProjectId)) {
+                 return {
+                    ...p,
+                    strategy_json: {
+                      ...p.strategy_json,
+                      psychology: {
+                        ...p.strategy_json.psychology,
+                        learningModules: updatedModules
+                      }
+                    }
+                 };
+             }
+             return p;
+          });
+        }
+        return prev;
+      });
+    }
+  }, [content.benefits.items, linkedProjectId]);
+
   const handleSave = async (publishState: boolean) => {
     setSaving(true);
     setIsPublished(publishState);
+
+    // 1. Guardar Proyecto si está vinculado - Sync Inversa
+    if (linkedProject) {
+        try {
+            await api.updateProject(linkedProject.id, {
+                ...linkedProject,
+                strategy_json: linkedProject.strategy_json
+            });
+        } catch (err) {
+            console.error("Error actualizando estrategia del proyecto:", err);
+        }
+    }
     
+    // 2. Limpiar WhatYouWillLearn y Benefits de la landing para forzar lectura del proyecto
+    const cleanContent = {
+        ...content,
+        whatYouWillLearn: {
+            ...content.whatYouWillLearn,
+            items: [] // Vaciamos para que PainPointsModule lea del proyecto
+        },
+        benefits: {
+            ...content.benefits,
+            items: [] // También vaciamos beneficios
+        }
+    };
+
     await onSave({
       ...page,
       name: pageName,
       niche: niche,
-      content,
+      content: cleanContent,
       isPublished: publishState,
       subdomain: subdomain,
       projectId: linkedProjectId || undefined
@@ -1261,6 +1420,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                 <div id="preview-viewport" className="w-full h-full overflow-y-auto bg-white scrollbar-hide">
                     <LivePage 
                         content={content} 
+                        project={linkedProject}
                         isMobilePreview={previewMode === 'mobile'} 
                         viewMode={activeTab === 'thankyou' ? 'thank-you' : 'home'} 
                     />

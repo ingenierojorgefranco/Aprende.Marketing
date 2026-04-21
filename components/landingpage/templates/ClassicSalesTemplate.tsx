@@ -1,5 +1,5 @@
 import React from 'react';
-import { GeneratedPageContent } from '../../../types';
+import { GeneratedPageContent, Project } from '../../../types';
 import { PlayCircle } from 'lucide-react';
 import { Navbar, HeroMedia, Footer, UrgencyBar } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
@@ -16,6 +16,7 @@ import { BenefitsModule } from './modules/BenefitsModule';
 interface TemplateProps {
   content: GeneratedPageContent;
   ds: any;
+  project?: Project; // Nuevo
   isMobilePreview: boolean;
   pageId?: string;
   basePath?: string;
@@ -23,7 +24,7 @@ interface TemplateProps {
   isDark?: boolean;
 }
 
-export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles, isDark }) => {
+export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, project, isMobilePreview, pageId, basePath, hasBlogArticles, isDark }) => {
   const classicSteps = [
     { num: 1, title: "Regístrate Ahora", text: "Completa el formulario con tu nombre y correo. Es 100% gratis y seguro." },
     { num: 2, title: "Confirma tu Correo", text: "Revisa tu bandeja de entrada y haz clic en el enlace para asegurar tu cupo." },
@@ -68,11 +69,12 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
           </div>
         </header>
 
-        <PainPointsModule content={content} ds={ds} />
+        <PainPointsModule content={content} ds={ds} project={project} />
         
         <BenefitsModule 
             content={content} 
             ds={ds} 
+            project={project}
             isMobilePreview={isMobilePreview} 
             showSeparator={true}
         />

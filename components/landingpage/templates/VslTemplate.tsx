@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GeneratedPageContent } from '../../../types';
+import { GeneratedPageContent, Project } from '../../../types';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import { Navbar, HeroMedia, RegistrationModal, Footer, UrgencyBar } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
@@ -16,6 +16,7 @@ import { BenefitsModule } from './modules/BenefitsModule';
 interface TemplateProps {
   content: GeneratedPageContent;
   ds: any;
+  project?: Project; // Nuevo
   isMobilePreview: boolean;
   pageId?: string;
   basePath?: string;
@@ -23,7 +24,7 @@ interface TemplateProps {
   isDark?: boolean;
 }
 
-export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
+export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, project, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
   const [showModal, setShowModal] = useState(false);
   const vslSteps = [
     { num: 1, title: "Regístrate", text: "Haz clic en el botón y completa tus datos." },
@@ -66,7 +67,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
             </header>
 
             <div className="pb-24">
-                <PainPointsModule content={content} ds={ds} />
+                <PainPointsModule content={content} ds={ds} project={project} />
                 
                 <div className="flex justify-center py-10">
                     <button 
@@ -81,6 +82,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
                 <BenefitsModule 
                     content={content} 
                     ds={ds} 
+                    project={project}
                     isMobilePreview={isMobilePreview} 
                     className="bg-gray-50 border-y border-gray-100"
                     fallbackSubtitle="No pierdas esta gran oportunidad, Regístrate y recibe todos los Beneficios"

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GeneratedPageContent } from '../../../types';
+import { GeneratedPageContent, Project } from '../../../types';
 import { Navbar, Footer, UrgencyBar, RegistrationModal, HeroMedia } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
 import { Check, ArrowRight, Star, MessageCircle, User, Target, HelpCircle, Sparkles, ShieldCheck, Zap } from 'lucide-react';
@@ -8,6 +8,7 @@ import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 interface TemplateProps {
   content: GeneratedPageContent;
   ds: any;
+  project?: Project; // Nuevo
   isMobilePreview: boolean;
   pageId?: string;
   basePath?: string;
@@ -15,8 +16,9 @@ interface TemplateProps {
   isDark?: boolean;
 }
 
-export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
+export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, project, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
   const [showModal, setShowModal] = useState(false);
+  const pains = project?.strategy_json?.psychology?.pains || [];
   
   const minimalSteps = [
     { num: 1, title: "Regístrate", text: "Completa tus datos en el formulario." },
@@ -84,7 +86,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                  <section className="mb-24">
                     <h2 className="text-3xl font-bold mb-8 text-slate-900">{content.whatYouWillLearn.title || "¿Te suena familiar?"}</h2>
                     <div className="space-y-6">
-                        {(content.whatYouWillLearn.items || []).slice(0, 6).map((point: string, i: number) => (
+                        {(pains.length > 0 ? pains.slice(0, 6).map((p: any) => p.text) : (content.whatYouWillLearn.items || [])).map((point: string, i: number) => (
                             <div key={i} className="flex gap-4 items-start p-6 bg-slate-50 rounded-2xl border border-slate-100">
                                 <div className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0 mt-1">
                                     <span className="font-bold text-xs">✕</span>
@@ -104,7 +106,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                         <p className="text-xl text-slate-500 max-w-2xl mx-auto">{content.benefits.subtitle || "Todo lo que necesitas para dominar esta técnica y facturar con confianza."}</p>
                     </div>
                     <div className="grid md:grid-cols-3 gap-8">
-                        {(content.benefits.items || []).map((benefit: any, i: number) => (
+                        {((project?.strategy_json?.psychology?.learningModules && project.strategy_json.psychology.learningModules.length > 0) ? project.strategy_json.psychology.learningModules : (content.benefits.items || [])).map((benefit: any, i: number) => (
                             <div key={i} className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col items-center text-center transition-all hover:-translate-y-2 hover:shadow-xl">
                                 <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6">
                                     {getIcon(benefit.icon, <Zap className="w-8 h-8" />)}

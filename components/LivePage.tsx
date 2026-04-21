@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { GeneratedPageContent, StructureType } from '../types';
+import { GeneratedPageContent, StructureType, Project } from '../types';
 import { api } from '../services/api';
 import { SingleBlog } from './landingpage/blog/SingleBlog';
 import { LiveThankYouPage } from './landingpage/LiveThankYouPage';
@@ -15,6 +15,8 @@ interface LivePageProps {
   content: GeneratedPageContent;
   isMobilePreview?: boolean;
   pageId?: string;
+  projectId?: string; // Nuevo
+  project?: Project;   // Nuevo
   viewMode?: 'home' | 'blog-list' | 'blog-post' | 'thank-you' | 'privacy' | 'terms';
   articleSlug?: string;
   basePath?: string;
@@ -24,10 +26,24 @@ export const LivePage: React.FC<LivePageProps> = ({
   content, 
   isMobilePreview = false,
   pageId,
+  projectId,
+  project: initialProject,
   viewMode = 'home',
   articleSlug,
   basePath
 }) => {
+  const [project, setProject] = useState<Project | undefined>(initialProject);
+
+  useEffect(() => {
+    if (initialProject) {
+        setProject(initialProject);
+    } else if (projectId && !project) {
+        api.getProjectById(projectId).then(p => {
+            if (p) setProject(p);
+        }).catch(err => console.error("Error cargando proyecto para landing:", err));
+    }
+  }, [projectId, initialProject]);
+
   const ds = getDesignSystem(content.palette);
   const structure: StructureType = content.structure || 'classic-sales'; 
   const isDark = content.palette === 'dark-luxury';
@@ -148,6 +164,7 @@ export const LivePage: React.FC<LivePageProps> = ({
   const commonProps = {
       content,
       ds,
+      project, // Nuevo
       isMobilePreview,
       pageId,
       basePath,

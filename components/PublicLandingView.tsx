@@ -151,6 +151,7 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
           goal: data.goal || "",
           isPublished: !!data.is_published,
           subdomain: data.subdomain || activeSlug,
+          projectId: data.project_id?.toString(),
           visits: data.visits ?? 0,
           conversions: data.conversions ?? 0,
           createdAt: data.created_at ? new Date(data.created_at) : new Date(),
@@ -204,6 +205,7 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
   return <LivePage 
             content={page.content} 
             pageId={page.id} 
+            projectId={page.projectId}
             viewMode={viewMode} 
             articleSlug={articleSlug}
             basePath={basePath} 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { GeneratedPageContent } from '../../../types';
+import { GeneratedPageContent, Project } from '../../../types';
 import { User, Target, ArrowRight } from 'lucide-react';
 import { Navbar, Footer, UrgencyBar, HeroMedia, RegistrationModal } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
@@ -16,6 +16,7 @@ import { BenefitsModule } from './modules/BenefitsModule';
 interface TemplateProps {
   content: GeneratedPageContent;
   ds: any;
+  project?: Project; // Nuevo
   isMobilePreview: boolean;
   pageId?: string;
   basePath?: string;
@@ -23,7 +24,7 @@ interface TemplateProps {
   isDark?: boolean;
 }
 
-export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
+export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, project, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
   const [showModal, setShowModal] = useState(false);
   const capture = content.capture || {};
   const initialMinutes = capture.timerDuration !== undefined ? capture.timerDuration : 15;
@@ -140,11 +141,12 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
             </div>
          </header>
 
-         <PainPointsModule content={content} ds={ds} />
+         <PainPointsModule content={content} ds={ds} project={project} />
 
          <BenefitsModule 
             content={content} 
             ds={ds} 
+            project={project}
             isMobilePreview={isMobilePreview}
          />
 
