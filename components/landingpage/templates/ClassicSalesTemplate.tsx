@@ -68,7 +68,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
           </div>
         </header>
 
-        <PainPointsModule content={content} ds={ds} project={project} />
+        <PainPointsModule content={content} ds={ds} project={project} pageId={pageId} basePath={basePath} />
 
         <WhatsAppTestimonials 
             testimonials={content.testimonials} 

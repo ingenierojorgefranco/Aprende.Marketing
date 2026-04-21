@@ -269,6 +269,8 @@ export const generateLandingPageContent = async (
             if (pH2) content.hero.subheadline = pH2;
 
             // 2. INYECCIÓN OBLIGATORIA DE BENEFICIOS (ESTRATEGIA)
+            content.benefits.title = "Lo que aprenderás en nuestra clase";
+            content.benefits.subtitle = "";
             let rawBenefits = (pStrategy?.psychology?.solutions && pStrategy.psychology.solutions.length > 0)
                 ? pStrategy.psychology.solutions
                 : (pStrategy?.modules?.web?.landingPageTabs?.benefits?.items && pStrategy.modules.web.landingPageTabs.benefits.items.length > 0)
@@ -285,13 +287,20 @@ export const generateLandingPageContent = async (
             }
 
             // 3. INYECCIÓN OBLIGATORIA DE TRANSFORMACIONES (ESTRATEGIA)
+            content.whatYouWillLearn.title = "Esta clase es para ti si...";
+            content.whatYouWillLearn.avatarTitles = [
+                "Si buscas crear tu propio negocio y reinventarte profesionalmente",
+                "Si ya estás en el sector belleza y quieres dominar la técnica más top",
+                "Si te da miedo fallar por falta de experiencia pero buscas respaldo"
+            ];
+            content.whatYouWillLearn.avatarIcons = ["Sparkles", "TrendingUp", "UserCheck"];
+
             let rawModules = (pStrategy?.psychology?.learningModules && pStrategy.psychology.learningModules.length > 0)
                 ? pStrategy.psychology.learningModules
                 : [];
 
             if (rawModules.length > 0) {
                 content.whatYouWillLearn.items = rawModules.slice(0, 9).map((m: any) => `${m.title}: ${m.description}`);
-                content.whatYouWillLearn.title = "Lo que descubrirás en esta clase exclusiva";
             } else {
                 let rawPains = (pStrategy?.psychology?.pains && pStrategy.psychology.pains.length > 0)
                     ? pStrategy.psychology.pains
@@ -299,7 +308,6 @@ export const generateLandingPageContent = async (
                 
                 if (rawPains.length > 0) {
                     content.whatYouWillLearn.items = rawPains.slice(0, 9).map((p: any) => typeof p === 'object' ? (p.text || p.title || "") : String(p));
-                    content.whatYouWillLearn.title = "¿Te sientes identificado con alguna de estas situaciones?";
                 }
             }
 

@@ -1088,25 +1088,60 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                         {/* 4. Dolores (Relocated from Hero) */}
                         <SectionHeader id="problems" title="Identificación de Dolores" icon={AlertTriangle} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="problems" openSection={openSection}>
-                             <div className="mb-2 flex items-center gap-2">
-                                     <div className="flex-1">
-                                        <Label>Título de la sección de Dolores</Label>
-                                        <Input value={content.whatYouWillLearn.title} onChange={(e) => setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, title: e.target.value}})} />
-                                     </div>
-                                     <div>
-                                        <Label>Icono</Label>
-                                        <IconPicker selected={content.whatYouWillLearn.icon} onChange={(icon) => setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, icon: icon}})} />
-                                     </div>
-                                </div>
-                                <div className="space-y-2 mt-2">
-                                    {(content.whatYouWillLearn.items || []).map((item, i) => (
-                                        <div key={i} className="flex gap-2">
-                                            <Input value={item} onChange={(e) => updateLearnItem(i, e.target.value)} />
-                                            <button onClick={() => removeItem('whatYouWillLearn', i)} className="p-2 text-red-500 hover:bg-red-900/20 rounded"><Trash2 className="w-4 h-4"/></button>
+                             <div className="mb-4">
+                                <Label>Título de la sección de Dolores</Label>
+                                <Input value={content.whatYouWillLearn.title} onChange={(e) => setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, title: e.target.value}})} />
+                             </div>
+                             
+                             <div className="space-y-6 mt-6">
+                                {[0, 1, 2].map((idx) => (
+                                    <div key={idx} className="p-4 rounded-xl border border-gray-800 bg-gray-900/40 space-y-4">
+                                        <div className="flex items-center gap-3 border-b border-gray-800 pb-3 mb-3">
+                                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                                                Bloque {idx + 1}
+                                            </div>
+                                            <h4 className="text-sm font-bold text-white uppercase tracking-widest opacity-70">Configuración de Avatar</h4>
                                         </div>
-                                    ))}
-                                    <button onClick={() => addItem('whatYouWillLearn')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Punto de Dolor</button>
-                                </div>
+                                        
+                                        <div>
+                                            <Label>Título del Bloque / Avatar</Label>
+                                            <Input 
+                                                value={content.whatYouWillLearn.avatarTitles?.[idx] || ""} 
+                                                onChange={(e) => {
+                                                    const newTitles = [...(content.whatYouWillLearn.avatarTitles || [])];
+                                                    while(newTitles.length <= idx) newTitles.push("");
+                                                    newTitles[idx] = e.target.value;
+                                                    setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, avatarTitles: newTitles}});
+                                                }}
+                                                placeholder="Ej: Si buscas crear tu propio negocio..."
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <Label>Dolores del Bloque (Máx 3, uno por línea)</Label>
+                                            <textarea 
+                                                className="w-full bg-gray-900 border border-gray-800 rounded-lg p-3 text-sm min-h-[100px] text-gray-300 focus:ring-1 focus:ring-primary outline-none transition-all"
+                                                value={(content.whatYouWillLearn.items || []).slice(idx * 3, idx * 3 + 3).join('\n')}
+                                                onChange={(e) => {
+                                                    const lines = e.target.value.split('\n');
+                                                    const totalItems = [...(content.whatYouWillLearn.items || [])];
+                                                    
+                                                    // Rellenar hasta tener al menos indices suficientes
+                                                    while(totalItems.length < 9) totalItems.push("");
+
+                                                    for(let i = 0; i < 3; i++) {
+                                                        totalItems[idx * 3 + i] = lines[i] || "";
+                                                    }
+                                                    
+                                                    setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, items: totalItems}});
+                                                }}
+                                                placeholder={"Dolor 1\nDolor 2\nDolor 3"}
+                                            />
+                                            <p className="text-[10px] text-gray-500 mt-1 italic tracking-tight opacity-80">* Los dolores se agrupan automáticamente de 3 en 3 por avatar.</p>
+                                        </div>
+                                    </div>
+                                ))}
+                             </div>
                         </SectionContent>
 
                         {/* 5. Testimonials (Existing) */}

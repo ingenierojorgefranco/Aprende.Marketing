@@ -71,32 +71,12 @@ export const HeroMedia = ({ url, poster, ds, className = "" }: { url?: string, p
 // --- Urgency Bar (Sticky) ---
 export const UrgencyBar = ({ content, ds }: { content: GeneratedPageContent, ds: any }) => {
     const capture = content.capture || {};
-    const initialMinutes = capture.timerDuration !== undefined ? capture.timerDuration : 15;
-    const [timeLeft, setTimeLeft] = useState(initialMinutes * 60);
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setTimeLeft(prev => prev > 0 ? prev - 1 : 0);
-        }, 1000);
-        return () => clearInterval(timer);
-    }, []);
-
-    const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-    const s = (timeLeft % 60).toString().padStart(2, '0');
-
+    
     return (
-        <div className="fixed top-0 left-0 w-full z-[100] bg-black/90 backdrop-blur-md border-b border-white/10 py-2 px-4 flex items-center justify-center gap-4 shadow-2xl">
-            <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                <span className="text-[10px] md:text-xs font-black text-white uppercase tracking-[0.2em]">
-                    {capture.timerLabel || "La oferta termina en:"}
-                </span>
-            </div>
-            <div className="flex items-center gap-1 font-mono text-sm md:text-base font-black text-primary">
-                <span className="bg-white/5 px-2 py-0.5 rounded border border-white/10">{m}</span>
-                <span className="animate-pulse">:</span>
-                <span className="bg-white/5 px-2 py-0.5 rounded border border-white/10">{s}</span>
-            </div>
+        <div className="fixed top-0 left-0 w-full z-[100] bg-[#FFFF00] py-2 px-4 flex items-center justify-center shadow-2xl">
+            <span className="text-black font-['Verdana',_sans-serif] text-[1em] leading-[1rem] tracking-[0] font-bold uppercase text-center">
+                {capture.timerLabel || "HOY ÚLTIMO DÍA DE INSCRIPCIONES A LA CLASE GRATUITA"}
+            </span>
         </div>
     );
 };

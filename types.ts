@@ -386,6 +386,8 @@ export interface GeneratedPageContent {
    whatYouWillLearn: {
     title: string;
     icon?: string; // Icon for the title
+    avatarTitles?: string[]; // New: Dynamic titles for each avatar block
+    avatarIcons?: string[]; // New: Dynamic icons for each avatar block
     items: string[];
   };
   faq: Array<{
