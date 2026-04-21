@@ -30,12 +30,26 @@ export const BenefitsModule: React.FC<BenefitsModuleProps> = ({
   
   // Si hay módulos en el proyecto, los usamos como beneficios
   const items = (learningModules && learningModules.length > 0)
-    ? learningModules.map((m: any) => ({
-        title: m.title,
-        description: m.description,
-        icon: m.icon,
-        color: m.color
-    }))
+    ? learningModules.map((m: any) => {
+        const color = m.color || 'purple';
+        return {
+            title: m.title,
+            description: m.description,
+            icon: m.icon,
+            color: color,
+            bg: m.bg || (
+                color === 'blue' ? "from-[#0f172a] via-[#0b1120] to-[#090e1a]" :
+                (color === 'emerald' || color === 'green') ? "from-[#061a14] via-[#04120e] to-[#030d0a]" :
+                "from-[#1a0b2e] via-[#12061d] to-[#0f041d]"
+            ),
+            glow: m.glow || (
+                color === 'blue' ? "hover:shadow-blue-500/20" :
+                (color === 'emerald' || color === 'green') ? "hover:shadow-emerald-500/20" :
+                "hover:shadow-purple-500/20"
+            ),
+            border: m.border || "border-white/10"
+        };
+    })
     : content?.benefits?.items || [];
 
   if (items.length === 0) return null;

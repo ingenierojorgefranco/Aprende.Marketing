@@ -26,11 +26,11 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
 
   const getPainsForAvatar = (index: number) => {
     // Si hay dolores asignados por avatarId en el proyecto, los usamos
-    // El avatarId suele empezar en 0 o 1. Asumimos que corresponde al índice + 1
-    const avatarPains = pains.filter((p: any) => p.avatarId === index + 1 || p.avatarId === index);
+    // Filtramos estrictamente por index+1 para evitar que el avatar 2 vea dolores del avatar 1
+    const avatarPains = pains.filter((p: any) => p.avatarId === index + 1);
     if (avatarPains.length > 0) return avatarPains.map((p: any) => p.text);
     
-    // Si no hay por avatarId, repartimos proporcionalmente
+    // Si no hay por avatarId, repartimos proporcionalmente (Avatar 1: 0-2, Avatar 2: 3-5, Avatar 3: 6-8)
     const itemsPerAvatar = 3;
     const start = index * itemsPerAvatar;
     return pains.slice(start, start + itemsPerAvatar).map((p: any) => p.text);
@@ -70,14 +70,25 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
   ];
 
   const benefitsGrid = learningModules.length > 0 
-    ? learningModules.map((m: any) => ({
-        title: m.title,
-        desc: m.description,
-        icon: iconMap[m.icon] || <Sparkles className="w-10 h-10 text-purple-400" />,
-        bg: m.bg || "from-[#1a0b2e] via-[#12061d] to-[#0f041d]",
-        border: m.border || "border-white/10",
-        glow: m.glow || "hover:shadow-purple-500/20"
-      }))
+    ? learningModules.map((m: any) => {
+        const color = m.color || 'purple';
+        return {
+          title: m.title,
+          desc: m.description,
+          icon: iconMap[m.icon] || <Sparkles className="w-10 h-10 text-purple-400" />,
+          bg: m.bg || (
+            color === 'blue' ? "from-[#0f172a] via-[#0b1120] to-[#090e1a]" :
+            (color === 'emerald' || color === 'green') ? "from-[#061a14] via-[#04120e] to-[#030d0a]" :
+            "from-[#1a0b2e] via-[#12061d] to-[#0f041d]"
+          ),
+          border: m.border || "border-white/10",
+          glow: m.glow || (
+            color === 'blue' ? "hover:shadow-blue-500/20" :
+            (color === 'emerald' || color === 'green') ? "hover:shadow-emerald-500/20" :
+            "hover:shadow-purple-500/20"
+          )
+        };
+      })
     : (content.benefits.items && content.benefits.items.length > 0) 
     ? content.benefits.items.slice(0, 9).map(b => ({
         title: b.title,

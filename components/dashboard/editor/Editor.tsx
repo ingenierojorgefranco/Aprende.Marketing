@@ -704,13 +704,14 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
         if (isModulesDifferent) {
           const updatedModules = newModules.map((m, idx) => {
             const existing = currentModules[idx];
+            const color = m.color || existing?.color || 'purple';
             return {
               title: m.title,
               description: m.description,
               icon: m.icon || existing?.icon || 'Sparkles',
-              color: m.color || existing?.color || 'purple',
-              glow: existing?.glow || 'hover:shadow-purple-500/20',
-              bg: existing?.bg || 'from-[#1a0b2e] via-[#12061d] to-[#0f041d]',
+              color: color,
+              glow: existing?.glow || (color === 'blue' ? 'hover:shadow-blue-500/20' : (color === 'emerald' || color === 'green') ? 'hover:shadow-emerald-500/20' : 'hover:shadow-purple-500/20'),
+              bg: existing?.bg || (color === 'blue' ? 'from-[#0f172a] via-[#0b1120] to-[#090e1a]' : (color === 'emerald' || color === 'green') ? 'from-[#061a14] via-[#04120e] to-[#030d0a]' : 'from-[#1a0b2e] via-[#12061d] to-[#0f041d]'),
               border: existing?.border || 'border-white/10'
             };
           });
