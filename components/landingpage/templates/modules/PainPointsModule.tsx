@@ -124,23 +124,23 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
             
             <div className="max-w-6xl mx-auto flex flex-col gap-16 text-left">
                 {avatars.map((avatar, idx) => (
-                    <div key={idx} className={`relative p-12 md:p-20 rounded-[4rem] border border-white/10 bg-gradient-to-br ${avatar.gradient} shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] hover:shadow-purple-500/10 transition-all duration-700 hover:-translate-y-2 group overflow-hidden backdrop-blur-sm`}>
-                        <div className="absolute top-0 right-0 p-16 opacity-[0.03] group-hover:opacity-[0.06] group-hover:scale-110 transition-all duration-700">
+                    <div key={idx} className={`relative p-8 md:p-20 rounded-[3rem] md:rounded-[4rem] border border-white/20 bg-gradient-to-br ${avatar.gradient} shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] hover:shadow-purple-500/20 transition-all duration-700 hover:-translate-y-2 group overflow-hidden`}>
+                        <div className="absolute top-0 right-0 p-16 opacity-[0.05] group-hover:opacity-[0.1] group-hover:scale-110 transition-all duration-700">
                            {React.cloneElement(avatar.icon as any, { size: 300 })}
                         </div>
                         
-                        <div className="relative z-10 flex flex-col lg:flex-row gap-16 lg:items-center">
-                            <div className="space-y-10 flex-1">
-                                <div className="w-28 h-28 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
+                        <div className="relative z-10 flex flex-col lg:flex-row gap-10 md:gap-16 lg:items-center">
+                            <div className="space-y-6 md:space-y-10 flex-1">
+                                <div className="w-20 h-20 md:w-28 md:h-28 rounded-3xl bg-white/10 border border-white/20 shadow-2xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
                                     {avatar.icon}
                                 </div>
-                                <h3 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight">{avatar.title}</h3>
+                                <h3 className="text-3xl md:text-6xl font-black text-white leading-[1.1] tracking-tight">{avatar.title}</h3>
                             </div>
                             
-                            <div className="lg:w-[45%] space-y-8 lg:pl-16 lg:border-l border-white/10">
+                            <div className="lg:w-[45%] space-y-6 md:space-y-8 lg:pl-16 lg:border-l border-white/20">
                                 {avatar.points.map((point: string, pIdx: number) => (
-                                    <div key={pIdx} className="flex gap-6">
-                                        <div className="mt-3 shrink-0">
+                                    <div key={pIdx} className="flex gap-4 md:gap-6">
+                                        <div className="mt-2 md:mt-3 shrink-0">
                                             <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.8)]"></div>
                                         </div>
                                         <p className="text-gray-200 text-[1.4rem] leading-relaxed font-medium">{point}</p>
@@ -160,14 +160,14 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
                 <div className={`h-1.5 w-24 rounded-full mx-auto bg-gradient-to-r from-purple-600 to-pink-500 shadow-[0_0_15px_rgba(168,85,247,0.5)]`}></div>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-3 text-left">
+            <div className="grid gap-6 md:grid-cols-3 text-left">
                 {benefitsGrid.map((item: any, idx: number) => (
-                    <div key={idx} className={`relative p-10 rounded-[3.5rem] border bg-gradient-to-br ${item.bg} ${item.border} shadow-2xl transition-all duration-700 group overflow-hidden ${item.glow} hover:-translate-y-2`}>
-                        <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.07] group-hover:scale-125 transition-all duration-700 pointer-events-none">
+                    <div key={idx} className={`relative p-8 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] border bg-gradient-to-br ${item.bg} ${item.border} shadow-2xl transition-all duration-700 group overflow-hidden ${item.glow} hover:-translate-y-2`}>
+                        <div className="absolute top-0 right-0 p-12 opacity-[0.05] group-hover:opacity-[0.1] group-hover:scale-125 transition-all duration-700 pointer-events-none">
                             {React.cloneElement(item.icon as any, { size: 180 })}
                         </div>
                         <div className="relative z-10 space-y-6">
-                            <div className="w-16 h-16 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-2xl group-hover:rotate-12 transition-transform duration-500">
+                            <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shadow-2xl group-hover:rotate-12 transition-transform duration-500">
                                 {React.cloneElement(item.icon as any, { size: 32 })}
                             </div>
                             <h3 className="text-[1.6rem] font-black text-white leading-tight uppercase tracking-tight">{item.title}</h3>
