@@ -53,7 +53,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
     whatsappPhone: '',
     whatsappMessage: 'Hola, quiero más información sobre...',
     palette: 'modern-blue' as ColorPalette,
-    structure: 'vsl-focused' as StructureType
+    structure: 'webinar-funnel' as StructureType
   });
   const [error, setError] = useState('');
 
@@ -215,12 +215,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
               ],
               intro: {
                   title: `¿Qué es ${formData.pageName}?`,
-                  description: `Es un sistema integral diseñado para emprendedores que buscan dominar el mercado de ${formData.pageName} utilizando el poder de la automatización estratégica.`,
-                  items: [
-                      { title: "Escalabilidad Global", description: "Llega a miles de clientes en todo el mundo sin límites." },
-                      { title: "Automatización Total", description: "Vende tus productos incluso mientras duermes." },
-                      { title: "Copywriting Ganador", description: "Textos diseñados para conectar emocionalmente." }
-                  ]
+                  description: `Es un sistema integral diseñado para emprendedores que buscan dominar el mercado de ${formData.pageName} utilizando el poder de la automatización estratégica.`
               },
               benefits: {
                   title: "Tu Arsenal para el Éxito",
@@ -426,16 +421,13 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
 
   const structures: { id: StructureType; name: string; desc: string; wireframe: React.ReactNode }[] = [
     { 
-      id: 'vsl-focused', 
-      name: 'Video Sales Letter (VSL)', 
-      desc: 'Foco en video explicativo + contenido detallado abajo.',
+      id: 'webinar-funnel', 
+      name: 'Registro a Webinar', 
+      desc: 'Diseño a 2 columnas para alta conversión.',
       wireframe: (
-        <div className="w-full h-24 bg-gray-800 rounded border border-gray-700 flex flex-col gap-1 p-1 overflow-hidden opacity-70">
-           <div className="w-3/4 mx-auto h-2 bg-gray-600 rounded-sm mb-1"></div>
-           <div className="w-full h-12 bg-red-900/40 border border-red-900 rounded-sm flex items-center justify-center">
-              <div className="w-3 h-3 rounded-full bg-red-500"></div>
-           </div>
-           <div className="w-1/2 mx-auto h-3 bg-primary rounded-sm mt-1"></div>
+        <div className="w-full h-24 bg-gray-800 rounded border border-gray-700 flex gap-1 p-1 overflow-hidden opacity-70">
+           <div className="w-1/2 flex flex-col gap-1"><div className="w-full h-2 bg-gray-600 rounded-sm"></div><div className="w-full h-2 bg-gray-600 rounded-sm"></div><div className="w-3/4 h-1 bg-gray-700 rounded-sm"></div></div>
+           <div className="w-1/2 bg-gray-700 rounded-sm flex flex-col items-center justify-center gap-1"><div className="w-3/4 h-1 bg-gray-500 rounded-sm"></div><div className="w-3/4 h-2 bg-primary rounded-sm"></div></div>
         </div>
       )
     },
@@ -456,13 +448,16 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
       )
     },
     { 
-      id: 'webinar-funnel', 
-      name: 'Registro a Webinar', 
-      desc: 'Diseño a 2 columnas para alta conversión.',
+      id: 'vsl-focused', 
+      name: 'Video Sales Letter (VSL)', 
+      desc: 'Foco en video explicativo + contenido detallado abajo.',
       wireframe: (
-        <div className="w-full h-24 bg-gray-800 rounded border border-gray-700 flex gap-1 p-1 overflow-hidden opacity-70">
-           <div className="w-1/2 flex flex-col gap-1"><div className="w-full h-2 bg-gray-600 rounded-sm"></div><div className="w-full h-2 bg-gray-600 rounded-sm"></div><div className="w-3/4 h-1 bg-gray-700 rounded-sm"></div></div>
-           <div className="w-1/2 bg-gray-700 rounded-sm flex flex-col items-center justify-center gap-1"><div className="w-3/4 h-1 bg-gray-500 rounded-sm"></div><div className="w-3/4 h-2 bg-primary rounded-sm"></div></div>
+        <div className="w-full h-24 bg-gray-800 rounded border border-gray-700 flex flex-col gap-1 p-1 overflow-hidden opacity-70">
+           <div className="w-3/4 mx-auto h-2 bg-gray-600 rounded-sm mb-1"></div>
+           <div className="w-full h-12 bg-red-900/40 border border-red-900 rounded-sm flex items-center justify-center">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+           </div>
+           <div className="w-1/2 mx-auto h-3 bg-primary rounded-sm mt-1"></div>
         </div>
       )
     },

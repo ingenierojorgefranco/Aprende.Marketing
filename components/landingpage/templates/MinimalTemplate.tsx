@@ -100,22 +100,8 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                         <div className="lg:w-1/2 p-10 md:p-14">
                             <span className="text-primary font-bold uppercase tracking-widest text-xs mb-4 block">Descubre Más</span>
                             <h2 className="text-3xl md:text-4xl font-black mb-8 leading-tight">{content.intro.title}</h2>
-                            <div className="prose prose-invert prose-lg max-w-none opacity-90 mb-10">
+                            <div className="prose prose-invert prose-lg max-w-none opacity-90">
                                 {renderRichText(content.intro.description, "leading-relaxed")}
-                            </div>
-                            
-                            <div className="space-y-6">
-                                {(content.intro.items || []).map((item, idx) => (
-                                    <div key={idx} className="flex gap-4 items-start group">
-                                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary transition-colors">
-                                            <Sparkles className="w-5 h-5 text-primary group-hover:text-white" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-lg mb-1">{item.title}</h4>
-                                            <p className="text-sm text-white/60 leading-relaxed">{item.description}</p>
-                                        </div>
-                                    </div>
-                                ))}
                             </div>
                         </div>
                         <div className="lg:w-1/2 relative min-h-[500px]">

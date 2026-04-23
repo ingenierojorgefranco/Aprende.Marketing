@@ -102,11 +102,11 @@ export const generateLandingPageContent = async (
     "testimonialTitle": "string",
     "whatYouWillLearn": {
       "title": "string",
-      "avatarTitles": ["Resumen persuasivo para Avatar 1", "Resumen persuasivo para Avatar 2", "Resumen persuasivo para Avatar 3"],
+      "avatarTitles": ["Si buscas crear tu propio negocio y reinventarte profesionalmente", "Si ya estás en el sector belleza y quieres dominar la técnica más top", "Si te da miedo fallar por falta de experiencia pero buscas respaldo"],
       "items": ["Dolor 1 Avatar 1", "Dolor 2 Avatar 1", "Dolor 3 Avatar 1", "Dolor 1 Avatar 2", "Dolor 2 Avatar 2", "Dolor 3 Avatar 2", "Dolor 1 Avatar 3", "Dolor 2 Avatar 3", "Dolor 3 Avatar 3"]
     },
     "hero": { "headline": "string", "subheadline": "string", "ctaText": "string" },
-    "intro": { "title": "string", "description": "string", "items": [{"title": "string", "description": "string"}] },
+    "intro": { "title": "string", "description": "string" },
     "faq": [{"question": "string", "answer": "string"}],
     "instructor": { "name": "string", "bio": "string" },
     "footer": { "copyright": "string", "contact": "string" },
@@ -166,9 +166,10 @@ export const generateLandingPageContent = async (
   1. SECCIONES ELIMINADAS: NO GENERES NI INCLUYAS las secciones "testimonials" ni "benefits" en tu respuesta. Han sido eliminadas del esquema para evitar redundancia. Céntrate únicamente en el Hero, la Intro, el FAQ y la Identificación de Dolores (whatYouWillLearn).
   2. PROHIBIDO incluir años específicos (ej: 2024, 2025). El contenido debe ser atemporal (evergreen).
   3. Los titulares (Hero) y la descripción (Intro) deben tener un enfoque GENERAL que resuene con los 3 perfiles de avatar.
-  4. IDENTIFICACIÓN DE DOLORES (whatYouWillLearn): 
-     - Genera 3 frases cortas y poderosas para "avatarTitles" que identifiquen a cada perfil según su deseo o miedo principal.
-     - Genera 9 "items" (3 por cada avatar) que toquen dolores específicos y realistas.
+  4. IDENTIFICACIÓN DE AVATARES Y DOLORES (whatYouWillLearn): 
+     - "avatarTitles": Genera 3 frases de identificación aspiracional BASADAS EN LA DESCRIPCIÓN DE LA AUDIENCIA. Deben empezar obligatoriamente con "Si..." (ej: "Si buscas...", "Si te sientes...", "Si ya tienes...").
+     - ESTÁ PROHIBIDO incluir el nombre del avatar (ej: "La Soñadora") o dolores específicos en el título. El título debe servir para que el usuario se identifique con su situación o deseo actual.
+     - "items": Genera 9 puntos de dolor (3 por cada avatar) que sean el problema real que esas personas están viviendo. Estos SÍ deben ser dolores directos y específicos.
   
   INSTRUCCIÓN CRÍTICA: Utiliza los detalles de la audiencia proporcionados arriba para que cada frase, beneficio y dolor resuene directamente con sus necesidades específicas. Si el contexto menciona dolores o deseos específicos, úsalos como base para el Hero y los beneficios.
   
@@ -189,7 +190,7 @@ export const generateLandingPageContent = async (
 
   Instrucciones de contenido:
   1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
-  2. Intro: Carta de ventas poderosa (descrita arriba). Genera 'items' (3-5 bullets de impacto).
+  2. Intro: Carta de ventas poderosa (descrita arriba).
   3. FAQ: 4 preguntas que maten objeciones.
   4. Instructor: Nombre y biografía.
   5. Footer: Copyright y contacto.
@@ -234,7 +235,6 @@ export const generateLandingPageContent = async (
         if (!content.faq) content.faq = [];
         if (!content.navLinks) content.navLinks = [];
         if (!content.intro) content.intro = { title: "", description: "" };
-        if (!content.intro.items) content.intro.items = [];
         if (!content.benefits) content.benefits = { title: "", items: [] };
         if (!content.benefits.items) content.benefits.items = [];
         if (!content.whatYouWillLearn) content.whatYouWillLearn = { title: "", items: [] };

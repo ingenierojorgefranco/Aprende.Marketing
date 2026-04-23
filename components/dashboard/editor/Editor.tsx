@@ -491,14 +491,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
     });
   };
 
-  const updateIntroItem = (index: number, field: 'title' | 'description', value: string) => {
-    setContent(prev => {
-        const newItems = [...(prev.intro.items || [])];
-        newItems[index] = { ...newItems[index], [field]: value };
-        return { ...prev, intro: { ...prev.intro, items: newItems } };
-    });
-  };
-
   const updateLearnItem = (index: number, value: string) => {
     setContent(prev => {
         const newItems = [...prev.whatYouWillLearn.items];
@@ -520,7 +512,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
     }));
   };
 
-  const addItem = (section: 'benefits' | 'whatYouWillLearn' | 'testimonials' | 'faq' | 'navLinks' | 'introItems') => {
+  const addItem = (section: 'benefits' | 'whatYouWillLearn' | 'testimonials' | 'faq' | 'navLinks') => {
       setContent(prev => {
           if (section === 'benefits') {
               return { ...prev, benefits: { ...prev.benefits, items: [...prev.benefits.items, { title: 'Nuevo Beneficio', description: 'Descripción corta aquí.' }] } };
@@ -537,14 +529,11 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
           if (section === 'navLinks') {
               return { ...prev, navLinks: [...(prev.navLinks || []), { label: 'Nuevo Enlace', href: '#' }] };
           }
-          if (section === 'introItems') {
-              return { ...prev, intro: { ...prev.intro, items: [...(prev.intro.items || []), { title: 'Nuevo Punto', description: 'Descripción aquí' }] } };
-          }
           return prev;
       });
   };
 
-  const removeItem = (section: 'benefits' | 'whatYouWillLearn' | 'testimonials' | 'faq' | 'navLinks' | 'introItems', index: number) => {
+  const removeItem = (section: 'benefits' | 'whatYouWillLearn' | 'testimonials' | 'faq' | 'navLinks', index: number) => {
       setContent(prev => {
           if (section === 'benefits') {
               const newItems = [...prev.benefits.items];
@@ -570,11 +559,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
               const newItems = [...(prev.navLinks || [])];
               newItems.splice(index, 1);
               return { ...prev, navLinks: newItems };
-          }
-          if (section === 'introItems') {
-              const newItems = [...(prev.intro.items || [])];
-              newItems.splice(index, 1);
-              return { ...prev, intro: { ...prev.intro, items: newItems } };
           }
           return prev;
       });
@@ -1231,20 +1215,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                     >
                                         <Library className="w-4 h-4 text-primary" /> Biblioteca
                                     </button>
-                                </div>
-                            </div>
-                            
-                            <div className="pt-4 border-t border-gray-800">
-                                <Label>Puntos Clave (Bullets)</Label>
-                                <div className="space-y-4 mt-2">
-                                    {(content.intro.items || []).map((item, i) => (
-                                        <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
-                                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition"><button onClick={() => removeItem('introItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
-                                            <div className="mb-2"><Label>Título</Label><Input value={item.title} onChange={(e) => updateIntroItem(i, 'title', e.target.value)} /></div>
-                                            <div><Label>Descripción</Label><RichTextArea value={item.description} onChange={(e) => updateIntroItem(i, 'description', e.target.value)} className="min-h-[60px]" /></div>
-                                        </div>
-                                    ))}
-                                    <button onClick={() => addItem('introItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Punto Clave</button>
                                 </div>
                             </div>
                         </SectionContent>

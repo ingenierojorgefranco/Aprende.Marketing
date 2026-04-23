@@ -326,21 +326,48 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, leadMagnetUrl, salesPageUrl, digitalProductUrl, isMaster } = req.body;
+  const body = req.body;
   try {
-    const [check] = await pool.query('SELECT user_id, is_master, master_parent_id FROM projects WHERE id = ?', [id]);
-    if (check.length === 0 || (check[0].user_id !== req.user.id && req.user.role !== 'admin')) return res.status(403).json({ error: 'No autorizado' });
-    const isMasterFinal = (req.user.role === 'admin' && isMaster !== undefined) ? (isMaster ? 1 : 0) : check[0].is_master;
+    const [check] = await pool.query('SELECT * FROM projects WHERE id = ?', [id]);
+    if (check.length === 0 || (check[0].user_id !== req.user.id && req.user.role !== 'admin')) {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
     
-    // Si es un duplicado, no permitimos guardar una URL local, forzamos herencia
-    const finalDigitalProductUrl = check[0].master_parent_id ? null : digitalProductUrl;
+    const existing = check[0];
+    
+    // Fusión de datos: Si el campo no viene en el body, mantenemos el valor actual de la DB
+    const name = body.name !== undefined ? body.name : existing.name;
+    const niche = body.niche !== undefined ? body.niche : existing.niche;
+    const description = body.description !== undefined ? body.description : existing.description;
+    const targetAudience = body.targetAudience !== undefined ? body.targetAudience : existing.target_audience;
+    const brandTone = body.brandTone !== undefined ? body.brandTone : existing.brand_tone;
+    const productName = body.productName !== undefined ? body.productName : existing.product_name;
+    const mainGoal = body.mainGoal !== undefined ? body.mainGoal : existing.main_goal;
+    
+    const painPoints = body.painPoints !== undefined ? JSON.stringify(body.painPoints) : existing.pain_points;
+    const keyBenefits = body.keyBenefits !== undefined ? JSON.stringify(body.keyBenefits) : existing.key_benefits;
+    const affiliateLinks = body.affiliateLinks !== undefined ? JSON.stringify(body.affiliateLinks) : existing.affiliate_links;
+    const strategy_json = body.strategy_json !== undefined ? JSON.stringify(body.strategy_json) : existing.strategy_json;
+    const multimedia_json = body.multimedia_json !== undefined ? JSON.stringify(body.multimedia_json) : existing.multimedia_json;
+    
+    const fullPrice = body.fullPrice !== undefined ? body.fullPrice : existing.full_price;
+    const commissionRate = body.commissionRate !== undefined ? body.commissionRate : existing.commission_rate;
+    const leadMagnetType = body.leadMagnetType !== undefined ? body.leadMagnetType : existing.lead_magnet_type;
+    const leadMagnetUrl = body.leadMagnetUrl !== undefined ? body.leadMagnetUrl : existing.lead_magnet_url;
+    const salesPageUrl = body.salesPageUrl !== undefined ? body.salesPageUrl : existing.sales_page_url;
+    
+    const isMasterFinal = (req.user.role === 'admin' && body.isMaster !== undefined) ? (body.isMaster ? 1 : 0) : existing.is_master;
+    const finalDigitalProductUrl = existing.master_parent_id ? null : (body.digitalProductUrl !== undefined ? body.digitalProductUrl : existing.digital_product_url);
 
     await pool.query(
       `UPDATE projects SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, multimedia_json=?, full_price=?, commission_rate=?, lead_magnet_type=?, lead_magnet_url=?, sales_page_url=?, digital_product_url=?, is_master=?, updated_at=NOW() WHERE id=?`,
-      [name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []), strategy_json ? JSON.stringify(strategy_json) : null, req.body.multimedia_json ? JSON.stringify(req.body.multimedia_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', finalDigitalProductUrl, isMasterFinal, id]
+      [name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, multimedia_json, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', finalDigitalProductUrl, isMasterFinal, id]
     );
     res.json({ message: 'Actualizado' });
-  } catch (error) { res.status(500).json({ error: 'Error' }); }
+  } catch (error) { 
+    console.error("[Update Project Error]", error);
+    res.status(500).json({ error: 'Error al actualizar el proyecto' }); 
+  }
 });
 
 router.delete('/:id', async (req, res) => {

@@ -622,12 +622,7 @@ export const MICROBLADING_CONTENT: GeneratedPageContent = {
   ],
   intro: {
     title: "¿Qué es el Microblading Hiperrealista?",
-    description: "Es una técnica de maquillaje semipermanente que permite diseñar cejas perfectas, dibujando 'pelo por pelo' para un acabado 100% natural. Es el servicio más demandado en salones de belleza actualmente debido a su alto valor percibido.",
-    items: [
-        { title: "Visajismo Personalizado", description: "Aprende a diseñar la ceja perfecta según la estructura ósea del rostro de tu clienta." },
-        { title: "Colorimetría Avanzada", description: "Domina la mezcla de pigmentos para evitar tonos rojos o azules con el tiempo." },
-        { title: "Bioseguridad", description: "Protocolos de higiene para trabajar de forma segura y profesional." }
-    ]
+    description: "Es una técnica de maquillaje semipermanente que permite diseñar cejas perfectas, dibujando 'pelo por pelo' para un acabado 100% natural. Es el servicio más demandado en salones de belleza actualmente debido a su alto valor percibido."
   },
   benefits: {
     title: "Tu Arsenal para el Éxito",
