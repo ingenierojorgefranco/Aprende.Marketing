@@ -285,18 +285,18 @@ export const generateLandingPageContent = async (
             if (pH1) content.hero.headline = pH1;
             if (pH2) content.hero.subheadline = pH2;
 
-            // 2. INYECCIÓN OBLIGATORIA DE BENEFICIOS (ESTRATEGIA)
+            // 2. INYECCIÓN OBLIGATORIA DE TRANSFORMACIONES (LO QUE APRENDERÁS)
             content.benefits.title = "Lo que aprenderás en nuestra clase";
             content.benefits.subtitle = "";
-            let rawBenefits = (pStrategy?.psychology?.solutions && pStrategy.psychology.solutions.length > 0)
-                ? pStrategy.psychology.solutions
-                : (pStrategy?.modules?.web?.landingPageTabs?.benefits?.items && pStrategy.modules.web.landingPageTabs.benefits.items.length > 0)
-                    ? pStrategy.modules.web.landingPageTabs.benefits.items 
+            let rawLearningModules = (pStrategy?.psychology?.learningModules && pStrategy.psychology.learningModules.length > 0)
+                ? pStrategy.psychology.learningModules
+                : (pStrategy?.psychology?.solutions && pStrategy.psychology.solutions.length > 0)
+                    ? pStrategy.psychology.solutions
                     : (Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : []);
 
-            if (rawBenefits.length > 0) {
+            if (rawLearningModules.length > 0) {
                 const defaultColors = ['purple', 'blue', 'green', 'emerald', 'orange', 'red', 'teal'];
-                content.benefits.items = rawBenefits.slice(0, 9).map((b: any, idx: number) => ({
+                content.benefits.items = rawLearningModules.slice(0, 9).map((b: any, idx: number) => ({
                     title: typeof b === 'object' ? (b.title || "") : String(b),
                     description: typeof b === 'object' ? (b.description || b.desc || "") : "", 
                     icon: b.icon || "Sparkles",
@@ -304,24 +304,16 @@ export const generateLandingPageContent = async (
                 }));
             }
 
-            // 3. INYECCIÓN OBLIGATORIA DE TRANSFORMACIONES (ESTRATEGIA)
+            // 3. INYECCIÓN OBLIGATORIA DE IDENTIFICACIÓN DE AVATARES (ESTA CLASE ES PARA TI)
             content.whatYouWillLearn.title = "Esta clase es para ti si...";
             content.whatYouWillLearn.avatarIcons = ["Sparkles", "TrendingUp", "UserCheck"];
 
-            let rawModules = (pStrategy?.psychology?.learningModules && pStrategy.psychology.learningModules.length > 0)
-                ? pStrategy.psychology.learningModules
-                : [];
+            let rawPains = (pStrategy?.psychology?.pains && pStrategy.psychology.pains.length > 0)
+                ? pStrategy.psychology.pains
+                : (Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : []);
 
-            if (rawModules.length > 0) {
-                content.whatYouWillLearn.items = rawModules.slice(0, 9).map((m: any) => `${m.title}: ${m.description}`);
-            } else {
-                let rawPains = (pStrategy?.psychology?.pains && pStrategy.psychology.pains.length > 0)
-                    ? pStrategy.psychology.pains
-                    : (Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : []);
-                
-                if (rawPains.length > 0) {
-                    content.whatYouWillLearn.items = rawPains.slice(0, 9).map((p: any) => typeof p === 'object' ? (p.text || p.title || "") : String(p));
-                }
+            if (rawPains.length > 0) {
+                content.whatYouWillLearn.items = rawPains.slice(0, 9).map((p: any) => typeof p === 'object' ? (p.text || p.title || "") : String(p));
             }
 
             // 4. INYECCIÓN OBLIGATORIA DE TESTIMONIOS (ESTRATEGIA)
