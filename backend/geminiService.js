@@ -347,11 +347,14 @@ export const generateFullStrategy = async (projectId) => {
                 objective: establece el objetivo del correo (Con base en la explicacion anterior que te di de cada tipo de correo) hazlo bien explicado como instruccion para que luego la ia sepa como construir el correo electronico completo,
 
         INSTRUCCIONES PARA TESTIMONIOS testimonials (OBLIGATORIO):
-        Genera exactamente 3 testimonios. 
+        Genera exactamente 3 testimonios enfocados ÚNICAMENTE en el valor recibido por el regalo (Lead Magnet) (Tipo: "${leadMagnetType}").
+        REGLAS DE ORO:
+        - PROHIBIDO usar la palabra "Curso" o dar a entender que es un producto de pago. El testimonio debe validar el material gratuito que acaban de recibir/ver.
+        - Si el Lead Magnet es "Clase/Webinar/Video": El testimonio debe mencionar lo reveladora que fue la sesión y lo que aprendió al verla.
+        - Si el Lead Magnet es "PDF/Guía/Ebook": El testimonio debe mencionar lo práctico que fue leer el documento y los puntos clave que descubrió.
         - Debes usar los nombres exactos de los 3 AVATARES generados arriba.
-        - El texto de cada testimonio debe narrar en primera persona cómo el producto solucionó el "pain" (dolor) específico que definiste para ese avatar.
-        - Añade el nicho del producto al que se dedica por ejemplo Gracias al Curso de Diseño de Cejas, El curso de Resina de Suelos, El curso de adiestramiento de mascotas...
-        - Lenguaje natural, corto (máximo 50 palabras) y con tono de mensaje de agradecimiento.
+        - El texto de cada testimonio debe narrar en primera persona cómo el material gratuito empezó a solucionar el "pain" (dolor) específico de ese avatar.
+        - Lenguaje natural, corto (máximo 50 palabras) y con tono de mensaje de agradecimiento espontáneo.
 
         Instrucciones para landingPageTabs, genera copy persuasivo para 3 momentos:
             h1: "Añade un titulo Profesional altamente persuasivo que llame la atención de la audiencia que se enfoque principalmente en el beneficio de los avatares (incluye el nicho del producto pero teniendo en cuenta que esta es una pagina de captura no es una pagina de venta, por lo que el titulo tiene que dar una solucion y beneficio al usuario pero ser abierto para incentivar a que el usuario se registre, el titulo tiene que ser muy potente y englobar la transformación de los avatares, el titulo tiene que tener un lenguaje personal con el que la persona se sienta identificado, el cual tiene que conectar con el usuario y con no más de 100 caracteres decirle al usuario el objetivo de esta pagina). REGLA CRÍTICA: PROHIBIDO incluir años específicos (ej: 2024, 2025). El título debe ser inclusivo y general para los 3 perfiles de avatar (Negocio, Hobby/Creativo, Propietario/Personal).",

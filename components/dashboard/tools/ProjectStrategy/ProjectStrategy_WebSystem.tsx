@@ -271,7 +271,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             return (
                 <div className="space-y-6 animate-in fade-in duration-500">
                     <div className="space-y-6">
-                        <div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-lg text-[10px] font-black uppercase tracking-widest border border-primary/20">Lead Magnet Activo</div>
                         <h4 className="text-gray-900 font-black text-3xl leading-tight">
                             <EditableField value={data.h1} onSave={(val) => handleUpdateLpDraft('hero', 'h1', val)} multiline />
                         </h4>
@@ -343,50 +342,61 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         return null;
     };
 
-    const renderTyContent = (tabKey: string) => {
+    const renderTyContent = () => {
         if (!draftTyTabsData) return null;
-        const data = draftTyTabsData[tabKey];
-        if (!data) return null;
+        
+        // Unificar contenido de la página de gracias
+        const headerData = draftTyTabsData['confirmacion'] || draftTyTabsData[Object.keys(draftTyTabsData)[0]];
+        const actionData = draftTyTabsData['siguiente'] || draftTyTabsData[Object.keys(draftTyTabsData)[1]];
+        const magnetData = draftTyTabsData['magnet'] || draftTyTabsData[Object.keys(draftTyTabsData)[2]];
+
         return (
-            <div className="space-y-6 animate-in fade-in duration-500">
-                {data.type === 'header' && (
+            <div className="space-y-12 animate-in fade-in duration-500">
+                {/* Confirmación */}
+                {headerData && (
                     <div className="text-center flex flex-col items-center">
-                        <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-8 border border-emerald-500/30">
-                            <Check className="w-10 h-10 text-emerald-400" />
+                        <div className="w-16 h-16 bg-emerald-500/10 rounded-[1.5rem] flex items-center justify-center mb-6 border border-emerald-500/30">
+                            <Check className="w-8 h-8 text-emerald-400" />
                         </div>
-                        <h4 className="text-white font-black text-3xl mb-4 leading-tight">
-                            <EditableField value={data.content?.h1} onSave={(val) => handleUpdateTyDraft(tabKey, 'h1', val)} multiline />
+                        <h4 className="text-white font-black text-2xl mb-3 leading-tight">
+                            <EditableField value={headerData.content?.h1} onSave={(val) => handleUpdateTyDraft('confirmacion', 'h1', val)} multiline />
                         </h4>
-                        <div className="text-gray-400 text-lg">
-                            <EditableField value={data.content?.h2} onSave={(val) => handleUpdateTyDraft(tabKey, 'h2', val)} multiline />
+                        <div className="text-gray-400 text-base">
+                            <EditableField value={headerData.content?.h2} onSave={(val) => handleUpdateTyDraft('confirmacion', 'h2', val)} multiline />
                         </div>
                     </div>
                 )}
-                {data.type === 'action' && (
-                    <div className="text-center">
-                        <div className="w-full h-2.5 bg-gray-800 rounded-full mb-10 overflow-hidden shadow-inner">
+
+                {/* Siguiente Paso */}
+                {actionData && (
+                    <div className="text-center bg-white/5 p-6 rounded-3xl border border-white/10">
+                        <div className="w-full h-2 bg-gray-800 rounded-full mb-8 overflow-hidden shadow-inner">
                             <div className="w-[85%] h-full bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.4)] animate-pulse"></div>
                         </div>
-                        <h4 className="text-white font-black text-2xl mb-6">
-                            <EditableField value={data.content?.h1} onSave={(val) => handleUpdateTyDraft(tabKey, 'h1', val)} multiline />
+                        <h4 className="text-white font-black text-xl mb-6">
+                            <EditableField value={actionData.content?.h1} onSave={(val) => handleUpdateTyDraft('siguiente', 'h1', val)} multiline />
                         </h4>
-                        <button className="w-full py-5 bg-[#25D366] rounded-2xl flex items-center justify-center gap-3 text-white font-black text-xl shadow-xl shadow-green-900/40">UNIRME AL GRUPO VIP</button>
+                        <button className="w-full py-4 bg-[#25D366] rounded-2xl flex items-center justify-center gap-3 text-white font-black text-lg shadow-xl shadow-green-900/40">
+                            <MessageCircle className="w-5 h-5" /> UNIRME AL GRUPO VIP
+                        </button>
                     </div>
                 )}
-                {data.type === 'magnet' && (
-                    <div className="text-center flex flex-col items-center">
-                        <div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center mb-8 border border-primary/30">
-                            <Gift className="w-10 h-10 text-primary" />
+
+                {/* Lead Magnet */}
+                {magnetData && (
+                    <div className="text-center flex flex-col items-center bg-primary/5 p-6 rounded-3xl border border-primary/10">
+                        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mb-4 border border-primary/30">
+                            <Gift className="w-6 h-6 text-primary" />
                         </div>
-                        <h4 className="text-white font-black text-2xl mb-4 leading-tight">
-                            <EditableField value={data.content?.h1} onSave={(val) => handleUpdateTyDraft(tabKey, 'h1', val)} multiline />
+                        <h4 className="text-white font-black text-xl mb-2 leading-tight">
+                            <EditableField value={magnetData.content?.h1} onSave={(val) => handleUpdateTyDraft('magnet', 'h1', val)} multiline />
                         </h4>
-                        <div className="text-gray-400 text-lg mb-8">
-                            <EditableField value={data.content?.h2} onSave={(val) => handleUpdateTyDraft(tabKey, 'h2', val)} multiline />
+                        <div className="text-gray-400 text-sm mb-6">
+                            <EditableField value={magnetData.content?.h2} onSave={(val) => handleUpdateTyDraft('magnet', 'h2', val)} multiline />
                         </div>
-                        <div className="w-full py-4 bg-gray-800 rounded-xl border border-gray-700 flex items-center justify-center gap-2 text-gray-300 font-bold">
+                        <button className="w-full py-4 bg-gray-800 rounded-xl border border-gray-700 flex items-center justify-center gap-2 text-gray-300 font-bold hover:bg-gray-700 transition-colors">
                             <Download className="w-5 h-5" /> DESCARGAR AHORA
-                        </div>
+                        </button>
                     </div>
                 )}
             </div>
@@ -394,9 +404,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     };
 
     const lpTabs = [
-        { key: 'hero', label: "1. Encabezado" },
-        { key: 'pain', label: "2. Dolores" },
-        { key: 'benefits', label: "3. Beneficios" }
+        { key: 'hero', label: "Encabezado" }
     ];
 
     return (
@@ -480,11 +488,11 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         <p className="text-white font-light text-[1.3rem] leading-[2.5rem]">Usaremos los siguientes elementos para construir una página web 100% profesional enfocada en los dolores, necesidades y beneficios de tus potenciales clientes. <br/><br/>Haz clic en los elementos para más detalles.</p>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
-                                        {lpTabs.map(tab => (
+                                        {lpTabs.filter(t => t.key === 'hero').map(tab => (
                                             <button 
                                                 key={tab.key} 
                                                 onClick={() => setSelectedLpTab(tab.key)} 
-                                                className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest border ${selectedLpTab === tab.key ? 'bg-blue-600 text-white border-blue-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}
+                                                className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest border border-blue-400 bg-blue-600 text-white shadow-lg`}
                                             >
                                                 {tab.label}
                                             </button>
@@ -516,10 +524,9 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <div className="flex-1 space-y-8">
                                     <div className="space-y-4">
                                         <h5 className="font-bold text-[#FF5A1F] text-xl">Estructura de tu Página de Gracias</h5>
-                                        <p className="text-white font-light text-[1.3rem] leading-[2.5rem]">Usaremos los siguientes elementos para construir una página de gracias persuasiva enfocada en guiar al usuario hacia tu comunidad. <br/><br/>Haz clic en los elementos para más detalles.</p>
+                                        <p className="text-white font-light text-[1.3rem] leading-[2.5rem]">Hemos unificado los elementos clave en un solo lugar para construir una página de gracias persuasiva enfocada en guiar al usuario hacia tu comunidad y entregar tu regalo.</p>
                                     </div>
-                                    <div className="flex flex-wrap gap-2">{tyTabsData && Object.keys(tyTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedTyTab(tabKey)} className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest border ${selectedTyTab === tabKey ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{tyTabsData[tabKey].label}</button>))}</div>
-                                    {renderBrowserMockup(renderTyContent(selectedTyTab || ''), true)}
+                                    {renderBrowserMockup(renderTyContent(), true)}
                                 </div>
                             </div>
                         </div>
