@@ -358,7 +358,7 @@ export const generateFullStrategy = async (projectId) => {
 
         Instrucciones para landingPageTabs, genera copy persuasivo para 3 momentos:
             h1: "Añade un titulo Profesional altamente persuasivo que llame la atención de la audiencia que se enfoque principalmente en el beneficio de los avatares (incluye el nicho del producto pero teniendo en cuenta que esta es una pagina de captura no es una pagina de venta, por lo que el titulo tiene que dar una solucion y beneficio al usuario pero ser abierto para incentivar a que el usuario se registre, el titulo tiene que ser muy potente y englobar la transformación de los avatares, el titulo tiene que tener un lenguaje personal con el que la persona se sienta identificado, el cual tiene que conectar con el usuario y con no más de 100 caracteres decirle al usuario el objetivo de esta pagina). REGLA CRÍTICA: PROHIBIDO incluir años específicos (ej: 2024, 2025). El título debe ser inclusivo y general para los 3 perfiles de avatar (Negocio, Hobby/Creativo, Propietario/Personal).",
-            h2: "añade un subtitulo de 150 y 200 caracteres que amplie y justifique la idea principal del titulo h1 anterior y haga que el usuario se sienta identificado con el objetivo de la landingpage, usa un lenguaje personal que conecte con el usuario, que se sienta conectado con la persona que ingresa a la pagina. usa un tono similar al que usaste en el h1, intenta incluir el titulo pero con el nombre del proyecto projectName del producto para el seo e identificacion por parte del usuario. Asegúrate de que este subtítulo también abarque los deseos de los 3 avatares de forma equilibrada y NO incluya años."
+            h2: "Añade un subtítulo de 150 a 200 caracteres que amplíe la promesa del título h1 y se enfoque exclusivamente en la transformación que el usuario recibirá al acceder al regalo gratuito (Lead Magnet: ${leadMagnetType}). REGLA CRÍTICA: Totalmente PROHIBIDO usar la palabra 'curso', 'producto de pago' o lenguaje de venta. El texto debe describir el beneficio directo de registrarse para obtener el material gratuito y cómo esto conecta con los deseos de los 3 avatares, manteniendo un tono personal y cercano.",
 
         En thankYouPageTabs, genera copy persuasivo para 3 momentos:
             header: Un titular de confirmación inmediata (ej: '¡Lugar Reservado!').
@@ -387,6 +387,7 @@ export const generateFullStrategy = async (projectId) => {
         {
           "meta": {
             "projectName": "${productName}",
+            "brandName": "Genera un nombre de negocio creativo de 2 a 3 palabras relacionado con el nicho (ej: 'MicroBrows Academy', 'Beauty Pro Studio'). REGLA CRÍTICA: NO uses solo el nombre de la profesora (ej: 'Ariana Zamora'). Debe sonar como una marca o empresa profesional.",
             "shortDescription": "Resumen persuasivo de 1-2 frases destacando la transformación",
             "niche": "${niche}",
             "productType": "Digital Product",
@@ -519,6 +520,7 @@ export const generateFullStrategy = async (projectId) => {
                 label: "1. Encabezado",
                 title: "Promesa de Valor (Hero Section)",
                 type: 'hero',
+                topTagline: "Genera una línea de impacto superior (badge) de 3 a 5 palabras. REGLA CRÍTICA: Debe usar emojis y ganchos de alta conversión: 🔥 Urgencia, 🚀 Resultados, 💎 Exclusividad, 🎯 Curiosidad o ⚠️ Escasez. Ejemplos: '🔥 ACCESO 100% GRATIS', '🚀 MÉTODO REVELADO', '💎 SOLO PARA MIEMBROS'.",
                 h1: "titulo Profesional que atrae audiencia cualificada",
                 h2: "Subtitulo que justifica el titulo profesional."
             }

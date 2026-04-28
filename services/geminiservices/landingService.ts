@@ -34,9 +34,15 @@ export const generateLandingPageContent = async (
       // 1. Extraer Títulos definidos en la estrategia (Web Blueprint) - 12/03/2025 10:00
       const pH1 = pStrategy?.landingPageTabs?.hero?.h1 || pStrategy?.modules?.web?.landingPageTabs?.hero?.h1 || "";
       const pH2 = pStrategy?.landingPageTabs?.hero?.h2 || pStrategy?.modules?.web?.landingPageTabs?.hero?.h2 || "";
+      const pBrandName = pStrategy?.meta?.brandName || "";
+      
       const mandatoryHeadlines = (pH1 && pH2) 
           ? `- Título Principal OBLIGATORIO (h1): "${pH1}"\n      - Subtítulo OBLIGATORIO (h2): "${pH2}"`
           : "";
+
+      const brandNameContext = pBrandName 
+          ? `- Nombre de Marca OBLIGATORIO: "${pBrandName}"` 
+          : `- Genera un Nombre de Marca: Debe ser un nombre de negocio creativo de 2 a 3 palabras (ej: 'Nicho Academy', 'Studio X'). NO uses solo el nombre del profesor.`;
 
       // 2. Extraer Dolores (Pains) - Prioriza strategy_json (Informe Maestro), sino busca en campos básicos - 01/01/2026 13:05
       let extractedPains: string[] = [];
@@ -84,6 +90,7 @@ export const generateLandingPageContent = async (
       - Nombre del Producto: "${pName}"
       - Tono de Voz de Marca: "${pTone}"
       ${mandatoryHeadlines}
+      ${brandNameContext}
       ${painsText}
       ${learningContext}
       ${benefitsText}
@@ -154,6 +161,20 @@ export const generateLandingPageContent = async (
   const prompt = `Actúa como un experto en copywriting y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
   El objetivo es "${goal}". 
   
+  REGLA PARA EL topTagline (ALTA CONVERSIÓN):
+  El campo "topTagline" es el badge que va sobre el título. Debe ser extremadamente corto (2-4 palabras) y usar emojis. 
+  REGLA CRÍTICA: Elige ROBUSTAMENTE uno de estos enfoques: 
+  - Urgencia: 🔥 ACCESO 100% GRATUITO
+  - Resultado: 🚀 MÉTODO REVELADO
+  - Exclusividad: 💎 CONTENIDO VIP
+  - Curiosidad: 🎯 LO QUE NADIE TE DICE
+  - Escasez: ⚠️ ÚLTIMOS CUPOS
+  PROHIBIDO usar frases genéricas y aburridas como 'Registro Abierto'.
+
+  REGLA PARA EL brandName (CRÍTICA):
+  El campo "brandName" debe ser el nombre del negocio o academia. Debe tener de 2 a 3 palabras y estar directamente relacionado con el negocio (ej: 'Beauty Academy', 'Marketing Pro'). 
+  PROHIBIDO usar solo nombres personales (ej: 'Ariana Zamora'). Si recibes un nombre personal en el contexto, adáptalo a un nombre de negocio (ej: 'Ariana Zamora Studio').
+
   CONTEXTO DE AUDIENCIA (PRIORIDAD ALTA PARA EL COPY):
   "${targetAudience}"
   
@@ -252,6 +273,7 @@ export const generateLandingPageContent = async (
         if (!content.hero.videoDuration) content.hero.videoDuration = "45 Minutos";
         if (!content.hero.videoUrl) content.hero.videoUrl = "";
         if (!content.hero.spotsLeft) content.hero.spotsLeft = "¡Cupos Limitados!";
+        if (!content.topTagline) content.topTagline = "🔥 ACCESO GRATUITO POR TIEMPO LIMITADO";
         if (!content.testimonialSubtitle) content.testimonialSubtitle = "Resultados reales de alumnos";
         if (!content.closingOfferText) content.closingOfferText = "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder.";
         
@@ -284,6 +306,14 @@ export const generateLandingPageContent = async (
             const pH2 = pStrategy?.landingPageTabs?.hero?.h2 || pStrategy?.modules?.web?.landingPageTabs?.hero?.h2;
             if (pH1) content.hero.headline = pH1;
             if (pH2) content.hero.subheadline = pH2;
+            
+            // Inyectar Brand Name de la estrategia si existe
+            const pBrandName = pStrategy?.meta?.brandName;
+            if (pBrandName) content.brandName = pBrandName;
+
+            // Inyectar Top Tagline de la estrategia si existe
+            const pTopTagline = pStrategy?.landingPageTabs?.hero?.topTagline || pStrategy?.modules?.web?.landingPageTabs?.hero?.topTagline;
+            if (pTopTagline) content.topTagline = pTopTagline;
 
             // 2. INYECCIÓN OBLIGATORIA DE TRANSFORMACIONES (LO QUE APRENDERÁS)
             content.benefits.title = "Lo que aprenderás en nuestra clase";

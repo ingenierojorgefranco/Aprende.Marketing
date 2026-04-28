@@ -70,12 +70,12 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
               <div className="relative z-10 max-w-5xl mx-auto text-center">
                   
-                  {/* 1. PROGRESS BAR */}
-                  <div className="max-w-2xl mx-auto w-full mb-6 bg-gray-900/80 backdrop-blur-md p-6 rounded-2xl border border-yellow-500/30 shadow-2xl relative overflow-hidden group">
+                      {/* 1. PROGRESS BAR */}
+                      <div className="max-w-2xl mx-auto w-full mb-12 bg-gray-900/80 backdrop-blur-md p-6 rounded-2xl border border-yellow-500/30 shadow-2xl relative overflow-hidden group">
                         <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500"></div>
                         <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-3 gap-2">
                             <span className="text-yellow-400 font-bold flex items-center gap-2 text-sm md:text-base animate-pulse">
-                                <AlertTriangle className="w-5 h-5" /> {tyConfig.progressBarText || "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO..."}
+                                <AlertTriangle className="w-5 h-5" /> {tyConfig.progressBarText || "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR."}
                             </span>
                             <span className="text-white font-mono font-bold text-lg">80%</span>
                         </div>
@@ -86,102 +86,70 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                                 <div className="absolute inset-0 w-full h-full opacity-30 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#000_10px,#000_20px)]"></div>
                             </div>
                         </div>
-                  </div>
-
-                  {/* 2. GREEN STATUS BADGE */}
-                  {tyConfig.greenBadgeText && (
-                      <div className="inline-flex items-center gap-2 bg-green-500 text-black px-6 py-2 rounded-full text-base font-black uppercase mt-8 mb-10 shadow-lg shadow-green-500/20 transform hover:scale-105 transition-transform animate-bounce">
-                          {tyConfig.greenBadgeText}
-                      </div>
-                  )}
-
-                  <h1 className={`text-4xl md:text-6xl font-black mb-6 leading-snug tracking-wide drop-shadow-xl ${ds.hero.titleColor}`}>
-                      {tyConfig.headline}
-                  </h1>
-
-                  <p className={`text-xl md:text-2xl font-light max-w-3xl mx-auto mb-16 leading-relaxed ${ds.hero.subtitleColor}`} dangerouslySetInnerHTML={{ __html: tyConfig.subheadline }}>
-                  </p>
-
-                  <div className="grid md:grid-cols-2 gap-8 text-left max-w-5xl mx-auto">
-                      {/* STEP 1 CARD */}
-                      <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-xl border-b-8 border-gray-100 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300">
-                          <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:scale-110 transition-transform">
-                              <Mail className="w-40 h-40 text-gray-900" />
-                          </div>
-                          
-                          <div className="mb-6 relative z-10">
-                              <span className="inline-block bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-black text-sm uppercase tracking-wider shadow-sm">
-                                  PASO 1
-                              </span>
-                          </div>
-
-                          <h3 className="text-3xl font-black text-gray-800 mb-6 relative z-10">{tyConfig.step1Title}</h3>
-                          
-                          <div className="space-y-5 text-gray-600 text-lg relative z-10 font-medium">
-                              <div className="flex items-start gap-4">
-                                  <div className="bg-gray-100 p-2 rounded-full shrink-0 mt-1">
-                                      <CheckCircle className="w-5 h-5 text-gray-500"/>
-                                  </div>
-                                  <p className="leading-snug">{tyConfig.step1Desc}</p>
-                              </div>
-                              {tyConfig.step1Warning && (
-                                  <div className="flex items-start gap-4">
-                                      <div className="bg-yellow-50 p-2 rounded-full shrink-0 mt-1">
-                                          <AlertTriangle className="w-5 h-5 text-yellow-600"/>
-                                      </div>
-                                      <p className="leading-snug text-gray-800">
-                                          {tyConfig.step1Warning}
-                                      </p>
-                                  </div>
-                              )}
-                              {tyConfig.step1Subject && (
-                                  <div className="font-bold text-gray-900 bg-gray-50 p-4 rounded-xl border border-gray-100 text-center text-base">
-                                      {tyConfig.step1Subject}
-                                  </div>
-                              )}
-                          </div>
                       </div>
 
-                      {/* STEP 2 CARD (Highlight) */}
-                      <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl border-4 border-green-500 relative overflow-hidden transform md:scale-105 z-20 group">
-                          <div className="absolute top-0 left-0 w-full h-3 bg-green-500"></div>
-                          <div className="absolute -right-20 -top-20 w-64 h-64 bg-green-50 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-                          
-                          {tyConfig.step2Badge && (
-                              <div className="absolute top-6 right-6 animate-bounce">
-                                  <span className="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg uppercase tracking-wide">
-                                      {tyConfig.step2Badge}
+                      <h1 className={`text-4xl md:text-6xl font-black mb-10 pt-4 leading-snug tracking-wide drop-shadow-xl ${ds.hero.titleColor}`}>
+                          {tyConfig.headline}
+                      </h1>
+
+                      <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-3xl max-w-3xl mx-auto mb-12 shadow-2xl relative group overflow-hidden">
+                          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
+                          <p className={`text-xl md:text-2xl font-light leading-relaxed text-white/90`} dangerouslySetInnerHTML={{ __html: tyConfig.subheadline }}>
+                          </p>
+                      </div>
+
+                      {/* 2. GREEN STATUS BADGE */}
+                      <div className="inline-flex items-center gap-2 bg-green-500 text-black px-8 py-3 rounded-full text-base font-black uppercase mt-4 mb-20 shadow-xl shadow-green-500/20 transform hover:scale-105 transition-all animate-bounce border-2 border-green-400/50">
+                          {tyConfig.greenBadgeText || "ESPERA, AÚN FALTA UN ÚLTIMO PASO"}
+                      </div>
+
+                      <div className="max-w-3xl mx-auto">
+                          {/* STEP 2 CARD (Highlight) */}
+                          <div className="bg-white rounded-[2.5rem] p-10 md:p-14 shadow-2xl border-4 border-green-500 relative overflow-hidden z-20 group">
+                              <div className="absolute top-0 left-0 w-full h-4 bg-green-500"></div>
+                              <div className="absolute -right-20 -top-20 w-80 h-80 bg-green-50 rounded-full blur-3xl opacity-50 pointer-events-none transition-transform group-hover:scale-110"></div>
+                              
+                              <div className="mb-8 relative z-10">
+                                  <span className="inline-block bg-green-600 text-white px-6 py-2.5 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg animate-pulse">
+                                      PASO 2
                                   </span>
                               </div>
-                          )}
 
-                          <div className="mb-6 relative z-10">
-                              <span className="inline-block bg-green-600 text-white px-4 py-2 rounded-lg font-black text-sm uppercase tracking-wider shadow-md animate-pulse">
-                                  PASO 2
-                              </span>
-                          </div>
-
-                          <h3 className="text-3xl font-black text-gray-900 mb-6 relative z-10">{tyConfig.step2Title}</h3>
-                          
-                          <div className="space-y-5 text-gray-700 text-lg font-medium relative z-10">
-                              <p className="leading-relaxed">{tyConfig.step2Desc}</p>
+                              <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-8 relative z-10 leading-tight">Únete a nuestro Grupo VIP + Regalo</h3>
                               
-                              {(tyConfig.step2BonusTitle || tyConfig.step2BonusValue) && (
-                                  <div className="flex items-center gap-4 bg-green-50 p-5 rounded-2xl border border-green-100 transition-colors group-hover:bg-green-100/50">
-                                      <div className="bg-white p-3 rounded-full shadow-sm shrink-0">
-                                          <Gift className="w-8 h-8 text-green-600 animate-pulse" />
+                              <div className="space-y-8 text-gray-700 text-xl font-medium relative z-10">
+                                  <p className="leading-relaxed text-gray-600">Únete al grupo de WhatsApp para recibir la mentoría y tu regalo de bienvenida.</p>
+                                  
+                                  <div className="flex flex-col md:flex-row items-center gap-6 bg-green-50 p-8 rounded-3xl border border-green-200 transition-all group-hover:bg-green-100/50 group-hover:border-green-300">
+                                      <div className="bg-white p-5 rounded-2xl shadow-md shrink-0">
+                                          <Gift className="w-12 h-12 text-green-600 animate-pulse" />
                                       </div>
-                                      <div>
-                                          <p className="font-bold text-gray-900 text-base">{tyConfig.step2BonusTitle}</p>
-                                          <p className="text-sm text-gray-500 line-through font-bold">{tyConfig.step2BonusValue}</p>
+                                      <div className="text-center md:text-left flex-1">
+                                          <p className="font-black text-gray-900 text-2xl mb-1">Libro Digital GRATIS</p>
+                                          <p className="text-lg text-gray-400 line-through font-bold">Precio Regular: $27 USD</p>
+                                      </div>
+                                      <div className="bg-green-600 text-white font-black px-4 py-2 rounded-lg shadow-sm">
+                                          GRATIS
                                       </div>
                                   </div>
-                              )}
+
+                                  <div className="pt-4">
+                                      <a 
+                                          href={whatsappLink}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-6 px-10 rounded-2xl font-black text-2xl shadow-2xl shadow-green-500/40 flex items-center justify-center gap-4 transition-all hover:scale-[1.03] active:scale-95 group relative overflow-hidden"
+                                      >
+                                          <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+                                          <MessageCircle className="w-8 h-8 fill-white/20" />
+                                          <span className="relative z-10">{tyConfig.ctaButtonText || "UNIRME AL GRUPO VIP"}</span>
+                                      </a>
+                                  </div>
+                              </div>
                           </div>
                       </div>
                   </div>
-              </div>
-          </section>
+              </section>
 
           {/* 3. THE OFFER (BOOK MOCKUP & SALES COPY) */}
           <section className="py-20 px-6 bg-gradient-to-b from-gray-900 to-black relative border-t border-white/10">
