@@ -109,7 +109,7 @@ export const generateLandingPageContent = async (
     "testimonialTitle": "string",
     "whatYouWillLearn": {
       "title": "string",
-      "avatarTitles": ["Si buscas crear tu propio negocio y reinventarte profesionalmente", "Si ya estás en el sector belleza y quieres dominar la técnica más top", "Si te da miedo fallar por falta de experiencia pero buscas respaldo"],
+      "avatarTitles": ["Si ya trabajas en el sector, pero sientes que te esfuerzas mucho y ganas poco...", "Si quieres empezar algo rentable, pero te da miedo invertir y equivocarte...", "Si estás cansada de cumplir horarios para otros y quieres algo tuyo..."],
       "items": ["Dolor 1 Avatar 1", "Dolor 2 Avatar 1", "Dolor 3 Avatar 1", "Dolor 1 Avatar 2", "Dolor 2 Avatar 2", "Dolor 3 Avatar 2", "Dolor 1 Avatar 3", "Dolor 2 Avatar 3", "Dolor 3 Avatar 3"]
     },
     "hero": { "headline": "string", "subheadline": "string", "ctaText": "string" },
@@ -188,8 +188,12 @@ export const generateLandingPageContent = async (
   2. PROHIBIDO incluir años específicos (ej: 2024, 2025). El contenido debe ser atemporal (evergreen).
   3. Los titulares (Hero) y la descripción (Intro) deben tener un enfoque GENERAL que resuene con los 3 perfiles de avatar.
   4. IDENTIFICACIÓN DE AVATARES Y DOLORES (whatYouWillLearn): 
-     - "avatarTitles": Genera 3 frases de identificación aspiracional BASADAS EN LA DESCRIPCIÓN DE LA AUDIENCIA. Deben empezar obligatoriamente con "Si..." (ej: "Si buscas...", "Si te sientes...", "Si ya tienes...").
-     - ESTÁ PROHIBIDO incluir el nombre del avatar (ej: "La Soñadora") o dolores específicos en el título. El título debe servir para que el usuario se identifique con su situación o deseo actual.
+     - "avatarTitles": Crea títulos para cards que hagan que una mujer se identifique de inmediato con el avatar. Usa lenguaje emocional, directo y cotidiano. Deben describir su situación actual y dolor presente, no deseos futuros. Máximo 16 palabras. Estructura obligatoria: “Si + situación actual + frustración”.
+     - BLUEPRINT DE EJEMPLOS PARA avatarTitles: 
+       * "Si ya trabajas en belleza, pero sientes que te esfuerzas mucho y ganas poco..."
+       * "Si necesitas ingresos extra, pero te da miedo invertir y equivocarte..."
+       * "Si estás cansada de cumplir horarios para otros y quieres algo tuyo..."
+     - ESTÁ PROHIBIDO incluir el nombre del avatar (ej: "La Soñadora") o deseos positivos en el título. El título debe servir para que el usuario se identifique con su DOLOR actual.
      - "items": Genera 9 puntos de dolor (3 por cada avatar) que sean el problema real que esas personas están viviendo. Estos SÍ deben ser dolores directos y específicos.
   
   INSTRUCCIÓN CRÍTICA: Utiliza los detalles de la audiencia proporcionados arriba para que cada frase, beneficio y dolor resuene directamente con sus necesidades específicas. Si el contexto menciona dolores o deseos específicos, úsalos como base para el Hero y los beneficios.

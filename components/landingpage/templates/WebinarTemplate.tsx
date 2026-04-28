@@ -56,7 +56,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                  {/* 1. Badges */}
                  <div className="flex flex-wrap gap-2 md:gap-3 justify-center items-center pt-[2em] md:pt-[3em]">
                      {content.topTagline && (
-                         <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border font-bold ${ds.hero.badgeBg} ${ds.hero.badgeText} ${ds.hero.badgeBorder} font-['Verdana'] text-xs md:text-[1.2rem] mt-8 md:mt-[2em]`}>
+                         <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border font-bold bg-blue-500/20 text-blue-100 border-blue-400/30 font-['Verdana'] text-xs md:text-[1.2rem] mt-8 md:mt-[2em]`}>
                              {content.topTagline}
                          </div>
                      )}

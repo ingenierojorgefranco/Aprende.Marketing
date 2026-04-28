@@ -73,8 +73,8 @@ export const UrgencyBar = ({ content, ds }: { content: GeneratedPageContent, ds:
     const capture = content.capture || {};
     
     return (
-        <div className="fixed top-0 left-0 w-full z-[100] bg-[#FFFF00] py-2 px-4 flex items-center justify-center shadow-2xl">
-            <span className="text-black font-['Verdana',_sans-serif] text-[1em] leading-[1rem] tracking-[0] font-bold uppercase text-center">
+        <div className="fixed top-0 left-0 w-full z-[100] bg-[#da5600] py-4 px-4 flex items-center justify-center shadow-2xl">
+            <span className="text-white font-['Verdana',_sans-serif] text-[1em] leading-[1rem] tracking-[0] font-bold uppercase text-center">
                 {capture.timerLabel || "HOY ÚLTIMO DÍA DE INSCRIPCIONES A LA CLASE GRATUITA"}
             </span>
         </div>

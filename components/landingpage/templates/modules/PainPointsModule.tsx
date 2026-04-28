@@ -129,7 +129,7 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
         {/* SECCIÓN DINÁMICA: LO QUE APRENDERÁS EN NUESTRA CLASE */}
         <div id="temario-exclusivo" className="max-w-7xl mx-auto px-6 text-center mt-32 mb-16">
             <div className="mb-20">
-                <h2 className="text-4xl md:text-6xl font-['Verdana'] font-extrabold mb-8 text-[#2d1b4d] leading-tight tracking-tight">
+                <h2 id="beneficios" className="text-4xl md:text-6xl font-['Verdana'] font-extrabold mb-8 text-[#2d1b4d] leading-tight tracking-tight">
                     {content.benefits.title || "Lo que aprenderás en nuestra clase"}
                 </h2>
                 {content.benefits.subtitle && <p className="text-xl text-gray-600 mt-4 mb-8">{content.benefits.subtitle}</p>}
