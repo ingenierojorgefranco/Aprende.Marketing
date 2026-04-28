@@ -58,9 +58,9 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
   };
   
   const avatarData = [
-    { title: strategy?.avatars?.[0]?.daily_manifestation || content.whatYouWillLearn.avatarTitles?.[0] || "Si buscas crear tu propio negocio y reinventarte profesionalmente", iconName: content.whatYouWillLearn.avatarIcons?.[0] || "Sparkles" },
-    { title: strategy?.avatars?.[1]?.daily_manifestation || content.whatYouWillLearn.avatarTitles?.[1] || "Si ya estás en el sector belleza y quieres dominar la técnica más top", iconName: content.whatYouWillLearn.avatarIcons?.[1] || "TrendingUp" },
-    { title: strategy?.avatars?.[2]?.daily_manifestation || content.whatYouWillLearn.avatarTitles?.[2] || "Si te da miedo fallar por falta de experiencia pero buscas respaldo", iconName: content.whatYouWillLearn.avatarIcons?.[2] || "UserCheck" }
+    { title: content.whatYouWillLearn.avatarTitles?.[0] || "Si buscas crear tu propio negocio y reinventarte profesionalmente", iconName: content.whatYouWillLearn.avatarIcons?.[0] || "Sparkles" },
+    { title: content.whatYouWillLearn.avatarTitles?.[1] || "Si ya estás en el sector belleza y quieres dominar la técnica más top", iconName: content.whatYouWillLearn.avatarIcons?.[1] || "TrendingUp" },
+    { title: content.whatYouWillLearn.avatarTitles?.[2] || "Si te da miedo fallar por falta de experiencia pero buscas respaldo", iconName: content.whatYouWillLearn.avatarIcons?.[2] || "UserCheck" }
   ];
 
   const avatars = avatarData.map((data, idx) => {
