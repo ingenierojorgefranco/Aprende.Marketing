@@ -12,6 +12,7 @@ throw new Error("Could not find root element to mount to");
 const isProductionDomain =
   typeof window !== "undefined" &&
   (window.location.hostname.includes("aprende.marketing") || 
+  window.location.hostname.includes("expertacejas.com") ||
    window.location.hostname.includes("bajardepeso.online"));
 
 // Elegir Router dinámicamente
