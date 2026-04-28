@@ -123,7 +123,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                         </div>
                                     </div>
                                     <h3 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight">
-                                        {idx === 0 ? "Si buscas crear tu propio negocio y reinventarte profesionalmente" : idx === 1 ? "Si ya estás en el sector belleza y quieres dominar la técnica más top" : "Si te da miedo fallar por falta de experiencia pero buscas respaldo"}
+                                        {avatar.daily_manifestation || (idx === 0 ? "Si buscas crear tu propio negocio y reinventarte profesionalmente" : idx === 1 ? "Si ya estás en el sector belleza y quieres dominar la técnica más top" : "Si te da miedo fallar por falta de experiencia pero buscas respaldo")}
                                     </h3>
                                 </div>
                                 
