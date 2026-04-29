@@ -1227,6 +1227,17 @@ export const api = {
         clearCache('userSubscriptions');
     },
 
+    adminCreateSubscription: async (userId: string, planId: string): Promise<any> => {
+        if (isMockMode) return Promise.resolve({ id: 'mock-sub-' + Date.now(), planId, userId, status: 'active' });
+        const res = await fetchWithFallback(`/admin/users/${userId}/subscriptions`, { 
+            method: 'POST', 
+            headers: getAuthHeaders(), 
+            body: JSON.stringify({ planId, status: 'active' }) 
+        });
+        clearCache('userSubscriptions');
+        return res;
+    },
+
     adminUpdateProject: async (projectId: string, data: any): Promise<void> => {
         if (isMockMode) return Promise.resolve();
         await fetchWithFallback(`/admin/projects/${projectId}`, { 

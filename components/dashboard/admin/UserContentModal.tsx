@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, UserSubscription, EmailMessage } from '../../../types';
+import { User, UserSubscription, EmailMessage, Plan } from '../../../types';
 import { api } from '../../../services/api';
 import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone, Zap, CreditCard, Power, Edit, Check, Calendar } from 'lucide-react';
 
@@ -7,13 +7,14 @@ import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
     const [loadedData, setLoadedData] = useState<{
         plans: UserSubscription[] | null;
+        systemPlans: Plan[] | null;
         projects: any[] | null;
         pages: any[] | null;
         articles: any[] | null;
         emails: any[] | null;
         whatsapp: any[] | null;
         hooks: any[] | null;
-    }>({ plans: null, projects: null, pages: null, articles: null, emails: null, whatsapp: null, hooks: null });
+    }>({ plans: null, systemPlans: null, projects: null, pages: null, articles: null, emails: null, whatsapp: null, hooks: null });
 
     const [expandedSection, setExpandedSection] = useState<'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks' | null>(null);
     const [loadingSection, setLoadingSection] = useState<string | null>(null);
@@ -61,7 +62,12 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
             try {
                 let data;
                 if (section === 'plans') {
-                    data = await api.getUserSubscriptions(user.id);
+                    const [subs, systemPlans] = await Promise.all([
+                        api.getUserSubscriptions(user.id),
+                        api.getPlans()
+                    ]);
+                    data = subs;
+                    setLoadedData(prev => ({ ...prev, systemPlans }));
                 } else if (section === 'articles') {
                     // Carga especial: Artículos DB + Proyectos (para extraer JSON)
                     console.log("Admin: Cargando artículos para usuario", user.id);
@@ -157,6 +163,24 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
             }));
         } catch (error) {
             alert("Error al actualizar la suscripción.");
+        }
+    };
+
+    const handleActivatePlan = async (planId: string) => {
+        if (!window.confirm(`¿Estás seguro de asignar el plan "${planId}" a este usuario?`)) return;
+        
+        setLoadingSection('plans-action');
+        try {
+            const newSub = await api.adminCreateSubscription!(user.id, planId);
+            setLoadedData(prev => ({
+                ...prev,
+                plans: [...(prev.plans || []), newSub]
+            }));
+        } catch (error) {
+            console.error("Error activating plan:", error);
+            alert("Error al activar el plan.");
+        } finally {
+            setLoadingSection(null);
         }
     };
 
@@ -318,30 +342,50 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                                     <span className="text-[10px] px-1.5 py-0.5 bg-green-900/30 text-green-400 rounded font-bold uppercase">Activo</span>
                                                 </td>
                                             </tr>
-                                            {/* Other active plans */}
-                                            {loadedData.plans && loadedData.plans.map((sub: UserSubscription) => (
-                                                <tr key={sub.id} className="hover:bg-white/[0.02]">
-                                                    <td className="py-2 pl-2 font-mono text-[10px] text-gray-500">{sub.id}</td>
-                                                    <td className="py-2 font-medium">{sub.planName}</td>
-                                                    <td className="py-2">{new Date(sub.createdAt).toLocaleDateString()}</td>
-                                                    <td className="py-2 text-blue-400">{sub.nextBillingAt ? new Date(sub.nextBillingAt).toLocaleDateString() : 'N/A'}</td>
-                                                    <td className="py-2 text-right pr-2 flex justify-end gap-1">
-                                                        <button 
-                                                            className="p-1.5 text-blue-400 hover:bg-blue-900/20 rounded transition"
-                                                            title="Editar Suscripción"
-                                                        >
-                                                            <Edit className="w-3.5 h-3.5" />
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => handleToggleSubscription(sub)}
-                                                            className={`p-1.5 rounded transition ${sub.status === 'active' ? 'text-red-500 hover:bg-red-900/20' : 'text-green-500 hover:bg-green-900/20'}`}
-                                                            title={sub.status === 'active' ? 'Deshabilitar Plan' : 'Activar Plan'}
-                                                        >
-                                                            <Power className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            {/* System Plans management */}
+                                            {loadedData.systemPlans && loadedData.systemPlans.filter(p => p.slug !== 'starter').map((plan: Plan) => {
+                                                const sub = loadedData.plans?.find(s => s.planName === plan.name || s.id.includes(plan.slug));
+                                                const isActive = sub?.status === 'active';
+                                                
+                                                return (
+                                                    <tr key={plan.id} className="hover:bg-white/[0.02]">
+                                                        <td className="py-2 pl-2 font-mono text-[10px] text-gray-500">{plan.id}</td>
+                                                        <td className="py-2">
+                                                            <div className="font-medium">{plan.name}</div>
+                                                            <div className="text-[10px] text-gray-500">{plan.priceMonthly} {plan.currency}/mes</div>
+                                                        </td>
+                                                        <td className="py-2">{sub ? new Date(sub.createdAt).toLocaleDateString() : '-'}</td>
+                                                        <td className="py-2">
+                                                            {isActive ? (
+                                                                <span className="text-blue-400">Activo</span>
+                                                            ) : sub ? (
+                                                                <span className="text-gray-500 italic">Inactivo</span>
+                                                            ) : (
+                                                                <span className="text-gray-600 italic">No asignado</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="py-2 text-right pr-2">
+                                                            {loadingSection === 'plans-action' ? (
+                                                                <Loader2 className="w-4 h-4 animate-spin text-gray-500 ml-auto" />
+                                                            ) : sub ? (
+                                                                <button 
+                                                                    onClick={() => handleToggleSubscription(sub)}
+                                                                    className={`px-3 py-1 rounded text-[10px] font-bold transition ${isActive ? 'bg-red-900/40 text-red-400 hover:bg-red-900/60' : 'bg-green-900/40 text-green-400 hover:bg-green-900/60'}`}
+                                                                >
+                                                                    {isActive ? 'DESACTIVAR' : 'ACTIVAR'}
+                                                                </button>
+                                                            ) : (
+                                                                <button 
+                                                                    onClick={() => handleActivatePlan(plan.id)}
+                                                                    className="px-3 py-1 rounded text-[10px] font-bold bg-indigo-900/40 text-indigo-400 hover:bg-indigo-900/60 transition"
+                                                                >
+                                                                    ASIGNAR
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
                                 )}
