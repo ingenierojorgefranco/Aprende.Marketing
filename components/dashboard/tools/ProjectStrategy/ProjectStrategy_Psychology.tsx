@@ -107,23 +107,23 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                 
                 <div className="flex flex-col gap-16 text-left">
                     {avatars.map((avatar, idx) => (
-                        <div key={avatar.id} className={`relative p-12 md:p-20 rounded-[4rem] border border-white/10 ${avatar.name.includes('Mónica') ? 'bg-gradient-to-br from-[#0f172a] via-[#0b1120] to-[#090e1a] hover:shadow-blue-500/10' : avatar.name.includes('Ana') ? 'bg-gradient-to-br from-[#061a14] via-[#04120e] to-[#030d0a] hover:shadow-emerald-500/10' : 'bg-gradient-to-br from-[#1a0b2e] via-[#12061d] to-[#0f041d] hover:shadow-purple-500/10'} shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] transition-all duration-700 hover:-translate-y-2 group overflow-hidden backdrop-blur-sm`}>
+                        <div key={avatar.id} className={`relative p-12 md:p-20 rounded-[4rem] border border-white/10 ${idx === 0 ? 'bg-gradient-to-br from-[#0f172a] via-[#0b1120] to-[#090e1a] hover:shadow-blue-500/10' : idx === 1 ? 'bg-gradient-to-br from-[#061a14] via-[#04120e] to-[#030d0a] hover:shadow-emerald-500/10' : 'bg-gradient-to-br from-[#1a0b2e] via-[#12061d] to-[#0f041d] hover:shadow-purple-500/10'} shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] transition-all duration-700 hover:-translate-y-2 group overflow-hidden backdrop-blur-sm`}>
                             <div className="absolute top-0 right-0 p-16 opacity-[0.03] group-hover:opacity-[0.06] group-hover:scale-110 transition-all duration-700">
-                               {avatar.name.includes('Mónica') ? <TrendingUp size={300} /> : avatar.name.includes('Ana') ? <UserCheck size={300} /> : <Sparkles size={300} />}
+                               {idx === 0 ? <TrendingUp size={300} /> : idx === 1 ? <UserCheck size={300} /> : <Sparkles size={300} />}
                             </div>
                             
                             <div className="relative z-10 flex flex-col lg:flex-row gap-16 lg:items-center">
                                 <div className="space-y-10 flex-1">
                                     <div className="flex flex-col gap-6">
-                                        <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full ${avatar.name.includes('Mónica') ? 'bg-blue-500/20 border-blue-500/30 text-blue-200' : avatar.name.includes('Ana') ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-200' : 'bg-purple-500/20 border-purple-500/30 text-purple-200'} border text-xs font-bold uppercase tracking-widest w-fit`}>
+                                        <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full ${idx === 0 ? 'bg-blue-500/20 border-blue-500/30 text-blue-200' : idx === 1 ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-200' : 'bg-purple-500/20 border-purple-500/30 text-purple-200'} border text-xs font-bold uppercase tracking-widest w-fit`}>
                                             <Users className="w-3.5 h-3.5" /> Avatar: {avatar.name}
                                         </div>
                                         <div className="w-28 h-28 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
-                                            {avatar.name.includes('Mónica') ? <TrendingUp className="w-10 h-10 text-blue-400" /> : avatar.name.includes('Ana') ? <UserCheck className="w-10 h-10 text-emerald-400" /> : <Sparkles className="w-10 h-10 text-purple-400" />}
+                                            {idx === 0 ? <TrendingUp className="w-10 h-10 text-blue-400" /> : idx === 1 ? <UserCheck className="w-10 h-10 text-emerald-400" /> : <Sparkles className="w-10 h-10 text-purple-400" />}
                                         </div>
                                     </div>
                                     <h3 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight">
-                                        {idx === 0 ? "Si buscas crear tu propio negocio y reinventarte profesionalmente" : idx === 1 ? "Si ya estás en el sector belleza y quieres dominar la técnica más top" : "Si te da miedo fallar por falta de experiencia pero buscas respaldo"}
+                                        {avatar.transformation_title || (idx === 0 ? "Si buscas crear tu propio negocio y reinventarte profesionalmente" : idx === 1 ? "Si ya estás en el sector belleza y quieres dominar la técnica más top" : "Si te da miedo fallar por falta de experiencia pero buscas respaldo")}
                                     </h3>
                                 </div>
                                 
@@ -134,7 +134,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                     ).map((painPoint, pIdx) => (
                                         <div key={pIdx} className="flex gap-6">
                                             <div className="mt-3 shrink-0">
-                                                <div className={`w-3.5 h-3.5 rounded-full bg-gradient-to-tr ${avatar.name.includes('Mónica') ? 'from-blue-600 to-cyan-500 shadow-[0_0_20px_rgba(37,99,235,0.8)]' : avatar.name.includes('Ana') ? 'from-emerald-600 to-green-500 shadow-[0_0_20px_rgba(5,150,105,0.8)]' : 'from-purple-600 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.8)]'}`}></div>
+                                                <div className={`w-3.5 h-3.5 rounded-full bg-gradient-to-tr ${idx === 0 ? 'from-blue-600 to-cyan-500 shadow-[0_0_20px_rgba(37,99,235,0.8)]' : idx === 1 ? 'from-emerald-600 to-green-500 shadow-[0_0_20px_rgba(5,150,105,0.8)]' : 'from-purple-600 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.8)]'}`}></div>
                                             </div>
                                             <p className="text-gray-200 text-[1.4rem] leading-relaxed font-medium">{painPoint}</p>
                                         </div>

@@ -46,6 +46,7 @@ export interface ProjectMasterStrategy {
         objection: string;
         interests: string; 
         behavior: string;  
+        transformation_title?: string; // Nuevo: Título de transformación enfocado en el estado de consciencia
         detailed_pains?: string[]; // Nuevo: Lista detallada de dolores para UI premium
         motivations: { dinero: number; tiempo: number; estatus: number; seguridad: number };
     }>;

@@ -287,6 +287,8 @@ export const generateFullStrategy = async (projectId) => {
         2. AVATAR 2 (El Escéptico con Miedo): Alguien que ha tenido malas experiencias previas o tiene miedo a perder su inversión.
         3. AVATAR 3 (La Persona en Reinvención): Alguien estancado en un trabajo convencional que busca un cambio total de estilo de vida.
 
+        Genera para cada avatar un 'transformation_title' que sea una frase de enganche altamente persuasiva que describa la transformación principal que el avatar busca según su estado de consciencia actual (Ej: 'Si buscas...', 'Si ya estás...', 'Si tienes miedo a...'). Debe sonar como un titular que conecte inmediatamente con su situación.
+
         INSTRUCCIONES PARA LA PSICOLOGÍA (OBLIGATORIO):
         Genera un análisis de miedos, objeciones y motivaciones reales para este nicho.
 
@@ -430,6 +432,7 @@ export const generateFullStrategy = async (projectId) => {
               "age": "Rango de edad",
               "quote": "Frase que define su mentalidad",
               "pain": "Dolor principal",
+              "transformation_title": "Título de transformación altamente persuasivo (Ej: 'Si buscas crear tu propio negocio...')",
               "daily_manifestation": "Cómo experimenta el dolor en su día a día",
               "desire": "Deseo profundo",
               "emotional_reason": "Para qué emocional de su deseo",
@@ -445,6 +448,7 @@ export const generateFullStrategy = async (projectId) => {
               "age": "Rango de edad",
               "quote": "Frase de duda o desconfianza",
               "pain": "Dolor principal",
+              "transformation_title": "Título de transformación altamente persuasivo (Ej: 'Si buscas crear tu propio negocio...')",
               "daily_manifestation": "Cómo experimenta el dolor en su día a día",
               "desire": "Deseo profundo",
               "emotional_reason": "Para qué emocional de su deseo",
@@ -460,6 +464,7 @@ export const generateFullStrategy = async (projectId) => {
               "age": "Rango de edad",
               "quote": "Frase de cansancio y esperanza",
               "pain": "Dolor principal",
+              "transformation_title": "Título de transformación altamente persuasivo (Ej: 'Si buscas crear tu propio negocio...')",
               "daily_manifestation": "Cómo experimenta el dolor en su día a día",
               "desire": "Deseo profundo",
               "emotional_reason": "Para qué emocional de su deseo",
