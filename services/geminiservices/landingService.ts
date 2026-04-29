@@ -339,10 +339,14 @@ export const generateLandingPageContent = async (
             }
 
             // 3. INYECCIÓN OBLIGATORIA DE IDENTIFICACIÓN DE AVATARES (ESTA CLASE ES PARA TI)
+            // Limpieza: No guardamos snapshots de títulos o dolores en el contenido de la landing
+            // para que siempre se extraigan en tiempo real de la estrategia del proyecto.
             content.whatYouWillLearn.title = "Esta clase es para ti si...";
             content.whatYouWillLearn.avatarIcons = ["Sparkles", "TrendingUp", "UserCheck"];
+            content.whatYouWillLearn.avatarTitles = []; // Se dejará vacío para forzar extracción de estrategia
+            content.whatYouWillLearn.pains = [];        // Se dejará vacío para forzar extracción de estrategia
 
-            let rawPains = (pStrategy?.psychology?.pains && pStrategy.psychology.pains.length > 0)
+            let rawLearningModules = (pStrategy?.psychology?.learningModules && pStrategy.psychology.learningModules.length > 0)
                 ? pStrategy.psychology.pains
                 : (Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : []);
 

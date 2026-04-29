@@ -57,10 +57,27 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
     return pains.length > 0 ? pains.slice(start, start + itemsPerAvatar).map((p: any) => p.text) : [];
   };
   
+  const getAvatarTitle = (index: number) => {
+    // 1. Intentar desde la estrategia del proyecto (Prioridad máxima)
+    const strategyAvatar = strategy?.avatars?.[index];
+    if (strategyAvatar?.transformation_title) return strategyAvatar.transformation_title;
+    
+    // 2. Intentar desde el contenido generado
+    if (content.whatYouWillLearn.avatarTitles?.[index]) return content.whatYouWillLearn.avatarTitles[index];
+    
+    // 3. Fallback quemado
+    const fallbacks = [
+        "Si buscas crear tu propio negocio y reinventarte profesionalmente",
+        "Si ya estás en el sector belleza y quieres dominar la técnica más top",
+        "Si te da miedo fallar por falta de experiencia pero buscas respaldo"
+    ];
+    return fallbacks[index];
+  };
+
   const avatarData = [
-    { title: content.whatYouWillLearn.avatarTitles?.[0] || "Si buscas crear tu propio negocio y reinventarte profesionalmente", iconName: content.whatYouWillLearn.avatarIcons?.[0] || "Sparkles" },
-    { title: content.whatYouWillLearn.avatarTitles?.[1] || "Si ya estás en el sector belleza y quieres dominar la técnica más top", iconName: content.whatYouWillLearn.avatarIcons?.[1] || "TrendingUp" },
-    { title: content.whatYouWillLearn.avatarTitles?.[2] || "Si te da miedo fallar por falta de experiencia pero buscas respaldo", iconName: content.whatYouWillLearn.avatarIcons?.[2] || "UserCheck" }
+    { title: getAvatarTitle(0), iconName: content.whatYouWillLearn.avatarIcons?.[0] || "Sparkles" },
+    { title: getAvatarTitle(1), iconName: content.whatYouWillLearn.avatarIcons?.[1] || "TrendingUp" },
+    { title: getAvatarTitle(2), iconName: content.whatYouWillLearn.avatarIcons?.[2] || "UserCheck" }
   ];
 
   const avatars = avatarData.map((data, idx) => {
