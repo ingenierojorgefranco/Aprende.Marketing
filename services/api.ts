@@ -764,6 +764,23 @@ export const api = {
         clearCache('projectDetails', id);
         clearCache('masterStrategies', id);
     },
+
+    updateProjectStrategy: async (projectId: string, strategy: ProjectMasterStrategy): Promise<void> => {
+        if (isMockMode) {
+            const project = localProjects.find(p => String(p.id) === String(projectId));
+            if (project) {
+                project.strategy_json = strategy;
+                clearCache('projectDetails', projectId);
+                clearCache('masterStrategies', projectId);
+            }
+            return Promise.resolve();
+        }
+        const project = await api.getProjectById(projectId);
+        if (!project) throw new Error("Proyecto no encontrado");
+        await api.updateProject(projectId, { ...project, strategy_json: strategy } as any);
+        clearCache('projectDetails', projectId);
+        clearCache('masterStrategies', projectId);
+    },
   
     deleteProject: async (id: string): Promise<void> => {
         if (isMockMode) {

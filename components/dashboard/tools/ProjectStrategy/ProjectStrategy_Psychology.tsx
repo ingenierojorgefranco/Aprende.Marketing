@@ -30,10 +30,17 @@ interface ProjectStrategy_PsychologyProps {
     strategy: ProjectMasterStrategy;
     benefitsItems?: Array<{ title: string; desc?: string; description?: string }>;
 }
-
 export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProps> = ({ strategy, benefitsItems = [] }) => {
+    const { id } = useParams() as { id: string };
+    const [localStrategy, setLocalStrategy] = useState<ProjectMasterStrategy | null>(strategy);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        if (strategy) setLocalStrategy(strategy);
+    }, [strategy]);
+
     // Guardia de carga para evitar errores de desestructuración si la estrategia es null/undefined
-    if (!strategy) {
+    if (!strategy || !localStrategy) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
                 <div className="text-center">
@@ -44,7 +51,77 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
         );
     }
 
-    const { avatars = [], psychology = { pains: [], solutions: [], awarenessStages: { stage1_pain: '', stage2_solution: '', stage3_barrier: '' }, conversionStrategy: { mainFocus: [], tacticalNote: '' }, learningModules: [] } } = strategy;
+    const saveProjectStrategy = async (updatedStrategy: ProjectMasterStrategy) => {
+        if (!id) return;
+        setIsSaving(true);
+        try {
+            await api.updateProjectStrategy!(id, updatedStrategy);
+        } catch (error) {
+            console.error("Error saving strategy:", error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleUpdate = (path: string, value: any) => {
+        if (!localStrategy) return;
+        
+        const newStrategy = { ...localStrategy };
+        
+        if (path.startsWith('avatar-title-')) {
+            const avatarId = path.split('avatar-title-')[1];
+            newStrategy.avatars = newStrategy.avatars.map(av => 
+                String(av.id) === String(avatarId) ? { ...av, transformation_title: value } : av
+            );
+        } else if (path.startsWith('pain-')) {
+            const painTarget = path.split('pain-')[1];
+            const [avatarId, painIdx] = painTarget.split('|');
+            
+            // Buscar todos los dolores de este avatar
+            const avatarPains = newStrategy.psychology.pains.filter((p: any) => 
+                typeof p !== 'string' && String(p.avatarId) === String(avatarId)
+            );
+            
+            if (avatarPains.length > 0) {
+               // Encontrar el objeto exacto en la lista global
+               const targetItem = avatarPains[parseInt(painIdx)];
+               newStrategy.psychology.pains = newStrategy.psychology.pains.map((p: any) => 
+                   p === targetItem ? { ...p, text: value } : p
+               );
+            } else {
+               // Si es el pain por defecto del avatar (avatar.pain)
+               newStrategy.avatars = newStrategy.avatars.map(av => 
+                   String(av.id) === String(avatarId) ? { ...av, pain: value } : av
+               );
+            }
+        } else if (path.startsWith('module-')) {
+            const [_, field, idx] = path.split('-');
+            const index = parseInt(idx);
+            
+            if (!newStrategy.psychology.learningModules) {
+                newStrategy.psychology.learningModules = learningModules.map((m: any) => ({
+                    title: m.title,
+                    description: m.description,
+                    icon: m.icon,
+                    color: m.color || 'text-orange-400',
+                    glow: m.glow || '',
+                    bg: m.bg || 'bg-orange-500/10',
+                    border: m.border || 'border-orange-500/20'
+                }));
+            }
+            
+            if (newStrategy.psychology.learningModules) {
+                newStrategy.psychology.learningModules = newStrategy.psychology.learningModules.map((m, i) => 
+                    i === index ? { ...m, [field]: value } : m
+                );
+            }
+        }
+
+        setLocalStrategy(newStrategy);
+        saveProjectStrategy(newStrategy);
+    };
+
+    const { avatars = [], psychology = { pains: [], solutions: [], awarenessStages: { stage1_pain: '', stage2_solution: '', stage3_barrier: '' }, conversionStrategy: { mainFocus: [], tacticalNote: '' }, learningModules: [] } } = localStrategy;
 
     const learningModules = (psychology.learningModules && psychology.learningModules.length > 0) 
         ? psychology.learningModules 
@@ -58,8 +135,58 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
             glow: idx < 3 ? 'hover:shadow-blue-500/10' : idx < 6 ? 'hover:shadow-emerald-500/10' : 'hover:shadow-purple-500/10'
         }));
 
+    const EditableField = ({ value, onSave, multiline = false, className = "" }: { value: string, onSave: (val: string) => void, multiline?: boolean, className?: string }) => {
+        const [isEditing, setIsEditing] = useState(false);
+        const [tempValue, setTempValue] = useState(value);
+
+        useEffect(() => {
+            setTempValue(value);
+        }, [value]);
+
+        const handleBlur = () => {
+            setIsEditing(false);
+            if (tempValue !== value) onSave(tempValue);
+        };
+
+        if (isEditing) {
+            return multiline ? (
+                <textarea
+                    autoFocus
+                    className={`${className} bg-white/10 border border-white/20 rounded-xl p-4 w-full outline-none focus:ring-2 focus:ring-purple-500/50 resize-none min-h-[100px] text-white`}
+                    value={tempValue}
+                    onChange={(e) => setTempValue(e.target.value)}
+                    onBlur={handleBlur}
+                />
+            ) : (
+                <input
+                    autoFocus
+                    className={`${className} bg-white/10 border border-white/20 rounded-xl px-4 py-2 w-full outline-none focus:ring-2 focus:ring-purple-500/50 text-white`}
+                    value={tempValue}
+                    onChange={(e) => setTempValue(e.target.value)}
+                    onBlur={handleBlur}
+                    onKeyDown={(e) => e.key === 'Enter' && handleBlur()}
+                />
+            );
+        }
+
+        return (
+            <div 
+                onClick={() => setIsEditing(true)}
+                className={`${className} group-hover:bg-white/5 cursor-edit transition-all duration-300 rounded-xl -m-2 p-2 hover:ring-1 hover:ring-white/10`}
+            >
+                {value || <span className="opacity-30 italic">Click para editar...</span>}
+            </div>
+        );
+    };
+
     return (
         <div id="psd-psychology-section" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen">
+            
+            {isSaving && (
+                <div className="fixed top-8 right-8 z-50 flex items-center gap-2 bg-purple-500/20 backdrop-blur-xl border border-purple-500/30 px-4 py-2 rounded-full text-purple-200 text-xs font-bold animate-pulse">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Guardando cambios...
+                </div>
+            )}
             
             <div className="seccion_encabezado space-y-12">
                 <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
@@ -123,7 +250,11 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                         </div>
                                     </div>
                                     <h3 className="text-4xl md:text-6xl font-black text-white leading-[1.1] tracking-tight">
-                                        {avatar.transformation_title || (idx === 0 ? "Si buscas crear tu propio negocio y reinventarte profesionalmente" : idx === 1 ? "Si ya estás en el sector belleza y quieres dominar la técnica más top" : "Si te da miedo fallar por falta de experiencia pero buscas respaldo")}
+                                        <EditableField 
+                                            value={avatar.transformation_title || (idx === 0 ? "Si buscas crear tu propio negocio y reinventarte profesionalmente" : idx === 1 ? "Si ya estás en el sector belleza y quieres dominar la técnica más top" : "Si te da miedo fallar por falta de experiencia pero buscas respaldo")}
+                                            onSave={(val) => handleUpdate(`avatar-title-${avatar.id}`, val)}
+                                            multiline
+                                        />
                                     </h3>
                                 </div>
                                 
@@ -136,7 +267,14 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                             <div className="mt-3 shrink-0">
                                                 <div className={`w-3.5 h-3.5 rounded-full bg-gradient-to-tr ${idx === 0 ? 'from-blue-600 to-cyan-500 shadow-[0_0_20px_rgba(37,99,235,0.8)]' : idx === 1 ? 'from-emerald-600 to-green-500 shadow-[0_0_20px_rgba(5,150,105,0.8)]' : 'from-purple-600 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.8)]'}`}></div>
                                             </div>
-                                            <p className="text-gray-200 text-[1.4rem] leading-relaxed font-medium">{painPoint}</p>
+                                            <div className="flex-1">
+                                                <EditableField 
+                                                    value={painPoint}
+                                                    onSave={(val) => handleUpdate(`pain-${avatar.id}|${pIdx}`, val)}
+                                                    multiline
+                                                    className="text-gray-200 text-[1.4rem] leading-relaxed font-medium"
+                                                />
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -163,18 +301,22 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                 <div className="w-16 h-16 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-2xl group-hover:rotate-12 transition-transform duration-500">
                                     {IconMap[item.icon] && React.cloneElement(IconMap[item.icon] as any, { size: 32, className: item.color })}
                                 </div>
-                                <h3 className="text-[1.6rem] font-black text-white leading-tight uppercase tracking-tight">{item.title}</h3>
-                                <p className="text-gray-300 text-[1.1rem] leading-relaxed font-medium">{item.description}</p>
+                                <h3 className="text-[1.6rem] font-black text-white leading-tight uppercase tracking-tight">
+                                    <EditableField 
+                                        value={item.title}
+                                        onSave={(val) => handleUpdate(`module-title-${idx}`, val)}
+                                    />
+                                </h3>
+                                <div className="text-gray-300 text-[1.1rem] leading-relaxed font-medium">
+                                    <EditableField 
+                                        value={item.description}
+                                        onSave={(val) => handleUpdate(`module-description-${idx}`, val)}
+                                        multiline
+                                    />
+                                </div>
                             </div>
                         </div>
                     ))}
-                </div>
-
-                <div className="mt-20">
-                    <button className="px-12 py-6 rounded-[2rem] bg-gradient-to-r from-purple-600 to-pink-600 text-white font-black text-2xl shadow-[0_15px_40px_rgba(168,85,247,0.4)] hover:shadow-[0_20px_50px_rgba(168,85,247,0.6)] transition-all duration-500 hover:-translate-y-1 hover:scale-105 active:scale-95 group flex items-center gap-4 mx-auto">
-                        QUIERO ACCEDER A LA CLASE GRATIS
-                        <CheckCircle2 className="w-8 h-8 group-hover:rotate-12 transition-transform" />
-                    </button>
                 </div>
             </div>
         </div>
