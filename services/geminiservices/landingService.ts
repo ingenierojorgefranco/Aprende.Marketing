@@ -343,16 +343,8 @@ export const generateLandingPageContent = async (
             // para que siempre se extraigan en tiempo real de la estrategia del proyecto.
             content.whatYouWillLearn.title = "Esta clase es para ti si...";
             content.whatYouWillLearn.avatarIcons = ["Sparkles", "TrendingUp", "UserCheck"];
-            content.whatYouWillLearn.avatarTitles = []; // Se dejará vacío para forzar extracción de estrategia
-            content.whatYouWillLearn.pains = [];        // Se dejará vacío para forzar extracción de estrategia
-
-            let rawLearningModules = (pStrategy?.psychology?.learningModules && pStrategy.psychology.learningModules.length > 0)
-                ? pStrategy.psychology.pains
-                : (Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : []);
-
-            if (rawPains.length > 0) {
-                content.whatYouWillLearn.items = rawPains.slice(0, 9).map((p: any) => typeof p === 'object' ? (p.text || p.title || "") : String(p));
-            }
+            content.whatYouWillLearn.avatarTitles = []; // Vacío para forzar extracción de estrategia
+            content.whatYouWillLearn.items = [];        // Vacío para forzar extracción de estrategia
 
             // 4. INYECCIÓN OBLIGATORIA DE TESTIMONIOS (ESTRATEGIA)
             let rawTestimonials = (pStrategy?.modules?.testimonials && pStrategy.modules.testimonials.length > 0)
