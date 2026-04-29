@@ -187,6 +187,61 @@ router.get('/users/:userId/subscriptions', async (req, res) => {
     }
 });
 
+router.post('/users/:userId/subscriptions', async (req, res) => {
+    const { userId } = req.params;
+    const { planId, status } = req.body;
+    try {
+        // 1. Obtener la información del plan
+        const [plans] = await pool.query('SELECT slug, name, limits_config FROM plans WHERE id = ?', [planId]);
+        if (plans.length === 0) return res.status(404).json({ error: 'Plan no encontrado' });
+        const plan = plans[0];
+        const planSlug = plan.slug;
+        const limitsConfig = typeof plan.limits_config === 'string' ? JSON.parse(plan.limits_config) : plan.limits_config;
+
+        // 2. Crear la suscripción
+        const [result] = await pool.query(
+            'INSERT INTO user_subscriptions (user_id, plan_slug, status, created_at) VALUES (?, ?, ?, NOW())',
+            [userId, planSlug, status || 'active']
+        );
+
+        // 3. Actualizar los límites del usuario inmediatamente
+        const newPlanLimits = {
+            planName: plan.name,
+            ...limitsConfig
+        };
+        
+        await pool.query(
+            'UPDATE users SET plan_limits = ? WHERE id = ?',
+            [JSON.stringify(newPlanLimits), userId]
+        );
+
+        // 4. Obtener la fila insertada para devolverla
+        const [newSub] = await pool.query(`
+            SELECT 
+                us.id, 
+                us.user_id as userId, 
+                us.plan_slug as planSlug, 
+                us.status, 
+                us.created_at as createdAt, 
+                us.expires_at as nextBillingAt, 
+                p.name as planName,
+                p.id as planId
+            FROM user_subscriptions us
+            LEFT JOIN plans p ON us.plan_slug = p.slug
+            WHERE us.id = ?
+        `, [result.insertId]);
+
+        // Logging
+        const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+        await logSystemActivity(req.user.id, admin[0]?.name, 'ADMIN_ASSIGN_PLAN', 'subscription', result.insertId, { userId, planSlug });
+
+        res.json(newSub[0]);
+    } catch (e) {
+        console.error("Error in adminCreateSubscription:", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 router.put('/subscriptions/:id', async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
