@@ -344,7 +344,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                             </tr>
                                             {/* System Plans management */}
                                             {loadedData.systemPlans && loadedData.systemPlans.filter(p => p.slug !== 'starter').map((plan: Plan) => {
-                                                const sub = loadedData.plans?.find(s => s.planName === plan.name || s.id.includes(plan.slug));
+                                                const sub = loadedData.plans?.find(s => s.planName === plan.name || String(s.id).includes(plan.slug));
                                                 const isActive = sub?.status === 'active';
                                                 
                                                 return (
