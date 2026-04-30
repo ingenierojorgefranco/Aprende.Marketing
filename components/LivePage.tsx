@@ -35,12 +35,24 @@ export const LivePage: React.FC<LivePageProps> = ({
   const [project, setProject] = useState<Project | undefined>(initialProject);
 
   useEffect(() => {
+    // Si ya recibimos el objeto proyecto (precargado o por props)
     if (initialProject) {
-        setProject(initialProject);
-    } else if (projectId && !project) {
+        if (project?.id !== initialProject.id) {
+          setProject(initialProject);
+        }
+        return;
+    } 
+    
+    // Si solo tenemos el ID y NO tenemos el objeto cargado aún
+    if (projectId && (!project || String(project.id) !== String(projectId))) {
         api.getProjectById(projectId).then(p => {
             if (p) setProject(p);
-        }).catch(err => console.error("Error cargando proyecto para landing:", err));
+        }).catch(err => {
+            // Silenciamos errores en producción para vistas públicas si falla el fetch adicional
+            if (projectId) {
+              console.warn("No se pudo cargar el proyecto vía API individual (esperado en dominios públicos).");
+            }
+        });
     }
   }, [projectId, initialProject]);
 

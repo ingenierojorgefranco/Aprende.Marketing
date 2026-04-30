@@ -196,7 +196,10 @@ router.get('/public/pages/by-domain', async (req, res) => {
   if (host.startsWith('www.')) host = host.slice(4);
   try {
     const [rows] = await pool.query(
-      'SELECT *, thankyoupage_json FROM landing_pages WHERE custom_domain = ? AND is_published = 1 LIMIT 1',
+      `SELECT lp.*, lp.thankyoupage_json, pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia
+       FROM landing_pages lp
+       LEFT JOIN projects pr ON lp.project_id = pr.id
+       WHERE lp.custom_domain = ? AND lp.is_published = 1 LIMIT 1`,
       [host]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Página no encontrada' });
@@ -208,6 +211,16 @@ router.get('/public/pages/by-domain', async (req, res) => {
         if (!page.content) page.content = {};
         page.content.thankYouPage = tyData;
     }
+    
+    // Adjuntar datos del proyecto si existen
+    if (page.project_strategy) {
+        page.project = {
+            id: page.project_id,
+            strategy_json: typeof page.project_strategy === 'string' ? JSON.parse(page.project_strategy) : page.project_strategy,
+            multimedia_json: typeof page.project_multimedia === 'string' ? JSON.parse(page.project_multimedia) : page.project_multimedia
+        };
+    }
+    
     res.json(page);
   } catch (error) { res.status(500).json({ error: 'Error interno' }); }
 });
@@ -216,8 +229,9 @@ router.get('/public/pages/by-user/:userSlug/:slug', async (req, res) => {
   const { userSlug, slug } = req.params;
   try {
     const [rows] = await pool.query(
-      `SELECT lp.*, lp.thankyoupage_json FROM landing_pages lp
+      `SELECT lp.*, lp.thankyoupage_json, pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia FROM landing_pages lp
        INNER JOIN users u ON u.id = lp.user_id
+       LEFT JOIN projects pr ON lp.project_id = pr.id
        WHERE u.public_subdomain = ? AND lp.subdomain = ? AND lp.is_published = 1 LIMIT 1`,
       [userSlug, slug]
     );
@@ -230,6 +244,16 @@ router.get('/public/pages/by-user/:userSlug/:slug', async (req, res) => {
         if (!page.content) page.content = {};
         page.content.thankYouPage = tyData;
     }
+
+    // Adjuntar datos del proyecto si existen
+    if (page.project_strategy) {
+        page.project = {
+            id: page.project_id,
+            strategy_json: typeof page.project_strategy === 'string' ? JSON.parse(page.project_strategy) : page.project_strategy,
+            multimedia_json: typeof page.project_multimedia === 'string' ? JSON.parse(page.project_multimedia) : page.project_multimedia
+        };
+    }
+
     res.json(page);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -239,10 +263,20 @@ router.get('/public/pages/:slug', async (req, res) => {
   try {
     let rows = [];
     if (/^\d+$/.test(slug)) {
-       [rows] = await pool.query('SELECT *, thankyoupage_json FROM landing_pages WHERE id = ? AND is_published = 1 LIMIT 1', [slug]);
+       [rows] = await pool.query(`
+         SELECT lp.*, lp.thankyoupage_json, pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia 
+         FROM landing_pages lp 
+         LEFT JOIN projects pr ON lp.project_id = pr.id
+         WHERE lp.id = ? AND lp.is_published = 1 LIMIT 1
+       `, [slug]);
     }
     if (rows.length === 0) {
-        [rows] = await pool.query('SELECT *, thankyoupage_json FROM landing_pages WHERE (subdomain = ? OR subdomain LIKE ?) AND is_published = 1 LIMIT 1', [slug, `${slug}.%`]);
+        [rows] = await pool.query(`
+          SELECT lp.*, lp.thankyoupage_json, pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia 
+          FROM landing_pages lp 
+          LEFT JOIN projects pr ON lp.project_id = pr.id
+          WHERE (lp.subdomain = ? OR lp.subdomain LIKE ?) AND lp.is_published = 1 LIMIT 1
+        `, [slug, `${slug}.%`]);
     }
     if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
     const page = rows[0];
@@ -253,6 +287,16 @@ router.get('/public/pages/:slug', async (req, res) => {
         if (!page.content) page.content = {};
         page.content.thankYouPage = tyData;
     }
+
+    // Adjuntar datos del proyecto si existen
+    if (page.project_strategy) {
+        page.project = {
+            id: page.project_id,
+            strategy_json: typeof page.project_strategy === 'string' ? JSON.parse(page.project_strategy) : page.project_strategy,
+            multimedia_json: typeof page.project_multimedia === 'string' ? JSON.parse(page.project_multimedia) : page.project_multimedia
+        };
+    }
+
     res.json(page);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

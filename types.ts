@@ -430,6 +430,7 @@ export interface LandingPage {
   customDomain?: string; // New: Supports custom domains
   projectId?: string; // NEW: Linked Project ID
   projectName?: string; // NEW: Project Name for UI
+  project?: Project; // NEW: Pre-loaded project data for public views
   content: GeneratedPageContent;
   createdAt: Date;
   visits: number;

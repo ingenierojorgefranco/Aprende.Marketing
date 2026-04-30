@@ -432,6 +432,8 @@ export const api = {
               subdomain: data.subdomain || slug,
               visits: data.visits ?? 0,
               conversions: data.conversions ?? 0,
+              projectId: data.project_id?.toString(),
+              project: data.project, // Incluimos el objeto proyecto si viene
               createdAt: data.created_at ? new Date(data.created_at) : new Date(),
               content: typeof data.content === "string" ? JSON.parse(data.content) : data.content,
           };
