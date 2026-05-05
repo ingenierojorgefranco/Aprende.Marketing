@@ -1,10 +1,6 @@
 # 🚀 Aprende.Marketing | AI-Powered Sales Engineering Ecosystem
 > **Production-grade SaaS that automates the creation of high-conversion sales funnels using Fragmented AI Architectures.**
 
-*<!-- 💡 CRITICAL: If you don't have a high-res screenshot yet, REMOVE the placeholder below. 
-     A clean header is better than a "coming soon" image. -->*
-![Main Banner](./Assets/AprendeMarketingDashboard.png)
-
 
 ![Dashboard Preview](https://github.com/user-attachments/assets/a9bedb2e-cd38-4c34-a4d7-60bcab2f868a)
 
