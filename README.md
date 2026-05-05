@@ -6,7 +6,7 @@
 ![Main Banner](./Assets/AprendeMarketingDashboard.png)
 
 
-![Dashboard Preview](./Assets/AprendeMarketingDashboard.png)
+![Dashboard Preview](https://github.com/user-attachments/assets/a9bedb2e-cd38-4c34-a4d7-60bcab2f868a)
 
 [![React](https://img.shields.io/badge/Frontend-React_19_|_Vite_7-blue?logo=react)](https://react.dev/)
 [![Node](https://img.shields.io/badge/Backend-Node.js_20_|_Express-green?logo=node.js)](https://nodejs.org/)
