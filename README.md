@@ -6,7 +6,7 @@
 ![Main Banner](https://github.com/ingenierojorgefranco/GeneratorLadingDeployEnd/blob/main/assets/AprendeMarketing%20Dashboard.png)
 
 
-![Dashboard Preview](./assets/AprendeMarketing%20Dashboard.png)
+![Dashboard Preview](./assets/AprendeMarketingDashboard.png)
 
 [![React](https://img.shields.io/badge/Frontend-React_19_|_Vite_7-blue?logo=react)](https://react.dev/)
 [![Node](https://img.shields.io/badge/Backend-Node.js_20_|_Express-green?logo=node.js)](https://nodejs.org/)
