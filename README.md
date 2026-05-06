@@ -108,6 +108,12 @@ Solution: Implemented a "Master Strategy" Inheritance System. Strategy-level pri
 
 ---
 
+## 🛠️ Security & Architecture
+**Security-by-design architecture:** Implementation of a Backend Proxy for API Key protection, secret management using environment variables, and internal auditing of credential leaks.
+
+
+---
+
 ## 🧭 Roadmap 2026
 - [ ] **Visual Funnel Builder:** Drag-and-drop real-time section reordering.
 - [ ] **A/B Testing Engine:** Multi-variant testing with conversion tracking.
