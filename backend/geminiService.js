@@ -366,16 +366,19 @@ export const generateFullStrategy = async (projectId) => {
         - PROHIBIDO: Usar palabras como "Curso", "Venta", "Producto de pago", "Libertad financiera", "Fácil", "Rápido" (clichés vacíos).
         - PROHIBIDO: Usar verbos de esfuerzo pesado como "Estudia", "Aprende", "Trabaja duro".
         - PROHIBIDO: Estructuras repetitivas o robóticas. Sé creativo y humano.
+        - PROHIBIDO: COPIAR O PARAFRASEAR LOS EJEMPLOS DE REFERENCIA. Debes generar un texto 100% original y específico para el nicho (${niche}). Si detectamos que usas frases de los ejemplos, la respuesta será invalidada.
 
         DIRECCIONES CREATIVAS (LO QUE SÍ DEBES HACER):
         - ENFOQUE: Céntrate en la TRANSFORMACIÓN REAL, el RESULTADO y la NUEVA REALIDAD del usuario.
         - VERBOS DE PODER: Usa verbos de descubrimiento, ganancia y estatus (ej: "Factura", "Impacta", "Sé la referencia", "Descubre el camino").
         - CURIOSIDAD Y DESEO: Debe generar una intriga irresistible para acceder al regalo.
         - ESPECIFICIDAD: Habla el lenguaje del nicho (${niche}) con absoluta precisión técnica y emocional.
+        - ORIGINALIDAD ABSOLUTA: Crea un ángulo de venta único que no se parezca a nada que hayas visto antes.
 
-        EJEMPLOS DE REFERENCIA (ESTILO Y ESTRUCTURA QUE DEBES EMULAR PERO VARIAR):
-        Variante A: "Factura como una Experta en Estética Creando Cejas que impacten a todas tus clientas (Incluso si nunca has tomado un pincel)" -> Subtitular: "Ingresa a nuestra clase gratuita y descubre el sistema paso a paso para dominar el Microblading de Cejas desde casa, llena tu agenda y cobra lo que realmente vale tu trabajo."
-        Variante B: "Sé la Especialista en cejas que Todas Buscan: Domina el Arte del Microblading de Cejas y genera altos ingresos (Incluso si nunca has tomado un pincel)" -> Subtitular: "Ingresa y descubre la técnica de estética más revolucionaria de este año, que te permite trabajar desde casa, triplicar tus ingresos por cliente y ser dueña de tu propio tiempo. El Microblading de Cejas"
+        EJEMPLOS DE REFERENCIA (SOLO PARA ENTENDER EL NIVEL DE PERSUASIÓN Y CALIDAD - NO USAR ESTAS FRASES):
+        - Estilo A (Autoridad + Resultado): "Factura como una Experta en Estética Creando Cejas que impacten a todas tus clientas (Incluso si nunca has tomado un pincel)"
+        - Estilo B (Especialización + Estilo de Vida): "Sé la Especialista en cejas que Todas Buscan: Domina el Arte del Microblading de Cejas y genera altos ingresos sin sacrificar tu tiempo libre"
+        - Estilo C (Curiosidad + Técnica): "Descubre el secreto de las cejas hiperrealistas que permiten cobrar precios premium desde el primer día"
 
         Genera para 'landingPageTabs' -> 'hero':
             h1: "Genera un titular de impacto (máximo 115 caracteres) que sea único, creativo y hable directamente a la aspiración más profunda del avatar mapeado.",
