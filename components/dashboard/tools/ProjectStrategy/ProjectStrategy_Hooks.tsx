@@ -89,6 +89,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [isEditingAds, setIsEditingAds] = useState(false);
   const [tempAds, setTempAds] = useState("");
   const [tempPinnedComment, setTempPinnedComment] = useState("");
+  const [tempReelTitle, setTempReelTitle] = useState("");
 
   const loadingMessages = [
     "Analizando ángulo psicológico...",
@@ -231,6 +232,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const defaultKitContent = {
     script: "Aquí ingresa el guion del video persuasivo...",
+    reelTitle: "🎬 Título sugerido para tu Reel...",
     ads: "🔥 Aquí ingresa la descripción para tus anuncios...\n\n✅ Beneficio 1\n✅ Beneficio 2\n\n🔗 [LINK]",
     pinnedComment: "📌 Comentario fijado sugerido para este video...",
     videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
@@ -496,12 +498,12 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (!currentHook.id) return;
     setSaving(true);
     try {
-        const updatedKit = { ...currentKit, ads: tempAds, pinnedComment: tempPinnedComment };
+        const updatedKit = { ...currentKit, ads: tempAds, pinnedComment: tempPinnedComment, reelTitle: tempReelTitle };
         await api.updateProjectHook(currentHook.id, { contentJson: updatedKit });
         setHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
         setIsEditingAds(false);
     } catch (e) {
-        alert("Error al guardar la descripción");
+        alert("Error al guardar los cambios");
     } finally {
         setSaving(false);
     }
@@ -1199,11 +1201,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
                                     <div className="flex items-center justify-between">
                                         <h5 className="text-white font-black text-xl flex items-center gap-3 uppercase tracking-tight">
-                                            <Megaphone className="w-6 h-6 text-emerald-400" /> Descripción
+                                            <Megaphone className="w-6 h-6 text-emerald-400" /> Kit de Texto (Reel)
                                         </h5>
                                         {!isEditingAds ? (
                                             <button 
-                                                onClick={() => { setTempAds(currentKit.ads); setTempPinnedComment(currentKit.pinnedComment || ""); setIsEditingAds(true); }}
+                                                onClick={() => { 
+                                                    setTempAds(currentKit.ads); 
+                                                    setTempPinnedComment(currentKit.pinnedComment || ""); 
+                                                    setTempReelTitle(currentKit.reelTitle || "");
+                                                    setIsEditingAds(true); 
+                                                }}
                                                 className="text-xs font-black text-emerald-400 uppercase bg-emerald-400/10 px-3 py-1 rounded-lg border border-emerald-400/20"
                                             >
                                                 Editar Contenido
@@ -1219,60 +1226,118 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                             </button>
                                         )}
                                     </div>
-                                    <div className="bg-white rounded-[2rem] p-10 shadow-2xl text-gray-900 font-medium text-lg leading-relaxed border-4 border-gray-100 relative">
-                                        <div className="absolute top-4 right-6 text-[10px] font-black text-gray-300 uppercase tracking-widest">Vista Previa Anuncio</div>
-                                        {isEditingAds ? (
-                                            <div className="space-y-6">
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] text-gray-400 font-black uppercase tracking-widest ml-1">Descripción del Anuncio</label>
-                                                    <textarea 
-                                                        value={tempAds}
-                                                        onChange={(e) => setTempAds(e.target.value)}
-                                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-[#0B0B0B] font-medium text-lg outline-none focus:ring-2 focus:ring-orange-500/20 min-h-[200px] resize-none"
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] text-gray-400 font-black uppercase tracking-widest ml-1">Comentario Fijado</label>
-                                                    <textarea 
-                                                        value={tempPinnedComment}
-                                                        onChange={(e) => setTempPinnedComment(e.target.value)}
-                                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-[#0B0B0B] font-medium text-lg outline-none focus:ring-2 focus:ring-orange-500/20 min-h-[100px] resize-none"
-                                                    />
-                                                </div>
+                                    
+                                    {isEditingAds ? (
+                                        <div className="space-y-6 bg-white/5 p-8 rounded-[2rem] border border-white/10 shadow-2xl">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] text-emerald-400 font-black uppercase tracking-widest ml-1">Título del Reel</label>
+                                                <input 
+                                                    type="text"
+                                                    value={tempReelTitle}
+                                                    onChange={(e) => setTempReelTitle(e.target.value)}
+                                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white font-medium text-lg outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-inner"
+                                                    placeholder="Ingresa un título llamativo..."
+                                                />
                                             </div>
-                                        ) : (
-                                            <div className="space-y-8">
-                                                <div className="space-y-4">
-                                                    <h6 className="text-[10px] text-emerald-600 font-black uppercase tracking-widest border-b border-emerald-100 pb-1 w-fit">Descripción</h6>
-                                                    <div className="whitespace-pre-wrap">{currentKit.ads}</div>
-                                                </div>
-                                                <div className="space-y-4 pt-4 border-t border-gray-100">
-                                                    <h6 className="text-[10px] text-emerald-600 font-black uppercase tracking-widest border-b border-emerald-100 pb-1 w-fit">Comentario Fijado</h6>
-                                                    <div className="whitespace-pre-wrap italic text-gray-600">{currentKit.pinnedComment || "Sin comentario fijado"}</div>
-                                                </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] text-emerald-400 font-black uppercase tracking-widest ml-1">Descripción (Caption)</label>
+                                                <textarea 
+                                                    value={tempAds}
+                                                    onChange={(e) => setTempAds(e.target.value)}
+                                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white font-medium text-lg outline-none focus:ring-2 focus:ring-emerald-500/20 min-h-[200px] resize-none shadow-inner"
+                                                    placeholder="Escribe la descripción aquí..."
+                                                />
                                             </div>
-                                        )}
-                                    </div>
-                                    <div className="flex justify-center gap-4">
-                                        {!isEditingAds && (
-                                            <>
-                                                <button 
-                                                    onClick={() => handleCopy(currentKit.ads)} 
-                                                    className="px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-emerald-900/20"
-                                                >
-                                                    <Copy className="w-5 h-5" /> Copiar Descripción
-                                                </button>
-                                                {currentKit.pinnedComment && (
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] text-emerald-400 font-black uppercase tracking-widest ml-1">Comentario Fijado</label>
+                                                <textarea 
+                                                    value={tempPinnedComment}
+                                                    onChange={(e) => setTempPinnedComment(e.target.value)}
+                                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white font-medium text-lg outline-none focus:ring-2 focus:ring-emerald-500/20 min-h-[100px] resize-none shadow-inner"
+                                                    placeholder="Escribe el comentario fijado..."
+                                                />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-6">
+                                            {/* BLOQUE TÍTULO */}
+                                            <div className="bg-white rounded-[2rem] p-10 shadow-2xl text-gray-900 border-4 border-gray-100 relative group transition-all hover:border-emerald-100">
+                                                <div className="absolute top-4 right-6 text-[10px] font-black text-gray-300 uppercase tracking-widest flex items-center gap-2">
+                                                    <Target className="w-3 h-3" /> Título del Reel
+                                                </div>
+                                                <h6 className="text-[11px] text-emerald-600 font-black uppercase tracking-widest border-b border-emerald-100 pb-2 w-fit mb-4">Título</h6>
+                                                <div className="text-2xl font-black tracking-tight text-gray-900 leading-tight">
+                                                    {currentKit.reelTitle || "Sin título definido"}
+                                                </div>
+                                                {currentKit.reelTitle && (
                                                     <button 
-                                                        onClick={() => handleCopy(currentKit.pinnedComment)} 
-                                                        className="px-10 py-5 bg-gray-800 hover:bg-gray-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg"
+                                                        onClick={() => handleCopy(currentKit.reelTitle)}
+                                                        className="absolute bottom-4 right-6 p-2 text-gray-300 hover:text-emerald-500 transition-colors opacity-0 group-hover:opacity-100"
+                                                        title="Copiar Título"
                                                     >
-                                                        <Copy className="w-5 h-5" /> Copiar Comentario
+                                                        <Copy className="w-4 h-4" />
                                                     </button>
                                                 )}
-                                            </>
-                                        )}
-                                    </div>
+                                            </div>
+
+                                            {/* BLOQUE DESCRIPCIÓN */}
+                                            <div className="bg-white rounded-[2rem] p-10 shadow-2xl text-gray-900 font-medium text-lg leading-relaxed border-4 border-gray-100 relative group transition-all hover:border-emerald-100">
+                                                <div className="absolute top-4 right-6 text-[10px] font-black text-gray-300 uppercase tracking-widest flex items-center gap-2">
+                                                    <Megaphone className="w-3 h-3" /> Descripción Sugerida
+                                                </div>
+                                                <h6 className="text-[11px] text-emerald-600 font-black uppercase tracking-widest border-b border-emerald-100 pb-2 w-fit mb-4">Caption / Descripción</h6>
+                                                <div className="whitespace-pre-wrap text-gray-800 font-normal leading-[1.8rem]">
+                                                    {currentKit.ads}
+                                                </div>
+                                                <button 
+                                                    onClick={() => handleCopy(currentKit.ads)}
+                                                    className="absolute bottom-4 right-6 p-2 text-gray-300 hover:text-emerald-500 transition-colors opacity-0 group-hover:opacity-100"
+                                                    title="Copiar Descripción"
+                                                >
+                                                    <Copy className="w-4 h-4" />
+                                                </button>
+                                            </div>
+
+                                            {/* BLOQUE COMENTARIO FIJADO */}
+                                            <div className="bg-[#f8fafc] rounded-[2rem] p-10 shadow-xl text-gray-900 font-medium border-4 border-emerald-50/50 relative group transition-all hover:border-emerald-100">
+                                                <div className="absolute top-4 right-6 text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                                    <Sparkles className="w-3 h-3 text-emerald-400" /> Comentario de Valor
+                                                </div>
+                                                <h6 className="text-[11px] text-emerald-600 font-black uppercase tracking-widest border-b border-emerald-100 pb-2 w-fit mb-4">Comentario Fijado</h6>
+                                                <div className="whitespace-pre-wrap italic text-gray-600 font-light leading-relaxed">
+                                                    {currentKit.pinnedComment || "Sin comentario fijado"}
+                                                </div>
+                                                {currentKit.pinnedComment && (
+                                                    <button 
+                                                        onClick={() => handleCopy(currentKit.pinnedComment)}
+                                                        className="absolute bottom-4 right-6 p-2 text-gray-400 hover:text-emerald-500 transition-colors opacity-0 group-hover:opacity-100"
+                                                        title="Copiar Comentario"
+                                                    >
+                                                        <Copy className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {!isEditingAds && (
+                                        <div className="flex flex-wrap justify-center gap-4 pt-4">
+                                            <button 
+                                                onClick={() => handleCopy(currentKit.ads)} 
+                                                className="px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-emerald-900/20 transform hover:scale-105 active:scale-95"
+                                            >
+                                                <Copy className="w-5 h-5" /> Copiar Descripción
+                                            </button>
+                                            {currentKit.pinnedComment && (
+                                                <button 
+                                                    onClick={() => handleCopy(currentKit.pinnedComment)} 
+                                                    className="px-10 py-5 bg-gray-800 hover:bg-gray-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg transform hover:scale-105 active:scale-95"
+                                                >
+                                                    <Copy className="w-5 h-5" /> Copiar Comentario
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

@@ -84,6 +84,7 @@ export interface ProjectHook {
   projectId: string;
   masterHookId?: string;
   title: string;
+  reelTitle?: string; // New: Specific title for the reel/video
   psychologicalStrategy: string;
   landingPageUrl?: string;
   contentJson: any;
