@@ -358,9 +358,28 @@ export const generateFullStrategy = async (projectId) => {
         - El texto de cada testimonio debe narrar en primera persona cómo el material gratuito empezó a solucionar el "pain" (dolor) específico de ese avatar.
         - Lenguaje natural, corto (máximo 50 palabras) y con tono de mensaje de agradecimiento espontáneo.
 
-        Instrucciones para landingPageTabs, genera copy persuasivo para 3 momentos:
-            h1: "Genera un titular de impacto (máximo 100 caracteres) siguiendo la fórmula: [Resultado Deseado] + [Mecanismo Único o Facilidad] + [Eliminación de Objeción o Dolor]. Debe ser ultra-específico para el nicho '${niche}'. REGLA CRÍTICA: PROHIBIDO incluir años (2024, 2025). Evita verbos de 'trabajo duro' como 'Domina' o 'Estudia'; usa verbos de 'Resultado', 'Ganancia' o 'Descubrimiento'. Debe sonar personal y conectar con la aspiración profunda de los 3 avatares mapeados.",
-            h2: "Añade un subtítulo (150 a 200 caracteres) que amplíe la promesa del H1 centrándose exclusivamente en la transformación inmediata tras acceder al regalo gratuito (Lead Magnet: ${leadMagnetType}). REGLA CRÍTICA: TOTALMENTE PROHIBIDO usar 'curso', 'producto de pago', 'venta' o clichés como 'libertad financiera'. Céntrate en beneficios tangibles (ej: control del tiempo, agenda llena, cobrar precios premium). Mantén consistencia terminológica absoluta con el nicho (ej: si es Microblading, no lo cambies por términos vagos) para evitar confusión.",
+        Instrucciones para landingPageTabs (Copywriting de Alta Conversión):
+        Tú misión es crear el Titular (h1) y Subtitular (h2) más persuasivos posibles para el Lead Magnet (${leadMagnetType}).
+
+        REGLAS DE ORO (LO QUE NO DEBES HACER):
+        - PROHIBIDO: Usar años (2025, 2026).
+        - PROHIBIDO: Usar palabras como "Curso", "Venta", "Producto de pago", "Libertad financiera", "Fácil", "Rápido" (clichés vacíos).
+        - PROHIBIDO: Usar verbos de esfuerzo pesado como "Estudia", "Aprende", "Trabaja duro".
+        - PROHIBIDO: Estructuras repetitivas o robóticas. Sé creativo y humano.
+
+        DIRECCIONES CREATIVAS (LO QUE SÍ DEBES HACER):
+        - ENFOQUE: Céntrate en la TRANSFORMACIÓN REAL, el RESULTADO y la NUEVA REALIDAD del usuario.
+        - VERBOS DE PODER: Usa verbos de descubrimiento, ganancia y estatus (ej: "Factura", "Impacta", "Sé la referencia", "Descubre el camino").
+        - CURIOSIDAD Y DESEO: Debe generar una intriga irresistible para acceder al regalo.
+        - ESPECIFICIDAD: Habla el lenguaje del nicho (${niche}) con absoluta precisión técnica y emocional.
+
+        EJEMPLOS DE REFERENCIA (ESTILO Y ESTRUCTURA QUE DEBES EMULAR PERO VARIAR):
+        Variante A: "Factura como una Experta en Estética Creando Cejas que impacten a todas tus clientas (Incluso si nunca has tomado un pincel)" -> Subtitular: "Ingresa a nuestra clase gratuita y descubre el sistema paso a paso para dominar el Microblading de Cejas desde casa, llena tu agenda y cobra lo que realmente vale tu trabajo."
+        Variante B: "Sé la Especialista en cejas que Todas Buscan: Domina el Arte del Microblading de Cejas y genera altos ingresos (Incluso si nunca has tomado un pincel)" -> Subtitular: "Ingresa y descubre la técnica de estética más revolucionaria de este año, que te permite trabajar desde casa, triplicar tus ingresos por cliente y ser dueña de tu propio tiempo. El Microblading de Cejas"
+
+        Genera para 'landingPageTabs' -> 'hero':
+            h1: "Genera un titular de impacto (máximo 115 caracteres) que sea único, creativo y hable directamente a la aspiración más profunda del avatar mapeado.",
+            h2: "Genera un subtítulo (160 a 240 caracteres) que refuerce la promesa, elimine el miedo al fracaso y venda la transformación inmediata tras consumir el regalo (${leadMagnetType}).",
 
         En thankYouPageTabs, genera copy persuasivo para 3 momentos:
             header: Un titular de confirmación inmediata (ej: '¡Lugar Reservado!').
@@ -526,8 +545,8 @@ export const generateFullStrategy = async (projectId) => {
                 title: "Promesa de Valor (Hero Section)",
                 type: 'hero',
                 topTagline: "Genera una línea de impacto superior (badge) de 3 a 5 palabras. REGLA CRÍTICA: Debe usar emojis y ganchos de alta conversión: 🔥 Urgencia, 🚀 Resultados, 💎 Exclusividad, 🎯 Curiosidad o ⚠️ Escasez. Ejemplos: '🔥 ACCESO 100% GRATIS', '🚀 MÉTODO REVELADO', '💎 SOLO PARA MIEMBROS'.",
-                h1: "titulo Profesional que atrae audiencia cualificada",
-                h2: "Subtitulo que justifica el titulo profesional."
+                h1: "Genera el titular h1 de impacto bajo las directrices de Alta Conversión.",
+                h2: "Genera el subtítulo h2 que refuerce la promesa de valor."
             }
         },
         thankYouPageTabs: {
