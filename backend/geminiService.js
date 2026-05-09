@@ -356,7 +356,10 @@ export const generateFullStrategy = async (projectId) => {
         - Si el Lead Magnet es "PDF/Guía/Ebook": El testimonio debe mencionar lo práctico que fue leer el documento y los puntos clave que descubrió.
         - Debes usar los nombres exactos de los 3 AVATARES generados arriba.
         - El texto de cada testimonio debe narrar en primera persona cómo el material gratuito empezó a solucionar el "pain" (dolor) específico de ese avatar.
-        - Lenguaje natural, corto (máximo 50 palabras) y con tono de mensaje de agradecimiento espontáneo.
+        - Lenguaje natural, co rto (máximo 50 palabras) y con tono de mensaje de agradecimiento espontáneo.
+
+
+
 
         Instrucciones para landingPageTabs (Copywriting de Alta Conversión):
         Tú misión es crear el Titular (h1) y Subtitular (h2) más persuasivos posibles para el Lead Magnet (${leadMagnetType}).
@@ -375,14 +378,72 @@ export const generateFullStrategy = async (projectId) => {
         - ESPECIFICIDAD: Habla el lenguaje del nicho (${niche}) con absoluta precisión técnica y emocional.
         - ORIGINALIDAD ABSOLUTA: Crea un ángulo de venta único que no se parezca a nada que hayas visto antes.
 
-        EJEMPLOS DE REFERENCIA (SOLO PARA ENTENDER EL NIVEL DE PERSUASIÓN Y CALIDAD - NO USAR ESTAS FRASES):
+        EJEMPLOS DE REFERENCIA para h1 (SOLO PARA ENTENDER EL NIVEL DE PERSUASIÓN Y CALIDAD - NO USAR ESTAS FRASES y elige uno para basarte):
         - Estilo A (Autoridad + Resultado): "Factura como una Experta en Estética Creando Cejas que impacten a todas tus clientas (Incluso si nunca has tomado un pincel)"
         - Estilo B (Especialización + Estilo de Vida): "Sé la Especialista en cejas que Todas Buscan: Domina el Arte del Microblading de Cejas y genera altos ingresos sin sacrificar tu tiempo libre"
         - Estilo C (Curiosidad + Técnica): "Descubre el secreto de las cejas hiperrealistas que permiten cobrar precios premium desde el primer día"
 
+        PRIORIDAD:
+        1. Deseo principal del avatar.
+        2. Transformación concreta.
+        3. Curiosidad natural.
+        4. Originalidad.
+
+        - PROHIBIDO: Sonar como un anuncio genérico de internet.
+- PROHIBIDO: Usar frases que parezcan escritas por IA.
+- El texto debe sentirse humano, específico y creíble.
+
+REFERENCIAS DE ESTILO:
+- Autoridad + Resultado tangible
+- Curiosidad técnica
+- Estatus profesional
+- Transformación aspiracional
+- Deseo oculto del avatar
+
+- Busca un ángulo fresco sin sacrificar claridad ni credibilidad.
+
+Antes de escribir:
+- identifica el deseo oculto del avatar
+- identifica qué frustración quiere eliminar
+- identifica cómo quiere sentirse después de lograr el resultado
+
+Detecta automáticamente la emoción dominante del nicho (${niche})
+y construye el mensaje alrededor de esa emoción.
+
+Elige automáticamente el mecanismo de persuasión más efectivo según el nicho:
+- Estatus
+- Identidad
+- Validación
+- Exclusividad
+- Ventaja competitiva
+- Alivio emocional
+- Autoridad
+- Deseo aspiracional
+- Pertenencia
+- Seguridad
+
+
+Adapta la intensidad emocional al nivel de sofisticación del mercado (${niche}).
+
+- Evita promesas poco creíbles o exageradas.
+- El resultado debe sentirse ambicioso pero alcanzable.
+
+Antes de generar el resultado final:
+- crea mentalmente 3 ángulos distintos
+- elige el más fuerte, específico y menos genérico
+- entrega solo la mejor versión
+
+
+
         Genera para 'landingPageTabs' -> 'hero':
-            h1: "Genera un titular de impacto (máximo 115 caracteres) que sea único, creativo y hable directamente a la aspiración más profunda del avatar mapeado.",
+            h1: "Genera un titular de impacto (Máximo ideal: 115 caracteres.Puede superar ligeramente el límite si el impacto lo justifica.) que sea único, creativo y hable directamente a la aspiración más profunda del avatar.",
             h2: "Genera un subtítulo (160 a 240 caracteres) que refuerce la promesa, elimine el miedo al fracaso y venda la transformación inmediata tras consumir el regalo (${leadMagnetType}).",
+
+
+
+
+
+
 
         En thankYouPageTabs, genera copy persuasivo para 3 momentos:
             header: Un titular de confirmación inmediata (ej: '¡Lugar Reservado!').
