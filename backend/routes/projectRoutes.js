@@ -360,7 +360,7 @@ router.put('/:id', async (req, res) => {
     const salesPageUrl = body.salesPageUrl !== undefined ? body.salesPageUrl : existing.sales_page_url;
     
     const isMasterFinal = (req.user.role === 'admin' && body.isMaster !== undefined) ? (body.isMaster ? 1 : 0) : existing.is_master;
-    const isActiveFinal = (req.user.role === 'admin' && body.isActive !== undefined) ? (body.isActive ? 1 : 0) : existing.is_active;
+    const isActiveFinal = (req.user.role === 'admin' && body.isActive !== undefined) ? (body.isActive ? 1 : 0) : (existing.is_active !== undefined ? existing.is_active : 1);
     const finalDigitalProductUrl = existing.master_parent_id ? null : (body.digitalProductUrl !== undefined ? body.digitalProductUrl : existing.digital_product_url);
 
     await pool.query(
