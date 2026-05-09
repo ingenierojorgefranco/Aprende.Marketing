@@ -45,7 +45,7 @@ router.get('/master-library', async (req, res) => {
         let params = [req.user.id];
 
         if (req.user.role !== 'admin') {
-            query += ` AND p.user_id != ?`;
+            query += ` AND p.is_active = 1 AND p.user_id != ?`;
             params.push(req.user.id);
         }
 
@@ -60,6 +60,7 @@ router.get('/master-library', async (req, res) => {
             strategy_json: safeParseJson(p.strategy_json),
             digital_product_url: p.digital_product_url,
             isMaster: !!p.is_master,
+            isActive: !!p.is_active,
             isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked
         }));
         res.json(projects);
@@ -254,6 +255,7 @@ router.get('/', async (req, res) => {
             planSlug: status.planName,
             isBlocked: status.isBlocked,
             isMaster: !!p.is_master,
+            isActive: !!p.is_active,
             isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked,
             masterParentId: p.master_parent_id ? String(p.master_parent_id) : undefined
         };
@@ -287,6 +289,7 @@ router.get('/:id', async (req, res) => {
     project.planSlug = status.planName;
     project.isBlocked = status.isBlocked;
     project.isMaster = !!project.is_master;
+    project.isActive = !!project.is_active;
     project.masterParentId = project.master_parent_id ? String(project.master_parent_id) : undefined;
     res.json(project);
   } catch (error) { res.status(500).json({ error: error.message }); }
@@ -357,11 +360,12 @@ router.put('/:id', async (req, res) => {
     const salesPageUrl = body.salesPageUrl !== undefined ? body.salesPageUrl : existing.sales_page_url;
     
     const isMasterFinal = (req.user.role === 'admin' && body.isMaster !== undefined) ? (body.isMaster ? 1 : 0) : existing.is_master;
+    const isActiveFinal = (req.user.role === 'admin' && body.isActive !== undefined) ? (body.isActive ? 1 : 0) : existing.is_active;
     const finalDigitalProductUrl = existing.master_parent_id ? null : (body.digitalProductUrl !== undefined ? body.digitalProductUrl : existing.digital_product_url);
 
     await pool.query(
-      `UPDATE projects SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, multimedia_json=?, full_price=?, commission_rate=?, lead_magnet_type=?, lead_magnet_url=?, sales_page_url=?, digital_product_url=?, is_master=?, updated_at=NOW() WHERE id=?`,
-      [name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, multimedia_json, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', finalDigitalProductUrl, isMasterFinal, id]
+      `UPDATE projects SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, multimedia_json=?, full_price=?, commission_rate=?, lead_magnet_type=?, lead_magnet_url=?, sales_page_url=?, digital_product_url=?, is_master=?, is_active=?, updated_at=NOW() WHERE id=?`,
+      [name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, multimedia_json, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', finalDigitalProductUrl, isMasterFinal, isActiveFinal, id]
     );
     res.json({ message: 'Actualizado' });
   } catch (error) { 

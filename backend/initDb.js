@@ -460,6 +460,7 @@ const initDb = async () => {
         await addColumnSafe(connection, 'projects', "multimedia_json JSON");
         ////////// Actualización: Columna para marcar proyectos maestros - 05/03/2025 10:00 //////////
         await addColumnSafe(connection, 'projects', "is_master BOOLEAN DEFAULT FALSE");
+        await addColumnSafe(connection, 'projects', "is_active BOOLEAN DEFAULT TRUE");
         ////////// Fin de actualización - 05/03/2025 10:00 //////////
         ////////// Actualización: Columna para identificar el origen de un proyecto clonado - 05/03/2025 10:00 //////////
         await addColumnSafe(connection, 'projects', "master_parent_id INT NULL");

@@ -85,6 +85,18 @@ export const ProjectsList: React.FC = () => {
         if (confirm(`¿Estás seguro de eliminar el proyecto "${project.name}" y toda su estrategia?`)) {
             await api.deleteProject(project.id);
             setProjects(projects.filter(p => p.id !== project.id));
+            setMasterLibrary(masterLibrary.filter(p => p.id !== project.id));
+        }
+    };
+
+    const handleToggleActive = async (project: Project, e: React.MouseEvent) => {
+        e.stopPropagation();
+        try {
+            await api.updateProject(project.id, { isActive: !project.isActive } as any);
+            setMasterLibrary(prev => prev.map(p => p.id === project.id ? { ...p, isActive: !p.isActive } : p));
+        } catch (error) {
+            console.error("Error toggling active status", error);
+            alert("Error al cambiar el estado de activación");
         }
     };
 
@@ -532,6 +544,14 @@ export const ProjectsList: React.FC = () => {
                                         </div>
                                         {user.role === 'admin' ? (
                                             <div className="flex gap-2">
+                                                <button 
+                                                    onClick={(e) => handleToggleActive(item, e)}
+                                                    className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all shadow-lg ${item.isActive ? 'bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500/30' : 'bg-gray-500/20 text-gray-500 hover:bg-gray-500/30'}`}
+                                                    title={item.isActive ? "Desactivar" : "Activar"}
+                                                >
+                                                    <div className={`w-2 h-2 rounded-full ${item.isActive ? 'bg-emerald-500' : 'bg-gray-500'} animate-pulse`}></div>
+                                                    <span className="text-xs font-bold">{item.isActive ? 'Activo' : 'Inactivo'}</span>
+                                                </button>
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/projects/edit/${item.id}`); }}
                                                     className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"

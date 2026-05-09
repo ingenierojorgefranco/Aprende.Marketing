@@ -583,6 +583,7 @@ export const api = {
               digitalProductUrl: p.digital_product_url || p.digitalProductUrl,
               createdAt: new Date(p.created_at || p.createdAt),
               isMaster: !!p.is_master,
+              isActive: !!p.is_active,
               isUnlocked: !!p.is_unlocked,
               masterParentId: p.master_parent_id
           };
@@ -611,6 +612,7 @@ export const api = {
             multimedia_json: safeJsonParse(p.multimedia_json, 'proj.multimediaJson') || { heroImages: [], videoUrls: [], descriptiveImages: [] },
             shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
             isMaster: true,
+            isActive: !!p.is_active,
             leadMagnetUrl: p.lead_magnet_url || p.leadMagnetUrl,
             digitalProductUrl: p.digital_product_url || p.digitalProductUrl,
             createdAt: new Date(p.created_at)
@@ -665,6 +667,7 @@ export const api = {
               digitalProductUrl: p.digital_product_url || p.digitalProductUrl,
               createdAt: new Date(p.created_at || p.createdAt),
               isMaster: !!p.is_master,
+              isActive: !!p.is_active,
               masterParentId: p.master_parent_id
           };
           apiCache.projectDetails[id] = mappedProject;
