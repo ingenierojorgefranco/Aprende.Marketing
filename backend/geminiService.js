@@ -360,84 +360,139 @@ export const generateFullStrategy = async (projectId) => {
 
 
 
+Instrucciones para landingPageTabs (Copywriting de Alta Conversión):
 
-        Instrucciones para landingPageTabs (Copywriting de Alta Conversión):
-        Tú misión es crear el Titular (h1) y Subtitular (h2) más persuasivos posibles para el Lead Magnet (${leadMagnetType}).
+Tu misión es crear el Titular (h1) y Subtitular (h2) más persuasivos posibles para el Lead Magnet (${leadMagnetType}) del nicho (${niche}).
 
-        REGLAS DE ORO (LO QUE NO DEBES HACER):
-        - PROHIBIDO: Usar años (2025, 2026).
-        - PROHIBIDO: Usar palabras como "Curso", "Venta", "Producto de pago", "Libertad financiera", "Fácil", "Rápido" (clichés vacíos).
-        - PROHIBIDO: Usar verbos de esfuerzo pesado como "Estudia", "Aprende", "Trabaja duro".
-        - PROHIBIDO: Estructuras repetitivas o robóticas. Sé creativo y humano.
-        - PROHIBIDO: COPIAR O PARAFRASEAR LOS EJEMPLOS DE REFERENCIA. Debes generar un texto 100% original y específico para el nicho (${niche}). Si detectamos que usas frases de los ejemplos, la respuesta será invalidada.
+OBJETIVO PRINCIPAL:
+El copy debe hacer que el usuario sienta:
+"Esto fue hecho exactamente para mí".
 
-        DIRECCIONES CREATIVAS (LO QUE SÍ DEBES HACER):
-        - ENFOQUE: Céntrate en la TRANSFORMACIÓN REAL, el RESULTADO y la NUEVA REALIDAD del usuario.
-        - VERBOS DE PODER: Usa verbos de descubrimiento, ganancia y estatus (ej: "Factura", "Impacta", "Sé la referencia", "Descubre el camino").
-        - CURIOSIDAD Y DESEO: Debe generar una intriga irresistible para acceder al regalo.
-        - ESPECIFICIDAD: Habla el lenguaje del nicho (${niche}) con absoluta precisión técnica y emocional.
-        - ORIGINALIDAD ABSOLUTA: Crea un ángulo de venta único que no se parezca a nada que hayas visto antes.
+Debe sentirse:
+- humano
+- específico
+- creíble
+- emocionalmente preciso
+- naturalmente persuasivo
 
-        EJEMPLOS DE REFERENCIA para h1 (SOLO PARA ENTENDER EL NIVEL DE PERSUASIÓN Y CALIDAD - NO USAR ESTAS FRASES y elige uno para basarte):
-        - Estilo A (Autoridad + Resultado): "Factura como una Experta en Estética Creando Cejas que impacten a todas tus clientas (Incluso si nunca has tomado un pincel)"
-        - Estilo B (Especialización + Estilo de Vida): "Sé la Especialista en cejas que Todas Buscan: Domina el Arte del Microblading de Cejas y genera altos ingresos sin sacrificar tu tiempo libre"
-        - Estilo C (Curiosidad + Técnica): "Descubre el secreto de las cejas hiperrealistas que permiten cobrar precios premium desde el primer día"
+--------------------------------------------------
+REGLAS DE ORO (LO QUE NO DEBES HACER)
+--------------------------------------------------
 
-        PRIORIDAD:
-        1. Deseo principal del avatar.
-        2. Transformación concreta.
-        3. Curiosidad natural.
-        4. Originalidad.
-
-        - PROHIBIDO: Sonar como un anuncio genérico de internet.
+- PROHIBIDO: Usar años (2025, 2026, etc.).
+- PROHIBIDO: Usar palabras como "Curso", "Venta", "Producto de pago", "Libertad financiera", "Fácil", "Rápido".
+- PROHIBIDO: Usar clichés vacíos o frases típicas de marketing.
+- PROHIBIDO: Usar verbos de esfuerzo pesado como "Estudia", "Aprende", "Trabaja duro".
+- PROHIBIDO: Sonar como un anuncio genérico de internet.
 - PROHIBIDO: Usar frases que parezcan escritas por IA.
-- El texto debe sentirse humano, específico y creíble.
+- PROHIBIDO: Estructuras repetitivas, robóticas o demasiado perfectas.
+- PROHIBIDO: Copiar, parafrasear o imitar los ejemplos de referencia.
+- PROHIBIDO: Imitar estructura, ritmo o composición de los ejemplos.
+- PROHIBIDO: Promesas exageradas o poco creíbles.
+- PROHIBIDO: Frases demasiado abstractas, confusas o sobrecargadas.
 
-REFERENCIAS DE ESTILO:
+--------------------------------------------------
+PSICOLOGÍA DEL MENSAJE
+--------------------------------------------------
+
+Antes de escribir:
+
+- Identifica el deseo principal del avatar.
+- Identifica la frustración que quiere eliminar.
+- Identifica cómo quiere sentirse después de lograr el resultado.
+- Detecta automáticamente la emoción dominante del nicho (${niche}).
+- Detecta el nivel de sofisticación del mercado.
+- Construye el mensaje alrededor de UNA emoción principal, no varias al mismo tiempo.
+
+--------------------------------------------------
+MECANISMO DE PERSUASIÓN
+--------------------------------------------------
+
+Elige automáticamente el mecanismo de persuasión más efectivo según el nicho:
+
+- Estatus
+- Identidad
+- Validación
+- Exclusividad
+- Ventaja competitiva
+- Autoridad
+- Deseo aspiracional
+- Pertenencia
+- Seguridad
+- Alivio emocional
+
+--------------------------------------------------
+DIRECCIONES CREATIVAS (LO QUE SÍ DEBES HACER)
+--------------------------------------------------
+
+- Céntrate en la transformación REAL del usuario.
+- Habla de resultados tangibles y nueva realidad.
+- Usa lenguaje emocional y específico del nicho (${niche}).
+- Genera curiosidad natural sin sonar artificial.
+- Busca un ángulo fresco y diferenciador sin perder claridad.
+- Haz que el mensaje se entienda instantáneamente al primer vistazo.
+- Prioriza claridad y credibilidad antes que creatividad excesiva.
+- El resultado debe sentirse ambicioso pero alcanzable.
+- El texto debe sentirse humano, natural y creíble.
+
+--------------------------------------------------
+REFERENCIAS DE ESTILO
+--------------------------------------------------
+
+Usa estas referencias SOLO para entender el nivel emocional y persuasivo esperado.
+
+NO copies frases.
+NO imites estructuras.
+NO reutilices ritmos.
+
+Referencias de estilo:
 - Autoridad + Resultado tangible
 - Curiosidad técnica
 - Estatus profesional
 - Transformación aspiracional
 - Deseo oculto del avatar
 
-- Busca un ángulo fresco sin sacrificar claridad ni credibilidad.
-
-Antes de escribir:
-- identifica el deseo oculto del avatar
-- identifica qué frustración quiere eliminar
-- identifica cómo quiere sentirse después de lograr el resultado
-
-Detecta automáticamente la emoción dominante del nicho (${niche})
-y construye el mensaje alrededor de esa emoción.
-
-Elige automáticamente el mecanismo de persuasión más efectivo según el nicho:
-- Estatus
-- Identidad
-- Validación
-- Exclusividad
-- Ventaja competitiva
-- Alivio emocional
-- Autoridad
-- Deseo aspiracional
-- Pertenencia
-- Seguridad
-
-
-Adapta la intensidad emocional al nivel de sofisticación del mercado (${niche}).
-
-- Evita promesas poco creíbles o exageradas.
-- El resultado debe sentirse ambicioso pero alcanzable.
+--------------------------------------------------
+PROCESO INTERNO OBLIGATORIO
+--------------------------------------------------
 
 Antes de generar el resultado final:
-- crea mentalmente 3 ángulos distintos
-- elige el más fuerte, específico y menos genérico
-- entrega solo la mejor versión
 
+- Crea mentalmente 3 ángulos distintos.
+- Evalúa cuál es el más fuerte, específico y menos genérico.
+- Entrega únicamente la mejor versión.
 
+--------------------------------------------------
+PRIORIDADES
+--------------------------------------------------
 
-        Genera para 'landingPageTabs' -> 'hero':
-            h1: "Genera un titular de impacto (Máximo ideal: 115 caracteres.Puede superar ligeramente el límite si el impacto lo justifica.) que sea único, creativo y hable directamente a la aspiración más profunda del avatar.",
-            h2: "Genera un subtítulo (160 a 240 caracteres) que refuerce la promesa, elimine el miedo al fracaso y venda la transformación inmediata tras consumir el regalo (${leadMagnetType}).",
+1. Deseo principal del avatar.
+2. Transformación concreta.
+3. Claridad instantánea.
+4. Credibilidad.
+5. Curiosidad natural.
+6. Originalidad estratégica.
+
+--------------------------------------------------
+OUTPUT
+--------------------------------------------------
+
+Genera para:
+landingPageTabs -> hero
+
+h1:
+- Debe capturar atención inmediata.
+- Debe activar el deseo principal del avatar.
+- Debe generar curiosidad natural.
+- Máximo ideal: 115 caracteres.
+- Puede superar ligeramente el límite si el impacto lo justifica.
+
+h2:
+- Entre 160 y 240 caracteres.
+- Debe hacer la promesa más creíble.
+- Debe reducir dudas internas y miedo al fracaso.
+- Debe explicar cómo el Lead Magnet (${leadMagnetType}) transforma la situación actual del usuario.
+- Debe aumentar el deseo inmediato por acceder al regalo.
 
 
 
