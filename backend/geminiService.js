@@ -474,6 +474,18 @@ PRIORIDADES
 6. Originalidad estratégica.
 
 --------------------------------------------------
+LO MÁS IMPORTANTE
+--------------------------------------------------
+
+- Usa imágenes mentales concretas y situaciones reales del nicho.
+- Evita frases aspiracionales vacías.
+- El resultado debe sentirse visible, social y tangible.
+- Prioriza escenas reales sobre promesas abstractas.
+
+El copy debe parecer escrito por alguien que trabaja dentro del nicho, no por un marketer.
+
+
+--------------------------------------------------
 OUTPUT
 --------------------------------------------------
 
