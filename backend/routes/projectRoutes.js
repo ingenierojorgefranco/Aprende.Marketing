@@ -359,9 +359,12 @@ router.put('/:id', async (req, res) => {
     const leadMagnetUrl = body.leadMagnetUrl !== undefined ? body.leadMagnetUrl : existing.lead_magnet_url;
     const salesPageUrl = body.salesPageUrl !== undefined ? body.salesPageUrl : existing.sales_page_url;
     
-    const isMasterFinal = (req.user.role === 'admin' && body.isMaster !== undefined) ? (body.isMaster ? 1 : 0) : existing.is_master;
-    const isActiveFinal = (req.user.role === 'admin' && body.isActive !== undefined) ? (body.isActive ? 1 : 0) : (existing.is_active !== undefined ? existing.is_active : 1);
+    const isMasterFinal = (req.user.role === 'admin' && body.isMaster !== undefined) ? (body.isMaster ? 1 : 0) : (existing.is_master ? 1 : 0);
+    const isActiveFinal = (req.user.role === 'admin' && body.isActive !== undefined) ? (body.isActive ? 1 : 0) : (existing.is_active === 0 ? 0 : 1);
     const finalDigitalProductUrl = existing.master_parent_id ? null : (body.digitalProductUrl !== undefined ? body.digitalProductUrl : existing.digital_product_url);
+
+    // Log detallado para depuración
+    console.log(`[PROJECT UPDATE] ID: ${id}, Role: ${req.user.role}, Incoming isActive: ${body.isActive}, Final is_active: ${isActiveFinal}`);
 
     await pool.query(
       `UPDATE projects SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, multimedia_json=?, full_price=?, commission_rate=?, lead_magnet_type=?, lead_magnet_url=?, sales_page_url=?, digital_product_url=?, is_master=?, is_active=?, updated_at=NOW() WHERE id=?`,
@@ -370,7 +373,7 @@ router.put('/:id', async (req, res) => {
     res.json({ message: 'Actualizado' });
   } catch (error) { 
     console.error("[Update Project Error]", error);
-    res.status(500).json({ error: 'Error al actualizar el proyecto' }); 
+    res.status(500).json({ error: 'Error al actualizar el proyecto', details: error.message }); 
   }
 });
 
