@@ -186,6 +186,7 @@ export interface User {
   birthDate?: string; // New
   createdAt?: Date;   // New
   customRedirectUrl?: string; // New: User specific redirect
+  survey_json?: any;
 }
 
 // NEW: System Log Type

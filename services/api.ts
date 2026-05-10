@@ -348,6 +348,19 @@ export const api = {
       });
   },
 
+  submitSurvey: async (formData: any): Promise<void> => {
+      if (isMockMode) {
+          console.log("Mock Survey Submitted:", formData);
+          return Promise.resolve();
+      }
+      await fetchWithFallback('/auth/survey', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(formData)
+      });
+      clearCache('currentUser');
+  },
+
   createCheckoutSession: async (planSlug: string): Promise<{ url: string }> => {
       if (isMockMode) {
           return Promise.resolve({ url: '#' });

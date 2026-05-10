@@ -241,7 +241,7 @@ router.post('/login', async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, password_hash, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks FROM users WHERE email = ?',
+      'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json FROM users WHERE email = ?',
       [email]
     );
 
@@ -269,7 +269,8 @@ router.post('/login', async (req, res) => {
       birthDate: user.birth_date,
       createdAt: user.created_at,
       customRedirectUrl: user.custom_redirect_url,
-      maxHooks: user.max_hooks
+      maxHooks: user.max_hooks,
+      survey_json: user.survey_json
     };
     const token = createToken(userResponse);
     res.json({ user: userResponse, token });
@@ -295,7 +296,7 @@ router.post('/logout', authMiddleware, async (req, res) => {
 router.get('/me', authMiddleware, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks FROM users WHERE id = ?',
+      'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json FROM users WHERE id = ?',
       [req.user.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -315,7 +316,8 @@ router.get('/me', authMiddleware, async (req, res) => {
         birthDate: user.birth_date,
         createdAt: user.created_at,
         customRedirectUrl: user.custom_redirect_url,
-        maxHooks: user.max_hooks
+        maxHooks: user.max_hooks,
+        survey_json: user.survey_json
     });
   } catch (error) {
     res.status(500).json({ error: 'Error interno' });
@@ -464,7 +466,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
         );
         
         const [rows] = await pool.query(
-            'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks FROM users WHERE id = ?',
+            'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json FROM users WHERE id = ?',
             [req.user.id]
         );
         
@@ -481,12 +483,25 @@ router.put('/profile', authMiddleware, async (req, res) => {
             birthDate: user.birth_date,
             createdAt: user.created_at,
             customRedirectUrl: user.custom_redirect_url,
-            maxHooks: user.max_hooks
+            maxHooks: user.max_hooks,
+            survey_json: user.survey_json
         });
 
     } catch (e) {
         console.error("Error updating profile:", e);
         res.status(500).json({ error: "Error al actualizar perfil" });
+    }
+});
+
+router.post('/survey', authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const surveyData = JSON.stringify(req.body);
+        await pool.query('UPDATE users SET survey_json = ? WHERE id = ?', [surveyData, userId]);
+        res.json({ success: true, message: 'Encuesta guardada correctamente' });
+    } catch (error) {
+        console.error("[Survey Error]", error);
+        res.status(500).json({ error: 'Error al guardar la encuesta' });
     }
 });
 

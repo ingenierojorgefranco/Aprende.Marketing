@@ -66,6 +66,7 @@ const initDb = async () => {
             email VARCHAR(255) NOT NULL UNIQUE,
             password_hash VARCHAR(255) NOT NULL,
             role VARCHAR(50) DEFAULT 'user',
+            survey_json JSON,
             is_active BOOLEAN DEFAULT TRUE,
             public_subdomain VARCHAR(255) UNIQUE,
             plan_limits JSON NULL,
