@@ -770,6 +770,23 @@ export const api = {
         clearCache('masterStrategies', id);
     },
 
+    toggleProjectActive: async (id: string, isActive: boolean): Promise<any> => {
+        if (isMockMode) {
+            localProjects = localProjects.map(p => p.id === id ? { ...p, isActive } : p);
+            clearCache('projectDetails', id);
+            return { success: true, isActive };
+        }
+        const res = await fetchWithFallback(`/projects/${id}/toggle-active`, {
+            method: 'PATCH',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ isActive })
+        });
+        clearCache('projects');
+        clearCache('projectDetails', id);
+        clearCache('masterLibrary');
+        return res;
+    },
+
     updateProjectStrategy: async (projectId: string, strategy: ProjectMasterStrategy): Promise<void> => {
         if (isMockMode) {
             const project = localProjects.find(p => String(p.id) === String(projectId));

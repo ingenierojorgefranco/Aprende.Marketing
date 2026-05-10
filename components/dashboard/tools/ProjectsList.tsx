@@ -92,7 +92,7 @@ export const ProjectsList: React.FC = () => {
     const handleToggleActive = async (project: Project, e: React.MouseEvent) => {
         e.stopPropagation();
         try {
-            await api.updateProject(project.id, { isActive: !project.isActive } as any);
+            await api.toggleProjectActive(project.id, !project.isActive);
             setMasterLibrary(prev => prev.map(p => p.id === project.id ? { ...p, isActive: !p.isActive } : p));
         } catch (error) {
             console.error("Error toggling active status", error);

@@ -295,6 +295,36 @@ router.get('/:id', async (req, res) => {
   } catch (error) { res.status(500).json({ error: error.message }); }
 });
 
+router.patch('/:id/toggle-active', async (req, res) => {
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'No autorizado' });
+    }
+
+    try {
+        const isActiveVal = isActive ? 1 : 0;
+        console.log(`[PATCH TOGGLE ACTIVE] Iniciando para proyecto ${id}. Valor solicitado: ${isActive} -> DB: ${isActiveVal}`);
+        
+        const [result] = await pool.query(
+            'UPDATE projects SET is_active = ?, updated_at = NOW() WHERE id = ?',
+            [isActiveVal, id]
+        );
+
+        if (result.affectedRows === 0) {
+            console.error(`[PATCH TOGGLE ACTIVE ERROR] Proyecto ${id} no encontrado o no se pudo actualizar.`);
+            return res.status(404).json({ error: 'Proyecto no encontrado' });
+        }
+
+        console.log(`[PATCH TOGGLE ACTIVE SUCCESS] Proyecto ${id} actualizado correctamente a is_active=${isActiveVal}`);
+        res.json({ success: true, isActive: !!isActiveVal });
+    } catch (error) {
+        console.error("[PATCH Toggle Active Error]", error);
+        res.status(500).json({ error: 'Error al cambiar el estado de activación', details: error.message });
+    }
+});
+
 router.post('/', async (req, res) => {
   const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, leadMagnetUrl, salesPageUrl, digitalProductUrl, isMaster } = req.body;
   try {
