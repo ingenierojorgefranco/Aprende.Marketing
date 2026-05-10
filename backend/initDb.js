@@ -493,6 +493,7 @@ const initDb = async () => {
         await addColumnSafe(connection, 'users', "birth_date DATE");
         await addColumnSafe(connection, 'users', "custom_redirect_url VARCHAR(500)");
         await addColumnSafe(connection, 'users', "max_hooks INT NULL");
+        await addColumnSafe(connection, 'users', "survey_json JSON NULL");
         
         // --- Migraciones para Hotmart (Enfoque Híbrido) ---
         await addColumnSafe(connection, 'users', "phone VARCHAR(50)");
