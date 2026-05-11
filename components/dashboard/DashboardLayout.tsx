@@ -311,8 +311,23 @@ export const DashboardLayout = ({
       );
   }
 
-  const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin' && !user.survey_json;
-  const isSurveyPending = !user.survey_json && user.role !== 'admin';
+  const hasCompletedSurvey = useMemo(() => {
+    if (user.role === 'admin') return true;
+    if (!user.survey_json) return false;
+    
+    try {
+        const data = typeof user.survey_json === 'string' ? JSON.parse(user.survey_json) : user.survey_json;
+        // Si es un objeto literal {}, lo consideramos pendiente
+        if (data && typeof data === 'object' && Object.keys(data).length === 0) return false;
+        return true;
+    } catch (e) {
+        // Si no es JSON pero tiene contenido (ej. string de encuesta previa), es completada
+        return !!user.survey_json && user.survey_json.trim().length > 2;
+    }
+  }, [user.survey_json, user.role]);
+
+  const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin' && !hasCompletedSurvey;
+  const isSurveyPending = !hasCompletedSurvey && user.role !== 'admin';
 
   return (
     <div className="h-screen overflow-hidden bg-black text-[#FFFFFF] flex font-sans">

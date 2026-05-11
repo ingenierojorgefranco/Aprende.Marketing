@@ -62,11 +62,16 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
 
     // Al cambiar de paso, subir al inicio del contenedor
     useEffect(() => {
-        const container = document.getElementById('dashboard-scroll-container');
-        if (container) {
-            container.scrollTo({ top: 0, behavior: 'smooth' });
+        const header = document.getElementById('survey-step-header');
+        if (header) {
+            header.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const container = document.getElementById('dashboard-scroll-container');
+            if (container) {
+                container.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
     }, [step]);
 
@@ -79,7 +84,9 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
             case 2: // Presencia Digital
                 return !!formData.onlinePresence;
             case 3: // Conocimientos
-                return !!formData.experienceLevel && !!formData.hasHotmartAcc;
+                return !!formData.experienceLevel && !!formData.hasHotmartAcc && 
+                       !!formData.mastery.funnels && !!formData.mastery.emailMarketing && 
+                       !!formData.mastery.landingPages && !!formData.mastery.ia;
             case 4: // Negocio e Inversión
                 return formData.businessType.length > 0 && !!formData.budgetRange;
             case 5: // Desafíos
@@ -708,7 +715,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
     return (
         <div className="w-full max-w-3xl mx-auto py-8 px-4">
             {/* Header Progresivo */}
-            <div className="mb-12">
+            <div id="survey-step-header" className="mb-12 scroll-mt-32">
                 <div className="flex justify-between items-end mb-4">
                     <div className="space-y-2">
                         <div className="flex items-center gap-2">
