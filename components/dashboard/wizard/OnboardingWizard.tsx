@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
 import { User, Project } from '../../../types';
 import { api } from '../../../services/api';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { 
     WelcomeStep, 
     ProjectSelectionStep, 
+    UnlockProtocolStep,
     GenerationStep, 
+    AvatarRevealStep,
+    LandingIntroStep,
+    HooksRevealStep,
     SuccessStep 
 } from './WizardSteps';
 
@@ -16,7 +20,7 @@ interface OnboardingWizardProps {
     onLogout?: () => void;
 }
 
-type WizardStep = 'welcome' | 'selection' | 'generating' | 'success';
+type WizardStep = 'welcome' | 'selection' | 'unlock_protocol' | 'generating_strategy' | 'show_avatars' | 'show_landing_prep' | 'creating_web' | 'show_hooks' | 'success';
 
 export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComplete, onLogout }) => {
     const [step, setStep] = useState<WizardStep>('welcome');
@@ -25,6 +29,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     const [generationProgress, setGenerationProgress] = useState(0);
     const [generationStatus, setGenerationStatus] = useState('Iniciando...');
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+    const [unlockedProject, setUnlockedProject] = useState<any>(null);
+    const [strategyData, setStrategyData] = useState<any>(null);
 
     // Cargar proyectos recomendados al inicio o cuando sea necesario
     useEffect(() => {
@@ -37,7 +43,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
         setLoadingProjects(true);
         try {
             const masterLibrary = await api.getMasterLibrary();
-            // Filtrar solo activos y tal vez limitar a los más populares o relevantes
             setProjects(masterLibrary.slice(0, 6)); 
         } catch (error) {
             console.error("Error cargando libreria maestra:", error);
@@ -46,79 +51,115 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
         }
     };
 
-    const handleProjectSelection = async (project: Project) => {
+    const handleProjectSelection = (project: Project) => {
         setSelectedProject(project);
-        setStep('generating');
-        startGeneration(project);
+        setStep('unlock_protocol');
     };
 
-    const startGeneration = async (project: Project) => {
+    const handleUnlockConfirm = async () => {
+        setStep('generating_strategy');
+        await processStrategyUnlock();
+    };
+
+    const processStrategyUnlock = async () => {
+        if (!selectedProject) return;
+        
         try {
             setGenerationProgress(10);
-            setGenerationStatus('Desbloqueando infraestructura...');
+            setGenerationStatus('Habilitando acceso maestro...');
             
-            // 1. Desbloquear proyecto para el usuario
-            const unlocked = await api.unlockProject(project.id, { 
+            // 1. Desbloquear proyecto
+            const unlocked = await api.unlockProject(selectedProject.id, { 
                 registered_via: 'wizard', 
                 initial_setup: true 
             });
+            setUnlockedProject(unlocked);
             
-            setGenerationProgress(30);
-            setGenerationStatus('Analizando nicho estratégico...');
+            setGenerationProgress(40);
+            setGenerationStatus('Extrayendo arquitectura psicológica...');
 
-            // 2. Obtener estrategia del proyecto (para tener los datos de la IA)
+            // 2. Obtener estrategia real
             const strategy = await api.getProjectStrategy(unlocked.id);
-            if (!strategy) throw new Error("No se pudo obtener la estrategia");
+            setStrategyData(strategy);
+            
+            setGenerationProgress(100);
+            setGenerationStatus('¡Estrategia Lista!');
+
+            setTimeout(() => {
+                setStep('show_avatars');
+            }, 800);
+
+        } catch (error) {
+            console.error("Error en desbloqueo:", error);
+            setGenerationStatus('Error. Reintentando...');
+            setTimeout(() => setStep('selection'), 2000);
+        }
+    };
+
+    const handleCreateWeb = async () => {
+        setStep('creating_web');
+        setGenerationProgress(0);
+        
+        try {
+            setGenerationProgress(20);
+            setGenerationStatus('Configurando servidor de captación...');
+            
+            // Obtener datos reales de la estrategia para la landing
+            const webModule = strategyData?.modules?.web?.landingPageTabs?.[0] || {};
+            const niche = selectedProject?.niche || 'Marketing Digital';
+            const targetAudience = strategyData?.avatars?.[0]?.name || 'Emprendedores';
 
             setGenerationProgress(50);
-            setGenerationStatus('Escribiendo copys persuasivos...');
+            setGenerationStatus('Inyectando copys de alta conversión...');
 
-            // 3. Generar contenido de la landing page con todos los argumentos requeridos
+            // Generar contenido pero con el contexto de la estrategia
+            // Nota: Aquí pasamos los datos reales de la estrategia como base
             const content = await generateLandingPageContent(
-                project.niche || 'Marketing Digital',
+                niche,
                 'Ventas y Captación',
-                project.targetAudience || 'Personas interesadas en emprender online',
-                'Producto Digital',
+                targetAudience,
+                selectedProject?.name || 'Producto Digital',
                 'modern-blue',
                 'classic-sales',
                 { 
                     type: 'whatsapp', 
-                    whatsappPhone: '573000000000', 
+                    whatsappPhone: (user as any).phone || '000000000', 
                     whatsappMessage: 'Hola, quiero más información.' 
                 },
-                unlocked as any
+                unlockedProject
             );
             
             setGenerationProgress(80);
-            setGenerationStatus('Finalizando construcción visual...');
+            setGenerationStatus('Publicando en nube segura...');
 
-            // 4. Crear la página oficialmente
+            // Crear la página con los títulos de la estrategia si están disponibles
             const newPage = {
-                name: `Mi Primera Página - ${project.name}`,
-                niche: project.niche || '',
+                name: `Web Oficial - ${selectedProject?.name}`,
+                niche: niche,
                 goal: 'Captación de Leads',
-                subdomain: `${user.name.toLowerCase().replace(/[^a-z0-9]/g, '')}-${project.name.toLowerCase().replace(/[^a-z0-9]/g, '')}-${Math.floor(Math.random() * 1000)}`,
-                content: content,
-                projectId: unlocked.id,
-                isPublished: true,
-                visits: 0,
-                conversions: 0
+                subdomain: `${user.name.toLowerCase().replace(/[^a-z0-9]/g, '')}-${selectedProject?.name.toLowerCase().replace(/[^a-z0-9]/g, '')}-${Math.floor(Math.random() * 1000)}`,
+                content: {
+                    ...content,
+                    heroTitle: webModule.heroTitle || content.heroTitle,
+                    headline: webModule.headline || content.headline,
+                    description: webModule.description || content.description,
+                },
+                projectId: unlockedProject.id,
+                isPublished: true
             };
 
-            await api.createPage(newPage as any, unlocked as any);
+            await api.createPage(newPage as any, unlockedProject as any);
 
             setGenerationProgress(100);
-            setGenerationStatus('¡Configuración Exitosa!');
+            setGenerationStatus('Página Publicada');
             
             setTimeout(() => {
-                setStep('success');
+                setStep('show_hooks');
             }, 800);
 
         } catch (error) {
-            console.error("Error en flujo de onboarding:", error);
-            setGenerationStatus('Error en la configuración. Reintentando...');
-            // En un caso real, podríamos dar opción de reintentar
-            setTimeout(() => onComplete(), 3000);
+            console.error("Error en creación de web:", error);
+            setStep('success'); // Fallback suave
         }
     };
 
@@ -143,11 +184,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             <div className="w-full max-w-6xl relative z-10">
                 <AnimatePresence mode="wait">
                     {step === 'welcome' && (
-                        <WelcomeStep 
-                            key="welcome" 
-                            userData={user} 
-                            onNext={() => setStep('selection')} 
-                        />
+                        <WelcomeStep key="welcome" userData={user} onNext={() => setStep('selection')} />
                     )}
 
                     {step === 'selection' && (
@@ -160,11 +197,46 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         />
                     )}
 
-                    {step === 'generating' && (
+                    {step === 'unlock_protocol' && (
+                        <UnlockProtocolStep 
+                            key="unlock_protocol"
+                            project={selectedProject}
+                            userData={user}
+                            onNext={handleUnlockConfirm}
+                        />
+                    )}
+
+                    {(step === 'generating_strategy' || step === 'creating_web') && (
                         <GenerationStep 
                             key="generating"
                             progress={generationProgress}
                             status={generationStatus}
+                        />
+                    )}
+
+                    {step === 'show_avatars' && (
+                        <AvatarRevealStep 
+                            key="show_avatars"
+                            avatars={strategyData?.avatars || []}
+                            userData={user}
+                            onNext={() => setStep('show_landing_prep')}
+                        />
+                    )}
+
+                    {step === 'show_landing_prep' && (
+                        <LandingIntroStep 
+                            key="landing_prep"
+                            userData={user}
+                            onNext={handleCreateWeb}
+                        />
+                    )}
+
+                    {step === 'show_hooks' && (
+                        <HooksRevealStep 
+                            key="show_hooks"
+                            hooks={strategyData?.modules?.hooks || []}
+                            userData={user}
+                            onNext={() => setStep('success')}
                         />
                     )}
 
@@ -180,14 +252,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             {/* Stepper indicator */}
             {step !== 'success' && (
                 <div className="mt-12 flex items-center gap-3">
-                    {(['welcome', 'selection', 'generating'] as WizardStep[]).map((s, idx) => {
+                    {(['welcome', 'selection', 'unlock_protocol', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks'] as WizardStep[]).map((s, idx) => {
+                        const steps = ['welcome', 'selection', 'unlock_protocol', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks'];
                         const isActive = step === s;
-                        const isPast = (['welcome', 'selection', 'generating'] as WizardStep[]).indexOf(step) > idx;
+                        const isPast = steps.indexOf(step) > idx;
                         
                         return (
-                            <div key={s} className="flex items-center">
-                                <div className={`w-3 h-3 rounded-full transition-all duration-500 ${isActive ? 'bg-[#FF5A1F] scale-150' : isPast ? 'bg-emerald-500' : 'bg-white/10'}`} />
-                                {idx < 2 && <div className={`w-10 h-[1px] mx-1 ${isPast ? 'bg-emerald-500/30' : 'bg-white/5'}`} />}
+                            <div key={idx} className="flex items-center">
+                                <div className={`w-2 h-2 rounded-full transition-all duration-500 ${isActive ? 'bg-[#FF5A1F] scale-150' : isPast ? 'bg-emerald-500' : 'bg-white/10'}`} />
+                                {idx < steps.length - 1 && <div className={`w-4 h-[1px] mx-1 ${isPast ? 'bg-emerald-500/30' : 'bg-white/5'}`} />}
                             </div>
                         );
                     })}
