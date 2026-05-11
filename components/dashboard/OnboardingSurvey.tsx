@@ -52,25 +52,31 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
             setFormData(prev => ({ 
                 ...prev, 
                 whatsappIndicative: selectedCountryObj.dial, 
-                country: selectedCountryObj.name === "Otros" ? '' : selectedCountryObj.name,
+                country: selectedCountryObj.name === "+ Añadir País" ? '' : selectedCountryObj.name,
                 city: '' // Limpiar ciudad al cambiar país
             }));
-            setShowCityInput(selectedCountryObj.name === "Otros");
-            setShowCountryInput(selectedCountryObj.name === "Otros");
+            setShowCityInput(selectedCountryObj.name === "+ Añadir País");
+            setShowCountryInput(selectedCountryObj.name === "+ Añadir País");
         }
     }, [selectedCountryObj]);
 
     // Al cambiar de paso, subir al inicio del contenedor
     useEffect(() => {
-        const header = document.getElementById('survey-step-header');
-        if (header) {
-            header.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else {
+        if (step === 0) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             const container = document.getElementById('dashboard-scroll-container');
-            if (container) {
-                container.scrollTo({ top: 0, behavior: 'smooth' });
+            if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            const header = document.getElementById('survey-step-header');
+            if (header) {
+                header.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } else {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                const container = document.getElementById('dashboard-scroll-container');
+                if (container) {
+                    container.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
             }
         }
     }, [step]);
@@ -82,7 +88,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
             case 1: // Objetivos
                 return !!formData.mainGoal && !!formData.dedicationTime;
             case 2: // Presencia Digital
-                return !!formData.onlinePresence;
+                return !!formData.onlinePresence && formData.useSocialMedia.length > 0;
             case 3: // Conocimientos
                 return !!formData.experienceLevel && !!formData.hasHotmartAcc && 
                        !!formData.mastery.funnels && !!formData.mastery.emailMarketing && 
@@ -187,7 +193,11 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                     >
                                         <option value="" className="bg-zinc-900">Selecciona tu país</option>
                                         {countries.map(c => (
-                                            <option key={c.name} value={c.name} className="bg-zinc-900">
+                                            <option 
+                                                key={c.name} 
+                                                value={c.name} 
+                                                className={`bg-zinc-900 ${c.name === "+ Añadir País" ? "text-emerald-400 font-bold" : ""}`}
+                                            >
                                                 {c.flag} {c.name}
                                             </option>
                                         ))}
@@ -216,7 +226,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         {selectedCountryObj.cities.map((city: string) => (
                                             <option key={city} value={city} className="bg-zinc-900">{city}</option>
                                         ))}
-                                        <option value="OTRA" className="bg-zinc-900 font-bold text-emerald-400">+ Otra ciudad...</option>
+                                        <option value="OTRA" className="bg-zinc-900 font-bold text-emerald-400">+ Añadir Ciudad</option>
                                     </select>
                                 </div>
                             ) : (
@@ -378,7 +388,9 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                     </div>
                     
                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Qué plataformas usas actualmente para crear contenido o atraer audiencia?</label>
+                        <label className={`text-sm font-bold uppercase tracking-wider transition-colors ${attemptedNext && formData.useSocialMedia.length === 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                            ¿Qué plataformas usas actualmente para crear contenido o atraer audiencia? *
+                        </label>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                             {["Instagram", "Facebook", "TikTok", "YouTube", "Telegram", "Publicidad Paga", "Enfoque en negocio", "Uso personal", "Ninguna aún"].map(opt => (
                                 <button
@@ -388,14 +400,18 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                             ? formData.useSocialMedia.filter(s => s !== opt)
                                             : [...formData.useSocialMedia, opt];
                                         setFormData({...formData, useSocialMedia: sm});
+                                        if (sm.length > 0) setAttemptedNext(false);
                                     }}
-                                    className={`p-4 rounded-2xl border-2 transition-all text-lg font-bold flex items-center justify-center gap-2 ${formData.useSocialMedia.includes(opt) ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-white hover:border-emerald-500/30'}`}
+                                    className={`p-4 rounded-2xl border-2 transition-all text-lg font-bold flex items-center justify-center gap-2 ${formData.useSocialMedia.includes(opt) ? 'bg-emerald-500/20 border-emerald-500 text-white' : attemptedNext && formData.useSocialMedia.length === 0 ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-white hover:border-emerald-500/30'}`}
                                 >
                                     {opt}
                                     {formData.useSocialMedia.includes(opt) && <Check className="w-5 h-5" />}
                                 </button>
                             ))}
                         </div>
+                        {attemptedNext && formData.useSocialMedia.length === 0 && (
+                            <p className="text-red-400 text-xs font-bold animate-pulse">Por favor selecciona al menos una plataforma.</p>
+                        )}
                     </div>
                 </div>
             )
@@ -452,7 +468,14 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                     </div>
 
                     <div className="space-y-6">
-                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Qué tanto dominas estas áreas?</label>
+                        <div className="flex flex-col gap-1">
+                            <label className={`text-sm font-bold uppercase tracking-wider transition-colors ${attemptedNext && (!formData.mastery.funnels || !formData.mastery.emailMarketing || !formData.mastery.landingPages || !formData.mastery.ia) ? 'text-red-400' : 'text-gray-400'}`}>
+                                ¿Qué tanto dominas estas áreas? *
+                            </label>
+                            {attemptedNext && (!formData.mastery.funnels || !formData.mastery.emailMarketing || !formData.mastery.landingPages || !formData.mastery.ia) && (
+                                <p className="text-red-400 text-xs font-bold animate-pulse">Completa todos los niveles de dominio para continuar.</p>
+                            )}
+                        </div>
                         
                         {[
                             { key: 'funnels', label: 'Embudos de venta' },
@@ -461,15 +484,20 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                             { key: 'ia', label: 'IA y Automatización' }
                         ].map((area) => (
                             <div key={area.key} className="space-y-3">
-                                <p className="text-white font-bold">{area.label}</p>
-                                <div className="grid grid-cols-4 gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/5">
+                                <p className={`font-bold transition-colors ${attemptedNext && !formData.mastery[area.key as keyof typeof formData.mastery] ? 'text-red-500' : 'text-white'}`}>
+                                    {area.label}
+                                </p>
+                                <div className={`grid grid-cols-4 gap-2 bg-white/5 p-1.5 rounded-2xl border transition-all ${attemptedNext && !formData.mastery[area.key as keyof typeof formData.mastery] ? 'border-red-500/50 bg-red-500/5' : 'border-white/5'}`}>
                                     {['Nada', 'Básico', 'Medio', 'Pro'].map(level => (
                                         <button
                                             key={level}
-                                            onClick={() => setFormData({
-                                                ...formData, 
-                                                mastery: { ...formData.mastery, [area.key]: level }
-                                            })}
+                                            onClick={() => {
+                                                setFormData({
+                                                    ...formData, 
+                                                    mastery: { ...formData.mastery, [area.key]: level }
+                                                });
+                                                setAttemptedNext(false);
+                                            }}
                                             className={`py-3 rounded-xl transition-all text-xs font-black uppercase tracking-wider ${formData.mastery[area.key as keyof typeof formData.mastery] === level ? 'bg-emerald-500 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
                                         >
                                             {level}

@@ -117,6 +117,31 @@ export const DashboardLayout = ({
       return localStorage.getItem('admin_simulated_plan') || null;
   });
 
+  // --- Sincronización Silenciosa de Encuesta ---
+  // Si el usuario en memoria no tiene encuesta, verificamos con el servidor 
+  // por si es un error de caché o sesión no actualizada.
+  useEffect(() => {
+    const syncSurveyStatus = async () => {
+        if (user.role !== 'admin' && !user.survey_json) {
+            try {
+                const latestUser = await getCurrentUser();
+                if (latestUser && (latestUser as any).survey_json && onUpdateUser) {
+                    // Convertir a tipo User para compatibilidad
+                    const formattedUser: User = {
+                        ...user, // Mantener lo que ya tenemos
+                        id: latestUser.id.toString(),
+                        survey_json: (latestUser as any).survey_json
+                    };
+                    onUpdateUser(formattedUser);
+                }
+            } catch (e) {
+                console.error("Error en sincronización silenciosa de encuesta:", e);
+            }
+        }
+    };
+    syncSurveyStatus();
+  }, [user.id]); // Solo se ejecuta si cambia el ID del usuario o al montar
+
   useEffect(() => {
       if (simulatedPlanSlug) {
           localStorage.setItem('admin_simulated_plan', simulatedPlanSlug);
@@ -431,7 +456,11 @@ export const DashboardLayout = ({
         <div id="dashboard-scroll-container" className={`flex-1 overflow-y-auto bg-black p-4 sm:p-8 relative ${(isSurveyPending || isLaunchRestricted) ? 'flex flex-col items-center' : ''}`}>
             <div className={`w-full max-w-[1600px] ${(isSurveyPending || isLaunchRestricted) ? 'max-w-4xl mx-auto mt-20' : 'mx-auto'}`}>
                 {(isLaunchRestricted || isSurveyPending) ? (
-                    <WaitlistView user={effectiveUser} onComplete={() => window.location.reload()} />
+                    <WaitlistView 
+                        user={effectiveUser} 
+                        onUpdateUser={onUpdateUser}
+                        onComplete={() => window.location.reload()} 
+                    />
                 ) : (
                     <Outlet context={{ 
                         user: effectiveUser, 

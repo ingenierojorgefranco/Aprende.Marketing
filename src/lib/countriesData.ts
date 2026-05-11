@@ -37,5 +37,5 @@ export const countries: Country[] = [
     { name: "Alemania", code: "DE", dial: "+49", flag: "🇩🇪", cities: ["Berlín", "Hamburgo", "Múnich", "Frankfurt", "Cologne", "Stuttgart"] },
     { name: "Canadá", code: "CA", dial: "+1", flag: "🇨🇦", cities: ["Toronto", "Montreal", "Vancouver", "Ottawa", "Calgary", "Edmonton"] },
     { name: "Australia", code: "AU", dial: "+61", flag: "🇦🇺", cities: ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"] },
-    { name: "Otros", code: "OTHER", dial: "", flag: "🌐", cities: [] }
+    { name: "+ Añadir País", code: "OTHER", dial: "", flag: "🌐", cities: [] }
 ];
