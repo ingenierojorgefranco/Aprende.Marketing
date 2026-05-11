@@ -40,6 +40,7 @@ export const DashboardLayout = ({
   const navigate = useNavigate();
 
   const [systemMode, setSystemMode] = useState<'production' | 'launch'>('production');
+  const [wizardEnabled, setWizardEnabled] = useState<boolean>(true);
   const [loadingMode, setLoadingMode] = useState(true);
 
   /* */ /* Actualización: Mejora de la lógica de detección de categoría activa y resaltado de sub-ítems para incluir rutas de asistentes (generator, content-creator) y editores, asegurando persistencia visual en el menú lateral - 22/05/2024 11:30 */
@@ -155,13 +156,15 @@ export const DashboardLayout = ({
   useEffect(() => {
       const loadData = async () => {
           try {
-              const [mode, list, summary] = await Promise.all([
+              const [mode, list, summary, wizard] = await Promise.all([
                   api.getSystemMode(),
                   api.getCoursesList(),
-                  api.getAnalyticsSummary()
+                  api.getAnalyticsSummary(),
+                  api.getWizardMode().catch(() => true)
               ]);
               
               setSystemMode(mode);
+              setWizardEnabled(wizard);
               setLoadingMode(false);
 
               const items = list.map((c: any) => ({
@@ -336,7 +339,7 @@ export const DashboardLayout = ({
 
   const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin' && !hasCompletedSurvey;
   const isSurveyPending = !hasCompletedSurvey && user.role !== 'admin';
-  const showWizard = !isSurveyPending && !isLaunchRestricted && user.role !== 'admin' && pageCount === 0;
+  const showWizard = wizardEnabled && !isSurveyPending && !isLaunchRestricted && user.role !== 'admin' && pageCount === 0;
 
   if (loadingMode) {
       return (

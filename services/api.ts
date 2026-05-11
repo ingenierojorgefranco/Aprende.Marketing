@@ -47,6 +47,7 @@ const apiCache: {
     loginRedirect: string | null;
     activePaymentMethod: ('stripe' | 'hotmart') | null;
     systemMode: ('production' | 'launch') | null;
+    wizardEnabled: boolean | null;
     hotmartData: any | null;
     usersList: User[] | null;
     currentUser: User[] | null;
@@ -91,6 +92,7 @@ const apiCache: {
     loginRedirect: null,
     activePaymentMethod: null,
     systemMode: null,
+    wizardEnabled: null,
     hotmartData: null,
     usersList: null,
     currentUser: null,
@@ -1456,6 +1458,16 @@ export const api = {
             return data.mode;
         } catch (e) { return 'production'; }
     },
+
+    getWizardMode: async (): Promise<boolean> => {
+        if (isMockMode) return true;
+        if (apiCache.wizardEnabled !== null) return apiCache.wizardEnabled;
+        try {
+            const data = await fetchWithFallback('/settings/wizard-mode');
+            apiCache.wizardEnabled = data.enabled;
+            return data.enabled;
+        } catch (e) { return true; }
+    },
   
     updateLoginRedirect: async (url: string) => {
         if (isMockMode) return Promise.resolve();
@@ -1473,6 +1485,12 @@ export const api = {
         if (isMockMode) return Promise.resolve();
         await fetchWithFallback('/admin/settings', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ key: 'system_mode', value: mode }) });
         clearCache('systemMode');
+    },
+
+    updateWizardMode: async (enabled: boolean) => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback('/admin/settings', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ key: 'wizard_enabled', value: enabled ? 'true' : 'false' }) });
+        clearCache('wizardEnabled');
     },
   
     getPlans: async (): Promise<Plan[]> => {

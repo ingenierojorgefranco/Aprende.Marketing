@@ -360,6 +360,19 @@ router.get('/system/mode', async (req, res) => {
     }
 });
 
+/**
+ * Obtiene el estado del Wizard (Activado o Desactivado)
+ */
+router.get('/settings/wizard-mode', async (req, res) => {
+    try {
+        const [rows] = await pool.query("SELECT setting_value FROM system_settings WHERE setting_key = 'wizard_enabled'");
+        const enabled = rows.length > 0 ? rows[0].setting_value === 'true' : true;
+        res.json({ enabled });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 ////////// Actualización: Endpoints para gestionar integraciones externas (Systeme.io) - 07/06/2025 19:30 //////////
 /**
  * Obtiene las claves de integración del usuario

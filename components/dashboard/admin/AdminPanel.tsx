@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { User, PlanLimits, Plan, UserUsageStats, SupportTicket } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X, Rocket, Layout, MessageCircle, Clock, CheckCircle } from 'lucide-react';
+import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X, Rocket, Layout, MessageCircle, Clock, CheckCircle, Wand2 } from 'lucide-react';
 
 ////////// Actualización: Implementación de Lazy Load para el componente de auditoría - 05/06/2025 21:30 //////////
 const UserContentModal = React.lazy(() => import('./UserContentModal'));
@@ -45,6 +45,10 @@ export const AdminPanel: React.FC = () => {
     ////////// Estado para el modo del sistema - 08/06/2025 //////////
     const [systemMode, setSystemMode] = useState<'production' | 'launch'>('production');
     ////////// Fin de actualización //////////
+
+    ////////// Estado para el modo del Wizard //////////
+    const [wizardEnabled, setWizardEnabled] = useState<boolean>(true);
+    ////////// Fin de actualización //////////
     
     const [loadingSettings, setLoadingSettings] = useState(false);
 
@@ -56,18 +60,20 @@ export const AdminPanel: React.FC = () => {
         setLoading(true);
         try {
             if (viewMode === 'users') {
-                const [usersData, plansData, settingsData, pMethodData, modeData] = await Promise.all([
+                const [usersData, plansData, settingsData, pMethodData, modeData, wizardData] = await Promise.all([
                     api.getUsers(),
                     api.getPlans(),
                     api.getLoginRedirect().catch(() => '/dashboard'),
                     api.getActivePaymentMethod().catch(() => 'stripe'),
-                    api.getSystemMode().catch(() => 'production')
+                    api.getSystemMode().catch(() => 'production'),
+                    api.getWizardMode().catch(() => true)
                 ]);
                 setUsers(usersData);
                 setPlans(plansData);
                 setRedirectUrl(settingsData || '/dashboard');
                 setPaymentMethod(pMethodData as any);
                 setSystemMode(modeData as any);
+                setWizardEnabled(wizardData);
             } else {
                 const ticketsData = await api.getAdminSupportTickets();
                 setTickets(ticketsData);
@@ -87,6 +93,8 @@ export const AdminPanel: React.FC = () => {
             await api.updateActivePaymentMethod(paymentMethod);
             ////////// Se guarda la configuración del modo del sistema - 08/06/2025 //////////
             await api.updateSystemMode(systemMode);
+            ////////// Se guarda la configuración del modo del Wizard //////////
+            await api.updateWizardMode(wizardEnabled);
             ////////// Fin de actualización - 24/05/2025 10:30 //////////
             alert("Configuración actualizada.");
         } catch (e) {
@@ -350,6 +358,37 @@ export const AdminPanel: React.FC = () => {
                                     </button>
                                 </div>
                                 <p className="text-xs text-gray-500 mt-3 italic">* El Modo Lanzamiento restringe el acceso de usuarios normales a una lista de espera.</p>
+                            </div>
+                            {/* ////////// Fin de actualización ////////// */}
+
+                            {/* ////////// Nueva Sección: Configuración del Wizard ////////// */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-2">Estado del Wizard de Inicio</label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button 
+                                        type="button"
+                                        onClick={() => setWizardEnabled(true)}
+                                        className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${wizardEnabled === true ? 'bg-primary/20 border-primary text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
+                                    >
+                                        <Wand2 className={`w-6 h-6 ${wizardEnabled === true ? 'text-primary' : ''}`} />
+                                        <div className="text-left">
+                                            <p className="font-bold text-sm">Wizard Activo</p>
+                                            <p className="text-[10px] opacity-70 uppercase tracking-widest">Ejecutar tras encuesta</p>
+                                        </div>
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        onClick={() => setWizardEnabled(false)}
+                                        className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${wizardEnabled === false ? 'bg-gray-500/20 border-gray-500 text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
+                                    >
+                                        <X className={`w-6 h-6 ${wizardEnabled === false ? 'text-gray-400' : ''}`} />
+                                        <div className="text-left">
+                                            <p className="font-bold text-sm">Desactivado</p>
+                                            <p className="text-[10px] opacity-70 uppercase tracking-widest">Redirección directa</p>
+                                        </div>
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-3 italic">* Si está activo, el usuario verá el asistente de estrategia IA después de completar su perfil inicial. Si está desactivado, el sistema permitirá que el usuario llene la encuesta pero no se ejecutará el wizard y redirigirá al usuario normalmente.</p>
                             </div>
                             {/* ////////// Fin de actualización ////////// */}
 

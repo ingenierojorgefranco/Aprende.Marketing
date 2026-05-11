@@ -621,6 +621,13 @@ const initDb = async () => {
         `);
         ////////// Fin de actualización //////////
 
+        ////////// Inicialización de estado del Wizard (Activado por defecto) //////////
+        await connection.query(`
+            INSERT IGNORE INTO system_settings (setting_key, setting_value) 
+            VALUES ('wizard_enabled', 'true')
+        `);
+        ////////// Fin de actualización //////////
+
         // --- SEED PLANS ---
         const [existingPlans] = await connection.query("SELECT id FROM plans LIMIT 1");
         if (existingPlans.length === 0) {
