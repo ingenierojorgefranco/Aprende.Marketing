@@ -10,7 +10,7 @@ interface WaitlistViewProps {
 
 export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onComplete }) => {
     return (
-        <div className="flex flex-col items-center justify-start pt-20 pb-12 px-6 sm:px-12 relative z-10">
+        <div className="flex flex-col items-center justify-start pt-40 pb-20 px-6 sm:px-12 relative z-10 w-full min-h-screen">
             {/* Background Effects */}
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />

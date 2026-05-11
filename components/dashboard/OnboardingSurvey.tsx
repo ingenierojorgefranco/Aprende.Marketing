@@ -17,6 +17,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
     const [selectedCountryObj, setSelectedCountryObj] = useState<any>(null);
     const [isEditingName, setIsEditingName] = useState(false);
     const [isEditingEmail, setIsEditingEmail] = useState(false);
+    const [showCityInput, setShowCityInput] = useState(false);
     const [formData, setFormData] = useState({
         email: user.email || '',
         fullName: user.name || '',
@@ -39,22 +40,28 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
         businessType: [] as string[],
         budgetRange: '', 
         mainObstacle: '',
-        urgencyLevel: '', // New field
-        niche: '', // New field
+        urgencyLevel: '', 
+        niche: '', 
         communityExpectation: ''
     });
 
     // Sincronizar indicativo cuando cambia el país
     useEffect(() => {
-        if (selectedCountryObj && selectedCountryObj.dial) {
-            setFormData(prev => ({ ...prev, whatsappIndicative: selectedCountryObj.dial, country: selectedCountryObj.name }));
+        if (selectedCountryObj) {
+            setFormData(prev => ({ 
+                ...prev, 
+                whatsappIndicative: selectedCountryObj.dial, 
+                country: selectedCountryObj.name,
+                city: '' // Limpiar ciudad al cambiar país
+            }));
+            setShowCityInput(false);
         }
     }, [selectedCountryObj]);
 
     const validateStep = (currentStep: number) => {
         switch (currentStep) {
             case 0: // Datos Básicos
-                return !!formData.email && !!formData.fullName && !!formData.country && !!formData.city && !!formData.whatsapp;
+                return !!formData.email && !!formData.fullName && !!formData.country && !!formData.city && !!formData.whatsapp && formData.whatsapp.length > 5;
             case 1: // Objetivos
                 return !!formData.mainGoal && !!formData.dedicationTime;
             case 2: // Presencia Digital
@@ -144,32 +151,49 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                         </div>
                         <div className="space-y-3">
                             <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">Ciudad *</label>
-                            {selectedCountryObj && selectedCountryObj.cities.length > 0 ? (
-                                <select 
-                                    value={formData.city}
-                                    onChange={(e) => {
-                                        setFormData({...formData, city: e.target.value});
-                                        setAttemptedNext(false);
-                                    }}
-                                    className={`w-full bg-white/5 border-2 rounded-2xl py-4 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg appearance-none ${attemptedNext && !formData.city ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
-                                >
-                                    <option value="" className="bg-zinc-900">Selecciona tu ciudad</option>
-                                    {selectedCountryObj.cities.map((city: string) => (
-                                        <option key={city} value={city} className="bg-zinc-900">{city}</option>
-                                    ))}
-                                    <option value="Otra" className="bg-zinc-900">Otra ciudad...</option>
-                                </select>
+                            {selectedCountryObj && selectedCountryObj.cities.length > 0 && !showCityInput ? (
+                                <div className="relative">
+                                    <select 
+                                        value={formData.city}
+                                        onChange={(e) => {
+                                            if (e.target.value === "OTRA") {
+                                                setShowCityInput(true);
+                                                setFormData({...formData, city: ''});
+                                            } else {
+                                                setFormData({...formData, city: e.target.value});
+                                            }
+                                            setAttemptedNext(false);
+                                        }}
+                                        className={`w-full bg-white/5 border-2 rounded-2xl py-4 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg appearance-none ${attemptedNext && !formData.city ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
+                                    >
+                                        <option value="" className="bg-zinc-900">Selecciona tu ciudad</option>
+                                        {selectedCountryObj.cities.map((city: string) => (
+                                            <option key={city} value={city} className="bg-zinc-900">{city}</option>
+                                        ))}
+                                        <option value="OTRA" className="bg-zinc-900 font-bold text-emerald-400">+ Otra ciudad...</option>
+                                    </select>
+                                </div>
                             ) : (
-                                <input 
-                                    type="text" 
-                                    value={formData.city}
-                                    onChange={(e) => {
-                                        setFormData({...formData, city: e.target.value});
-                                        setAttemptedNext(false);
-                                    }}
-                                    className={`w-full bg-white/5 border-2 rounded-2xl py-4 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg ${attemptedNext && !formData.city ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
-                                    placeholder="Escribe tu ciudad"
-                                />
+                                <div className="relative">
+                                    <input 
+                                        type="text" 
+                                        value={formData.city}
+                                        onChange={(e) => {
+                                            setFormData({...formData, city: e.target.value});
+                                            setAttemptedNext(false);
+                                        }}
+                                        className={`w-full bg-white/5 border-2 rounded-2xl py-4 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg ${attemptedNext && !formData.city ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
+                                        placeholder={showCityInput ? "Escribe el nombre de tu ciudad" : "Primero selecciona un país"}
+                                    />
+                                    {showCityInput && (
+                                        <button 
+                                            onClick={() => setShowCityInput(false)}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-500 hover:text-white underline"
+                                        >
+                                            Ver lista
+                                        </button>
+                                    )}
+                                </div>
                             )}
                         </div>
                     </div>
