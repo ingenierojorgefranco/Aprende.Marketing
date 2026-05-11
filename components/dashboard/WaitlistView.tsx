@@ -29,19 +29,30 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onComplete }) 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight"
+                        className="text-4xl md:text-6xl font-black text-white mb-8 uppercase"
+                        style={{ lineHeight: '1.2em' }}
                     >
                         Estás a punto de acceder a una plataforma diseñada para <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-500">
+                        <motion.span 
+                            animate={{ 
+                                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                            }}
+                            transition={{ 
+                                duration: 5,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-600 bg-[length:200%_auto]"
+                        >
                             ayudarte a construir y automatizar tu negocio digital con IA
-                        </span>
+                        </motion.span>
                     </motion.h1>
 
                     <motion.p 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-gray-400 text-lg max-w-2xl mx-auto"
+                        className="text-white text-xl md:text-2xl font-medium max-w-3xl mx-auto opacity-90"
                     >
                         Antes de comenzar, queremos entender tu perfil para personalizar tu experiencia dentro de la plataforma.
                     </motion.p>

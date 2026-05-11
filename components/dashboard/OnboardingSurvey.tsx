@@ -3,37 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, ChevronLeft, Check, Send, Mail, User, Globe, Phone, Target, BarChart, Rocket, HelpCircle, Briefcase, Clock, Monitor, Share2, Award, Zap } from 'lucide-react';
 import { api } from '../../services/api';
 import { User as UserType } from '../../types';
+import { countries } from '../../src/lib/countriesData';
 
 interface OnboardingSurveyProps {
     user: UserType;
     onComplete: () => void;
 }
-
-// Sample Country Data (Normally this would come from an API or larger file)
-const countries = [
-    { name: "Argentina", code: "AR", dial: "+54", flag: "🇦🇷", cities: ["Buenos Aires", "Córdoba", "Rosario", "Mendoza", "La Plata"] },
-    { name: "Bolivia", code: "BO", dial: "+591", flag: "🇧🇴", cities: ["La Paz", "Santa Cruz", "Cochabamba", "Sucre"] },
-    { name: "Brasil", code: "BR", dial: "+55", flag: "🇧🇷", cities: ["São Paulo", "Río de Janeiro", "Brasilia"] },
-    { name: "Chile", code: "CL", dial: "+56", flag: "🇨🇱", cities: ["Santiago", "Valparaíso", "Concepción", "Viña del Mar"] },
-    { name: "Colombia", code: "CO", dial: "+57", flag: "🇨🇴", cities: ["Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena", "Bucaramanga"] },
-    { name: "Costa Rica", code: "CR", dial: "+506", flag: "🇨🇷", cities: ["San José", "Alajuela", "Cartago"] },
-    { name: "Ecuador", code: "EC", dial: "+593", flag: "🇪🇨", cities: ["Quito", "Guayaquil", "Cuenca", "Manta"] },
-    { name: "El Salvador", code: "SV", dial: "+503", flag: "🇸🇻", cities: ["San Salvador", "Santa Ana"] },
-    { name: "España", code: "ES", dial: "+34", flag: "🇪🇸", cities: ["Madrid", "Barcelona", "Valencia", "Sevilla", "Zaragoza", "Málaga"] },
-    { name: "Estados Unidos", code: "US", dial: "+1", flag: "🇺🇸", cities: ["Miami", "Nueva York", "Los Ángeles", "Houston"] },
-    { name: "Guatemala", code: "GT", dial: "+502", flag: "🇬🇹", cities: ["Ciudad de Guatemala", "Mixco"] },
-    { name: "Honduras", code: "HN", dial: "+504", flag: "🇭🇳", cities: ["Tegucigalpa", "San Pedro Sula"] },
-    { name: "México", code: "MX", dial: "+52", flag: "🇲🇽", cities: ["Ciudad de México", "Guadalajara", "Monterrey", "Puebla", "Querétaro", "Cancún"] },
-    { name: "Nicaragua", code: "NI", dial: "+505", flag: "🇳🇮", cities: ["Managua", "León"] },
-    { name: "Panamá", code: "PA", dial: "+507", flag: "🇵🇦", cities: ["Ciudad de Panamá", "David", "Colón"] },
-    { name: "Paraguay", code: "PY", dial: "+595", flag: "🇵🇾", cities: ["Asunción", "Ciudad del Este"] },
-    { name: "Perú", code: "PE", dial: "+51", flag: "🇵🇪", cities: ["Lima", "Arequipa", "Trujillo", "Chiclayo", "Cusco"] },
-    { name: "Puerto Rico", code: "PR", dial: "+1", flag: "🇵🇷", cities: ["San Juan", "Bayamón"] },
-    { name: "República Dominicana", code: "DO", dial: "+1", flag: "🇩🇴", cities: ["Santo Domingo", "Santiago"] },
-    { name: "Uruguay", code: "UY", dial: "+598", flag: "🇺🇾", cities: ["Montevideo", "Salto", "Maldonado"] },
-    { name: "Venezuela", code: "VE", dial: "+58", flag: "🇻🇪", cities: ["Caracas", "Maracaibo", "Valencia", "Barquisimeto"] },
-    { name: "Otros", code: "", dial: "", flag: "🌐", cities: [] }
-];
 
 export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComplete }) => {
     const [step, setStep] = useState(0);
@@ -706,7 +681,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                     
                     <div className="relative z-10">
                         <div className="mb-12">
-                            <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                            <p className="text-white text-xl md:text-2xl leading-relaxed font-bold">
                                 {steps[step].description}
                             </p>
                         </div>

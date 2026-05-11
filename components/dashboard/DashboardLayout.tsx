@@ -316,82 +316,97 @@ export const DashboardLayout = ({
 
   return (
     <div className="h-screen overflow-hidden bg-black text-[#FFFFFF] flex font-sans">
-      <aside className={`fixed md:relative top-0 left-0 h-full w-[25rem] bg-[#0B0B0B] border-r border-white/5 shadow-2xl z-40 transition-transform duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        <div className="p-8 pb-6 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-              <div className="w-16 h-10 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-base shadow-lg shadow-[#FF5A1F]/20 px-1.5">A.MKT</div>
-              <div>
-                  <h2 className="text-2xl font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
-                  <p className="text-[10px] text-[#B0B0B0] uppercase tracking-widest mt-1 font-black">Tu Panel de Control</p>
-              </div>
+      {!isSurveyPending && (
+        <aside className={`fixed md:relative top-0 left-0 h-full w-[25rem] bg-[#0B0B0B] border-r border-white/5 shadow-2xl z-40 transition-transform duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+          <div className="p-8 pb-6 flex justify-between items-center">
+            <div className="flex items-center gap-3">
+                <div className="w-16 h-10 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-base shadow-lg shadow-[#FF5A1F]/20 px-1.5">A.MKT</div>
+                <div>
+                    <h2 className="text-2xl font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
+                    <p className="text-[10px] text-[#B0B0B0] uppercase tracking-widest mt-1 font-black">Tu Panel de Control</p>
+                </div>
+            </div>
+            <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-[#B0B0B0]"><X className="w-6 h-6" /></button>
           </div>
-          <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-[#B0B0B0]"><X className="w-6 h-6" /></button>
-        </div>
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">{menuStructure.map(item => <NavItemRender key={item.id} item={item} />)}</nav>
-        
-        {user.role === 'admin' && (
-            <div className="mt-auto px-6 py-2">
-                <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/20 p-3 rounded-xl">
-                    <label className="flex items-center gap-2 text-[10px] font-black text-[#FF5A1F] uppercase mb-2"><Eye className="w-3 h-3" /> Modo Pruebas</label>
-                    <select value={simulatedPlanSlug || ''} onChange={(e) => setSimulatedPlanSlug(e.target.value || null)} className="w-full bg-black border border-white/10 text-white text-xs rounded-lg p-2 outline-none">
-                        <option value="">Admin (Real)</option>
-                        {availablePlans.map(p => <option key={p.id} value={p.slug}>{p.name}</option>)}
-                    </select>
-                </div>
-            </div>
-        )}
+          <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">{menuStructure.map(item => <NavItemRender key={item.id} item={item} />)}</nav>
+          
+          {user.role === 'admin' && (
+              <div className="mt-auto px-6 py-2">
+                  <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/20 p-3 rounded-xl">
+                      <label className="flex items-center gap-2 text-[10px] font-black text-[#FF5A1F] uppercase mb-2"><Eye className="w-3 h-3" /> Modo Pruebas</label>
+                      <select value={simulatedPlanSlug || ''} onChange={(e) => setSimulatedPlanSlug(e.target.value || null)} className="w-full bg-black border border-white/10 text-white text-xs rounded-lg p-2 outline-none">
+                          <option value="">Admin (Real)</option>
+                          {availablePlans.map(p => <option key={p.id} value={p.slug}>{p.name}</option>)}
+                      </select>
+                  </div>
+              </div>
+          )}
 
-        {!isLaunchRestricted && currentPlan !== 'max' && (
-            <div className="border-t border-white/5 bg-[#0B0B0B] p-6">
-                <div className="p-8 rounded-[2rem] border border-[#FF5A1F]/30 bg-[#FF5A1F]/10 backdrop-blur-md relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
-                        <Sparkles className="w-24 h-24 text-white" />
-                    </div>
-                    <div className="flex flex-col items-center text-center relative z-10">
-                        <h3 className="font-black text-white text-xl leading-tight mb-2 tracking-tight">Mejora tu capacidad</h3>
-                        <p className="text-sm text-[#B0B0B0] mb-6 px-4 font-medium leading-relaxed">Desbloquea generación ilimitada y dominios propios de inmediato.</p>
-                        <button 
-                            onClick={() => setShowUpgradeModal(true)} 
-                            className="w-full py-4 rounded-2xl font-black text-sm bg-[#FF5A1F] hover:bg-[#D94A1E] text-white transition-all shadow-[0_15px_30px_-5px_rgba(255,90,31,0.5)] transform hover:-translate-y-1 active:scale-95"
-                        >
-                            Ver Planes PRO
-                        </button>
-                    </div>
-                </div>
-            </div>
-        )}
-      </aside>
+          {!isLaunchRestricted && currentPlan !== 'max' && (
+              <div className="border-t border-white/5 bg-[#0B0B0B] p-6">
+                  <div className="p-8 rounded-[2rem] border border-[#FF5A1F]/30 bg-[#FF5A1F]/10 backdrop-blur-md relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
+                          <Sparkles className="w-24 h-24 text-white" />
+                      </div>
+                      <div className="flex flex-col items-center text-center relative z-10">
+                          <h3 className="font-black text-white text-xl leading-tight mb-2 tracking-tight">Mejora tu capacidad</h3>
+                          <p className="text-sm text-[#B0B0B0] mb-6 px-4 font-medium leading-relaxed">Desbloquea generación ilimitada y dominios propios de inmediato.</p>
+                          <button 
+                              onClick={() => setShowUpgradeModal(true)} 
+                              className="w-full py-4 rounded-2xl font-black text-sm bg-[#FF5A1F] hover:bg-[#D94A1E] text-white transition-all shadow-[0_15px_30px_-5px_rgba(255,90,31,0.5)] transform hover:-translate-y-1 active:scale-95"
+                          >
+                              Ver Planes PRO
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          )}
+        </aside>
+      )}
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
         {mobileMenuOpen && <div className="fixed inset-0 bg-black/80 z-30 md:hidden" onClick={() => setMobileMenuOpen(false)}></div>}
         <header className="h-20 bg-[#0B0B0B]/95 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-6 shrink-0 z-30">
              <div className="flex items-center gap-4">
-                 <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-[#B0B0B0]"><Menu className="w-6 h-6" /></button>
-                 <h2 className="text-xl font-bold text-white hidden sm:block">Hola, {effectiveUser.name.split(' ')[0]} 👋</h2>
+                 {isSurveyPending ? (
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-[#FF5A1F]/20 px-1">A.MKT</div>
+                        <h2 className="text-lg font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
+                    </div>
+                 ) : (
+                    <>
+                        <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-[#B0B0B0]"><Menu className="w-6 h-6" /></button>
+                        <h2 className="text-xl font-bold text-white hidden sm:block">Hola, {effectiveUser.name.split(' ')[0]} 👋</h2>
+                    </>
+                 )}
              </div>
              
              <div className="flex items-center gap-2 sm:gap-4">
-                 <a 
-                    href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-white hover:bg-white/10 transition-all"
-                    title="Comunidad WhatsApp"
-                 >
-                    <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
-                        <Users className="w-4 h-4" />
-                    </div>
-                    <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Comunidad</span>
-                 </a>
+                 {!isSurveyPending && (
+                    <>
+                        <a 
+                            href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-white hover:bg-white/10 transition-all"
+                            title="Comunidad WhatsApp"
+                        >
+                            <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
+                                <Users className="w-4 h-4" />
+                            </div>
+                            <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Comunidad</span>
+                        </a>
 
-                 <button 
-                    onClick={() => setShowHelpModal(true)}
-                    className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-white hover:bg-white/10 transition-all"
-                 >
-                    <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
-                        <HelpCircle className="w-4 h-4" />
-                    </div>
-                    <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Ayuda</span>
-                 </button>
+                        <button 
+                            onClick={() => setShowHelpModal(true)}
+                            className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-white hover:bg-white/10 transition-all"
+                        >
+                            <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
+                                <HelpCircle className="w-4 h-4" />
+                            </div>
+                            <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Ayuda</span>
+                        </button>
+                    </>
+                 )}
 
                  <button onClick={() => setShowProfileModal(true)} className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition shadow-sm">
                      <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center font-bold overflow-hidden shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
@@ -409,8 +424,8 @@ export const DashboardLayout = ({
              </div>
         </header>
 
-        <div className="flex-1 overflow-auto bg-black p-4 sm:p-8 relative">
-            <div className="max-w-[1600px] mx-auto">
+        <div className={`flex-1 overflow-auto bg-black p-4 sm:p-8 relative ${isSurveyPending ? 'flex items-center justify-center' : ''}`}>
+            <div className={`w-full max-w-[1600px] ${isSurveyPending ? 'max-w-4xl mx-auto' : 'mx-auto'}`}>
                 {(isLaunchRestricted || isSurveyPending) ? (
                     <WaitlistView user={effectiveUser} onComplete={() => window.location.reload()} />
                 ) : (
