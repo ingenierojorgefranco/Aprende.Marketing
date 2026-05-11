@@ -37,6 +37,8 @@ export const DashboardLayout = ({
   const location = useLocation();
   const navigate = useNavigate();
 
+  console.log("DashboardLayout - Rendering step 1 (hooks start)");
+  
   const [systemMode, setSystemMode] = useState<'production' | 'launch'>('production');
   const [loadingMode, setLoadingMode] = useState(true);
 
@@ -287,6 +289,7 @@ export const DashboardLayout = ({
     }, 1500);
   };
 
+  console.log("DashboardLayout - Checkpoint before loading return, loadingMode:", loadingMode);
   if (loadingMode) {
       return (
           <div className="h-screen bg-black flex items-center justify-center">
@@ -295,6 +298,7 @@ export const DashboardLayout = ({
       );
   }
 
+  console.log("DashboardLayout - Checkpoint after loading return, declaring hasCompletedSurvey");
   const hasCompletedSurvey = useMemo(() => {
     if (user.role === 'admin') return true;
     const survey = user.survey_json;
