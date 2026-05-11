@@ -194,6 +194,8 @@ export interface User {
   answers_json?: any;
   createdsurvey_at?: string;
   updatedsurvey_at?: string;
+  niche?: string;
+  urgency_level?: string;
 }
 
 // NEW: System Log Type

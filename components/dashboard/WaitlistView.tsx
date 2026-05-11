@@ -31,9 +31,9 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onComplete }) 
                         transition={{ delay: 0.1 }}
                         className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight"
                     >
-                        Estás a punto de acceder a la <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-500">
-                            herramienta definitiva de ventas
+                        Estás a punto de acceder a una plataforma diseñada para <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-500">
+                            ayudarte a construir y automatizar tu negocio digital con IA
                         </span>
                     </motion.h1>
 
@@ -43,7 +43,7 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onComplete }) 
                         transition={{ delay: 0.2 }}
                         className="text-gray-400 text-lg max-w-2xl mx-auto"
                     >
-                        Para habilitar tu acceso exclusivo, necesitamos conocer un poco más sobre tu perfil y necesidades.
+                        Antes de comenzar, queremos entender tu perfil para personalizar tu experiencia dentro de la plataforma.
                     </motion.p>
                 </div>
 

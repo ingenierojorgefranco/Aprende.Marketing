@@ -11,48 +11,91 @@ interface OnboardingSurveyProps {
 
 // Sample Country Data (Normally this would come from an API or larger file)
 const countries = [
-    { name: "Argentina", cities: ["Buenos Aires", "Córdoba", "Rosario", "Mendoza"] },
-    { name: "Bolivia", cities: ["La Paz", "Santa Cruz", "Cochabamba"] },
-    { name: "Chile", cities: ["Santiago", "Valparaíso", "Concepción"] },
-    { name: "Colombia", cities: ["Bogotá", "Medellín", "Cali", "Barranquilla"] },
-    { name: "Costa Rica", cities: ["San José", "Alajuela"] },
-    { name: "Ecuador", cities: ["Quito", "Guayaquil", "Cuenca"] },
-    { name: "España", cities: ["Madrid", "Barcelona", "Valencia", "Sevilla"] },
-    { name: "México", cities: ["Ciudad de México", "Guadalajara", "Monterrey", "Puebla"] },
-    { name: "Panamá", cities: ["Ciudad de Panamá", "David"] },
-    { name: "Perú", cities: ["Lima", "Arequipa", "Trujillo"] },
-    { name: "Uruguay", cities: ["Montevideo", "Salto"] },
-    { name: "Venezuela", cities: ["Caracas", "Maracaibo", "Valencia"] },
-    { name: "Otros", cities: [] }
+    { name: "Argentina", code: "AR", dial: "+54", flag: "🇦🇷", cities: ["Buenos Aires", "Córdoba", "Rosario", "Mendoza", "La Plata"] },
+    { name: "Bolivia", code: "BO", dial: "+591", flag: "🇧🇴", cities: ["La Paz", "Santa Cruz", "Cochabamba", "Sucre"] },
+    { name: "Brasil", code: "BR", dial: "+55", flag: "🇧🇷", cities: ["São Paulo", "Río de Janeiro", "Brasilia"] },
+    { name: "Chile", code: "CL", dial: "+56", flag: "🇨🇱", cities: ["Santiago", "Valparaíso", "Concepción", "Viña del Mar"] },
+    { name: "Colombia", code: "CO", dial: "+57", flag: "🇨🇴", cities: ["Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena", "Bucaramanga"] },
+    { name: "Costa Rica", code: "CR", dial: "+506", flag: "🇨🇷", cities: ["San José", "Alajuela", "Cartago"] },
+    { name: "Ecuador", code: "EC", dial: "+593", flag: "🇪🇨", cities: ["Quito", "Guayaquil", "Cuenca", "Manta"] },
+    { name: "El Salvador", code: "SV", dial: "+503", flag: "🇸🇻", cities: ["San Salvador", "Santa Ana"] },
+    { name: "España", code: "ES", dial: "+34", flag: "🇪🇸", cities: ["Madrid", "Barcelona", "Valencia", "Sevilla", "Zaragoza", "Málaga"] },
+    { name: "Estados Unidos", code: "US", dial: "+1", flag: "🇺🇸", cities: ["Miami", "Nueva York", "Los Ángeles", "Houston"] },
+    { name: "Guatemala", code: "GT", dial: "+502", flag: "🇬🇹", cities: ["Ciudad de Guatemala", "Mixco"] },
+    { name: "Honduras", code: "HN", dial: "+504", flag: "🇭🇳", cities: ["Tegucigalpa", "San Pedro Sula"] },
+    { name: "México", code: "MX", dial: "+52", flag: "🇲🇽", cities: ["Ciudad de México", "Guadalajara", "Monterrey", "Puebla", "Querétaro", "Cancún"] },
+    { name: "Nicaragua", code: "NI", dial: "+505", flag: "🇳🇮", cities: ["Managua", "León"] },
+    { name: "Panamá", code: "PA", dial: "+507", flag: "🇵🇦", cities: ["Ciudad de Panamá", "David", "Colón"] },
+    { name: "Paraguay", code: "PY", dial: "+595", flag: "🇵🇾", cities: ["Asunción", "Ciudad del Este"] },
+    { name: "Perú", code: "PE", dial: "+51", flag: "🇵🇪", cities: ["Lima", "Arequipa", "Trujillo", "Chiclayo", "Cusco"] },
+    { name: "Puerto Rico", code: "PR", dial: "+1", flag: "🇵🇷", cities: ["San Juan", "Bayamón"] },
+    { name: "República Dominicana", code: "DO", dial: "+1", flag: "🇩🇴", cities: ["Santo Domingo", "Santiago"] },
+    { name: "Uruguay", code: "UY", dial: "+598", flag: "🇺🇾", cities: ["Montevideo", "Salto", "Maldonado"] },
+    { name: "Venezuela", code: "VE", dial: "+58", flag: "🇻🇪", cities: ["Caracas", "Maracaibo", "Valencia", "Barquisimeto"] },
+    { name: "Otros", code: "", dial: "", flag: "🌐", cities: [] }
 ];
 
 export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComplete }) => {
     const [step, setStep] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [selectedCountry, setSelectedCountry] = useState("");
+    const [attemptedNext, setAttemptedNext] = useState(false);
+    const [selectedCountryObj, setSelectedCountryObj] = useState<any>(null);
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [isEditingEmail, setIsEditingEmail] = useState(false);
     const [formData, setFormData] = useState({
         email: user.email || '',
         fullName: user.name || '',
         country: '',
         city: '',
         whatsapp: '',
-        mainGoal: '', // El resultado principal que quieres conseguir
+        whatsappIndicative: '',
+        mainGoal: '', 
         dedicationTime: '',
-        hasWebsite: '',
+        onlinePresence: '',
         useSocialMedia: [] as string[],
-        experienceLevel: '', // Nivel actual
+        experienceLevel: '', 
         hasHotmartAcc: '',
         mastery: {
             funnels: '',
             emailMarketing: '',
-            landingPages: ''
+            landingPages: '',
+            ia: ''
         },
-        businessType: '', // Tipo de negocio que quieres construir
-        budgetRange: '', // Cuánto podrías invertir
+        businessType: [] as string[],
+        budgetRange: '', 
         mainObstacle: '',
-        skillToImprove: '',
+        urgencyLevel: '', // New field
+        niche: '', // New field
         communityExpectation: ''
     });
+
+    // Sincronizar indicativo cuando cambia el país
+    useEffect(() => {
+        if (selectedCountryObj && selectedCountryObj.dial) {
+            setFormData(prev => ({ ...prev, whatsappIndicative: selectedCountryObj.dial, country: selectedCountryObj.name }));
+        }
+    }, [selectedCountryObj]);
+
+    const validateStep = (currentStep: number) => {
+        switch (currentStep) {
+            case 0: // Datos Básicos
+                return !!formData.email && !!formData.fullName && !!formData.country && !!formData.city && !!formData.whatsapp;
+            case 1: // Objetivos
+                return !!formData.mainGoal && !!formData.dedicationTime;
+            case 2: // Presencia Digital
+                return !!formData.onlinePresence;
+            case 3: // Conocimientos
+                return !!formData.experienceLevel && !!formData.hasHotmartAcc;
+            case 4: // Negocio e Inversión
+                return formData.businessType.length > 0 && !!formData.budgetRange;
+            case 5: // Desafíos
+                return !!formData.mainObstacle && !!formData.communityExpectation;
+            case 6: // Pregunta de Oro
+                return !!formData.niche && !!formData.urgencyLevel;
+            default:
+                return true;
+        }
+    };
 
     const steps = [
         {
@@ -65,13 +108,18 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                             <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">Correo electrónico</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <Mail className="h-6 w-6 text-emerald-500 group-focus-within:text-emerald-400 transition-colors" />
+                                    <Mail className="h-6 w-6 text-emerald-500 transition-colors" />
                                 </div>
                                 <input 
                                     type="email" 
-                                    readOnly
                                     value={formData.email}
-                                    className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-4 pl-12 pr-4 text-gray-500 cursor-not-allowed font-medium text-lg"
+                                    onChange={(e) => {
+                                        setFormData({...formData, email: e.target.value});
+                                        setAttemptedNext(false);
+                                    }}
+                                    onFocus={() => setIsEditingEmail(true)}
+                                    onBlur={() => setIsEditingEmail(false)}
+                                    className={`w-full bg-white/5 border-2 rounded-2xl py-4 pl-12 pr-4 text-white font-medium text-lg focus:outline-none transition-all ${isEditingEmail ? 'border-emerald-500 shadow-lg shadow-emerald-500/10' : attemptedNext && !formData.email ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
                                 />
                             </div>
                         </div>
@@ -79,13 +127,18 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                             <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">Nombre Completo</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <User className="h-6 w-6 text-emerald-500 group-focus-within:text-emerald-400 transition-colors" />
+                                    <User className="h-6 w-6 text-emerald-500 transition-colors" />
                                 </div>
                                 <input 
                                     type="text" 
-                                    readOnly
                                     value={formData.fullName}
-                                    className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-4 pl-12 pr-4 text-gray-500 cursor-not-allowed font-medium text-lg"
+                                    onChange={(e) => {
+                                        setFormData({...formData, fullName: e.target.value});
+                                        setAttemptedNext(false);
+                                    }}
+                                    onFocus={() => setIsEditingName(true)}
+                                    onBlur={() => setIsEditingName(false)}
+                                    className={`w-full bg-white/5 border-2 rounded-2xl py-4 pl-12 pr-4 text-white font-medium text-lg focus:outline-none transition-all ${isEditingName ? 'border-emerald-500 shadow-lg shadow-emerald-500/10' : attemptedNext && !formData.fullName ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
                                 />
                             </div>
                         </div>
@@ -94,30 +147,37 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-3">
                             <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">País *</label>
-                            <select 
-                                value={selectedCountry}
-                                onChange={(e) => {
-                                    setSelectedCountry(e.target.value);
-                                    setFormData({...formData, country: e.target.value, city: ''});
-                                }}
-                                className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-4 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg appearance-none"
-                            >
-                                <option value="" className="bg-zinc-900">Selecciona tu país</option>
-                                {countries.map(c => (
-                                    <option key={c.name} value={c.name} className="bg-zinc-900">{c.name}</option>
-                                ))}
-                            </select>
+                            <div className="relative">
+                                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-emerald-500 pointer-events-none" />
+                                <select 
+                                    value={formData.country}
+                                    onChange={(e) => {
+                                        const c = countries.find(x => x.name === e.target.value);
+                                        setSelectedCountryObj(c);
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`w-full bg-white/5 border-2 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg appearance-none ${attemptedNext && !formData.country ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
+                                >
+                                    <option value="" className="bg-zinc-900">Selecciona tu país</option>
+                                    {countries.map(c => (
+                                        <option key={c.name} value={c.name} className="bg-zinc-900">{c.flag} {c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                         <div className="space-y-3">
                             <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">Ciudad *</label>
-                            {selectedCountry && selectedCountry !== "Otros" ? (
+                            {selectedCountryObj && selectedCountryObj.cities.length > 0 ? (
                                 <select 
                                     value={formData.city}
-                                    onChange={(e) => setFormData({...formData, city: e.target.value})}
-                                    className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-4 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg appearance-none"
+                                    onChange={(e) => {
+                                        setFormData({...formData, city: e.target.value});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`w-full bg-white/5 border-2 rounded-2xl py-4 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg appearance-none ${attemptedNext && !formData.city ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
                                 >
                                     <option value="" className="bg-zinc-900">Selecciona tu ciudad</option>
-                                    {countries.find(c => c.name === selectedCountry)?.cities.map(city => (
+                                    {selectedCountryObj.cities.map((city: string) => (
                                         <option key={city} value={city} className="bg-zinc-900">{city}</option>
                                     ))}
                                     <option value="Otra" className="bg-zinc-900">Otra ciudad...</option>
@@ -126,28 +186,50 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                 <input 
                                     type="text" 
                                     value={formData.city}
-                                    onChange={(e) => setFormData({...formData, city: e.target.value})}
-                                    className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-4 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg"
+                                    onChange={(e) => {
+                                        setFormData({...formData, city: e.target.value});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`w-full bg-white/5 border-2 rounded-2xl py-4 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg ${attemptedNext && !formData.city ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
                                     placeholder="Escribe tu ciudad"
                                 />
                             )}
                         </div>
                     </div>
 
-                    <div className="space-y-3">
-                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">Número de WhatsApp *</label>
-                        <div className="relative group">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <Phone className="h-6 w-6 text-emerald-500 group-focus-within:text-emerald-400 transition-colors" />
+                    <div className="space-y-4">
+                        <div className="space-y-1">
+                            <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">Número de WhatsApp *</label>
+                            <p className="text-xs text-gray-500 italic">Lo usaremos para soporte, novedades importantes y automatizaciones personalizadas.</p>
+                        </div>
+                        <div className="flex gap-3">
+                            <div className="w-32 relative">
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-xl pointer-events-none">
+                                    {selectedCountryObj?.flag || "🌐"}
+                                </div>
+                                <input 
+                                    type="text"
+                                    readOnly
+                                    value={formData.whatsappIndicative}
+                                    className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-4 pl-10 pr-2 text-white font-bold text-lg text-center"
+                                />
                             </div>
-                            <input 
-                                type="tel" 
-                                required
-                                value={formData.whatsapp}
-                                onChange={(e) => setFormData({...formData, whatsapp: e.target.value})}
-                                className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg"
-                                placeholder="+57 321..."
-                            />
+                            <div className="flex-1 relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Phone className="h-6 w-6 text-emerald-500 transition-colors" />
+                                </div>
+                                <input 
+                                    type="tel" 
+                                    required
+                                    value={formData.whatsapp}
+                                    onChange={(e) => {
+                                        setFormData({...formData, whatsapp: e.target.value});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`w-full bg-white/5 border-2 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg ${attemptedNext && !formData.whatsapp ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
+                                    placeholder="321 000 0000"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -162,65 +244,96 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                         <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Cuál es el resultado principal que quieres conseguir? *</label>
                         <div className="grid grid-cols-1 gap-3">
                             {[
-                                "Generar ingresos vendiendo productos digitales",
-                                "Construir una marca personal",
-                                "Consigan clientes para mi negocio",
-                                "Automatizar ventas con IA",
-                                "Crear y vender mi propio producto",
-                                "Aprender marketing digital desde cero"
+                                { id: "afiliado", label: "Generar ingresos como afiliado o creador digital", icon: <Target className="w-5 h-5 text-emerald-400" /> },
+                                { id: "marca", label: "Construir una marca personal", icon: <User className="w-5 h-5 text-blue-400" /> },
+                                { id: "clientes", label: "Conseguir clientes para mi negocio", icon: <Briefcase className="w-5 h-5 text-purple-400" /> },
+                                { id: "ia", label: "Automatizar ventas con IA", icon: <Zap className="w-5 h-5 text-yellow-400" /> },
+                                { id: "propio", label: "Crear y vender mi propio producto", icon: <Rocket className="w-5 h-5 text-red-400" /> },
+                                { id: "cero", label: "Aprender marketing digital desde cero", icon: <Award className="w-5 h-5 text-emerald-400" /> }
                             ].map((opt) => (
                                 <button
-                                    key={opt}
-                                    onClick={() => setFormData({...formData, mainGoal: opt})}
-                                    className={`text-left p-5 rounded-2xl border-2 transition-all group flex items-center justify-between ${formData.mainGoal === opt ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
+                                    key={opt.id}
+                                    onClick={() => {
+                                        setFormData({...formData, mainGoal: opt.label});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`text-left p-5 rounded-2xl border-2 transition-all group flex items-center justify-between ${formData.mainGoal === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10' : attemptedNext && !formData.mainGoal ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
                                 >
-                                    <span className="font-bold text-lg">{opt}</span>
-                                    {formData.mainGoal === opt && <Check className="w-6 h-6 text-emerald-500" />}
+                                    <div className="flex items-center gap-4">
+                                        <div className={`p-2 rounded-lg ${formData.mainGoal === opt.label ? 'bg-emerald-500/20' : 'bg-white/5'}`}>
+                                            {opt.icon}
+                                        </div>
+                                        <span className="font-bold text-lg">{opt.label}</span>
+                                    </div>
+                                    {formData.mainGoal === opt.label && <Check className="w-6 h-6 text-emerald-500" />}
                                 </button>
                             ))}
                         </div>
                     </div>
                     <div className="space-y-4">
                         <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Cuánto tiempo podrías dedicar semanalmente? *</label>
-                        <select 
-                            value={formData.dedicationTime}
-                            onChange={(e) => setFormData({...formData, dedicationTime: e.target.value})}
-                            className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-5 px-6 text-white focus:border-emerald-500 focus:outline-none transition-all font-bold text-xl appearance-none"
-                        >
-                            <option value="" className="bg-zinc-900">Selecciona el tiempo</option>
-                            <option value="Menos de 5 horas" className="bg-zinc-900">Menos de 5 horas</option>
-                            <option value="5-10 horas" className="bg-zinc-900">5-10 horas</option>
-                            <option value="10-20 horas" className="bg-zinc-900">10-20 horas</option>
-                            <option value="Más de 20 horas" className="bg-zinc-900">Más de 20 horas (Dedicación completa)</option>
-                        </select>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {[
+                                { label: "Menos de 2 horas", icon: <Clock className="w-5 h-5" /> },
+                                { label: "2-5 horas", icon: <Clock className="w-5 h-5" /> },
+                                { label: "5-10 horas", icon: <Clock className="w-5 h-5" /> },
+                                { label: "10+ horas", icon: <Clock className="w-5 h-5" /> }
+                            ].map((opt) => (
+                                <button
+                                    key={opt.label}
+                                    onClick={() => {
+                                        setFormData({...formData, dedicationTime: opt.label});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all gap-3 ${formData.dedicationTime === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white' : attemptedNext && !formData.dedicationTime ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
+                                >
+                                    {opt.icon}
+                                    <span className="font-bold text-sm text-center leading-tight">{opt.label}</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             )
         },
         {
-            title: "Infraestructura Online",
-            description: "Cuéntanos sobre tu presencia digital actual.",
+            title: "Presencia Digital",
+            description: "Cuéntanos sobre tu presencia digital actual para personalizar las herramientas.",
             content: (
                 <div className="space-y-8">
                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Tienes una página web o blog? *</label>
-                        <div className="flex gap-4">
-                            {['SI', 'NO'].map(opt => (
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Ya tienes presencia online activa? *</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {[
+                                { label: "Tengo redes sociales activas", icon: <Share2 className="w-5 h-5 text-blue-400" /> },
+                                { label: "Tengo página web", icon: <Globe className="w-5 h-5 text-emerald-400" /> },
+                                { label: "Tengo ambas", icon: <Monitor className="w-5 h-5 text-purple-400" /> },
+                                { label: "Estoy comenzando desde cero", icon: <Rocket className="w-5 h-5 text-gray-400" /> }
+                            ].map(opt => (
                                 <button
-                                    key={opt}
-                                    onClick={() => setFormData({...formData, hasWebsite: opt})}
-                                    className={`flex-1 p-6 rounded-2xl border-2 transition-all font-black text-2xl ${formData.hasWebsite === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
+                                    key={opt.label}
+                                    onClick={() => {
+                                        setFormData({...formData, onlinePresence: opt.label});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`text-left p-5 rounded-2xl border-2 transition-all group flex items-center justify-between ${formData.onlinePresence === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10' : attemptedNext && !formData.onlinePresence ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
                                 >
-                                    {opt}
+                                    <div className="flex items-center gap-4">
+                                        <div className={`p-2 rounded-lg ${formData.onlinePresence === opt.label ? 'bg-emerald-500/20' : 'bg-white/5'}`}>
+                                            {opt.icon}
+                                        </div>
+                                        <span className="font-bold text-lg">{opt.label}</span>
+                                    </div>
+                                    {formData.onlinePresence === opt.label && <Check className="w-6 h-6 text-emerald-500" />}
                                 </button>
                             ))}
                         </div>
                     </div>
                     
                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Usas Redes Sociales para tu Negocio?</label>
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Qué plataformas usas actualmente para crear contenido o atraer audiencia?</label>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                            {["Instagram", "Facebook", "TikTok", "YouTube", "Telegram", "No tengo redes activas todavía"].map(opt => (
+                            {["Instagram", "Facebook", "TikTok", "YouTube", "Telegram", "Publicidad Paga", "Enfoque en negocio", "Uso personal", "Ninguna aún"].map(opt => (
                                 <button
                                     key={opt}
                                     onClick={() => {
@@ -229,9 +342,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                             : [...formData.useSocialMedia, opt];
                                         setFormData({...formData, useSocialMedia: sm});
                                     }}
-                                    className={`p-4 rounded-2xl border-2 transition-all text-sm font-bold ${formData.useSocialMedia.includes(opt) ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
+                                    className={`p-4 rounded-2xl border-2 transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.useSocialMedia.includes(opt) ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
                                 >
                                     {opt}
+                                    {formData.useSocialMedia.includes(opt) && <Check className="w-4 h-4" />}
                                 </button>
                             ))}
                         </div>
@@ -255,10 +369,14 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                             ].map(opt => (
                                 <button
                                     key={opt}
-                                    onClick={() => setFormData({...formData, experienceLevel: opt})}
-                                    className={`text-left p-4 rounded-2xl border-2 transition-all font-bold ${formData.experienceLevel === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                    onClick={() => {
+                                        setFormData({...formData, experienceLevel: opt});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`text-left p-4 rounded-2xl border-2 transition-all font-bold group flex items-center justify-between ${formData.experienceLevel === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : attemptedNext && !formData.experienceLevel ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
                                 >
-                                    {opt}
+                                    <span className="text-lg">{opt}</span>
+                                    {formData.experienceLevel === opt && <Check className="w-5 h-5 text-emerald-500" />}
                                 </button>
                             ))}
                         </div>
@@ -266,14 +384,21 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
 
                     <div className="space-y-4">
                         <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Ya tienes cuenta en Hotmart? *</label>
-                        <div className="flex gap-4">
-                            {['SI', 'NO'].map(opt => (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            {[
+                                { id: 'SI_AFF', label: 'Sí, ya estoy afiliado a productos' },
+                                { id: 'SI', label: 'Sí, tengo cuenta pero no la uso' },
+                                { id: 'NO', label: 'No, todavía no tengo cuenta' }
+                            ].map(opt => (
                                 <button
-                                    key={opt}
-                                    onClick={() => setFormData({...formData, hasHotmartAcc: opt})}
-                                    className={`flex-1 p-4 rounded-2xl border-2 transition-all font-bold ${formData.hasHotmartAcc === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                    key={opt.id}
+                                    onClick={() => {
+                                        setFormData({...formData, hasHotmartAcc: opt.label});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`p-4 rounded-2xl border-2 transition-all font-bold text-sm leading-tight ${formData.hasHotmartAcc === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white' : attemptedNext && !formData.hasHotmartAcc ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
                                 >
-                                    {opt}
+                                    {opt.label}
                                 </button>
                             ))}
                         </div>
@@ -285,19 +410,20 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                         {[
                             { key: 'funnels', label: 'Embudos de venta' },
                             { key: 'emailMarketing', label: 'Email Marketing' },
-                            { key: 'landingPages', label: 'Landing Pages' }
+                            { key: 'landingPages', label: 'Landing Pages' },
+                            { key: 'ia', label: 'IA y Automatización' }
                         ].map((area) => (
                             <div key={area.key} className="space-y-3">
                                 <p className="text-white font-bold">{area.label}</p>
-                                <div className="grid grid-cols-4 gap-2">
-                                    {['Nada', 'Básico', 'Intermedio', 'Avanzado'].map(level => (
+                                <div className="grid grid-cols-4 gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/5">
+                                    {['Nada', 'Básico', 'Medio', 'Pro'].map(level => (
                                         <button
                                             key={level}
                                             onClick={() => setFormData({
                                                 ...formData, 
                                                 mastery: { ...formData.mastery, [area.key]: level }
                                             })}
-                                            className={`p-3 rounded-xl border-2 transition-all text-xs font-black ${formData.mastery[area.key as keyof typeof formData.mastery] === level ? 'bg-emerald-500/40 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                            className={`py-3 rounded-xl transition-all text-xs font-black uppercase tracking-wider ${formData.mastery[area.key as keyof typeof formData.mastery] === level ? 'bg-emerald-500 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
                                         >
                                             {level}
                                         </button>
@@ -311,11 +437,11 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
         },
         {
             title: "Tipo de Negocio e Inversión",
-            description: "Define tus preferencias y presupuesto.",
+            description: "Define tus preferencias y presupuesto para orientar tu estrategia.",
             content: (
                 <div className="space-y-8">
                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Qué tipo de negocio digital quieres construir? *</label>
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Qué tipo de negocio digital quieres construir? * (Selección múltiple)</label>
                         <div className="grid grid-cols-2 gap-3">
                             {[
                                 "Afiliación", "Marca personal", "Agencia", "Infoproductos",
@@ -323,8 +449,73 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                             ].map(opt => (
                                 <button
                                     key={opt}
-                                    onClick={() => setFormData({...formData, businessType: opt})}
-                                    className={`p-4 rounded-2xl border-2 transition-all font-bold text-sm ${formData.businessType === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                    onClick={() => {
+                                        const bt = formData.businessType.includes(opt)
+                                            ? formData.businessType.filter(s => s !== opt)
+                                            : [...formData.businessType, opt];
+                                        setFormData({...formData, businessType: bt});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`p-4 rounded-2xl border-2 transition-all font-bold text-sm leading-tight flex items-center justify-center gap-2 ${formData.businessType.includes(opt) ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10' : attemptedNext && formData.businessType.length === 0 ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
+                                >
+                                    {opt}
+                                    {formData.businessType.includes(opt) && <Check className="w-4 h-4 text-emerald-500" />}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Cuánto podrías invertir mensualmente para acelerar resultados? *</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {[
+                                { id: '0', label: 'Prefiero empezar sin invertir por ahora' },
+                                { id: '1-50', label: '$1 - $50 USD' },
+                                { id: '50-200', label: '$50 - $200 USD' },
+                                { id: '200-500', label: '$200 - $500 USD' },
+                                { id: '500+', label: 'Más de $500 USD' }
+                            ].map(opt => (
+                                <button
+                                    key={opt.id}
+                                    onClick={() => {
+                                        setFormData({...formData, budgetRange: opt.label});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`text-left p-5 rounded-2xl border-2 transition-all flex items-center justify-between ${formData.budgetRange === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : attemptedNext && !formData.budgetRange ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                >
+                                    <span className="font-bold text-lg">{opt.label}</span>
+                                    {formData.budgetRange === opt.label && <Check className="w-6 h-6 text-emerald-500" />}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )
+        },
+        {
+            title: "Desafíos y Necesidades",
+            description: "Ayúdanos a entender tus retos actuales para brindarte las mejores soluciones.",
+            content: (
+                <div className="space-y-8">
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Cuál sientes que es tu mayor obstáculo actualmente? *</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {[
+                                "Falta de claridad sobre qué vender",
+                                "Dificultad para conseguir tráfico/visitas",
+                                "No sé cómo convertir visitas en ventas",
+                                "Me cuesta crear contenido constante",
+                                "No entiendo las herramientas tecnológicas",
+                                "Me falta una estrategia paso a paso",
+                                "Necesito automatizar procesos operativos",
+                                "Dificultad con la Inteligencia Artificial"
+                            ].map(opt => (
+                                <button
+                                    key={opt}
+                                    onClick={() => {
+                                        setFormData({...formData, mainObstacle: opt});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`text-left p-4 rounded-2xl border-2 transition-all font-bold text-sm ${formData.mainObstacle === opt ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : attemptedNext && !formData.mainObstacle ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
                                 >
                                     {opt}
                                 </button>
@@ -332,13 +523,25 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                         </div>
                     </div>
                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Cuánto podrías invertir mensualmente? *</label>
-                        <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-                            {['$0', '$1-$50', '$50-$200', '$200-$500', '+$500'].map(opt => (
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Qué sientes que más necesitas de nosotros en este momento? *</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {[
+                                "Claridad sobre qué vender",
+                                "Conseguir tráfico",
+                                "Convertir visitas en ventas",
+                                "Crear contenido",
+                                "Automatizar procesos",
+                                "Tener una estrategia paso a paso",
+                                "Mantener constancia",
+                                "Entender herramientas de IA"
+                            ].map(opt => (
                                 <button
                                     key={opt}
-                                    onClick={() => setFormData({...formData, budgetRange: opt})}
-                                    className={`p-3 rounded-xl border-2 transition-all text-xs font-black ${formData.budgetRange === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                    onClick={() => {
+                                        setFormData({...formData, communityExpectation: opt});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`text-left p-4 rounded-2xl border-2 transition-all font-bold text-sm ${formData.communityExpectation === opt ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : attemptedNext && !formData.communityExpectation ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
                                 >
                                     {opt}
                                 </button>
@@ -349,34 +552,75 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
             )
         },
         {
-            title: "Dificultades y Apoyo",
-            description: "Identifica tus obstáculos para poder impulsarte.",
+            title: "🔍 PREGUNTA DE ORO",
+            description: "Para darte acceso total, necesitamos saber dónde estás hoy y qué tan serio es tu compromiso.",
             content: (
                 <div className="space-y-8">
                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Cuál crees que es tu mayor obstáculo actual? *</label>
-                        <textarea 
-                            value={formData.mainObstacle}
-                            onChange={(e) => setFormData({...formData, mainObstacle: e.target.value})}
-                            className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-5 px-6 text-white focus:border-emerald-500 focus:outline-none transition-all min-h-[120px] font-medium text-lg"
-                            placeholder="Describe tu principal reto..."
-                        />
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿En qué nicho te encuentras o te gustaría enfocarte? *</label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {[
+                                { id: "salud", label: "Salud y Bienestar", icon: "🍎" },
+                                { id: "dinero", label: "Dinero y Negocios", icon: "💰" },
+                                { id: "relaciones", label: "Relaciones y Crecimiento", icon: "🤝" },
+                                { id: "tecnologia", label: "Tecnología y Software", icon: "💻" },
+                                { id: "educacion", label: "Educación y Cursos", icon: "🎓" },
+                                { id: "otro", label: "Otro Nicho / No sé", icon: "❓" }
+                            ].map(opt => (
+                                <button
+                                    key={opt.id}
+                                    onClick={() => {
+                                        setFormData({...formData, niche: opt.label});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`flex flex-col items-center p-4 rounded-2xl border-2 transition-all gap-2 ${formData.niche === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : attemptedNext && !formData.niche ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                >
+                                    <span className="text-2xl">{opt.icon}</span>
+                                    <span className="font-bold text-xs text-center">{opt.label}</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Qué tipo de apoyo esperas de esta comunidad? *</label>
-                        <textarea 
-                            value={formData.communityExpectation}
-                            onChange={(e) => setFormData({...formData, communityExpectation: e.target.value})}
-                            className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-5 px-6 text-white focus:border-emerald-500 focus:outline-none transition-all min-h-[120px] font-medium text-lg"
-                            placeholder="Orientación, recursos, equipo..."
-                        />
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider text-emerald-400">¿Qué tan comprometido estás para tener resultados en los próximos 90 días? *</label>
+                        <div className="space-y-3">
+                            {[
+                                { level: "Bajo", label: "Solo tengo curiosidad, no quiero invertir tiempo ahora.", color: "text-gray-500" },
+                                { level: "Medio", label: "Tengo interés y puedo dedicarle unas horas semanales.", color: "text-blue-400" },
+                                { level: "Alto", label: "Estoy decidido a que esto funcione y lo haré prioridad.", color: "text-emerald-400" },
+                                { level: "Total", label: "Lo haré cueste lo que cueste, mi éxito depende de esto.", color: "text-emerald-500" }
+                            ].map(opt => (
+                                <button
+                                    key={opt.level}
+                                    onClick={() => {
+                                        setFormData({...formData, urgencyLevel: opt.label});
+                                        setAttemptedNext(false);
+                                    }}
+                                    className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between ${formData.urgencyLevel === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white' : attemptedNext && !formData.urgencyLevel ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                >
+                                    <div className="flex flex-col">
+                                        <span className={`text-xs font-black uppercase tracking-widest ${opt.color}`}>{opt.level}</span>
+                                        <span className="font-medium">{opt.label}</span>
+                                    </div>
+                                    {formData.urgencyLevel === opt.label && <Check className="w-5 h-5 text-emerald-500" />}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             )
-        }
+        },
     ];
 
     const handleNext = () => {
+        const isValid = validateStep(step);
+        
+        if (!isValid) {
+            setAttemptedNext(true);
+            return;
+        }
+
+        setAttemptedNext(false);
         if (step < steps.length - 1) {
             setStep(step + 1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -388,24 +632,32 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
     const handleBack = () => {
         if (step > 0) {
             setStep(step - 1);
+            setAttemptedNext(false);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
     const handleSubmit = async () => {
-        // Validaciones básicas antes de enviar
-        if (!formData.country || !formData.whatsapp || !formData.mainGoal || !formData.experienceLevel) {
-            alert("Por favor rellena todos los campos obligatorios.");
+        console.log("🚀 Iniciando envío de encuesta...");
+        console.log("📦 Datos a enviar:", JSON.stringify(formData, null, 2));
+
+        // Validación final de seguridad
+        const isAllValid = Array.from({length: steps.length}, (_, i) => validateStep(i)).every(v => v);
+        
+        if (!isAllValid) {
+            console.error("❌ Error de validación final detectado.");
+            alert("Por favor rellena todos los campos obligatorios antes de finalizar.");
             return;
         }
 
         setLoading(true);
         try {
-            await api.submitSurvey(formData);
+            const response = await api.submitSurvey(formData);
+            console.log("✅ Encuesta guardada exitosamente:", response);
             onComplete();
         } catch (error) {
-            console.error("Error submitting survey", error);
-            alert("Ocurrió un error al guardar la encuesta.");
+            console.error("❌ Error al guardar la encuesta:", error);
+            alert("Ocurrió un error al guardar la encuesta. Revisa tu conexión.");
         } finally {
             setLoading(false);
         }

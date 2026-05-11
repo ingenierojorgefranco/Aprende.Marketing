@@ -501,6 +501,8 @@ const initDb = async () => {
         await addColumnSafe(connection, 'users', "answers_json JSON NULL");
         await addColumnSafe(connection, 'users', "createdsurvey_at DATETIME NULL");
         await addColumnSafe(connection, 'users', "updatedsurvey_at DATETIME NULL");
+        await addColumnSafe(connection, 'users', "niche VARCHAR(255) NULL");
+        await addColumnSafe(connection, 'users', "urgency_level VARCHAR(255) NULL");
         
         // --- Migraciones para Hotmart (Enfoque Híbrido) ---
         await addColumnSafe(connection, 'users', "phone VARCHAR(50)");

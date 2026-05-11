@@ -213,7 +213,10 @@ const App: React.FC = () => {
               avatarUrl: (authUser as any).avatarUrl,
               birthDate: (authUser as any).birthDate,
               createdAt: (authUser as any).createdAt,
-              customRedirectUrl: (authUser as any).customRedirectUrl
+              customRedirectUrl: (authUser as any).customRedirectUrl,
+              survey_json: (authUser as any).survey_json,
+              niche: (authUser as any).niche,
+              urgency_level: (authUser as any).urgency_level
             });
           }
         } catch (error) {
