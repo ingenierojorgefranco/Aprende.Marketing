@@ -180,27 +180,11 @@ export const DashboardLayout = ({
   }, [user, simulatedPlanSlug, availablePlans]);
 
   useEffect(() => {
-    const limits = effectiveUser.planLimits;
-    console.log("DashboardLayout - [Lógica de Planes Avanzada]:", {
-        resumenGlobal: {
-            planPrincipal: limits?.planName,
-            todosLosPlanesActivos: limits?.allActivePlans,
-            totalSuscripcionesEnInventario: (limits as any)?.inventoryCount || 0,
-            capacidadesTotales: {
-                proyectos: limits?.maxProjects,
-                landings: limits?.maxLandings,
-                articulos: limits?.maxArticles,
-                hooks: limits?.maxHooks
-            }
-        },
-        mapaDeCapacidadesPorProyecto: limits?.projectLimits,
-        estadoDeCache: limits?.fromCache ? "RECUPERADO DE MEMORIA" : "CONSULTA FRESCA A BASE DE DATOS"
-    });
     const activeId = getActiveMenuId(location.pathname);
-    if (activeId) {
+    if (activeId && activeId !== expandedMenu) {
       setExpandedMenu(activeId);
     }
-  }, [location.pathname, effectiveUser]);
+  }, [location.pathname]);
 
   const menuStructure: MenuItem[] = useMemo(() => {
     // Si estamos en modo lanzamiento y no es admin Y NO HA HECHO LA ENCUESTA, menú ultra simplificado
@@ -313,17 +297,22 @@ export const DashboardLayout = ({
 
   const hasCompletedSurvey = useMemo(() => {
     if (user.role === 'admin') return true;
-    if (!user.survey_json) return false;
+    const survey = user.survey_json;
+    if (!survey) return false;
     
-    try {
-        const data = typeof user.survey_json === 'string' ? JSON.parse(user.survey_json) : user.survey_json;
-        // Si es un objeto literal {}, lo consideramos pendiente
-        if (data && typeof data === 'object' && Object.keys(data).length === 0) return false;
-        return true;
-    } catch (e) {
-        // Si no es JSON pero tiene contenido (ej. string de encuesta previa), es completada
-        return !!user.survey_json && user.survey_json.trim().length > 2;
+    // Si es un objeto, verificar que tenga datos
+    if (typeof survey === 'object') {
+        return Object.keys(survey).length > 0;
     }
+    
+    // Si es un string, verificar longitud y que no sea un JSON vacío "{}"
+    if (typeof survey === 'string') {
+        const trimmed = survey.trim();
+        if (trimmed === '{}' || trimmed === '') return false;
+        return trimmed.length > 2;
+    }
+    
+    return !!survey;
   }, [user.survey_json, user.role]);
 
   const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin' && !hasCompletedSurvey;
