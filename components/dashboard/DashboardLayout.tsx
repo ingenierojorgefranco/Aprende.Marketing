@@ -397,7 +397,11 @@ export const DashboardLayout = ({
       )}
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
         {showWizard ? (
-             <OnboardingWizard user={effectiveUser} onComplete={() => window.location.reload()} />
+             <OnboardingWizard 
+                user={effectiveUser} 
+                onComplete={() => window.location.reload()} 
+                onLogout={onLogout}
+            />
         ) : (
             <>
                 {mobileMenuOpen && <div className="fixed inset-0 bg-black/80 z-30 md:hidden" onClick={() => setMobileMenuOpen(false)}></div>}

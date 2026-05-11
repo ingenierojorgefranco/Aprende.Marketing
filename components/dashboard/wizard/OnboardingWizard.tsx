@@ -13,11 +13,12 @@ import {
 interface OnboardingWizardProps {
     user: User;
     onComplete: () => void;
+    onLogout?: () => void;
 }
 
 type WizardStep = 'welcome' | 'selection' | 'generating' | 'success';
 
-export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComplete }) => {
+export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComplete, onLogout }) => {
     const [step, setStep] = useState<WizardStep>('welcome');
     const [projects, setProjects] = useState<Project[]>([]);
     const [loadingProjects, setLoadingProjects] = useState(false);
@@ -72,8 +73,21 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             setGenerationProgress(50);
             setGenerationStatus('Escribiendo copys persuasivos...');
 
-            // 3. Generar contenido de la landing page
-            const content = await generateLandingPageContent(project.name, project.niche || '', 'Ventas');
+            // 3. Generar contenido de la landing page con todos los argumentos requeridos
+            const content = await generateLandingPageContent(
+                project.niche || 'Marketing Digital',
+                'Ventas y Captación',
+                project.targetAudience || 'Personas interesadas en emprender online',
+                'Producto Digital',
+                'modern-blue',
+                'classic-sales',
+                { 
+                    type: 'whatsapp', 
+                    whatsappPhone: '573000000000', 
+                    whatsappMessage: 'Hola, quiero más información.' 
+                },
+                unlocked as any
+            );
             
             setGenerationProgress(80);
             setGenerationStatus('Finalizando construcción visual...');
@@ -110,6 +124,16 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
     return (
         <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 md:p-12 relative overflow-hidden">
+            {/* Botón de Salir (Emergencia) */}
+            {onLogout && (
+                <button 
+                    onClick={onLogout}
+                    className="absolute top-6 right-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all text-xs font-bold uppercase tracking-widest"
+                >
+                    Cerrar Sesión
+                </button>
+            )}
+
             {/* Background Decorations */}
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
                 <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-[#FF5A1F]/10 blur-[120px] rounded-full"></div>
