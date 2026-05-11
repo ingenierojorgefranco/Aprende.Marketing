@@ -203,8 +203,8 @@ export const DashboardLayout = ({
   }, [location.pathname, effectiveUser]);
 
   const menuStructure: MenuItem[] = useMemo(() => {
-    // Si estamos en modo lanzamiento y no es admin, menú ultra simplificado
-    if (systemMode === 'launch' && user.role !== 'admin') {
+    // Si estamos en modo lanzamiento y no es admin Y NO HA HECHO LA ENCUESTA, menú ultra simplificado
+    if (systemMode === 'launch' && user.role !== 'admin' && !user.survey_json) {
         return [
             { id: 'waitlist', label: 'Lista de Espera', icon: Rocket, path: '/dashboard' }
         ];
@@ -311,12 +311,12 @@ export const DashboardLayout = ({
       );
   }
 
-  const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin';
+  const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin' && !user.survey_json;
   const isSurveyPending = !user.survey_json && user.role !== 'admin';
 
   return (
     <div className="h-screen overflow-hidden bg-black text-[#FFFFFF] flex font-sans">
-      {!isSurveyPending && (
+      {(!isSurveyPending && !isLaunchRestricted) && (
         <aside className={`fixed md:relative top-0 left-0 h-full w-[25rem] bg-[#0B0B0B] border-r border-white/5 shadow-2xl z-40 transition-transform duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
           <div className="p-8 pb-6 flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -424,8 +424,8 @@ export const DashboardLayout = ({
              </div>
         </header>
 
-        <div className={`flex-1 overflow-auto bg-black p-4 sm:p-8 relative ${isSurveyPending ? 'flex items-center justify-center' : ''}`}>
-            <div className={`w-full max-w-[1600px] ${isSurveyPending ? 'max-w-4xl mx-auto' : 'mx-auto'}`}>
+        <div className={`flex-1 overflow-auto bg-black p-4 sm:p-8 relative ${(isSurveyPending || isLaunchRestricted) ? 'flex items-center justify-center' : ''}`}>
+            <div className={`w-full max-w-[1600px] ${(isSurveyPending || isLaunchRestricted) ? 'max-w-4xl mx-auto' : 'mx-auto'}`}>
                 {(isLaunchRestricted || isSurveyPending) ? (
                     <WaitlistView user={effectiveUser} onComplete={() => window.location.reload()} />
                 ) : (

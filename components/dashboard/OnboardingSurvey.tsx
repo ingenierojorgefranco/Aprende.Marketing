@@ -128,14 +128,16 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                     value={formData.country}
                                     onChange={(e) => {
                                         const c = countries.find(x => x.name === e.target.value);
-                                        setSelectedCountryObj(c);
+                                        if (c) setSelectedCountryObj(c);
                                         setAttemptedNext(false);
                                     }}
                                     className={`w-full bg-white/5 border-2 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg appearance-none ${attemptedNext && !formData.country ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
                                 >
                                     <option value="" className="bg-zinc-900">Selecciona tu país</option>
                                     {countries.map(c => (
-                                        <option key={c.name} value={c.name} className="bg-zinc-900">{c.flag} {c.name}</option>
+                                        <option key={c.name} value={c.name} className="bg-zinc-900">
+                                            {c.flag} {c.name}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
@@ -232,10 +234,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         setFormData({...formData, mainGoal: opt.label});
                                         setAttemptedNext(false);
                                     }}
-                                    className={`text-left p-5 rounded-2xl border-2 transition-all group flex items-center justify-between ${formData.mainGoal === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10' : attemptedNext && !formData.mainGoal ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
+                                    className={`text-left p-5 rounded-2xl border-2 transition-all group flex items-center justify-between ${formData.mainGoal === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10' : attemptedNext && !formData.mainGoal ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-white hover:border-emerald-500/30'}`}
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className={`p-2 rounded-lg ${formData.mainGoal === opt.label ? 'bg-emerald-500/20' : 'bg-white/5'}`}>
+                                        <div className={`p-2 rounded-lg ${formData.mainGoal === opt.label ? 'bg-emerald-500/20' : 'bg-white/10'}`}>
                                             {opt.icon}
                                         </div>
                                         <span className="font-bold text-lg">{opt.label}</span>
@@ -260,10 +262,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         setFormData({...formData, dedicationTime: opt.label});
                                         setAttemptedNext(false);
                                     }}
-                                    className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all gap-3 ${formData.dedicationTime === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white' : attemptedNext && !formData.dedicationTime ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
+                                    className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all gap-3 ${formData.dedicationTime === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white' : attemptedNext && !formData.dedicationTime ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-white hover:border-emerald-500/30'}`}
                                 >
                                     {opt.icon}
-                                    <span className="font-bold text-sm text-center leading-tight">{opt.label}</span>
+                                    <span className="font-bold text-lg text-center leading-tight">{opt.label}</span>
                                 </button>
                             ))}
                         </div>
@@ -291,10 +293,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         setFormData({...formData, onlinePresence: opt.label});
                                         setAttemptedNext(false);
                                     }}
-                                    className={`text-left p-5 rounded-2xl border-2 transition-all group flex items-center justify-between ${formData.onlinePresence === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10' : attemptedNext && !formData.onlinePresence ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
+                                    className={`text-left p-5 rounded-2xl border-2 transition-all group flex items-center justify-between ${formData.onlinePresence === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10' : attemptedNext && !formData.onlinePresence ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-white hover:border-emerald-500/30'}`}
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className={`p-2 rounded-lg ${formData.onlinePresence === opt.label ? 'bg-emerald-500/20' : 'bg-white/5'}`}>
+                                        <div className={`p-2 rounded-lg ${formData.onlinePresence === opt.label ? 'bg-emerald-500/20' : 'bg-white/10'}`}>
                                             {opt.icon}
                                         </div>
                                         <span className="font-bold text-lg">{opt.label}</span>
@@ -317,10 +319,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                             : [...formData.useSocialMedia, opt];
                                         setFormData({...formData, useSocialMedia: sm});
                                     }}
-                                    className={`p-4 rounded-2xl border-2 transition-all text-sm font-bold flex items-center justify-center gap-2 ${formData.useSocialMedia.includes(opt) ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
+                                    className={`p-4 rounded-2xl border-2 transition-all text-lg font-bold flex items-center justify-center gap-2 ${formData.useSocialMedia.includes(opt) ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-white hover:border-emerald-500/30'}`}
                                 >
                                     {opt}
-                                    {formData.useSocialMedia.includes(opt) && <Check className="w-4 h-4" />}
+                                    {formData.useSocialMedia.includes(opt) && <Check className="w-5 h-5" />}
                                 </button>
                             ))}
                         </div>
@@ -348,7 +350,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         setFormData({...formData, experienceLevel: opt});
                                         setAttemptedNext(false);
                                     }}
-                                    className={`text-left p-4 rounded-2xl border-2 transition-all font-bold group flex items-center justify-between ${formData.experienceLevel === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : attemptedNext && !formData.experienceLevel ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                    className={`text-left p-4 rounded-2xl border-2 transition-all font-bold group flex items-center justify-between ${formData.experienceLevel === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : attemptedNext && !formData.experienceLevel ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-white'}`}
                                 >
                                     <span className="text-lg">{opt}</span>
                                     {formData.experienceLevel === opt && <Check className="w-5 h-5 text-emerald-500" />}
@@ -371,7 +373,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         setFormData({...formData, hasHotmartAcc: opt.label});
                                         setAttemptedNext(false);
                                     }}
-                                    className={`p-4 rounded-2xl border-2 transition-all font-bold text-sm leading-tight ${formData.hasHotmartAcc === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white' : attemptedNext && !formData.hasHotmartAcc ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                    className={`p-4 rounded-2xl border-2 transition-all font-bold text-lg leading-tight ${formData.hasHotmartAcc === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white' : attemptedNext && !formData.hasHotmartAcc ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-white'}`}
                                 >
                                     {opt.label}
                                 </button>
@@ -431,10 +433,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         setFormData({...formData, businessType: bt});
                                         setAttemptedNext(false);
                                     }}
-                                    className={`p-4 rounded-2xl border-2 transition-all font-bold text-sm leading-tight flex items-center justify-center gap-2 ${formData.businessType.includes(opt) ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10' : attemptedNext && formData.businessType.length === 0 ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
+                                    className={`p-4 rounded-2xl border-2 transition-all font-bold text-lg leading-tight flex items-center justify-center gap-2 ${formData.businessType.includes(opt) ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10' : attemptedNext && formData.businessType.length === 0 ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-white hover:border-emerald-500/30'}`}
                                 >
                                     {opt}
-                                    {formData.businessType.includes(opt) && <Check className="w-4 h-4 text-emerald-500" />}
+                                    {formData.businessType.includes(opt) && <Check className="w-5 h-5 text-emerald-500" />}
                                 </button>
                             ))}
                         </div>
@@ -455,7 +457,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         setFormData({...formData, budgetRange: opt.label});
                                         setAttemptedNext(false);
                                     }}
-                                    className={`text-left p-5 rounded-2xl border-2 transition-all flex items-center justify-between ${formData.budgetRange === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : attemptedNext && !formData.budgetRange ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                    className={`text-left p-5 rounded-2xl border-2 transition-all flex items-center justify-between ${formData.budgetRange === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : attemptedNext && !formData.budgetRange ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-white'}`}
                                 >
                                     <span className="font-bold text-lg">{opt.label}</span>
                                     {formData.budgetRange === opt.label && <Check className="w-6 h-6 text-emerald-500" />}
@@ -490,7 +492,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         setFormData({...formData, mainObstacle: opt});
                                         setAttemptedNext(false);
                                     }}
-                                    className={`text-left p-4 rounded-2xl border-2 transition-all font-bold text-sm ${formData.mainObstacle === opt ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : attemptedNext && !formData.mainObstacle ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                    className={`text-left p-4 rounded-2xl border-2 transition-all font-bold text-lg ${formData.mainObstacle === opt ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : attemptedNext && !formData.mainObstacle ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-white'}`}
                                 >
                                     {opt}
                                 </button>
@@ -516,7 +518,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         setFormData({...formData, communityExpectation: opt});
                                         setAttemptedNext(false);
                                     }}
-                                    className={`text-left p-4 rounded-2xl border-2 transition-all font-bold text-sm ${formData.communityExpectation === opt ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : attemptedNext && !formData.communityExpectation ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                    className={`text-left p-4 rounded-2xl border-2 transition-all font-bold text-lg ${formData.communityExpectation === opt ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : attemptedNext && !formData.communityExpectation ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-white'}`}
                                 >
                                     {opt}
                                 </button>
@@ -548,10 +550,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         setFormData({...formData, niche: opt.label});
                                         setAttemptedNext(false);
                                     }}
-                                    className={`flex flex-col items-center p-4 rounded-2xl border-2 transition-all gap-2 ${formData.niche === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : attemptedNext && !formData.niche ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                    className={`flex flex-col items-center p-4 rounded-2xl border-2 transition-all gap-2 ${formData.niche === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : attemptedNext && !formData.niche ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-white'}`}
                                 >
-                                    <span className="text-2xl">{opt.icon}</span>
-                                    <span className="font-bold text-xs text-center">{opt.label}</span>
+                                    <span className="text-3xl">{opt.icon}</span>
+                                    <span className="font-bold text-lg text-center">{opt.label}</span>
                                 </button>
                             ))}
                         </div>
@@ -571,13 +573,13 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         setFormData({...formData, urgencyLevel: opt.label});
                                         setAttemptedNext(false);
                                     }}
-                                    className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between ${formData.urgencyLevel === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white' : attemptedNext && !formData.urgencyLevel ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                    className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between ${formData.urgencyLevel === opt.label ? 'bg-emerald-500/20 border-emerald-500 text-white' : attemptedNext && !formData.urgencyLevel ? 'border-red-500/50 bg-red-500/5' : 'bg-white/5 border-white/10 text-white'}`}
                                 >
                                     <div className="flex flex-col">
                                         <span className={`text-xs font-black uppercase tracking-widest ${opt.color}`}>{opt.level}</span>
-                                        <span className="font-medium">{opt.label}</span>
+                                        <span className="font-bold text-lg">{opt.label}</span>
                                     </div>
-                                    {formData.urgencyLevel === opt.label && <Check className="w-5 h-5 text-emerald-500" />}
+                                    {formData.urgencyLevel === opt.label && <Check className="w-6 h-6 text-emerald-500" />}
                                 </button>
                             ))}
                         </div>

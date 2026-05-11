@@ -241,7 +241,7 @@ router.post('/login', async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, password_hash, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json, main_goal, experience_level, budget_range, main_obstacle, answers_json, createdsurvey_at, updatedsurvey_at, niche, urgency_level FROM users WHERE email = ?',
+      'SELECT id, name, email, password_hash, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json, main_goal, experience_level, budget_range, main_obstacle, createdsurvey_at, updatedsurvey_at, niche, urgency_level FROM users WHERE email = ?',
       [email]
     );
 
@@ -275,7 +275,6 @@ router.post('/login', async (req, res) => {
       experience_level: user.experience_level,
       budget_range: user.budget_range,
       main_obstacle: user.main_obstacle,
-      answers_json: user.answers_json,
       createdsurvey_at: user.createdsurvey_at,
       updatedsurvey_at: user.updatedsurvey_at,
       niche: user.niche,
@@ -305,7 +304,7 @@ router.post('/logout', authMiddleware, async (req, res) => {
 router.get('/me', authMiddleware, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json, main_goal, experience_level, budget_range, main_obstacle, answers_json, createdsurvey_at, updatedsurvey_at, niche, urgency_level FROM users WHERE id = ?',
+      'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json, main_goal, experience_level, budget_range, main_obstacle, createdsurvey_at, updatedsurvey_at, niche, urgency_level FROM users WHERE id = ?',
       [req.user.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -331,7 +330,6 @@ router.get('/me', authMiddleware, async (req, res) => {
         experience_level: user.experience_level,
         budget_range: user.budget_range,
         main_obstacle: user.main_obstacle,
-        answers_json: user.answers_json,
         createdsurvey_at: user.createdsurvey_at,
         updatedsurvey_at: user.updatedsurvey_at,
         niche: user.niche,
@@ -484,7 +482,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
         );
         
         const [rows] = await pool.query(
-            'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json, main_goal, experience_level, budget_range, main_obstacle, answers_json, createdsurvey_at, updatedsurvey_at, niche, urgency_level FROM users WHERE id = ?',
+            'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json, main_goal, experience_level, budget_range, main_obstacle, createdsurvey_at, updatedsurvey_at, niche, urgency_level FROM users WHERE id = ?',
             [req.user.id]
         );
         
@@ -507,7 +505,6 @@ router.put('/profile', authMiddleware, async (req, res) => {
             experience_level: user.experience_level,
             budget_range: user.budget_range,
             main_obstacle: user.main_obstacle,
-            answers_json: user.answers_json,
             createdsurvey_at: user.createdsurvey_at,
             updatedsurvey_at: user.updatedsurvey_at,
             niche: user.niche,
@@ -523,7 +520,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
 router.post('/survey', authMiddleware, async (req, res) => {
     try {
         const userId = req.user.id;
-        const surveyData = req.body;
+        const surveyData = { ...req.body };
         
         const mainGoal = surveyData.mainGoal || null;
         const experienceLevel = surveyData.experienceLevel || null;
@@ -532,16 +529,33 @@ router.post('/survey', authMiddleware, async (req, res) => {
         const niche = surveyData.niche || null;
         const urgencyLevel = surveyData.urgencyLevel || null;
         const fullName = surveyData.fullName || null;
+        const email = surveyData.email || null;
         
-        const answersJson = JSON.stringify(surveyData);
+        // Remove sensitive or redundant data from JSON
+        delete surveyData.email;
+
+        const surveyJson = JSON.stringify(surveyData);
 
         // Check if survey already exists to set createdsurvey_at
         const [existing] = await pool.query('SELECT createdsurvey_at FROM users WHERE id = ?', [userId]);
         const createdSurveyAt = existing[0]?.createdsurvey_at || new Date();
 
-        // If user changed their name in survey, update it in users table as well
-        if (fullName) {
-            await pool.query('UPDATE users SET name = ? WHERE id = ?', [fullName, userId]);
+        // Update core user data if provided in survey
+        if (fullName || email) {
+            const updates = [];
+            const values = [];
+            if (fullName) {
+                updates.push('name = ?');
+                values.push(fullName);
+            }
+            if (email) {
+                updates.push('email = ?');
+                values.push(email);
+            }
+            if (updates.length > 0) {
+                values.push(userId);
+                await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, values);
+            }
         }
 
         await pool.query(
@@ -552,12 +566,11 @@ router.post('/survey', authMiddleware, async (req, res) => {
                 main_obstacle = ?, 
                 niche = ?,
                 urgency_level = ?,
-                answers_json = ?, 
                 survey_json = ?,
                 createdsurvey_at = IFNULL(createdsurvey_at, ?),
                 updatedsurvey_at = NOW() 
             WHERE id = ?`,
-            [mainGoal, experienceLevel, budgetRange, mainObstacle, niche, urgencyLevel, answersJson, answersJson, createdSurveyAt, userId]
+            [mainGoal, experienceLevel, budgetRange, mainObstacle, niche, urgencyLevel, surveyJson, createdSurveyAt, userId]
         );
         
         res.json({ success: true, message: 'Encuesta guardada correctamente' });

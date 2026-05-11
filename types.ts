@@ -191,7 +191,6 @@ export interface User {
   experience_level?: string;
   budget_range?: string;
   main_obstacle?: string;
-  answers_json?: any;
   createdsurvey_at?: string;
   updatedsurvey_at?: string;
   niche?: string;
