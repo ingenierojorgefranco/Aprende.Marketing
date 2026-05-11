@@ -424,8 +424,8 @@ export const DashboardLayout = ({
              </div>
         </header>
 
-        <div className={`flex-1 overflow-auto bg-black p-4 sm:p-8 relative ${(isSurveyPending || isLaunchRestricted) ? 'flex items-center justify-center' : ''}`}>
-            <div className={`w-full max-w-[1600px] ${(isSurveyPending || isLaunchRestricted) ? 'max-w-4xl mx-auto' : 'mx-auto'}`}>
+        <div id="dashboard-scroll-container" className={`flex-1 overflow-y-auto bg-black p-4 sm:p-8 relative ${(isSurveyPending || isLaunchRestricted) ? 'flex flex-col items-center' : ''}`}>
+            <div className={`w-full max-w-[1600px] ${(isSurveyPending || isLaunchRestricted) ? 'max-w-4xl mx-auto mt-20' : 'mx-auto'}`}>
                 {(isLaunchRestricted || isSurveyPending) ? (
                     <WaitlistView user={effectiveUser} onComplete={() => window.location.reload()} />
                 ) : (

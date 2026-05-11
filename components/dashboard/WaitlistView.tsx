@@ -10,7 +10,7 @@ interface WaitlistViewProps {
 
 export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onComplete }) => {
     return (
-        <div className="flex flex-col items-center justify-start pt-40 pb-20 px-6 sm:px-12 relative z-10 w-full min-h-screen">
+        <div id="survey-container" className="flex flex-col items-center justify-start pb-20 px-6 sm:px-12 relative z-10 w-full min-h-screen">
             {/* Background Effects */}
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />
@@ -33,19 +33,9 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onComplete }) 
                         style={{ lineHeight: '1.2em' }}
                     >
                         Estás a punto de acceder a una plataforma diseñada para <br className="hidden md:block" />
-                        <motion.span 
-                            animate={{ 
-                                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                            }}
-                            transition={{ 
-                                duration: 5,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-600 bg-[length:200%_auto]"
-                        >
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600">
                             ayudarte a construir y automatizar tu negocio digital con IA
-                        </motion.span>
+                        </span>
                     </motion.h1>
 
                     <motion.p 

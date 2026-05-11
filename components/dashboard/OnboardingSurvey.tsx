@@ -18,6 +18,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
     const [isEditingName, setIsEditingName] = useState(false);
     const [isEditingEmail, setIsEditingEmail] = useState(false);
     const [showCityInput, setShowCityInput] = useState(false);
+    const [showCountryInput, setShowCountryInput] = useState(false);
     const [formData, setFormData] = useState({
         email: user.email || '',
         fullName: user.name || '',
@@ -51,12 +52,23 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
             setFormData(prev => ({ 
                 ...prev, 
                 whatsappIndicative: selectedCountryObj.dial, 
-                country: selectedCountryObj.name,
+                country: selectedCountryObj.name === "Otros" ? '' : selectedCountryObj.name,
                 city: '' // Limpiar ciudad al cambiar país
             }));
-            setShowCityInput(false);
+            setShowCityInput(selectedCountryObj.name === "Otros");
+            setShowCountryInput(selectedCountryObj.name === "Otros");
         }
     }, [selectedCountryObj]);
+
+    // Al cambiar de paso, subir al inicio del contenedor
+    useEffect(() => {
+        const container = document.getElementById('dashboard-scroll-container');
+        if (container) {
+            container.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [step]);
 
     const validateStep = (currentStep: number) => {
         switch (currentStep) {
@@ -130,23 +142,50 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                         <div className="space-y-3">
                             <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">País *</label>
                             <div className="relative">
-                                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-emerald-500 pointer-events-none" />
-                                <select 
-                                    value={formData.country}
-                                    onChange={(e) => {
-                                        const c = countries.find(x => x.name === e.target.value);
-                                        if (c) setSelectedCountryObj(c);
-                                        setAttemptedNext(false);
-                                    }}
-                                    className={`w-full bg-white/5 border-2 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg appearance-none ${attemptedNext && !formData.country ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
-                                >
-                                    <option value="" className="bg-zinc-900">Selecciona tu país</option>
-                                    {countries.map(c => (
-                                        <option key={c.name} value={c.name} className="bg-zinc-900">
-                                            {c.flag} {c.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl z-10 pointer-events-none">
+                                    {selectedCountryObj?.flag || "🌐"}
+                                </span>
+                                {showCountryInput ? (
+                                    <div className="relative">
+                                        <input 
+                                            type="text" 
+                                            value={formData.country}
+                                            onChange={(e) => {
+                                                setFormData({...formData, country: e.target.value});
+                                                setAttemptedNext(false);
+                                            }}
+                                            className={`w-full bg-white/5 border-2 rounded-2xl py-4 pl-14 pr-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg ${attemptedNext && !formData.country ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
+                                            placeholder="Escribe tu país"
+                                        />
+                                        <button 
+                                            onClick={() => {
+                                                setShowCountryInput(false);
+                                                setSelectedCountryObj(null);
+                                                setFormData({...formData, country: ''});
+                                            }}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-500 hover:text-white underline"
+                                        >
+                                            Ver lista
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <select 
+                                        value={selectedCountryObj?.name || ""}
+                                        onChange={(e) => {
+                                            const c = countries.find(x => x.name === e.target.value);
+                                            if (c) setSelectedCountryObj(c);
+                                            setAttemptedNext(false);
+                                        }}
+                                        className={`w-full bg-white/5 border-2 rounded-2xl py-4 pl-14 pr-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg appearance-none ${attemptedNext && !formData.country ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
+                                    >
+                                        <option value="" className="bg-zinc-900">Selecciona tu país</option>
+                                        {countries.map(c => (
+                                            <option key={c.name} value={c.name} className="bg-zinc-900">
+                                                {c.flag} {c.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
                             </div>
                         </div>
                         <div className="space-y-3">
@@ -201,7 +240,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                     <div className="space-y-4">
                         <div className="space-y-1">
                             <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">Número de WhatsApp *</label>
-                            <p className="text-xs text-gray-500 italic">Lo usaremos para soporte, novedades importantes y automatizaciones personalizadas.</p>
+                            <p className="text-sm text-white font-medium">Lo usaremos para soporte, novedades importantes y automatizaciones personalizadas.</p>
                         </div>
                         <div className="flex gap-3">
                             <div className="w-32 relative">
