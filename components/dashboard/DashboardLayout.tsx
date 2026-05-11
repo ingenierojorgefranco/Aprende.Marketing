@@ -37,8 +37,6 @@ export const DashboardLayout = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-  console.log("DashboardLayout - Rendering step 1 (hooks start)");
-  
   const [systemMode, setSystemMode] = useState<'production' | 'launch'>('production');
   const [loadingMode, setLoadingMode] = useState(true);
 
@@ -289,16 +287,6 @@ export const DashboardLayout = ({
     }, 1500);
   };
 
-  console.log("DashboardLayout - Checkpoint before loading return, loadingMode:", loadingMode);
-  if (loadingMode) {
-      return (
-          <div className="h-screen bg-black flex items-center justify-center">
-              <Loader2 className="w-10 h-10 text-[#FF5A1F] animate-spin" />
-          </div>
-      );
-  }
-
-  console.log("DashboardLayout - Checkpoint after loading return, declaring hasCompletedSurvey");
   const hasCompletedSurvey = useMemo(() => {
     if (user.role === 'admin') return true;
     const survey = user.survey_json;
@@ -321,6 +309,14 @@ export const DashboardLayout = ({
 
   const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin' && !hasCompletedSurvey;
   const isSurveyPending = !hasCompletedSurvey && user.role !== 'admin';
+
+  if (loadingMode) {
+      return (
+          <div className="h-screen bg-black flex items-center justify-center">
+              <Loader2 className="w-10 h-10 text-[#FF5A1F] animate-spin" />
+          </div>
+      );
+  }
 
   return (
     <div className="h-screen overflow-hidden bg-black text-[#FFFFFF] flex font-sans">
