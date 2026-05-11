@@ -412,7 +412,7 @@ export const DashboardLayout = ({
         <div className="flex-1 overflow-auto bg-black p-4 sm:p-8 relative">
             <div className="max-w-[1600px] mx-auto">
                 {(isLaunchRestricted || isSurveyPending) ? (
-                    <WaitlistView onComplete={() => window.location.reload()} />
+                    <WaitlistView user={effectiveUser} onComplete={() => window.location.reload()} />
                 ) : (
                     <Outlet context={{ 
                         user: effectiveUser, 

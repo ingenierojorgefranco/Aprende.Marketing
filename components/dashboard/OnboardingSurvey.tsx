@@ -1,106 +1,151 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, ChevronLeft, Check, Send, Mail, User, Globe, Phone, Target, BarChart, Rocket, HelpCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Send, Mail, User, Globe, Phone, Target, BarChart, Rocket, HelpCircle, Briefcase, Clock, Monitor, Share2, Award, Zap } from 'lucide-react';
 import { api } from '../../services/api';
+import { User as UserType } from '../../types';
 
 interface OnboardingSurveyProps {
+    user: UserType;
     onComplete: () => void;
 }
 
-export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ onComplete }) => {
+// Sample Country Data (Normally this would come from an API or larger file)
+const countries = [
+    { name: "Argentina", cities: ["Buenos Aires", "Córdoba", "Rosario", "Mendoza"] },
+    { name: "Bolivia", cities: ["La Paz", "Santa Cruz", "Cochabamba"] },
+    { name: "Chile", cities: ["Santiago", "Valparaíso", "Concepción"] },
+    { name: "Colombia", cities: ["Bogotá", "Medellín", "Cali", "Barranquilla"] },
+    { name: "Costa Rica", cities: ["San José", "Alajuela"] },
+    { name: "Ecuador", cities: ["Quito", "Guayaquil", "Cuenca"] },
+    { name: "España", cities: ["Madrid", "Barcelona", "Valencia", "Sevilla"] },
+    { name: "México", cities: ["Ciudad de México", "Guadalajara", "Monterrey", "Puebla"] },
+    { name: "Panamá", cities: ["Ciudad de Panamá", "David"] },
+    { name: "Perú", cities: ["Lima", "Arequipa", "Trujillo"] },
+    { name: "Uruguay", cities: ["Montevideo", "Salto"] },
+    { name: "Venezuela", cities: ["Caracas", "Maracaibo", "Valencia"] },
+    { name: "Otros", cities: [] }
+];
+
+export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComplete }) => {
     const [step, setStep] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [selectedCountry, setSelectedCountry] = useState("");
     const [formData, setFormData] = useState({
-        email: '',
-        fullName: '',
-        countryCity: '',
+        email: user.email || '',
+        fullName: user.name || '',
+        country: '',
+        city: '',
         whatsapp: '',
-        mainObjectives: [] as string[],
+        mainGoal: '', // El resultado principal que quieres conseguir
         dedicationTime: '',
         hasWebsite: '',
-        websiteUrl: '',
         useSocialMedia: [] as string[],
-        hotmartExperience: {
-            hasKnowledge: '',
-            hasHotmartAcc: '',
-            promotedProductType: '',
-            funnelMastery: '',
-            emailMarketingExp: '',
-            landingPageExp: ''
+        experienceLevel: '', // Nivel actual
+        hasHotmartAcc: '',
+        mastery: {
+            funnels: '',
+            emailMarketing: '',
+            landingPages: ''
         },
-        interests: {
-            productTypes: [] as string[],
-            specificProduct: ''
-        },
-        resources: {
-            hasMentor: '',
-            hasBudget: ''
-        },
-        obstacles: {
-            mainObstacle: '',
-            skillToImprove: '',
-            communityExpectation: ''
-        }
+        businessType: '', // Tipo de negocio que quieres construir
+        budgetRange: '', // Cuánto podrías invertir
+        mainObstacle: '',
+        skillToImprove: '',
+        communityExpectation: ''
     });
 
     const steps = [
         {
-            title: "Bienvenido",
+            title: "Tus Datos Básicos",
             description: "Te invitamos a llenar este breve formulario para que podamos entender tus objetivos, experiencia y necesidades.",
             content: (
-                <div className="space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">Correo electrónico *</label>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                            <input 
-                                type="email" 
-                                required
-                                value={formData.email}
-                                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:border-emerald-500 focus:outline-none transition-all"
-                                placeholder="tu@email.com"
-                            />
+                <div className="space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                            <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">Correo electrónico</label>
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Mail className="h-6 w-6 text-emerald-500 group-focus-within:text-emerald-400 transition-colors" />
+                                </div>
+                                <input 
+                                    type="email" 
+                                    readOnly
+                                    value={formData.email}
+                                    className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-4 pl-12 pr-4 text-gray-500 cursor-not-allowed font-medium text-lg"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">Nombre Completo</label>
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <User className="h-6 w-6 text-emerald-500 group-focus-within:text-emerald-400 transition-colors" />
+                                </div>
+                                <input 
+                                    type="text" 
+                                    readOnly
+                                    value={formData.fullName}
+                                    className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-4 pl-12 pr-4 text-gray-500 cursor-not-allowed font-medium text-lg"
+                                />
+                            </div>
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">¿Cuál es tu Nombre Completo? *</label>
-                        <div className="relative">
-                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                            <input 
-                                type="text" 
-                                required
-                                value={formData.fullName}
-                                onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:border-emerald-500 focus:outline-none transition-all"
-                                placeholder="Nombre completo"
-                            />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                            <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">País *</label>
+                            <select 
+                                value={selectedCountry}
+                                onChange={(e) => {
+                                    setSelectedCountry(e.target.value);
+                                    setFormData({...formData, country: e.target.value, city: ''});
+                                }}
+                                className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-4 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg appearance-none"
+                            >
+                                <option value="" className="bg-zinc-900">Selecciona tu país</option>
+                                {countries.map(c => (
+                                    <option key={c.name} value={c.name} className="bg-zinc-900">{c.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="space-y-3">
+                            <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">Ciudad *</label>
+                            {selectedCountry && selectedCountry !== "Otros" ? (
+                                <select 
+                                    value={formData.city}
+                                    onChange={(e) => setFormData({...formData, city: e.target.value})}
+                                    className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-4 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg appearance-none"
+                                >
+                                    <option value="" className="bg-zinc-900">Selecciona tu ciudad</option>
+                                    {countries.find(c => c.name === selectedCountry)?.cities.map(city => (
+                                        <option key={city} value={city} className="bg-zinc-900">{city}</option>
+                                    ))}
+                                    <option value="Otra" className="bg-zinc-900">Otra ciudad...</option>
+                                </select>
+                            ) : (
+                                <input 
+                                    type="text" 
+                                    value={formData.city}
+                                    onChange={(e) => setFormData({...formData, city: e.target.value})}
+                                    className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-4 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg"
+                                    placeholder="Escribe tu ciudad"
+                                />
+                            )}
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">Cuál es tu País y Ciudad *</label>
-                        <div className="relative">
-                            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                            <input 
-                                type="text" 
-                                required
-                                value={formData.countryCity}
-                                onChange={(e) => setFormData({...formData, countryCity: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:border-emerald-500 focus:outline-none transition-all"
-                                placeholder="Ej: Bogotá, Colombia"
-                            />
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">¿Cuál es tu Número de WhatsApp? *</label>
-                        <div className="relative">
-                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
+
+                    <div className="space-y-3">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">Número de WhatsApp *</label>
+                        <div className="relative group">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <Phone className="h-6 w-6 text-emerald-500 group-focus-within:text-emerald-400 transition-colors" />
+                            </div>
                             <input 
                                 type="tel" 
                                 required
                                 value={formData.whatsapp}
                                 onChange={(e) => setFormData({...formData, whatsapp: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:border-emerald-500 focus:outline-none transition-all"
+                                className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-emerald-500 focus:outline-none transition-all font-medium text-lg"
                                 placeholder="+57 321..."
                             />
                         </div>
@@ -112,44 +157,42 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ onComplete }
             title: "Objetivos y Motivación",
             description: "Queremos entender qué te impulsa a unirte a nuestra comunidad.",
             content: (
-                <div className="space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">¿Cuál es tu principal objetivo? (Puedes elegir varios)</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div className="space-y-8">
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Cuál es el resultado principal que quieres conseguir? *</label>
+                        <div className="grid grid-cols-1 gap-3">
                             {[
-                                "Aprender a Vender Productos Digitales",
-                                "Crear mi Curso Digital en Hotmart",
-                                "Aprender a usar correctamente la IA",
-                                "Aprender sobre Email Marketing",
-                                "Aprender a vender por WhatsApp",
-                                "Aprender SEO y Posicionamiento Web",
-                                "Crear Páginas Web Profesionales",
-                                "Monetizar Redes Sociales"
+                                "Generar ingresos vendiendo productos digitales",
+                                "Construir una marca personal",
+                                "Consigan clientes para mi negocio",
+                                "Automatizar ventas con IA",
+                                "Crear y vender mi propio producto",
+                                "Aprender marketing digital desde cero"
                             ].map((opt) => (
                                 <button
                                     key={opt}
-                                    onClick={() => {
-                                        const objectives = formData.mainObjectives.includes(opt)
-                                            ? formData.mainObjectives.filter(o => o !== opt)
-                                            : [...formData.mainObjectives, opt];
-                                        setFormData({...formData, mainObjectives: objectives});
-                                    }}
-                                    className={`text-left p-3 rounded-xl border transition-all text-sm ${formData.mainObjectives.includes(opt) ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/50'}`}
+                                    onClick={() => setFormData({...formData, mainGoal: opt})}
+                                    className={`text-left p-5 rounded-2xl border-2 transition-all group flex items-center justify-between ${formData.mainGoal === opt ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
                                 >
-                                    {opt}
+                                    <span className="font-bold text-lg">{opt}</span>
+                                    {formData.mainGoal === opt && <Check className="w-6 h-6 text-emerald-500" />}
                                 </button>
                             ))}
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">¿Cuánto tiempo podrías dedicar semanalmente?</label>
-                        <input 
-                            type="text" 
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Cuánto tiempo podrías dedicar semanalmente? *</label>
+                        <select 
                             value={formData.dedicationTime}
                             onChange={(e) => setFormData({...formData, dedicationTime: e.target.value})}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all"
-                            placeholder="Ej: 2 horas diarias"
-                        />
+                            className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-5 px-6 text-white focus:border-emerald-500 focus:outline-none transition-all font-bold text-xl appearance-none"
+                        >
+                            <option value="" className="bg-zinc-900">Selecciona el tiempo</option>
+                            <option value="Menos de 5 horas" className="bg-zinc-900">Menos de 5 horas</option>
+                            <option value="5-10 horas" className="bg-zinc-900">5-10 horas</option>
+                            <option value="10-20 horas" className="bg-zinc-900">10-20 horas</option>
+                            <option value="Más de 20 horas" className="bg-zinc-900">Más de 20 horas (Dedicación completa)</option>
+                        </select>
                     </div>
                 </div>
             )
@@ -158,36 +201,26 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ onComplete }
             title: "Infraestructura Online",
             description: "Cuéntanos sobre tu presencia digital actual.",
             content: (
-                <div className="space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">¿Tienes una página web o blog? *</label>
+                <div className="space-y-8">
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Tienes una página web o blog? *</label>
                         <div className="flex gap-4">
                             {['SI', 'NO'].map(opt => (
                                 <button
                                     key={opt}
                                     onClick={() => setFormData({...formData, hasWebsite: opt})}
-                                    className={`flex-1 p-3 rounded-xl border transition-all ${formData.hasWebsite === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                    className={`flex-1 p-6 rounded-2xl border-2 transition-all font-black text-2xl ${formData.hasWebsite === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
                                 >
                                     {opt}
                                 </button>
                             ))}
                         </div>
                     </div>
-                    {formData.hasWebsite === 'SI' && (
-                        <div className="space-y-2">
-                            <label className="text-sm text-gray-400">¿Cuál es su URL y sobre qué trata? *</label>
-                            <textarea 
-                                value={formData.websiteUrl}
-                                onChange={(e) => setFormData({...formData, websiteUrl: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all min-h-[100px]"
-                                placeholder="https://..."
-                            />
-                        </div>
-                    )}
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">¿Usas Redes Sociales para tu Negocio?</label>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                            {["Instagram", "Facebook", "TikTok", "YouTube", "Telegram", "Discord"].map(opt => (
+                    
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Usas Redes Sociales para tu Negocio?</label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {["Instagram", "Facebook", "TikTok", "YouTube", "Telegram", "No tengo redes activas todavía"].map(opt => (
                                 <button
                                     key={opt}
                                     onClick={() => {
@@ -196,7 +229,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ onComplete }
                                             : [...formData.useSocialMedia, opt];
                                         setFormData({...formData, useSocialMedia: sm});
                                     }}
-                                    className={`p-3 rounded-xl border transition-all text-sm ${formData.useSocialMedia.includes(opt) ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                    className={`p-4 rounded-2xl border-2 transition-all text-sm font-bold ${formData.useSocialMedia.includes(opt) ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400 hover:border-emerald-500/30'}`}
                                 >
                                     {opt}
                                 </button>
@@ -207,86 +240,108 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ onComplete }
             )
         },
         {
-            title: "Experiencia y Conocimientos",
+            title: "¿Conocimientos previos?",
             description: "Queremos conocer tu nivel actual en marketing digital.",
             content: (
-                <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-xs text-gray-400 italic">¿Conocimientos previos marketing digital?</label>
-                            <div className="flex gap-2">
-                                {['SI', 'NO'].map(opt => (
-                                    <button key={opt} onClick={() => setFormData({...formData, hotmartExperience: {...formData.hotmartExperience, hasKnowledge: opt}})} className={`flex-1 p-2 text-xs rounded-lg border ${formData.hotmartExperience.hasKnowledge === opt ? 'bg-emerald-500/20 border-emerald-500' : 'bg-white/5'}`}>{opt}</button>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-xs text-gray-400 italic">¿Ya tienes cuenta en Hotmart?</label>
-                            <div className="flex gap-2">
-                                {['SI', 'NO'].map(opt => (
-                                    <button key={opt} onClick={() => setFormData({...formData, hotmartExperience: {...formData.hotmartExperience, hasHotmartAcc: opt}})} className={`flex-1 p-2 text-xs rounded-lg border ${formData.hotmartExperience.hasHotmartAcc === opt ? 'bg-emerald-500/20 border-emerald-500' : 'bg-white/5'}`}>{opt}</button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">¿Cuánto dominas los embudos de venta?</label>
-                        <div className="flex gap-2">
-                            {['Mucho', 'Regular', 'Poco', 'Nada'].map(opt => (
-                                <button key={opt} onClick={() => setFormData({...formData, hotmartExperience: {...formData.hotmartExperience, funnelMastery: opt}})} className={`flex-1 p-2 text-xs rounded-lg border ${formData.hotmartExperience.funnelMastery === opt ? 'bg-emerald-500/20 border-emerald-500' : 'bg-white/5'}`}>{opt}</button>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-xs text-gray-400 italic">¿Experiencia Email Marketing?</label>
-                            <div className="flex gap-2">
-                                {['SI', 'No'].map(opt => (
-                                    <button key={opt} onClick={() => setFormData({...formData, hotmartExperience: {...formData.hotmartExperience, emailMarketingExp: opt}})} className={`flex-1 p-2 text-xs rounded-lg border ${formData.hotmartExperience.emailMarketingExp === opt ? 'bg-emerald-500/20 border-emerald-500' : 'bg-white/5'}`}>{opt}</button>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-xs text-gray-400 italic">¿Sabes crear Landing Pages?</label>
-                            <div className="flex gap-2">
-                                {['SI', 'No'].map(opt => (
-                                    <button key={opt} onClick={() => setFormData({...formData, hotmartExperience: {...formData.hotmartExperience, landingPageExp: opt}})} className={`flex-1 p-2 text-xs rounded-lg border ${formData.hotmartExperience.landingPageExp === opt ? 'bg-emerald-500/20 border-emerald-500' : 'bg-white/5'}`}>{opt}</button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )
-        },
-        {
-            title: "Intereses y Recursos",
-            description: "Define tus preferencias y presupuesto.",
-            content: (
-                <div className="space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">¿Qué tipo de productos te interesa promover?</label>
-                        <div className="grid grid-cols-2 gap-2">
-                            {["Cursos Online", "Ebooks", "Software", "Coaching"].map(opt => (
+                <div className="space-y-8">
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Cuál describe mejor tu nivel actual? *</label>
+                        <div className="grid grid-cols-1 gap-2">
+                            {[
+                                "Estoy empezando desde cero",
+                                "Ya he intentado vender online",
+                                "Ya genero algunas ventas",
+                                "Ya tengo experiencia en marketing digital"
+                            ].map(opt => (
                                 <button
                                     key={opt}
-                                    onClick={() => {
-                                        const prods = formData.interests.productTypes.includes(opt)
-                                            ? formData.interests.productTypes.filter(p => p !== opt)
-                                            : [...formData.interests.productTypes, opt];
-                                        setFormData({...formData, interests: {...formData.interests, productTypes: prods}});
-                                    }}
-                                    className={`p-3 rounded-xl border transition-all text-sm ${formData.interests.productTypes.includes(opt) ? 'bg-emerald-500/20 border-emerald-500' : 'bg-white/5'}`}
+                                    onClick={() => setFormData({...formData, experienceLevel: opt})}
+                                    className={`text-left p-4 rounded-2xl border-2 transition-all font-bold ${formData.experienceLevel === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400'}`}
                                 >
                                     {opt}
                                 </button>
                             ))}
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">¿Presupuesto mensual para herramientas/publicidad?</label>
-                        <div className="grid grid-cols-3 gap-2">
-                            {['SI', 'NO', 'Definir'].map(opt => (
-                                <button key={opt} onClick={() => setFormData({...formData, resources: {...formData.resources, hasBudget: opt}})} className={`p-2 text-xs rounded-lg border ${formData.resources.hasBudget === opt ? 'bg-emerald-500/20 border-emerald-500' : 'bg-white/5'}`}>{opt}</button>
+
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Ya tienes cuenta en Hotmart? *</label>
+                        <div className="flex gap-4">
+                            {['SI', 'NO'].map(opt => (
+                                <button
+                                    key={opt}
+                                    onClick={() => setFormData({...formData, hasHotmartAcc: opt})}
+                                    className={`flex-1 p-4 rounded-2xl border-2 transition-all font-bold ${formData.hasHotmartAcc === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                >
+                                    {opt}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Qué tanto dominas estas áreas?</label>
+                        
+                        {[
+                            { key: 'funnels', label: 'Embudos de venta' },
+                            { key: 'emailMarketing', label: 'Email Marketing' },
+                            { key: 'landingPages', label: 'Landing Pages' }
+                        ].map((area) => (
+                            <div key={area.key} className="space-y-3">
+                                <p className="text-white font-bold">{area.label}</p>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {['Nada', 'Básico', 'Intermedio', 'Avanzado'].map(level => (
+                                        <button
+                                            key={level}
+                                            onClick={() => setFormData({
+                                                ...formData, 
+                                                mastery: { ...formData.mastery, [area.key]: level }
+                                            })}
+                                            className={`p-3 rounded-xl border-2 transition-all text-xs font-black ${formData.mastery[area.key as keyof typeof formData.mastery] === level ? 'bg-emerald-500/40 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                        >
+                                            {level}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )
+        },
+        {
+            title: "Tipo de Negocio e Inversión",
+            description: "Define tus preferencias y presupuesto.",
+            content: (
+                <div className="space-y-8">
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Qué tipo de negocio digital quieres construir? *</label>
+                        <div className="grid grid-cols-2 gap-3">
+                            {[
+                                "Afiliación", "Marca personal", "Agencia", "Infoproductos",
+                                "Ecommerce", "Servicios", "Comunidad/Membresía", "Aún no lo tengo claro"
+                            ].map(opt => (
+                                <button
+                                    key={opt}
+                                    onClick={() => setFormData({...formData, businessType: opt})}
+                                    className={`p-4 rounded-2xl border-2 transition-all font-bold text-sm ${formData.businessType === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                >
+                                    {opt}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Cuánto podrías invertir mensualmente? *</label>
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                            {['$0', '$1-$50', '$50-$200', '$200-$500', '+$500'].map(opt => (
+                                <button
+                                    key={opt}
+                                    onClick={() => setFormData({...formData, budgetRange: opt})}
+                                    className={`p-3 rounded-xl border-2 transition-all text-xs font-black ${formData.budgetRange === opt ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-gray-400'}`}
+                                >
+                                    {opt}
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -297,22 +352,22 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ onComplete }
             title: "Dificultades y Apoyo",
             description: "Identifica tus obstáculos para poder impulsarte.",
             content: (
-                <div className="space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">¿Cuál es tu mayor obstáculo actual?</label>
+                <div className="space-y-8">
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Cuál crees que es tu mayor obstáculo actual? *</label>
                         <textarea 
-                            value={formData.obstacles.mainObstacle}
-                            onChange={(e) => setFormData({...formData, obstacles: {...formData.obstacles, mainObstacle: e.target.value}})}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all min-h-[80px]"
+                            value={formData.mainObstacle}
+                            onChange={(e) => setFormData({...formData, mainObstacle: e.target.value})}
+                            className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-5 px-6 text-white focus:border-emerald-500 focus:outline-none transition-all min-h-[120px] font-medium text-lg"
                             placeholder="Describe tu principal reto..."
                         />
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">¿Qué tipo de apoyo esperas de esta comunidad?</label>
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">¿Qué tipo de apoyo esperas de esta comunidad? *</label>
                         <textarea 
-                            value={formData.obstacles.communityExpectation}
-                            onChange={(e) => setFormData({...formData, obstacles: {...formData.obstacles, communityExpectation: e.target.value}})}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:border-emerald-500 focus:outline-none transition-all min-h-[80px]"
+                            value={formData.communityExpectation}
+                            onChange={(e) => setFormData({...formData, communityExpectation: e.target.value})}
+                            className="w-full bg-white/5 border-2 border-white/10 rounded-2xl py-5 px-6 text-white focus:border-emerald-500 focus:outline-none transition-all min-h-[120px] font-medium text-lg"
                             placeholder="Orientación, recursos, equipo..."
                         />
                     </div>
@@ -324,16 +379,26 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ onComplete }
     const handleNext = () => {
         if (step < steps.length - 1) {
             setStep(step + 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             handleSubmit();
         }
     };
 
     const handleBack = () => {
-        if (step > 0) setStep(step - 1);
+        if (step > 0) {
+            setStep(step - 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     };
 
     const handleSubmit = async () => {
+        // Validaciones básicas antes de enviar
+        if (!formData.country || !formData.whatsapp || !formData.mainGoal || !formData.experienceLevel) {
+            alert("Por favor rellena todos los campos obligatorios.");
+            return;
+        }
+
         setLoading(true);
         try {
             await api.submitSurvey(formData);
@@ -349,63 +414,95 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ onComplete }
     const progress = ((step + 1) / steps.length) * 100;
 
     return (
-        <div className="w-full max-w-2xl mx-auto">
-            <div className="mb-8">
-                <div className="flex justify-between items-end mb-2">
-                    <div className="space-y-1">
-                        <p className="text-emerald-500 font-bold text-sm">PASO {step + 1} DE {steps.length}</p>
-                        <h2 className="text-2xl font-black text-white">{steps[step].title}</h2>
+        <div className="w-full max-w-3xl mx-auto py-8 px-4">
+            {/* Header Progresivo */}
+            <div className="mb-12">
+                <div className="flex justify-between items-end mb-4">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-black text-white">
+                                {step + 1}
+                            </span>
+                            <p className="text-emerald-500 font-black text-xs uppercase tracking-[0.2em]">ETAPA DE ONBOARDING</p>
+                        </div>
+                        <h2 className="text-4xl font-black text-white leading-none tracking-tight">{steps[step].title}</h2>
                     </div>
-                    <p className="text-gray-400 text-sm">{Math.round(progress)}% completado</p>
+                    <div className="text-right hidden sm:block">
+                        <p className="text-gray-500 text-xs font-bold uppercase mb-1">Tu Progreso</p>
+                        <p className="text-2xl font-black text-white leading-none">{Math.round(progress)}%</p>
+                    </div>
                 </div>
-                <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-3 w-full bg-white/5 rounded-full overflow-hidden p-1 border border-white/10">
                     <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
-                        className="h-full bg-emerald-500"
+                        className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]"
                     />
                 </div>
             </div>
 
-            <motion.div
-                key={step}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl shadow-2xl"
-            >
-                <div className="mb-8">
-                    <p className="text-gray-400 leading-relaxed">
-                        {steps[step].description}
-                    </p>
-                </div>
+            {/* Contenido de la Encuesta */}
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={step}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -30 }}
+                    className="bg-zinc-900/50 border-2 border-white/5 rounded-[40px] p-8 md:p-12 backdrop-blur-3xl shadow-2xl relative overflow-hidden"
+                >
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                    
+                    <div className="relative z-10">
+                        <div className="mb-12">
+                            <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                {steps[step].description}
+                            </p>
+                        </div>
 
-                {steps[step].content}
+                        {steps[step].content}
 
-                <div className="flex gap-4 mt-8">
-                    {step > 0 && (
-                        <button
-                            onClick={handleBack}
-                            className="flex-1 py-4 px-6 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold transition-all border border-white/10 flex items-center justify-center gap-2"
-                        >
-                            <ChevronLeft className="w-5 h-5" />
-                            Atrás
-                        </button>
-                    )}
-                    <button
-                        onClick={handleNext}
-                        disabled={loading}
-                        className="flex-[2] py-4 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
-                    >
-                        {loading ? 'Guardando...' : step === steps.length - 1 ? 'Finalizar Encuesta' : 'Siguiente'}
-                        {step === steps.length - 1 ? (
-                            <Send className="w-5 h-5" />
-                        ) : (
-                            <ChevronRight className="w-5 h-5" />
-                        )}
-                    </button>
-                </div>
-            </motion.div>
+                        <div className="flex flex-col sm:flex-row gap-4 mt-16">
+                            {step > 0 && (
+                                <button
+                                    onClick={handleBack}
+                                    className="flex-1 py-6 px-8 rounded-3xl bg-white/5 hover:bg-white/10 text-white font-black text-lg transition-all border-2 border-white/5 flex items-center justify-center gap-3 active:scale-95"
+                                >
+                                    <ChevronLeft className="w-6 h-6" />
+                                    Atrás
+                                </button>
+                            )}
+                            <button
+                                onClick={handleNext}
+                                disabled={loading}
+                                className="flex-[2] py-6 px-8 rounded-3xl bg-emerald-500 hover:bg-emerald-400 text-white font-black text-xl transition-all shadow-2xl shadow-emerald-500/30 flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Zap className="w-6 h-6 animate-pulse" />
+                                        Guardando...
+                                    </>
+                                ) : step === steps.length - 1 ? (
+                                    <>
+                                        Comenzar Ahora
+                                        <Rocket className="w-6 h-6" />
+                                    </>
+                                ) : (
+                                    <>
+                                        Siguiente Paso
+                                        <ChevronRight className="w-6 h-6" />
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </motion.div>
+            </AnimatePresence>
+
+            {/* Footer Trust Message */}
+            <div className="mt-12 text-center text-gray-500 flex items-center justify-center gap-2">
+                <Check className="w-4 h-4 text-emerald-500" />
+                <p className="text-xs font-bold uppercase tracking-widest">Tus datos están seguros y se usarán para personalizar tu experiencia</p>
+            </div>
         </div>
     );
 };

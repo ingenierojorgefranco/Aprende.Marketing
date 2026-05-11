@@ -187,6 +187,13 @@ export interface User {
   createdAt?: Date;   // New
   customRedirectUrl?: string; // New: User specific redirect
   survey_json?: any;
+  main_goal?: string;
+  experience_level?: string;
+  budget_range?: string;
+  main_obstacle?: string;
+  answers_json?: any;
+  createdsurvey_at?: string;
+  updatedsurvey_at?: string;
 }
 
 // NEW: System Log Type

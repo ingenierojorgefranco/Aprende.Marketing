@@ -1,12 +1,14 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { OnboardingSurvey } from './OnboardingSurvey';
+import { User } from '../../types';
 
 interface WaitlistViewProps {
+    user: User;
     onComplete?: () => void;
 }
 
-export const WaitlistView: React.FC<WaitlistViewProps> = ({ onComplete }) => {
+export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onComplete }) => {
     return (
         <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 sm:p-12 relative overflow-hidden">
             {/* Background Effects */}
@@ -45,7 +47,7 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ onComplete }) => {
                     </motion.p>
                 </div>
 
-                <OnboardingSurvey onComplete={onComplete || (() => window.location.reload())} />
+                <OnboardingSurvey user={user} onComplete={onComplete || (() => window.location.reload())} />
             </div>
         </div>
     );
