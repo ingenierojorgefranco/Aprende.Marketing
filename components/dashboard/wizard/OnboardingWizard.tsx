@@ -314,6 +314,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                     setStep('selection');
                                     scrollTo(selectionRef);
                                 }} 
+                                disabled={!!strategyData}
                             />
                         </div>
 

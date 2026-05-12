@@ -6,10 +6,11 @@ interface StepProps {
     onNext: (data?: any) => void;
     data?: any;
     userData: any;
+    disabled?: boolean;
 }
 
 // 1. BIENVENIDA
-export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData }) => {
+export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled }) => {
     const userName = userData.name?.split(' ')[0] || 'Emprendedor';
     
     return (
@@ -71,11 +72,12 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData }) => {
             </div>
 
             <button 
-                onClick={() => onNext()}
-                className="group flex items-center gap-4 px-12 py-7 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-[2.5rem] font-black text-2xl transition-all shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95 mx-auto"
+                onClick={() => !disabled && onNext()}
+                disabled={disabled}
+                className={`group flex items-center gap-4 px-12 py-7 ${disabled ? 'bg-gray-800 cursor-not-allowed opacity-50' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95'} text-white rounded-[2.5rem] font-black text-2xl transition-all mx-auto`}
             >
-                Comenzar configuración
-                <ChevronRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
+                {disabled ? 'Configuración en proceso' : 'Comenzar configuración'}
+                {!disabled && <ChevronRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />}
             </button>
         </motion.div>
     );
@@ -232,7 +234,7 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                         {/* Product Description */}
                         <div className="text-center px-4 max-w-xl mx-auto">
                             <p className="text-white text-lg font-medium leading-relaxed italic opacity-90 drop-shadow-sm">
-                                "{project.description}"
+                                "{project.shortDescription || project.description}"
                             </p>
                         </div>
 

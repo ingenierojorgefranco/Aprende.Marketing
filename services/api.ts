@@ -650,6 +650,8 @@ export const api = {
             strategy_json: strategyObj,
             multimedia_json: safeJsonParse(p.multimedia_json, 'proj.multimediaJson') || { heroImages: [], videoUrls: [], descriptiveImages: [] },
             shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
+            fullPrice: p.full_price ? parseFloat(p.full_price) : (p.fullPrice || 0),
+            commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
             isMaster: true,
             isActive: !!p.is_active,
             leadMagnetUrl: p.lead_magnet_url || p.leadMagnetUrl,
