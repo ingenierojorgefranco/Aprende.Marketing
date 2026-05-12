@@ -158,6 +158,11 @@ export const generateLandingPageContent = async (
     }
   }`;
 
+  // Refuerzo de Contexto de Audiencia: Priorización de Bloque Detallado - 12/03/2026
+  const enhancedAudienceContext = targetAudience.includes('|') || targetAudience.includes(':') 
+    ? `BLOQUE ESTRATÉGICO DE AUDIENCIA (USAR ESTA PSICOLOGÍA PARA TODO EL COPY):\n  "${targetAudience}"`
+    : `CONTEXTO DE AUDIENCIA (PRIORIDAD ALTA PARA EL COPY):\n  "${targetAudience}"`;
+
   const prompt = `Actúa como un experto en copywriting y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
   El objetivo es "${goal}". 
   
@@ -175,8 +180,7 @@ export const generateLandingPageContent = async (
   El campo "brandName" debe ser el nombre del negocio o academia. Debe tener de 2 a 3 palabras y estar directamente relacionado con el negocio (ej: 'Beauty Academy', 'Marketing Pro'). 
   PROHIBIDO usar solo nombres personales (ej: 'Ariana Zamora'). Si recibes un nombre personal en el contexto, adáptalo a un nombre de negocio (ej: 'Ariana Zamora Studio').
 
-  CONTEXTO DE AUDIENCIA (PRIORIDAD ALTA PARA EL COPY):
-  "${targetAudience}"
+  ${enhancedAudienceContext}
   
   La oferta es de tipo "${offerType}".
   ${ctaContext}

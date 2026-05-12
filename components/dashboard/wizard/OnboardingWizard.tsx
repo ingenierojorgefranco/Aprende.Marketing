@@ -181,9 +181,26 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             setGenerationProgress(20);
             setGenerationStatus('Configurando servidor de captación...');
             
-            // Obtener datos reales de la estrategia para la landing
+            // Obtener datos reales de la estrategia para la landing (Contexto Psicológico Profundo)
             const niche = selectedProject?.niche || 'Marketing Digital';
-            const targetAudience = strategyData?.avatars?.[0]?.name || 'Emprendedores';
+            
+            let targetAudience = strategyData?.avatars?.[0]?.name || 'Emprendedores';
+            if (strategyData) {
+                const s = strategyData;
+                const avatarContext = s.avatars && Array.isArray(s.avatars) && s.avatars.length > 0 
+                    ? s.avatars.map((a: any) => `${a.archetype}: ${a.pain}. Deseo: ${a.desire}`).join(" | ")
+                    : (s.avatar?.story || "");
+
+                const painsContext = s.psychology?.pains && Array.isArray(s.psychology.pains)
+                    ? `Dolores principales: ${s.psychology.pains.map((p: any) => typeof p === 'object' ? (p.text || p.title || p.description || "") : String(p)).join(", ")}`
+                    : "";
+
+                const solutionsContext = s.psychology?.solutions && Array.isArray(s.psychology.solutions)
+                    ? `Soluciones clave: ${s.psychology.solutions.map((sol: any) => typeof sol === 'object' ? (sol.title || sol.text || "") : String(sol)).join(", ")}`
+                    : "";
+
+                targetAudience = [avatarContext, painsContext, solutionsContext].filter(Boolean).join(". ");
+            }
 
             setGenerationProgress(50);
             setGenerationStatus('Inyectando copys de alta conversión...');
@@ -204,16 +221,16 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             };
 
             const content = await generateLandingPageContent(
-                niche,
-                'Ventas y Captación',
-                targetAudience,
                 selectedProject?.name || 'Producto Digital',
+                'Registro a Webinar / Clase', // Forzamos objetivo de webinar
+                targetAudience,
+                'Ventas y Captación',
                 randomPalette,
                 'webinar-funnel', // Forzamos estructura de webinar
                 { 
                     type: 'whatsapp', 
                     whatsappPhone: (user as any).phone || '000000000', 
-                    whatsappMessage: 'Hola, quiero más información.' 
+                    whatsappMessage: 'Hola, quiero más información sobre...' 
                 },
                 projectWithStrategy
             );

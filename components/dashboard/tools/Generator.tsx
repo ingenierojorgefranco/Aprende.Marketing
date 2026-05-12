@@ -119,11 +119,11 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                   : (s.avatar?.story || "");
 
               const painsContext = s.psychology?.pains && Array.isArray(s.psychology.pains)
-                  ? `Dolores principales: ${s.psychology.pains.join(", ")}`
+                  ? `Dolores principales: ${s.psychology.pains.map((p: any) => typeof p === 'object' ? (p.text || p.title || p.description || "") : String(p)).join(", ")}`
                   : "";
 
               const solutionsContext = s.psychology?.solutions && Array.isArray(s.psychology.solutions)
-                  ? `Soluciones clave: ${s.psychology.solutions.map((sol: any) => typeof sol === 'string' ? sol : sol.title).join(", ")}`
+                  ? `Soluciones clave: ${s.psychology.solutions.map((sol: any) => typeof sol === 'object' ? (sol.title || sol.text || "") : String(sol)).join(", ")}`
                   : "";
 
               audienceInfo = [avatarContext, painsContext, solutionsContext].filter(Boolean).join(". ");
