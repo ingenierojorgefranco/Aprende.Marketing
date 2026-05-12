@@ -302,6 +302,27 @@ export const generateLandingPageContent = async (
         content.destination = destination;
         content.targetAudience = targetAudience;
 
+        // --- INYECCIÓN DE IMÁGENES DESDE MULTIMEDIA_JSON (Si existe) ---
+        const mm = projectContext?.multimedia_json || (projectContext?.strategy_json as any)?.multimedia_json;
+        if (mm) {
+            // 1. Hero Image / Sales Letter Background (Aleatoria)
+            if (mm.heroImages && mm.heroImages.length > 0) {
+                const validHeroes = mm.heroImages.filter((img: string) => img && img.trim() !== '');
+                if (validHeroes.length > 0) {
+                    content.hero.heroImage = validHeroes[Math.floor(Math.random() * validHeroes.length)];
+                    // También inyectamos en la carta de ventas si no tiene imagen
+                    if (content.intro) content.intro.imageUrl = validHeroes[Math.floor(Math.random() * validHeroes.length)];
+                }
+            }
+
+            // 2. Instructor / Autor
+            if (mm.instructorImage && mm.instructorImage.trim() !== '') {
+                if (content.instructor) content.instructor.imageUrl = mm.instructorImage;
+            } else if (mm.authorImage && mm.authorImage.trim() !== '') {
+                if (content.instructor) content.instructor.imageUrl = mm.authorImage;
+            }
+        }
+
         if (projectContext) {
             const pStrategy = projectContext.strategy_json ? JSON.parse(JSON.stringify(projectContext.strategy_json)) : null;
 
@@ -368,18 +389,28 @@ export const generateLandingPageContent = async (
                     : [];
 
             if (rawTestimonials.length > 0) {
-                content.testimonials = rawTestimonials.slice(0, 3).map((t: any) => ({
+                const avatarPlaceholders = [
+                    "https://i.pravatar.cc/150?u=a042581f4e29026704d",
+                    "https://i.pravatar.cc/150?u=a042581f4e29026704e",
+                    "https://i.pravatar.cc/150?u=a04258114e29026702d",
+                    "https://i.pravatar.cc/150?u=a04258114e29026708c",
+                    "https://i.pravatar.cc/150?u=a042581f4e29056704b"
+                ];
+
+                content.testimonials = rawTestimonials.slice(0, 3).map((t: any, idx: number) => ({
                     name: String(t.name || ""),
                     text: String(t.text || ""),
                     rating: 5,
-                    image: String(t.image || "")
+                    image: (t.image && t.image.trim() !== "") ? t.image : avatarPlaceholders[idx % avatarPlaceholders.length],
+                    location: t.location || ""
                 }));
             }
         }
 
-        // Aplicar la imagen de persona misteriosa de alta calidad como predeterminada para el instructor
-        if (content.instructor && (!content.instructor.imageUrl || content.instructor.imageUrl.includes('unsplash.com'))) {
-          content.instructor.imageUrl = "https://ceslava.s3-accelerate.amazonaws.com/2016/04/mistery-man-gravatar-wordpress-avatar-persona-misteriosa-510x510.png";
+        // Aplicar la imagen de persona misteriosa solo si después de todo sigue vacía
+        if (content.instructor && (!content.instructor.imageUrl || content.instructor.imageUrl.includes('unsplash.com') || content.instructor.imageUrl === "")) {
+          // Intentar un placeholder más profesional de instructor si no hay nada
+          content.instructor.imageUrl = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&h=400&auto=format&fit=crop";
         }
 
         return content;

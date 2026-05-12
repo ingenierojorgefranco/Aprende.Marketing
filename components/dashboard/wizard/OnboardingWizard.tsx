@@ -199,7 +199,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             // Generar contenido pero con el contexto de la estrategia COMPLETO
             const projectWithStrategy = {
                 ...unlockedProject,
-                strategy_json: strategyData
+                strategy_json: strategyData,
+                multimedia_json: unlockedProject?.multimedia_json || strategyData?.multimedia_json || { heroImages: [], videoUrls: [], descriptiveImages: [] }
             };
 
             const content = await generateLandingPageContent(

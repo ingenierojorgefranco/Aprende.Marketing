@@ -484,7 +484,7 @@ export const api = {
   },
 
   createPage: async (page: LandingPage, projectContext?: Project): Promise<LandingPage> => {
-    // Lógica de asignación automática de multimedia desde Proyecto Maestro - 18/03/2026
+    // Lógica de asignación automática de multimedia desde Proyecto Maestro o Contexto - 18/03/2026
     try {
         let multimediaSource: Project | null | undefined = projectContext;
         
@@ -493,10 +493,10 @@ export const api = {
             multimediaSource = await api.getProjectById(page.projectId);
         }
 
-        // Si el proyecto es hijo, intentamos buscar el multimedia en el padre (Maestro) si el actual está vacío
+        // Si el proyecto es hijo e incompleto, intentamos buscar el multimedia en el padre (Maestro)
         if (multimediaSource && multimediaSource.masterParentId) {
             const hasLocalMultimedia = multimediaSource.multimedia_json && 
-                (multimediaSource.multimedia_json.heroImages.length > 0 || !!multimediaSource.multimedia_json.instructorImage);
+                (Array.isArray(multimediaSource.multimedia_json.heroImages) && multimediaSource.multimedia_json.heroImages.length > 0 || !!multimediaSource.multimedia_json.instructorImage);
             
             if (!hasLocalMultimedia) {
                 const master = await api.getProjectById(multimediaSource.masterParentId);
@@ -511,20 +511,20 @@ export const api = {
             
             // 1. Hero Image (Aleatoria si hay varias)
             if (mm.heroImages && mm.heroImages.length > 0) {
-                const validHeroes = mm.heroImages.filter(img => img && img.trim() !== '');
+                const validHeroes = mm.heroImages.filter(img => img && typeof img === 'string' && img.trim() !== '');
                 if (validHeroes.length > 0) {
                     page.content.hero.heroImage = validHeroes[Math.floor(Math.random() * validHeroes.length)];
                 }
             }
             
             // 2. Instructor Image
-            if (mm.instructorImage && mm.instructorImage.trim() !== '') {
+            if (mm.instructorImage && typeof mm.instructorImage === 'string' && mm.instructorImage.trim() !== '') {
                 page.content.instructor.imageUrl = mm.instructorImage;
             }
             
             // 3. Descriptive Images (Intro section - Aleatoria)
             if (mm.descriptiveImages && mm.descriptiveImages.length > 0) {
-                const validDescs = mm.descriptiveImages.filter(img => img && img.trim() !== '');
+                const validDescs = mm.descriptiveImages.filter(img => img && typeof img === 'string' && img.trim() !== '');
                 if (validDescs.length > 0) {
                     page.content.intro.imageUrl = validDescs[Math.floor(Math.random() * validDescs.length)];
                 }
