@@ -239,60 +239,64 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
 // 3. GENERACIÓN (LOADING STATE)
 export const GenerationStep: React.FC<{ progress: number, status: string, secondsElapsed?: number }> = ({ progress, status, secondsElapsed = 0 }) => {
     return (
-        <div className="flex flex-col items-center justify-center px-6 space-y-12 text-center max-w-4xl mx-auto">
+        <div className="flex flex-col items-center justify-center px-6 space-y-12 text-center max-w-4xl mx-auto py-10">
             <div className="relative">
-                <div className="absolute inset-x-0 -top-20 -bottom-20 bg-[#FF5A1F]/20 blur-[100px] rounded-full animate-pulse"></div>
-                <div className="relative w-32 h-32 rounded-[2.5rem] bg-[#111] border border-[#FF5A1F]/30 flex items-center justify-center shadow-2xl shadow-[#FF5A1F]/10">
-                    <Brain className="w-16 h-16 text-[#FF5A1F] animate-bounce" />
-                    <div className="absolute -bottom-2 -right-2 bg-emerald-500 p-2 rounded-full shadow-lg border-2 border-[#111]">
-                        <Sparkles className="w-4 h-4 text-white animate-spin-slow" />
+                <div className="absolute inset-x-0 -top-20 -bottom-20 bg-[#FF5A1F]/20 blur-[120px] rounded-full animate-pulse transition-all duration-1000"></div>
+                <div className="relative w-40 h-40 rounded-[3rem] bg-[#0A0A0A] border-2 border-[#FF5A1F]/30 flex items-center justify-center shadow-[0_25px_100px_-20px_rgba(255,90,31,0.3)] group overflow-hidden">
+                    <Brain className="w-20 h-20 text-[#FF5A1F] animate-bounce" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#FF5A1F]/5 to-transparent"></div>
+                    <div className="absolute -bottom-2 -right-2 bg-emerald-500 p-3 rounded-full shadow-2xl border-4 border-[#0A0A0A] animate-in zoom-in-50 duration-500">
+                        <Sparkles className="w-5 h-5 text-white animate-spin-slow" />
                     </div>
                 </div>
             </div>
 
-            <div className="space-y-8 w-full max-w-2xl">
+            <div className="space-y-10 w-full max-w-2xl relative z-10">
                 <div className="space-y-4">
-                    <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight italic">
+                    <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter italic leading-none">
                         {status || 'Estrategia en proceso'}
                     </h2>
-                    <p className="text-gray-400 text-lg font-medium italic max-w-lg mx-auto leading-relaxed">
+                    <p className="text-gray-500 text-lg md:text-xl font-medium italic max-w-lg mx-auto leading-relaxed opacity-80">
                         "Nuestra IA está analizando tu nicho, redactando secuencias de email y configurando tu embudo psicológico de ventas."
                     </p>
                 </div>
                 
-                <div className="flex flex-col items-center gap-6">
+                <div className="flex flex-col items-center gap-8">
                     {/* Contador de tiempo */}
-                    <div className="bg-gradient-to-br from-gray-900 to-black p-8 rounded-[2.5rem] border border-white/5 shadow-2xl text-center min-w-[280px]">
-                        <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mb-2">Estimado de finalización:</p>
-                        <div className="text-white font-mono text-5xl font-black tracking-tighter">
-                            {Math.floor(Math.max(0, 90 - secondsElapsed) / 60).toString().padStart(2, '0')}:{(Math.max(0, 90 - secondsElapsed) % 60).toString().padStart(2, '0')}
+                    <div className="bg-gradient-to-br from-[#111] to-black p-10 rounded-[3rem] border border-white/5 shadow-2xl text-center min-w-[320px] transform hover:scale-105 transition-transform">
+                        <p className="text-[#FF5A1F] font-black uppercase tracking-[0.4em] text-[10px] mb-4">Estimado de finalización</p>
+                        <div className="text-white font-mono text-6xl font-black tracking-tighter drop-shadow-[0_5px_15px_rgba(255,255,255,0.1)]">
+                            {Math.floor(Math.max(0, 120 - secondsElapsed) / 60).toString().padStart(2, '0')}:{(Math.max(0, 120 - secondsElapsed) % 60).toString().padStart(2, '0')}
                         </div>
                     </div>
 
-                    <div className="w-full space-y-4">
-                        <div className="flex justify-between items-end px-2">
-                            <span className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.3em] animate-pulse">
-                                Procesando arquitectura...
-                            </span>
-                            <span className="text-xl font-black text-white">
+                    <div className="w-full space-y-6">
+                        <div className="flex justify-between items-end px-4">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">
+                                    Procesando arquitectura...
+                                </span>
+                            </div>
+                            <span className="text-2xl font-black text-[#FF5A1F]">
                                 {Math.round(progress)}%
                             </span>
                         </div>
-                        <div className="w-full bg-[#111] h-6 rounded-full overflow-hidden border border-white/5 p-1.5 shadow-inner relative">
+                        <div className="w-full bg-[#111] h-8 rounded-full overflow-hidden border border-white/10 p-1.5 shadow-2xl relative">
                             <motion.div 
                                 initial={{ width: 0 }}
                                 animate={{ width: `${progress}%` }}
-                                className="h-full bg-gradient-to-r from-[#FF5A1F] to-[#FF8C00] rounded-full shadow-[0_0_25px_rgba(255,90,31,0.4)] relative"
+                                className="h-full bg-gradient-to-r from-[#FF5A1F] via-[#FF8C00] to-white rounded-full relative"
                             >
                                 <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] -translate-x-full animate-[loading-shine_1.5s_infinite]"></div>
                             </motion.div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3 px-6 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl">
-                        <div className="w-2 h-2 rounded-full bg-red-500 animate-ping"></div>
-                        <p className="text-red-400 font-black uppercase text-[10px] tracking-[0.2em]">
-                            ⚠️ No cierres esta página, el proceso está en curso...
+                    <div className="flex items-center gap-4 px-8 py-4 bg-red-500/5 border border-red-500/20 rounded-[2rem] backdrop-blur-md">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></div>
+                        <p className="text-red-400 font-bold uppercase text-[10px] tracking-[0.2em]">
+                            ⚠️ No cierres esta pestaña, el sistema está trabajando...
                         </p>
                     </div>
                 </div>

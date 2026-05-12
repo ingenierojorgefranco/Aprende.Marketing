@@ -19,11 +19,12 @@ interface OnboardingWizardProps {
     user: User;
     onComplete: () => void;
     onLogout?: () => void;
+    onGenerationStateChange?: (isGenerating: boolean) => void;
 }
 
 type WizardStep = 'welcome' | 'selection' | 'generating_strategy' | 'show_avatars' | 'show_landing_prep' | 'creating_web' | 'show_hooks' | 'success';
 
-export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComplete, onLogout }) => {
+export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComplete, onLogout, onGenerationStateChange }) => {
     const [step, setStep] = useState<WizardStep>('welcome');
     const [projects, setProjects] = useState<Project[]>([]);
     const [loadingProjects, setLoadingProjects] = useState(false);
@@ -47,6 +48,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     const creationRef = useRef<HTMLDivElement>(null);
     const hooksRef = useRef<HTMLDivElement>(null);
     const successRef = useRef<HTMLDivElement>(null);
+
+    const isGenerating = step === 'generating_strategy' || step === 'creating_web';
+
+    // Notify parent about generation state
+    useEffect(() => {
+        if (onGenerationStateChange) {
+            onGenerationStateChange(isGenerating);
+        }
+    }, [isGenerating, onGenerationStateChange]);
 
     // Timer para generación
     useEffect(() => {
@@ -375,7 +385,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                 </div>
 
             {/* Stepper indicator */}
-            {step !== 'success' && (
+            {(step !== 'success' && !isGenerating) && (
                 <div className="py-10 flex items-center justify-center gap-3">
                     {(['welcome', 'selection', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks', 'success'] as WizardStep[]).map((s, idx) => {
                         const steps = ['welcome', 'selection', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks', 'success'];

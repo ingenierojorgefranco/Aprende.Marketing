@@ -99,6 +99,7 @@ export const DashboardLayout = ({
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isWizardGenerating, setIsWizardGenerating] = useState(false);
   
   ////////// Estados para la ventana modal de ayuda - 05/06/2025 10:00 //////////
   const [showHelpModal, setShowHelpModal] = useState(false);
@@ -401,7 +402,7 @@ export const DashboardLayout = ({
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
         {mobileMenuOpen && <div className="fixed inset-0 bg-black/80 z-30 md:hidden" onClick={() => setMobileMenuOpen(false)}></div>}
         <header className="h-20 bg-[#0B0B0B]/95 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-6 shrink-0 z-30">
-             <div className="flex items-center gap-4">
+             <div className={`flex items-center gap-4 ${isWizardGenerating ? 'w-full justify-center' : ''}`}>
                  {isSurveyPending || showWizard ? (
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-[#FF5A1F]/20 px-1">A.MKT</div>
@@ -415,51 +416,53 @@ export const DashboardLayout = ({
                  )}
              </div>
              
-             <div className="flex items-center gap-2 sm:gap-4">
-                 {(!isSurveyPending && !showWizard) && (
-                    <>
-                        <a 
-                            href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-white hover:bg-white/10 transition-all"
-                            title="Comunidad WhatsApp"
-                        >
-                            <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
-                                <Users className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Comunidad</span>
-                        </a>
-
-                        <button 
-                            onClick={() => setShowHelpModal(true)}
-                            className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-white hover:bg-white/10 transition-all"
-                        >
-                            <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
-                                <HelpCircle className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Ayuda</span>
-                        </button>
-                    </>
-                 )}
-
-                 <button onClick={() => setShowProfileModal(true)} className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition shadow-sm">
-                     <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center font-bold overflow-hidden shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
-                         {effectiveUser.avatarUrl ? <img src={effectiveUser.avatarUrl} alt={effectiveUser.name} className="w-full h-full object-cover" /> : effectiveUser.name.charAt(0).toUpperCase()}
-                     </div>
-                     <span className="text-sm font-bold text-[#B0B0B0] hidden sm:block">{effectiveUser.name}</span>
-                 </button>
-
-                 <button onClick={onLogout} className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-red-400 hover:bg-red-900/10 transition-all">
-                     <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
-                        <LogOut className="w-4 h-4" />
-                     </div>
-                     <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Salir</span>
-                 </button>
-             </div>
+             {!isWizardGenerating && (
+                 <div className="flex items-center gap-2 sm:gap-4">
+                     {(!isSurveyPending && !showWizard) && (
+                        <>
+                            <a 
+                                href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-white hover:bg-white/10 transition-all"
+                                title="Comunidad WhatsApp"
+                            >
+                                <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
+                                    <Users className="w-4 h-4" />
+                                </div>
+                                <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Comunidad</span>
+                            </a>
+    
+                            <button 
+                                onClick={() => setShowHelpModal(true)}
+                                className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-white hover:bg-white/10 transition-all"
+                            >
+                                <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
+                                    <HelpCircle className="w-4 h-4" />
+                                </div>
+                                <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Ayuda</span>
+                            </button>
+                        </>
+                     )}
+    
+                     <button onClick={() => setShowProfileModal(true)} className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition shadow-sm">
+                         <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center font-bold overflow-hidden shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
+                             {effectiveUser.avatarUrl ? <img src={effectiveUser.avatarUrl} alt={effectiveUser.name} className="w-full h-full object-cover" /> : effectiveUser.name.charAt(0).toUpperCase()}
+                         </div>
+                         <span className="text-sm font-bold text-[#B0B0B0] hidden sm:block">{effectiveUser.name}</span>
+                     </button>
+    
+                     <button onClick={onLogout} className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-red-400 hover:bg-red-900/10 transition-all">
+                         <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
+                            <LogOut className="w-4 h-4" />
+                         </div>
+                         <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Salir</span>
+                     </button>
+                 </div>
+             )}
         </header>
 
-        <div id="dashboard-scroll-container" className={`flex-1 overflow-y-auto bg-black p-4 sm:p-8 relative ${(isSurveyPending || isLaunchRestricted || showWizard) ? 'flex flex-col items-center' : ''}`}>
+        <div id="dashboard-scroll-container" className={`flex-1 overflow-y-auto bg-black p-4 sm:p-8 relative ${(isSurveyPending || isLaunchRestricted || showWizard) ? 'flex flex-col items-center' : ''} ${isWizardGenerating ? '!overflow-hidden' : ''}`}>
             <div className={`w-full max-w-[1600px] ${(isSurveyPending || isLaunchRestricted || showWizard) ? 'max-w-6xl mx-auto mt-20' : 'mx-auto'}`}>
                 {(isLaunchRestricted || isSurveyPending) ? (
                     <WaitlistView 
@@ -472,6 +475,7 @@ export const DashboardLayout = ({
                         user={effectiveUser} 
                         onComplete={() => window.location.reload()} 
                         onLogout={onLogout}
+                        onGenerationStateChange={setIsWizardGenerating}
                     />
                 ) : (
                     <Outlet context={{ 
