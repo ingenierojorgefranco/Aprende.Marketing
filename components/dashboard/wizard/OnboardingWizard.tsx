@@ -32,6 +32,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [unlockedProject, setUnlockedProject] = useState<any>(null);
     const [strategyData, setStrategyData] = useState<any>(null);
+    const [isLandingCreated, setIsLandingCreated] = useState(false);
+    const [isHooksUnlocked, setIsHooksUnlocked] = useState(false);
     
     const [secondsElapsed, setSecondsElapsed] = useState(0);
     const [revealedSections, setRevealedSections] = useState<WizardStep[]>(['welcome']);
@@ -44,6 +46,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     const landingPrepRef = useRef<HTMLDivElement>(null);
     const creationRef = useRef<HTMLDivElement>(null);
     const hooksRef = useRef<HTMLDivElement>(null);
+    const successRef = useRef<HTMLDivElement>(null);
 
     // Timer para generación
     useEffect(() => {
@@ -93,6 +96,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
         if (step === 'show_landing_prep') scrollTo(landingPrepRef);
         if (step === 'creating_web') scrollTo(creationRef);
         if (step === 'show_hooks') scrollTo(hooksRef);
+        if (step === 'success') scrollTo(successRef);
     }, [step]);
 
     const loadMasterProjects = async () => {
@@ -209,6 +213,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
             setGenerationProgress(100);
             setGenerationStatus('Página Publicada');
+            setIsLandingCreated(true);
             
             setTimeout(() => {
                 setStep('show_hooks');
@@ -216,39 +221,22 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
         } catch (error) {
             console.error("Error en creación de web:", error);
-            setStep('success'); // Fallback suave
+            setStep('show_hooks'); // Fallback a hooks para no romper el flujo
         }
     };
 
     return (
-        <div className="fixed inset-0 bg-[#050505] overflow-y-auto overflow-x-hidden selection:bg-[#FF5A1F] selection:text-white">
-            {/* Botón de Salir (Emergencia) */}
-            {onLogout && (
-                <div className="fixed top-6 right-6 z-50">
-                    <button 
-                        onClick={onLogout}
-                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all text-xs font-bold uppercase tracking-widest backdrop-blur-md"
-                    >
-                        Cerrar Sesión
-                    </button>
-                </div>
-            )}
-
+        <div className="w-full relative selection:bg-[#FF5A1F] selection:text-white">
             {/* Background Decorations */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-[#FF5A1F]/10 blur-[120px] rounded-full"></div>
-                <div className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-[#FF5A1F]/5 blur-[100px] rounded-full"></div>
+            <div className="absolute inset-0 pointer-events-none overflow-hidden h-[300vh]">
+                <div className="absolute top-[5%] -left-[10%] w-[60%] h-[100vh] bg-[#FF5A1F]/10 blur-[120px] rounded-full"></div>
+                <div className="absolute bottom-[5%] -right-[10%] w-[50%] h-[100vh] bg-[#FF5A1F]/5 blur-[100px] rounded-full"></div>
             </div>
 
             <div className="w-full max-w-6xl mx-auto relative z-10 px-4 md:px-6">
-                {step === 'success' ? (
-                    <div className="min-h-screen flex items-center justify-center animate-in zoom-in duration-500">
-                        <SuccessStep onFinish={onComplete} />
-                    </div>
-                ) : (
-                    <div className="flex flex-col">
-                        {/* 1. BIENVENIDA */}
-                        <div ref={welcomeRef} className="min-h-screen flex flex-col justify-center py-20">
+                <div className="flex flex-col">
+                    {/* 1. BIENVENIDA */}
+                    <div ref={welcomeRef} className="min-h-screen flex flex-col justify-center py-20">
                             <WelcomeStep 
                                 userData={user} 
                                 onNext={() => {
@@ -268,6 +256,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                         userData={user}
                                         onNext={handleProjectSelection}
                                         selectedProjectId={selectedProject?.id}
+                                        isLocked={!!strategyData}
                                     />
                                 </div>
 
@@ -291,6 +280,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                             project={selectedProject}
                                             userData={user}
                                             onNext={handleUnlockConfirm}
+                                            isStrategyGenerated={!!strategyData}
                                             onBackToSelection={() => {
                                                 setSelectedProject(null);
                                                 setStep('selection');
@@ -304,7 +294,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         )}
 
                         {/* 3. GENERANDO ESTRATEGIA */}
-                        {revealedSections.includes('generating_strategy') && (
+                        {revealedSections.includes('generating_strategy') && step === 'generating_strategy' && (
                             <div ref={strategyRef} className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
                                 <GenerationStep 
                                     progress={generationProgress} 
@@ -338,12 +328,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                 <LandingIntroStep 
                                     userData={user}
                                     onNext={handleCreateWeb}
+                                    isCreated={isLandingCreated}
                                 />
                             </div>
                         )}
 
                         {/* 6. CREANDO WEB */}
-                        {revealedSections.includes('creating_web') && (
+                        {revealedSections.includes('creating_web') && step === 'creating_web' && (
                             <div ref={creationRef} className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
                                 <h2 className="text-center text-emerald-500 font-black uppercase tracking-widest mb-10">Fase 2: Arquitectura Web en Proceso</h2>
                                 <GenerationStep 
@@ -360,19 +351,34 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                 <HooksRevealStep 
                                     userData={user}
                                     hooks={strategyData?.modules?.hooks || []}
-                                    onNext={() => setStep('success')}
+                                    isUnlocked={isHooksUnlocked}
+                                    projectId={unlockedProject?.id}
+                                    onNext={() => {
+                                        setIsHooksUnlocked(true);
+                                        setTimeout(() => {
+                                            if (!revealedSections.includes('success')) {
+                                                setStep('success');
+                                            }
+                                        }, 4000); // Dar tiempo para ver los ganchos antes de saltar a éxito
+                                    }}
                                 />
                             </div>
                         )}
+
+                        {/* 8. ÉXITO FINAL */}
+                        {revealedSections.includes('success') && (
+                            <div ref={successRef} className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
+                                <SuccessStep onFinish={onComplete} />
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+                </div>
 
             {/* Stepper indicator */}
             {step !== 'success' && (
-                <div className="py-10 flex items-center gap-3">
-                    {(['welcome', 'selection', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks'] as WizardStep[]).map((s, idx) => {
-                        const steps = ['welcome', 'selection', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks'];
+                <div className="py-10 flex items-center justify-center gap-3">
+                    {(['welcome', 'selection', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks', 'success'] as WizardStep[]).map((s, idx) => {
+                        const steps = ['welcome', 'selection', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks', 'success'];
                         const isActive = step === s;
                         const isPast = steps.indexOf(step) > idx;
                         

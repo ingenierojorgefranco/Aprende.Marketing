@@ -56,7 +56,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData }) => {
 };
 
 // 2. SELECCIÓN DE PROYECTO
-export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loading: boolean, selectedProjectId?: string }> = ({ projects, loading, onNext, selectedProjectId }) => {
+export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loading: boolean, selectedProjectId?: string, isLocked?: boolean }> = ({ projects, loading, onNext, selectedProjectId, isLocked }) => {
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-[#FF5A1F]">
@@ -86,9 +86,9 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                     return (
                         <motion.div 
                             key={project.id}
-                            whileHover={{ y: -10 }}
-                            className={`bg-[#111] border ${isSelected ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/20' : 'border-white/5'} rounded-[2.5rem] overflow-hidden group cursor-pointer hover:border-[#FF5A1F]/50 transition-all flex flex-col h-full shadow-xl relative`}
-                            onClick={() => onNext(project)}
+                            whileHover={isLocked ? {} : { y: -10 }}
+                            className={`bg-[#111] border ${isSelected ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/20' : 'border-white/5'} ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-[2.5rem] overflow-hidden group cursor-pointer hover:border-[#FF5A1F]/50 transition-all flex flex-col h-full shadow-xl relative`}
+                            onClick={() => !isLocked && onNext(project)}
                         >
                             {isSelected && (
                                 <div className="absolute top-4 right-4 z-20">
@@ -137,7 +137,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
 };
 
 // 2.5 PROTOCOLO DE DESBLOQUEO (Modal-like)
-export const UnlockProtocolStep: React.FC<StepProps & { project: any, onBackToSelection?: () => void }> = ({ project, onNext, onBackToSelection }) => {
+export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategyGenerated?: boolean, onBackToSelection?: () => void }> = ({ project, onNext, isStrategyGenerated, onBackToSelection }) => {
     return (
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
@@ -208,14 +208,15 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, onBackToSe
 
                     <div className="w-full space-y-4">
                         <button 
-                            onClick={() => onNext()}
-                            className="w-full py-6 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_40px_-10px_rgba(255,90,31,0.4)] flex items-center justify-center gap-4 group"
+                            onClick={() => !isStrategyGenerated && onNext()}
+                            disabled={isStrategyGenerated}
+                            className={`w-full py-6 ${isStrategyGenerated ? 'bg-emerald-500 cursor-default' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_40px_-10px_rgba(255,90,31,0.4)] flex items-center justify-center gap-4 group`}
                         >
-                            DESBLOQUEAR AHORA
-                            <Zap className="w-6 h-6 fill-white animate-pulse" />
+                            {isStrategyGenerated ? 'ESTRATEGIA DESBLOQUEADA' : 'DESBLOQUEAR AHORA'}
+                            <Zap className={`w-6 h-6 fill-white ${!isStrategyGenerated ? 'animate-pulse' : ''}`} />
                         </button>
                         
-                        {onBackToSelection && (
+                        {(onBackToSelection && !isStrategyGenerated) && (
                             <button 
                                 onClick={onBackToSelection}
                                 className="w-full py-4 text-gray-500 hover:text-white font-bold text-sm transition-colors flex items-center justify-center gap-2"
@@ -359,7 +360,7 @@ export const AvatarRevealStep: React.FC<StepProps & { avatars: any[] }> = ({ ava
 };
 
 // 5. PREPARACIÓN DE LANDING
-export const LandingIntroStep: React.FC<StepProps> = ({ onNext }) => {
+export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = ({ onNext, isCreated }) => {
     return (
         <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
@@ -382,25 +383,36 @@ export const LandingIntroStep: React.FC<StepProps> = ({ onNext }) => {
                 </p>
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs font-black text-gray-500 uppercase tracking-widest">
                     <Zap className="w-3 h-3 text-[#FF5A1F]" />
-                    Generación Automática en 10 Segundos
+                    Generación Automática en {isCreated ? 'Completada' : '10 Segundos'}
                 </div>
             </div>
 
             <button 
-                onClick={() => onNext()}
-                className="group flex items-center gap-4 px-10 py-6 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95 mx-auto"
+                onClick={() => !isCreated && onNext()}
+                disabled={isCreated}
+                className={`group flex items-center gap-4 px-10 py-6 ${isCreated ? 'bg-emerald-500 cursor-default' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform ${!isCreated ? 'hover:-translate-y-2 active:scale-95' : ''} mx-auto`}
             >
-                CREAR MI PÁGINA AHORA
-                <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                {isCreated ? 'TU PÁGINA DE CAPTURA HA SIDO GENERADA' : 'CREAR MI PÁGINA AHORA'}
+                <ArrowRight className={`w-6 h-6 ${!isCreated ? 'group-hover:translate-x-2 transition-transform' : ''}`} />
             </button>
         </motion.div>
     );
 };
 
 // 6. REVELACIÓN DE HOOKS
-export const HooksRevealStep: React.FC<StepProps & { hooks: any[] }> = ({ hooks, onNext }) => {
-    // Tomar solo 4 hooks si hay muchos para no saturar
-    const displayHooks = hooks.slice(0, 4);
+export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: boolean, projectId?: string }> = ({ hooks, onNext, isUnlocked, projectId }) => {
+    // Tomar solo 3 hooks para el wizard
+    const displayHooks = hooks.slice(0, 3);
+    const hooksGridRef = React.useRef<HTMLDivElement>(null);
+
+    // Scroll automatically when unlocked
+    React.useEffect(() => {
+        if (isUnlocked && hooksGridRef.current) {
+            setTimeout(() => {
+                hooksGridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 500);
+        }
+    }, [isUnlocked]);
 
     return (
         <motion.div 
@@ -410,51 +422,93 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[] }> = ({ hooks,
         >
             <div className="text-center space-y-4">
                 <div className="w-16 h-16 bg-purple-500/10 text-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-purple-500/20 shadow-xl font-bold italic text-3xl">
-                    #
+                    <Quote className="w-8 h-8" />
                 </div>
                 <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase">
-                    GANCHOS DE <span className="text-purple-500">VENTA</span>
+                    GANCHOS DE <span className="text-purple-500">ATRACCIÓN</span>
                 </h2>
-                <p className="text-gray-400 text-lg font-medium">Estos son los titulares que detendrán el scroll de tu audiencia.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                {displayHooks.length > 0 ? displayHooks.map((hook, idx) => (
-                    <motion.div 
-                        key={idx}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.15 }}
-                        className="bg-[#111] border border-white/5 p-8 rounded-[2rem] relative overflow-hidden group hover:border-purple-500/30 transition-all"
-                    >
-                        <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                            <Quote className="w-16 h-16 text-white" />
-                        </div>
-                        <div className="space-y-4 relative z-10">
-                            <div className="px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-[10px] font-black text-purple-500 uppercase tracking-widest inline-block">
-                                Hook #{idx + 1}
-                            </div>
-                            <p className="text-xl font-black text-white leading-tight italic">
-                                "{hook.hookText || hook.text || 'Descubre el secreto para automatizar tus ventas en 30 días.'}"
-                            </p>
-                        </div>
-                    </motion.div>
-                )) : (
-                    <div className="col-span-full text-center py-10 bg-white/5 rounded-3xl border border-white/5">
-                        <p className="text-gray-500 italic">Generando ganchos adicionales...</p>
+                <div className="space-y-4 max-w-3xl mx-auto">
+                    <p className="text-gray-400 text-lg font-medium italic">
+                        "Tus avatares necesitan ganchos que detengan el scroll. Nuestro sistema te entrega los videos (reels) listos para atraer clientes interesados en comprar tu producto digital."
+                    </p>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-[10px] font-black text-purple-500 uppercase tracking-widest">
+                        <Zap className="w-3 h-3 fill-current" />
+                        Desbloqueo Inteligente de 3 Ganchos Primarios
                     </div>
-                )}
+                </div>
             </div>
 
-            <div className="flex justify-center pt-8">
+            <div className="flex justify-center">
                 <button 
-                    onClick={() => onNext()}
-                    className="flex items-center gap-4 px-12 py-6 bg-white text-black hover:bg-gray-200 rounded-[2rem] font-black text-xl transition-all shadow-2xl transform hover:-translate-y-1 active:scale-95"
+                    onClick={() => !isUnlocked && onNext()}
+                    disabled={isUnlocked}
+                    className={`group flex items-center gap-4 px-12 py-6 ${isUnlocked ? 'bg-emerald-500 cursor-default' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(255,140,0,0.3)] transform ${!isUnlocked ? 'hover:-translate-y-2' : ''} active:scale-95`}
                 >
-                    EL NEGOCIO ESTÁ LISTO
-                    <Rocket className="w-6 h-6" />
+                    {isUnlocked ? 'GANCHOS DESBLOQUEADOS' : 'GENERAR VIDEOS DE ATRACCIÓN'}
+                    <Zap className={`w-6 h-6 fill-white ${!isUnlocked ? 'animate-pulse' : ''}`} />
                 </button>
             </div>
+
+            {isUnlocked && (
+                <div ref={hooksGridRef} className="space-y-10 pt-10 border-t border-white/5 animate-in fade-in slide-in-from-bottom-10 duration-700">
+                    <div className="text-center space-y-2">
+                        <h3 className="text-2xl font-black text-white uppercase italic">Tus videos de atracción están desbloqueados</h3>
+                        <p className="text-gray-500 font-medium">Usa estos ganchos para tus anuncios o contenido orgánico.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                        {displayHooks.length > 0 ? displayHooks.map((hook, idx) => (
+                            <motion.div 
+                                key={idx}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: idx * 0.2 }}
+                                className="bg-[#111] border border-white/5 p-8 rounded-[2.5rem] relative overflow-hidden group hover:border-purple-500/30 transition-all flex flex-col h-full"
+                            >
+                                <div className="flex-1 space-y-4 relative z-10">
+                                    <div className="px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-[10px] font-black text-purple-500 uppercase tracking-widest inline-block">
+                                        Hook #{idx + 1}
+                                    </div>
+                                    <h4 className="text-xl font-black text-white leading-tight italic">
+                                        "{hook.hookText || hook.text || 'Descubre el secreto para automatizar tus ventas.'}"
+                                    </h4>
+                                    
+                                    <div className="space-y-2">
+                                        <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Estrategia Psicológica</p>
+                                        <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">
+                                            {hook.psychologicalApproach || hook.psychologicalAppeal || 'Utiliza el sesgo de curiosidad para invitar al usuario a conocer más sobre la solución definitiva.'}
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div className="mt-8 pt-6 border-t border-white/5 space-y-3">
+                                    <a 
+                                        href={`https://aprende.marketing/dashboard/projects/${projectId}/strategy?section=hooks&hookId=${hook.id || idx}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="w-full py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-white/10 transition-all hover:border-purple-500/30"
+                                    >
+                                        Detalles del Hook
+                                    </a>
+                                    <a 
+                                        href={hook.videoUrl || '#'} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5A1F]/10"
+                                    >
+                                        <Play className="w-3 h-3 fill-white" />
+                                        Descargar Video
+                                    </a>
+                                </div>
+                            </motion.div>
+                        )) : (
+                            <div className="col-span-full text-center py-20 bg-white/5 rounded-3xl border border-white/5 italic text-gray-500">
+                                Cargando ganchos especializados...
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </motion.div>
     );
 };
@@ -468,15 +522,15 @@ export const SuccessStep: React.FC<{ onFinish: () => void }> = ({ onFinish }) =>
             className="text-center space-y-10 py-10"
         >
             <div className="relative inline-block">
-                <div className="absolute inset-0 bg-emerald-500 blur-3xl opacity-20"></div>
-                <div className="w-24 h-24 bg-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
-                    <ShieldCheck className="w-12 h-12 text-white" />
+                <div className="absolute inset-0 bg-[#FF5A1F] blur-3xl opacity-20"></div>
+                <div className="w-24 h-24 bg-[#FF5A1F] rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
+                    <CheckCircle className="w-12 h-12 text-white" />
                 </div>
             </div>
 
             <div className="space-y-4">
                 <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase">
-                    ¡TODO <span className="text-emerald-500">LISTO</span>!
+                    ¡TODO <span className="text-[#FF5A1F]">LISTO</span>!
                 </h2>
                 <p className="text-xl text-gray-400 max-w-2xl mx-auto font-medium">
                     Tu primer negocio ha sido configurado. 
@@ -485,19 +539,19 @@ export const SuccessStep: React.FC<{ onFinish: () => void }> = ({ onFinish }) =>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
-                <div className="bg-[#111] p-8 rounded-[2.5rem] border border-emerald-500/10 flex flex-col items-center gap-4 hover:bg-white/5 transition-colors">
+                <div className="bg-[#111] p-8 rounded-[2.5rem] border border-[#FF5A1F]/10 flex flex-col items-center gap-4 hover:bg-white/5 transition-colors">
                     <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
-                        <CheckCircle className="w-6 h-6 text-emerald-500" />
+                        <Zap className="w-6 h-6 text-emerald-500 fill-current" />
                     </div>
                     <span className="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em]">Proyecto Desbloqueado</span>
                 </div>
-                <div className="bg-[#111] p-8 rounded-[2.5rem] border border-emerald-500/10 flex flex-col items-center gap-4 hover:bg-white/5 transition-colors">
+                <div className="bg-[#111] p-8 rounded-[2.5rem] border border-[#FF5A1F]/10 flex flex-col items-center gap-4 hover:bg-white/5 transition-colors">
                     <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
-                        <MousePointer2 className="w-6 h-6 text-emerald-500" />
+                        <CheckCircle className="w-6 h-6 text-emerald-500" />
                     </div>
                     <span className="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em]">Página Configurada</span>
                 </div>
-                <div className="bg-[#111] p-8 rounded-[2.5rem] border border-emerald-500/10 flex flex-col items-center gap-4 hover:bg-white/5 transition-colors">
+                <div className="bg-[#111] p-8 rounded-[2.5rem] border border-[#FF5A1F]/10 flex flex-col items-center gap-4 hover:bg-white/5 transition-colors">
                     <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
                         <Quote className="w-6 h-6 text-emerald-500" />
                     </div>
@@ -507,7 +561,7 @@ export const SuccessStep: React.FC<{ onFinish: () => void }> = ({ onFinish }) =>
 
             <button 
                 onClick={onFinish}
-                className="px-12 py-7 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2.5rem] font-black text-2xl transition-all shadow-[0_25px_60px_-15px_rgba(16,185,129,0.5)] transform hover:-translate-y-2 active:scale-95 inline-flex items-center gap-4"
+                className="px-12 py-7 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-[2.5rem] font-black text-2xl transition-all shadow-[0_25px_60px_-15px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95 inline-flex items-center gap-4"
             >
                 EMPEZAR A VENDER
                 <Rocket className="w-8 h-8" />
