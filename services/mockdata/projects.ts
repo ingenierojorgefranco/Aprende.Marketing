@@ -743,30 +743,65 @@ export const MOCK_PROJECTS: Project[] = [
   {
     id: "proj-microblading-01",
     name: "Certificación Expert Microblading",
-    niche: "Belleza y Estética",
+    niche: "Belleza",
     description: "Curso profesional de técnica de cejas pelo a pelo para principiantes y esteticistas.",
-    targetAudience: "Mujeres emprendedoras de 20-45 años apasionadas por la belleza, esteticistas que desean ampliar su menú de servicios y aumentar sus ingresos.",
-    brandTone: "Profesional, Inspirador, Premium, Cercano",
+    shortDescription: "Domina la técnica de cejas más rentable del mundo y triplica tus ingresos.",
+    targetAudience: "Mujeres emprendedoras de 20-45 años apasionadas por la belleza.",
+    brandTone: "Profesional, Inspirador",
     productName: "Masterclass Microblading Pro",
     mainGoal: "Venta Directa",
-    painPoints: [
-      "Miedo a no tener estabilidad económica con trabajos tradicionales.",
-      "Frustración por cursos anteriores que solo enseñan teoría y nada de práctica real.",
-      "Dificultad para conseguir clientes nuevos en el mundo de la belleza.",
-      "Falta de confianza para realizar procedimientos en rostros reales."
-    ],
-    keyBenefits: [
-      "Aprende una habilidad de alta demanda con rentabilidad inmediata.",
-      "Domina el visajismo perfecto para diseñar cejas simétricas.",
-      "Acceso a comunidad exclusiva de soporte para siempre.",
-      "Certificación Internacional que avala tus conocimientos."
-    ],
-    affiliateLinks: [
-      { label: "Checkout Oferta", url: "https://pay.hotmart.com/DEMO123?checkoutMode=10" },
-      { label: "Clase Gratuita", url: "https://go.hotmart.com/DEMO123?ap=5678" }
-    ],
+    painPoints: ["Inestabilidad económica", "Falta de práctica real"],
+    keyBenefits: ["Alta rentabilidad", "Certificación Internacional"],
+    affiliateLinks: [],
     createdAt: new Date("2024-01-15"),
-    strategy_json: MOCK_MASTER_STRATEGY // Use the mock object here
+    strategy_json: MOCK_MASTER_STRATEGY,
+    multimedia_json: {
+        heroImages: ["https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=800&q=80"],
+        videoUrls: [],
+        descriptiveImages: []
+    }
+  },
+  {
+    id: "proj-resina-01",
+    name: "Joyas con Resina Pro",
+    niche: "Manualidades",
+    description: "Crea un negocio rentable de accesorios personalizados con resina epóxica.",
+    shortDescription: "Convierte tu creatividad en un negocio de joyas personalizadas desde casa.",
+    targetAudience: "Personas creativas que buscan emprender con manualidades.",
+    brandTone: "Creativo, Práctico",
+    productName: "Diseño de Joyas con Resina",
+    mainGoal: "Venta Directa",
+    painPoints: ["Falta de ingresos extra", "Desconocimiento técnico"],
+    keyBenefits: ["Baja inversión", "Resultados rápidos"],
+    affiliateLinks: [],
+    createdAt: new Date("2024-02-10"),
+    strategy_json: MOCK_MASTER_STRATEGY,
+    multimedia_json: {
+        heroImages: ["https://images.unsplash.com/photo-1596951053942-862d31980696?auto=format&fit=crop&w=800&q=80"],
+        videoUrls: [],
+        descriptiveImages: []
+    }
+  },
+  {
+    id: "proj-perros-01",
+    name: "Educación Canina VIP",
+    niche: "Mascotas",
+    description: "Entrena a tu perro y corrige comportamientos difíciles en tiempo récord.",
+    shortDescription: "El método paso a paso para tener el perro más educado del barrio.",
+    targetAudience: "Dueños de mascotas con problemas de comportamiento.",
+    brandTone: "Autoritario, Confiable",
+    productName: "Adiestramiento Canino Online",
+    mainGoal: "Venta Directa",
+    painPoints: ["Conductas agresivas", "Estrés del dueño"],
+    keyBenefits: ["Paz en el hogar", "Vínculo irrompible"],
+    affiliateLinks: [],
+    createdAt: new Date("2024-03-05"),
+    strategy_json: MOCK_MASTER_STRATEGY,
+    multimedia_json: {
+        heroImages: ["https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=800&q=80"],
+        videoUrls: [],
+        descriptiveImages: []
+    }
   }
 ];
 

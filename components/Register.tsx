@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, UserPlus, Loader2, AlertCircle, Mail, Lock, User as UserIcon } from 'lucide-react';
 import { User } from '../types';
-import { register } from '../services/auth';
 import { api } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,19 +18,31 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
   
   const navigate = useNavigate();
 
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname.includes('ais-dev');
+
+  useEffect(() => {
+    if (isLocal) {
+        setName('Usuario de Prueba');
+        setEmail('prueba@ejemplo.com');
+        setPassword('password123');
+    }
+  }, [isLocal]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      const { user } = await register({ name, email, password });
+      const user = await api.register({ name, email, password });
+      
+      // En modo local el api.register ya devuelve el MOCK_USER con survey_json
+      // En producción devuelve el usuario real. 
+      // Mapeamos lo mínimo necesario si es real, o usamos el mock directo
       const mappedUser: User = {
+        ...user,
         id: user.id.toString(),
-        name: user.name,
-        email: user.email,
-        role: user.role as any,
-        planLimits: {
+        planLimits: user.planLimits || {
             planName: 'starter',
             maxProjects: 1,
             maxLandings: 3,
@@ -42,10 +53,11 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
             maxWhatsAppLaunches: 1,
             maxHooks: 10,
             features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false }
-        },
-        customRedirectUrl: (user as any).customRedirectUrl
+        }
       };
+
       onLogin(mappedUser);
+      
       if (mappedUser.customRedirectUrl && mappedUser.customRedirectUrl.trim() !== '') {
           navigate(mappedUser.customRedirectUrl);
       } else {

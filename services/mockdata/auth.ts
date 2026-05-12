@@ -10,7 +10,12 @@ export const MOCK_USER: User = {
   id: "mock-user-id",
   name: "Admin Microblading",
   email: MOCK_CREDENTIALS.email,
-  role: 'admin', // Mock user is admin
+  role: 'user', // Changed from 'admin' to 'user' to allow Wizard testing in local
+  survey_json: { 
+    niche: 'Microblading', 
+    goal: 'Vender servicios', 
+    target_audience: 'Mujeres 25-45 años' 
+  },
   planLimits: {
       planName: 'pro',
       maxProjects: 10,

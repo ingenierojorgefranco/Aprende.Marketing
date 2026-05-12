@@ -20,7 +20,7 @@ const getBaseUrl = () => {
 const API_URL = getBaseUrl();
 
 // --- CONFIGURACIÓN ---
-let isMockMode = false;
+let isMockMode = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('ais-dev'));
 
 // --- IN-MEMORY DATA STORAGE FOR MOCK MODE ---
 let localPages: LandingPage[] = [...MOCK_PAGES];
@@ -308,6 +308,30 @@ export const api = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
+      });
+      if (user.token) localStorage.setItem('plataformadeventacom_token', user.token);
+      clearCache();
+      return user.user;
+  },
+
+  register: async (payload: { name: string; email: string; password: string }): Promise<User> => {
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname.includes('ais-dev');
+      
+      if (isMockMode || isLocal) {
+          await new Promise(resolve => setTimeout(resolve, 800));
+          // Reset data for new user simulation in local/mock mode
+          localPages = [];
+          localProjects = [];
+          localArticles = [];
+          localCrmContacts = [];
+          localCrmActivities = [];
+          clearCache();
+          return MOCK_USER;
+      }
+      const user = await fetchWithFallback('/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
       });
       if (user.token) localStorage.setItem('plataformadeventacom_token', user.token);
       clearCache();
@@ -608,7 +632,7 @@ export const api = {
   },
 
   getMasterLibrary: async (): Promise<Project[]> => {
-    if (isMockMode) return [];
+    if (isMockMode) return MOCK_PROJECTS;
     if (apiCache.masterLibrary) return apiCache.masterLibrary;
 
     const projects = await fetchWithFallback('/projects/master-library', {
@@ -638,7 +662,7 @@ export const api = {
   },
 
   unlockProject: async (projectId: string, userData: any): Promise<{ id: string }> => {
-    if (isMockMode) return { id: 'mock-id' };
+    if (isMockMode) return { id: projectId };
     const res = await fetchWithFallback(`/projects/unlock/${projectId}`, {
         method: 'POST',
         headers: getAuthHeaders(),
