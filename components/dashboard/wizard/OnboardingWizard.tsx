@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { AnimatePresence } from 'motion/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { User, Project } from '../../../types';
 import { api } from '../../../services/api';
+import { Zap, Target } from 'lucide-react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { 
     WelcomeStep, 
@@ -20,7 +21,7 @@ interface OnboardingWizardProps {
     onLogout?: () => void;
 }
 
-type WizardStep = 'welcome' | 'selection' | 'unlock_protocol' | 'generating_strategy' | 'show_avatars' | 'show_landing_prep' | 'creating_web' | 'show_hooks' | 'success';
+type WizardStep = 'welcome' | 'selection' | 'generating_strategy' | 'show_avatars' | 'show_landing_prep' | 'creating_web' | 'show_hooks' | 'success';
 
 export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComplete, onLogout }) => {
     const [step, setStep] = useState<WizardStep>('welcome');
@@ -31,15 +32,71 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [unlockedProject, setUnlockedProject] = useState<any>(null);
     const [strategyData, setStrategyData] = useState<any>(null);
+    
+    const [secondsElapsed, setSecondsElapsed] = useState(0);
+    const [revealedSections, setRevealedSections] = useState<WizardStep[]>(['welcome']);
+    
+    const welcomeRef = useRef<HTMLDivElement>(null);
+    const selectionRef = useRef<HTMLDivElement>(null);
+    const unlockRef = useRef<HTMLDivElement>(null);
+    const strategyRef = useRef<HTMLDivElement>(null);
+    const avatarsRef = useRef<HTMLDivElement>(null);
+    const landingPrepRef = useRef<HTMLDivElement>(null);
+    const creationRef = useRef<HTMLDivElement>(null);
+    const hooksRef = useRef<HTMLDivElement>(null);
 
-    // Cargar proyectos recomendados al inicio o cuando sea necesario
+    // Timer para generación
     useEffect(() => {
-        if (step === 'selection') {
-            loadMasterProjects();
+        let interval: any;
+        if (step === 'generating_strategy' || step === 'creating_web') {
+            interval = setInterval(() => {
+                setSecondsElapsed(prev => prev + 1);
+            }, 1000);
+        } else {
+            setSecondsElapsed(0);
+        }
+        return () => clearInterval(interval);
+    }, [step]);
+
+    // Gestión de secciones reveladas
+    useEffect(() => {
+        if (!revealedSections.includes(step)) {
+            setRevealedSections(prev => [...prev, step]);
         }
     }, [step]);
 
+    // Cargar proyectos recomendados al inicio o cuando sea necesario
+    useEffect(() => {
+        loadMasterProjects();
+    }, []);
+
+    const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) => {
+        setTimeout(() => {
+            if (ref.current) {
+                ref.current.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+            }
+        }, 400);
+    };
+
+    useEffect(() => {
+        if (selectedProject) {
+            scrollTo(unlockRef);
+        }
+    }, [selectedProject]);
+
+    useEffect(() => {
+        if (step === 'generating_strategy') scrollTo(strategyRef);
+        if (step === 'show_avatars') scrollTo(avatarsRef);
+        if (step === 'show_landing_prep') scrollTo(landingPrepRef);
+        if (step === 'creating_web') scrollTo(creationRef);
+        if (step === 'show_hooks') scrollTo(hooksRef);
+    }, [step]);
+
     const loadMasterProjects = async () => {
+        if (projects.length > 0) return;
         setLoadingProjects(true);
         try {
             const masterLibrary = await api.getMasterLibrary();
@@ -53,7 +110,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
     const handleProjectSelection = (project: Project) => {
         setSelectedProject(project);
-        setStep('unlock_protocol');
+        if (step !== 'selection') setStep('selection');
     };
 
     const handleUnlockConfirm = async () => {
@@ -164,96 +221,158 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     };
 
     return (
-        <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 md:p-12 relative overflow-hidden">
+        <div className="fixed inset-0 bg-[#050505] overflow-y-auto overflow-x-hidden selection:bg-[#FF5A1F] selection:text-white">
             {/* Botón de Salir (Emergencia) */}
             {onLogout && (
-                <button 
-                    onClick={onLogout}
-                    className="absolute top-6 right-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all text-xs font-bold uppercase tracking-widest"
-                >
-                    Cerrar Sesión
-                </button>
+                <div className="fixed top-6 right-6 z-50">
+                    <button 
+                        onClick={onLogout}
+                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all text-xs font-bold uppercase tracking-widest backdrop-blur-md"
+                    >
+                        Cerrar Sesión
+                    </button>
+                </div>
             )}
 
             {/* Background Decorations */}
-            <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
                 <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-[#FF5A1F]/10 blur-[120px] rounded-full"></div>
                 <div className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-[#FF5A1F]/5 blur-[100px] rounded-full"></div>
             </div>
 
-            <div className="w-full max-w-6xl relative z-10">
-                <AnimatePresence mode="wait">
-                    {step === 'welcome' && (
-                        <WelcomeStep key="welcome" userData={user} onNext={() => setStep('selection')} />
-                    )}
+            <div className="w-full max-w-6xl mx-auto relative z-10 px-4 md:px-6">
+                {step === 'success' ? (
+                    <div className="min-h-screen flex items-center justify-center animate-in zoom-in duration-500">
+                        <SuccessStep onFinish={onComplete} />
+                    </div>
+                ) : (
+                    <div className="flex flex-col">
+                        {/* 1. BIENVENIDA */}
+                        <div ref={welcomeRef} className="min-h-screen flex flex-col justify-center py-20">
+                            <WelcomeStep 
+                                userData={user} 
+                                onNext={() => {
+                                    setStep('selection');
+                                    scrollTo(selectionRef);
+                                }} 
+                            />
+                        </div>
 
-                    {step === 'selection' && (
-                        <ProjectSelectionStep 
-                            key="selection"
-                            projects={projects}
-                            loading={loadingProjects}
-                            userData={user}
-                            onNext={handleProjectSelection}
-                        />
-                    )}
+                        {/* 2. SELECCIÓN DE PROYECTO */}
+                        {revealedSections.includes('selection') && (
+                            <div className="flex flex-col">
+                                <div ref={selectionRef} className="min-h-screen flex flex-col justify-center py-20">
+                                    <ProjectSelectionStep 
+                                        projects={projects}
+                                        loading={loadingProjects}
+                                        userData={user}
+                                        onNext={handleProjectSelection}
+                                        selectedProjectId={selectedProject?.id}
+                                    />
+                                </div>
 
-                    {step === 'unlock_protocol' && (
-                        <UnlockProtocolStep 
-                            key="unlock_protocol"
-                            project={selectedProject}
-                            userData={user}
-                            onNext={handleUnlockConfirm}
-                        />
-                    )}
+                                {selectedProject && (
+                                    <motion.div 
+                                        ref={unlockRef}
+                                        initial={{ opacity: 0, y: 50 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="min-h-screen flex flex-col justify-center py-20"
+                                    >
+                                        <div className="text-center mb-10">
+                                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 rounded-full text-xs font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-4">
+                                                <Zap className="w-4 h-4 fill-current" />
+                                                Vehículo Seleccionado
+                                            </div>
+                                            <h2 className="text-4xl font-black text-white uppercase italic">Protocolo de Desbloqueo</h2>
+                                            <p className="text-gray-500 mt-2">Confirma tu elección para habilitar la arquitectura de ventas.</p>
+                                        </div>
+                                        
+                                        <UnlockProtocolStep 
+                                            project={selectedProject}
+                                            userData={user}
+                                            onNext={handleUnlockConfirm}
+                                            onBackToSelection={() => {
+                                                setSelectedProject(null);
+                                                setStep('selection');
+                                                setRevealedSections(['welcome', 'selection']);
+                                                scrollTo(selectionRef);
+                                            }}
+                                        />
+                                    </motion.div>
+                                )}
+                            </div>
+                        )}
 
-                    {(step === 'generating_strategy' || step === 'creating_web') && (
-                        <GenerationStep 
-                            key="generating"
-                            progress={generationProgress}
-                            status={generationStatus}
-                        />
-                    )}
+                        {/* 3. GENERANDO ESTRATEGIA */}
+                        {revealedSections.includes('generating_strategy') && (
+                            <div ref={strategyRef} className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
+                                <GenerationStep 
+                                    progress={generationProgress} 
+                                    status={generationStatus} 
+                                    secondsElapsed={secondsElapsed}
+                                />
+                            </div>
+                        )}
 
-                    {step === 'show_avatars' && (
-                        <AvatarRevealStep 
-                            key="show_avatars"
-                            avatars={strategyData?.avatars || []}
-                            userData={user}
-                            onNext={() => setStep('show_landing_prep')}
-                        />
-                    )}
+                        {/* 4. AVATARES */}
+                        {revealedSections.includes('show_avatars') && (
+                            <div ref={avatarsRef} className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
+                                <div className="text-center mb-12">
+                                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-500 uppercase tracking-widest mb-4">
+                                        <Target className="w-4 h-4" />
+                                        Inteligencia de Mercado Lista
+                                    </div>
+                                    <h2 className="text-4xl font-black text-white uppercase italic tracking-tight">Tu Estrategia Ganadora</h2>
+                                </div>
+                                <AvatarRevealStep 
+                                    userData={user}
+                                    avatars={strategyData?.avatars || []}
+                                    onNext={() => setStep('show_landing_prep')}
+                                />
+                            </div>
+                        )}
 
-                    {step === 'show_landing_prep' && (
-                        <LandingIntroStep 
-                            key="landing_prep"
-                            userData={user}
-                            onNext={handleCreateWeb}
-                        />
-                    )}
+                        {/* 5. LANDING PREP */}
+                        {revealedSections.includes('show_landing_prep') && (
+                            <div ref={landingPrepRef} className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
+                                <LandingIntroStep 
+                                    userData={user}
+                                    onNext={handleCreateWeb}
+                                />
+                            </div>
+                        )}
 
-                    {step === 'show_hooks' && (
-                        <HooksRevealStep 
-                            key="show_hooks"
-                            hooks={strategyData?.modules?.hooks || []}
-                            userData={user}
-                            onNext={() => setStep('success')}
-                        />
-                    )}
+                        {/* 6. CREANDO WEB */}
+                        {revealedSections.includes('creating_web') && (
+                            <div ref={creationRef} className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
+                                <h2 className="text-center text-emerald-500 font-black uppercase tracking-widest mb-10">Fase 2: Arquitectura Web en Proceso</h2>
+                                <GenerationStep 
+                                    progress={generationProgress} 
+                                    status={generationStatus} 
+                                    secondsElapsed={secondsElapsed}
+                                />
+                            </div>
+                        )}
 
-                    {step === 'success' && (
-                        <SuccessStep 
-                            key="success"
-                            onFinish={onComplete}
-                        />
-                    )}
-                </AnimatePresence>
+                        {/* 7. HOOKS REVEAL */}
+                        {revealedSections.includes('show_hooks') && (
+                            <div ref={hooksRef} className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
+                                <HooksRevealStep 
+                                    userData={user}
+                                    hooks={strategyData?.modules?.hooks || []}
+                                    onNext={() => setStep('success')}
+                                />
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Stepper indicator */}
             {step !== 'success' && (
-                <div className="mt-12 flex items-center gap-3">
-                    {(['welcome', 'selection', 'unlock_protocol', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks'] as WizardStep[]).map((s, idx) => {
-                        const steps = ['welcome', 'selection', 'unlock_protocol', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks'];
+                <div className="py-10 flex items-center gap-3">
+                    {(['welcome', 'selection', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks'] as WizardStep[]).map((s, idx) => {
+                        const steps = ['welcome', 'selection', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks'];
                         const isActive = step === s;
                         const isPast = steps.indexOf(step) > idx;
                         

@@ -16,7 +16,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData }) => {
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-8 py-10"
+            className="text-center space-y-8"
         >
             <div className="relative inline-block">
                 <div className="absolute inset-0 bg-[#FF5A1F] blur-3xl opacity-20 animate-pulse"></div>
@@ -56,7 +56,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData }) => {
 };
 
 // 2. SELECCIÓN DE PROYECTO
-export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loading: boolean }> = ({ projects, loading, onNext }) => {
+export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loading: boolean, selectedProjectId?: string }> = ({ projects, loading, onNext, selectedProjectId }) => {
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-[#FF5A1F]">
@@ -80,53 +80,64 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {projects.map((project) => (
-                    <motion.div 
-                        key={project.id}
-                        whileHover={{ y: -10 }}
-                        className="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden group cursor-pointer hover:border-[#FF5A1F]/50 transition-all flex flex-col h-full shadow-xl"
-                        onClick={() => onNext(project)}
-                    >
-                        <div className="h-48 bg-gray-800 relative overflow-hidden">
-                            {project.multimedia_json?.heroImages?.[0] ? (
-                                <img src={project.multimedia_json.heroImages[0]} alt={project.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
-                                    <Target className="w-12 h-12 text-[#FF5A1F] opacity-20" />
+                {projects.map((project) => {
+                    const isSelected = selectedProjectId === project.id;
+                    
+                    return (
+                        <motion.div 
+                            key={project.id}
+                            whileHover={{ y: -10 }}
+                            className={`bg-[#111] border ${isSelected ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/20' : 'border-white/5'} rounded-[2.5rem] overflow-hidden group cursor-pointer hover:border-[#FF5A1F]/50 transition-all flex flex-col h-full shadow-xl relative`}
+                            onClick={() => onNext(project)}
+                        >
+                            {isSelected && (
+                                <div className="absolute top-4 right-4 z-20">
+                                    <div className="bg-[#FF5A1F] text-white p-1 rounded-full">
+                                        <CheckCircle className="w-5 h-5" />
+                                    </div>
                                 </div>
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#111] to-transparent opacity-60"></div>
-                            <div className="absolute bottom-4 left-6">
-                                <span className="px-3 py-1 bg-[#FF5A1F] text-white text-[10px] font-black uppercase rounded-full shadow-lg">
-                                    {project.niche || 'Digital'}
-                                </span>
-                            </div>
-                        </div>
-                        <div className="p-8 flex flex-col flex-1">
-                            <h3 className="text-2xl font-black text-white mb-3 group-hover:text-[#FF5A1F] transition-colors">
-                                {project.name}
-                            </h3>
-                            <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-1 line-clamp-3">
-                                {project.shortDescription || project.description}
-                            </p>
-                            <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                                <div className="text-emerald-500 font-black text-lg">
-                                    80% COMISIÓN
-                                </div>
-                                <div className="w-10 h-10 bg-[#FF5A1F]/10 text-[#FF5A1F] rounded-full flex items-center justify-center group-hover:bg-[#FF5A1F] group-hover:text-white transition-all shadow-lg shadow-[#FF5A1F]/10">
-                                    <Zap className="w-5 h-5 fill-current" />
+                            <div className="h-48 bg-gray-800 relative overflow-hidden">
+                                {project.multimedia_json?.heroImages?.[0] ? (
+                                    <img src={project.multimedia_json.heroImages[0]} alt={project.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
+                                        <Target className="w-12 h-12 text-[#FF5A1F] opacity-20" />
+                                    </div>
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#111] to-transparent opacity-60"></div>
+                                <div className="absolute bottom-4 left-6">
+                                    <span className="px-3 py-1 bg-[#FF5A1F] text-white text-[10px] font-black uppercase rounded-full shadow-lg">
+                                        {project.niche || 'Digital'}
+                                    </span>
                                 </div>
                             </div>
-                        </div>
-                    </motion.div>
-                ))}
+                            <div className="p-8 flex flex-col flex-1">
+                                <h3 className={`text-2xl font-black mb-3 ${isSelected ? 'text-[#FF5A1F]' : 'text-white'} group-hover:text-[#FF5A1F] transition-colors`}>
+                                    {project.name}
+                                </h3>
+                                <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-1 line-clamp-3">
+                                    {project.shortDescription || project.description}
+                                </p>
+                                <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                                    <div className="text-emerald-500 font-black text-lg">
+                                        80% COMISIÓN
+                                    </div>
+                                    <div className={`w-10 h-10 ${isSelected ? 'bg-[#FF5A1F] text-white' : 'bg-[#FF5A1F]/10 text-[#FF5A1F]'} rounded-full flex items-center justify-center group-hover:bg-[#FF5A1F] group-hover:text-white transition-all shadow-lg shadow-[#FF5A1F]/10`}>
+                                        <Zap className="w-5 h-5 fill-current" />
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    );
+                })}
             </div>
         </motion.div>
     );
 };
 
 // 2.5 PROTOCOLO DE DESBLOQUEO (Modal-like)
-export const UnlockProtocolStep: React.FC<StepProps & { project: any }> = ({ project, onNext }) => {
+export const UnlockProtocolStep: React.FC<StepProps & { project: any, onBackToSelection?: () => void }> = ({ project, onNext, onBackToSelection }) => {
     return (
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
@@ -203,6 +214,16 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any }> = ({ pro
                             DESBLOQUEAR AHORA
                             <Zap className="w-6 h-6 fill-white animate-pulse" />
                         </button>
+                        
+                        {onBackToSelection && (
+                            <button 
+                                onClick={onBackToSelection}
+                                className="w-full py-4 text-gray-500 hover:text-white font-bold text-sm transition-colors flex items-center justify-center gap-2"
+                            >
+                                Seleccionar otro proyecto
+                            </button>
+                        )}
+
                         <p className="text-xs text-gray-500 flex items-center justify-center gap-2 font-medium">
                             <ShieldCheck className="w-4 h-4" />
                             Transacción segura y acceso garantizado
@@ -215,31 +236,64 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any }> = ({ pro
 };
 
 // 3. GENERACIÓN (LOADING STATE)
-export const GenerationStep: React.FC<{ progress: number, status: string }> = ({ progress, status }) => {
+export const GenerationStep: React.FC<{ progress: number, status: string, secondsElapsed?: number }> = ({ progress, status, secondsElapsed = 0 }) => {
     return (
-        <div className="flex flex-col items-center justify-center py-20 space-y-12 text-center max-w-2xl mx-auto">
+        <div className="flex flex-col items-center justify-center px-6 space-y-12 text-center max-w-4xl mx-auto">
             <div className="relative">
-                <div className="absolute inset-0 bg-[#FF5A1F] blur-3xl opacity-20 animate-pulse"></div>
-                <div className="w-32 h-32 rounded-[2.5rem] bg-[#111] border border-white/10 flex items-center justify-center relative shadow-2xl">
-                    <Loader2 className="w-16 h-16 text-[#FF5A1F] animate-spin" />
+                <div className="absolute inset-x-0 -top-20 -bottom-20 bg-[#FF5A1F]/20 blur-[100px] rounded-full animate-pulse"></div>
+                <div className="relative w-32 h-32 rounded-[2.5rem] bg-[#111] border border-[#FF5A1F]/30 flex items-center justify-center shadow-2xl shadow-[#FF5A1F]/10">
+                    <Brain className="w-16 h-16 text-[#FF5A1F] animate-bounce" />
+                    <div className="absolute -bottom-2 -right-2 bg-emerald-500 p-2 rounded-full shadow-lg border-2 border-[#111]">
+                        <Sparkles className="w-4 h-4 text-white animate-spin-slow" />
+                    </div>
                 </div>
             </div>
 
-            <div className="space-y-6 w-full">
-                <div className="space-y-2">
-                    <h2 className="text-3xl font-black text-white uppercase tracking-tight">{status}</h2>
-                    <p className="text-gray-400 font-medium italic">"Nuestra IA está diseñando tu embudo de ventas de alto impacto..."</p>
+            <div className="space-y-8 w-full max-w-2xl">
+                <div className="space-y-4">
+                    <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight italic">
+                        {status || 'Estrategia en proceso'}
+                    </h2>
+                    <p className="text-gray-400 text-lg font-medium italic max-w-lg mx-auto leading-relaxed">
+                        "Nuestra IA está analizando tu nicho, redactando secuencias de email y configurando tu embudo psicológico de ventas."
+                    </p>
                 </div>
                 
-                <div className="w-full bg-[#111] h-4 rounded-full overflow-hidden border border-white/5 p-1 shadow-inner">
-                    <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progress}%` }}
-                        className="h-full bg-gradient-to-r from-[#FF5A1F] to-[#FF8C00] rounded-full shadow-[0_0_20px_rgba(255,90,31,0.5)]"
-                    />
-                </div>
-                <div className="text-[10px] font-black text-gray-500 uppercase tracking-[0.5em]">
-                    PROCESANDO... {progress}%
+                <div className="flex flex-col items-center gap-6">
+                    {/* Contador de tiempo */}
+                    <div className="bg-gradient-to-br from-gray-900 to-black p-8 rounded-[2.5rem] border border-white/5 shadow-2xl text-center min-w-[280px]">
+                        <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mb-2">Estimado de finalización:</p>
+                        <div className="text-white font-mono text-5xl font-black tracking-tighter">
+                            {Math.floor(Math.max(0, 90 - secondsElapsed) / 60).toString().padStart(2, '0')}:{(Math.max(0, 90 - secondsElapsed) % 60).toString().padStart(2, '0')}
+                        </div>
+                    </div>
+
+                    <div className="w-full space-y-4">
+                        <div className="flex justify-between items-end px-2">
+                            <span className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.3em] animate-pulse">
+                                Procesando arquitectura...
+                            </span>
+                            <span className="text-xl font-black text-white">
+                                {Math.round(progress)}%
+                            </span>
+                        </div>
+                        <div className="w-full bg-[#111] h-6 rounded-full overflow-hidden border border-white/5 p-1.5 shadow-inner relative">
+                            <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${progress}%` }}
+                                className="h-full bg-gradient-to-r from-[#FF5A1F] to-[#FF8C00] rounded-full shadow-[0_0_25px_rgba(255,90,31,0.4)] relative"
+                            >
+                                <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] -translate-x-full animate-[loading-shine_1.5s_infinite]"></div>
+                            </motion.div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 px-6 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                        <div className="w-2 h-2 rounded-full bg-red-500 animate-ping"></div>
+                        <p className="text-red-400 font-black uppercase text-[10px] tracking-[0.2em]">
+                            ⚠️ No cierres esta página, el proceso está en curso...
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -310,7 +364,7 @@ export const LandingIntroStep: React.FC<StepProps> = ({ onNext }) => {
         <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center space-y-10 py-20"
+            className="text-center space-y-10"
         >
             <div className="relative inline-block">
                 <div className="absolute inset-0 bg-[#FF5A1F] blur-3xl opacity-20 animate-pulse"></div>
