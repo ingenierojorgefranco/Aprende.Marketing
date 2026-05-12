@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { User, Project } from '../../../types';
 import { api } from '../../../services/api';
-import { Zap, Target } from 'lucide-react';
+import { Zap, Target, CheckCircle } from 'lucide-react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { 
     WelcomeStep, 
@@ -10,7 +10,9 @@ import {
     UnlockProtocolStep,
     GenerationStep, 
     AvatarRevealStep,
+    StrategyReadyStep,
     LandingIntroStep,
+    LandingSuccessStep,
     HooksRevealStep,
     SuccessStep 
 } from './WizardSteps';
@@ -22,7 +24,7 @@ interface OnboardingWizardProps {
     onGenerationStateChange?: (isGenerating: boolean) => void;
 }
 
-type WizardStep = 'welcome' | 'selection' | 'generating_strategy' | 'show_avatars' | 'show_landing_prep' | 'creating_web' | 'show_hooks' | 'success';
+type WizardStep = 'welcome' | 'selection' | 'generating_strategy' | 'strategy_ready' | 'show_avatars' | 'show_landing_prep' | 'creating_web' | 'landing_success' | 'show_hooks' | 'generating_hooks' | 'success';
 
 export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComplete, onLogout, onGenerationStateChange }) => {
     const [step, setStep] = useState<WizardStep>('welcome');
@@ -35,6 +37,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     const [strategyData, setStrategyData] = useState<any>(null);
     const [isLandingCreated, setIsLandingCreated] = useState(false);
     const [isHooksUnlocked, setIsHooksUnlocked] = useState(false);
+    const [unlockedHooks, setUnlockedHooks] = useState<any[]>([]);
     
     const [secondsElapsed, setSecondsElapsed] = useState(0);
     const [revealedSections, setRevealedSections] = useState<WizardStep[]>(['welcome']);
@@ -49,7 +52,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     const hooksRef = useRef<HTMLDivElement>(null);
     const successRef = useRef<HTMLDivElement>(null);
 
-    const isGenerating = step === 'generating_strategy' || step === 'creating_web';
+    const isGenerating = step === 'generating_strategy' || step === 'creating_web' || step === 'generating_hooks';
 
     // Notify parent about generation state
     useEffect(() => {
@@ -61,7 +64,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     // Timer para generación
     useEffect(() => {
         let interval: any;
-        if (step === 'generating_strategy' || step === 'creating_web') {
+        if (step === 'generating_strategy' || step === 'creating_web' || step === 'generating_hooks') {
             interval = setInterval(() => {
                 setSecondsElapsed(prev => prev + 1);
             }, 1000);
@@ -102,9 +105,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
     useEffect(() => {
         if (step === 'generating_strategy') scrollTo(strategyRef);
+        if (step === 'strategy_ready') scrollTo(avatarsRef); // Shared ref or new one? Let's use avatarRef for ready too
         if (step === 'show_avatars') scrollTo(avatarsRef);
         if (step === 'show_landing_prep') scrollTo(landingPrepRef);
         if (step === 'creating_web') scrollTo(creationRef);
+        if (step === 'landing_success') scrollTo(creationRef); // Shared ref
         if (step === 'show_hooks') scrollTo(hooksRef);
         if (step === 'success') scrollTo(successRef);
     }, [step]);
@@ -157,7 +162,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             setGenerationStatus('¡Estrategia Lista!');
 
             setTimeout(() => {
-                setStep('show_avatars');
+                setStep('strategy_ready');
             }, 800);
 
         } catch (error) {
@@ -170,6 +175,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     const handleCreateWeb = async () => {
         setStep('creating_web');
         setGenerationProgress(0);
+        setGenerationStatus('Fase 2: Arquitectura Web');
         
         try {
             setGenerationProgress(20);
@@ -226,12 +232,67 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             setIsLandingCreated(true);
             
             setTimeout(() => {
-                setStep('show_hooks');
+                setStep('landing_success');
             }, 800);
 
         } catch (error) {
             console.error("Error en creación de web:", error);
             setStep('show_hooks'); // Fallback a hooks para no romper el flujo
+        }
+    };
+
+    const handleUnlockHooks = async () => {
+        setStep('generating_hooks');
+        setGenerationProgress(0);
+        setGenerationStatus('Creando videos de atracción...');
+        
+        const duration = 15; // 15 segundos
+        let current = 0;
+        
+        const interval = setInterval(() => {
+            current += 1;
+            const progress = (current / duration) * 100;
+            setGenerationProgress(Math.min(progress, 99));
+        }, 1000);
+
+        try {
+            // 1. Seleccionar 3 ganchos aleatorios de la estrategia
+            const allHooks = strategyData?.modules?.hooks || [];
+            if (allHooks.length > 0) {
+                const shuffled = [...allHooks].sort(() => 0.5 - Math.random());
+                const selected = shuffled.slice(0, 3);
+                
+                // 2. Desbloquear cada uno en el backend (Firestore)
+                if (unlockedProject?.id) {
+                    for (const hook of selected) {
+                        try {
+                            // Usamos el ID del hook de la estrategia como masterHookId
+                            await api.unlockSingleHook(unlockedProject.id, hook.id || String(Math.random()));
+                        } catch (err) {
+                            console.warn("Error desbloqueando hook individual:", err);
+                        }
+                    }
+                }
+                
+                setUnlockedHooks(selected);
+            }
+            
+            // Esperar a que el timer visual termine si es necesario o forzarlo
+            setTimeout(() => {
+                clearInterval(interval);
+                setGenerationProgress(100);
+                setGenerationStatus('Videos Generados');
+                setIsHooksUnlocked(true);
+                setTimeout(() => {
+                    setStep('show_hooks');
+                }, 800);
+            }, duration * 1000);
+
+        } catch (error) {
+            console.error("Error en proceso de ganchos:", error);
+            clearInterval(interval);
+            setIsHooksUnlocked(true); // Fallback
+            setStep('show_hooks');
         }
     };
 
@@ -278,12 +339,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                         className="min-h-screen flex flex-col justify-center py-20"
                                     >
                                         <div className="text-center mb-10">
-                                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 rounded-full text-xs font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-4">
-                                                <Zap className="w-4 h-4 fill-current" />
-                                                Vehículo Seleccionado
+                                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-black text-emerald-500 uppercase tracking-[0.2em] mb-4">
+                                                <CheckCircle className="w-4 h-4" />
+                                                Tu proyecto está listo para activarse
                                             </div>
-                                            <h2 className="text-4xl font-black text-white uppercase italic">Protocolo de Desbloqueo</h2>
-                                            <p className="text-gray-500 mt-2">Confirma tu elección para habilitar la arquitectura de ventas.</p>
+                                            <h2 className="text-4xl font-black text-white uppercase italic">Esto es lo que vas a promocionar:</h2>
                                         </div>
                                         
                                         <UnlockProtocolStep 
@@ -315,15 +375,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         )}
 
                         {/* 4. AVATARES */}
+                        {revealedSections.includes('strategy_ready') && step === 'strategy_ready' && (
+                            <div className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
+                                <StrategyReadyStep 
+                                    userData={user}
+                                    onNext={() => setStep('show_avatars')}
+                                />
+                            </div>
+                        )}
+
                         {revealedSections.includes('show_avatars') && (
                             <div ref={avatarsRef} className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
-                                <div className="text-center mb-12">
-                                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-500 uppercase tracking-widest mb-4">
-                                        <Target className="w-4 h-4" />
-                                        Inteligencia de Mercado Lista
-                                    </div>
-                                    <h2 className="text-4xl font-black text-white uppercase italic tracking-tight">Tu Estrategia Ganadora</h2>
-                                </div>
                                 <AvatarRevealStep 
                                     userData={user}
                                     avatars={strategyData?.avatars || []}
@@ -346,7 +408,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         {/* 6. CREANDO WEB */}
                         {revealedSections.includes('creating_web') && step === 'creating_web' && (
                             <div ref={creationRef} className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
-                                <h2 className="text-center text-emerald-500 font-black uppercase tracking-widest mb-10">Fase 2: Arquitectura Web en Proceso</h2>
+                                <h1 className="text-center text-emerald-500 font-black uppercase tracking-widest mb-10">Fase 2: Arquitectura Web en Proceso</h1>
                                 <GenerationStep 
                                     progress={generationProgress} 
                                     status={generationStatus} 
@@ -355,21 +417,44 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                             </div>
                         )}
 
+                        {revealedSections.includes('landing_success') && step === 'landing_success' && (
+                            <div className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
+                                <LandingSuccessStep 
+                                    userData={user}
+                                    onNext={() => setStep('show_hooks')}
+                                />
+                            </div>
+                        )}
+
+                        {/* 6.5 GENERANDO HOOKS (LOADING) */}
+                        {step === 'generating_hooks' && (
+                            <div className="min-h-screen flex flex-col justify-center py-20">
+                                <h1 className="text-center text-purple-500 font-black uppercase tracking-widest mb-10">Generando Activos de Atracción</h1>
+                                <GenerationStep 
+                                    progress={generationProgress} 
+                                    status={generationStatus} 
+                                    secondsElapsed={secondsElapsed}
+                                    message="Estamos creando los videos para atraer tus potenciales clientes."
+                                />
+                            </div>
+                        )}
+
                         {/* 7. HOOKS REVEAL */}
-                        {revealedSections.includes('show_hooks') && (
+                        {revealedSections.includes('show_hooks') && step !== 'generating_hooks' && (
                             <div ref={hooksRef} className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
                                 <HooksRevealStep 
                                     userData={user}
-                                    hooks={strategyData?.modules?.hooks || []}
+                                    hooks={unlockedHooks.length > 0 ? unlockedHooks : (strategyData?.modules?.hooks || [])}
                                     isUnlocked={isHooksUnlocked}
                                     projectId={unlockedProject?.id}
                                     onNext={() => {
-                                        setIsHooksUnlocked(true);
-                                        setTimeout(() => {
+                                        if (!isHooksUnlocked) {
+                                            handleUnlockHooks();
+                                        } else {
                                             if (!revealedSections.includes('success')) {
                                                 setStep('success');
                                             }
-                                        }, 4000); // Dar tiempo para ver los ganchos antes de saltar a éxito
+                                        }
                                     }}
                                 />
                             </div>
@@ -387,10 +472,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             {/* Stepper indicator */}
             {(step !== 'success' && !isGenerating) && (
                 <div className="py-10 flex items-center justify-center gap-3">
-                    {(['welcome', 'selection', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks', 'success'] as WizardStep[]).map((s, idx) => {
-                        const steps = ['welcome', 'selection', 'generating_strategy', 'show_avatars', 'show_landing_prep', 'creating_web', 'show_hooks', 'success'];
-                        const isActive = step === s;
-                        const isPast = steps.indexOf(step) > idx;
+                    {(['welcome', 'selection', 'generating_strategy', 'strategy_ready', 'show_avatars', 'show_landing_prep', 'creating_web', 'landing_success', 'show_hooks', 'success'] as string[]).map((s, idx) => {
+                        const steps = ['welcome', 'selection', 'generating_strategy', 'strategy_ready', 'show_avatars', 'show_landing_prep', 'creating_web', 'landing_success', 'show_hooks', 'success'];
+                        const currentStepStr = step as string;
+                        const isActive = (currentStepStr === s) || (currentStepStr === 'generating_hooks' && s === 'show_hooks');
+                        const isPast = steps.indexOf(currentStepStr === 'generating_hooks' ? 'show_hooks' : currentStepStr) > idx;
                         
                         return (
                             <div key={idx} className="flex items-center">

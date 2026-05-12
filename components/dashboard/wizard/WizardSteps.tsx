@@ -25,31 +25,57 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData }) => {
                 </div>
             </div>
             
-            <div className="space-y-4">
-                <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase">
-                    ¡HOLA, {userName}!
-                </h1>
-                <p className="text-xl text-gray-400 max-w-2xl mx-auto font-medium leading-relaxed italic">
-                    "Tu camino hacia las ventas masivas en Hotmart comienza aquí."
+            <div className="space-y-6">
+                <div className="space-y-2">
+                    <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase">
+                        ¡HOLA, {userName}!
+                    </h1>
+                    <h2 className="text-2xl md:text-3xl font-bold text-[#FF5A1F] uppercase tracking-tighter">
+                        Bienvenido a Aprende.Marketing
+                    </h2>
+                </div>
+                <p className="text-xl text-gray-400 max-w-2xl mx-auto font-medium leading-relaxed">
+                    Vamos a ayudarte a construir tu primer sistema de ventas paso a paso.
                 </p>
             </div>
 
-            <div className="bg-[#111] border border-white/5 p-8 rounded-[2.5rem] max-w-xl mx-auto shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                    <Rocket className="w-24 h-24 text-white" />
+            <div className="bg-[#111] border border-white/5 p-10 rounded-[3.5rem] max-w-2xl mx-auto shadow-2xl relative overflow-hidden text-left">
+                <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+                    <Rocket className="w-32 h-32 text-white" />
                 </div>
-                <p className="text-lg text-gray-300 relative z-10 font-medium">
-                    Hemos analizado tu perfil y estamos listos para configurar tu primer 
-                    <span className="text-[#FF5A1F] font-bold"> Negocio Digital Automatizado</span>.
-                </p>
+                
+                <div className="space-y-6 relative z-10">
+                    <p className="text-white font-black uppercase tracking-widest text-sm mb-4">En pocos minutos tendrás:</p>
+                    <div className="grid grid-cols-1 gap-4">
+                        {[
+                            'Tu producto seleccionado',
+                            'Tu página de captura lista',
+                            'Tus primeros hooks desbloqueados',
+                            'Tu estrategia preparada para empezar'
+                        ].map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-3">
+                                <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                                    <CheckCircle className="w-4 h-4 text-emerald-500" />
+                                </div>
+                                <p className="text-gray-300 font-bold">{item}</p>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    <div className="pt-6 mt-6 border-t border-white/5">
+                        <p className="text-[#FF5A1F] font-black text-lg flex items-center gap-2 italic">
+                            👉 <span className="uppercase tracking-tight">No necesitas experiencia técnica.</span>
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <button 
                 onClick={() => onNext()}
-                className="group flex items-center gap-4 px-10 py-6 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-3xl font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95 mx-auto"
+                className="group flex items-center gap-4 px-12 py-7 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-[2.5rem] font-black text-2xl transition-all shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95 mx-auto"
             >
-                VAMOS A EMPEZAR
-                <ChevronRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                Comenzar configuración
+                <ChevronRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
             </button>
         </motion.div>
     );
@@ -74,9 +100,9 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
         >
             <div className="text-center space-y-4">
                 <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase">
-                    ELIGE TU <span className="text-[#FF5A1F]">VEHÍCULO</span>
+                    Elige el producto que <span className="text-[#FF5A1F]">quieres empezar a vender</span>
                 </h2>
-                <p className="text-gray-400 text-lg font-medium">Selecciona el nicho en el que deseas empezar a vender hoy mismo.</p>
+                <p className="text-gray-400 text-lg font-medium">Selecciona el nicho que mejor se adapte a tus intereses y objetivos.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -120,8 +146,11 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                     {project.shortDescription || project.description}
                                 </p>
                                 <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                                    <div className="text-emerald-500 font-black text-lg">
-                                        80% COMISIÓN
+                                    <div className="text-emerald-500 font-black text-sm uppercase flex items-center gap-2">
+                                        <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                            <CheckCircle className="w-3 h-3" />
+                                        </div>
+                                        Comisión del {project.commissionRate || 80}%
                                     </div>
                                     <div className={`w-10 h-10 ${isSelected ? 'bg-[#FF5A1F] text-white' : 'bg-[#FF5A1F]/10 text-[#FF5A1F]'} rounded-full flex items-center justify-center group-hover:bg-[#FF5A1F] group-hover:text-white transition-all shadow-lg shadow-[#FF5A1F]/10`}>
                                         <Zap className="w-5 h-5 fill-current" />
@@ -138,97 +167,100 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
 
 // 2.5 PROTOCOLO DE DESBLOQUEO (Modal-like)
 export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategyGenerated?: boolean, onBackToSelection?: () => void }> = ({ project, onNext, isStrategyGenerated, onBackToSelection }) => {
+    const profitValue = project.fullPrice && project.commissionRate ? (project.fullPrice * (project.commissionRate / 100)).toFixed(2) : '0.00';
+
     return (
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="max-w-4xl mx-auto bg-[#0A0A0A] border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,1)]"
+            className="max-w-6xl mx-auto bg-[#0A0A0A] border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] relative"
         >
+            {/* Niche Badge - Moved to top right of container */}
+            <div className="absolute top-8 right-8 z-20 px-6 py-2 bg-[#FF5A1F] border border-white/20 rounded-full shadow-2xl">
+                <p className="text-xs font-black text-white uppercase tracking-[0.2em]">{project.niche || 'Digital'}</p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-5 h-full">
                 {/* Lateral info */}
-                <div className="md:col-span-2 bg-[#111] p-10 border-r border-white/5 flex flex-col">
-                    <div className="flex-1 space-y-8">
+                <div className="md:col-span-2 bg-[#111] p-10 lg:p-14 border-r border-white/5 flex flex-col justify-center">
+                    <div className="space-y-10">
                         <div className="space-y-2">
-                            <p className="text-[#FF5A1F] font-black text-xs uppercase tracking-widest">Protocolo de Acceso</p>
-                            <h3 className="text-3xl font-black text-white uppercase leading-none">{project.name}</h3>
+                            <p className="text-[#FF5A1F] font-black text-xs uppercase tracking-[0.3em]">Producto que vas a vender</p>
+                            <h3 className="text-4xl font-black text-white uppercase leading-tight tracking-tighter">{project.name}</h3>
                         </div>
 
-                        <div className="space-y-6">
-                            <div className="flex gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                                    <CheckCircle className="w-5 h-5 text-emerald-500" />
-                                </div>
-                                <div>
-                                    <p className="text-white font-bold text-sm">Biblioteca de Estrategia</p>
-                                    <p className="text-gray-500 text-xs">Acceso inmediato a toda la arquitectura de ventas.</p>
-                                </div>
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-3xl p-8 flex flex-col items-center justify-center text-center space-y-2 shadow-inner">
+                                <p className="text-emerald-500/50 font-black text-[10px] uppercase tracking-widest">Comisión por Venta</p>
+                                <p className="text-emerald-500 text-5xl font-black tracking-tighter">{project.commissionRate || 80}%</p>
                             </div>
-                            <div className="flex gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-                                    <Target className="w-5 h-5 text-blue-500" />
-                                </div>
-                                <div>
-                                    <p className="text-white font-bold text-sm">Avatares Ganadores</p>
-                                    <p className="text-gray-500 text-xs">Perfiles psicológicos listos para ser impactados.</p>
-                                </div>
+                            
+                            <div className="bg-blue-500/5 border border-blue-500/10 rounded-3xl p-8 flex flex-col items-center justify-center text-center space-y-2">
+                                <p className="text-blue-500/50 font-black text-[10px] uppercase tracking-widest">Precio Oficial</p>
+                                <p className="text-blue-500 text-5xl font-black tracking-tighter">${project.fullPrice || '0.00'}</p>
                             </div>
-                            <div className="flex gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 flex items-center justify-center shrink-0">
-                                    <Zap className="w-5 h-5 text-[#FF5A1F]" />
-                                </div>
-                                <div>
-                                    <p className="text-white font-bold text-sm">Generador de Páginas</p>
-                                    <p className="text-gray-500 text-xs">Crea tu landing de ventas con un solo clic.</p>
-                                </div>
+
+                            <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/20 rounded-3xl p-8 flex flex-col items-center justify-center text-center space-y-2 shadow-lg shadow-[#FF5A1F]/5">
+                                <p className="text-[#FF5A1F]/50 font-black text-[10px] uppercase tracking-widest">Tu Ganancia Neta</p>
+                                <p className="text-[#FF5A1F] text-5xl font-black tracking-tighter">${profitValue}</p>
                             </div>
                         </div>
-                    </div>
-
-                    <div className="pt-8 border-t border-white/5">
-                        <div className="text-[10px] text-gray-600 uppercase font-black tracking-widest mb-2 italic">Advertencia</div>
-                        <p className="text-[10px] text-gray-500 font-medium">Al desbloquear este proyecto, se asignará un cupo de tu plan actual para habilitar todas las herramientas de IA asociadas.</p>
                     </div>
                 </div>
 
                 {/* Video/Main Action */}
-                <div className="md:col-span-3 p-10 flex flex-col items-center justify-center text-center space-y-10">
-                    <div className="relative group w-full aspect-video bg-zinc-900 rounded-3xl overflow-hidden border border-white/5 flex items-center justify-center">
-                        {project.multimedia_json?.videoUrl ? (
-                             <iframe src={project.multimedia_json.videoUrl} className="w-full h-full" allowFullScreen />
-                        ) : (
-                            <div className="text-gray-700 flex flex-col items-center gap-4">
-                                <Play className="w-20 h-20 fill-gray-800" />
-                                <span className="text-xs font-black uppercase tracking-widest">Vista previa no disponible</span>
-                            </div>
-                        )}
-                        <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black to-transparent">
-                            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Mira este video antes de continuar</p>
+                <div className="md:col-span-3 p-10 lg:p-14 flex flex-col items-center justify-center text-center space-y-10">
+                    <div className="w-full space-y-6">
+                        <div className="relative group w-full aspect-video bg-zinc-900 rounded-[2.5rem] overflow-hidden border border-white/10 flex items-center justify-center shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]">
+                            {project.multimedia_json?.videoUrl ? (
+                                <iframe 
+                                    src={`${project.multimedia_json.videoUrl}${project.multimedia_json.videoUrl.includes('?') ? '&' : '?'}rel=0&modestbranding=1&autoplay=0`} 
+                                    className="w-full h-full" 
+                                    allowFullScreen 
+                                />
+                            ) : (
+                                <div className="text-gray-700 flex flex-col items-center gap-4">
+                                    <Play className="w-20 h-20 fill-gray-800" />
+                                    <span className="text-xs font-black uppercase tracking-widest">Video de Presentación</span>
+                                </div>
+                            )}
                         </div>
+                        <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.4em] italic">Mira el video maestro antes de continuar</p>
                     </div>
 
-                    <div className="w-full space-y-4">
-                        <button 
-                            onClick={() => !isStrategyGenerated && onNext()}
-                            disabled={isStrategyGenerated}
-                            className={`w-full py-6 ${isStrategyGenerated ? 'bg-emerald-500 cursor-default' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_40px_-10px_rgba(255,90,31,0.4)] flex items-center justify-center gap-4 group`}
-                        >
-                            {isStrategyGenerated ? 'ESTRATEGIA DESBLOQUEADA' : 'DESBLOQUEAR AHORA'}
-                            <Zap className={`w-6 h-6 fill-white ${!isStrategyGenerated ? 'animate-pulse' : ''}`} />
-                        </button>
-                        
-                        {(onBackToSelection && !isStrategyGenerated) && (
-                            <button 
-                                onClick={onBackToSelection}
-                                className="w-full py-4 text-gray-500 hover:text-white font-bold text-sm transition-colors flex items-center justify-center gap-2"
-                            >
-                                Seleccionar otro proyecto
-                            </button>
-                        )}
+                    <div className="w-full space-y-8">
+                        {/* Product Description */}
+                        <div className="text-center px-4 max-w-xl mx-auto">
+                            <p className="text-white text-lg font-medium leading-relaxed italic opacity-90 drop-shadow-sm">
+                                "{project.description}"
+                            </p>
+                        </div>
 
-                        <p className="text-xs text-gray-500 flex items-center justify-center gap-2 font-medium">
-                            <ShieldCheck className="w-4 h-4" />
-                            Transacción segura y acceso garantizado
-                        </p>
+                        <div className="space-y-6">
+                            <button 
+                                onClick={() => !isStrategyGenerated && onNext()}
+                                disabled={isStrategyGenerated}
+                                className={`w-full py-7 ${isStrategyGenerated ? 'bg-emerald-500 cursor-default' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-[2.5rem] font-black text-2xl transition-all shadow-[0_25px_50px_-10px_rgba(255,90,31,0.5)] flex items-center justify-center gap-4 group transform hover:-translate-y-1 active:scale-95`}
+                            >
+                                {isStrategyGenerated ? 'ESTRATEGIA DESBLOQUEADA' : 'DESBLOQUEAR AHORA'}
+                                <Zap className={`w-7 h-7 fill-white ${!isStrategyGenerated ? 'animate-pulse' : ''}`} />
+                            </button>
+                            
+                            {(onBackToSelection && !isStrategyGenerated) && (
+                                <button 
+                                    onClick={onBackToSelection}
+                                    className="px-8 py-3 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all mx-auto flex items-center gap-2"
+                                >
+                                    <ChevronRight className="w-4 h-4 rotate-180" />
+                                    Seleccionar otro proyecto
+                                </button>
+                            )}
+
+                            <p className="text-[10px] text-gray-600 flex items-center justify-center gap-2 font-black uppercase tracking-widest">
+                                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                Transacción protegida por protocolo SSL
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -237,7 +269,7 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
 };
 
 // 3. GENERACIÓN (LOADING STATE)
-export const GenerationStep: React.FC<{ progress: number, status: string, secondsElapsed?: number }> = ({ progress, status, secondsElapsed = 0 }) => {
+export const GenerationStep: React.FC<{ progress: number, status: string, secondsElapsed?: number, message?: string }> = ({ progress, status, secondsElapsed = 0, message }) => {
     return (
         <div className="flex flex-col items-center justify-center px-6 space-y-12 text-center max-w-4xl mx-auto py-10">
             <div className="relative">
@@ -257,7 +289,7 @@ export const GenerationStep: React.FC<{ progress: number, status: string, second
                         {status || 'Estrategia en proceso'}
                     </h2>
                     <p className="text-gray-500 text-lg md:text-xl font-medium italic max-w-lg mx-auto leading-relaxed opacity-80">
-                        "Nuestra IA está analizando tu nicho, redactando secuencias de email y configurando tu embudo psicológico de ventas."
+                        "{message || "Nuestra IA está analizando tu nicho, redactando secuencias de email y configurando tu embudo psicológico de ventas."}"
                     </p>
                 </div>
                 
@@ -315,12 +347,12 @@ export const AvatarRevealStep: React.FC<StepProps & { avatars: any[] }> = ({ ava
         >
             <div className="text-center space-y-4">
                 <div className="w-16 h-16 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-blue-500/20 shadow-xl">
-                    <Brain className="w-8 h-8" />
+                    <UserCircle2 className="w-8 h-8" />
                 </div>
                 <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase">
-                    TUS <span className="text-blue-500">AVATARES</span> IDEALES
+                    Conoce a las personas <span className="text-blue-500">a las que vas a atraer</span>
                 </h2>
-                <p className="text-gray-400 text-lg font-medium">Hemos identificado 3 perfiles que tienen una alta probabilidad de compra.</p>
+                <p className="text-gray-400 text-lg font-medium">Identificamos los perfiles con mayor probabilidad de compra para este proyecto.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -338,11 +370,11 @@ export const AvatarRevealStep: React.FC<StepProps & { avatars: any[] }> = ({ ava
                         <h4 className="text-xl font-black text-white uppercase">{avatar.name}</h4>
                         <div className="space-y-4">
                             <div className="space-y-1">
-                                <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Dolor Principal</p>
+                                <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Lo que quiere</p>
                                 <p className="text-sm text-gray-400 leading-snug">{avatar.painPoints?.[0] || 'Dificultad para generar ingresos extras.'}</p>
                             </div>
                             <div className="space-y-1">
-                                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Deseo Ardiente</p>
+                                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Lo que le preocupa</p>
                                 <p className="text-sm text-gray-400 leading-snug">{avatar.desires?.[0] || 'Libertad financiera y tiempo libre.'}</p>
                             </div>
                         </div>
@@ -355,10 +387,65 @@ export const AvatarRevealStep: React.FC<StepProps & { avatars: any[] }> = ({ ava
                     onClick={() => onNext()}
                     className="flex items-center gap-4 px-10 py-5 bg-blue-500 hover:bg-blue-600 text-white rounded-3xl font-black text-lg transition-all shadow-[0_15px_30px_-10px_rgba(59,130,246,0.4)] transform hover:-translate-y-1 active:scale-95"
                 >
-                    PASO SIGUIENTE
+                    Continuar configuración
                     <ArrowRight className="w-6 h-6" />
                 </button>
             </div>
+        </motion.div>
+    );
+};
+
+// 4.5 ESTRATEGIA LISTA
+export const StrategyReadyStep: React.FC<StepProps> = ({ onNext }) => {
+    return (
+        <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center space-y-10"
+        >
+            <div className="relative inline-block">
+                <div className="absolute inset-0 bg-emerald-500 blur-3xl opacity-20 animate-pulse"></div>
+                <div className="w-24 h-24 bg-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
+                    <Zap className="w-12 h-12 text-white fill-white" />
+                </div>
+            </div>
+
+            <div className="space-y-8 max-w-2xl mx-auto">
+                <div className="space-y-4">
+                    <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
+                        Tu estrategia <span className="text-emerald-500">está lista</span>
+                    </h2>
+                    <p className="text-xl text-gray-400 font-medium">
+                        Ya está todo listo para vender tu producto digital. Nuestro sistema generará por ti:
+                    </p>
+                </div>
+
+                <div className="bg-[#111] border border-white/5 p-10 rounded-[3.5rem] text-left space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        {[
+                            'Página web de alta conversión',
+                            'Videos de atracción (Hooks)',
+                            'Mensajes de seguimiento por Email',
+                            'Estrategia de cierre por WhatsApp'
+                        ].map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                                    <CheckCircle className="w-5 h-5 text-emerald-500" />
+                                </div>
+                                <p className="text-gray-200 font-bold">{item}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            <button 
+                onClick={() => onNext()}
+                className="group flex items-center gap-4 px-12 py-7 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2.5rem] font-black text-2xl transition-all shadow-[0_20px_50px_-10px_rgba(16,185,129,0.4)] transform hover:-translate-y-2 active:scale-95 mx-auto"
+            >
+                Continuar
+                <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
+            </button>
         </motion.div>
     );
 };
@@ -376,18 +463,38 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
                 <div className="w-24 h-24 bg-[#FF5A1F] rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
                     <MousePointer2 className="w-12 h-12 text-white" />
                 </div>
+                <div className="absolute -top-4 -right-4 z-10 px-4 py-1.5 bg-[#FF5A1F] border border-white/20 rounded-full shadow-lg">
+                    <p className="text-[10px] font-black text-white uppercase tracking-widest">Paso 2</p>
+                </div>
             </div>
 
-            <div className="space-y-6 max-w-2xl mx-auto">
-                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
-                    SISTEMA DE <span className="text-[#FF5A1F]">CAPTACIÓN</span>
-                </h2>
-                <p className="text-xl text-gray-400 font-medium">
-                    "Tus avatares necesitan un lugar a donde llegar. Ahora vamos a construir tu página web de alto impacto psicológico."
-                </p>
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs font-black text-gray-500 uppercase tracking-widest">
-                    <Zap className="w-3 h-3 text-[#FF5A1F]" />
-                    Generación Automática en {isCreated ? 'Completada' : '10 Segundos'}
+            <div className="space-y-8 max-w-2xl mx-auto">
+                <div className="space-y-4">
+                    <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
+                        Crea tu <span className="text-[#FF5A1F]">página de captura</span>
+                    </h2>
+                    <p className="text-xl text-gray-400 font-medium">
+                        Tu página será el lugar donde las personas dejarán sus datos para conocer más sobre tu oferta.
+                    </p>
+                </div>
+
+                <div className="bg-[#111] border border-white/5 p-8 rounded-[2.5rem] text-left space-y-4">
+                    <p className="text-white font-black uppercase tracking-widest text-[10px] mb-4 text-center">Nuestro sistema generará automáticamente:</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {[
+                            'Título persuasivo',
+                            'Beneficios',
+                            'Llamados a la acción',
+                            'Formulario de captura'
+                        ].map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-3">
+                                <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                                    <CheckCircle className="w-3 h-3 text-emerald-500" />
+                                </div>
+                                <p className="text-gray-300 font-bold text-sm">{item}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
 
@@ -396,8 +503,57 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
                 disabled={isCreated}
                 className={`group flex items-center gap-4 px-10 py-6 ${isCreated ? 'bg-emerald-500 cursor-default' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform ${!isCreated ? 'hover:-translate-y-2 active:scale-95' : ''} mx-auto`}
             >
-                {isCreated ? 'TU PÁGINA DE CAPTURA HA SIDO GENERADA' : 'CREAR MI PÁGINA AHORA'}
+                {isCreated ? 'TU PÁGINA DE CAPTURA HA SIDO GENERADA' : 'Crear mi página ahora'}
                 <ArrowRight className={`w-6 h-6 ${!isCreated ? 'group-hover:translate-x-2 transition-transform' : ''}`} />
+            </button>
+        </motion.div>
+    );
+};
+
+// 5.5 ÉXITO DE LANDING
+export const LandingSuccessStep: React.FC<StepProps> = ({ onNext }) => {
+    return (
+        <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center space-y-10"
+        >
+            <div className="relative inline-block">
+                <div className="absolute inset-0 bg-emerald-500 blur-3xl opacity-20"></div>
+                <div className="w-24 h-24 bg-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
+                    <CheckCircle className="w-12 h-12 text-white" />
+                </div>
+            </div>
+
+            <div className="space-y-4">
+                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
+                    ¡Tu página <span className="text-emerald-500">ha sido creada</span>!
+                </h2>
+                <p className="text-xl text-gray-400 max-w-2xl mx-auto font-medium leading-relaxed">
+                    Esta página será tu centro de operaciones para capturar leads y convertirlos en clientes reales.
+                </p>
+                <p className="text-[#FF5A1F] font-black uppercase tracking-widest text-sm pt-4 italic">
+                    🚀 Ahora vamos a atraer clientes hacia ella.
+                </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <button className="px-8 py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2">
+                    <Play className="w-4 h-4" />
+                    Ver mi página
+                </button>
+                <button className="px-8 py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2">
+                    <Wand2 className="w-4 h-4" />
+                    Editar página
+                </button>
+            </div>
+
+            <button 
+                onClick={() => onNext()}
+                className="group flex items-center gap-4 px-12 py-7 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-[2.5rem] font-black text-2xl transition-all shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95 mx-auto"
+            >
+                Atraer clientes ahora
+                <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
             </button>
         </motion.div>
     );
@@ -405,8 +561,8 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
 
 // 6. REVELACIÓN DE HOOKS
 export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: boolean, projectId?: string }> = ({ hooks, onNext, isUnlocked, projectId }) => {
-    // Tomar solo 3 hooks para el wizard
-    const displayHooks = hooks.slice(0, 3);
+    // Si ya están desbloqueados, usamos los que vienen. Si no, mostramos los 3 primeros como preview.
+    const displayHooks = isUnlocked ? hooks : hooks.slice(0, 3);
     const hooksGridRef = React.useRef<HTMLDivElement>(null);
 
     // Scroll automatically when unlocked
@@ -424,33 +580,54 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
             animate={{ opacity: 1 }}
             className="space-y-12"
         >
-            <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-purple-500/10 text-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-purple-500/20 shadow-xl font-bold italic text-3xl">
-                    <Quote className="w-8 h-8" />
-                </div>
-                <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase">
-                    GANCHOS DE <span className="text-purple-500">ATRACCIÓN</span>
-                </h2>
-                <div className="space-y-4 max-w-3xl mx-auto">
-                    <p className="text-gray-400 text-lg font-medium italic">
-                        "Tus avatares necesitan ganchos que detengan el scroll. Nuestro sistema te entrega los videos (reels) listos para atraer clientes interesados en comprar tu producto digital."
-                    </p>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-[10px] font-black text-purple-500 uppercase tracking-widest">
-                        <Zap className="w-3 h-3 fill-current" />
-                        Desbloqueo Inteligente de 3 Ganchos Primarios
+            <div className="text-center space-y-10">
+                {!isUnlocked && (
+                    <>
+                        <div className="relative inline-block">
+                            <div className="absolute inset-0 bg-purple-500 blur-3xl opacity-20 animate-pulse"></div>
+                            <div className="w-24 h-24 bg-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
+                                <Quote className="w-12 h-12 text-white" />
+                            </div>
+                        </div>
+
+                        <div className="space-y-8 max-w-2xl mx-auto">
+                            <div className="space-y-4">
+                                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
+                                    Empieza a <span className="text-purple-500">atraer personas interesadas</span>
+                                </h2>
+                                <p className="text-xl text-gray-400 font-medium italic">
+                                    Estos hooks están diseñados para ayudarte a crear contenido que genere curiosidad y atraiga posibles compradores.
+                                </p>
+                            </div>
+                        </div>
+                    </>
+                )}
+
+                {isUnlocked && (
+                    <div className="text-center space-y-4">
+                        <div className="w-16 h-16 bg-purple-500/10 text-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-purple-500/20 shadow-xl font-bold italic text-3xl">
+                            <Quote className="w-8 h-8" />
+                        </div>
+                        <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase">
+                            Tus videos <span className="text-purple-500">desbloqueados</span>
+                        </h2>
                     </div>
-                </div>
+                )}
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex flex-col items-center gap-6">
                 <button 
-                    onClick={() => !isUnlocked && onNext()}
-                    disabled={isUnlocked}
-                    className={`group flex items-center gap-4 px-12 py-6 ${isUnlocked ? 'bg-emerald-500 cursor-default' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(255,140,0,0.3)] transform ${!isUnlocked ? 'hover:-translate-y-2' : ''} active:scale-95`}
+                    onClick={() => onNext()}
+                    className={`group flex items-center gap-4 px-12 py-6 ${isUnlocked ? 'bg-emerald-500' : 'bg-purple-500 hover:bg-purple-600'} text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(168,85,247,0.3)] transform hover:-translate-y-2 active:scale-95`}
                 >
-                    {isUnlocked ? 'GANCHOS DESBLOQUEADOS' : 'GENERAR VIDEOS DE ATRACCIÓN'}
-                    <Zap className={`w-6 h-6 fill-white ${!isUnlocked ? 'animate-pulse' : ''}`} />
+                    {isUnlocked ? 'ESTOY LISTO PARA EMPEZAR' : 'GENERAR VIDEOS DE ATRACCIÓN'}
+                    {isUnlocked ? <Rocket className="w-6 h-6" /> : <Zap className="w-6 h-6 fill-white animate-pulse" />}
                 </button>
+                {isUnlocked && (
+                    <p className="text-gray-500 font-bold text-xs uppercase tracking-widest animate-pulse">
+                        Clic aquí para finalizar la configuración magistral
+                    </p>
+                )}
             </div>
 
             {isUnlocked && (

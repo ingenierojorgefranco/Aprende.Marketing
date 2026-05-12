@@ -22,17 +22,19 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, 
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="inline-block px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full mb-6"
+                        className="inline-block px-8 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full mb-8 shadow-lg shadow-emerald-500/5"
                     >
-                        <span className="text-emerald-500 text-sm font-black uppercase tracking-widest">¡Felicidades por registrarte!</span>
+                        <span className="text-emerald-500 text-lg md:text-xl font-black uppercase tracking-widest">
+                            ¡Felicidades por registrarte, {user.name?.split(' ')[0] || 'Emprendedor'}!
+                        </span>
                     </motion.div>
                     
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-8 uppercase px-2"
-                        style={{ lineHeight: '1.2em' }}
+                        className="font-black text-white mb-8 uppercase px-2 tracking-tight"
+                        style={{ lineHeight: '1.2em', fontSize: '3.2rem' }}
                     >
                         Estás a punto de acceder a una plataforma diseñada para <br className="hidden md:block" />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600">

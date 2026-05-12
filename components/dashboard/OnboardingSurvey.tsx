@@ -112,47 +112,6 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                 <div className="space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-3">
-                            <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">Correo electrónico</label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <Mail className="h-6 w-6 text-emerald-500 transition-colors" />
-                                </div>
-                                <input 
-                                    type="email" 
-                                    value={formData.email}
-                                    onChange={(e) => {
-                                        setFormData({...formData, email: e.target.value});
-                                        setAttemptedNext(false);
-                                    }}
-                                    onFocus={() => setIsEditingEmail(true)}
-                                    onBlur={() => setIsEditingEmail(false)}
-                                    className={`w-full bg-white/5 border-2 rounded-2xl py-4 pl-12 pr-4 text-white font-medium text-lg focus:outline-none transition-all ${isEditingEmail ? 'border-emerald-500 shadow-lg shadow-emerald-500/10' : attemptedNext && !formData.email ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
-                                />
-                            </div>
-                        </div>
-                        <div className="space-y-3">
-                            <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">Nombre Completo</label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <User className="h-6 w-6 text-emerald-500 transition-colors" />
-                                </div>
-                                <input 
-                                    type="text" 
-                                    value={formData.fullName}
-                                    onChange={(e) => {
-                                        setFormData({...formData, fullName: e.target.value});
-                                        setAttemptedNext(false);
-                                    }}
-                                    onFocus={() => setIsEditingName(true)}
-                                    onBlur={() => setIsEditingName(false)}
-                                    className={`w-full bg-white/5 border-2 rounded-2xl py-4 pl-12 pr-4 text-white font-medium text-lg focus:outline-none transition-all ${isEditingName ? 'border-emerald-500 shadow-lg shadow-emerald-500/10' : attemptedNext && !formData.fullName ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-3">
                             <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">País *</label>
                             <div className="relative">
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl z-10 pointer-events-none">
@@ -745,25 +704,25 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
             {/* Header Progresivo */}
             <div id="survey-step-header" className="mb-12 scroll-mt-32">
                 <div className="flex justify-between items-end mb-4">
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                         <div className="flex items-center gap-2">
-                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-black text-white">
+                            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-sm font-black text-white shadow-lg shadow-emerald-500/20">
                                 {step + 1}
                             </span>
-                            <p className="text-emerald-500 font-black text-xs uppercase tracking-[0.2em]">ETAPA DE ONBOARDING</p>
+                            <p className="text-emerald-500 font-black text-sm uppercase tracking-[0.3em]">ETAPA DE ONBOARDING</p>
                         </div>
-                        <h2 className="text-4xl font-black text-white leading-none tracking-tight">{steps[step].title}</h2>
+                        <h2 className="text-4xl font-black text-white leading-tight tracking-tight">{steps[step].title}</h2>
                     </div>
                     <div className="text-right hidden sm:block">
-                        <p className="text-gray-500 text-xs font-bold uppercase mb-1">Tu Progreso</p>
-                        <p className="text-2xl font-black text-white leading-none">{Math.round(progress)}%</p>
+                        <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Tu Progreso</p>
+                        <p className="text-3xl font-black text-white leading-none">{Math.round(progress)}%</p>
                     </div>
                 </div>
-                <div className="h-3 w-full bg-white/5 rounded-full overflow-hidden p-1 border border-white/10">
+                <div className="h-4 w-full bg-white/5 rounded-full overflow-hidden p-1 border border-white/10 shadow-inner">
                     <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
-                        className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]"
+                        className="h-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-300 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.4)]"
                     />
                 </div>
             </div>
