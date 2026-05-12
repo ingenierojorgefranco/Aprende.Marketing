@@ -306,10 +306,24 @@ export const generateLandingPageContent = async (
             const pStrategy = projectContext.strategy_json ? JSON.parse(JSON.stringify(projectContext.strategy_json)) : null;
 
             // 1. INYECCIÓN OBLIGATORIA DE TÍTULOS (ESTRATEGIA)
-            const pH1 = pStrategy?.landingPageTabs?.hero?.h1 || pStrategy?.modules?.web?.landingPageTabs?.hero?.h1;
-            const pH2 = pStrategy?.landingPageTabs?.hero?.h2 || pStrategy?.modules?.web?.landingPageTabs?.hero?.h2;
-            if (pH1) content.hero.headline = pH1;
-            if (pH2) content.hero.subheadline = pH2;
+            const landingTabs = pStrategy?.modules?.web?.landingPageTabs || pStrategy?.landingPageTabs;
+            const heroSection = Array.isArray(landingTabs) 
+                ? (landingTabs.find((t: any) => t.type === 'hero') || landingTabs[0]) 
+                : landingTabs?.hero;
+            
+            const pH1 = heroSection?.h1 || heroSection?.heroTitle || heroSection?.title;
+            const pH2 = heroSection?.h2 || heroSection?.headline || heroSection?.subtitle;
+
+            if (pH1) {
+                content.hero.headline = pH1;
+                // Sincronización extra para evitar discrepancias en componentes que usen heroTitle
+                if ((content as any).heroTitle !== undefined) (content as any).heroTitle = pH1;
+            }
+            if (pH2) {
+                content.hero.subheadline = pH2;
+                // Sincronización extra para evitar discrepancias en componentes que usen headline
+                if ((content as any).headline !== undefined) (content as any).headline = pH2;
+            }
             
             // Inyectar Brand Name de la estrategia si existe
             const pBrandName = pStrategy?.meta?.brandName;

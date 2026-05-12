@@ -7,6 +7,8 @@ interface StepProps {
     data?: any;
     userData: any;
     disabled?: boolean;
+    onView?: () => void;
+    onEdit?: () => void;
 }
 
 // 1. BIENVENIDA
@@ -513,7 +515,7 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
 };
 
 // 5.5 ÉXITO DE LANDING
-export const LandingSuccessStep: React.FC<StepProps> = ({ onNext }) => {
+export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit }) => {
     return (
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
@@ -540,11 +542,17 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext }) => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <button className="px-8 py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2">
+                <button 
+                    onClick={() => onView?.()}
+                    className="px-8 py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2"
+                >
                     <Play className="w-4 h-4" />
                     Ver mi página
                 </button>
-                <button className="px-8 py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2">
+                <button 
+                    onClick={() => onEdit?.()}
+                    className="px-8 py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2"
+                >
                     <Wand2 className="w-4 h-4" />
                     Editar página
                 </button>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { User, Project } from '../../../types';
+import { User, Project, ColorPalette } from '../../../types';
 import { api } from '../../../services/api';
 import { Zap, Target, CheckCircle } from 'lucide-react';
 import { generateLandingPageContent } from '../../../services/geminiService';
@@ -182,50 +182,56 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             setGenerationStatus('Configurando servidor de captación...');
             
             // Obtener datos reales de la estrategia para la landing
-            const webModule = strategyData?.modules?.web?.landingPageTabs?.[0] || {};
             const niche = selectedProject?.niche || 'Marketing Digital';
             const targetAudience = strategyData?.avatars?.[0]?.name || 'Emprendedores';
 
             setGenerationProgress(50);
             setGenerationStatus('Inyectando copys de alta conversión...');
 
-            // Generar contenido pero con el contexto de la estrategia
-            // Nota: Aquí pasamos los datos reales de la estrategia como base
+            // Seleccionar paleta aleatoria profesional
+            const palettes: ColorPalette[] = [
+                'modern-blue', 'elegant-purple', 'energetic-orange', 'nature-green', 
+                'dark-luxury', 'ocean-teal', 'crimson-red', 'corporate-slate', 
+                'gold-prestige', 'minimal-mono'
+            ];
+            const randomPalette = palettes[Math.floor(Math.random() * palettes.length)];
+
+            // Generar contenido pero con el contexto de la estrategia COMPLETO
+            const projectWithStrategy = {
+                ...unlockedProject,
+                strategy_json: strategyData
+            };
+
             const content = await generateLandingPageContent(
                 niche,
                 'Ventas y Captación',
                 targetAudience,
                 selectedProject?.name || 'Producto Digital',
-                'modern-blue',
-                'classic-sales',
+                randomPalette,
+                'webinar-funnel', // Forzamos estructura de webinar
                 { 
                     type: 'whatsapp', 
                     whatsappPhone: (user as any).phone || '000000000', 
                     whatsappMessage: 'Hola, quiero más información.' 
                 },
-                unlockedProject
+                projectWithStrategy
             );
             
             setGenerationProgress(80);
             setGenerationStatus('Publicando en nube segura...');
 
-            // Crear la página con los títulos de la estrategia si están disponibles
+            // Crear la página - Los títulos ya vienen inyectados desde landingService basado en la estrategia
             const newPage = {
                 name: `Web Oficial - ${selectedProject?.name}`,
                 niche: niche,
                 goal: 'Captación de Leads',
                 subdomain: `${user.name.toLowerCase().replace(/[^a-z0-9]/g, '')}-${selectedProject?.name.toLowerCase().replace(/[^a-z0-9]/g, '')}-${Math.floor(Math.random() * 1000)}`,
-                content: {
-                    ...content,
-                    heroTitle: webModule.heroTitle || content.heroTitle,
-                    headline: webModule.headline || content.headline,
-                    description: webModule.description || content.description,
-                },
+                content: content,
                 projectId: unlockedProject.id,
                 isPublished: true
             };
 
-            await api.createPage(newPage as any, unlockedProject as any);
+            await api.createPage(newPage as any, projectWithStrategy as any);
 
             setGenerationProgress(100);
             setGenerationStatus('Página Publicada');
@@ -376,7 +382,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         )}
 
                         {/* 4. AVATARES */}
-                        {revealedSections.includes('strategy_ready') && step === 'strategy_ready' && (
+                        {revealedSections.includes('strategy_ready') && (
                             <div className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
                                 <StrategyReadyStep 
                                     userData={user}
@@ -418,11 +424,21 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                             </div>
                         )}
 
-                        {revealedSections.includes('landing_success') && step === 'landing_success' && (
+                        {revealedSections.includes('landing_success') && (
                             <div className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
                                 <LandingSuccessStep 
                                     userData={user}
                                     onNext={() => setStep('show_hooks')}
+                                    onView={() => {
+                                        if (unlockedProject) {
+                                            window.open(`/dashboard/projects/${unlockedProject.id}/strategy?section=web`, '_blank');
+                                        }
+                                    }}
+                                    onEdit={() => {
+                                        if (unlockedProject) {
+                                            window.open(`/dashboard/projects/${unlockedProject.id}/strategy?section=web`, '_blank');
+                                        }
+                                    }}
                                 />
                             </div>
                         )}
