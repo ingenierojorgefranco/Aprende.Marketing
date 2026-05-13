@@ -120,7 +120,11 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                             {/* Social Proof Dinámico */}
                             <div className="flex flex-col md:flex-row items-center justify-center gap-6">
                                 <div className="flex -space-x-3 md:-space-x-4">
-                                    {(project?.strategy_json?.avatars && project.strategy_json.avatars.length > 0) ? (
+                                    {(project?.strategy_json?.testimonials && project.strategy_json.testimonials.length > 0) ? (
+                                        project.strategy_json.testimonials.slice(0, 3).map((t: any, i: number) => (
+                                            <img key={i} alt={t.name} title={t.name} className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" src={t.image} referrerPolicy="no-referrer" />
+                                        ))
+                                    ) : (project?.strategy_json?.avatars && project.strategy_json.avatars.length > 0) ? (
                                         project.strategy_json.avatars.slice(0, 3).map((a: any, i: number) => (
                                             <img key={i} alt={a.name} title={a.name} className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" src={a.image} referrerPolicy="no-referrer" />
                                         ))
