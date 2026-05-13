@@ -120,7 +120,11 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                             {/* Social Proof Dinámico */}
                             <div className="flex flex-col md:flex-row items-center justify-center gap-6">
                                 <div className="flex -space-x-3 md:-space-x-4">
-                                    {content.avatarImages && content.avatarImages.length > 0 ? (
+                                    {(project?.strategy_json?.avatars && project.strategy_json.avatars.length > 0) ? (
+                                        project.strategy_json.avatars.slice(0, 3).map((a: any, i: number) => (
+                                            <img key={i} alt={a.name} title={a.name} className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" src={a.image} referrerPolicy="no-referrer" />
+                                        ))
+                                    ) : (content.avatarImages && content.avatarImages.length > 0) ? (
                                         content.avatarImages.slice(0, 3).map((img, i) => (
                                             <img key={i} alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" src={img} referrerPolicy="no-referrer" />
                                         ))
@@ -156,14 +160,15 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, project,
             subtitle={content.testimonialSubtitle} 
             isMobilePreview={isMobilePreview} 
             ds={ds} 
+            project={project}
         />
 
-         <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
+         <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} project={project} />
          <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
          
          <StepsModule content={content} ds={ds} isMobilePreview={isMobilePreview} title="Asegura tu Cupo en 3 Pasos" steps={webinarSteps} />
          <FaqModule content={content} ds={ds} />
-         <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
+         <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
          <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
 
          {showModal && (
@@ -173,6 +178,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                 onClose={() => setShowModal(false)} 
                 pageId={pageId} 
                 basePath={basePath} 
+                project={project}
             />
          )}
     </div>

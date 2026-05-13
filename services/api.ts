@@ -866,17 +866,6 @@ export const api = {
             strategy.modules.testimonials = testimonials;
             project.strategy_json = strategy;
             
-            localPages = localPages.map(page => {
-                if (String(page.projectId) === String(projectId)) {
-                    return { ...page, content: { ...page.content, testimonials: testimonials.map((t: any) => ({
-                        name: t.name,
-                        text: t.text,
-                        rating: 5,
-                        image: t.image
-                    })) }};
-                }
-                return page;
-            });
             clearCache('projectDetails', projectId);
             clearCache('masterStrategies', projectId);
             return;
@@ -891,18 +880,6 @@ export const api = {
         
         await api.updateProject(projectId, { ...project, strategy_json: strategy } as any);
 
-        const allPages = await api.getPages();
-        const linkedPages = allPages.filter(p => String(p.projectId) === String(projectId));
-        
-        for (const page of linkedPages) {
-            const updatedContent = { ...page.content, testimonials: testimonials.map(t => ({
-                name: t.name,
-                text: t.text,
-                rating: 5,
-                image: t.image
-            }))};
-            await api.updatePage({ ...page, content: updatedContent });
-        }
         clearCache('projectDetails', projectId);
         clearCache('masterStrategies', projectId);
     },

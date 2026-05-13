@@ -14,15 +14,30 @@ interface WhatsAppTestimonialsProps {
   subtitle?: string;
   isMobilePreview: boolean;
   ds: any;
+  project?: any;
 }
 
 export const WhatsAppTestimonials: React.FC<WhatsAppTestimonialsProps> = ({ 
-  testimonials, 
+  testimonials: initialTestimonials, 
   title, 
   subtitle, 
   isMobilePreview,
-  ds
+  ds,
+  project
 }) => {
+  // Extraer testimonios de la estrategia del proyecto como fuente de verdad absoluta
+  const strategyTestimonials = project?.strategy_json?.modules?.testimonials || project?.strategy_json?.testimonials;
+  
+  const testimonials = (strategyTestimonials && strategyTestimonials.length > 0)
+    ? strategyTestimonials.map((t: any) => ({
+        name: t.name,
+        text: t.text,
+        rating: 5,
+        image: t.image,
+        location: t.location || ""
+      }))
+    : initialTestimonials;
+
   if (!testimonials || testimonials.length === 0) return null;
 
   // Mensajes de validación genéricos (Burbuja 1)
@@ -61,7 +76,7 @@ export const WhatsAppTestimonials: React.FC<WhatsAppTestimonialsProps> = ({
         </div>
 
         <div className={`grid grid-cols-1 gap-8 md:gap-12 max-w-7xl mx-auto ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
-          {testimonials.map((t, i) => {
+          {testimonials.map((t: any, i: number) => {
             const time = chatTimes[i % chatTimes.length];
             const validation = expertValidations[i % expertValidations.length];
             const closing = closingPhrases[i % closingPhrases.length];

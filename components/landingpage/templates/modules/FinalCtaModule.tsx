@@ -10,9 +10,10 @@ interface FinalCtaModuleProps {
   pageId?: string;
   basePath?: string;
   title?: string;
+  project?: any;
 }
 
-export const FinalCtaModule: React.FC<FinalCtaModuleProps> = ({ content, ds, isMobilePreview, pageId, basePath, title }) => {
+export const FinalCtaModule: React.FC<FinalCtaModuleProps> = ({ content, ds, isMobilePreview, pageId, basePath, title, project }) => {
   return (
     <section id="final-cta-section" className={`py-24 relative overflow-hidden ${ds.cta.sectionBg}`}>
         <div className={`absolute top-0 left-0 w-96 h-96 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 ${ds.blobOpacity} ${ds.blobColor}`}></div>
@@ -22,7 +23,7 @@ export const FinalCtaModule: React.FC<FinalCtaModuleProps> = ({ content, ds, isM
                 {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
             </p>
             <div className="max-w-md mx-auto">
-                <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} centered={true} pageId={pageId} basePath={basePath} />
+                <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} centered={true} pageId={pageId} basePath={basePath} project={project} />
             </div>
         </div>
     </section>

@@ -385,36 +385,12 @@ export const generateLandingPageContent = async (
             content.whatYouWillLearn.avatarTitles = []; // Vacío para forzar extracción de estrategia
             content.whatYouWillLearn.items = [];        // Vacío para forzar extracción de estrategia
 
-            // 4. INYECCIÓN OBLIGATORIA DE TESTIMONIOS (ESTRATEGIA)
-            let rawTestimonials = (pStrategy?.modules?.testimonials && pStrategy.modules.testimonials.length > 0)
-                ? pStrategy.modules.testimonials
-                : (pStrategy?.modules?.testimonials && pStrategy.modules.testimonials.length > 0)
-                    ? pStrategy.modules.testimonials
-                    : [];
-
-            if (rawTestimonials.length > 0) {
-                const avatarPlaceholders = [
-                    "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-                    "https://i.pravatar.cc/150?u=a042581f4e29026704e",
-                    "https://i.pravatar.cc/150?u=a04258114e29026702d",
-                    "https://i.pravatar.cc/150?u=a04258114e29026708c",
-                    "https://i.pravatar.cc/150?u=a042581f4e29056704b"
-                ];
-
-                content.testimonials = rawTestimonials.slice(0, 3).map((t: any, idx: number) => ({
-                    name: String(t.name || ""),
-                    text: String(t.text || ""),
-                    rating: 5,
-                    image: (t.image && t.image.trim() !== "") ? t.image : avatarPlaceholders[idx % avatarPlaceholders.length],
-                    location: t.location || ""
-                }));
-            }
+            // 4. INYECCIÓN OBLIGATORIA DE TESTIMONIOS (ESTRATEGIA) - ELIMINADA PARA EVITAR DUPLICIDAD
+            // Los testimonios ahora se extraen directamente de la estrategia en los componentes
+            content.testimonials = [];
 
             // 5. INYECCIÓN DE IMÁGENES DE AVATARES E INSTRUCTOR
-            if (pStrategy?.avatars && Array.isArray(pStrategy.avatars)) {
-                content.avatarImages = pStrategy.avatars.map((a: any) => a.image).filter(Boolean);
-            }
-
+            // Solo inyectamos el instructor si existe, los avatares se extraen de la estrategia
             if (pStrategy?.teacher?.image && content.instructor) {
                 content.instructor.imageUrl = pStrategy.teacher.image;
             }

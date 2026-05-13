@@ -343,7 +343,7 @@ const LeadCaptureForm = ({ btnClass, btnText, ds, pageId, basePath }: { btnClass
 };
 
 // --- Registration Modal ---
-export const RegistrationModal = ({ content, ds, onClose, pageId, basePath }: { content: GeneratedPageContent, ds: any, onClose: () => void, pageId?: string, basePath?: string }) => {
+export const RegistrationModal = ({ content, ds, onClose, pageId, basePath, project }: { content: GeneratedPageContent, ds: any, onClose: () => void, pageId?: string, basePath?: string, project?: any }) => {
     return (
         <div 
             id="registration-modal" 
@@ -373,7 +373,7 @@ export const RegistrationModal = ({ content, ds, onClose, pageId, basePath }: { 
 };
 
 // --- Smart CTA ---
-export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, centered = false, pageId, basePath }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean, fullWidth?: boolean, centered?: boolean, pageId?: string, basePath?: string }) => {
+export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, centered = false, pageId, basePath, project }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean, fullWidth?: boolean, centered?: boolean, pageId?: string, basePath?: string, project?: any }) => {
     const dest = content.destination;
     const capture = content.capture || {};
     
@@ -467,7 +467,11 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
         {/* Social Proof */}
         <div className="mt-8 flex items-center justify-center gap-5 animate-in fade-in slide-in-from-bottom-2 duration-700">
             <div className="flex -space-x-4">
-                {content.avatarImages && content.avatarImages.length > 0 ? (
+                {(project?.strategy_json?.avatars && project.strategy_json.avatars.length > 0) ? (
+                    project.strategy_json.avatars.slice(0, 3).map((a: any, i: number) => (
+                        <img key={i} src={a.image} alt={a.name} title={a.name} className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />
+                    ))
+                ) : (content.avatarImages && content.avatarImages.length > 0) ? (
                     content.avatarImages.slice(0, 3).map((img, i) => (
                         <img key={i} src={img} alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />
                     ))

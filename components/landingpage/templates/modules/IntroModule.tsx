@@ -10,9 +10,10 @@ interface IntroModuleProps {
   isMobilePreview: boolean;
   pageId?: string;
   basePath?: string;
+  project?: any;
 }
 
-export const IntroModule: React.FC<IntroModuleProps> = ({ content, ds, isMobilePreview, pageId, basePath }) => {
+export const IntroModule: React.FC<IntroModuleProps> = ({ content, ds, isMobilePreview, pageId, basePath, project }) => {
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -47,7 +48,7 @@ export const IntroModule: React.FC<IntroModuleProps> = ({ content, ds, isMobileP
                 </div>
             </div>
         </div>
-        {showModal && <RegistrationModal content={content} ds={ds} onClose={() => setShowModal(false)} pageId={pageId} basePath={basePath} />}
+        {showModal && <RegistrationModal content={content} ds={ds} onClose={() => setShowModal(false)} pageId={pageId} basePath={basePath} project={project} />}
     </section>
   );
 };
