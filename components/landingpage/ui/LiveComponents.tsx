@@ -470,7 +470,11 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
         {/* Social Proof */}
         <div className="mt-8 flex items-center justify-center gap-5 animate-in fade-in slide-in-from-bottom-2 duration-700">
             <div className="flex -space-x-4">
-                {(strategy?.testimonials && strategy.testimonials.length > 0) ? (
+                {(strategy?.modules?.testimonials && strategy.modules.testimonials.length > 0) ? (
+                    strategy.modules.testimonials.slice(0, 3).map((t: any, i: number) => (
+                        <img key={i} src={t.image} alt={t.name} title={t.name} className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />
+                    ))
+                ) : (strategy?.testimonials && strategy.testimonials.length > 0) ? (
                     strategy.testimonials.slice(0, 3).map((t: any, i: number) => (
                         <img key={i} src={t.image} alt={t.name} title={t.name} className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />
                     ))
