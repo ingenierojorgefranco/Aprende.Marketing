@@ -964,7 +964,7 @@ h2:
             step1Data.teacher.image = `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
         }
 
-        // 2. Avatares
+        // 2. Avatares 
         if (step1Data.avatars && Array.isArray(step1Data.avatars)) {
             step1Data.avatars.forEach((avatar, index) => {
                 const gender = index === 0 ? 'women' : (index === 1 ? 'men' : 'women');
