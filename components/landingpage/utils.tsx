@@ -46,3 +46,15 @@ export const renderStyledHeadline = (text: string, className: string, gradientCl
       />
     );
 };
+
+export const getProjectStrategy = (project: any) => {
+    if (!project || !project.strategy_json) return null;
+    if (typeof project.strategy_json === 'object') return project.strategy_json;
+    try {
+        let parsed = JSON.parse(project.strategy_json);
+        if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+        return parsed;
+    } catch (e) {
+        return null;
+    }
+};

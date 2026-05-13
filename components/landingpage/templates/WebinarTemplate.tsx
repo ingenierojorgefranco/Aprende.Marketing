@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { GeneratedPageContent, Project } from '../../../types';
 import { User, Target, ArrowRight } from 'lucide-react';
 import { Navbar, Footer, UrgencyBar, HeroMedia, RegistrationModal } from '../ui/LiveComponents';
-import { renderRichText, renderStyledHeadline } from '../utils';
+import { renderRichText, renderStyledHeadline, getProjectStrategy } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 import { IntroModule } from './modules/IntroModule';
 import { InstructorModule } from './modules/InstructorModule';
@@ -25,6 +25,7 @@ interface TemplateProps {
 
 export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, project, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
   const [showModal, setShowModal] = useState(false);
+  const strategy = getProjectStrategy(project);
   const capture = content.capture || {};
   const initialMinutes = capture.timerDuration !== undefined ? capture.timerDuration : 15;
   const [timeLeft, setTimeLeft] = useState(initialMinutes * 60);
@@ -120,12 +121,12 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                             {/* Social Proof Dinámico */}
                             <div className="flex flex-col md:flex-row items-center justify-center gap-6">
                                 <div className="flex -space-x-3 md:-space-x-4">
-                                    {(project?.strategy_json?.testimonials && project.strategy_json.testimonials.length > 0) ? (
-                                        project.strategy_json.testimonials.slice(0, 3).map((t: any, i: number) => (
+                                    {(strategy?.testimonials && strategy.testimonials.length > 0) ? (
+                                        strategy.testimonials.slice(0, 3).map((t: any, i: number) => (
                                             <img key={i} alt={t.name} title={t.name} className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" src={t.image} referrerPolicy="no-referrer" />
                                         ))
-                                    ) : (project?.strategy_json?.avatars && project.strategy_json.avatars.length > 0) ? (
-                                        project.strategy_json.avatars.slice(0, 3).map((a: any, i: number) => (
+                                    ) : (strategy?.avatars && strategy.avatars.length > 0) ? (
+                                        strategy.avatars.slice(0, 3).map((a: any, i: number) => (
                                             <img key={i} alt={a.name} title={a.name} className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" src={a.image} referrerPolicy="no-referrer" />
                                         ))
                                     ) : (content.avatarImages && content.avatarImages.length > 0) ? (

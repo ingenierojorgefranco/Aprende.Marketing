@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, DestinationType } from '../../../types';
 import { api } from '../../../services/api';
 import { CheckCircle, Star, MessageCircle, ArrowRight, Lock, ShieldCheck, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Menu, X, DollarSign, FileText, Briefcase, Award, Users, Loader2, PlayCircle, Globe } from 'lucide-react';
-import { getIcon, renderRichText } from '../utils';
+import { getIcon, renderRichText, getProjectStrategy } from '../utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 // Importamos el Footer unificado
@@ -91,7 +91,8 @@ export const Navbar = ({
     hasBlogArticles, 
     isThankYouPage = false,
     hasUrgencyBar = false,
-    forcePrimaryLinks = false
+    forcePrimaryLinks = false,
+    project
 }: { 
     content: GeneratedPageContent, 
     ds: any, 
@@ -101,7 +102,8 @@ export const Navbar = ({
     hasBlogArticles: boolean,
     isThankYouPage?: boolean,
     hasUrgencyBar?: boolean,
-    forcePrimaryLinks?: boolean
+    forcePrimaryLinks?: boolean,
+    project?: any
 }) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -261,7 +263,7 @@ export const Navbar = ({
               </div>
           )}
       </nav>
-      {!isThankYouPage && showModal && <RegistrationModal content={content} ds={ds} onClose={() => setShowModal(false)} pageId={pageId} basePath={basePath} />}
+      {!isThankYouPage && showModal && <RegistrationModal content={content} ds={ds} onClose={() => setShowModal(false)} pageId={pageId} basePath={basePath} project={project} />}
       </>
     );
 };
@@ -374,6 +376,7 @@ export const RegistrationModal = ({ content, ds, onClose, pageId, basePath, proj
 
 // --- Smart CTA ---
 export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, centered = false, pageId, basePath, project }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean, fullWidth?: boolean, centered?: boolean, pageId?: string, basePath?: string, project?: any }) => {
+    const strategy = getProjectStrategy(project);
     const dest = content.destination;
     const capture = content.capture || {};
     
@@ -467,12 +470,12 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
         {/* Social Proof */}
         <div className="mt-8 flex items-center justify-center gap-5 animate-in fade-in slide-in-from-bottom-2 duration-700">
             <div className="flex -space-x-4">
-                {(project?.strategy_json?.testimonials && project.strategy_json.testimonials.length > 0) ? (
-                    project.strategy_json.testimonials.slice(0, 3).map((t: any, i: number) => (
+                {(strategy?.testimonials && strategy.testimonials.length > 0) ? (
+                    strategy.testimonials.slice(0, 3).map((t: any, i: number) => (
                         <img key={i} src={t.image} alt={t.name} title={t.name} className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />
                     ))
-                ) : (project?.strategy_json?.avatars && project.strategy_json.avatars.length > 0) ? (
-                    project.strategy_json.avatars.slice(0, 3).map((a: any, i: number) => (
+                ) : (strategy?.avatars && strategy.avatars.length > 0) ? (
+                    strategy.avatars.slice(0, 3).map((a: any, i: number) => (
                         <img key={i} src={a.image} alt={a.name} title={a.name} className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />
                     ))
                 ) : (content.avatarImages && content.avatarImages.length > 0) ? (

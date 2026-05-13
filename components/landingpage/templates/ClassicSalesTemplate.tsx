@@ -62,7 +62,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                     </div>
                 </div>
                 <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-4 lg:sticky lg:top-24 order-1 lg:order-2'}`}>
-                     <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
+                     <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
                 </div>
              </div>
           </div>
@@ -76,13 +76,14 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
             subtitle={content.testimonialSubtitle} 
             isMobilePreview={isMobilePreview} 
             ds={ds} 
+            project={project}
         />
 
-        <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
+        <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
         <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
         <StepsModule content={content} ds={ds} isMobilePreview={isMobilePreview} description="En solo 3 simples pasos estarás dentro de la clase que puede cambiar tu carrera." steps={classicSteps} />
         <FaqModule content={content} ds={ds} />
-        <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
+        <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
         <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
     </div>
   );

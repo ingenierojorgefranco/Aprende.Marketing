@@ -56,7 +56,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, project, isM
                         <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} />
                     </div>
                     <div className="w-full max-w-md animate-in slide-in-from-bottom-4 duration-700 delay-300">
-                        <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} sticky={false} />
+                        <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} sticky={false} project={project} />
                         <div className={`mt-6 flex items-center justify-center gap-2 text-xs opacity-70 ${ds.hero.subtitleColor}`}>
                             <CheckCircle className="w-4 h-4" /> 
                             <span>{content.capture?.securityText || "Acceso Inmediato & Garantizado"}</span>
@@ -84,12 +84,13 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, project, isM
                     subtitle={content.testimonialSubtitle} 
                     isMobilePreview={isMobilePreview} 
                     ds={ds} 
+                    project={project}
                 />
-                <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
+                <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} project={project} />
                 <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
                 <StepsModule content={content} ds={ds} isMobilePreview={isMobilePreview} title="¿Cómo acceder al contenido?" steps={vslSteps} />
                 <FaqModule content={content} ds={ds} />
-                <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} title="¿Estás listo para dar el siguiente paso?" />
+                <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} title="¿Estás listo para dar el siguiente paso?" project={project} />
             </div>
             
             <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
@@ -101,6 +102,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, project, isM
                     onClose={() => setShowModal(false)} 
                     pageId={pageId} 
                     basePath={basePath} 
+                    project={project}
                 />
             )}
         </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GeneratedPageContent, Project } from '../../../types';
 import { Navbar, Footer, UrgencyBar, RegistrationModal, HeroMedia } from '../ui/LiveComponents';
-import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
+import { renderRichText, renderStyledHeadline, getIcon, getProjectStrategy } from '../utils';
 import { Check, ArrowRight, Star, MessageCircle, User, Target, HelpCircle, Sparkles, ShieldCheck, Zap } from 'lucide-react';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 import { PainPointsModule } from './modules/PainPointsModule';
@@ -19,7 +19,8 @@ interface TemplateProps {
 
 export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, project, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
   const [showModal, setShowModal] = useState(false);
-  const pains = project?.strategy_json?.psychology?.pains || [];
+  const strategy = getProjectStrategy(project);
+  const pains = strategy?.psychology?.pains || [];
   
   const minimalSteps = [
     { num: 1, title: "Regístrate", text: "Completa tus datos en el formulario." },
@@ -48,6 +49,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                 hasBlogArticles={hasBlogArticles || false} 
                 hasUrgencyBar={true} 
                 forcePrimaryLinks={false} 
+                project={project}
             />
         </div>
 
@@ -90,6 +92,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                     subtitle={content.testimonialSubtitle} 
                     isMobilePreview={isMobilePreview} 
                     ds={ds} 
+                    project={project}
                  />
              </div>
 
@@ -214,6 +217,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                 onClose={() => setShowModal(false)} 
                 pageId={pageId} 
                 basePath={basePath} 
+                project={project}
             />
         )}
     </div>
