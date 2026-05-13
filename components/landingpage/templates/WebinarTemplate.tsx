@@ -120,9 +120,17 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                             {/* Social Proof Dinámico */}
                             <div className="flex flex-col md:flex-row items-center justify-center gap-6">
                                 <div className="flex -space-x-3 md:-space-x-4">
-                                    <img alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" src="https://randomuser.me/api/portraits/thumb/women/21.jpg" referrerPolicy="no-referrer" />
-                                    <img alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" src="https://randomuser.me/api/portraits/thumb/women/22.jpg" referrerPolicy="no-referrer" />
-                                    <img alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" src="https://randomuser.me/api/portraits/thumb/women/23.jpg" referrerPolicy="no-referrer" />
+                                    {content.avatarImages && content.avatarImages.length > 0 ? (
+                                        content.avatarImages.slice(0, 3).map((img, i) => (
+                                            <img key={i} alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" src={img} referrerPolicy="no-referrer" />
+                                        ))
+                                    ) : (
+                                        <>
+                                            <img alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" src="https://randomuser.me/api/portraits/thumb/women/21.jpg" referrerPolicy="no-referrer" />
+                                            <img alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" src="https://randomuser.me/api/portraits/thumb/women/22.jpg" referrerPolicy="no-referrer" />
+                                            <img alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" src="https://randomuser.me/api/portraits/thumb/women/23.jpg" referrerPolicy="no-referrer" />
+                                        </>
+                                    )}
                                 </div>
                                 <div className="text-center md:text-left">
                                     <div id="smart-cta-social-proof" className="flex items-center justify-center md:justify-start gap-2 font-black text-2xl md:text-3xl text-white leading-none">

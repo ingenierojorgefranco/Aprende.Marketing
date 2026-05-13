@@ -344,6 +344,7 @@ export interface GeneratedPageContent {
   navLinks?: Array<{ label: string; href: string }>; // Editable menu items
   testimonialTitle?: string; // e.g. "Ellas ya cambiaron su historia:"
   testimonialSubtitle?: string; // e.g. "Ellas ya dieron el paso..."
+  avatarImages?: string[]; // Array of avatar images from project strategy
   closingOfferText?: string; // New: Text above the final CTA e.g. "Quedan pocos cupos..."
   logoSvg?: string; // AI Generated SVG Logo string
 

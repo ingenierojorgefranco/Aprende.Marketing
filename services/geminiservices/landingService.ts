@@ -409,6 +409,15 @@ export const generateLandingPageContent = async (
                     location: t.location || ""
                 }));
             }
+
+            // 5. INYECCIÓN DE IMÁGENES DE AVATARES E INSTRUCTOR
+            if (pStrategy?.avatars && Array.isArray(pStrategy.avatars)) {
+                content.avatarImages = pStrategy.avatars.map((a: any) => a.image).filter(Boolean);
+            }
+
+            if (pStrategy?.teacher?.image && content.instructor) {
+                content.instructor.imageUrl = pStrategy.teacher.image;
+            }
         }
 
         // Aplicar la imagen de persona misteriosa solo si después de todo sigue vacía

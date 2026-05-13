@@ -498,13 +498,15 @@ h1:
 - Debe generar curiosidad natural.
 - Máximo ideal: 115 caracteres.
 - Puede superar ligeramente el límite si el impacto lo justifica.
+- debe tener una longitud de 100 caracteres
 
 h2:
-- Entre 160 y 240 caracteres.
+- debe tener una longitud de Entre 200 y 240 caracteres.
 - Debe hacer la promesa más creíble.
 - Debe reducir dudas internas y miedo al fracaso.
 - Debe explicar cómo el Lead Magnet (${leadMagnetType}) transforma la situación actual del usuario.
 - Debe aumentar el deseo inmediato por acceder al regalo.
+- Debes incluir el nombre exacto del nicho, por ejemplo si es Microblading de Cejas ponerlo igual no microblading pelo a pelo, si es Resina Epoxica en Suelos ponerlo asi y no ponerlo Resina para pisos espejo etc
 
 
 
@@ -572,12 +574,14 @@ h2:
             "name": "Nombre real del profesor/a extraído de la descripción. REGLA CRÍTICA: Si no encuentras un nombre real en la descripción, escribe estrictamente 'Tu Profesor' o 'Tu Profesora'. PROHIBIDO INVENTAR NOMBRES.",
             "title": "Título profesional extraído (ej: Especialista en Microblading). Si no hay, usa uno genérico profesional acorde al nicho.",
             "bio": "Breve biografía persuasiva de 2-3 líneas extraída de su experiencia. Si no hay, crea una basada en su autoridad como experto en el nicho.",
+            "image": "URL de imagen de perfil del instructor (randomuser.me)",
             "transformation_tip": "Un consejo de vida poderoso relacionado con el nicho"
           },
           "avatars": [
             {
               "id": 1,
               "name": "Nombre Realista Latino del Avatar 1 (Inventa un Nombre Nuevo)",
+              "image": "URL de imagen de perfil (randomuser.me)",
               "archetype": "Emprendedor Activo",
               "age": "Rango de edad",
               "quote": "Frase que define su mentalidad",
@@ -594,6 +598,7 @@ h2:
             {
               "id": 2,
               "name": "Nombre Realista Latino del Avatar 2  (Inventa un Nombre Nuevo)",
+              "image": "URL de imagen de perfil (randomuser.me)",
               "archetype": "Escéptico con Miedo",
               "age": "Rango de edad",
               "quote": "Frase de duda o desconfianza",
@@ -610,6 +615,7 @@ h2:
             {
               "id": 3,
               "name": "Nombre Realista Latino del Avatar 3 (Inventa un Nombre Nuevo)",
+              "image": "URL de imagen de perfil (randomuser.me)",
               "archetype": "Persona buscando Reinvención",
               "age": "Rango de edad",
               "quote": "Frase de cansancio y esperanza",
@@ -923,7 +929,7 @@ h2:
         }
     ],
     "testimonials": [
-        { "name": "Nombre de la persona", "text": "Texto del testimonio" }
+        { "name": "Nombre de la persona", "image": "URL de imagen de perfil (randomuser.me)", "text": "Texto del testimonio" }
     ]
   }
 }
@@ -947,7 +953,40 @@ h2:
         if (!step1Res) throw new Error("Gemini devolvió vacío en Etapa 1");
         
         step1Data = JSON.parse(cleanJsonString(step1Res));
-        process.stdout.write(`✅ [PIPELINE IA] Etapa 1 + Psicología finalizada con éxito para ${productName}.\n`);
+
+        // Post-procesamiento de Imágenes (Garantizar randomuser.me para todos)
+        process.stdout.write(`🖼️ [PIPELINE IA] Post-procesando imágenes de avatares, testimonios e instructor...\n`);
+        
+        // 1. Instructor
+        if (!step1Data.teacher.image || !step1Data.teacher.image.includes('randomuser.me')) {
+            const gender = Math.random() > 0.5 ? 'women' : 'men';
+            const id = Math.floor(Math.random() * 99);
+            step1Data.teacher.image = `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
+        }
+
+        // 2. Avatares
+        if (step1Data.avatars && Array.isArray(step1Data.avatars)) {
+            step1Data.avatars.forEach((avatar, index) => {
+                const gender = index === 0 ? 'women' : (index === 1 ? 'men' : 'women');
+                const id = 10 + index + Math.floor(Math.random() * 5); // Diferenciar por index
+                if (!avatar.image || !avatar.image.includes('randomuser.me')) {
+                    avatar.image = `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
+                }
+            });
+        }
+
+        // 3. Testimonios
+        if (step1Data.testimonials && Array.isArray(step1Data.testimonials)) {
+            step1Data.testimonials.forEach((t, index) => {
+                const gender = Math.random() > 0.5 ? 'women' : 'men';
+                const id = 30 + index + Math.floor(Math.random() * 10);
+                if (!t.image || !t.image.includes('randomuser.me')) {
+                    t.image = `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
+                }
+            });
+        }
+
+        process.stdout.write(`✅ [PIPELINE IA] Etapa 1 + Psicología (con imágenes) finalizada con éxito para ${productName}.\n`);
 
     } catch (err) {
         process.stdout.write(`❌ [PIPELINE ERROR ETAPA 1 IA]: ${err.message}\n`);

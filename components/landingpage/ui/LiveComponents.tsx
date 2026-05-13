@@ -467,7 +467,13 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
         {/* Social Proof */}
         <div className="mt-8 flex items-center justify-center gap-5 animate-in fade-in slide-in-from-bottom-2 duration-700">
             <div className="flex -space-x-4">
-                {[1,2,3].map(i => <img key={i} src={`https://randomuser.me/api/portraits/thumb/women/${i+20}.jpg`} alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />)}
+                {content.avatarImages && content.avatarImages.length > 0 ? (
+                    content.avatarImages.slice(0, 3).map((img, i) => (
+                        <img key={i} src={img} alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />
+                    ))
+                ) : (
+                    [1,2,3].map(i => <img key={i} src={`https://randomuser.me/api/portraits/thumb/women/${i+20}.jpg`} alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />)
+                )}
             </div>
             <div className="text-left">
                 <div id="smart-cta-social-proof" className="flex items-center gap-2 font-black text-2xl text-white">
