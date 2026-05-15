@@ -270,31 +270,47 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
         setGenerationProgress(0);
         setGenerationStatus('Obteniendo biblioteca de ganchos...');
         
+        console.log("🚀 Iniciando proceso de desbloqueo de hooks para el proyecto:", unlockedProject?.id);
+
         try {
             setGenerationProgress(20);
             
-            // 1. Obtener ganchos de la estrategia
-            const allHooks = strategyData?.modules?.hooks || [];
+            // 1. Obtener ganchos de la estrategia o de la librería maestra
+            let allHooks = strategyData?.modules?.hooks || [];
+            
+            if (allHooks.length === 0 && selectedProject) {
+                console.log("📦 Estrategia sin hooks, consultando librería maestra para proyecto:", selectedProject.id);
+                const library = await api.getHooksLibrary(1, 50, selectedProject.id);
+                allHooks = library.hooks || [];
+            }
+
+            console.log(`📊 Ganchos totales encontrados: ${allHooks.length}`);
             
             if (allHooks.length > 0) {
                 setGenerationStatus('Seleccionando ganchos estratégicos...');
                 setGenerationProgress(40);
 
-                // Seleccionar los 3 primeros (o aleatorios)
-                const selected = allHooks.slice(0, 3);
-                const masterHookIds = selected.map((h: any) => h.id);
+                // Mezclar y seleccionar 3 aleatorios
+                const shuffled = [...allHooks].sort(() => 0.5 - Math.random());
+                const selected = shuffled.slice(0, 3);
+                const masterHookIds = selected.map((h: any) => h.id || h.masterHookId);
+
+                console.log("🎯 Ganchos seleccionados para desbloquear:", masterHookIds);
 
                 setGenerationStatus('Desbloqueando ganchos para tu proyecto...');
                 setGenerationProgress(60);
 
                 // 2. Desbloquear en lote en el backend
                 if (unlockedProject?.id && masterHookIds.length > 0) {
-                    await api.unlockMultipleHooks(unlockedProject.id, masterHookIds);
+                    const result = await api.unlockMultipleHooks(unlockedProject.id, masterHookIds);
+                    console.log("✅ Resultado del desbloqueo masivo:", result);
                 }
                 
                 setGenerationProgress(90);
                 setGenerationStatus('Configurando activos de video...');
                 setUnlockedHooks(selected);
+            } else {
+                console.warn("⚠️ No se encontraron hooks para desbloquear.");
             }
             
             // Simular un pequeño tiempo de carga para que el usuario perciba "trabajo" (UX)
@@ -308,7 +324,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             }, 1000);
 
         } catch (error) {
-            console.error("Error en proceso de ganchos:", error);
+            console.error("❌ Error en proceso de ganchos:", error);
             setIsHooksUnlocked(true); // Fallback
             setStep('show_hooks');
         }
@@ -325,7 +341,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             <div className="w-full max-w-6xl mx-auto relative z-10 px-4 md:px-6">
                 <div className="flex flex-col">
                     {/* 1. BIENVENIDA */}
-                    <div ref={welcomeRef} className="min-h-screen flex flex-col justify-center py-20">
+                    <div ref={welcomeRef} className="min-h-screen flex flex-col justify-center pt-0 pb-20">
                             <WelcomeStep 
                                 userData={user} 
                                 onNext={() => {
