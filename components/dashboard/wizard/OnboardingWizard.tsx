@@ -268,53 +268,47 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     const handleUnlockHooks = async () => {
         setStep('generating_hooks');
         setGenerationProgress(0);
-        setGenerationStatus('Creando videos de atracción...');
+        setGenerationStatus('Obteniendo biblioteca de ganchos...');
         
-        const duration = 15; // 15 segundos
-        let current = 0;
-        
-        const interval = setInterval(() => {
-            current += 1;
-            const progress = (current / duration) * 100;
-            setGenerationProgress(Math.min(progress, 99));
-        }, 1000);
-
         try {
-            // 1. Seleccionar 3 ganchos aleatorios de la estrategia
+            setGenerationProgress(20);
+            
+            // 1. Obtener ganchos de la estrategia
             const allHooks = strategyData?.modules?.hooks || [];
+            
             if (allHooks.length > 0) {
-                const shuffled = [...allHooks].sort(() => 0.5 - Math.random());
-                const selected = shuffled.slice(0, 3);
-                
-                // 2. Desbloquear cada uno en el backend (Firestore)
-                if (unlockedProject?.id) {
-                    for (const hook of selected) {
-                        try {
-                            // Usamos el ID del hook de la estrategia como masterHookId
-                            await api.unlockSingleHook(unlockedProject.id, hook.id || String(Math.random()));
-                        } catch (err) {
-                            console.warn("Error desbloqueando hook individual:", err);
-                        }
-                    }
+                setGenerationStatus('Seleccionando ganchos estratégicos...');
+                setGenerationProgress(40);
+
+                // Seleccionar los 3 primeros (o aleatorios)
+                const selected = allHooks.slice(0, 3);
+                const masterHookIds = selected.map((h: any) => h.id);
+
+                setGenerationStatus('Desbloqueando ganchos para tu proyecto...');
+                setGenerationProgress(60);
+
+                // 2. Desbloquear en lote en el backend
+                if (unlockedProject?.id && masterHookIds.length > 0) {
+                    await api.unlockMultipleHooks(unlockedProject.id, masterHookIds);
                 }
                 
+                setGenerationProgress(90);
+                setGenerationStatus('Configurando activos de video...');
                 setUnlockedHooks(selected);
             }
             
-            // Esperar a que el timer visual termine si es necesario o forzarlo
+            // Simular un pequeño tiempo de carga para que el usuario perciba "trabajo" (UX)
             setTimeout(() => {
-                clearInterval(interval);
                 setGenerationProgress(100);
-                setGenerationStatus('Videos Generados');
+                setGenerationStatus('¡Ganchos Listos!');
                 setIsHooksUnlocked(true);
                 setTimeout(() => {
                     setStep('show_hooks');
                 }, 800);
-            }, duration * 1000);
+            }, 1000);
 
         } catch (error) {
             console.error("Error en proceso de ganchos:", error);
-            clearInterval(interval);
             setIsHooksUnlocked(true); // Fallback
             setStep('show_hooks');
         }
@@ -322,10 +316,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
     return (
         <div className="w-full relative selection:bg-[#FF5A1F] selection:text-white">
-            {/* Background Decorations */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden h-[300vh]">
-                <div className="absolute top-[5%] -left-[10%] w-[60%] h-[100vh] bg-[#FF5A1F]/10 blur-[120px] rounded-full"></div>
-                <div className="absolute bottom-[5%] -right-[10%] w-[50%] h-[100vh] bg-[#FF5A1F]/5 blur-[100px] rounded-full"></div>
+            {/* Background Decorations - Fixed to viewport to cover everything consistently */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+                <div className="absolute top-[-10%] -left-[10%] w-[70%] h-[70%] bg-[#FF5A1F]/10 blur-[130px] rounded-full animate-pulse opacity-60"></div>
+                <div className="absolute bottom-[-10%] -right-[10%] w-[60%] h-[60%] bg-[#FF5A1F]/5 blur-[100px] rounded-full opacity-50"></div>
             </div>
 
             <div className="w-full max-w-6xl mx-auto relative z-10 px-4 md:px-6">
@@ -404,6 +398,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                             <div className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
                                 <StrategyReadyStep 
                                     userData={user}
+                                    project={selectedProject}
                                     onNext={() => setStep('show_avatars')}
                                 />
                             </div>

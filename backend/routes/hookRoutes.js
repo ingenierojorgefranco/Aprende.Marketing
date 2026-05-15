@@ -210,6 +210,51 @@ router.post('/unlock-single', async (req, res) => {
 });
 
 /**
+ * Desbloquea múltiples ganchos desde una lista de IDs maestros
+ */
+router.post('/unlock-multiple', async (req, res) => {
+    const { projectId, masterHookIds } = req.body;
+    if (!projectId || !masterHookIds || !Array.isArray(masterHookIds)) {
+        return res.status(400).json({ error: "Faltan parámetros o formato inválido" });
+    }
+
+    try {
+        const effectiveLimits = await getEffectiveLimits(req.user.id);
+        const maxAllowed = effectiveLimits.maxHooks;
+        
+        if (req.user.role !== 'admin') {
+            const [countRows] = await pool.query(`
+                SELECT COUNT(*) as total 
+                FROM project_hooks
+                WHERE project_id = ?
+            `, [projectId]);
+            
+            if (countRows[0].total + masterHookIds.length > maxAllowed) {
+                return res.status(403).json({ error: `Esta acción superaría el límite de ${maxAllowed} ganchos para este proyecto.` });
+            }
+        }
+
+        const [masterRows] = await pool.query('SELECT * FROM project_hooks WHERE id IN (?)', [masterHookIds]);
+        if (masterRows.length === 0) return res.status(404).json({ error: "Ganchos maestros no encontrados" });
+
+        const results = [];
+        for (const master of masterRows) {
+            const clonedContent = master.content_json ? (typeof master.content_json === 'string' ? master.content_json : JSON.stringify(master.content_json)) : null;
+            const [result] = await pool.query(
+                `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
+                 VALUES (?, ?, ?, ?, ?, 0)`,
+                [projectId, master.id, master.title, master.psychological_strategy, clonedContent]
+            );
+            results.push({ masterId: master.id, newId: result.insertId });
+        }
+
+        res.json({ success: true, results });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+/**
  * Desbloquea ganchos para el usuario desde el proyecto maestro padre (Máximo 10)
  */
 router.post('/unlock-more/:projectId', async (req, res) => {
