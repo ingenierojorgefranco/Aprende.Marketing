@@ -552,30 +552,28 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
 
             <div className="space-y-4">
                 <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
-                    ¡Tu página <span className="text-emerald-500">ha sido creada</span>!
+                    ¡Tu página Web <span className="text-emerald-500">de captura ha sido creada</span>!
                 </h2>
-                <p className="text-xl text-gray-400 max-w-2xl mx-auto font-medium leading-relaxed">
+                <p className="text-xl text-white max-w-2xl mx-auto font-medium leading-relaxed">
                     Esta página será tu centro de operaciones para capturar leads y convertirlos en clientes reales.
                 </p>
-                <p className="text-[#FF5A1F] font-black uppercase tracking-widest text-sm pt-4 italic">
-                    🚀 Ahora vamos a atraer clientes hacia ella.
-                </p>
+                <div className="space-y-2 pt-4">
+                    <p className="text-[#FF5A1F] font-black uppercase tracking-widest text-sm italic">
+                        🚀 Ahora puedes ver la página que creado para ti, más adelante puedes modificarla.
+                    </p>
+                    <p className="text-gray-400 font-bold text-sm uppercase tracking-widest italic">
+                        ahora que tienes tu pagina vamos a atraer clientes
+                    </p>
+                </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex justify-center">
                 <button 
                     onClick={() => onView?.()}
-                    className="px-8 py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2"
+                    className="px-12 py-5 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl shadow-blue-500/20 transform hover:scale-105 active:scale-95"
                 >
-                    <Play className="w-4 h-4" />
+                    <Play className="w-5 h-5 fill-current" />
                     Ver mi página
-                </button>
-                <button 
-                    onClick={() => onEdit?.()}
-                    className="px-8 py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2"
-                >
-                    <Wand2 className="w-4 h-4" />
-                    Editar página
                 </button>
             </div>
 

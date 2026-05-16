@@ -39,6 +39,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     const [isHooksUnlocked, setIsHooksUnlocked] = useState(false);
     const [unlockedHooks, setUnlockedHooks] = useState<any[]>([]);
     
+    // Modals de confirmación
+    const [showActivateConfirm, setShowActivateConfirm] = useState(false);
+    const [showCreateLandingConfirm, setShowCreateLandingConfirm] = useState(false);
+    
     const [secondsElapsed, setSecondsElapsed] = useState(0);
     const [revealedSections, setRevealedSections] = useState<WizardStep[]>(['welcome']);
     
@@ -173,9 +177,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     };
 
     const handleCreateWeb = async () => {
+        setShowCreateLandingConfirm(false);
         setStep('creating_web');
         setGenerationProgress(0);
-        setGenerationStatus('Fase 2: Arquitectura Web');
+        setGenerationStatus('Estoy creando tu Página Web Profesional');
         
         try {
             setGenerationProgress(20);
@@ -203,7 +208,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             }
 
             setGenerationProgress(50);
-            setGenerationStatus('Inyectando copys de alta conversión...');
+            setGenerationStatus('Estoy creando tu Página Web Profesional');
 
             // Seleccionar paleta aleatoria profesional
             const palettes: ColorPalette[] = [
@@ -383,7 +388,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                         <UnlockProtocolStep 
                                             project={selectedProject}
                                             userData={user}
-                                            onNext={handleUnlockConfirm}
+                                            onNext={() => setShowActivateConfirm(true)}
                                             isStrategyGenerated={!!strategyData}
                                             onBackToSelection={() => {
                                                 setSelectedProject(null);
@@ -396,6 +401,93 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                 )}
                             </div>
                         )}
+
+                        {/* Modals de Confirmación */}
+                        <AnimatePresence>
+                            {showActivateConfirm && (
+                                <div 
+                                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in"
+                                    onClick={() => setShowActivateConfirm(false)}
+                                >
+                                    <motion.div 
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="bg-[#0B0B0B] border border-emerald-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden relative text-center"
+                                    >
+                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+                                        <div className="p-10 space-y-8">
+                                            <div className="w-20 h-20 bg-emerald-500/10 text-emerald-500 rounded-3xl flex items-center justify-center mx-auto border border-emerald-500/20 shadow-lg">
+                                                <Zap className="w-10 h-10 fill-current" />
+                                            </div>
+                                            <div className="space-y-4">
+                                                <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">¿Estás seguro?</h3>
+                                                <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                                    ¿Estás seguro de que deseas desbloquear este proyecto ahora mismo?
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-col gap-4">
+                                                <button 
+                                                    onClick={handleUnlockConfirm}
+                                                    className="w-full py-5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-lg shadow-xl shadow-emerald-500/20 transition-all transform hover:scale-[1.02] active:scale-95"
+                                                >
+                                                    SÍ, DESBLOQUEAR AHORA
+                                                </button>
+                                                <button 
+                                                    onClick={() => setShowActivateConfirm(false)}
+                                                    className="w-full py-5 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-bold text-sm uppercase tracking-widest transition-all"
+                                                >
+                                                    No, cancelar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                </div>
+                            )}
+
+                            {showCreateLandingConfirm && (
+                                <div 
+                                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in"
+                                    onClick={() => setShowCreateLandingConfirm(false)}
+                                >
+                                    <motion.div 
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="bg-[#0B0B0B] border border-[#FF5A1F]/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden relative text-center"
+                                    >
+                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-500"></div>
+                                        <div className="p-10 space-y-8">
+                                            <div className="w-20 h-20 bg-[#FF5A1F]/10 text-[#FF5A1F] rounded-3xl flex items-center justify-center mx-auto border border-[#FF5A1F]/20 shadow-lg">
+                                                <Target className="w-10 h-10" />
+                                            </div>
+                                            <div className="space-y-4">
+                                                <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">¿Estás seguro?</h3>
+                                                <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                                    ¿Estás seguro de que deseas crear tu página de captura ahora mismo?
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-col gap-4">
+                                                <button 
+                                                    onClick={handleCreateWeb}
+                                                    className="w-full py-5 rounded-2xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-lg shadow-xl shadow-[#FF5A1F]/20 transition-all transform hover:scale-[1.02] active:scale-95"
+                                                >
+                                                    SÍ, CREAR MI PÁGINA
+                                                </button>
+                                                <button 
+                                                    onClick={() => setShowCreateLandingConfirm(false)}
+                                                    className="w-full py-5 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-bold text-sm uppercase tracking-widest transition-all"
+                                                >
+                                                    No, cancelar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                </div>
+                            )}
+                        </AnimatePresence>
 
                         {/* 3. GENERANDO ESTRATEGIA */}
                         {revealedSections.includes('generating_strategy') && step === 'generating_strategy' && (
@@ -434,7 +526,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                             <div ref={landingPrepRef} className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
                                 <LandingIntroStep 
                                     userData={user}
-                                    onNext={handleCreateWeb}
+                                    onNext={() => setShowCreateLandingConfirm(true)}
                                     isCreated={isLandingCreated}
                                 />
                             </div>
@@ -443,11 +535,12 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         {/* 6. CREANDO WEB */}
                         {revealedSections.includes('creating_web') && step === 'creating_web' && (
                             <div ref={creationRef} className="min-h-screen flex flex-col justify-center py-20 border-t border-white/5">
-                                <h1 className="text-center text-emerald-500 font-black uppercase tracking-widest mb-10">Fase 2: Arquitectura Web en Proceso</h1>
+                                <h1 className="text-center text-emerald-500 font-black uppercase tracking-widest mb-10">Estoy creando tu Página Web Profesional</h1>
                                 <GenerationStep 
                                     progress={generationProgress} 
                                     status={generationStatus} 
                                     secondsElapsed={secondsElapsed}
+                                    message="Crearé tu página web profesional para capturar clientes interesados."
                                 />
                             </div>
                         )}
