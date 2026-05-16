@@ -463,7 +463,7 @@ export const DashboardLayout = ({
         </header>
 
         <div id="dashboard-scroll-container" className={`flex-1 overflow-y-auto bg-black p-4 sm:p-8 relative ${(isSurveyPending || isLaunchRestricted || showWizard) ? 'flex flex-col items-center' : ''} ${isWizardGenerating ? '!overflow-hidden' : ''}`}>
-            <div className={`w-full max-w-[1600px] ${(isSurveyPending || isLaunchRestricted || showWizard) ? 'max-w-6xl mx-auto mt-20' : 'mx-auto'}`}>
+            <div className={`w-full max-w-[1600px] ${(isSurveyPending || isLaunchRestricted || showWizard) ? 'max-w-6xl mx-auto mt-0' : 'mx-auto'}`}>
                 {(isLaunchRestricted || isSurveyPending) ? (
                     <WaitlistView 
                         user={effectiveUser} 

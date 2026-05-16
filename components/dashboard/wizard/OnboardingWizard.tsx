@@ -373,12 +373,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                         animate={{ opacity: 1, y: 0 }}
                                         className="min-h-screen flex flex-col justify-center py-20"
                                     >
-                                        <div className="text-center mb-10">
-                                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-black text-emerald-500 uppercase tracking-[0.2em] mb-4">
+                                        <div className="text-center mb-6">
+                                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-black text-emerald-500 uppercase tracking-[0.2em]">
                                                 <CheckCircle className="w-4 h-4" />
                                                 Tu proyecto está listo para activarse
                                             </div>
-                                            <h2 className="text-4xl font-black text-white uppercase italic">Esto es lo que vas a promocionar:</h2>
                                         </div>
                                         
                                         <UnlockProtocolStep 
@@ -415,7 +414,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                 <StrategyReadyStep 
                                     userData={user}
                                     project={selectedProject}
-                                    onNext={() => setStep('show_avatars')}
+                                    onNext={() => setStep('show_landing_prep')}
                                 />
                             </div>
                         )}
@@ -518,8 +517,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             {/* Stepper indicator */}
             {(step !== 'success' && !isGenerating) && (
                 <div className="py-10 flex items-center justify-center gap-3">
-                    {(['welcome', 'selection', 'generating_strategy', 'strategy_ready', 'show_avatars', 'show_landing_prep', 'creating_web', 'landing_success', 'show_hooks', 'success'] as string[]).map((s, idx) => {
-                        const steps = ['welcome', 'selection', 'generating_strategy', 'strategy_ready', 'show_avatars', 'show_landing_prep', 'creating_web', 'landing_success', 'show_hooks', 'success'];
+                    {(['welcome', 'selection', 'generating_strategy', 'strategy_ready', 'show_landing_prep', 'creating_web', 'landing_success', 'show_hooks', 'success'] as string[]).map((s, idx) => {
+                        const steps = ['welcome', 'selection', 'generating_strategy', 'strategy_ready', 'show_landing_prep', 'creating_web', 'landing_success', 'show_hooks', 'success'];
                         const currentStepStr = step as string;
                         const isActive = (currentStepStr === s) || (currentStepStr === 'generating_hooks' && s === 'show_hooks');
                         const isPast = steps.indexOf(currentStepStr === 'generating_hooks' ? 'show_hooks' : currentStepStr) > idx;
