@@ -502,6 +502,24 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
                     </p>
                 </div>
 
+                <div className="space-y-6 pt-4">
+                    <p className="text-white text-xl font-bold uppercase tracking-tight">Con esta página podrás:</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto text-left">
+                        {[
+                            'Atraer personas interesadas en tu proyecto digital',
+                            'Capturar prospectos automáticamente las 24 horas',
+                            'Construir una audiencia propia para futuras ventas',
+                            'Generar más confianza y credibilidad en tu oferta',
+                            'Conectar tu tráfico de redes sociales con tu estrategia de conversión'
+                        ].map((benefit, bIdx) => (
+                            <div key={bIdx} className="flex items-center gap-3 bg-white/5 border border-white/10 p-4 rounded-2xl hover:bg-white/10 transition-colors">
+                                <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
+                                <p className="text-white text-sm font-medium leading-tight">{benefit}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
                 <div className="bg-[#111] border border-white/5 p-10 rounded-[3.5rem] max-w-2xl mx-auto shadow-2xl relative overflow-hidden text-left">
                     <div className="space-y-6 relative z-10">
                         <div className="grid grid-cols-1 gap-6">

@@ -137,6 +137,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     };
 
     const handleUnlockConfirm = async () => {
+        setShowActivateConfirm(false);
         setStep('generating_strategy');
         await processStrategyUnlock();
     };
@@ -307,13 +308,40 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
                 // 2. Desbloquear en lote en el backend
                 if (unlockedProject?.id && masterHookIds.length > 0) {
-                    const result = await api.unlockMultipleHooks(unlockedProject.id, masterHookIds);
-                    console.log("✅ Resultado del desbloqueo masivo:", result);
+                    const response = await api.unlockMultipleHooks(unlockedProject.id, masterHookIds);
+                    console.log("✅ Resultado del desbloqueo masivo:", response);
+
+                    if (response && response.results) {
+                        setGenerationStatus("Actualizando estado de generación...");
+                        // Acción solicitada: actualizar cada hook para marcarlo como generado (isGenerated: true)
+                        // Esto asegura que aparezcan en la sección "Hooks Desbloqueados" (que filtra por isGenerated)
+                        for (const hook of response.results) {
+                            try {
+                                await api.updateProjectHook(hook.id, {
+                                    isGenerated: true,
+                                    updatedAt: new Date().toISOString()
+                                } as any);
+                            } catch (updateErr) {
+                                console.error(`Error actualizando hook ${hook.id}:`, updateErr);
+                            }
+                        }
+
+                        // Mapear los resultados unlocked a la estructura que espera HooksRevealStep
+                        // El state unlockedHooks debe contener los IDs reales devueltos por el servidor
+                        const finalizedHooks = response.results.map((h: any, idx: number) => ({
+                            ...selected[idx], // Mantenemos la data visual (título, copy, etc)
+                            id: h.id,          // Pero usamos el ID real generado en DB
+                            isGenerated: true
+                        }));
+                        
+                        setUnlockedHooks(finalizedHooks);
+                    } else {
+                        setUnlockedHooks(selected);
+                    }
                 }
                 
                 setGenerationProgress(90);
                 setGenerationStatus('Configurando activos de video...');
-                setUnlockedHooks(selected);
             } else {
                 console.warn("⚠️ No se encontraron hooks para desbloquear.");
             }
