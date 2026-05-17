@@ -52,8 +52,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                         {[
                             'Te ayudaré a seleccionar un proyecto digital rentable.',
                             'Crearé tu página web donde visitantes interesados podrán registrarse.',
-                            'Crearé tus videos y contenidos listos para publicar en Redes Sociales',
-                            'Activaré la mejor estrategia de ventas para que generes grandes ingresos.'
+                            'Crearé tus videos y contenidos listos para publicar en Redes Sociales'
                         ].map((item, idx) => (
                             <div key={idx} className="flex items-start gap-4">
                                 <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 mt-1">
@@ -110,7 +109,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
                 {projects.map((project) => {
                     const isSelected = selectedProjectId === project.id;
                     
@@ -118,7 +117,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                         <motion.div 
                             key={project.id}
                             whileHover={isLocked ? {} : { y: -10 }}
-                            className={`bg-[#111] border ${isSelected ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/20' : 'border-white/5'} ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-[2.5rem] overflow-hidden group cursor-pointer hover:border-[#FF5A1F]/50 transition-all flex flex-col h-full shadow-xl relative`}
+                            className={`bg-[#111] border ${isSelected ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/20' : 'border-white/5'} ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-[2.5rem] overflow-hidden group cursor-pointer hover:border-[#FF5A1F]/50 transition-all flex flex-col h-full shadow-2xl relative min-h-[500px]`}
                             onClick={() => !isLocked && onNext(project)}
                         >
                             {isSelected && (
@@ -128,7 +127,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                     </div>
                                 </div>
                             )}
-                            <div className="h-48 bg-gray-800 relative overflow-hidden">
+                            <div className="h-64 bg-gray-800 relative overflow-hidden">
                                 {project.multimedia_json?.heroImages?.[0] ? (
                                     <img src={project.multimedia_json.heroImages[0]} alt={project.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                 ) : (
@@ -138,23 +137,22 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                 )}
                                 <div className="absolute inset-0 bg-gradient-to-t from-[#111] to-transparent opacity-60"></div>
                                 <div className="absolute bottom-4 left-6">
-                                    <span className="px-3 py-1 bg-[#FF5A1F] text-white text-[10px] font-black uppercase rounded-full shadow-lg">
+                                    <span className="px-4 py-2 bg-white text-[#FF5A1F] text-[12px] font-black uppercase rounded-full shadow-lg">
                                         {project.niche || 'Digital'}
                                     </span>
                                 </div>
                             </div>
-                            <div className="p-8 flex flex-col flex-1">
-                                <h3 className={`text-2xl font-black mb-3 ${isSelected ? 'text-[#FF5A1F]' : 'text-white'} group-hover:text-[#FF5A1F] transition-colors`}>
+                            <div className="p-10 flex flex-col flex-1">
+                                <h3 className={`text-3xl font-black mb-4 ${isSelected ? 'text-[#FF5A1F]' : 'text-white'} group-hover:text-[#FF5A1F] transition-colors`}>
                                     {project.name}
                                 </h3>
-                                <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-1 line-clamp-3">
+                                <p className="text-white text-base leading-relaxed mb-8 flex-1 line-clamp-4">
                                     {project.shortDescription || project.description}
                                 </p>
-                                <div className="flex items-center justify-center pt-6 border-t border-white/5">
-                                    <div className="text-[#FF5A1F] font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center mx-auto gap-2 bg-[#FF5A1F]/5 px-4 py-2 rounded-full border border-[#FF5A1F]/10">
-                                        <Target className="w-4 h-4" />
-                                        {project.niche || 'Digital'}
-                                    </div>
+                                <div className="flex items-center justify-center pt-8 border-t border-white/5">
+                                    <button className="w-full py-4 bg-[#FF5A1F] text-white font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl shadow-[#FF5A1F]/20 group-hover:bg-[#D94A1E] transition-all">
+                                        Seleccionar
+                                    </button>
                                 </div>
                             </div>
                         </motion.div>
@@ -195,7 +193,7 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                         <div className="grid grid-cols-1 gap-4">
                             <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-3xl px-8 py-4 flex flex-col items-center justify-center text-center space-y-2 shadow-lg shadow-emerald-500/5">
                                 <p className="text-emerald-500/70 font-medium text-sm uppercase tracking-wider">Tu Ganancia por Recomendarlo</p>
-                                <p className="text-emerald-500 text-5xl font-black tracking-tighter">${profitValue}</p>
+                                <p className="text-emerald-500 text-5xl font-black tracking-tighter">$ {profitValue}</p>
                             </div>
 
                             <div className="bg-blue-500/5 border border-blue-500/20 rounded-3xl px-8 py-4 flex flex-col items-center justify-center text-center space-y-2">
@@ -205,7 +203,7 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                             
                             <div className="bg-white/5 border border-white/10 rounded-3xl px-8 py-4 flex flex-col items-center justify-center text-center space-y-2">
                                 <p className="text-gray-400 font-medium text-sm uppercase tracking-wider">Precio Público del Producto</p>
-                                <p className="text-white text-5xl font-black tracking-tighter">${project.fullPrice || '0.00'}</p>
+                                <p className="text-white text-5xl font-black tracking-tighter">$ {project.fullPrice || '0.00'}</p>
                             </div>
                         </div>
                     </div>
@@ -510,33 +508,14 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
                             'Capturar prospectos automáticamente las 24 horas',
                             'Construir una audiencia propia para futuras ventas',
                             'Generar más confianza y credibilidad en tu oferta',
-                            'Conectar tu tráfico de redes sociales con tu estrategia de conversión'
+                            'Conectar tu tráfico de redes sociales con tu estrategia de conversión',
+                            'Automatizar tu proceso de ventas sin complicaciones técnicas'
                         ].map((benefit, bIdx) => (
                             <div key={bIdx} className="flex items-center gap-3 bg-white/5 border border-white/10 p-4 rounded-2xl hover:bg-white/10 transition-colors">
                                 <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
                                 <p className="text-white text-sm font-medium leading-tight">{benefit}</p>
                             </div>
                         ))}
-                    </div>
-                </div>
-
-                <div className="bg-[#111] border border-white/5 p-10 rounded-[3.5rem] max-w-2xl mx-auto shadow-2xl relative overflow-hidden text-left">
-                    <div className="space-y-6 relative z-10">
-                        <div className="grid grid-cols-1 gap-6">
-                            {[
-                                'Títulos persuasivos diseñados para captar atención inmediata.',
-                                'Beneficios claros que explican el valor de tu oferta.',
-                                'Formularios optimizados para captar prospectos de manera efectiva.',
-                                'Diseño profesional que genera confianza y autoridad al instante.'
-                            ].map((item, idx) => (
-                                <div key={idx} className="flex items-start gap-4">
-                                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 mt-1">
-                                        <CheckCircle className="w-4 h-4 text-emerald-500" />
-                                    </div>
-                                    <p className="text-white text-[1.1em] font-normal leading-relaxed">{item}</p>
-                                </div>
-                            ))}
-                        </div>
                     </div>
                 </div>
             </div>
@@ -569,7 +548,7 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
             </div>
 
             <div className="space-y-4">
-                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
+                <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase leading-none max-w-3xl mx-auto">
                     ¡Tu página Web <span className="text-emerald-500">de captura ha sido creada</span>!
                 </h2>
                 <p className="text-xl text-white max-w-2xl mx-auto font-medium leading-relaxed">
@@ -579,20 +558,20 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
                     <p className="text-[#FF5A1F] font-black uppercase tracking-widest text-sm italic">
                         🚀 Ahora puedes ver la página que creado para ti, más adelante puedes modificarla.
                     </p>
-                    <p className="text-gray-400 font-bold text-sm uppercase tracking-widest italic">
-                        ahora que tienes tu pagina vamos a atraer clientes
-                    </p>
                 </div>
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex flex-col items-center gap-6 justify-center">
                 <button 
                     onClick={() => onView?.()}
-                    className="px-12 py-5 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl shadow-blue-500/20 transform hover:scale-105 active:scale-95"
+                    className="px-16 py-6 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-black text-xl uppercase tracking-widest transition-all flex items-center gap-4 shadow-xl shadow-blue-500/20 transform hover:scale-105 active:scale-95"
                 >
-                    <Play className="w-5 h-5 fill-current" />
+                    <Play className="w-6 h-6 fill-current" />
                     Ver mi página
                 </button>
+                <p className="text-gray-400 font-bold text-sm uppercase tracking-widest italic">
+                    ahora que tienes tu pagina vamos a atraer clientes
+                </p>
             </div>
 
             <button 

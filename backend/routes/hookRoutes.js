@@ -172,7 +172,7 @@ router.get('/library', async (req, res) => {
  * Desbloquea un gancho individual desde la biblioteca maestra (Copia física)
  */
 router.post('/unlock-single', async (req, res) => {
-    const { projectId, masterHookId } = req.body;
+    const { projectId, masterHookId, isGenerated } = req.body;
     if (!projectId || !masterHookId) return res.status(400).json({ error: "Faltan parámetros" });
 
     try {
@@ -199,8 +199,8 @@ router.post('/unlock-single', async (req, res) => {
 
         const [result] = await pool.query(
             `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
-             VALUES (?, ?, ?, ?, ?, 0)`,
-            [projectId, master.id, master.title, master.psychological_strategy, clonedContent]
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [projectId, master.id, master.title, master.psychological_strategy, clonedContent, isGenerated ? 1 : 0]
         );
 
         res.json({ id: String(result.insertId), success: true });
@@ -213,7 +213,7 @@ router.post('/unlock-single', async (req, res) => {
  * Desbloquea múltiples ganchos desde una lista de IDs maestros
  */
 router.post('/unlock-multiple', async (req, res) => {
-    const { projectId, masterHookIds } = req.body;
+    const { projectId, masterHookIds, isGenerated } = req.body;
     if (!projectId || !masterHookIds || !Array.isArray(masterHookIds)) {
         return res.status(400).json({ error: "Faltan parámetros o formato inválido" });
     }
@@ -242,10 +242,10 @@ router.post('/unlock-multiple', async (req, res) => {
             const clonedContent = master.content_json ? (typeof master.content_json === 'string' ? master.content_json : JSON.stringify(master.content_json)) : null;
             const [result] = await pool.query(
                 `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
-                 VALUES (?, ?, ?, ?, ?, 0)`,
-                [projectId, master.id, master.title, master.psychological_strategy, clonedContent]
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [projectId, master.id, master.title, master.psychological_strategy, clonedContent, isGenerated ? 1 : 0]
             );
-            results.push({ masterId: master.id, newId: result.insertId });
+            results.push({ masterId: master.id, id: String(result.insertId), newId: result.insertId });
         }
 
         res.json({ success: true, results });

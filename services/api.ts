@@ -2031,21 +2031,21 @@ export const api = {
         return await fetchWithFallback(url, { headers: getAuthHeaders() });
     },
 
-    unlockSingleHook: async (projectId: string, masterHookId: string): Promise<{ id: string }> => {
+    unlockSingleHook: async (projectId: string, masterHookId: string, isGenerated?: boolean): Promise<{ id: string }> => {
         if (isMockMode) return { id: `unlocked-${Date.now()}` };
         return await fetchWithFallback('/hooks/unlock-single', {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ projectId, masterHookId })
+            body: JSON.stringify({ projectId, masterHookId, isGenerated })
         });
     },
 
-    unlockMultipleHooks: async (projectId: string, masterHookIds: string[]): Promise<{ success: boolean; results: any[] }> => {
+    unlockMultipleHooks: async (projectId: string, masterHookIds: string[], isGenerated?: boolean): Promise<{ success: boolean; results: any[] }> => {
         if (isMockMode) return { success: true, results: masterHookIds.map(id => ({ id: `unlocked-${id}-${Date.now()}` })) };
         return await fetchWithFallback('/hooks/unlock-multiple', {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ projectId, masterHookIds })
+            body: JSON.stringify({ projectId, masterHookIds, isGenerated })
         });
     },
 

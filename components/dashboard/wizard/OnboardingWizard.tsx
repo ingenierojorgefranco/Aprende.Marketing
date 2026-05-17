@@ -306,31 +306,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                 setGenerationStatus('Desbloqueando ganchos para tu proyecto...');
                 setGenerationProgress(60);
 
-                // 2. Desbloquear en lote en el backend
+                // 2. Desbloquear en lote en el backend (Pasamos true para que ya se creen marcados como generados)
                 if (unlockedProject?.id && masterHookIds.length > 0) {
-                    const response = await api.unlockMultipleHooks(unlockedProject.id, masterHookIds);
+                    const response = await api.unlockMultipleHooks(unlockedProject.id, masterHookIds, true);
                     console.log("✅ Resultado del desbloqueo masivo:", response);
 
                     if (response && response.results) {
-                        setGenerationStatus("Actualizando estado de generación...");
-                        // Acción solicitada: actualizar cada hook para marcarlo como generado (isGenerated: true)
-                        // Esto asegura que aparezcan en la sección "Hooks Desbloqueados" (que filtra por isGenerated)
-                        for (const hook of response.results) {
-                            try {
-                                await api.updateProjectHook(hook.id, {
-                                    isGenerated: true,
-                                    updatedAt: new Date().toISOString()
-                                } as any);
-                            } catch (updateErr) {
-                                console.error(`Error actualizando hook ${hook.id}:`, updateErr);
-                            }
-                        }
-
                         // Mapear los resultados unlocked a la estructura que espera HooksRevealStep
                         // El state unlockedHooks debe contener los IDs reales devueltos por el servidor
                         const finalizedHooks = response.results.map((h: any, idx: number) => ({
                             ...selected[idx], // Mantenemos la data visual (título, copy, etc)
-                            id: h.id,          // Pero usamos el ID real generado en DB
+                            id: h.id,          // Usamos el ID real generado en DB (ahora retornado por el backend como id)
                             isGenerated: true
                         }));
                         
