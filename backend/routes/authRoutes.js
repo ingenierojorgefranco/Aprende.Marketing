@@ -78,6 +78,58 @@ export const getEffectiveLimits = async (userId) => {
             }
         }
 
+        // --- CONSULTAR DIRECTAMENTE DATOS DEL USUARIO ---
+        const [userRows] = await pool.query(
+            "SELECT plan_limits, max_hooks FROM users WHERE id = ?",
+            [userId]
+        );
+        let directPlanSlug = 'starter';
+        let directMaxHooks = null;
+        if (userRows && userRows.length > 0) {
+            const row = userRows[0];
+            let directLimits = row.plan_limits;
+            if (typeof directLimits === 'string') {
+                try {
+                    directLimits = JSON.parse(directLimits);
+                } catch(e) {
+                    directLimits = null;
+                }
+            }
+            const possibleSlug = directLimits.planSlug || directLimits.planName;
+            if (possibleSlug) {
+                const rawName = String(possibleSlug).toLowerCase().trim();
+                directPlanSlug = rawName.replace(/\s+/g, '-');
+            }
+            if (row.max_hooks !== null && row.max_hooks !== undefined) {
+                directMaxHooks = row.max_hooks;
+            }
+        }
+
+        // --- LÓGICA JERÁRQUICA INTELIGENTE (EXPANSIÓN) ---
+        let highestIndex = 0; // Por defecto el índice 0: 'starter'
+        for (const slug of activeSlugs) {
+            const normalized = String(slug || '').toLowerCase().trim();
+            const idx = PLAN_ORDER.indexOf(normalized);
+            if (idx > highestIndex) {
+                highestIndex = idx;
+            }
+        }
+        const directIdx = PLAN_ORDER.indexOf(directPlanSlug);
+        if (directIdx > highestIndex) {
+            highestIndex = directIdx;
+        }
+
+        // Expandir automáticamente para incluir todos los niveles inferiores de forma automática
+        const expandedActiveSlugs = ['starter'];
+        if (highestIndex > 0) {
+            for (let i = 1; i <= highestIndex; i++) {
+                expandedActiveSlugs.push(PLAN_ORDER[i]);
+            }
+        }
+
+        // Sobrescribir listado de slugs activos con la lista expandida
+        const finalActiveSlugs = expandedActiveSlugs;
+
         const [projects] = await pool.query('SELECT id, plan_slug, created_at FROM projects WHERE user_id = ? AND is_master = 0 ORDER BY created_at ASC', [userId]);
         const [allPlans] = await pool.query('SELECT slug, limits_config FROM plans');
         
@@ -87,7 +139,7 @@ export const getEffectiveLimits = async (userId) => {
         });
 
         // Active slugs set for quick lookup
-        const activeSlugsSet = new Set(activeSlugs);
+        const activeSlugsSet = new Set(finalActiveSlugs);
 
         // Project specific limits and dynamic status
         const projectLimits = {};
@@ -121,10 +173,10 @@ export const getEffectiveLimits = async (userId) => {
         });
 
         // Filter out 'starter' if there are other plans for global summary
-        const hasPremiumPlans = activeSlugs.some(slug => slug !== 'starter');
+        const hasPremiumPlans = finalActiveSlugs.some(slug => slug !== 'starter');
         const relevantSlugs = hasPremiumPlans 
-            ? activeSlugs.filter(slug => slug !== 'starter')
-            : (activeSlugs.length > 0 ? activeSlugs : ['starter']);
+            ? finalActiveSlugs.filter(slug => slug !== 'starter')
+            : (finalActiveSlugs.length > 0 ? finalActiveSlugs : ['starter']);
 
         const summary = {
             maxProjects: 0,
@@ -147,7 +199,13 @@ export const getEffectiveLimits = async (userId) => {
             summary.maxArticles += (limits.maxArticles || 0);
             summary.maxDomains += (limits.maxDomains || 0);
             summary.maxEmailSequences += (limits.maxEmailSequences || 0);
-            summary.maxEmailSequencesNurturing += (limits.maxEmailSequencesNurturing || 0);
+            
+            let nurtureVal = limits.maxEmailSequencesNurturing;
+            if (nurtureVal === undefined || nurtureVal === null || nurtureVal === 0) {
+                nurtureVal = (slug !== 'starter') ? 15 : 0;
+            }
+            summary.maxEmailSequencesNurturing += nurtureVal;
+            
             summary.maxWhatsAppLaunches += (limits.maxWhatsAppLaunches || 0);
             summary.maxHooks += (limits.maxHooks || 0);
 
@@ -177,9 +235,13 @@ export const getEffectiveLimits = async (userId) => {
             planName: bestPlanSlug,
             projectLimits,
             projectStatus,
-            allActivePlans: activeSlugs,
-            inventoryCount: activeSlugs.length
+            allActivePlans: finalActiveSlugs,
+            inventoryCount: finalActiveSlugs.length
         };
+
+        if (directMaxHooks !== null && directMaxHooks !== undefined) {
+            result.maxHooks = directMaxHooks;
+        }
 
         limitsCache.set(userId, { data: result, timestamp: Date.now() });
         return { ...result, fromCache: false };

@@ -109,7 +109,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
                 {projects.map((project) => {
                     const isSelected = selectedProjectId === project.id;
                     
@@ -192,17 +192,17 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
 
                         <div className="grid grid-cols-1 gap-4">
                             <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-3xl px-8 py-4 flex flex-col items-center justify-center text-center space-y-2 shadow-lg shadow-emerald-500/5">
-                                <p className="text-emerald-500/70 font-medium text-sm uppercase tracking-wider">Tu Ganancia por Recomendarlo</p>
+                                <p className="text-emerald-500/70 font-medium text-sm uppercase tracking-wider">¿Cuánto vas a ganar? (Dólares)</p>
                                 <p className="text-emerald-500 text-5xl font-black tracking-tighter">$ {profitValue}</p>
                             </div>
 
                             <div className="bg-blue-500/5 border border-blue-500/20 rounded-3xl px-8 py-4 flex flex-col items-center justify-center text-center space-y-2">
-                                <p className="text-blue-500/70 font-medium text-sm uppercase tracking-wider">Comisión que recibirás</p>
+                                <p className="text-blue-500/70 font-medium text-sm uppercase tracking-wider">Comisión por Venta</p>
                                 <p className="text-blue-500 text-5xl font-black tracking-tighter">{displayCommission}%</p>
                             </div>
                             
                             <div className="bg-white/5 border border-white/10 rounded-3xl px-8 py-4 flex flex-col items-center justify-center text-center space-y-2">
-                                <p className="text-gray-400 font-medium text-sm uppercase tracking-wider">Precio Público del Producto</p>
+                                <p className="text-gray-400 font-medium text-sm uppercase tracking-wider">Precio de Venta al Público</p>
                                 <p className="text-white text-5xl font-black tracking-tighter">$ {project.fullPrice || '0.00'}</p>
                             </div>
                         </div>
@@ -276,20 +276,25 @@ export const GenerationStep: React.FC<{ progress: number, status: string, second
             <div className="space-y-10 w-full max-w-2xl relative z-10">
                 <div className="space-y-4">
                     <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter italic leading-none">
-                        {status || 'Estrategia en proceso'}
+                        {status || 'Estoy creando tu estrategia de Ventas'}
                     </h2>
                     <p className="text-gray-500 text-lg md:text-xl font-medium italic max-w-lg mx-auto leading-relaxed opacity-80">
-                        "{message || "Nuestra IA está analizando tu nicho, redactando secuencias de email y configurando tu embudo psicológico de ventas."}"
+                        "{message || "No cierres esta ventana, estoy analizando el producto que has elegido y configurando todo lo que necesitas para generar ventas masivas."}"
                     </p>
                 </div>
                 
                 <div className="flex flex-col items-center gap-8">
                     {/* Contador de tiempo */}
                     <div className="bg-gradient-to-br from-[#111] to-black p-10 rounded-[3rem] border border-white/5 shadow-2xl text-center min-w-[320px] transform hover:scale-105 transition-transform">
-                        <p className="text-[#FF5A1F] font-black uppercase tracking-[0.4em] text-[10px] mb-4">Estimado de finalización</p>
+                        <p className="text-[#FF5A1F] font-black uppercase tracking-[0.4em] text-[10px] mb-4">Terminaré en menos de</p>
                         <div className="text-white font-mono text-6xl font-black tracking-tighter drop-shadow-[0_5px_15px_rgba(255,255,255,0.1)]">
-                            {Math.floor(Math.max(0, 120 - secondsElapsed) / 60).toString().padStart(2, '0')}:{(Math.max(0, 120 - secondsElapsed) % 60).toString().padStart(2, '0')}
+                            {Math.floor(Math.max(0, 90 - secondsElapsed) / 60).toString().padStart(2, '0')}:{(Math.max(0, 90 - secondsElapsed) % 60).toString().padStart(2, '0')}
                         </div>
+                        {secondsElapsed > 90 && (
+                            <p className="text-amber-500 font-bold text-sm mt-4 animate-pulse">
+                                Espera un poco más, estoy ultimando detalles
+                            </p>
+                        )}
                     </div>
 
                     <div className="w-full space-y-6">
@@ -489,9 +494,9 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
                 </div>
             </div>
 
-            <div className="space-y-8 max-w-2xl mx-auto">
-                <div className="space-y-4">
-                    <p className="text-[#FF5A1F] text-sm font-bold uppercase tracking-widest">Ahora crearemos tu</p>
+            <div className="space-y-8 max-w-5xl mx-auto">
+                <div className="space-y-4 max-w-2xl mx-auto">
+                    <p className="text-[#FF5A1F] text-sm font-bold uppercase tracking-widest">Ahora crearé tu</p>
                     <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
                         Tu página <span className="text-emerald-500">de captura</span>
                     </h2>
@@ -502,7 +507,7 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
 
                 <div className="space-y-6 pt-4">
                     <p className="text-white text-xl font-bold uppercase tracking-tight">Con esta página podrás:</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto text-left">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left">
                         {[
                             'Atraer personas interesadas en tu proyecto digital',
                             'Capturar prospectos automáticamente las 24 horas',
@@ -511,9 +516,9 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
                             'Conectar tu tráfico de redes sociales con tu estrategia de conversión',
                             'Automatizar tu proceso de ventas sin complicaciones técnicas'
                         ].map((benefit, bIdx) => (
-                            <div key={bIdx} className="flex items-center gap-3 bg-white/5 border border-white/10 p-4 rounded-2xl hover:bg-white/10 transition-colors">
-                                <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
-                                <p className="text-white text-sm font-medium leading-tight">{benefit}</p>
+                            <div key={bIdx} className="flex items-center gap-4 bg-white/5 border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-colors">
+                                <CheckCircle className="w-6 h-6 text-emerald-500 shrink-0" />
+                                <p className="text-white text-lg font-normal leading-relaxed">{benefit}</p>
                             </div>
                         ))}
                     </div>
@@ -556,7 +561,7 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
                 </p>
                 <div className="space-y-2 pt-4">
                     <p className="text-[#FF5A1F] font-black uppercase tracking-widest text-sm italic">
-                        🚀 Ahora puedes ver la página que creado para ti, más adelante puedes modificarla.
+                        🚀 Ahora puedes ver la página que creado para ti
                     </p>
                 </div>
             </div>
@@ -570,7 +575,7 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
                     Ver mi página
                 </button>
                 <p className="text-gray-400 font-bold text-sm uppercase tracking-widest italic">
-                    ahora que tienes tu pagina vamos a atraer clientes
+                    más adelante puedes modificarla
                 </p>
             </div>
 
@@ -578,7 +583,7 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
                 onClick={() => onNext()}
                 className="group flex items-center gap-4 px-12 py-7 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-[2.5rem] font-black text-2xl transition-all shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95 mx-auto"
             >
-                Atraer clientes ahora
+                Vamos por el siguiente paso
                 <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
             </button>
         </motion.div>
@@ -616,14 +621,34 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                             </div>
                         </div>
 
-                        <div className="space-y-8 max-w-2xl mx-auto">
-                            <div className="space-y-4">
+                        <div className="space-y-8 max-w-5xl mx-auto">
+                            <div className="space-y-4 max-w-2xl mx-auto">
+                                <p className="text-[#FF5A1F] text-sm font-bold uppercase tracking-widest">Ahora crearé tus</p>
                                 <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
-                                    Empieza a <span className="text-purple-500">atraer personas interesadas</span>
+                                    Videos de <span className="text-purple-500">Atracción</span>
                                 </h2>
-                                <p className="text-xl text-gray-400 font-medium italic">
-                                    Estos hooks están diseñados para ayudarte a crear contenido que genere curiosidad y atraiga posibles compradores.
+                                <p className="text-[1.3rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">
+                                    Crearé los de videos de atracción exactos para captar clientes interesados.
                                 </p>
+                            </div>
+
+                            <div className="space-y-6 pt-4">
+                                <p className="text-white text-xl font-bold uppercase tracking-tight">Con estos videos podrás:</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left">
+                                    {[
+                                        'Atraer personas interesadas en tu proyecto digital',
+                                        'Capturar prospectos automáticamente las 24 horas',
+                                        'Construir una audiencia propia para futuras ventas',
+                                        'Generar más confianza y credibilidad en tu oferta',
+                                        'Conectar tu tráfico de redes sociales con tu estrategia de conversión',
+                                        'Automatizar tu proceso de ventas sin complicaciones técnicas'
+                                    ].map((benefit, bIdx) => (
+                                        <div key={bIdx} className="flex items-center gap-4 bg-white/5 border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-colors">
+                                            <CheckCircle className="w-6 h-6 text-purple-500 shrink-0" />
+                                            <p className="text-white text-lg font-normal leading-relaxed">{benefit}</p>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </>

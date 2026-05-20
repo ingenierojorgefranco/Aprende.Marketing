@@ -2,7 +2,7 @@
 import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
-import { logSystemActivity, DEFAULT_LIMITS } from './authRoutes.js';
+import { logSystemActivity, DEFAULT_LIMITS, clearLimitsCache } from './authRoutes.js';
 import { adminRouter as courseAdminRouter } from './courseRoutes.js';
 
 const router = express.Router();
@@ -101,6 +101,7 @@ router.put('/users/:id', async (req, res) => {
         );
         const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
         await logSystemActivity(req.user.id, admin[0]?.name, 'UPDATE_USER', 'user', id, { role, planName: planLimits.planName });
+        clearLimitsCache(id);
         res.json({ message: 'Usuario actualizado correctamente' });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -215,6 +216,8 @@ router.post('/users/:userId/subscriptions', async (req, res) => {
             [JSON.stringify(newPlanLimits), userId]
         );
 
+        clearLimitsCache(userId);
+
         // 4. Obtener la fila insertada para devolverla
         const [newSub] = await pool.query(`
             SELECT 
@@ -247,6 +250,40 @@ router.put('/subscriptions/:id', async (req, res) => {
     const { status } = req.body;
     try {
         await pool.query('UPDATE user_subscriptions SET status = ? WHERE id = ?', [status, id]);
+
+        // Coordinar y sincronizar con la tabla de users
+        const [subs] = await pool.query('SELECT user_id, plan_slug FROM user_subscriptions WHERE id = ?', [id]);
+        if (subs.length > 0) {
+            const userId = subs[0].user_id;
+            const planSlug = subs[0].plan_slug;
+
+            if (status === 'active') {
+                // Al activar, actualizamos el campo plan_limits del usuario con los límites del plan correspondiente
+                const [plans] = await pool.query('SELECT name, limits_config FROM plans WHERE slug = ?', [planSlug]);
+                if (plans.length > 0) {
+                    const plan = plans[0];
+                    const limitsConfig = typeof plan.limits_config === 'string' ? JSON.parse(plan.limits_config) : plan.limits_config;
+                    const newPlanLimits = {
+                        planName: planSlug,
+                        ...limitsConfig
+                    };
+                    await pool.query(
+                        'UPDATE users SET plan_limits = ? WHERE id = ?',
+                        [JSON.stringify(newPlanLimits), userId]
+                    );
+                }
+            } else if (status === 'inactive' || status === 'canceled') {
+                // Al desactivar, restauramos los límites al plan starter por defecto
+                await pool.query(
+                    'UPDATE users SET plan_limits = ? WHERE id = ?',
+                    [JSON.stringify(DEFAULT_LIMITS), userId]
+                );
+            }
+
+            // Limpiamos la caché inmediatamente para actualizar en tiempo real
+            clearLimitsCache(userId);
+        }
+
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });

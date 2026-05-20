@@ -36,6 +36,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     const [unlockedProject, setUnlockedProject] = useState<any>(null);
     const [strategyData, setStrategyData] = useState<any>(null);
     const [isLandingCreated, setIsLandingCreated] = useState(false);
+    const [createdPageSubdomain, setCreatedPageSubdomain] = useState<string>('');
     const [isHooksUnlocked, setIsHooksUnlocked] = useState(false);
     const [unlockedHooks, setUnlockedHooks] = useState<any[]>([]);
     
@@ -147,7 +148,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
         
         try {
             setGenerationProgress(10);
-            setGenerationStatus('Habilitando acceso maestro...');
+            setGenerationStatus('Estoy creando tu estrategia de Ventas');
             
             // 1. Desbloquear proyecto
             const unlocked = await api.unlockProject(selectedProject.id, { 
@@ -255,7 +256,12 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                 isPublished: true
             };
 
-            await api.createPage(newPage as any, projectWithStrategy as any);
+            const savedPage = await api.createPage(newPage as any, projectWithStrategy as any);
+            if (savedPage && savedPage.subdomain) {
+                setCreatedPageSubdomain(savedPage.subdomain);
+            } else {
+                setCreatedPageSubdomain(newPage.subdomain);
+            }
 
             setGenerationProgress(100);
             setGenerationStatus('Página Publicada');
@@ -565,7 +571,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                     userData={user}
                                     onNext={() => setStep('show_hooks')}
                                     onView={() => {
-                                        if (unlockedProject) {
+                                        const subdomainPart = createdPageSubdomain ? createdPageSubdomain.split('.')[0] : '';
+                                        if (subdomainPart) {
+                                            window.open(`https://aprende.marketing/admin/lp/${subdomainPart}`, '_blank');
+                                        } else if (unlockedProject) {
                                             window.open(`/dashboard/projects/${unlockedProject.id}/strategy?section=web`, '_blank');
                                         }
                                     }}
