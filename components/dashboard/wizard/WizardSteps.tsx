@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote } from 'lucide-react';
+import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock } from 'lucide-react';
+import { UpgradeModal } from '../UpgradeModal';
 
 interface StepProps {
     onNext: (data?: any) => void;
@@ -512,9 +513,7 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
                             'Atraer personas interesadas en tu proyecto digital',
                             'Capturar prospectos automáticamente las 24 horas',
                             'Construir una audiencia propia para futuras ventas',
-                            'Generar más confianza y credibilidad en tu oferta',
-                            'Conectar tu tráfico de redes sociales con tu estrategia de conversión',
-                            'Automatizar tu proceso de ventas sin complicaciones técnicas'
+                            'Generar más confianza y credibilidad en tu oferta'
                         ].map((benefit, bIdx) => (
                             <div key={bIdx} className="flex items-center gap-4 bg-white/5 border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-colors">
                                 <CheckCircle className="w-6 h-6 text-emerald-500 shrink-0" />
@@ -591,10 +590,11 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
 };
 
 // 6. REVELACIÓN DE HOOKS
-export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: boolean, projectId?: string }> = ({ hooks, onNext, isUnlocked, projectId }) => {
+export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: boolean, projectId?: string, project?: any }> = ({ hooks, onNext, isUnlocked, projectId, project, userData }) => {
     // Si ya están desbloqueados, usamos los que vienen. Si no, mostramos los 3 primeros como preview.
     const displayHooks = isUnlocked ? hooks : hooks.slice(0, 3);
     const hooksGridRef = React.useRef<HTMLDivElement>(null);
+    const [showUpgradeModal, setShowUpgradeModal] = React.useState(false);
 
     // Scroll automatically when unlocked
     React.useEffect(() => {
@@ -604,6 +604,32 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
             }, 500);
         }
     }, [isUnlocked]);
+
+    // Hooks bloqueados de alta conversión y copywriting psicológico, personalizados según el proyecto
+    const defaultLockedHooks = [
+        {
+            hookText: "¿Y si la clave para triplicar tus ingresos mensuales estuviera en dominar una sola técnica de belleza de alta demanda?"
+        },
+        {
+            hookText: "El gran mito de la belleza revelado: Por qué las fórmulas tradicionales ya no funcionan y cómo solucionarlo hoy."
+        },
+        {
+            hookText: "La fórmula exacta que usan los líderes y salones de alta gama para cobrar 5 veces más sin perder un solo cliente."
+        }
+    ];
+
+    const isManicurista = project?.name?.toLowerCase().includes('manicurista') || project?.name?.toLowerCase().includes('uña') || project?.name?.toLowerCase().includes('nail');
+    const isMicroblading = project?.name?.toLowerCase().includes('microblading') || project?.name?.toLowerCase().includes('ceja') || project?.name?.toLowerCase().includes('brow');
+
+    const customizedLockedHooks = isManicurista ? [
+        { hookText: "¿Sabías que dominar la técnica de uñas rusas es el camino más rápido para pasar de cobrar $10 a $50 por servicio?" },
+        { hookText: "El error secreto de las manicuristas novatas que arruina el set en 3 días y ahuyenta a las mejores clientas." },
+        { hookText: "Cómo construir una agenda llena de clientas premium dispuestas a pagar tarifas de lujo por tus diseños avanzados." }
+    ] : isMicroblading ? [
+        { hookText: "¿Y si la clave para triplicar tus ingresos mensuales estuviera en dominar una sola técnica de microblading de cejas?" },
+        { hookText: "El secreto del diseño de miradas perfectas: El error que comete el 90% de las principiantes al trazar cejas." },
+        { hookText: "La estrategia exacta de las artistas de microblading top para atraer clientas de alto valor sin competir por precio." }
+    ] : defaultLockedHooks;
 
     return (
         <motion.div 
@@ -637,9 +663,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                 'Atraer personas interesadas en tu proyecto digital',
                                 'Capturar prospectos automáticamente las 24 horas',
                                 'Construir una audiencia propia para futuras ventas',
-                                'Generar más confianza y credibilidad en tu oferta',
-                                'Conectar tu tráfico de redes sociales con tu estrategia de conversión',
-                                'Automatizar tu proceso de ventas sin complicaciones técnicas'
+                                'Generar más confianza y credibilidad en tu oferta'
                             ].map((benefit, bIdx) => (
                                 <div key={bIdx} className="flex items-center gap-4 bg-white/5 border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-colors">
                                     <CheckCircle className="w-6 h-6 text-purple-500 shrink-0" />
@@ -669,9 +693,6 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                             <Sparkles className="w-32 h-32 text-purple-400 animate-pulse" />
                         </div>
-                        <div className="w-16 h-16 bg-purple-500/20 text-purple-300 rounded-3xl flex items-center justify-center mx-auto mb-4 border border-purple-400/20 shadow-xl">
-                            <Quote className="w-8 h-8" />
-                        </div>
                         <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase mb-3">
                             Tus videos <span className="text-purple-400">desbloqueados</span>
                         </h2>
@@ -680,7 +701,8 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                        {/* Seccion 1: Hooks Desbloqueados Activos */}
                         {displayHooks.length > 0 ? displayHooks.map((hook, idx) => {
                             const downloadVideoUrl = hook.contentJson?.downloadUrl || hook.contentJson?.videoUrl || hook.downloadUrl || hook.videoUrl;
                             const hasDownloadUrl = downloadVideoUrl && downloadVideoUrl !== '#';
@@ -691,46 +713,31 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: idx * 0.2 }}
-                                    className="bg-gradient-to-b from-[#16161a] to-[#0d0d0f] border border-purple-500/15 p-8 rounded-[2.5rem] relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] group hover:border-purple-400/30 hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 flex flex-col h-full"
+                                    className="bg-gradient-to-b from-[#16161a] to-[#0d0d0f] border border-purple-500/15 px-6 py-6 rounded-[2rem] relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] group hover:border-purple-400/30 hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 flex flex-col h-full"
                                 >
-                                    <div className="flex-1 space-y-4 relative z-10">
-                                        <div className="px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-[10px] font-black text-purple-500 uppercase tracking-widest inline-block">
-                                            Hook #{idx + 1}
+                                    <div className="flex-1 space-y-3 relative z-10 flex flex-col justify-center pt-2 pb-4">
+                                        <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-black text-emerald-400 uppercase tracking-widest inline-block self-center mb-4 animate-pulse">
+                                            📅 PUBLICAR: {idx === 0 ? 'HOY' : idx === 1 ? 'MAÑANA' : idx === 2 ? 'PASADO MAÑANA' : `DÍA ${idx + 1}`}
                                         </div>
-                                        <h4 className="text-xl font-black text-white leading-tight italic">
-                                            "{hook.hookText || hook.text || hook.title || hook.question || 'Descubre el secreto para automatizar tus ventas.'}"
-                                        </h4>
-                                        
-                                        <div className="space-y-2">
-                                            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Estrategia Psicológica</p>
-                                            <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">
-                                                {hook.psychologicalApproach || hook.psychologicalAppeal || hook.psychologicalStrategy || hook.strategy || 'Utiliza el sesgo de curiosidad para invitar al usuario a conocer más sobre la solución definitiva.'}
-                                            </p>
-                                        </div>
+                                        <h3 className="text-[1.3rem] leading-[1.8rem] font-medium mb-4 text-center group-hover:text-orange-400 transition-colors duration-300 text-white">
+                                            {hook.hookText || hook.text || hook.title || hook.question || 'Descubre el secreto para automatizar tus ventas.'}
+                                        </h3>
                                     </div>
                                     
-                                    <div className="mt-8 pt-6 border-t border-white/5 space-y-3 relative z-10">
-                                        <a 
-                                            href={`/dashboard/projects/${projectId}/strategy?section=hooks&hookId=${hook.id || idx}`} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            className="w-full py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-white/10 transition-all hover:border-purple-400/30"
-                                        >
-                                            Detalles del Hook
-                                        </a>
+                                    <div className="mt-4 pt-4 border-t border-white/5 relative z-10">
                                         {hasDownloadUrl ? (
                                             <a 
                                                 href={downloadVideoUrl} 
                                                 target="_blank" 
                                                 rel="noopener noreferrer"
-                                                className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5A1F]/10 cursor-pointer"
+                                                className="w-full py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5A1F]/10 cursor-pointer"
                                             >
                                                 <Play className="w-3 h-3 fill-white" />
                                                 Descargar Video
                                             </a>
                                         ) : (
                                             <div 
-                                                className="w-full py-4 bg-gray-800/40 text-gray-500 rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-white/5 cursor-not-allowed select-none"
+                                                className="w-full py-3 bg-gray-800/40 text-gray-500 rounded-xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-white/5 cursor-not-allowed select-none"
                                                 title="Video de descarga no asignado"
                                             >
                                                 <Play className="w-3 h-3 fill-gray-500 opacity-50" />
@@ -739,12 +746,67 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                         )}
                                     </div>
                                 </motion.div>
-                            );
+                             );
                         }) : (
                             <div className="col-span-full text-center py-20 bg-white/5 rounded-3xl border border-white/5 italic text-gray-500">
                                 Cargando ganchos especializados...
                             </div>
                         )}
+
+                        {/* Seccion 2: Hooks Premium Bloqueados (3 Hooks adicionales extra) */}
+                        {customizedLockedHooks.map((lHook, idx) => (
+                            <motion.div 
+                                key={`locked-${idx}`}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 0.85, scale: 1 }}
+                                transition={{ delay: (idx + 3) * 0.15 }}
+                                className="bg-gradient-to-b from-[#111] to-black border border-white/5 px-6 py-6 rounded-[2rem] relative overflow-hidden shadow-2xl flex flex-col h-full group hover:border-purple-500/20 transition-all duration-300"
+                            >
+                                <div className="flex-1 space-y-3 relative z-10 flex flex-col justify-center pt-2 pb-4 select-none">
+                                    <div className="px-3 py-1 bg-purple-500/10 border border-purple-500/25 rounded-full text-[10px] font-black text-purple-400 uppercase tracking-widest inline-block self-center mb-4">
+                                        📅 PUBLICAR: DÍA {idx + 4} (BLOQUEADO)
+                                    </div>
+                                    <h3 className="text-[1.3rem] leading-[1.8rem] font-medium mb-4 text-center text-gray-500 blur-[2px] line-clamp-3">
+                                        {lHook.hookText}
+                                    </h3>
+                                </div>
+                                
+                                <div className="mt-4 pt-4 border-t border-white/5 relative z-10">
+                                    <button 
+                                        onClick={() => setShowUpgradeModal(true)}
+                                        className="w-full py-3 bg-amber-400/10 hover:bg-amber-400/20 text-amber-400 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-amber-500/20 transition-all"
+                                    >
+                                        <Lock className="w-3 h-3 text-amber-400" />
+                                        Desbloquear 27 hooks restantes
+                                    </button>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    {/* CTA Llamativo para Desbloquear Más Hooks */}
+                    <div className="mt-12 bg-gradient-to-b from-[#1b1509] to-black rounded-[3rem] border border-amber-500/40 p-10 max-w-4xl mx-auto text-center relative overflow-hidden shadow-2xl">
+                        <div className="absolute inset-0 bg-yellow-500/5 blur-xl pointer-events-none" />
+                        <div className="relative z-10 space-y-6">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/30 rounded-full text-xs font-black text-amber-400 uppercase tracking-widest animate-pulse">
+                                <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
+                                Acceso Ilimitado Premium
+                            </div>
+                            <h3 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tight">
+                                ¿Quieres <span className="text-amber-400">Desbloquear</span> Todos los Videos de Atracción?
+                            </h3>
+                            <p className="text-gray-300 max-w-2xl mx-auto text-base">
+                                Obtén acceso inmediato a nuestro motor de IA ilimitado, ganchos de alta persuasión psicológica adicionales, plantillas de videos ganadoras y nuestro sistema automatizado de ventas para escalar tu negocio.
+                            </p>
+                            <div className="pt-2">
+                                <button 
+                                    onClick={() => setShowUpgradeModal(true)}
+                                    className="group px-12 py-5 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-500 hover:to-amber-600 hover:scale-105 hover:shadow-yellow-500/25 text-black rounded-[2rem] font-black text-lg transition-all shadow-[0_20px_50px_-10px_rgba(234,179,8,0.3)] flex items-center gap-4 mx-auto"
+                                >
+                                    🚀 DESBLOQUEAR 27 VIDEOS RESTANTES
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="flex flex-col items-center gap-4 pt-10">
@@ -752,8 +814,8 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                             onClick={() => onNext()}
                             className="group flex items-center gap-4 px-14 py-7 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(16,185,129,0.3)] transform hover:-translate-y-2 active:scale-95"
                         >
-                            ESTOY LISTO PARA EMPEZAR
-                            <Rocket className="w-6 h-6" />
+                            🏁 FINALIZAR CONFIGURACIÓN
+                            <Rocket className="w-6 h-6 animate-pulse" />
                         </button>
                         <p className="text-gray-500 font-bold text-xs uppercase tracking-widest animate-pulse">
                             Clic aquí para finalizar la configuración magistral y avanzar
@@ -761,6 +823,14 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                     </div>
                 </div>
             )}
+
+            <UpgradeModal 
+                isOpen={showUpgradeModal} 
+                onClose={() => setShowUpgradeModal(false)} 
+                user={userData} 
+                currentPlan={userData?.planLimits?.planName}
+                projectId={projectId}
+            />
         </motion.div>
     );
 };

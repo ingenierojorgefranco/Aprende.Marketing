@@ -627,6 +627,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                     hooks={unlockedHooks.length > 0 ? unlockedHooks : (strategyData?.modules?.hooks || [])}
                                     isUnlocked={isHooksUnlocked}
                                     projectId={unlockedProject?.id}
+                                    project={selectedProject || unlockedProject}
                                     onNext={() => {
                                         if (!isHooksUnlocked) {
                                             handleUnlockHooks();
