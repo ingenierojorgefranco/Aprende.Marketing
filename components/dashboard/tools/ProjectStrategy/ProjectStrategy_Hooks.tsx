@@ -55,6 +55,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [isClone, setIsClone] = useState(false);
   const [isMaster, setIsMaster] = useState(false);
   const [masterParentId, setMasterParentId] = useState<string | null>(null);
+  const [projectChecked, setProjectChecked] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showUpgradeModalLocal, setShowUpgradeModalLocal] = useState(false);
   const [showRestrictionModal, setShowRestrictionModal] = useState(false);
@@ -214,17 +215,23 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         if (!projectId) return;
         try {
             const p = await api.getProjectById(projectId);
+            let mParentId: string | null = null;
             if (p?.masterParentId) {
                 setIsClone(true);
-                setMasterParentId(String(p.masterParentId));
+                mParentId = String(p.masterParentId);
+                setMasterParentId(mParentId);
             }
             if (p?.isMaster) setIsMaster(true);
             
             // Cargamos el pool de la biblioteca si no lo tenemos
             if (activeTab === 'library' && libraryHooks.length === 0) {
-                loadLibrary(1, p?.masterParentId ? String(p.masterParentId) : null);
+                await loadLibrary(1, mParentId);
             }
-        } catch (e) {}
+        } catch (e) {
+            console.error("Error al revisar proyecto para hooks:", e);
+        } finally {
+            setProjectChecked(true);
+        }
     };
     checkProject();
     loadHooks();
@@ -460,11 +467,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     setCurrentPage(1);
     setActiveHook(0);
     setActiveLibraryHook(0);
-    if (activeTab === 'library') {
+    if (activeTab === 'library' && projectChecked) {
         setLibraryPage(1);
         loadLibrary(1, masterParentId);
     }
-  }, [searchTerm, activeTab]);
+  }, [searchTerm, activeTab, projectChecked, masterParentId]);
 
   const currentKit = currentHook.contentJson || defaultKitContent;
 
