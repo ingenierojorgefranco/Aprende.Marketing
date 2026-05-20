@@ -60,6 +60,19 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [showUpgradeModalLocal, setShowUpgradeModalLocal] = useState(false);
   const [showRestrictionModal, setShowRestrictionModal] = useState(false);
   
+  const [globalHookCount, setGlobalHookCount] = useState<number | null>(null);
+
+  const fetchGlobalHookCount = async () => {
+    try {
+      const summary = await api.getAnalyticsSummary();
+      if (summary && typeof summary.totalHooks === 'number') {
+        setGlobalHookCount(summary.totalHooks);
+      }
+    } catch (e) {
+      console.error("Error fetching global hook count:", e);
+    }
+  };
+  
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
@@ -235,6 +248,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     };
     checkProject();
     loadHooks();
+    fetchGlobalHookCount();
   }, [projectId, activeTab]);
 
   const defaultKitContent = {
@@ -315,6 +329,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     try {
         const res = await api.unlockMoreHooks(projectId);
         await loadHooks();
+        await fetchGlobalHookCount();
         alert(res.message || "¡10 nuevos ganchos añadidos a tu estrategia!");
     } catch (e: any) {
         alert(e.message || "Error al cargar más ganchos.");
@@ -370,6 +385,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         
         // Cargar los ganchos generados y cambiar a esa pestaña
         const freshHooks = await loadHooks();
+        await fetchGlobalHookCount();
         setActiveTab('generated');
         
         // Seleccionar el primer gancho (el más nuevo) en la primera página
@@ -664,7 +680,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const maxHooks = user?.maxHooks || planLimits?.maxHooks || 30;
-  const currentHooksCount = hooks.filter(h => h.isGenerated).length;
+  const currentHooksCount = typeof globalHookCount === 'number' ? globalHookCount : (hookCount ?? hooks.filter(h => h.isGenerated).length);
   const isLimitReached = !isRealAdmin && currentHooksCount >= maxHooks;
   const usagePercent = maxHooks > 0 ? Math.min(100, (currentHooksCount / maxHooks) * 100) : 0;
   
