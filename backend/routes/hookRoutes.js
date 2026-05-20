@@ -41,6 +41,7 @@ router.get('/project/:projectId', async (req, res) => {
             // Si es starter, limitamos a 15 aleatorios
             const masterQuery = `SELECT * FROM project_hooks 
                  WHERE project_id = ? 
+                 AND is_active = 1
                  AND id NOT IN (SELECT master_hook_id FROM project_hooks WHERE project_id = ? AND master_hook_id IS NOT NULL)
                  ${isStarter ? 'ORDER BY RAND() LIMIT 15' : 'ORDER BY created_at ASC'}`;
 
@@ -115,13 +116,13 @@ router.get('/library', async (req, res) => {
             SELECT COUNT(*) as total 
             FROM project_hooks ph
             JOIN projects p ON ph.project_id = p.id
-            WHERE p.is_master = 1
+            WHERE p.is_master = 1 AND ph.is_active = 1
         `;
         let dataQuery = `
             SELECT ph.*, p.name as project_name 
             FROM project_hooks ph
             JOIN projects p ON ph.project_id = p.id
-            WHERE p.is_master = 1
+            WHERE p.is_master = 1 AND ph.is_active = 1
         `;
         const params = [];
 

@@ -155,7 +155,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                 registered_via: 'wizard', 
                 initial_setup: true 
             });
-            setUnlockedProject(unlocked);
+            const fullUnlockedProject = await api.getProjectById(unlocked.id);
+            setUnlockedProject(fullUnlockedProject || { ...unlocked, masterParentId: selectedProject.id });
             
             setGenerationProgress(40);
             setGenerationStatus('Extrayendo arquitectura psicológica...');
@@ -220,24 +221,32 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             ];
             const randomPalette = palettes[Math.floor(Math.random() * palettes.length)];
 
-            // Generar contenido pero con el contexto de la estrategia COMPLETO
+            // Generar contenido con todo el contexto estratégico y multimedia del proyecto maestro
             const projectWithStrategy = {
-                ...unlockedProject,
+                ...(unlockedProject || {}),
+                productName: selectedProject?.productName || selectedProject?.name,
+                brandTone: selectedProject?.brandTone,
+                description: selectedProject?.description,
+                painPoints: selectedProject?.painPoints,
+                keyBenefits: selectedProject?.keyBenefits,
                 strategy_json: strategyData,
-                multimedia_json: unlockedProject?.multimedia_json || strategyData?.multimedia_json || { heroImages: [], videoUrls: [], descriptiveImages: [] }
+                multimedia_json: unlockedProject?.multimedia_json?.heroImages?.length > 0 
+                    ? unlockedProject.multimedia_json 
+                    : (selectedProject?.multimedia_json || { heroImages: [], videoUrls: [], descriptiveImages: [] })
             };
 
             const content = await generateLandingPageContent(
-                selectedProject?.name || 'Producto Digital',
+                selectedProject?.productName || selectedProject?.name || 'Producto Digital',
                 'Registro a Webinar / Clase', // Forzamos objetivo de webinar
                 targetAudience,
-                'Ventas y Captación',
+                'Registro', // Para que coincida con la otra sección exactamente
                 randomPalette,
                 'webinar-funnel', // Forzamos estructura de webinar
                 { 
-                    type: 'whatsapp', 
-                    whatsappPhone: (user as any).phone || '000000000', 
-                    whatsappMessage: 'Hola, quiero más información sobre...' 
+                    type: 'form', 
+                    url: '',
+                    whatsappPhone: '', 
+                    whatsappMessage: '' 
                 },
                 projectWithStrategy
             );
@@ -245,12 +254,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             setGenerationProgress(80);
             setGenerationStatus('Publicando en nube segura...');
 
-            // Crear la página - Los títulos ya vienen inyectados desde landingService basado en la estrategia
+            const slugify = (text: string) => text.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-');
+            const cleanProjectName = slugify(selectedProject?.productName || selectedProject?.name || 'producto');
+            const randomCode = Math.floor(Math.random() * 1000);
+            const generatedSubdomain = `${cleanProjectName}-${randomCode}.generatorlanding.com`;
+
+            // Crear la página - Sincronizado exactamente con las especificaciones de generación estándar
             const newPage = {
-                name: `Web Oficial - ${selectedProject?.name}`,
-                niche: niche,
-                goal: 'Captación de Leads',
-                subdomain: `${user.name.toLowerCase().replace(/[^a-z0-9]/g, '')}-${selectedProject?.name.toLowerCase().replace(/[^a-z0-9]/g, '')}-${Math.floor(Math.random() * 1000)}`,
+                name: `Web Oficial - ${selectedProject?.productName || selectedProject?.name}`,
+                niche: selectedProject?.productName || selectedProject?.name || niche,
+                goal: 'Registro a Webinar / Clase',
+                subdomain: generatedSubdomain,
                 content: content,
                 projectId: unlockedProject.id,
                 isPublished: true
@@ -296,7 +310,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                 allHooks = library.hooks || [];
             }
 
-            console.log(`📊 Ganchos totales encontrados: ${allHooks.length}`);
+            // Filtrar para asegurar que solo escogemos ganchos activos (donde isActive !== false e is_active !== 0)
+            allHooks = allHooks.filter((h: any) => h.isActive !== false && h.is_active !== 0 && h.is_active !== false);
+
+            console.log(`📊 Ganchos activos encontrados: ${allHooks.length}`);
             
             if (allHooks.length > 0) {
                 setGenerationStatus('Seleccionando ganchos estratégicos...');

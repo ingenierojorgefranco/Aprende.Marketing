@@ -612,132 +612,152 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
             className="space-y-12"
         >
             <div className="text-center space-y-10">
-                {!isUnlocked && (
-                    <>
-                        <div className="relative inline-block">
-                            <div className="absolute inset-0 bg-purple-500 blur-3xl opacity-20 animate-pulse"></div>
-                            <div className="w-24 h-24 bg-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
-                                <Quote className="w-12 h-12 text-white" />
-                            </div>
-                        </div>
-
-                        <div className="space-y-8 max-w-5xl mx-auto">
-                            <div className="space-y-4 max-w-2xl mx-auto">
-                                <p className="text-[#FF5A1F] text-sm font-bold uppercase tracking-widest">Ahora crearé tus</p>
-                                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
-                                    Videos de <span className="text-purple-500">Atracción</span>
-                                </h2>
-                                <p className="text-[1.3rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">
-                                    Crearé los de videos de atracción exactos para captar clientes interesados.
-                                </p>
-                            </div>
-
-                            <div className="space-y-6 pt-4">
-                                <p className="text-white text-xl font-bold uppercase tracking-tight">Con estos videos podrás:</p>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left">
-                                    {[
-                                        'Atraer personas interesadas en tu proyecto digital',
-                                        'Capturar prospectos automáticamente las 24 horas',
-                                        'Construir una audiencia propia para futuras ventas',
-                                        'Generar más confianza y credibilidad en tu oferta',
-                                        'Conectar tu tráfico de redes sociales con tu estrategia de conversión',
-                                        'Automatizar tu proceso de ventas sin complicaciones técnicas'
-                                    ].map((benefit, bIdx) => (
-                                        <div key={bIdx} className="flex items-center gap-4 bg-white/5 border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-colors">
-                                            <CheckCircle className="w-6 h-6 text-purple-500 shrink-0" />
-                                            <p className="text-white text-lg font-normal leading-relaxed">{benefit}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </>
-                )}
-
-                {isUnlocked && (
-                    <div className="text-center space-y-4">
-                        <div className="w-16 h-16 bg-purple-500/10 text-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-purple-500/20 shadow-xl font-bold italic text-3xl">
-                            <Quote className="w-8 h-8" />
-                        </div>
-                        <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase">
-                            Tus videos <span className="text-purple-500">desbloqueados</span>
-                        </h2>
+                <div className="relative inline-block">
+                    <div className="absolute inset-0 bg-purple-500 blur-3xl opacity-20 animate-pulse"></div>
+                    <div className="w-24 h-24 bg-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
+                        <Quote className="w-12 h-12 text-white" />
                     </div>
-                )}
+                </div>
+
+                <div className="space-y-8 max-w-5xl mx-auto">
+                    <div className="space-y-4 max-w-2xl mx-auto">
+                        <p className="text-[#FF5A1F] text-sm font-bold uppercase tracking-widest">Ahora crearé tus</p>
+                        <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
+                            Videos de <span className="text-purple-500">Atracción</span>
+                        </h2>
+                        <p className="text-[1.3rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">
+                            Crearé los de videos de atracción exactos para captar clientes interesados.
+                        </p>
+                    </div>
+
+                    <div className="space-y-6 pt-4">
+                        <p className="text-white text-xl font-bold uppercase tracking-tight">Con estos videos podrás:</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left">
+                            {[
+                                'Atraer personas interesadas en tu proyecto digital',
+                                'Capturar prospectos automáticamente las 24 horas',
+                                'Construir una audiencia propia para futuras ventas',
+                                'Generar más confianza y credibilidad en tu oferta',
+                                'Conectar tu tráfico de redes sociales con tu estrategia de conversión',
+                                'Automatizar tu proceso de ventas sin complicaciones técnicas'
+                            ].map((benefit, bIdx) => (
+                                <div key={bIdx} className="flex items-center gap-4 bg-white/5 border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-colors">
+                                    <CheckCircle className="w-6 h-6 text-purple-500 shrink-0" />
+                                    <p className="text-white text-lg font-normal leading-relaxed">{benefit}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div className="flex flex-col items-center gap-6">
-                <button 
-                    onClick={() => onNext()}
-                    className={`group flex items-center gap-4 px-12 py-6 ${isUnlocked ? 'bg-emerald-500' : 'bg-purple-500 hover:bg-purple-600'} text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(168,85,247,0.3)] transform hover:-translate-y-2 active:scale-95`}
-                >
-                    {isUnlocked ? 'ESTOY LISTO PARA EMPEZAR' : 'GENERAR VIDEOS DE ATRACCIÓN'}
-                    {isUnlocked ? <Rocket className="w-6 h-6" /> : <Zap className="w-6 h-6 fill-white animate-pulse" />}
-                </button>
-                {isUnlocked && (
-                    <p className="text-gray-500 font-bold text-xs uppercase tracking-widest animate-pulse">
-                        Clic aquí para finalizar la configuración magistral
-                    </p>
-                )}
-            </div>
+            {!isUnlocked && (
+                <div className="flex flex-col items-center gap-6">
+                    <button 
+                        onClick={() => onNext()}
+                        className="group flex items-center gap-4 px-12 py-6 bg-purple-500 hover:bg-purple-600 text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(168,85,247,0.3)] transform hover:-translate-y-2 active:scale-95 animate-bounce"
+                    >
+                        GENERAR VIDEOS DE ATRACCIÓN
+                        <Zap className="w-6 h-6 fill-white animate-pulse" />
+                    </button>
+                </div>
+            )}
 
             {isUnlocked && (
-                <div ref={hooksGridRef} className="space-y-10 pt-10 border-t border-white/5 animate-in fade-in slide-in-from-bottom-10 duration-700">
-                    <div className="text-center space-y-2">
-                        <h3 className="text-2xl font-black text-white uppercase italic">Tus videos de atracción están desbloqueados</h3>
-                        <p className="text-gray-500 font-medium">Usa estos ganchos para tus anuncios o contenido orgánico.</p>
+                <div ref={hooksGridRef} className="space-y-12 pt-10 border-t border-white/5 animate-in fade-in slide-in-from-bottom-10 duration-700">
+                    <div className="max-w-4xl mx-auto rounded-[3rem] bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-black border border-purple-500/20 p-8 md:p-12 text-center relative overflow-hidden shadow-[0_25px_60px_rgba(168,85,247,0.15)]">
+                        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                            <Sparkles className="w-32 h-32 text-purple-400 animate-pulse" />
+                        </div>
+                        <div className="w-16 h-16 bg-purple-500/20 text-purple-300 rounded-3xl flex items-center justify-center mx-auto mb-4 border border-purple-400/20 shadow-xl">
+                            <Quote className="w-8 h-8" />
+                        </div>
+                        <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase mb-3">
+                            Tus videos <span className="text-purple-400">desbloqueados</span>
+                        </h2>
+                        <p className="text-gray-300 max-w-2xl mx-auto font-medium text-lg">
+                            ¡Excelente! Hemos generado contenido de alta conversión adaptado de forma única para tu proyecto. Úsalos para capturar leads masivos.
+                        </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                        {displayHooks.length > 0 ? displayHooks.map((hook, idx) => (
-                            <motion.div 
-                                key={idx}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: idx * 0.2 }}
-                                className="bg-[#111] border border-white/5 p-8 rounded-[2.5rem] relative overflow-hidden group hover:border-purple-500/30 transition-all flex flex-col h-full"
-                            >
-                                <div className="flex-1 space-y-4 relative z-10">
-                                    <div className="px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-[10px] font-black text-purple-500 uppercase tracking-widest inline-block">
-                                        Hook #{idx + 1}
+                        {displayHooks.length > 0 ? displayHooks.map((hook, idx) => {
+                            const downloadVideoUrl = hook.contentJson?.downloadUrl || hook.contentJson?.videoUrl || hook.downloadUrl || hook.videoUrl;
+                            const hasDownloadUrl = downloadVideoUrl && downloadVideoUrl !== '#';
+
+                            return (
+                                <motion.div 
+                                    key={idx}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: idx * 0.2 }}
+                                    className="bg-gradient-to-b from-[#16161a] to-[#0d0d0f] border border-purple-500/15 p-8 rounded-[2.5rem] relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] group hover:border-purple-400/30 hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 flex flex-col h-full"
+                                >
+                                    <div className="flex-1 space-y-4 relative z-10">
+                                        <div className="px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-[10px] font-black text-purple-500 uppercase tracking-widest inline-block">
+                                            Hook #{idx + 1}
+                                        </div>
+                                        <h4 className="text-xl font-black text-white leading-tight italic">
+                                            "{hook.hookText || hook.text || hook.title || hook.question || 'Descubre el secreto para automatizar tus ventas.'}"
+                                        </h4>
+                                        
+                                        <div className="space-y-2">
+                                            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Estrategia Psicológica</p>
+                                            <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">
+                                                {hook.psychologicalApproach || hook.psychologicalAppeal || hook.psychologicalStrategy || hook.strategy || 'Utiliza el sesgo de curiosidad para invitar al usuario a conocer más sobre la solución definitiva.'}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <h4 className="text-xl font-black text-white leading-tight italic">
-                                        "{hook.hookText || hook.text || hook.title || hook.question || 'Descubre el secreto para automatizar tus ventas.'}"
-                                    </h4>
                                     
-                                    <div className="space-y-2">
-                                        <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Estrategia Psicológica</p>
-                                        <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">
-                                            {hook.psychologicalApproach || hook.psychologicalAppeal || hook.psychologicalStrategy || hook.strategy || 'Utiliza el sesgo de curiosidad para invitar al usuario a conocer más sobre la solución definitiva.'}
-                                        </p>
+                                    <div className="mt-8 pt-6 border-t border-white/5 space-y-3 relative z-10">
+                                        <a 
+                                            href={`/dashboard/projects/${projectId}/strategy?section=hooks&hookId=${hook.id || idx}`} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="w-full py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-white/10 transition-all hover:border-purple-400/30"
+                                        >
+                                            Detalles del Hook
+                                        </a>
+                                        {hasDownloadUrl ? (
+                                            <a 
+                                                href={downloadVideoUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5A1F]/10 cursor-pointer"
+                                            >
+                                                <Play className="w-3 h-3 fill-white" />
+                                                Descargar Video
+                                            </a>
+                                        ) : (
+                                            <div 
+                                                className="w-full py-4 bg-gray-800/40 text-gray-500 rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-white/5 cursor-not-allowed select-none"
+                                                title="Video de descarga no asignado"
+                                            >
+                                                <Play className="w-3 h-3 fill-gray-500 opacity-50" />
+                                                No Habilitado / En Proceso
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                                
-                                <div className="mt-8 pt-6 border-t border-white/5 space-y-3">
-                                    <a 
-                                        href={`https://aprende.marketing/dashboard/projects/${projectId}/strategy?section=hooks&hookId=${hook.id || idx}`} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="w-full py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-white/10 transition-all hover:border-purple-500/30"
-                                    >
-                                        Detalles del Hook
-                                    </a>
-                                    <a 
-                                        href={hook.videoUrl || '#'} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5A1F]/10"
-                                    >
-                                        <Play className="w-3 h-3 fill-white" />
-                                        Descargar Video
-                                    </a>
-                                </div>
-                            </motion.div>
-                        )) : (
+                                </motion.div>
+                            );
+                        }) : (
                             <div className="col-span-full text-center py-20 bg-white/5 rounded-3xl border border-white/5 italic text-gray-500">
                                 Cargando ganchos especializados...
                             </div>
                         )}
+                    </div>
+
+                    <div className="flex flex-col items-center gap-4 pt-10">
+                        <button 
+                            onClick={() => onNext()}
+                            className="group flex items-center gap-4 px-14 py-7 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(16,185,129,0.3)] transform hover:-translate-y-2 active:scale-95"
+                        >
+                            ESTOY LISTO PARA EMPEZAR
+                            <Rocket className="w-6 h-6" />
+                        </button>
+                        <p className="text-gray-500 font-bold text-xs uppercase tracking-widest animate-pulse">
+                            Clic aquí para finalizar la configuración magistral y avanzar
+                        </p>
                     </div>
                 </div>
             )}
