@@ -54,6 +54,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     const avatarsRef = useRef<HTMLDivElement>(null);
     const landingPrepRef = useRef<HTMLDivElement>(null);
     const creationRef = useRef<HTMLDivElement>(null);
+    const landingSuccessRef = useRef<HTMLDivElement>(null);
     const hooksRef = useRef<HTMLDivElement>(null);
     const successRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +115,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
         if (step === 'show_avatars') scrollTo(avatarsRef);
         if (step === 'show_landing_prep') scrollTo(landingPrepRef);
         if (step === 'creating_web') scrollTo(creationRef);
-        if (step === 'landing_success') scrollTo(creationRef); // Shared ref
+        if (step === 'landing_success') scrollTo(landingSuccessRef);
         if (step === 'show_hooks') scrollTo(hooksRef);
         if (step === 'success') scrollTo(successRef);
     }, [step]);
@@ -397,7 +398,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         {/* 2. SELECCIÓN DE PROYECTO */}
                         {revealedSections.includes('selection') && (
                             <>
-                                <div ref={selectionRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
+                                <div ref={selectionRef} className="w-full max-w-7xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
                                     <ProjectSelectionStep 
                                         projects={projects}
                                         loading={loadingProjects}
@@ -583,7 +584,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         )}
 
                         {revealedSections.includes('landing_success') && (
-                            <div className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
+                            <div ref={landingSuccessRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
                                 <LandingSuccessStep 
                                     userData={user}
                                     onNext={() => setStep('show_hooks')}
@@ -621,7 +622,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
                         {/* 7. HOOKS REVEAL */}
                         {revealedSections.includes('show_hooks') && step !== 'generating_hooks' && (
-                            <div ref={hooksRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
+                            <div className="relative w-full">
                                 <HooksRevealStep 
                                     userData={user}
                                     hooks={unlockedHooks.length > 0 ? unlockedHooks : (strategyData?.modules?.hooks || [])}
@@ -637,6 +638,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                             }
                                         }
                                     }}
+                                    hooksRef={hooksRef}
                                 />
                             </div>
                         )}

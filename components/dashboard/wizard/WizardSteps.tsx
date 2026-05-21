@@ -110,7 +110,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            <div className="flex flex-wrap justify-center gap-10 max-w-7xl mx-auto w-full">
                 {projects.map((project) => {
                     const isSelected = selectedProjectId === project.id;
                     
@@ -118,7 +118,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                         <motion.div 
                             key={project.id}
                             whileHover={isLocked ? {} : { y: -10 }}
-                            className={`bg-[#111] border ${isSelected ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/20' : 'border-white/5'} ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-[2.5rem] overflow-hidden group cursor-pointer hover:border-[#FF5A1F]/50 transition-all flex flex-col h-full shadow-2xl relative min-h-[500px]`}
+                            className={`bg-[#111] border ${isSelected ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/20' : 'border-white/5'} ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-[2.5rem] overflow-hidden group cursor-pointer hover:border-[#FF5A1F]/50 transition-all flex flex-col h-full shadow-2xl relative min-h-[520px] w-full sm:w-[480px] md:w-[420px] lg:w-[440px] xl:w-[480px] max-w-full`}
                             onClick={() => !isLocked && onNext(project)}
                         >
                             {isSelected && (
@@ -590,7 +590,7 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
 };
 
 // 6. REVELACIÓN DE HOOKS
-export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: boolean, projectId?: string, project?: any }> = ({ hooks, onNext, isUnlocked, projectId, project, userData }) => {
+export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: boolean, projectId?: string, project?: any, hooksRef?: React.RefObject<HTMLDivElement | null> }> = ({ hooks, onNext, isUnlocked, projectId, project, userData, hooksRef }) => {
     // Si ya están desbloqueados, usamos los que vienen. Si no, mostramos los 3 primeros como preview.
     const displayHooks = isUnlocked ? hooks : hooks.slice(0, 3);
     const hooksGridRef = React.useRef<HTMLDivElement>(null);
@@ -636,61 +636,80 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="space-y-12"
+            className="space-y-0 w-full relative"
         >
-            <div className="text-center space-y-10">
-                <div className="relative inline-block">
-                    <div className="absolute inset-0 bg-purple-500 blur-3xl opacity-20 animate-pulse"></div>
-                    <div className="w-24 h-24 bg-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
-                        <Quote className="w-12 h-12 text-white" />
-                    </div>
-                </div>
-
-                <div className="space-y-8 max-w-5xl mx-auto">
-                    <div className="space-y-4 max-w-2xl mx-auto">
-                        <p className="text-[#FF5A1F] text-sm font-bold uppercase tracking-widest">Ahora crearé tus</p>
-                        <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
-                            Videos de <span className="text-purple-500">Atracción</span>
-                        </h2>
-                        <p className="text-[1.3rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">
-                            Crearé los de videos de atracción exactos para captar clientes interesados.
-                        </p>
+            {/* SECCIÓN A: Introducción y Generador de Vídeos */}
+            <div 
+                ref={hooksRef} 
+                className="w-full max-w-6xl mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center py-20 snap-start snap-always relative"
+                id="hooks-intro-section"
+            >
+                <div className="text-center space-y-10">
+                    <div className="relative inline-block">
+                        <div className="absolute inset-0 bg-purple-500 blur-3xl opacity-20 animate-pulse"></div>
+                        <div className="w-24 h-24 bg-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
+                            <Quote className="w-12 h-12 text-white" />
+                        </div>
                     </div>
 
-                    <div className="space-y-6 pt-4">
-                        <p className="text-white text-xl font-bold uppercase tracking-tight">Con estos videos podrás:</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left">
-                            {[
-                                'Atraer personas interesadas en tu proyecto digital',
-                                'Capturar prospectos automáticamente las 24 horas',
-                                'Construir una audiencia propia para futuras ventas',
-                                'Generar más confianza y credibilidad en tu oferta'
-                            ].map((benefit, bIdx) => (
-                                <div key={bIdx} className="flex items-center gap-4 bg-white/5 border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-colors">
-                                    <CheckCircle className="w-6 h-6 text-purple-500 shrink-0" />
-                                    <p className="text-white text-lg font-normal leading-relaxed">{benefit}</p>
-                                </div>
-                            ))}
+                    <div className="space-y-8 max-w-5xl mx-auto">
+                        <div className="space-y-4 max-w-2xl mx-auto">
+                            <p className="text-[#FF5A1F] text-sm font-bold uppercase tracking-widest">Ahora crearé tus</p>
+                            <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
+                                Videos de <span className="text-purple-500">Atracción</span>
+                            </h2>
+                            <p className="text-[1.3rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">
+                                Crearé los de videos de atracción exactos para captar clientes interesados.
+                            </p>
+                        </div>
+
+                        <div className="space-y-6 pt-4">
+                            <p className="text-white text-xl font-bold uppercase tracking-tight">Con estos videos podrás:</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left">
+                                {[
+                                    'Atraer personas interesadas en tu proyecto digital',
+                                    'Capturar prospectos automáticamente las 24 horas',
+                                    'Construir una audiencia propia para futuras ventas',
+                                    'Generar más confianza y credibilidad en tu oferta'
+                                ].map((benefit, bIdx) => (
+                                    <div key={bIdx} className="flex items-center gap-4 bg-white/5 border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-colors">
+                                        <CheckCircle className="w-6 h-6 text-purple-500 shrink-0" />
+                                        <p className="text-white text-lg font-normal leading-relaxed">{benefit}</p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                {!isUnlocked && (
+                    <div className="flex flex-col items-center gap-6 mt-16">
+                        <button 
+                            onClick={() => onNext()}
+                            className="group flex items-center gap-4 px-12 py-6 bg-purple-500 hover:bg-purple-600 text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(168,85,247,0.3)] transform hover:-translate-y-2 active:scale-95 animate-bounce"
+                        >
+                            GENERAR VIDEOS DE ATRACCIÓN
+                            <Zap className="w-6 h-6 fill-white animate-pulse" />
+                        </button>
+                    </div>
+                )}
+                
+                {isUnlocked && (
+                    <div className="flex flex-col items-center gap-3 mt-12 animate-pulse">
+                        <span className="text-purple-400 text-xs font-black uppercase tracking-[0.2em]">Tus videos se han generado abajo</span>
+                        <div className="text-purple-400 animate-bounce text-sm">↓ Desliza hacia abajo para verlos ↓</div>
+                    </div>
+                )}
             </div>
 
-            {!isUnlocked && (
-                <div className="flex flex-col items-center gap-6">
-                    <button 
-                        onClick={() => onNext()}
-                        className="group flex items-center gap-4 px-12 py-6 bg-purple-500 hover:bg-purple-600 text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(168,85,247,0.3)] transform hover:-translate-y-2 active:scale-95 animate-bounce"
-                    >
-                        GENERAR VIDEOS DE ATRACCIÓN
-                        <Zap className="w-6 h-6 fill-white animate-pulse" />
-                    </button>
-                </div>
-            )}
-
+            {/* SECCIÓN B: Vídeos Listos para Usarse (Desbloqueados y Bloqueados) */}
             {isUnlocked && (
-                <div ref={hooksGridRef} className="space-y-12 pt-10 border-t border-white/5 animate-in fade-in slide-in-from-bottom-10 duration-700">
-                    <div className="max-w-4xl mx-auto rounded-[3rem] bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-black border border-purple-500/20 p-8 md:p-12 text-center relative overflow-hidden shadow-[0_25px_60px_rgba(168,85,247,0.15)]">
+                <div 
+                    ref={hooksGridRef} 
+                    className="w-full max-w-7xl mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-start py-20 snap-start snap-always relative border-t border-white/5 animate-in fade-in slide-in-from-bottom-10 duration-700"
+                    id="hooks-grid-section"
+                >
+                    <div className="max-w-4xl mx-auto rounded-[3rem] bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-black border border-purple-500/20 p-8 md:p-12 text-center relative overflow-hidden shadow-[0_25px_60px_rgba(168,85,247,0.15)] mb-16">
                         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                             <Sparkles className="w-32 h-32 text-purple-400 animate-pulse" />
                         </div>
@@ -702,9 +721,9 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                         </p>
                     </div>
 
-                    <div className="space-y-8">
+                    <div className="flex flex-col gap-6 w-full">
                         {/* Seccion 1: Hooks Desbloqueados Activos */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto w-full">
                             {displayHooks.length > 0 ? displayHooks.map((hook, idx) => {
                                 const downloadVideoUrl = hook.contentJson?.downloadUrl || hook.contentJson?.videoUrl || hook.downloadUrl || hook.videoUrl;
                                 const hasDownloadUrl = downloadVideoUrl && downloadVideoUrl !== '#';
@@ -715,7 +734,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         transition={{ delay: idx * 0.2 }}
-                                        className="bg-gradient-to-b from-[#16161a] to-[#0d0d0f] border border-purple-500/15 px-6 py-6 rounded-[2rem] relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] group hover:border-purple-400/30 hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 flex flex-col h-full"
+                                        className="bg-gradient-to-b from-[#082215] to-[#04140b] border border-emerald-500/20 px-6 py-6 rounded-[2rem] relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] group hover:border-emerald-400/40 hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 flex flex-col h-full"
                                     >
                                         <div className="flex-1 space-y-3 relative z-10 flex flex-col justify-center pt-2 pb-4">
                                             <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-black text-emerald-400 uppercase tracking-widest inline-block self-center mb-4 animate-pulse">
@@ -756,82 +775,63 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                             )}
                         </div>
 
-                        {/* Seccion 2: Hooks Premium Bloqueados con Overlay Único Centrado */}
-                        <div className="relative max-w-7xl mx-auto mt-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-30 select-none pointer-events-none filter blur-[1.5px] transition-all">
+                        {/* Seccion 2: Hooks Premium Bloqueados debajo de los activos con los Botones Principales Flotando Encima */}
+                        <div className="relative max-w-7xl mx-auto w-full">
+                            {/* Grid de Ganchos Bloqueados (visibles pero detrás de los botones) */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all select-none pointer-events-none opacity-40">
                                 {customizedLockedHooks.map((lHook, idx) => (
                                     <div 
                                         key={`locked-${idx}`}
-                                        className="bg-gradient-to-b from-[#111] to-black border border-white/5 px-6 py-6 rounded-[2rem] flex flex-col h-full"
+                                        className="bg-gradient-to-b from-[#111] to-black border border-white/5 px-6 py-6 rounded-[2rem] flex flex-col h-full hover:border-amber-400/25 transition-all duration-300"
                                     >
-                                        <div className="flex-1 space-y-3 relative z-10 flex flex-col justify-center pt-2 pb-4 select-none">
-                                            <div className="px-3 py-1 bg-purple-500/10 border border-purple-500/25 rounded-full text-[10px] font-black text-purple-400 uppercase tracking-widest inline-block self-center mb-4">
+                                        <div className="flex-1 space-y-3 relative z-10 flex flex-col justify-center pt-2 pb-4">
+                                            <div className="px-3 py-1 bg-amber-500/15 border border-amber-500/25 rounded-full text-[10px] font-black text-amber-400 uppercase tracking-widest inline-block self-center mb-4">
                                                 📅 PUBLICAR: DÍA {idx + 4} (BLOQUEADO)
                                             </div>
-                                            <h3 className="text-[1.3rem] leading-[1.8rem] font-medium mb-4 text-center text-gray-500 line-clamp-3">
+                                            <h3 className="text-[1.3rem] leading-[1.8rem] font-medium mb-4 text-center text-gray-300 line-clamp-3">
                                                 {lHook.hookText}
                                             </h3>
                                         </div>
-                                        <div className="mt-4 pt-4 border-t border-white/5 relative z-10 opacity-35">
-                                            <div className="w-full py-3 bg-amber-400/5 text-amber-500/50 rounded-xl font-bold text-[10px] uppercase text-center border border-amber-500/10">
-                                                Desbloquear Hook
+                                        <div className="mt-4 pt-4 border-t border-white/5 relative z-10">
+                                            <div 
+                                                className="w-full py-3 bg-amber-400/10 text-amber-400 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-amber-500/20"
+                                            >
+                                                <Lock className="w-3 h-3 text-amber-400" />
+                                                CONSEGUIR ACCESO
                                             </div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* Un único botón grande dorado flotando centrado en la sección bloqueada */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent flex items-center justify-center p-6 z-20">
-                                <button 
-                                    onClick={() => setShowUpgradeModal(true)}
-                                    className="group px-12 py-6 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-500 hover:to-amber-600 hover:scale-105 hover:shadow-yellow-500/35 text-black rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all shadow-[0_25px_60px_rgba(234,179,8,0.25)] border-2 border-yellow-200/20 flex items-center gap-3 animate-pulse cursor-pointer animate-bounce"
-                                    id="btn-unlock-all-hooks-wizard"
-                                >
-                                    <Lock className="w-5 h-5 text-black fill-current animate-bounce" />
-                                    DESBLOQUEAR OTROS 27 VIDEOS
-                                </button>
+                            {/* Panel de Botones Principales Stackeados - Flotando delante de la sección bloqueada */}
+                            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 z-30 pointer-events-none">
+                                <div className="flex flex-col items-center gap-5 p-8 max-w-md md:max-w-xl w-full bg-black/60 backdrop-blur-[6px] border border-white/10 rounded-[2.5rem] shadow-[0_30px_70px_rgba(0,0,0,0.9)] pointer-events-auto">
+                                    {/* Botón Dorado Desbloquear Todos */}
+                                    <button 
+                                        onClick={() => setShowUpgradeModal(true)}
+                                        className="w-full group px-12 py-5 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-500 hover:to-amber-600 hover:scale-[1.03] hover:shadow-yellow-500/35 text-black rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all shadow-[0_25px_60px_rgba(234,179,8,0.25)] border-2 border-yellow-200/20 flex items-center justify-center gap-3 cursor-pointer animate-pulse"
+                                        id="btn-unlock-all-hooks-wizard"
+                                    >
+                                        <Lock className="w-5 h-5 text-black fill-current animate-bounce" />
+                                        DESBLOQUEAR OTROS 27 VIDEOS
+                                    </button>
+
+                                    {/* Botón Verde Finalizar Configuración */}
+                                    <button 
+                                        onClick={() => setShowWarningModal(true)}
+                                        className="w-full group flex items-center justify-center gap-4 px-12 py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-lg transition-all shadow-[0_20px_50px_-10px_rgba(16,185,129,0.3)] transform hover:-translate-y-1 active:scale-95 cursor-pointer whitespace-nowrap"
+                                        id="btn-finalize-customization"
+                                    >
+                                        FINALIZAR CONFIGURACIÓN
+                                        <Rocket className="w-5 h-5 animate-pulse" />
+                                    </button>
+                                    <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest text-center animate-pulse">
+                                        Haz clic en finalizar la configuración para continuar al paso final
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    {/* CTA Llamativo para Desbloquear Más Hooks */}
-                    <div className="mt-12 bg-gradient-to-b from-[#1b1509] to-black rounded-[3rem] border border-amber-500/40 p-10 max-w-4xl mx-auto text-center relative overflow-hidden shadow-2xl">
-                        <div className="absolute inset-0 bg-yellow-500/5 blur-xl pointer-events-none" />
-                        <div className="relative z-10 space-y-6">
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/30 rounded-full text-xs font-black text-amber-400 uppercase tracking-widest animate-pulse">
-                                <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
-                                Acceso Ilimitado Premium
-                            </div>
-                            <h3 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tight">
-                                ¿Quieres <span className="text-amber-400">Desbloquear</span> Todos los Videos de Atracción?
-                            </h3>
-                            <p className="text-gray-300 max-w-2xl mx-auto text-base">
-                                Obtén acceso inmediato a nuestro motor de IA ilimitado, ganchos de alta persuasión psicológica adicionales, plantillas de videos ganadoras y nuestro sistema automatizado de ventas para escalar tu negocio.
-                            </p>
-                            <div className="pt-2">
-                                <button 
-                                    onClick={() => setShowUpgradeModal(true)}
-                                    className="group px-12 py-5 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-500 hover:to-amber-600 hover:scale-105 hover:shadow-yellow-500/25 text-black rounded-[2rem] font-black text-lg transition-all shadow-[0_20px_50px_-10px_rgba(234,179,8,0.3)] flex items-center gap-4 mx-auto cursor-pointer"
-                                >
-                                    🚀 DESBLOQUEAR 27 VIDEOS RESTANTES
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col items-center gap-4 pt-10">
-                        <button 
-                            onClick={() => setShowWarningModal(true)}
-                            className="group flex items-center gap-4 px-14 py-7 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(16,185,129,0.3)] transform hover:-translate-y-2 active:scale-95 cursor-pointer"
-                            id="btn-finalize-customization"
-                        >
-                            🏁 FINALIZAR CONFIGURACIÓN
-                            <Rocket className="w-6 h-6 animate-pulse" />
-                        </button>
-                        <p className="text-gray-500 font-bold text-xs uppercase tracking-widest animate-pulse">
-                            Clic aquí para finalizar la configuración magistral y avanzar
-                        </p>
                     </div>
                 </div>
             )}
