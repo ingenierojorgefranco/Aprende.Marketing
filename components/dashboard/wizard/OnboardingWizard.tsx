@@ -33,7 +33,15 @@ type WizardStep = 'welcome' | 'selection' | 'generating_strategy' | 'strategy_re
 
 export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComplete, onLogout, onGenerationStateChange, onUpdateUser }) => {
     const navigate = useNavigate();
-    const [step, setStep] = useState<WizardStep>('welcome');
+    const [step, setStep] = useState<WizardStep>(() => {
+        if (typeof window !== 'undefined') {
+            const forced = localStorage.getItem('force_wizard_step');
+            if (forced === 'success') {
+                return 'success';
+            }
+        }
+        return 'welcome';
+    });
     const [showProfileModal, setShowProfileModal] = useState(false);
     const [projects, setProjects] = useState<Project[]>([]);
     const [userActiveProjects, setUserActiveProjects] = useState<Project[]>([]);
@@ -417,7 +425,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     return (
         <div className="fixed inset-0 bg-[#020202] overflow-y-auto overflow-x-hidden snap-y snap-mandatory z-[45] scroll-smooth selection:bg-[#FF5A1F] selection:text-white">
             {/* Header del Wizard */}
-            <header className="fixed top-0 left-0 right-0 h-20 bg-transparent flex items-center justify-between px-6 md:px-12 z-50">
+            <header className={`fixed top-0 left-0 right-0 h-20 flex items-center justify-between px-6 md:px-12 z-50 transition-all duration-300 ${
+                step === 'success' 
+                    ? 'bg-[#0B0B0B]/95 backdrop-blur-md border-b border-white/5 shadow-2xl' 
+                    : 'bg-transparent'
+            }`}>
                 {/* Logo a la izquierda */}
                 <div className="flex items-center gap-3">
                     <div className="w-12 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-[#FF5A1F]/20 px-1">A.MKT</div>
@@ -449,6 +461,27 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                     )}
                 </div>
             </header>
+
+            {/* Top Alert Bar - Solución Premium de WhatsApp */}
+            {step === 'success' && (
+                <div className="fixed top-20 left-0 right-0 h-12 bg-gradient-to-r from-[#FF5A1F] to-[#E04812] flex items-center justify-between px-4 md:px-12 z-40 border-b border-white/10 shadow-lg font-sans">
+                    <div className="flex-1 text-center flex items-center justify-center gap-2">
+                        <span className="text-sm md:text-base">🔥</span>
+                        <p className="text-white text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-wide">
+                            ¡No te quedes a medias! Únete al Desafío de 7 Días en WhatsApp y lanza tu primera campaña con el creador.
+                        </p>
+                    </div>
+                    <a 
+                        href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="px-4 py-1.5 bg-white text-[#FF5A1F] hover:bg-white/95 font-bold text-[10px] uppercase tracking-wider rounded-lg shadow-md transition transform hover:scale-105 active:scale-95 shrink-0 flex items-center gap-1 leading-none font-sans"
+                    >
+                        Entrar al Grupo
+                        <ChevronRight className="w-3.5 h-3.5" />
+                    </a>
+                </div>
+            )}
 
             {/* Background Decorations - Fixed to viewport to cover everything consistently */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
@@ -545,7 +578,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         </div>
                     </div>
                 ) : step === 'success' ? (
-                    <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center pt-28 pb-16 relative z-10 font-sans">
+                    <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center pt-36 md:pt-40 pb-16 relative z-10 font-sans">
                         
                         {/* Page Title */}
                         <div className="text-center max-w-4xl mx-auto mb-12">
@@ -553,47 +586,20 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                 ★ Configuración Completada ★
                             </span>
                             <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none mb-4">
-                                ¡ TODO <span className="text-[#FF5A1F]">LISTO</span> !
+                                Tu Centro de <span className="text-[#FF5A1F]">Operaciones</span>
                             </h1>
                             <p className="text-white text-lg md:text-xl font-medium leading-relaxed max-w-2xl mx-auto">
-                                Tu primer negocio ha sido configurado con éxito. Ya puedes administrar tu sistema de ventas de afiliados premium.
+                                Gestiona tu ecosistema de afiliados y escala tus resultados.
                             </p>
                         </div>
 
                         {/* Big Layout (Bento Grid) */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full mb-12">
-                            {/* Left column: 2 slots (Community Banner & Project Info) */}
-                            <div className="lg:col-span-2 space-y-8 flex flex-col justify-between">
-                                {/* 1. Community WhatsApp Banner */}
-                                <div className="bg-gradient-to-r from-[#FF5A1F] to-[#E04812] rounded-[2.5rem] p-6 md:p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden flex-1">
-                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent)] pointer-events-none"></div>
-                                    <div className="flex items-center gap-4 text-left">
-                                        <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
-                                            <span className="text-2xl">🔥</span>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tight">
-                                                ¡No te quedes a medias!
-                                            </h3>
-                                            <p className="text-white/95 text-sm md:text-base font-medium">
-                                                Únete al Desafío de 7 Días en WhatsApp y lanza tu primera campaña con el creador de la plataforma.
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <a 
-                                        href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1" 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="px-8 py-4 bg-white text-[#FF5A1F] hover:bg-white/95 font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2 shrink-0 text-center justify-center font-sans"
-                                    >
-                                        Entrar al Grupo Privado
-                                        <ChevronRight className="w-4 h-4" />
-                                    </a>
-                                </div>
-                                
-                                {/* 2. Project Progress Bento */}
-                                <div className="bg-[#111] border border-white/5 rounded-[2.5rem] p-8 flex flex-col md:flex-row items-center gap-8 shadow-2xl relative overflow-hidden flex-[2]">
-                                    <div className="relative w-36 h-36 rounded-3xl overflow-hidden bg-gray-800 shrink-0 border border-white/10 shadow-lg">
+                            {/* Columna Izquierda (El Proyecto) - 70% width or lg:col-span-2 */}
+                            <div className="lg:col-span-2 flex">
+                                {/* Project Progress Bento */}
+                                <div className="bg-[#111] border border-white/5 rounded-[2.5rem] p-8 md:p-10 flex flex-col md:flex-row items-center gap-8 md:gap-10 shadow-2xl relative overflow-hidden flex-1 w-full">
+                                    <div className="relative w-40 h-40 md:w-48 md:h-48 rounded-[2rem] overflow-hidden bg-gray-800 shrink-0 border border-white/10 shadow-xl">
                                         {activeProjectImage ? (
                                             <img 
                                                 src={activeProjectImage} 
@@ -603,48 +609,48 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
-                                                <Target className="w-12 h-12 text-[#FF5A1F] opacity-30" />
+                                                <Target className="w-16 h-16 text-[#FF5A1F] opacity-30" />
                                             </div>
                                         )}
                                         <div className="absolute inset-0 bg-gradient-to-t from-[#111] to-transparent opacity-40"></div>
                                     </div>
                                     
-                                    <div className="flex-1 text-left space-y-4 font-sans">
+                                    <div className="flex-1 text-left space-y-5 font-sans">
                                         <div className="flex flex-wrap items-center gap-3">
-                                            <span className="px-3 py-1 bg-[#FF5A1F]/10 border border-[#FF5A1F]/25 text-[10px] font-black uppercase text-[#FF5A1F] tracking-widest rounded-full">
+                                            <span className="px-3.5 py-1.5 bg-[#FF5A1F]/10 border border-[#FF5A1F]/25 text-[10px] sm:text-xs font-black uppercase text-[#FF5A1F] tracking-widest rounded-full">
                                                 {activeProjectNiche}
                                             </span>
-                                            <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
-                                                Proyecto Reciente
+                                            <span className="text-[10px] sm:text-xs font-black uppercase text-gray-500 tracking-widest">
+                                                Proyecto Activo Premium
                                             </span>
                                         </div>
                                         
                                         <div>
-                                            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight uppercase">
+                                            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight uppercase leading-none">
                                                 {activeProjectName}
                                             </h2>
-                                            <p className="text-gray-400 text-sm leading-relaxed max-w-2xl mt-1">
-                                                La estructura psicológica para capturar prospectos y concretar comisiones recurrentes ya fue configurada con éxito.
+                                            <p className="text-gray-400 text-sm md:text-base leading-relaxed mt-2 font-medium">
+                                                La estructura psicológica de alta conversión para capturar prospectos y concretar comisiones recurrentes ya fue configurada con éxito.
                                             </p>
                                         </div>
 
                                         {/* Progress bar info */}
-                                        <div className="space-y-2 pt-2">
-                                            <div className="flex justify-between items-center text-xs">
-                                                <span className="text-emerald-400 font-bold uppercase tracking-wider">Tu máquina de ventas está encendida en nivel básico</span>
-                                                <span className="text-[#FF5A1F] font-black">40% Completado</span>
+                                        <div className="space-y-3 pt-2">
+                                            <div className="flex justify-between items-center text-xs md:text-sm">
+                                                <span className="text-emerald-400 font-extrabold uppercase tracking-wider">Tu máquina de ventas está encendida en nivel básico</span>
+                                                <span className="text-[#FF5A1F] font-black text-sm md:text-base">40% Completado</span>
                                             </div>
-                                            {/* Visual Progress Blocks */}
-                                            <div className="flex items-center gap-1.5 w-full">
-                                                <div className="h-4 flex-1 bg-emerald-500 rounded-md"></div>
-                                                <div className="h-4 flex-1 bg-emerald-500 rounded-md"></div>
-                                                <div className="h-4 flex-1 bg-emerald-500 rounded-md"></div>
-                                                <div className="h-4 flex-1 bg-gray-800 rounded-md"></div>
-                                                <div className="h-4 flex-1 bg-gray-800 rounded-md"></div>
-                                                <div className="h-4 flex-1 bg-gray-800 rounded-md"></div>
-                                                <div className="h-4 flex-1 bg-gray-800 rounded-md"></div>
+                                            {/* Visual Progress Blocks - Thicker */}
+                                            <div className="flex items-center gap-2 w-full">
+                                                <div className="h-5 flex-1 bg-emerald-500 rounded-md"></div>
+                                                <div className="h-5 flex-1 bg-emerald-500 rounded-md"></div>
+                                                <div className="h-5 flex-1 bg-emerald-500 rounded-md"></div>
+                                                <div className="h-5 flex-1 bg-gray-800 rounded-md"></div>
+                                                <div className="h-5 flex-1 bg-gray-800 rounded-md"></div>
+                                                <div className="h-5 flex-1 bg-gray-800 rounded-md"></div>
+                                                <div className="h-5 flex-1 bg-gray-800 rounded-md"></div>
                                             </div>
-                                            <p className="text-xs text-gray-500 font-medium">
+                                            <p className="text-xs text-gray-500 font-bold uppercase tracking-wide mt-1">
                                                 Completa los siguientes módulos para operar como un Súper Afiliado y rentabilizar tu tráfico.
                                             </p>
                                         </div>
@@ -652,7 +658,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                 </div>
                             </div>
 
-                            {/* Right column: Slots Inventory Reminders */}
+                            {/* Right column: Slots Inventory Reminders (Capacidad del Plan) */}
                             <div className="bg-[#111] border border-[#FF5A1F]/20 rounded-[2.5rem] p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden font-sans">
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF5A1F]/10 blur-xl rounded-full"></div>
                                 <div className="space-y-6">
@@ -675,15 +681,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                         <div className="h-2.5 bg-gray-800 rounded-full overflow-hidden">
                                             <div className="h-full bg-[#FF5A1F] rounded-full w-full"></div>
                                         </div>
-                                        <span className="text-[11px] text-yellow-501 font-bold uppercase tracking-wide block">
+                                        <span className="text-[11px] text-yellow-500 font-bold uppercase tracking-wide block">
                                             🔒 Capacidad al 100% (Plan Gratuito)
                                         </span>
                                     </div>
 
-                                    <div className="space-y-4 text-left">
-                                        <h5 className="text-sm font-black text-white uppercase tracking-wider">¿Deseas vender múltiples productos?</h5>
+                                    <div className="space-y-3 text-left">
+                                        <h5 className="text-sm font-black text-white uppercase tracking-wider">Multiplica tus fuentes de ingresos</h5>
                                         <p className="text-[#999] text-xs leading-relaxed font-semibold">
-                                            Sube al Plan PRO por solo $39 para desbloquear 3 ranuras activas simultáneas, conectar dominios propios y activar todas las herramientas de IA generativa ilimitada.
+                                            Sube al Plan PRO por $39 para activar 3 ecosistemas simultáneos y conectar tu dominio.
                                         </p>
                                     </div>
                                 </div>
@@ -694,7 +700,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                         className="w-full py-4 bg-gradient-to-r from-[#FF5A1F] to-[#E04812] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:shadow-2xl hover:shadow-[#FF5A1F]/20 transition-all flex items-center justify-center gap-2"
                                     >
                                         <Rocket className="w-4 h-4 animate-bounce" />
-                                        Actualizar a Pro por $39
+                                        Actualizar al Plan PRO por $39
                                     </button>
                                 </div>
                             </div>
@@ -720,7 +726,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                     </div>
                                     <div>
                                         <h3 className="text-xl font-bold text-white tracking-tight uppercase">Landing Page</h3>
-                                        <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+                                        <p className="text-gray-400 text-sm mt-2 leading-relaxed font-medium">
                                             Tu embudo de marketing recopila prospectos activamente en su enlace oficial.
                                         </p>
                                     </div>
@@ -737,9 +743,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                     </button>
                                     <button 
                                         onClick={() => setShowUpgradeModal(true)}
-                                        className="flex-1 py-3 px-4 bg-[#FF5A1F]/15 border border-[#FF5A1F]/20 rounded-xl text-xs font-black uppercase text-[#FF5A1F] hover:bg-[#FF5A1F] hover:text-white transition flex items-center justify-center gap-1.5"
+                                        className="flex-1 py-3 px-4 bg-white/10 border border-white/15 rounded-xl text-xs font-black uppercase text-white/90 hover:bg-white/15 hover:text-white transition flex items-center justify-center gap-1.5"
                                     >
-                                        <Lock className="w-3.5 h-3.5" />
+                                        <Lock className="w-3.5 h-3.5 text-[#FF5A1F]" />
                                         Dominio
                                     </button>
                                 </div>
@@ -758,7 +764,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                     </div>
                                     <div>
                                         <h3 className="text-xl font-bold text-white tracking-tight uppercase">Hooks de Video</h3>
-                                        <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+                                        <p className="text-gray-400 text-sm mt-2 leading-relaxed font-medium">
                                             3 de 30 videos generados. Tienes guiones persuasivos listos para captar la atención de tu audiencia en TikTok, Instagram y Shorts.
                                         </p>
                                     </div>
@@ -774,60 +780,72 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                 </div>
                             </div>
 
-                            {/* Bloque 3 */}
-                            <div className="bg-[#111]/40 border border-white/5 rounded-[2.5rem] p-8 flex flex-col justify-between h-full opacity-65 hover:opacity-100 transition-all min-h-[350px] text-left">
-                                <div className="space-y-4">
+                            {/* Bloque 3 - Glassmorphism */}
+                            <div className="bg-white/[0.03] border border-white/10 backdrop-blur-md rounded-[2.5rem] p-8 flex flex-col justify-between h-full transition-all min-h-[350px] text-left relative overflow-hidden group hover:border-[#FF5A1F]/30 shadow-xl">
+                                {/* Floating Premium Lock watermark in the center background */}
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity pointer-events-none">
+                                    <Lock className="w-48 h-48 text-white stroke-[0.5]" />
+                                </div>
+
+                                <div className="space-y-4 relative z-10">
                                     <div className="flex justify-between items-start">
-                                        <span className="w-12 h-12 bg-gray-500/10 rounded-2xl flex items-center justify-center">
-                                            <MessageSquare className="w-6 h-6 text-gray-500" />
+                                        <span className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10">
+                                            <MessageSquare className="w-6 h-6 text-gray-400" />
                                         </span>
-                                        <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-wider">
-                                            Bloqueado
+                                        <span className="px-3 py-1 bg-white/[0.08] border border-white/10 rounded-full text-[10px] font-black text-[#FF5A1F] uppercase tracking-wider flex items-center gap-1">
+                                            <Lock className="w-3 h-3" />
+                                            Módulo PRO
                                         </span>
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-bold text-white/80 tracking-tight uppercase">Máquina de WhatsApp</h3>
-                                        <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+                                        <h3 className="text-xl font-bold text-white tracking-tight uppercase">Máquina de WhatsApp</h3>
+                                        <p className="text-gray-300/85 text-sm mt-2 leading-relaxed font-medium">
                                             El 80% de las ventas en Hotmart se cierran por WhatsApp. Deja que la IA inteligente escriba tus respuestas persuasivas.
                                         </p>
                                     </div>
                                 </div>
-                                <div className="pt-6 border-t border-white/5">
+                                <div className="pt-6 border-t border-white/10 relative z-10 font-sans">
                                     <button 
                                         onClick={() => setShowUpgradeModal(true)}
-                                        className="w-full py-4 bg-white/5 border border-white/10 text-white/80 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#FF5A1F] hover:text-white hover:border-[#FF5A1F] transition-all flex items-center justify-center gap-2"
+                                        className="w-full py-4 bg-white/[0.06] border border-white/10 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#FF5A1F] hover:text-white hover:border-[#FF5A1F] transition-all flex items-center justify-center gap-2 shadow-inner"
                                     >
-                                        <Lock className="w-4 h-4" />
-                                        Activar WhatsApp
+                                        <Lock className="w-4 h-4 text-[#FF5A1F]" />
+                                        Desbloquear módulo PRO
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Bloque 4 */}
-                            <div className="bg-[#111]/40 border border-white/5 rounded-[2.5rem] p-8 flex flex-col justify-between h-full opacity-65 hover:opacity-100 transition-all min-h-[350px] text-left">
-                                <div className="space-y-4">
+                            {/* Bloque 4 - Glassmorphism */}
+                            <div className="bg-white/[0.03] border border-white/10 backdrop-blur-md rounded-[2.5rem] p-8 flex flex-col justify-between h-full transition-all min-h-[350px] text-left relative overflow-hidden group hover:border-[#FF5A1F]/30 shadow-xl">
+                                {/* Floating Premium Lock watermark in the center background */}
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity pointer-events-none">
+                                    <Lock className="w-48 h-48 text-white stroke-[0.5]" />
+                                </div>
+
+                                <div className="space-y-4 relative z-10">
                                     <div className="flex justify-between items-start">
-                                        <span className="w-12 h-12 bg-gray-500/10 rounded-2xl flex items-center justify-center">
-                                            <Mail className="w-6 h-6 text-gray-500" />
+                                        <span className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10">
+                                            <Mail className="w-6 h-6 text-gray-400" />
                                         </span>
-                                        <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-wider">
-                                            Bloqueado
+                                        <span className="px-3 py-1 bg-white/[0.08] border border-white/10 rounded-full text-[10px] font-black text-[#FF5A1F] uppercase tracking-wider flex items-center gap-1">
+                                            <Lock className="w-3 h-3" />
+                                            Módulo PRO
                                         </span>
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-bold text-white/80 tracking-tight uppercase">SEO y Correo</h3>
-                                        <p className="text-gray-400 text-sm mt-2 leading-relaxed">
-                                            Recupera carritos abandonados de Hotmart y nutre a tus prospectos en automático con campañas optimizadas.
+                                        <h3 className="text-xl font-bold text-white tracking-tight uppercase">SEO y Correo</h3>
+                                        <p className="text-gray-300/85 text-sm mt-2 leading-relaxed font-medium">
+                                            Recupera carritos abandonados de Hotmart y nutre a tus prospectos en automático con campañas de email marketing optimizadas.
                                         </p>
                                     </div>
                                 </div>
-                                <div className="pt-6 border-t border-white/5">
+                                <div className="pt-6 border-t border-white/10 relative z-10 font-sans">
                                     <button 
                                         onClick={() => setShowUpgradeModal(true)}
-                                        className="w-full py-4 bg-white/5 border border-white/10 text-white/80 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#FF5A1F] hover:text-white hover:border-[#FF5A1F] transition-all flex items-center justify-center gap-2"
+                                        className="w-full py-4 bg-white/[0.06] border border-white/10 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#FF5A1F] hover:text-white hover:border-[#FF5A1F] transition-all flex items-center justify-center gap-2 shadow-inner"
                                     >
-                                        <Lock className="w-4 h-4" />
-                                        Activar Correo y SEO
+                                        <Lock className="w-4 h-4 text-[#FF5A1F]" />
+                                        Desbloquear módulo PRO
                                     </button>
                                 </div>
                             </div>
@@ -836,7 +854,12 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         {/* Final Central Call To Action Button to go to Dashboard */}
                         <div className="flex flex-col items-center justify-center gap-4 border-t border-white/5 pt-12">
                             <button 
-                                onClick={onComplete}
+                                onClick={() => {
+                                    if (typeof window !== 'undefined') {
+                                        localStorage.removeItem('force_wizard_step');
+                                    }
+                                    onComplete();
+                                }}
                                 className="px-12 py-6 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-base md:text-lg uppercase tracking-widest transition-all shadow-xl shadow-emerald-500/20 transform hover:-translate-y-1 active:translate-y-0 flex items-center gap-3"
                             >
                                 Finalizar configuración ➔ Ir a mi Panel de Control
@@ -845,7 +868,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                 Entrar al administrador completo de mi sistema
                             </p>
                         </div>
-
                     </div>
                 ) : (
                     <div className="flex flex-col">
