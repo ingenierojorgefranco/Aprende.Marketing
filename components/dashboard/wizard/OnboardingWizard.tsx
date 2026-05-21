@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { User, Project, ColorPalette } from '../../../types';
 import { api } from '../../../services/api';
-import { Zap, Target, CheckCircle } from 'lucide-react';
+import { Zap, Target, CheckCircle, LogOut } from 'lucide-react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { 
     WelcomeStep, 
@@ -17,17 +17,21 @@ import {
     SuccessStep 
 } from './WizardSteps';
 
+const UserProfileModal = React.lazy(() => import('../UserProfileModal'));
+
 interface OnboardingWizardProps {
     user: User;
     onComplete: () => void;
     onLogout?: () => void;
     onGenerationStateChange?: (isGenerating: boolean) => void;
+    onUpdateUser?: (updatedUser: User) => void;
 }
 
 type WizardStep = 'welcome' | 'selection' | 'generating_strategy' | 'strategy_ready' | 'show_avatars' | 'show_landing_prep' | 'creating_web' | 'landing_success' | 'show_hooks' | 'generating_hooks' | 'success';
 
-export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComplete, onLogout, onGenerationStateChange }) => {
+export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComplete, onLogout, onGenerationStateChange, onUpdateUser }) => {
     const [step, setStep] = useState<WizardStep>('welcome');
+    const [showProfileModal, setShowProfileModal] = useState(false);
     const [projects, setProjects] = useState<Project[]>([]);
     const [loadingProjects, setLoadingProjects] = useState(false);
     const [generationProgress, setGenerationProgress] = useState(0);
@@ -375,6 +379,40 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
     return (
         <div className="fixed inset-0 bg-[#020202] overflow-y-auto overflow-x-hidden snap-y snap-mandatory z-[45] scroll-smooth selection:bg-[#FF5A1F] selection:text-white">
+            {/* Header del Wizard */}
+            <header className="fixed top-0 left-0 right-0 h-20 bg-transparent flex items-center justify-between px-6 md:px-12 z-50">
+                {/* Logo a la izquierda */}
+                <div className="flex items-center gap-3">
+                    <div className="w-12 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-[#FF5A1F]/20 px-1">A.MKT</div>
+                    <h2 className="text-lg font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
+                </div>
+
+                {/* Perfil y Salir a la derecha (sin fondo, flotando) */}
+                <div className="flex items-center gap-2 sm:gap-4 z-10 font-sans">
+                    <button 
+                        onClick={() => setShowProfileModal(true)} 
+                        className="flex items-center gap-2 sm:gap-3 pl-2 pr-3 sm:pr-4 py-1.5 rounded-full bg-transparent border border-transparent hover:bg-white/5 hover:border-white/10 transition shadow-sm"
+                    >
+                        <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center font-bold overflow-hidden shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
+                            {user.avatarUrl ? <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" /> : user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <span className="text-sm font-bold text-[#B0B0B0] hidden sm:block truncate max-w-[124px] hover:text-white transition-colors">{user.name}</span>
+                    </button>
+
+                    {onLogout && (
+                        <button 
+                            onClick={onLogout} 
+                            className="flex items-center gap-2 sm:gap-3 pl-2 pr-3 sm:pr-4 py-1.5 rounded-full bg-transparent border border-transparent text-[#B0B0B0] hover:text-red-400 hover:bg-red-900/10 hover:border-red-500/10 transition-all"
+                        >
+                            <div className="w-8 h-8 rounded-full bg-[#FF5A1F]/10 text-[#FF5A1F] hover:bg-[#FF5A1F]/20 flex items-center justify-center flex-shrink-0 transition-colors">
+                                <LogOut className="w-4 h-4" />
+                            </div>
+                            <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Salir</span>
+                        </button>
+                    )}
+                </div>
+            </header>
+
             {/* Background Decorations - Fixed to viewport to cover everything consistently */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
                 <div className="absolute top-[-10%] -left-[10%] w-[70%] h-[70%] bg-[#FF5A1F]/10 blur-[130px] rounded-full animate-pulse opacity-60"></div>
@@ -384,7 +422,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             <div className="w-full relative z-10">
                 <div className="flex flex-col">
                     {/* 1. BIENVENIDA */}
-                    <div ref={welcomeRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
+                    <div ref={welcomeRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
                             <WelcomeStep 
                                 userData={user} 
                                 onNext={() => {
@@ -398,7 +436,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         {/* 2. SELECCIÓN DE PROYECTO */}
                         {revealedSections.includes('selection') && (
                             <>
-                                <div ref={selectionRef} className="w-full max-w-7xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
+                                <div ref={selectionRef} className="w-full max-w-[1400px] mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
                                     <ProjectSelectionStep 
                                         projects={projects}
                                         loading={loadingProjects}
@@ -414,7 +452,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                         ref={unlockRef}
                                         initial={{ opacity: 0, y: 50 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden"
+                                        className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
                                     >
                                         <div className="text-center mb-6">
                                             <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-black text-emerald-500 uppercase tracking-[0.2em]">
@@ -529,7 +567,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
                         {/* 3. GENERANDO ESTRATEGIA */}
                         {revealedSections.includes('generating_strategy') && step === 'generating_strategy' && (
-                            <div ref={strategyRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
+                            <div ref={strategyRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
                                 <GenerationStep 
                                     progress={generationProgress} 
                                     status={generationStatus} 
@@ -540,7 +578,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
                         {/* 4. AVATARES */}
                         {revealedSections.includes('strategy_ready') && (
-                            <div className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
+                            <div className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
                                 <StrategyReadyStep 
                                     userData={user}
                                     project={selectedProject}
@@ -550,7 +588,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         )}
 
                         {revealedSections.includes('show_avatars') && (
-                            <div ref={avatarsRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
+                            <div ref={avatarsRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
                                 <AvatarRevealStep 
                                     userData={user}
                                     avatars={strategyData?.avatars || []}
@@ -561,7 +599,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
                         {/* 5. LANDING PREP */}
                         {revealedSections.includes('show_landing_prep') && (
-                            <div ref={landingPrepRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
+                            <div ref={landingPrepRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
                                 <LandingIntroStep 
                                     userData={user}
                                     onNext={() => setShowCreateLandingConfirm(true)}
@@ -572,7 +610,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
                         {/* 6. CREANDO WEB */}
                         {revealedSections.includes('creating_web') && step === 'creating_web' && (
-                            <div ref={creationRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
+                            <div ref={creationRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
                                 <h1 className="text-center text-emerald-500 font-black uppercase tracking-widest mb-10">Estoy creando tu Página Web Profesional</h1>
                                 <GenerationStep 
                                     progress={generationProgress} 
@@ -584,7 +622,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         )}
 
                         {revealedSections.includes('landing_success') && (
-                            <div ref={landingSuccessRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
+                            <div ref={landingSuccessRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
                                 <LandingSuccessStep 
                                     userData={user}
                                     onNext={() => setStep('show_hooks')}
@@ -609,7 +647,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
                         {/* 6.5 GENERANDO HOOKS (LOADING) */}
                         {step === 'generating_hooks' && (
-                            <div className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
+                            <div className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
                                 <h1 className="text-center text-purple-500 font-black uppercase tracking-widest mb-10">Generando Activos de Atracción</h1>
                                 <GenerationStep 
                                     progress={generationProgress} 
@@ -622,7 +660,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
                         {/* 7. HOOKS REVEAL */}
                         {revealedSections.includes('show_hooks') && step !== 'generating_hooks' && (
-                            <div className="relative w-full">
+                            <div className="relative w-full pt-24 pb-12 px-4 md:px-6">
                                 <HooksRevealStep 
                                     userData={user}
                                     hooks={unlockedHooks.length > 0 ? unlockedHooks : (strategyData?.modules?.hooks || [])}
@@ -645,12 +683,22 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
                         {/* 8. ÉXITO FINAL */}
                         {revealedSections.includes('success') && (
-                            <div ref={successRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center snap-start snap-always relative overflow-hidden">
+                            <div ref={successRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
                                 <SuccessStep onFinish={onComplete} />
                             </div>
                         )}
                     </div>
                 </div>
+
+            <Suspense fallback={null}>
+                {showProfileModal && (
+                    <UserProfileModal 
+                        user={user} 
+                        onClose={() => setShowProfileModal(false)} 
+                        onUpdateUser={onUpdateUser!} 
+                    />
+                )}
+            </Suspense>
 
             {/* Minimalist Top Progress Bar */}
             {(step !== 'success' && !isGenerating) && (() => {

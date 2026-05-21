@@ -110,7 +110,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                 </p>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-10 max-w-7xl mx-auto w-full">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[1400px] mx-auto w-full">
                 {projects.map((project) => {
                     const isSelected = selectedProjectId === project.id;
                     
@@ -118,7 +118,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                         <motion.div 
                             key={project.id}
                             whileHover={isLocked ? {} : { y: -10 }}
-                            className={`bg-[#111] border ${isSelected ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/20' : 'border-white/5'} ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-[2.5rem] overflow-hidden group cursor-pointer hover:border-[#FF5A1F]/50 transition-all flex flex-col h-full shadow-2xl relative min-h-[520px] w-full sm:w-[480px] md:w-[420px] lg:w-[440px] xl:w-[480px] max-w-full`}
+                            className={`bg-[#111] border ${isSelected ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/20' : 'border-white/5'} ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-[2.5rem] overflow-hidden group cursor-pointer hover:border-[#FF5A1F]/50 transition-all flex flex-col h-full shadow-2xl relative min-h-[520px] w-full`}
                             onClick={() => !isLocked && onNext(project)}
                         >
                             {isSelected && (

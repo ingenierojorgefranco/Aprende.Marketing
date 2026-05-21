@@ -476,6 +476,7 @@ export const DashboardLayout = ({
                         onComplete={() => window.location.reload()} 
                         onLogout={onLogout}
                         onGenerationStateChange={setIsWizardGenerating}
+                        onUpdateUser={onUpdateUser}
                     />
                 ) : (
                     <Outlet context={{ 
