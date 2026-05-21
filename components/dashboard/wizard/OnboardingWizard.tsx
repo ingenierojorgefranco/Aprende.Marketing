@@ -27,12 +27,13 @@ interface OnboardingWizardProps {
     onUpdateUser?: (updatedUser: User) => void;
 }
 
-type WizardStep = 'welcome' | 'selection' | 'generating_strategy' | 'strategy_ready' | 'show_avatars' | 'show_landing_prep' | 'creating_web' | 'landing_success' | 'show_hooks' | 'generating_hooks' | 'success';
+type WizardStep = 'welcome' | 'selection' | 'generating_strategy' | 'strategy_ready' | 'show_avatars' | 'show_landing_prep' | 'creating_web' | 'landing_success' | 'show_hooks' | 'generating_hooks' | 'success' | 'limit_reached';
 
 export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComplete, onLogout, onGenerationStateChange, onUpdateUser }) => {
     const [step, setStep] = useState<WizardStep>('welcome');
     const [showProfileModal, setShowProfileModal] = useState(false);
     const [projects, setProjects] = useState<Project[]>([]);
+    const [userActiveProjects, setUserActiveProjects] = useState<Project[]>([]);
     const [loadingProjects, setLoadingProjects] = useState(false);
     const [generationProgress, setGenerationProgress] = useState(0);
     const [generationStatus, setGenerationStatus] = useState('Iniciando...');
@@ -177,10 +178,27 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                 setStep('strategy_ready');
             }, 800);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error en desbloqueo:", error);
-            setGenerationStatus('Error. Reintentando...');
-            setTimeout(() => setStep('selection'), 2000);
+            const errorMsg = error?.message || error?.toString() || '';
+            const isLimitError = errorMsg.includes('403') || 
+                                 errorMsg.includes('límite') || 
+                                 errorMsg.includes('limite') || 
+                                 errorMsg.includes('proyectos') ||
+                                 errorMsg.includes('cupo');
+            
+            if (isLimitError) {
+                try {
+                    const myProjects = await api.getProjects();
+                    setUserActiveProjects(myProjects);
+                } catch (loadErr) {
+                    console.error("Error cargando proyectos del usuario:", loadErr);
+                }
+                setStep('limit_reached');
+            } else {
+                setGenerationStatus('Error. Reintentando...');
+                setTimeout(() => setStep('selection'), 2000);
+            }
         }
     };
 
@@ -420,7 +438,102 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
             </div>
 
             <div className="w-full relative z-10">
-                <div className="flex flex-col">
+                {step === 'limit_reached' ? (
+                    <div className="w-full max-w-5xl mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center pt-28 pb-16 relative z-10 font-sans">
+                        <div className="text-center max-w-2xl mx-auto mb-12">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full text-xs font-bold text-red-400 uppercase tracking-widest mb-4 animate-pulse">
+                                Plan Completo
+                            </span>
+                            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4 uppercase">
+                                ¡Límite del Plan Alcanzado!
+                            </h1>
+                            <p className="text-gray-400 text-base md:text-lg leading-relaxed">
+                                Has alcanzado el límite máximo de proyectos disponibles en tu suscripción actual. Para continuar creando nuevas estrategias de marketing, necesitas liberar cupos o actualizar tu plan. Aquí tienes tus proyectos activos:
+                            </p>
+                        </div>
+
+                        {userActiveProjects.length === 0 ? (
+                            <div className="text-center py-10 bg-[#111]/50 rounded-[2.5rem] border border-white/5 max-w-xl mx-auto w-full px-6">
+                                <p className="text-gray-400 text-sm animate-pulse">Cargando tus proyectos activos...</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center max-w-6xl mx-auto w-full mb-16">
+                                {userActiveProjects.map((project) => (
+                                    <div 
+                                        key={project.id}
+                                        className="bg-[#111111]/90 border border-white/5 rounded-[2.5rem] overflow-hidden group hover:border-[#FF5A1F]/30 transition-all duration-300 flex flex-col h-full shadow-2xl relative min-h-[460px]"
+                                    >
+                                        {/* Imagen del Proyecto */}
+                                        <div className="h-44 bg-[#0a0a0a] relative overflow-hidden">
+                                            {project.multimedia_json?.heroImages?.[0] ? (
+                                                <img 
+                                                    src={project.multimedia_json.heroImages[0]} 
+                                                    alt={project.name} 
+                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                                                    referrerPolicy="no-referrer"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
+                                                    <Target className="w-12 h-12 text-[#FF5A1F] opacity-30 group-hover:scale-110 transition-transform duration-500" />
+                                                </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-transparent to-transparent opacity-85" />
+                                            
+                                            {/* Nicho flotante */}
+                                            <div className="absolute top-4 left-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] font-bold text-[#FF5A1F] uppercase tracking-wider border border-[#FF5A1F]/20">
+                                                {project.niche || 'Digital'}
+                                            </div>
+                                        </div>
+
+                                        {/* Contenido */}
+                                        <div className="p-6 flex-1 flex flex-col justify-between">
+                                            <div>
+                                                <h3 className="text-xl font-bold text-white mb-2 tracking-tight group-hover:text-[#FF5A1F] transition-colors line-clamp-2">
+                                                    {project.name}
+                                                </h3>
+                                                <p className="text-gray-400 text-sm leading-relaxed mb-6 line-clamp-4">
+                                                    {project.shortDescription || project.description || "Este proyecto no tiene cargada una descripción pero está activo en tu plan."}
+                                                </p>
+                                            </div>
+
+                                            {/* Botones */}
+                                            <div className="space-y-3">
+                                                <button
+                                                    onClick={() => {
+                                                        window.location.href = `/dashboard/projects/${project.id}/strategy`;
+                                                    }}
+                                                    className="w-full py-3 px-4 rounded-xl bg-[#FF5A1F] text-white font-bold text-sm tracking-wide sm:tracking-wider uppercase hover:bg-[#FF5A1F]/90 transition transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-2"
+                                                >
+                                                    <Target className="w-4 h-4" />
+                                                    Ver Proyecto
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        window.location.href = `/dashboard/projects/${project.id}/strategy`;
+                                                    }}
+                                                    className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-gray-300 font-bold text-xs tracking-wider uppercase hover:bg-white/10 hover:text-white transition flex items-center justify-center gap-2"
+                                                >
+                                                    Ver más información
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Botón de Regresar al Panel de Administración abajo del todo */}
+                        <div className="flex justify-center mt-4">
+                            <button
+                                onClick={onComplete}
+                                className="px-8 py-4 sm:px-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[#FF5A1F]/30 text-white font-black text-sm tracking-widest uppercase transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl hover:shadow-[#FF5A1F]/5"
+                            >
+                                Regresar al panel de administración
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex flex-col">
                     {/* 1. BIENVENIDA */}
                     <div ref={welcomeRef} className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
                             <WelcomeStep 
@@ -688,7 +801,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                             </div>
                         )}
                     </div>
-                </div>
+                )}
+            </div>
 
             <Suspense fallback={null}>
                 {showProfileModal && (
