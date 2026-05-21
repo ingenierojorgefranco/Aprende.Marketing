@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { User, Project, ColorPalette } from '../../../types';
 import { api } from '../../../services/api';
-import { Zap, Target, CheckCircle, LogOut } from 'lucide-react';
+import { Zap, Target, CheckCircle, LogOut, ChevronRight, Video, MessageSquare, Mail, Lock, Database, Rocket } from 'lucide-react';
 import { generateLandingPageContent } from '../../../services/geminiService';
+import { UpgradeModal } from '../UpgradeModal';
 import { 
     WelcomeStep, 
     ProjectSelectionStep, 
@@ -30,6 +32,7 @@ interface OnboardingWizardProps {
 type WizardStep = 'welcome' | 'selection' | 'generating_strategy' | 'strategy_ready' | 'show_avatars' | 'show_landing_prep' | 'creating_web' | 'landing_success' | 'show_hooks' | 'generating_hooks' | 'success' | 'limit_reached';
 
 export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComplete, onLogout, onGenerationStateChange, onUpdateUser }) => {
+    const navigate = useNavigate();
     const [step, setStep] = useState<WizardStep>('welcome');
     const [showProfileModal, setShowProfileModal] = useState(false);
     const [projects, setProjects] = useState<Project[]>([]);
@@ -48,6 +51,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
     // Modals de confirmación
     const [showActivateConfirm, setShowActivateConfirm] = useState(false);
     const [showCreateLandingConfirm, setShowCreateLandingConfirm] = useState(false);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     
     const [secondsElapsed, setSecondsElapsed] = useState(0);
     const [revealedSections, setRevealedSections] = useState<WizardStep[]>(['welcome']);
@@ -395,6 +399,21 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
         }
     };
 
+    const activeProjectName = unlockedProject?.name || selectedProject?.name || 'Tu Proyecto MKT';
+    const activeProjectImage = unlockedProject?.multimedia_json?.heroImages?.[0] || selectedProject?.multimedia_json?.heroImages?.[0];
+    const activeProjectNiche = unlockedProject?.niche || selectedProject?.niche || 'Digital';
+
+    const getPageUrl = () => {
+        const subdomainPart = createdPageSubdomain ? createdPageSubdomain.split('.')[0] : '';
+        if (subdomainPart) {
+            const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('ais-dev'));
+            return isLocal ? `/admin/lp/${subdomainPart}` : `https://aprende.marketing/admin/lp/${subdomainPart}`;
+        } else if (unlockedProject) {
+            return `/dashboard/projects/${unlockedProject.id}/strategy?section=web`;
+        }
+        return '#';
+    };
+
     return (
         <div className="fixed inset-0 bg-[#020202] overflow-y-auto overflow-x-hidden snap-y snap-mandatory z-[45] scroll-smooth selection:bg-[#FF5A1F] selection:text-white">
             {/* Header del Wizard */}
@@ -439,15 +458,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
 
             <div className="w-full relative z-10">
                 {step === 'limit_reached' ? (
-                    <div className="w-full max-w-5xl mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center pt-28 pb-16 relative z-10 font-sans">
-                        <div className="text-center max-w-2xl mx-auto mb-12">
+                    <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center pt-28 pb-16 relative z-10 font-sans">
+                        <div className="text-center max-w-4xl mx-auto mb-16 space-y-4">
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full text-xs font-bold text-red-400 uppercase tracking-widest mb-4 animate-pulse">
                                 Plan Completo
                             </span>
                             <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4 uppercase">
                                 ¡Límite del Plan Alcanzado!
                             </h1>
-                            <p className="text-gray-400 text-base md:text-lg leading-relaxed">
+                            <p className="text-white text-lg md:text-2xl font-medium leading-relaxed max-w-3xl mx-auto">
                                 Has alcanzado el límite máximo de proyectos disponibles en tu suscripción actual. Para continuar creando nuevas estrategias de marketing, necesitas liberar cupos o actualizar tu plan. Aquí tienes tus proyectos activos:
                             </p>
                         </div>
@@ -457,14 +476,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                 <p className="text-gray-400 text-sm animate-pulse">Cargando tus proyectos activos...</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center max-w-6xl mx-auto w-full mb-16">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[1400px] mx-auto w-full mb-20">
                                 {userActiveProjects.map((project) => (
                                     <div 
                                         key={project.id}
-                                        className="bg-[#111111]/90 border border-white/5 rounded-[2.5rem] overflow-hidden group hover:border-[#FF5A1F]/30 transition-all duration-300 flex flex-col h-full shadow-2xl relative min-h-[460px]"
+                                        className="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden group hover:border-[#FF5A1F]/50 transition-all flex flex-col h-full shadow-2xl relative min-h-[520px] w-full"
                                     >
                                         {/* Imagen del Proyecto */}
-                                        <div className="h-44 bg-[#0a0a0a] relative overflow-hidden">
+                                        <div className="h-64 bg-gray-800 relative overflow-hidden">
                                             {project.multimedia_json?.heroImages?.[0] ? (
                                                 <img 
                                                     src={project.multimedia_json.heroImages[0]} 
@@ -474,46 +493,39 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
-                                                    <Target className="w-12 h-12 text-[#FF5A1F] opacity-30 group-hover:scale-110 transition-transform duration-500" />
+                                                    <Target className="w-12 h-12 text-[#FF5A1F] opacity-20" />
                                                 </div>
                                             )}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-transparent to-transparent opacity-85" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-[#111] to-transparent opacity-60" />
                                             
                                             {/* Nicho flotante */}
-                                            <div className="absolute top-4 left-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] font-bold text-[#FF5A1F] uppercase tracking-wider border border-[#FF5A1F]/20">
-                                                {project.niche || 'Digital'}
+                                            <div className="absolute bottom-4 left-6">
+                                                <span className="px-4 py-2 bg-white text-[#FF5A1F] text-[12px] font-black uppercase rounded-full shadow-lg">
+                                                    {project.niche || 'Digital'}
+                                                </span>
                                             </div>
                                         </div>
 
-                                        {/* Contenido */}
-                                        <div className="p-6 flex-1 flex flex-col justify-between">
-                                            <div>
-                                                <h3 className="text-xl font-bold text-white mb-2 tracking-tight group-hover:text-[#FF5A1F] transition-colors line-clamp-2">
-                                                    {project.name}
-                                                </h3>
-                                                <p className="text-gray-400 text-sm leading-relaxed mb-6 line-clamp-4">
-                                                    {project.shortDescription || project.description || "Este proyecto no tiene cargada una descripción pero está activo en tu plan."}
-                                                </p>
-                                            </div>
+                                        {/* Contenido (Idéntico a WizardSteps) */}
+                                        <div className="p-10 flex flex-col flex-1">
+                                            <h3 className="text-3xl font-black mb-4 text-white group-hover:text-[#FF5A1F] transition-colors line-clamp-2">
+                                                {project.name}
+                                            </h3>
+                                            <p className="text-white text-base leading-relaxed mb-8 flex-1 line-clamp-4">
+                                                {project.shortDescription || project.description || "Este proyecto no tiene cargada una descripción pero está activo en tu plan."}
+                                            </p>
 
-                                            {/* Botones */}
-                                            <div className="space-y-3">
+                                            {/* Botón Ver Proyecto */}
+                                            <div className="flex items-center justify-center pt-8 border-t border-white/5">
                                                 <button
                                                     onClick={() => {
-                                                        window.location.href = `/dashboard/projects/${project.id}/strategy`;
+                                                        navigate(`/dashboard/projects/${project.id}/strategy`);
+                                                        onComplete?.();
                                                     }}
-                                                    className="w-full py-3 px-4 rounded-xl bg-[#FF5A1F] text-white font-bold text-sm tracking-wide sm:tracking-wider uppercase hover:bg-[#FF5A1F]/90 transition transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-2"
+                                                    className="w-full py-4 bg-[#FF5A1F] text-white font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl shadow-[#FF5A1F]/20 hover:bg-[#D94A1E] transition-all flex items-center justify-center gap-2"
                                                 >
                                                     <Target className="w-4 h-4" />
                                                     Ver Proyecto
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        window.location.href = `/dashboard/projects/${project.id}/strategy`;
-                                                    }}
-                                                    className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-gray-300 font-bold text-xs tracking-wider uppercase hover:bg-white/10 hover:text-white transition flex items-center justify-center gap-2"
-                                                >
-                                                    Ver más información
                                                 </button>
                                             </div>
                                         </div>
@@ -531,6 +543,309 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                                 Regresar al panel de administración
                             </button>
                         </div>
+                    </div>
+                ) : step === 'success' ? (
+                    <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center pt-28 pb-16 relative z-10 font-sans">
+                        
+                        {/* Page Title */}
+                        <div className="text-center max-w-4xl mx-auto mb-12">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-bold text-emerald-400 uppercase tracking-widest mb-4 animate-pulse">
+                                ★ Configuración Completada ★
+                            </span>
+                            <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none mb-4">
+                                ¡ TODO <span className="text-[#FF5A1F]">LISTO</span> !
+                            </h1>
+                            <p className="text-white text-lg md:text-xl font-medium leading-relaxed max-w-2xl mx-auto">
+                                Tu primer negocio ha sido configurado con éxito. Ya puedes administrar tu sistema de ventas de afiliados premium.
+                            </p>
+                        </div>
+
+                        {/* Big Layout (Bento Grid) */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full mb-12">
+                            {/* Left column: 2 slots (Community Banner & Project Info) */}
+                            <div className="lg:col-span-2 space-y-8 flex flex-col justify-between">
+                                {/* 1. Community WhatsApp Banner */}
+                                <div className="bg-gradient-to-r from-[#FF5A1F] to-[#E04812] rounded-[2.5rem] p-6 md:p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden flex-1">
+                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent)] pointer-events-none"></div>
+                                    <div className="flex items-center gap-4 text-left">
+                                        <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+                                            <span className="text-2xl">🔥</span>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tight">
+                                                ¡No te quedes a medias!
+                                            </h3>
+                                            <p className="text-white/95 text-sm md:text-base font-medium">
+                                                Únete al Desafío de 7 Días en WhatsApp y lanza tu primera campaña con el creador de la plataforma.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <a 
+                                        href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="px-8 py-4 bg-white text-[#FF5A1F] hover:bg-white/95 font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2 shrink-0 text-center justify-center font-sans"
+                                    >
+                                        Entrar al Grupo Privado
+                                        <ChevronRight className="w-4 h-4" />
+                                    </a>
+                                </div>
+                                
+                                {/* 2. Project Progress Bento */}
+                                <div className="bg-[#111] border border-white/5 rounded-[2.5rem] p-8 flex flex-col md:flex-row items-center gap-8 shadow-2xl relative overflow-hidden flex-[2]">
+                                    <div className="relative w-36 h-36 rounded-3xl overflow-hidden bg-gray-800 shrink-0 border border-white/10 shadow-lg">
+                                        {activeProjectImage ? (
+                                            <img 
+                                                src={activeProjectImage} 
+                                                alt={activeProjectName} 
+                                                className="w-full h-full object-cover" 
+                                                referrerPolicy="no-referrer"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
+                                                <Target className="w-12 h-12 text-[#FF5A1F] opacity-30" />
+                                            </div>
+                                        )}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-[#111] to-transparent opacity-40"></div>
+                                    </div>
+                                    
+                                    <div className="flex-1 text-left space-y-4 font-sans">
+                                        <div className="flex flex-wrap items-center gap-3">
+                                            <span className="px-3 py-1 bg-[#FF5A1F]/10 border border-[#FF5A1F]/25 text-[10px] font-black uppercase text-[#FF5A1F] tracking-widest rounded-full">
+                                                {activeProjectNiche}
+                                            </span>
+                                            <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
+                                                Proyecto Reciente
+                                            </span>
+                                        </div>
+                                        
+                                        <div>
+                                            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight uppercase">
+                                                {activeProjectName}
+                                            </h2>
+                                            <p className="text-gray-400 text-sm leading-relaxed max-w-2xl mt-1">
+                                                La estructura psicológica para capturar prospectos y concretar comisiones recurrentes ya fue configurada con éxito.
+                                            </p>
+                                        </div>
+
+                                        {/* Progress bar info */}
+                                        <div className="space-y-2 pt-2">
+                                            <div className="flex justify-between items-center text-xs">
+                                                <span className="text-emerald-400 font-bold uppercase tracking-wider">Tu máquina de ventas está encendida en nivel básico</span>
+                                                <span className="text-[#FF5A1F] font-black">40% Completado</span>
+                                            </div>
+                                            {/* Visual Progress Blocks */}
+                                            <div className="flex items-center gap-1.5 w-full">
+                                                <div className="h-4 flex-1 bg-emerald-500 rounded-md"></div>
+                                                <div className="h-4 flex-1 bg-emerald-500 rounded-md"></div>
+                                                <div className="h-4 flex-1 bg-emerald-500 rounded-md"></div>
+                                                <div className="h-4 flex-1 bg-gray-800 rounded-md"></div>
+                                                <div className="h-4 flex-1 bg-gray-800 rounded-md"></div>
+                                                <div className="h-4 flex-1 bg-gray-800 rounded-md"></div>
+                                                <div className="h-4 flex-1 bg-gray-800 rounded-md"></div>
+                                            </div>
+                                            <p className="text-xs text-gray-500 font-medium">
+                                                Completa los siguientes módulos para operar como un Súper Afiliado y rentabilizar tu tráfico.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right column: Slots Inventory Reminders */}
+                            <div className="bg-[#111] border border-[#FF5A1F]/20 rounded-[2.5rem] p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden font-sans">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF5A1F]/10 blur-xl rounded-full"></div>
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 flex items-center justify-center">
+                                            <Database className="w-5 h-5 text-[#FF5A1F]" />
+                                        </div>
+                                        <div className="text-left">
+                                            <span className="text-[10px] font-black uppercase text-[#FF5A1F] tracking-widest block text-left">Inventario de Negocios</span>
+                                            <h4 className="text-lg font-black text-white uppercase tracking-tight text-left">Capacidad del Plan</h4>
+                                        </div>
+                                    </div>
+
+                                    {/* Progress bar and text */}
+                                    <div className="space-y-3 bg-black/40 border border-white/5 rounded-2xl p-5 text-left">
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-gray-400 font-bold uppercase tracking-wider text-xs">Ranuras Activas</span>
+                                            <span className="text-white font-black text-base">1 / 1 Proyectos</span>
+                                        </div>
+                                        <div className="h-2.5 bg-gray-800 rounded-full overflow-hidden">
+                                            <div className="h-full bg-[#FF5A1F] rounded-full w-full"></div>
+                                        </div>
+                                        <span className="text-[11px] text-yellow-501 font-bold uppercase tracking-wide block">
+                                            🔒 Capacidad al 100% (Plan Gratuito)
+                                        </span>
+                                    </div>
+
+                                    <div className="space-y-4 text-left">
+                                        <h5 className="text-sm font-black text-white uppercase tracking-wider">¿Deseas vender múltiples productos?</h5>
+                                        <p className="text-[#999] text-xs leading-relaxed font-semibold">
+                                            Sube al Plan PRO por solo $39 para desbloquear 3 ranuras activas simultáneas, conectar dominios propios y activar todas las herramientas de IA generativa ilimitada.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="pt-8 border-t border-white/5">
+                                    <button 
+                                        onClick={() => setShowUpgradeModal(true)}
+                                        className="w-full py-4 bg-gradient-to-r from-[#FF5A1F] to-[#E04812] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:shadow-2xl hover:shadow-[#FF5A1F]/20 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Rocket className="w-4 h-4 animate-bounce" />
+                                        Actualizar a Pro por $39
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Section Title for modules */}
+                        <div className="text-left mb-6 pl-2">
+                            <h4 className="text-xs font-black text-gray-400 uppercase tracking-[0.25em]">Módulos de tu Centro de Operaciones</h4>
+                        </div>
+
+                        {/* Grid of 4 Modules */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-16">
+                            {/* Bloque 1 */}
+                            <div className="bg-[#111] border border-white/5 rounded-[2.5rem] p-8 flex flex-col justify-between h-full hover:border-[#FF5A1F]/30 transition-all min-h-[350px] text-left">
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-start">
+                                        <span className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
+                                            <CheckCircle className="w-6 h-6 text-emerald-500" />
+                                        </span>
+                                        <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/25 rounded-full text-[10px] font-black text-emerald-400 uppercase tracking-wider">
+                                            Activo - Nivel Básico
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white tracking-tight uppercase">Landing Page</h3>
+                                        <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+                                            Tu embudo de marketing recopila prospectos activamente en su enlace oficial.
+                                        </p>
+                                    </div>
+                                    <div className="bg-black/50 border border-white/5 rounded-xl p-3 select-all text-[11px] text-gray-500 font-mono truncate">
+                                        {getPageUrl()}
+                                    </div>
+                                </div>
+                                <div className="pt-6 border-t border-white/5 flex gap-3">
+                                    <button 
+                                        onClick={() => window.open(getPageUrl(), '_blank')}
+                                        className="flex-1 py-3 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-black uppercase text-gray-300 hover:bg-white/10 hover:text-white transition text-center"
+                                    >
+                                        Ver Página
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowUpgradeModal(true)}
+                                        className="flex-1 py-3 px-4 bg-[#FF5A1F]/15 border border-[#FF5A1F]/20 rounded-xl text-xs font-black uppercase text-[#FF5A1F] hover:bg-[#FF5A1F] hover:text-white transition flex items-center justify-center gap-1.5"
+                                    >
+                                        <Lock className="w-3.5 h-3.5" />
+                                        Dominio
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Bloque 2 */}
+                            <div className="bg-[#111] border border-white/5 rounded-[2.5rem] p-8 flex flex-col justify-between h-full hover:border-[#FF5A1F]/30 transition-all min-h-[350px] text-left">
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-start">
+                                        <span className="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center">
+                                            <Video className="w-6 h-6 text-yellow-500" />
+                                        </span>
+                                        <span className="px-3 py-1 bg-yellow-500/10 border border-yellow-500/25 rounded-full text-[10px] font-black text-yellow-400 uppercase tracking-wider">
+                                            En Pausa
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white tracking-tight uppercase">Hooks de Video</h3>
+                                        <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+                                            3 de 30 videos generados. Tienes guiones persuasivos listos para captar la atención de tu audiencia en TikTok, Instagram y Shorts.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="pt-6 border-t border-white/5">
+                                    <button 
+                                        onClick={() => setShowUpgradeModal(true)}
+                                        className="w-full py-4 bg-[#FF5A1F] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#D94A1E] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#FF5A1F]/15"
+                                    >
+                                        <Lock className="w-4 h-4" />
+                                        Calendario Mensual
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Bloque 3 */}
+                            <div className="bg-[#111]/40 border border-white/5 rounded-[2.5rem] p-8 flex flex-col justify-between h-full opacity-65 hover:opacity-100 transition-all min-h-[350px] text-left">
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-start">
+                                        <span className="w-12 h-12 bg-gray-500/10 rounded-2xl flex items-center justify-center">
+                                            <MessageSquare className="w-6 h-6 text-gray-500" />
+                                        </span>
+                                        <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-wider">
+                                            Bloqueado
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white/80 tracking-tight uppercase">Máquina de WhatsApp</h3>
+                                        <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+                                            El 80% de las ventas en Hotmart se cierran por WhatsApp. Deja que la IA inteligente escriba tus respuestas persuasivas.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="pt-6 border-t border-white/5">
+                                    <button 
+                                        onClick={() => setShowUpgradeModal(true)}
+                                        className="w-full py-4 bg-white/5 border border-white/10 text-white/80 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#FF5A1F] hover:text-white hover:border-[#FF5A1F] transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Lock className="w-4 h-4" />
+                                        Activar WhatsApp
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Bloque 4 */}
+                            <div className="bg-[#111]/40 border border-white/5 rounded-[2.5rem] p-8 flex flex-col justify-between h-full opacity-65 hover:opacity-100 transition-all min-h-[350px] text-left">
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-start">
+                                        <span className="w-12 h-12 bg-gray-500/10 rounded-2xl flex items-center justify-center">
+                                            <Mail className="w-6 h-6 text-gray-500" />
+                                        </span>
+                                        <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-wider">
+                                            Bloqueado
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white/80 tracking-tight uppercase">SEO y Correo</h3>
+                                        <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+                                            Recupera carritos abandonados de Hotmart y nutre a tus prospectos en automático con campañas optimizadas.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="pt-6 border-t border-white/5">
+                                    <button 
+                                        onClick={() => setShowUpgradeModal(true)}
+                                        className="w-full py-4 bg-white/5 border border-white/10 text-white/80 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#FF5A1F] hover:text-white hover:border-[#FF5A1F] transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Lock className="w-4 h-4" />
+                                        Activar Correo y SEO
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Final Central Call To Action Button to go to Dashboard */}
+                        <div className="flex flex-col items-center justify-center gap-4 border-t border-white/5 pt-12">
+                            <button 
+                                onClick={onComplete}
+                                className="px-12 py-6 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-base md:text-lg uppercase tracking-widest transition-all shadow-xl shadow-emerald-500/20 transform hover:-translate-y-1 active:translate-y-0 flex items-center gap-3"
+                            >
+                                Finalizar configuración ➔ Ir a mi Panel de Control
+                            </button>
+                            <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">
+                                Entrar al administrador completo de mi sistema
+                            </p>
+                        </div>
+
                     </div>
                 ) : (
                     <div className="flex flex-col">
@@ -813,6 +1128,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                     />
                 )}
             </Suspense>
+
+            {showUpgradeModal && (
+                <UpgradeModal 
+                    isOpen={showUpgradeModal} 
+                    onClose={() => setShowUpgradeModal(false)} 
+                    user={user}
+                    currentPlan={user.planLimits?.planName || 'Gratuito'}
+                />
+            )}
 
             {/* Minimalist Top Progress Bar */}
             {(step !== 'success' && !isGenerating) && (() => {
