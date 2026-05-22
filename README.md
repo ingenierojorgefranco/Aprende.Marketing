@@ -47,7 +47,6 @@ Most digital product sales fail not because of the idea itself, but because of p
 
 ## 🎥 Live Demo & Credentials
 *   **Production URL:** [https://aprende.marketing/login](https://aprende.marketing/login)
-*   **Engineering Tour (Loom):** [Insert your video link here]
 *   **Test Account:** 
     *   **User:** `demo@aprende.marketing`
     *   **Password:** `Aprende2026!*` *(Read-Only Mode)*
