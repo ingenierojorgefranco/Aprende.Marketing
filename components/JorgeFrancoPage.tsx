@@ -204,6 +204,56 @@ export const JorgeFrancoPage: React.FC = () => {
             </div>
           </section>
 
+          {/* CV & Interactive Stack Knowledge Section */}
+          <section id="curriculum" className="space-y-12 mb-24 text-left">
+            {/* Skills & Cards container (Full Width) */}
+            <div className="space-y-8 bg-[#111] border border-white/5 rounded-[2.5rem] p-8 md:p-12 relative w-full">
+              <div className="space-y-2">
+                <p className="text-xs font-black text-[#FFBF00] uppercase tracking-widest">HABILIDADES CORE</p>
+                <h3 className="text-3xl font-black text-white uppercase tracking-tight">Stack Tecnológico</h3>
+              </div>
+ 
+              {/* Grid of technical cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                {technicalStack.map((tech, idx) => (
+                  <div key={idx} className="group p-6 bg-[#0B0B0B] border border-white/5 rounded-2xl hover:border-white/10 transition-all flex flex-col gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 text-white">
+                      {tech.icon}
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-[#FFBF00] uppercase tracking-wider mb-2 text-sm">{tech.category}</h4>
+                      <p className="text-white text-base md:text-lg font-normal leading-relaxed">
+                        {tech.items}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+ 
+              {/* CV Banner underneath */}
+              <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="space-y-2 max-w-2xl font-bold">
+                  <h4 className="text-2xl font-black text-white uppercase tracking-tight">Curriculum Vitae</h4>
+                  <p className="text-white font-normal text-lg md:text-xl leading-relaxed">
+                    Descarga mi CV. Conoce las tecnologías que manejo, mi historial de proyectos y mi visión técnica para escalar aplicaciones web eficientes.
+                  </p>
+                </div>
+                <div className="w-full md:w-auto shrink-0">
+                  <a 
+                    href="https://drive.google.com/file/d/1fhe4nGHvkm3iZ4Pyb-GfoneN5t2g7hLI/view?usp=sharing" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full md:w-auto px-8 py-4 bg-[#FFBF00] hover:bg-[#E5AC00] text-black font-black text-sm uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#FFBF00]/10"
+                  >
+                    <Download className="w-4 h-4 text-black stroke-[2.5]" />
+                    Descargar CV Oficial PDF
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
           {/* Interactive YouTube Video Section */}
           <section id="video-presentacion" className="bg-[#111] border border-white/5 rounded-[2.5rem] p-8 md:p-12 mb-24 relative overflow-hidden text-left shadow-2xl">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-[#FFBF00]"></div>
@@ -371,53 +421,384 @@ export const JorgeFrancoPage: React.FC = () => {
             </div>
           </section>
 
-          {/* CV & Interactive Stack Knowledge Section */}
-          <section id="curriculum" className="space-y-12 mb-24 text-left">
-            {/* Skills & Cards container (Full Width) */}
-            <div className="space-y-8 bg-[#111] border border-white/5 rounded-[2.5rem] p-8 md:p-12 relative w-full">
-              <div className="space-y-2">
-                <p className="text-xs font-black text-[#FFBF00] uppercase tracking-widest">HABILIDADES CORE</p>
-                <h3 className="text-3xl font-black text-white uppercase tracking-tight">Stack Tecnológico</h3>
-              </div>
- 
-              {/* Grid of technical cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                {technicalStack.map((tech, idx) => (
-                  <div key={idx} className="group p-6 bg-[#0B0B0B] border border-white/5 rounded-2xl hover:border-white/10 transition-all flex flex-col gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 text-white">
-                      {tech.icon}
-                    </div>
-                    <div>
-                      <h4 className="font-extrabold text-[#FFBF00] uppercase tracking-wider mb-2 text-sm">{tech.category}</h4>
-                      <p className="text-white text-base md:text-lg font-normal leading-relaxed">
-                        {tech.items}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
- 
-              {/* CV Banner underneath */}
-              <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="space-y-2 max-w-2xl font-bold">
-                  <h4 className="text-2xl font-black text-white uppercase tracking-tight">Curriculum Vitae</h4>
-                  <p className="text-white font-normal text-lg md:text-xl leading-relaxed">
-                    Descarga mi CV. Conoce las tecnologías que manejo, mi historial de proyectos y mi visión técnica para escalar aplicaciones web eficientes.
-                  </p>
+          {/* Métricas de Impacto / Snapshot Fase Beta */}
+          <section className="mb-24 text-left relative">
+            <div className="absolute top-[20%] right-[10%] w-[300px] h-[300px] bg-[#FFBF00]/5 rounded-full blur-[120px] pointer-events-none"></div>
+            <div className="space-y-8 bg-[#111] border border-white/5 rounded-[2.5rem] p-8 md:p-12 relative w-full overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FFBF00] to-[#FF5A1F]"></div>
+              
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="space-y-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-black text-emerald-400 uppercase tracking-widest">
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> Estado del Proyecto
+                  </span>
+                  <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight">
+                    Métricas de Impacto <span className="text-[#FFBF00]">(Fase Beta)</span>
+                  </h3>
                 </div>
-                <div className="w-full md:w-auto shrink-0">
-                  <a 
-                    href="https://drive.google.com/file/d/1fhe4nGHvkm3iZ4Pyb-GfoneN5t2g7hLI/view?usp=sharing" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full md:w-auto px-8 py-4 bg-[#FFBF00] hover:bg-[#E5AC00] text-black font-black text-sm uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#FFBF00]/10"
-                  >
-                    <Download className="w-4 h-4 text-black stroke-[2.5]" />
-                    Descargar CV Oficial PDF
-                  </a>
-                </div>
+                <p className="text-white/90 font-normal leading-loose text-base md:text-lg max-w-md">
+                  Benchmarks internos y métricas de rendimiento reales obtenidas durante las pruebas con usuarios activos en producción.
+                </p>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
+                <div className="bg-[#0B0B0B] border border-white/5 rounded-2xl p-6 relative hover:border-[#FF5A1F]/20 transition-all group">
+                  <div className="text-4xl font-black text-[#FF5A1F] mb-1 group-hover:scale-105 transition-transform">20+</div>
+                  <div className="text-xs font-black text-white uppercase tracking-wider mb-2">Embudos Generados</div>
+                  <p className="text-white/90 font-normal leading-loose text-base md:text-lg">Sistemas de ventas completos creados desde una sola idea inicial en menos de 2 minutos.</p>
+                </div>
+                
+                <div className="bg-[#0B0B0B] border border-white/5 rounded-2xl p-6 relative hover:border-[#FFBF00]/20 transition-all group">
+                  <div className="text-4xl font-black text-[#FFBF00] mb-1 group-hover:scale-105 transition-transform">~1.5 Min</div>
+                  <div className="text-xs font-black text-white uppercase tracking-wider mb-2">Tiempo de Procesamiento</div>
+                  <p className="text-white/90 font-normal leading-loose text-base md:text-lg">Pipeline asíncrono optimizado de 6 etapas que integra y formatea todos los activos de venta.</p>
+                </div>
+
+                <div className="bg-[#0B0B0B] border border-white/5 rounded-2xl p-6 relative hover:border-[#FF5A1F]/20 transition-all group">
+                  <div className="text-4xl font-black text-white mb-1 group-hover:scale-105 transition-transform">15+</div>
+                  <div className="text-xs font-black text-[#FF5A1F] uppercase tracking-wider mb-2">Usuarios Beta Activos</div>
+                  <p className="text-white/90 font-normal leading-loose text-base md:text-lg">Emprendedores y afiliados validando embudos reales diariamente en la plataforma.</p>
+                </div>
+
+                <div className="bg-[#0B0B0B] border border-white/5 rounded-2xl p-6 relative hover:border-emerald-500/20 transition-all group">
+                  <div className="text-4xl font-black text-emerald-400 mb-1 group-hover:scale-105 transition-transform">+15%</div>
+                  <div className="text-xs font-black text-white uppercase tracking-wider mb-2">Mejora de Conversión</div>
+                  <p className="text-white/90 font-normal leading-loose text-base md:text-lg">Porcentaje de conversión incrementado frente a embudos tradicionales no optimizados.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Desafíos Técnicos y Decisiones de Arquitectura */}
+          <section className="mb-24 text-left relative">
+            <div className="absolute top-[30%] left-[-10%] w-[400px] h-[400px] bg-[#FF5A1F]/5 rounded-full blur-[150px] pointer-events-none"></div>
+            
+            <div className="space-y-12">
+              {/* Header */}
+              <div className="space-y-4 max-w-3xl">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFBF00]/10 border border-[#FFBF00]/30 rounded-full text-xs font-black text-[#FFBF00] uppercase tracking-widest animate-pulse">
+                  <Code className="w-3.5 h-3.5" /> FOCO EN INGENIERÍA SÓLIDA
+                </span>
+                <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight leading-none text-balance">
+                  Desafíos Técnicos y <span className="text-[#FF5A1F]">Soluciones de Arquitectura</span>
+                </h2>
+                <p className="text-gray-300 font-normal leading-relaxed text-base md:text-lg">
+                  Decisiones de diseño e implementaciones reales para resolver problemas complejos de rendimiento, escalabilidad y resiliencia en <span className="text-[#FF5A1F]">Aprende.Marketing</span>.
+                </p>
+              </div>
+
+              {/* Engineering Accordion/Cards Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                {/* Highlight 1: Multi-Tenancy */}
+                <div className="bg-[#111] border border-white/5 rounded-3xl p-6 md:p-8 hover:border-[#FF5A1F]/30 hover:shadow-[0_0_30px_rgba(255,100,50,0.04)] transition-all flex flex-col justify-between group">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2.5 py-1 bg-white/5 border border-white/10 text-[10px] font-mono uppercase tracking-wider text-gray-400 rounded-md">
+                        Multi-Tenancy Middleware
+                      </span>
+                      <span className="text-emerald-400 text-xs font-black uppercase tracking-wider">&lt; 180ms Latency</span>
+                    </div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight group-hover:text-[#FFBF00] transition-colors">
+                      1. Multi-Tenencia de Alto Rendimiento sin Sobrecarga
+                    </h3>
+                    
+                    <div className="space-y-4 pt-2">
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                          Servir proyectos únicos de múltiples usuarios a través de sus propios dominios personalizados (CNAME) sin añadir sobrecarga en cache de estado global, latencia de sesión o retrasos de base de datos.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
+                          Diseñé e implementé un middleware de detección de host personalizado en <span className="text-gray-400 font-mono">pageRoutes.js</span>. Intercepta el hostname de la solicitud entrante, realiza un <span className="text-gray-400 font-mono">LEFT JOIN</span> altamente optimizado en las tablas <span className="text-gray-400 font-mono">landing_pages</span> y <span className="text-gray-400 font-mono">projects</span>, resolviendo y sirviendo el contenido del tenant en menos de 180ms sin comprometer el aislamiento ni requerir balanceadores de carga complejos.
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* Highlight 2: Exponential Backoff Retry Pipeline */}
+                <div className="bg-[#111] border border-white/5 rounded-3xl p-6 md:p-8 hover:border-[#FFBF00]/30 hover:shadow-[0_0_30px_rgba(255,191,0,0.04)] transition-all flex flex-col justify-between group">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2.5 py-1 bg-white/5 border border-white/10 text-[10px] font-mono uppercase tracking-wider text-gray-400 rounded-md">
+                        Network Resilience
+                      </span>
+                      <span className="text-amber-400 text-xs font-black uppercase tracking-wider">6-Stage Retry System</span>
+                    </div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight group-hover:text-[#FFBF00] transition-colors">
+                      2. Resiliencia de APIs de IA con el Pipeline <span className="text-amber-500">withRetries</span>
+                    </h3>
+                    
+                    <div className="space-y-4 pt-2">
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                          Controlar errores de red, respuestas fallidas de tasa de límite (503/504) e interrupciones del SDK de Gemini durante secuencias pesadas de generación de contenido continuo.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
+                          Creé un algoritmo de reintento recursivo con Retroceso Exponencial y Jitter (desviación aleatoria) para todas las llamadas críticas al SDK del modelo. Esto garantiza que las generaciones profundas divididas en 6 fases asínconas consecutivas finalicen de forma robusta e imperceptible para el usuario, recuperándose de caídas de red transitorias automáticamente.
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* Highlight 3: Reactive Rendering Engine */}
+                <div className="bg-[#111] border border-white/5 rounded-3xl p-6 md:p-8 hover:border-[#FF5A1F]/30 hover:shadow-[0_0_30px_rgba(255,100,50,0.04)] transition-all flex flex-col justify-between group">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2.5 py-1 bg-white/5 border border-white/10 text-[10px] font-mono uppercase tracking-wider text-gray-400 rounded-md">
+                        Reactive UI Rendering
+                      </span>
+                      <span className="text-[#FFBF00] text-xs font-black uppercase tracking-wider">Lag-Free UX</span>
+                    </div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight group-hover:text-[#FFBF00] transition-colors">
+                      3. Motor de Renderizado Ultrarrápido (<span className="text-gray-400 font-mono">LivePage.tsx</span>)
+                    </h3>
+                    
+                    <div className="space-y-4 pt-2">
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                          Las tasas excesivas de actualización de la UI en editores interactivos en tiempo real provocaban bloqueos de renderizado al manipular estructuras complejas de CSS y JSON de páginas de aterrizaje completas.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
+                          Desarrollé un motor de render reactive optimizado basado en plantillas dinámicas que desacopla por completo el árbol de edición del lienzo de visualización del iframe. Esto reduce los costes de cómputo en el navegador a O(1) para actualizaciones instantáneas, ofreciendo una experiencia interactiva sin lag al arrastrar, modificar textos o cambiar llamadas a la acción.
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* Highlight 4: Payment Synchronization */}
+                <div className="bg-[#111] border border-white/5 rounded-3xl p-6 md:p-8 hover:border-[#FFBF00]/30 hover:shadow-[0_0_30px_rgba(255,191,0,0.04)] transition-all flex flex-col justify-between group">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2.5 py-1 bg-white/5 border border-white/10 text-[10px] font-mono uppercase tracking-wider text-gray-400 rounded-md">
+                        Payment Sync API
+                      </span>
+                      <span className="text-emerald-400 text-xs font-black uppercase tracking-wider">Sub-Second Provisioning</span>
+                    </div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight group-hover:text-[#FFBF00] transition-colors">
+                      4. Orquestación de Pagos Multi-Plataforma (Stripe & Hotmart)
+                    </h3>
+                    
+                    <div className="space-y-4 pt-2">
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                          Sincronizar planes de suscripción, asignación de créditos de IA persistentes e inicios de sesión a través de plataformas con estructuras de datos de webhooks radicalmente incompatibles.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
+                          Diseñé una Capa de Orquestación y Normalización de Pasarelas de Pago que recibe eventos de Stripe (JSON crudo y firmas HMAC) y Hotmart (eventos cifrados). Convierte de forma asíncrona todos los payloads entrantes en un stream interno estandarizado que actualiza de inmediato las cuotas de uso de los usuarios y activa accesos de seguridad a nivel atómico en tiempo de ejecución.
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* Highlight 5: Automated Handover & CRM */}
+                <div className="bg-[#111] border border-white/5 rounded-3xl p-6 md:p-8 hover:border-[#FF5A1F]/30 hover:shadow-[0_0_30px_rgba(255,100,50,0.04)] transition-all flex flex-col justify-between group">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2.5 py-1 bg-white/5 border border-white/10 text-[10px] font-mono uppercase tracking-wider text-gray-400 rounded-md">
+                        Tag-Triggered Architecture
+                      </span>
+                      <span className="text-blue-400 text-xs font-black uppercase tracking-wider">Real-Time Lead Sync</span>
+                    </div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight group-hover:text-[#FFBF00] transition-colors">
+                      5. Sincronización SaaS-to-CRM e Ingestión en Tiempo Real
+                    </h3>
+                    
+                    <div className="space-y-4 pt-2">
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                          La sincronización retrasada de leads capturados en páginas generadas por el SaaS hacia flujos de automatización externos (como Systeme.io) generaba una brecha de conversión de hasta varios minutos.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
+                          Programé un despachador de eventos integrado que consume directamente leads desde las páginas del cliente. El sistema encapsula los datos y realiza una inserción asíncrona mediante la API de Systeme.io aplicando una arquitectura basada en etiquetas ("Tag-Triggered"). Esto arranca las campañas automáticas de emails al instante exacto de la suscripción, maximizando las tasas de apertura.
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* Highlight 6: Internal Lead Management CRM */}
+                <div className="bg-[#111] border border-white/5 rounded-3xl p-6 md:p-8 hover:border-[#FFBF00]/30 hover:shadow-[0_0_30px_rgba(255,191,0,0.04)] transition-all flex flex-col justify-between group">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2.5 py-1 bg-white/5 border border-white/10 text-[10px] font-mono uppercase tracking-wider text-gray-400 rounded-md">
+                        Custom CRM System
+                      </span>
+                      <span className="text-emerald-400 text-xs font-black uppercase tracking-wider">Single Source of Truth</span>
+                    </div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight group-hover:text-[#FFBF00] transition-colors">
+                      6. CRM de Análisis Interno Integrado en el Panel
+                    </h3>
+                    
+                    <div className="space-y-4 pt-2">
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                          Los usuarios finales carecían de una forma integrada para verificar el origen, comportamiento histórico y estado de conversión de sus prospectos sin recurrir a software de terceros caro y complejo.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
+                          Diseñé un módulo nativo de CRM dentro de la aplicación. Captura de forma segura a través de API webhooks cada registro desde los hooks de las páginas de captura, normaliza los datos con marcas de tiempo precisas y los centraliza en una base de datos relacional para proyectar gráficos en tiempo real sobre el rendimiento del embudo.
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* Highlight 7: Internal LMS Gated */}
+                <div className="bg-[#111] border border-white/5 rounded-3xl p-6 md:p-8 hover:border-[#FF5A1F]/30 hover:shadow-[0_0_30px_rgba(255,100,50,0.04)] transition-all flex flex-col justify-between group">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2.5 py-1 bg-white/5 border border-white/10 text-[10px] font-mono uppercase tracking-wider text-gray-400 rounded-md">
+                        LMS Auth Gate
+                      </span>
+                      <span className="text-purple-400 text-xs font-black uppercase tracking-wider">Low-Churn Onboarding</span>
+                    </div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight group-hover:text-[#FFBF00] transition-colors">
+                      7. Plataforma Educativa Propietaria (LMS) Integrada
+                    </h3>
+                    
+                    <div className="space-y-4 pt-2">
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                          Pérdida de usuarios activos mensuales debido al síndrome de la "pantalla vacía" y la falta de educación sobre cómo estructurar campañas utilizando la plataforma.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-[#FFBF05]">Solución Aplicada:</strong> El Sistema de Gestión de Aprendizaje (LMS) seguro y privado directamente integrado con el núcleo de autenticación del SaaS protege flujos de streaming de capacitación avanzada e implementa módulos de progreso escalonados según las capacidades contratadas, disminuyendo significativamente la tasa de abandono de nuevos usuarios.
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* Highlight 8: Inheritance Cloning System */}
+                <div className="bg-[#111] border border-white/5 rounded-3xl p-6 md:p-8 hover:border-[#FFBF00]/30 hover:shadow-[0_0_30px_rgba(255,191,0,0.04)] transition-all flex flex-col justify-between group">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2.5 py-1 bg-white/5 border border-white/10 text-[10px] font-mono uppercase tracking-wider text-gray-400 rounded-md">
+                        Data Structure Cloning
+                      </span>
+                      <span className="text-[#FFBF00] text-xs font-black uppercase tracking-wider">&lt; 50ms Real Execution</span>
+                    </div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight group-hover:text-[#FFBF00] transition-colors">
+                      8. Herencia de Estrategias Maestras y Clonado de Proyectos
+                    </h3>
+                    
+                    <div className="space-y-4 pt-2">
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                          Copiar o replicar de forma manual arquitecturas y estrategias ganadoras de un proyecto de marketing a otro requería múltiples peticiones e inserciones anidadas lentas y propensas a errores de formato.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
+                          Implementé un motor de clonación atómica que hereda de una cuenta clave "Plan Root" todas las relaciones de tablas completas (layouts, avatares, copys, etc.) en un único disparo relacional. El sistema copia la estructura íntegra de forma asíncrona en menos de 50ms, facilitando flujos rápidos de testeo masivo.
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </section>
+
+          {/* Roadmap 2026 */}
+          <section className="mb-24 text-left relative">
+            <div className="absolute bottom-[10%] right-[5%] w-[300px] h-[300px] bg-[#FF5A1F]/5 rounded-full blur-[150px] pointer-events-none"></div>
+            <div className="space-y-8 bg-[#111] border border-white/5 rounded-[2.5rem] p-8 md:p-12 relative w-full">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-[#FFBF00]"></div>
+              
+              <div className="space-y-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFBF00]/10 border border-[#FFBF00]/30 rounded-full text-xs font-black text-[#FFBF00] uppercase tracking-widest">
+                  <Terminal className="w-3.5 h-3.5" /> HOJA DE RUTA FUTURA
+                </span>
+                <h3 className="text-3xl font-black text-white uppercase tracking-tight">
+                  Roadmap Estratégico 2026
+                </h3>
+                <p className="text-white/90 font-normal leading-loose text-base md:text-lg max-w-2xl">
+                  Próximos lanzamientos arquitectónicos diseñados para convertir a Aprende.Marketing en la suite líder de automatización con Inteligencia Artificial.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                <div className="bg-[#0B0B0B]/80 border border-white/5 rounded-2xl p-6 relative hover:border-[#FF5A1F]/20 transition-all flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 bg-[#FF5A1F] rounded-full animate-pulse"></span>
+                      <span className="text-xs font-black text-white uppercase tracking-wider">Hito Q1-Q2</span>
+                    </div>
+                    <h4 className="text-lg font-extrabold text-[#FFBF00] uppercase tracking-tight">Constructor Visual Dinámico</h4>
+                    <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                      Lienzo de edición con drag-and-drop completo para reordenar bloques, layouts y hooks dinámicos en tiempo real con JSON persistente.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-[#0B0B0B]/80 border border-white/5 rounded-2xl p-6 relative hover:border-[#FFBF00]/20 transition-all flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 bg-yellow-500 rounded-full"></span>
+                      <span className="text-xs font-black text-white uppercase tracking-wider">Hito Q3</span>
+                    </div>
+                    <h4 className="text-lg font-extrabold text-[#FFBF00] uppercase tracking-tight">Motor de Pruebas A/B</h4>
+                    <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                      Distribución dinámica y automática de tráfico aleatorio a múltiples variantes de copys y landings con tracking de KPIs de conversión nativos.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-[#0B0B0B]/80 border border-white/5 rounded-2xl p-6 relative hover:border-[#FF5A1F]/20 transition-all flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 bg-blue-500 rounded-full"></span>
+                      <span className="text-xs font-black text-white uppercase tracking-wider">Hito Q4</span>
+                    </div>
+                    <h4 className="text-lg font-extrabold text-[#FFBF00] uppercase tracking-tight">Conversión por WhatsApp API</h4>
+                    <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                      Integración de chatbot conversacional avanzado con la API de WhatsApp para seguimiento asíncrono y cualificación automática de leads calientes.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 
