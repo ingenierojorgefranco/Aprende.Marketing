@@ -92,9 +92,9 @@ export const JorgeFrancoPage: React.FC = () => {
                 <div className="absolute -inset-1.5 bg-gradient-to-tr from-[#FF5A1F] to-[#FFBF00] rounded-3xl blur opacity-30 group-hover:opacity-50 transition duration-700"></div>
                 
                 {/* Main Card */}
-                <div className="relative bg-[#111] border border-white/10 rounded-3xl p-6 text-center space-y-6">
+                <div className="relative bg-[#111] border border-white/10 rounded-3xl p-4 text-center space-y-5">
                   {/* Photo Container */}
-                  <div className="w-48 h-48 mx-auto rounded-3xl overflow-hidden border-2 border-[#FF5A1F]/30 bg-gradient-to-tr from-[#151515] to-[#252525] flex items-center justify-center relative shadow-inner">
+                  <div className="w-full aspect-square mx-auto rounded-2xl overflow-hidden border-2 border-[#FF5A1F]/30 bg-gradient-to-tr from-[#151515] to-[#252525] flex items-center justify-center relative shadow-inner">
                     <img 
                       src="https://github.com/user-attachments/assets/223b5bc4-1459-4e54-9cbd-e8216ae1fd6f" 
                       alt="Jorge Franco" 
@@ -102,8 +102,8 @@ export const JorgeFrancoPage: React.FC = () => {
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                    <div className="absolute bottom-2 left-0 right-0">
-                      <span className="px-2 py-0.5 bg-[#FF5A1F] text-[9px] font-black uppercase text-white rounded-md tracking-wider">
+                    <div className="absolute bottom-3 left-0 right-0">
+                      <span className="px-3 py-1 bg-[#FF5A1F] text-[10px] font-black uppercase text-white rounded-md tracking-wider">
                         Full Stack Dev
                       </span>
                     </div>
@@ -215,23 +215,66 @@ export const JorgeFrancoPage: React.FC = () => {
                   <Terminal className="w-4 h-4" /> Presentación en Video
                 </span>
                 <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase leading-none">
-                  Descubre sobre Aprende.Marketing
+                  Descubre sobre <span className="text-[#FF5A1F]">Aprende.Marketing</span>
                 </h2>
                 <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
                   Aprende.Marketing elimina la brecha de ejecución en el marketing de productos digitales al automatizar todo el proceso de ventas, creando un embudo de conversión profesional para generar resultados escalables y automatizados.
                 </p>
               </div>
 
-              {/* Centered Video */}
-              <div className="relative aspect-video rounded-3xl overflow-hidden border border-white/10 bg-[#0B0B0B] group shadow-2xl max-w-3xl mx-auto w-full">
-                {/* YouTube Video iframe */}
-                <iframe 
-                  className="w-full h-full"
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1&autoplay=0" 
-                  title="Jorge Franco - Full Stack Developer System Case Study"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowFullScreen 
-                />
+              {/* Centered Video Mockup Preview */}
+              <div className="relative aspect-video rounded-3xl overflow-hidden border border-white/10 bg-[#0B0B0B] group shadow-2xl max-w-3xl mx-auto w-full flex flex-col items-center justify-center cursor-pointer select-none">
+                {/* Tech grid/glow effects */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-color-dodge transition-all duration-700 group-hover:scale-105 group-hover:opacity-45" 
+                  style={{ backgroundImage: "url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=1200&q=80')" }}
+                ></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                <div className="absolute -inset-10 bg-[radial-gradient(circle_at_center,rgba(255,90,31,0.15)_0%,transparent_60%)] pointer-events-none group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                {/* Floating badges */}
+                <div className="absolute top-4 left-4 flex gap-2">
+                  <span className="px-2.5 py-1 bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-black uppercase tracking-wider text-white rounded-lg flex items-center gap-1.5 shadow-lg">
+                    <span className="w-2 h-2 bg-[#FF5A1F] rounded-full animate-pulse" /> Caso de Estudio 
+                  </span>
+                  <span className="px-2.5 py-1 bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-black uppercase tracking-wider text-gray-400 rounded-lg flex items-center gap-1 shadow-lg">
+                    <Zap className="w-3 h-3 text-[#FFBF00] animate-pulse" /> 4K UHD
+                  </span>
+                </div>
+                
+                <div className="absolute top-4 right-4 animate-bounce" style={{ animationDuration: '3s' }}>
+                  <span className="px-2.5 py-1 bg-[#FFBF00]/15 border border-[#FFBF00]/30 text-[10px] font-black uppercase tracking-wider text-[#FFBF00] rounded-lg shadow-lg">
+                    5:42 Minutos
+                  </span>
+                </div>
+
+                {/* Center Play Button with rich glowing effects */}
+                <div className="relative z-10 flex flex-col items-center gap-4 transition-all duration-500 group-hover:scale-105">
+                  <div className="w-20 h-20 bg-gradient-to-tr from-[#FF5A1F] to-[#FFBF00] rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 group-hover:shadow-[#FF5A1F]/40 group-hover:shadow-[0_0_40px_rgba(255,90,31,0.6)] relative">
+                    <svg className="w-8 h-8 text-white fill-current translate-x-0.5" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                  <div className="text-center space-y-1">
+                    <h3 className="text-white font-extrabold text-lg uppercase tracking-wider group-hover:text-[#FFBF00] transition-colors">Iniciar Caso de Estudio</h3>
+                    <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">Por Jorge Franco · Creador y Desarrollador</p>
+                  </div>
+                </div>
+
+                {/* Bottom Control Bar Simulation for high-fidelity feel */}
+                <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-between z-10 opacity-60 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-3 w-full max-w-md">
+                    <span className="text-[10px] font-mono text-gray-400">0:00</span>
+                    <div className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
+                      <div className="w-1/4 h-full bg-gradient-to-r from-[#FF5A1F] to-[#FFBF00] rounded-full"></div>
+                    </div>
+                    <span className="text-[10px] font-mono text-gray-400">5:42</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span className="text-[9px] font-black uppercase tracking-wider text-emerald-400">Listo para reproducir</span>
+                  </div>
+                </div>
               </div>
 
               {/* Demo Credentials Box */}
@@ -246,12 +289,12 @@ export const JorgeFrancoPage: React.FC = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-white/5 border border-white/5 rounded-xl gap-3">
                     <div className="flex-1 min-w-0">
                       <span className="block text-gray-400 font-extrabold uppercase text-[10px] tracking-wider mb-0.5">URL</span>
-                      <a href="https://aprende.marketing/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#FFBF00] underline font-bold break-all transition-colors text-sm block">
-                        https://aprende.marketing/
+                      <a href="https://aprende.marketing/login" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#FFBF00] underline font-bold break-all transition-colors text-sm block">
+                        https://aprende.marketing/login
                       </a>
                     </div>
                     <button 
-                      onClick={() => handleCopy('https://aprende.marketing/', 'url')}
+                      onClick={() => handleCopy('https://aprende.marketing/login', 'url')}
                       className="shrink-0 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/15 border border-white/10 rounded-lg text-xs font-bold text-gray-200 hover:text-white transition-all active:scale-95"
                     >
                       {copiedUrl ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-gray-400" />}
@@ -278,10 +321,10 @@ export const JorgeFrancoPage: React.FC = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-white/5 border border-white/5 rounded-xl gap-3">
                     <div className="flex-1 min-w-0">
                       <span className="block text-gray-400 font-extrabold uppercase text-[10px] tracking-wider mb-0.5">Contraseña</span>
-                      <span className="text-white font-mono break-all font-bold text-sm block">demo1234564789</span>
+                      <span className="text-white font-mono break-all font-bold text-sm block">Aprende2026!*</span>
                     </div>
                     <button 
-                      onClick={() => handleCopy('demo1234564789', 'pass')}
+                      onClick={() => handleCopy('Aprende2026!*', 'pass')}
                       className="shrink-0 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/15 border border-white/10 rounded-lg text-xs font-bold text-gray-200 hover:text-white transition-all active:scale-95"
                     >
                       {copiedPass ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-gray-400" />}
