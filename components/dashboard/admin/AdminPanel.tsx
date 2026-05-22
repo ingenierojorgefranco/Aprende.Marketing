@@ -21,6 +21,7 @@ export const AdminPanel: React.FC = () => {
     
     // Edit User State
     const [editingUser, setEditingUser] = useState<User | null>(null);
+    const [newPassword, setNewPassword] = useState<string>('');
     const [viewingUser, setViewingUser] = useState<User | null>(null); 
     const [tempPlanLimits, setTempPlanLimits] = useState<PlanLimits | null>(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
@@ -106,6 +107,7 @@ export const AdminPanel: React.FC = () => {
 
     const handleEditClick = (user: User) => {
         setEditingUser(user);
+        setNewPassword('');
         const currentLimits: PlanLimits = user.planLimits ? {
             ...user.planLimits,
             maxHooks: user.planLimits.maxHooks || 10 // Ensure maxHooks exists
@@ -181,7 +183,8 @@ export const AdminPanel: React.FC = () => {
                 email: editingUser.email,
                 avatarUrl: editingUser.avatarUrl,
                 birthDate: editingUser.birthDate,
-                customRedirectUrl: editingUser.customRedirectUrl
+                customRedirectUrl: editingUser.customRedirectUrl,
+                password: newPassword ? newPassword : undefined
             } as any); 
 
             // Refresh list
@@ -625,6 +628,16 @@ export const AdminPanel: React.FC = () => {
                                                     className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
                                                 />
                                             </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nueva Contraseña (Dejar vacío para mantener la actual)</label>
+                                            <input 
+                                                type="password" 
+                                                value={newPassword} 
+                                                onChange={(e) => setNewPassword(e.target.value)}
+                                                placeholder="Ingresa una nueva contraseña para este usuario"
+                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                            />
                                         </div>
                                     </div>
 

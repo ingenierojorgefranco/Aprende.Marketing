@@ -1,5 +1,6 @@
 
 import express from 'express';
+import bcrypt from 'bcryptjs';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
 import { logSystemActivity, DEFAULT_LIMITS, clearLimitsCache } from './authRoutes.js';
@@ -83,7 +84,7 @@ router.get('/users/:id/stats', async (req, res) => {
 
 router.put('/users/:id', async (req, res) => {
     const { id } = req.params;
-    const { role, planLimits, isActive, name, email, avatarUrl, birthDate, customRedirectUrl, maxHooks } = req.body;
+    const { role, planLimits, isActive, name, email, avatarUrl, birthDate, customRedirectUrl, maxHooks, password } = req.body;
     try {
         await pool.query(
             `UPDATE users SET 
@@ -99,6 +100,12 @@ router.put('/users/:id', async (req, res) => {
              WHERE id = ?`,
             [role, JSON.stringify(planLimits), isActive, name, email, avatarUrl, birthDate, customRedirectUrl, maxHooks, id]
         );
+
+        if (password && password.trim() !== '') {
+            const passwordHash = await bcrypt.hash(password, 10);
+            await pool.query('UPDATE users SET password_hash = ? WHERE id = ?', [passwordHash, id]);
+        }
+
         const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
         await logSystemActivity(req.user.id, admin[0]?.name, 'UPDATE_USER', 'user', id, { role, planName: planLimits.planName });
         clearLimitsCache(id);

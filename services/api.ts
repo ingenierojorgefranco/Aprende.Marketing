@@ -1213,7 +1213,7 @@ export const api = {
         return users;
     },
   
-    updateUser: async (id: string, data: { role: string, planLimits: PlanLimits, isActive: boolean }) => {
+    updateUser: async (id: string, data: { role: string, planLimits: PlanLimits, isActive: boolean, password?: string }) => {
         if (isMockMode) return Promise.resolve();
         await fetchWithFallback(`/admin/users/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) });
         clearCache('adminUserResources');
