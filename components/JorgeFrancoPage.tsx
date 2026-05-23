@@ -11,6 +11,7 @@ export const JorgeFrancoPage: React.FC = () => {
   const [copiedUrl, setCopiedUrl] = React.useState(false);
   const [copiedUser, setCopiedUser] = React.useState(false);
   const [copiedPass, setCopiedPass] = React.useState(false);
+  const [isPlayingVideo, setIsPlayingVideo] = React.useState(false);
 
   const handleCopy = (text: string, type: 'url' | 'user' | 'pass') => {
     navigator.clipboard.writeText(text);
@@ -298,60 +299,83 @@ export const JorgeFrancoPage: React.FC = () => {
                 </p>
               </div>
 
-              {/* Centered Video Mockup Preview */}
-              <div className="relative aspect-video rounded-3xl overflow-hidden border border-white/10 bg-[#0B0B0B] group shadow-2xl max-w-3xl mx-auto w-full flex flex-col items-center justify-center cursor-pointer select-none">
-                {/* Tech grid/glow effects */}
+              {/* Centered Video Player or Mockup Preview */}
+              {isPlayingVideo ? (
+                <div className="relative aspect-video rounded-3xl overflow-hidden border border-white/10 bg-black shadow-2xl max-w-3xl mx-auto w-full">
+                  <iframe
+                    className="w-full h-full"
+                    src="https://www.youtube.com/embed/96xL5jPp4WM?autoplay=1"
+                    title="Presentación Aprende.Marketing"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              ) : (
                 <div 
-                  className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-color-dodge transition-all duration-700 group-hover:scale-105 group-hover:opacity-45" 
-                  style={{ backgroundImage: "url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=1200&q=80')" }}
-                ></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-                <div className="absolute -inset-10 bg-[radial-gradient(circle_at_center,rgba(255,90,31,0.15)_0%,transparent_60%)] pointer-events-none group-hover:opacity-100 transition-opacity duration-500"></div>
-                
-                {/* Floating badges */}
-                <div className="absolute top-4 left-4 flex gap-2">
-                  <span className="px-2.5 py-1 bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-black uppercase tracking-wider text-white rounded-lg flex items-center gap-1.5 shadow-lg">
-                    <span className="w-2 h-2 bg-[#FF5A1F] rounded-full animate-pulse" /> Caso de Estudio 
-                  </span>
-                  <span className="px-2.5 py-1 bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-black uppercase tracking-wider text-gray-400 rounded-lg flex items-center gap-1 shadow-lg">
-                    <Zap className="w-3 h-3 text-[#FFBF00] animate-pulse" /> 4K UHD
-                  </span>
-                </div>
-                
-                <div className="absolute top-4 right-4 animate-bounce" style={{ animationDuration: '3s' }}>
-                  <span className="px-2.5 py-1 bg-[#FFBF00]/15 border border-[#FFBF00]/30 text-[10px] font-black uppercase tracking-wider text-[#FFBF00] rounded-lg shadow-lg">
-                    5:42 Minutos
-                  </span>
-                </div>
+                  onClick={() => setIsPlayingVideo(true)}
+                  className="relative aspect-video rounded-3xl overflow-hidden border border-white/10 bg-[#0B0B0B] group shadow-2xl max-w-3xl mx-auto w-full flex flex-col items-center justify-center cursor-pointer select-none"
+                >
+                  {/* Custom CSS for Background Gradient Animation */}
+                  <style>{`
+                    @keyframes bgGradientShift {
+                      0% { background-position: 0% 50%; opacity: 0.2; }
+                      50% { background-position: 100% 50%; opacity: 0.35; }
+                      100% { background-position: 0% 50%; opacity: 0.2; }
+                    }
+                    .animate-subtle-gradient {
+                      background-size: 200% 200%;
+                      animation: bgGradientShift 10s ease infinite;
+                    }
+                  `}</style>
 
-                {/* Center Play Button with rich glowing effects */}
-                <div className="relative z-10 flex flex-col items-center gap-4 transition-all duration-500 group-hover:scale-105">
-                  <div className="w-20 h-20 bg-gradient-to-tr from-[#FF5A1F] to-[#FFBF00] rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 group-hover:shadow-[#FF5A1F]/40 group-hover:shadow-[0_0_40px_rgba(255,90,31,0.6)] relative">
-                    <svg className="w-8 h-8 text-white fill-current translate-x-0.5" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
+                  {/* Tech grid/glow effects */}
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-color-dodge transition-all duration-700 group-hover:scale-105 group-hover:opacity-45" 
+                    style={{ backgroundImage: "url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=1200&q=80')" }}
+                  ></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#FF5A1F]/15 via-transparent to-[#FFBF00]/15 animate-subtle-gradient"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                  <div className="absolute -inset-10 bg-[radial-gradient(circle_at_center,rgba(255,191,0,0.08)_0%,rgba(255,90,31,0.12)_35%,transparent_65%)] pointer-events-none group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  {/* Floating badges */}
+                  <div className="absolute top-4 left-4 flex gap-2">
+                    <span className="px-2.5 py-1 bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-black uppercase tracking-wider text-white rounded-lg flex items-center gap-1.5 shadow-lg">
+                      <span className="w-2 h-2 bg-[#FF5A1F] rounded-full animate-pulse" /> Presentación Jorge Franco
+                    </span>
                   </div>
-                  <div className="text-center space-y-1">
-                    <h3 className="text-white font-extrabold text-lg uppercase tracking-wider group-hover:text-[#FFBF00] transition-colors">Iniciar Caso de Estudio</h3>
-                    <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">Por Jorge Franco · Creador y Desarrollador</p>
+                  
+                  <div className="absolute top-4 right-4 animate-bounce" style={{ animationDuration: '3s' }}>
+                    <span className="px-2.5 py-1 bg-[#FFBF00]/15 border border-[#FFBF00]/30 text-[10px] font-black uppercase tracking-wider text-[#FFBF00] rounded-lg shadow-lg">
+                      4:21 Minutos
+                    </span>
                   </div>
-                </div>
-
-                {/* Bottom Control Bar Simulation for high-fidelity feel */}
-                <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-between z-10 opacity-60 group-hover:opacity-100 transition-opacity">
-                  <div className="flex items-center gap-3 w-full max-w-md">
-                    <span className="text-[10px] font-mono text-gray-400">0:00</span>
-                    <div className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
-                      <div className="w-1/4 h-full bg-gradient-to-r from-[#FF5A1F] to-[#FFBF00] rounded-full"></div>
+  
+                  {/* Center Play Button with rich glowing effects */}
+                  <div className="relative z-10 flex flex-col items-center gap-4 transition-all duration-500 group-hover:scale-105">
+                    <div className="w-20 h-20 bg-gradient-to-tr from-[#FF5A1F] to-[#FFBF00] rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 group-hover:shadow-[#FF5A1F]/40 group-hover:shadow-[0_0_40px_rgba(255,90,31,0.6)] relative">
+                      <svg className="w-8 h-8 text-white fill-current translate-x-0.5" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
                     </div>
-                    <span className="text-[10px] font-mono text-gray-400">5:42</span>
+                    <div className="text-center space-y-1">
+                      <h3 className="text-white font-extrabold text-lg uppercase tracking-wider group-hover:text-[#FFBF00] transition-colors">Presentación Aprende.Marketing</h3>
+                      <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">Por Jorge Franco · Creador y Desarrollador</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span className="text-[9px] font-black uppercase tracking-wider text-emerald-400">Listo para reproducir</span>
+  
+                  {/* Bottom Control Bar Simulation for high-fidelity feel */}
+                  <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-between z-10 opacity-60 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-3 w-full">
+                      <span className="text-[10px] font-mono text-gray-400">0:00</span>
+                      <div className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
+                        <div className="w-1/4 h-full bg-gradient-to-r from-[#FF5A1F] to-[#FFBF00] rounded-full"></div>
+                      </div>
+                      <span className="text-[10px] font-mono text-gray-400">4:21</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Demo Credentials Box */}
               <div className="bg-[#0B0B0B] border border-[#FF5A1F]/30 rounded-2xl p-6 shadow-xl space-y-4 relative overflow-hidden max-w-xl mx-auto">
