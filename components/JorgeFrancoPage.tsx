@@ -209,7 +209,7 @@ export const JorgeFrancoPage: React.FC = () => {
             {/* Skills & Cards container (Full Width) */}
             <div className="space-y-8 bg-[#111] border border-white/5 rounded-[2.5rem] p-8 md:p-12 relative w-full">
               <div className="space-y-2">
-                <p className="text-xs font-black text-[#FFBF00] uppercase tracking-widest">HABILIDADES CORE</p>
+                <p className="text-xs font-black text-[#FFBF00] uppercase tracking-widest">HABILIDADES COMO FULLSTACK DEVELOPER</p>
                 <h3 className="text-3xl font-black text-white uppercase tracking-tight">Stack Tecnológico</h3>
               </div>
  
@@ -251,6 +251,32 @@ export const JorgeFrancoPage: React.FC = () => {
                 </div>
               </div>
 
+            </div>
+          </section>
+
+          {/* Duplicated Contact Section after ID Curriculum */}
+          <section className="max-w-3xl mx-auto mb-24">
+            <div className="bg-[#111] border border-[#FF5A1F]/20 rounded-[2.5rem] p-8 md:p-12 text-center relative overflow-hidden shadow-2xl">
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-[#FF5A1F]"></div>
+              
+              <div className="space-y-6 text-center py-6">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 rounded-full text-xs font-black text-[#FF5A1F] uppercase tracking-widest">
+                  ✉ Solicita una Reunión para más detalles
+                </span>
+                <p className="text-white font-semibold max-w-xl mx-auto leading-relaxed text-base md:text-lg">
+                  ¿Buscas un desarrollador para integrarse a tu equipo, liderar una iniciativa técnica o simplemente quieres validar una idea brillante? Solicita tu reunión ahora.
+                </p>
+                <div className="pt-4">
+                  <a 
+                    href="https://calendly.com/jorgefranpuntoco/seminariosonline" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2.5 px-8 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/15 active:scale-[0.98]"
+                  >
+                    <MessageSquare className="w-4 h-4 text-white" /> Agendar Llamada
+                  </a>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -386,7 +412,7 @@ export const JorgeFrancoPage: React.FC = () => {
 
               {/* Especificaciones de Sistema / Arquitectura Box */}
               <div className="bg-[#0B0B0B] border border-white/10 rounded-2xl p-6 md:p-8 space-y-6 shadow-xl relative overflow-hidden">
-                <h4 className="text-sm font-black text-[#FFBF00] uppercase tracking-widest border-b border-white/5 pb-2 text-center">Especificaciones de Sistema / Arquitectura</h4>
+                <h4 className="text-sm font-black text-[#FFBF00] uppercase tracking-widest border-b border-white/5 pb-2 text-center">Arquitectura de Aprende.<span className="text-[#FF5A1F] normal-case">marketing</span></h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="p-4 bg-white/5 border border-white/5 rounded-xl flex items-start gap-4 hover:border-white/10 transition-colors">
                     <BookmarkCheck className="w-6 h-6 text-[#FF5A1F] shrink-0 mt-0.5" />
@@ -433,7 +459,7 @@ export const JorgeFrancoPage: React.FC = () => {
                     <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> Estado del Proyecto
                   </span>
                   <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight">
-                    Métricas de Impacto <span className="text-[#FFBF00]">(Fase Beta)</span>
+                    Métricas del Sistema <span className="text-[#FFBF00]">(Fase Beta)</span>
                   </h3>
                 </div>
                 <p className="text-white/90 font-normal leading-loose text-base md:text-lg max-w-md">
@@ -476,8 +502,8 @@ export const JorgeFrancoPage: React.FC = () => {
             <div className="space-y-12">
               {/* Header */}
               <div className="space-y-4 max-w-3xl">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFBF00]/10 border border-[#FFBF00]/30 rounded-full text-xs font-black text-[#FFBF00] uppercase tracking-widest animate-pulse">
-                  <Code className="w-3.5 h-3.5" /> FOCO EN INGENIERÍA SÓLIDA
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFBF00]/10 border border-[#FFBF00]/30 rounded-full text-[10px] md:text-xs font-black text-[#FFBF00] uppercase tracking-widest animate-pulse">
+                  <Code className="w-3.5 h-3.5" /> Soluciones Técnicas como Desarrollador Full Stack
                 </span>
                 <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight leading-none text-balance">
                   Desafíos Técnicos y <span className="text-[#FF5A1F]">Soluciones de Arquitectura</span>
