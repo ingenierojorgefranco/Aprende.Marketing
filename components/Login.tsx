@@ -119,14 +119,16 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <div className="mt-6 text-center pt-6 border-t border-white/5 space-y-4">
             <p className="text-[#B0B0B0] text-sm">¿No tienes cuenta? <button onClick={() => navigate('/register')} className="text-[#FF5A1F] font-bold hover:underline transition">Regístrate Gratis</button></p>
             
-            <div className="pt-2 border-t border-white/5">
-              <button 
-                onClick={() => navigate('/jorge-franco')} 
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black uppercase tracking-wider rounded-xl transition-all"
-              >
-                <span>🚀 Ver Perfil Jorge Franco (Temporal)</span>
-              </button>
-            </div>
+            {!isProduction && (
+              <div className="pt-2 border-t border-white/5">
+                <button 
+                  onClick={() => navigate('/jorge-franco')} 
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black uppercase tracking-wider rounded-xl transition-all"
+                >
+                  <span>🚀 Ver Perfil Jorge Franco (Temporal)</span>
+                </button>
+              </div>
+            )}
         </div>
       </div>
     </div>

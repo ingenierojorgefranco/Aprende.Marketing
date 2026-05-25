@@ -166,6 +166,8 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
 
 // 2.5 PROTOCOLO DE DESBLOQUEO (Modal-like)
 export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategyGenerated?: boolean, onBackToSelection?: () => void }> = ({ project, onNext, isStrategyGenerated, onBackToSelection }) => {
+    const [isPlaying, setIsPlaying] = React.useState(false);
+    
     // Ensure commission is a whole number for display
     const rawCommission = project.commissionRate || 80;
     const displayCommission = rawCommission < 1 ? Math.round(rawCommission * 100) : Math.round(rawCommission);
@@ -215,16 +217,36 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                     <div className="w-full space-y-6">
                         <p className="text-xs text-white font-medium uppercase tracking-[0.2em] mb-4">Mira el video para conocer detalles del producto</p>
                         <div className="relative group w-full aspect-video bg-zinc-900 rounded-[2.5rem] overflow-hidden border border-white/10 flex items-center justify-center shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]">
-                            {project.multimedia_json?.videoUrl ? (
+                            {isPlaying ? (
                                 <iframe 
-                                    src={`${project.multimedia_json.videoUrl}${project.multimedia_json.videoUrl.includes('?') ? '&' : '?'}rel=0&modestbranding=1&autoplay=0`} 
+                                    src={project.multimedia_json?.videoUrl ? `${project.multimedia_json.videoUrl}${project.multimedia_json.videoUrl.includes('?') ? '&' : '?'}autoplay=1&rel=0` : "https://www.youtube.com/embed/96xL5jPp4WM?autoplay=1"} 
                                     className="w-full h-full" 
                                     allowFullScreen 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 />
                             ) : (
-                                <div className="text-gray-700 flex flex-col items-center gap-4">
-                                    <Play className="w-20 h-20 fill-gray-800" />
-                                    <span className="text-xs font-black uppercase tracking-widest">Video de Presentación</span>
+                                <div 
+                                    onClick={() => setIsPlaying(true)}
+                                    className="absolute inset-0 w-full h-full cursor-pointer group/play overflow-hidden"
+                                >
+                                    {project.multimedia_json?.heroImages?.[0] ? (
+                                        <img 
+                                            src={project.multimedia_json.heroImages[0]} 
+                                            alt={project.name} 
+                                            className="w-full h-full object-cover group-hover/play:scale-105 transition-transform duration-700" 
+                                            referrerPolicy="no-referrer"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
+                                            <Target className="w-12 h-12 text-[#FF5A1F] opacity-20" />
+                                        </div>
+                                    )}
+                                    <div className="absolute inset-0 bg-black/40 group-hover/play:bg-black/30 transition-colors flex items-center justify-center">
+                                        <div className="w-20 h-20 bg-[#FF5A1F] rounded-full flex items-center justify-center shadow-2xl group-hover/play:scale-110 transition-transform relative">
+                                            <Play className="w-8 h-8 text-white fill-current translate-x-0.5" />
+                                            <div className="absolute inset-0 bg-[#FF5A1F] rounded-full animate-ping opacity-25"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>
