@@ -254,7 +254,7 @@ export const generateLandingPageContent = async (
 
   try {
     // Se utiliza el modelo Pro con Thinking Config para evitar errores de formato y mejorar la persuasión.
-    const response = await callGeminiBackend(prompt, null, true, "gemini-3-pro-preview", 16384);
+    const response = await callGeminiBackend(prompt, null, true, "gemini-3-flash-preview", 16384);
     
     if (response.text) {
         const content = JSON.parse(response.text) as GeneratedPageContent;
