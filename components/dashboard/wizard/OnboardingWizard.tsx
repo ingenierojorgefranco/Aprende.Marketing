@@ -128,6 +128,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   const selectionRef = useRef<HTMLDivElement>(null);
   const unlockRef = useRef<HTMLDivElement>(null);
   const strategyRef = useRef<HTMLDivElement>(null);
+  const strategyReadyRef = useRef<HTMLDivElement>(null);
   const avatarsRef = useRef<HTMLDivElement>(null);
   const landingPrepRef = useRef<HTMLDivElement>(null);
   const creationRef = useRef<HTMLDivElement>(null);
@@ -206,8 +207,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   }, [selectedProject]);
 
   useEffect(() => {
+    if (step === "success") {
+      if (containerRef.current) {
+        containerRef.current.scrollTo({ top: 0, behavior: "auto" });
+      }
+    }
     if (step === "generating_strategy") scrollTo(strategyRef);
-    if (step === "strategy_ready") scrollTo(avatarsRef); // Shared ref or new one? Let's use avatarRef for ready too
+    if (step === "strategy_ready") scrollTo(strategyReadyRef);
     if (step === "show_avatars") scrollTo(avatarsRef);
     if (step === "show_landing_prep") scrollTo(landingPrepRef);
     if (step === "creating_web") scrollTo(creationRef);
@@ -215,6 +221,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     if (step === "show_hooks") scrollTo(hooksRef);
     if (step === "success") scrollTo(successRef);
   }, [step]);
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const loadMasterProjects = async () => {
     if (projects.length > 0) return;
@@ -574,7 +582,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-[#020202] overflow-y-auto overflow-x-hidden snap-y snap-mandatory z-[45] scroll-smooth selection:bg-[#FF5A1F] selection:text-white">
+    <div
+      ref={containerRef}
+      className="fixed inset-0 bg-[#020202] overflow-y-auto overflow-x-hidden snap-y snap-mandatory z-[45] scroll-smooth selection:bg-[#FF5A1F] selection:text-white"
+    >
       {/* Header del Wizard */}
       <header
         className={`fixed top-0 left-0 right-0 h-20 flex items-center justify-between px-6 md:px-12 z-50 transition-all duration-300 ${
@@ -803,19 +814,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                             activa tu cuenta y dale al botón de encendido para
                             empezar a facturar.
                           </p>
-
-                          {/* Project Image underneath */}
-                          {activeProjectImage && (
-                            <div className="w-full h-32 md:h-48 rounded-2xl overflow-hidden border border-white/10 relative bg-[#0E0E0F] shadow-md group z-10">
-                              <img
-                                src={activeProjectImage}
-                                alt={activeProjectName}
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                referrerPolicy="no-referrer"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -2835,7 +2833,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
             {/* 4. AVATARES */}
             {revealedSections.includes("strategy_ready") && (
-              <div className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
+              <div
+                ref={strategyReadyRef}
+                className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
+              >
                 <StrategyReadyStep
                   userData={user}
                   project={selectedProject}
