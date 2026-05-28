@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, UserSubscription, EmailMessage, Plan } from '../../../types';
 import { api } from '../../../services/api';
-import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone, Zap, CreditCard, Power, Edit, Check, Calendar } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone, Zap, CreditCard, Power, Edit, Check, Calendar, User as UserIcon, Shield, MapPin, Target, Award, Clock, HelpCircle, BookOpen } from 'lucide-react';
 
 ////////// Actualización: Creación de archivo independiente para carga dinámica - 05/06/2025 21:30 //////////
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
@@ -16,7 +16,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
         hooks: any[] | null;
     }>({ plans: null, systemPlans: null, projects: null, pages: null, articles: null, emails: null, whatsapp: null, hooks: null });
 
-    const [expandedSection, setExpandedSection] = useState<'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks' | null>(null);
+    const [expandedSection, setExpandedSection] = useState<'user-data' | 'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks' | null>(null);
     const [loadingSection, setLoadingSection] = useState<string | null>(null);
 
     const formatRelativeTime = (dateInput: any) => {
@@ -48,13 +48,15 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
     const [sequenceMessages, setSequenceMessages] = useState<EmailMessage[]>([]);
     const [loadingMessages, setLoadingMessages] = useState(false);
 
-    const toggleSection = async (section: 'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks') => {
+    const toggleSection = async (section: 'user-data' | 'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks') => {
         if (expandedSection === section) {
             setExpandedSection(null);
             return;
         }
 
         setExpandedSection(section);
+
+        if (section === 'user-data') return;
 
         // Lazy Load if data is null
         if (loadedData[section] === null) {
@@ -304,6 +306,197 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
 
                 <div className="p-6 overflow-y-auto space-y-4 flex-1">
                     
+                    {/* Sección de Datos de Usuario y Encuesta */}
+                    <div className="border border-gray-700 rounded-xl overflow-hidden">
+                        <button 
+                            onClick={() => toggleSection('user-data')}
+                            className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 transition text-left"
+                        >
+                            <div className="flex items-center gap-3 font-bold text-white">
+                                <UserIcon className="w-5 h-5 text-blue-400" /> Datos de Usuario y Encuesta
+                            </div>
+                            {expandedSection === 'user-data' ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+                        </button>
+                        
+                        {expandedSection === 'user-data' && (
+                            <div className="bg-black/50 p-6 border-t border-gray-700 animate-in slide-in-from-top-2 space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Tarjeta 1: Información de Cuenta */}
+                                    <div className="bg-gray-800/40 p-5 rounded-xl border border-gray-700/60 space-y-4">
+                                        <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                            <Shield className="w-4 h-4 text-blue-400" /> Información de Cuenta
+                                        </h4>
+                                        <div className="space-y-3 text-sm">
+                                            <div className="flex justify-between border-b border-gray-800/80 pb-2">
+                                                <span className="text-gray-400">ID del Usuario:</span>
+                                                <span className="text-gray-200 font-mono text-xs">{user.id}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-800/80 pb-2">
+                                                <span className="text-gray-400">Nombre Completo:</span>
+                                                <span className="text-gray-200 font-medium">{user.name}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-800/80 pb-2">
+                                                <span className="text-gray-400">Email:</span>
+                                                <span className="text-gray-200 font-medium">{user.email}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-800/80 pb-2">
+                                                <span className="text-gray-400">Fecha de Registro:</span>
+                                                <span className="text-gray-200">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-800/80 pb-2">
+                                                <span className="text-gray-400">Cumpleaños:</span>
+                                                <span className="text-gray-200">{user.birthDate ? new Date(user.birthDate).toLocaleDateString() : 'N/A'}</span>
+                                            </div>
+                                            <div className="flex justify-between pb-1">
+                                                <span className="text-gray-400">Redirección Especial:</span>
+                                                <span className="text-gray-200 text-xs font-mono">{user.customRedirectUrl || 'Ninguna'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Tarjeta 2: Perfil y Datos del Dashboard */}
+                                    <div className="bg-gray-800/40 p-5 rounded-xl border border-gray-700/60 space-y-4">
+                                        <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                            <Target className="w-4 h-4 text-purple-400" /> Datos Clave (Dashboard)
+                                        </h4>
+                                        <div className="space-y-3 text-sm">
+                                            <div className="flex justify-between border-b border-gray-800/80 pb-2">
+                                                <span className="text-gray-400">Nicho:</span>
+                                                <span className="text-purple-300 font-semibold">{user.niche || 'No especificado'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-800/80 pb-2 flex-col">
+                                                <span className="text-gray-400 text-xs mb-0.5">Objetivo Principal:</span>
+                                                <span className="text-gray-200 font-medium">{user.main_goal || 'No especificado'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-800/80 pb-2 flex-col">
+                                                <span className="text-gray-400 text-xs mb-0.5">Obstáculo Principal:</span>
+                                                <span className="text-gray-200 font-medium">{user.main_obstacle || 'No especificado'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-800/80 pb-2">
+                                                <span className="text-gray-400">Nivel de Experiencia:</span>
+                                                <span className="text-gray-200">{user.experience_level || 'No especificado'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-800/80 pb-2">
+                                                <span className="text-gray-400">Nivel de Urgencia:</span>
+                                                <span className="text-gray-200">{user.urgency_level || 'No especificado'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Encuesta Completa de Onboarding */}
+                                <div className="bg-gray-800/30 p-5 rounded-xl border border-gray-700/50 space-y-4">
+                                    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                        <BookOpen className="w-4 h-4 text-emerald-400" /> Resultados de Encuesta de Onboarding (Completo)
+                                    </h4>
+                                    
+                                    {(!user.survey_json) ? (
+                                        <div className="py-6 text-center text-gray-500 bg-gray-900/40 rounded-lg text-sm">
+                                            Este usuario aún no ha realizado o guardado la encuesta de onboarding.
+                                        </div>
+                                    ) : (() => {
+                                        const s = typeof user.survey_json === 'string' ? JSON.parse(user.survey_json) : user.survey_json;
+                                        return (
+                                            <div className="space-y-6">
+                                                {/* Grid de encuesta general */}
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                                                    <div className="p-3 bg-gray-900/50 rounded-lg space-y-1">
+                                                        <span className="text-gray-500 block uppercase font-bold tracking-wider">Contacto</span>
+                                                        <p className="text-gray-300 font-bold flex items-center gap-1">
+                                                            <Smartphone className="w-3.5 h-3.5 text-emerald-400" /> {s.whatsappIndicative || ''} {s.whatsapp || 'No proporcionado'}
+                                                        </p>
+                                                        <p className="text-gray-400 flex items-center gap-1">
+                                                            <MapPin className="w-3.5 h-3.5 text-gray-400" /> {s.city || 'Ciudad N/A'}, {s.country || 'País N/A'}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-3 bg-gray-900/50 rounded-lg space-y-1">
+                                                        <span className="text-gray-500 block uppercase font-bold tracking-wider">Disponibilidad y Presencia</span>
+                                                        <p className="text-gray-300"><span className="text-gray-500 font-medium">Dedicación:</span> {s.dedicationTime || 'N/A'}</p>
+                                                        <p className="text-gray-300"><span className="text-gray-500 font-medium">Presencia Online:</span> {s.onlinePresence || 'N/A'}</p>
+                                                    </div>
+                                                    <div className="p-3 bg-gray-900/50 rounded-lg space-y-1">
+                                                        <span className="text-gray-500 block uppercase font-bold tracking-wider">Nivel de negocio</span>
+                                                        <p className="text-gray-300"><span className="text-gray-500 font-medium">Hotmart Acc:</span> {s.hasHotmartAcc || 'N/A'}</p>
+                                                        <p className="text-gray-300"><span className="text-gray-500 font-medium">Presupuesto/Inversión:</span> {s.budgetRange || 'N/A'}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                                                    {/* Áreas de Dominio (Mastery) */}
+                                                    {s.mastery && (
+                                                        <div className="p-4 bg-gray-900/50 rounded-lg space-y-3">
+                                                            <span className="text-gray-500 block uppercase font-bold tracking-wider flex items-center gap-1.5">
+                                                                <Award className="w-3.5 h-3.5 text-yellow-400" /> Niveles de Dominio Auto-evaluados
+                                                            </span>
+                                                            <div className="grid grid-cols-2 gap-3 text-gray-300">
+                                                                <div className="border border-gray-800 p-2 rounded bg-black/20">
+                                                                    <span className="text-gray-500 block text-[10px] uppercase font-bold">Embudos</span>
+                                                                    <span className="font-semibold text-gray-200 capitalize">{s.mastery.funnels || 'N/A'}</span>
+                                                                </div>
+                                                                <div className="border border-gray-800 p-2 rounded bg-black/20">
+                                                                    <span className="text-gray-500 block text-[10px] uppercase font-bold">Email Marketing</span>
+                                                                    <span className="font-semibold text-gray-200 capitalize">{s.mastery.emailMarketing || 'N/A'}</span>
+                                                                </div>
+                                                                <div className="border border-gray-800 p-2 rounded bg-black/20">
+                                                                    <span className="text-gray-500 block text-[10px] uppercase font-bold">Landing Pages</span>
+                                                                    <span className="font-semibold text-gray-200 capitalize">{s.mastery.landingPages || 'N/A'}</span>
+                                                                </div>
+                                                                <div className="border border-gray-800 p-2 rounded bg-black/20">
+                                                                    <span className="text-gray-500 block text-[10px] uppercase font-bold">IA / Autom.</span>
+                                                                    <span className="font-semibold text-gray-200 capitalize">{s.mastery.ia || 'N/A'}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Negocio y Expectativas */}
+                                                    <div className="p-4 bg-gray-900/50 rounded-lg space-y-3">
+                                                        <span className="text-gray-500 block uppercase font-bold tracking-wider">Negocio y Redes</span>
+                                                        <div className="space-y-2 text-gray-300">
+                                                            <div>
+                                                                <span className="text-gray-500 text-[10px] block font-bold uppercase">Redes Sociales Utilizadas:</span>
+                                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                                    {Array.isArray(s.useSocialMedia) && s.useSocialMedia.length > 0 ? (
+                                                                        s.useSocialMedia.map((sm: string, idx: number) => (
+                                                                            <span key={idx} className="bg-gray-800 border border-gray-700 px-1.5 py-0.5 rounded text-[10px] font-medium text-gray-300">{sm}</span>
+                                                                        ))
+                                                                    ) : (
+                                                                        <span className="text-gray-500 italic">Ninguna seleccionada</span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <span className="text-gray-500 text-[10px] block font-bold uppercase">Tipo de Negocio:</span>
+                                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                                    {Array.isArray(s.businessType) && s.businessType.length > 0 ? (
+                                                                        s.businessType.map((bt: string, idx: number) => (
+                                                                            <span key={idx} className="bg-blue-950/40 border border-blue-900/50 text-blue-300 px-1.5 py-0.5 rounded text-[10px] font-medium">{bt}</span>
+                                                                        ))
+                                                                    ) : (
+                                                                        <span className="text-gray-500 italic">No especificado</span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="p-3.5 bg-gray-900/50 rounded-lg space-y-2 text-xs">
+                                                    <span className="text-gray-500 block uppercase font-bold tracking-wider flex items-center gap-1">
+                                                        <HelpCircle className="w-3.5 h-3.5 text-blue-400" /> Expectativa de la Comunidad
+                                                    </span>
+                                                    <p className="text-gray-200 italic bg-black/20 p-2.5 rounded border border-gray-800/80 leading-relaxed">
+                                                        "{s.communityExpectation || 'No especificada'}"
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                     {/* Planes Section */}
                     <div className="border border-gray-700 rounded-xl overflow-hidden">
                         <button 

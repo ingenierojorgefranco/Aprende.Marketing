@@ -35,14 +35,16 @@ router.use('/', courseAdminRouter);
 router.get('/users', async (req, res) => {
     try {
         const [users] = await pool.query(
-            `SELECT id, name, email, role, is_active, plan_limits, created_at, last_login_at, avatar_url, birth_date, custom_redirect_url, max_hooks 
+            `SELECT id, name, email, role, is_active, plan_limits, created_at, last_login_at, avatar_url, birth_date, custom_redirect_url, max_hooks,
+                    survey_json, main_goal, experience_level, budget_range, main_obstacle, niche, urgency_level, createdsurvey_at, updatedsurvey_at 
              FROM users ORDER BY created_at DESC`
         );
         const safeUsers = users.map(u => ({
             ...u,
             planLimits: typeof u.plan_limits === 'string' ? JSON.parse(u.plan_limits) : (u.plan_limits || DEFAULT_LIMITS),
             customRedirectUrl: u.custom_redirect_url,
-            maxHooks: u.max_hooks
+            maxHooks: u.max_hooks,
+            survey_json: typeof u.survey_json === 'string' ? JSON.parse(u.survey_json) : u.survey_json
         }));
         res.json(safeUsers);
     } catch (e) {
