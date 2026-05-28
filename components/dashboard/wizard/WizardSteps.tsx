@@ -729,13 +729,13 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                             Tus videos están <span className="text-purple-400">listos para usarse</span>
                         </h2>
                         <p className="text-gray-300 max-w-2xl mx-auto font-medium text-lg leading-relaxed">
-                            ¡Excelente! Ya puedes descargar tus videos de atracción, los cuales podrás publicar como videos cortos (Reels) en YouTube, Instagram, Tik Tok y Facebook y con los que podrás atraer cientos de clientes interesados en el <span className="text-purple-400 font-black">{project?.name || 'Curso Seleccionado'}</span>.
+                            ¡Excelente! Ya puedes descargar tus videos de atracción, los cuales podrás publicar como videos cortos (Reels) en YouTube, Instagram, Tik Tok y Facebook.
                         </p>
                     </div>
 
                     <div className="flex flex-col gap-6 w-full">
                         {/* Seccion 1: Hooks Desbloqueados Activos */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto w-full">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto w-full mb-8">
                             {displayHooks.length > 0 ? displayHooks.map((hook, idx) => {
                                 const downloadVideoUrl = hook.contentJson?.downloadUrl || hook.contentJson?.videoUrl || hook.downloadUrl || hook.videoUrl;
                                 const hasDownloadUrl = downloadVideoUrl && downloadVideoUrl !== '#';
@@ -787,110 +787,21 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                             )}
                         </div>
 
-                        {/* Seccion 2: Hooks Premium Bloqueados debajo de los activos con los Botones Principales Flotando Encima */}
-                        <div className="relative max-w-7xl mx-auto w-full">
-                            {/* Grid de Ganchos Bloqueados (visibles pero detrás de los botones) */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all select-none pointer-events-none opacity-40">
-                                {customizedLockedHooks.map((lHook, idx) => (
-                                    <div 
-                                        key={`locked-${idx}`}
-                                        className="bg-gradient-to-b from-[#111] to-black border border-white/5 px-6 py-6 rounded-[2rem] flex flex-col h-full hover:border-amber-400/25 transition-all duration-300"
-                                    >
-                                        <div className="flex-1 space-y-3 relative z-10 flex flex-col justify-center pt-2 pb-4">
-                                            <div className="px-3 py-1 bg-amber-500/15 border border-amber-500/25 rounded-full text-[10px] font-black text-amber-400 uppercase tracking-widest inline-block self-center mb-4">
-                                                📅 PUBLICAR: DÍA {idx + 4} (BLOQUEADO)
-                                            </div>
-                                            <h3 className="text-[1.3rem] leading-[1.8rem] font-medium mb-4 text-center text-gray-300 line-clamp-3">
-                                                {lHook.hookText}
-                                            </h3>
-                                        </div>
-                                        <div className="mt-4 pt-4 border-t border-white/5 relative z-10">
-                                            <div 
-                                                className="w-full py-3 bg-amber-400/10 text-amber-400 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-amber-500/20"
-                                            >
-                                                <Lock className="w-3 h-3 text-amber-400" />
-                                                CONSEGUIR ACCESO
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Panel de Botones Principales Stackeados - Flotando delante de la sección bloqueada */}
-                            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 z-30 pointer-events-none">
-                                <div className="flex flex-col items-center gap-5 p-8 max-w-md md:max-w-xl w-full bg-black/60 backdrop-blur-[6px] border border-white/10 rounded-[2.5rem] shadow-[0_30px_70px_rgba(0,0,0,0.9)] pointer-events-auto">
-                                    {/* Botón Dorado Desbloquear Todos */}
-                                    <button 
-                                        onClick={() => setShowUpgradeModal(true)}
-                                        className="w-full group px-12 py-5 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-500 hover:to-amber-600 hover:scale-[1.03] hover:shadow-yellow-500/35 text-black rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all shadow-[0_25px_60px_rgba(234,179,8,0.25)] border-2 border-yellow-200/20 flex items-center justify-center gap-3 cursor-pointer animate-pulse"
-                                        id="btn-unlock-all-hooks-wizard"
-                                    >
-                                        <Lock className="w-5 h-5 text-black fill-current animate-bounce" />
-                                        DESBLOQUEAR OTROS 27 VIDEOS
-                                    </button>
-
-                                    {/* Botón Verde Finalizar Configuración */}
-                                    <button 
-                                        onClick={() => setShowWarningModal(true)}
-                                        className="w-full group flex items-center justify-center gap-4 px-12 py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-lg transition-all shadow-[0_20px_50px_-10px_rgba(16,185,129,0.3)] transform hover:-translate-y-1 active:scale-95 cursor-pointer whitespace-nowrap"
-                                        id="btn-finalize-customization"
-                                    >
-                                        FINALIZAR CONFIGURACIÓN
-                                        <Rocket className="w-5 h-5 animate-pulse" />
-                                    </button>
-                                    <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest text-center animate-pulse">
-                                        Haz clic en finalizar la configuración para continuar al paso final
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Modal de Advertencia "Pero espera..." al dar clic en finalizar configuración */}
-            {showWarningModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300">
-                    <div className="bg-gradient-to-b from-[#1c1c24] to-[#0e0e11] border border-orange-500/30 p-8 rounded-[2.5rem] max-w-md w-full text-center space-y-6 shadow-[0_30px_70px_rgba(255,90,31,0.25)] relative">
-                        <div className="w-16 h-16 bg-orange-500/10 border-2 border-[#FF5A1F] rounded-2xl flex items-center justify-center mx-auto animate-bounce">
-                            <Sparkles className="w-8 h-8 text-[#FF5A1F] animate-spin" />
-                        </div>
-                        
-                        <div className="space-y-3">
-                            <h3 className="text-2xl font-black text-white uppercase tracking-tight">
-                                ¡Pero espera!
-                            </h3>
-                            <p className="text-gray-300 text-base leading-relaxed">
-                                Activa tu <span className="text-[#FF5A1F] font-black uppercase">Plan PRO</span> para desbloquear todas las funciones automáticas de venta y ganchos ilimitados de alta conversión.
-                            </p>
-                        </div>
-
-                        <div className="flex flex-col gap-3 pt-2">
+                        {/* Botón Verde Finalizar Configuración */}
+                        <div className="flex flex-col items-center justify-center p-6 w-full max-w-xl mx-auto">
                             <button 
-                                onClick={() => {
-                                    setShowWarningModal(false);
-                                    onNext();
-                                }}
-                                className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                                onClick={() => onNext()}
+                                className="w-full group flex items-center justify-center gap-4 px-12 py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-lg transition-all shadow-[0_20px_50px_-10px_rgba(16,185,129,0.3)] transform hover:-translate-y-1 active:scale-95 cursor-pointer whitespace-nowrap"
+                                id="btn-finalize-customization"
                             >
-                                <CheckCircle className="w-4 h-4" />
-                                Aceptar y Ver Resumen
-                            </button>
-                            
-                            <button 
-                                onClick={() => {
-                                    setShowWarningModal(false);
-                                    setShowUpgradeModal(true);
-                                }}
-                                className="w-full py-4 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-500 hover:to-amber-500 text-black rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-                            >
-                                <Sparkles className="w-4 h-4 animate-spin text-black" />
-                                Activar Plan Pro Ahora
+                                FINALIZAR CONFIGURACIÓN
+                                <Rocket className="w-5 h-5 animate-pulse" />
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+
 
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
