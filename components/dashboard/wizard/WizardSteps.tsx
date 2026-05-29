@@ -735,7 +735,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
 
                     <div className="flex flex-col gap-6 w-full">
                         {/* Seccion 1: Hooks Desbloqueados Activos */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto w-full mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto w-full mb-0">
                             {displayHooks.length > 0 ? displayHooks.map((hook, idx) => {
                                 const downloadVideoUrl = hook.contentJson?.downloadUrl || hook.contentJson?.videoUrl || hook.downloadUrl || hook.videoUrl;
                                 const hasDownloadUrl = downloadVideoUrl && downloadVideoUrl !== '#';

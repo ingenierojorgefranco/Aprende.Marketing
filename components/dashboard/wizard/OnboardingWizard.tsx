@@ -26,6 +26,7 @@ import {
   Copy,
   Check,
   Calendar,
+  Plus,
 } from "lucide-react";
 import { generateLandingPageContent } from "../../../services/geminiService";
 import { UpgradeModal } from "../UpgradeModal";
@@ -135,6 +136,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   const landingSuccessRef = useRef<HTMLDivElement>(null);
   const hooksRef = useRef<HTMLDivElement>(null);
   const successRef = useRef<HTMLDivElement>(null);
+  const limitReachedRef = useRef<HTMLDivElement>(null);
 
   const isGenerating =
     step === "generating_strategy" ||
@@ -207,9 +209,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   }, [selectedProject]);
 
   useEffect(() => {
-    if (step === "success") {
+    if (step === "success" || step === "limit_reached") {
       if (containerRef.current) {
-        containerRef.current.scrollTo({ top: 0, behavior: "auto" });
+        containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
     if (step === "generating_strategy") scrollTo(strategyRef);
@@ -220,6 +222,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     if (step === "landing_success") scrollTo(landingSuccessRef);
     if (step === "show_hooks") scrollTo(hooksRef);
     if (step === "success") scrollTo(successRef);
+    if (step === "limit_reached") scrollTo(limitReachedRef);
   }, [step]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -650,7 +653,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
       <div className="w-full relative z-10">
         {step === "limit_reached" ? (
-          <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center pt-28 pb-16 relative z-10 font-sans">
+          <div ref={limitReachedRef} className="w-full max-w-[1400px] mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center pt-28 pb-16 relative z-10 font-sans">
             <div className="text-center max-w-4xl mx-auto mb-16 space-y-4">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full text-xs font-bold text-red-400 uppercase tracking-widest mb-4 animate-pulse">
                 Plan Completo
@@ -673,7 +676,30 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[1400px] mx-auto w-full mb-20">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[1400px] mx-auto w-full mb-20 animate-in fade-in duration-500">
+                {/* Visual Card: Create New Project to upgrade plan */}
+                <div 
+                  className="bg-[#0B0B0B] border-2 border-dashed border-white/20 rounded-[2.5rem] overflow-hidden hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-center group flex flex-col items-center justify-center p-10 shadow-2xl relative min-h-[520px] w-full cursor-pointer"
+                  onClick={() => setShowUpgradeModal(true)}
+                >
+                  <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg mb-6">
+                    <Plus className="w-10 h-10" />
+                  </div>
+                  <h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
+                  <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-[11px] max-w-xs mx-auto">
+                    Aumentar Plan para desbloquear cupos e iniciar un nuevo nicho
+                  </p>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowUpgradeModal(true);
+                    }}
+                    className="mt-8 px-6 py-4 bg-gradient-to-r from-amber-400 to-[#FF5A1F] text-black font-black text-xs uppercase tracking-widest rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95"
+                  >
+                    Aumentar Plan
+                  </button>
+                </div>
+
                 {userActiveProjects.map((project) => (
                   <div
                     key={project.id}
@@ -748,8 +774,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         ) : step === "success" ? (
           <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center pt-36 md:pt-40 pb-16 relative z-10 font-sans">
             {/* Page Title */}
-            <div className="text-center max-w-5xl mx-auto mb-12">
-              <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight mb-4 uppercase">
+            <div className="text-center max-w-5xl mx-auto mb-12 space-y-6">
+              <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight uppercase font-sans">
                 ¡PERFECTO!
                 <br />
                 <span className="text-white font-black">
@@ -759,6 +785,33 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   ATRAER CLIENTES Y GANAR ALTAS COMISIONES
                 </span>
               </h1>
+
+              {/* 85% Progress Container - Moved under Title and Styled elegantly */}
+              <div className="w-full max-w-3xl mx-auto bg-black/40 border border-white/10 rounded-[2rem] p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
+                <div className="absolute top-0 left-0 w-32 h-32 bg-[#FF5A1F]/5 blur-2xl rounded-full"></div>
+                <div className="relative z-10 space-y-4">
+                  <p className="text-gray-200 md:text-lg font-bold leading-relaxed font-sans">
+                    Tu máquina de ventas está al 85%. Activa tu plan mensual para completar el 15% restante y empezar a facturar hoy mismo.
+                  </p>
+                  
+                  {/* Styled full-width progress bar with filling animation */}
+                  <div className="w-full relative space-y-2">
+                    <div className="w-full h-5 bg-white/5 rounded-full overflow-hidden relative border border-white/5 shadow-inner">
+                      <motion.div
+                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FFBF00] to-[#FF5A1F] rounded-full shadow-[0_0_15px_rgba(255,90,31,0.8)] animate-pulse"
+                        initial={{ width: 0 }}
+                        animate={{ width: "85%" }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                      />
+                    </div>
+                    <div className="flex justify-end items-center px-1">
+                      <span className="text-[#FFBF00] font-mono font-black text-xl tracking-wider select-none">
+                        85%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Big Layout (Bento Grid) */}
@@ -772,42 +825,20 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   {/* Bento Header */}
                   <div className="mb-2 relative z-10 text-center w-full">
                     <div className="flex flex-col items-center justify-center gap-4">
-                      {/* Beautiful Transparent Progress Container - no glassmorphism background or border */}
-                      <div className="w-full mt-4 bg-transparent relative overflow-hidden flex flex-col">
-                        {/* Plain White Text for Progress Head - no badge design */}
-                        <div className="w-full text-white font-black text-sm md:text-base text-center uppercase tracking-wider select-none font-sans z-10 mb-4 leading-normal">
-                          ¡CASI LISTO! TU PROYECTO ESTÁ AL 85%. SÓLO UNOS PASOS
-                          MÁS.
+                      <div className="w-full flex flex-col items-center justify-center py-4">
+                        {/* Centered Project Name styled with attractive custom shapes, glowing backgrounds */}
+                        <div className="relative inline-flex items-center z-10 mb-6">
+                          <div className="absolute -inset-1.5 bg-gradient-to-r from-[#FFBF00] to-[#FF5A1F] rounded-2xl blur-md opacity-25 animate-pulse"></div>
+                          <div className="relative bg-[#141415] border border-white/10 rounded-2xl px-6 py-3 shadow-inner font-sans text-center">
+                            <h2 className="text-xl md:text-2xl font-black text-[#FFBF00] tracking-wider uppercase">
+                              {activeProjectName}
+                            </h2>
+                          </div>
                         </div>
 
-                        <div className="p-1 flex flex-col items-center justify-center space-y-5">
-                          {/* 85% Progress Bar on its own */}
-                          <div className="w-full z-10 relative space-y-2">
-                            <div className="w-full h-4 bg-white/5 rounded-full overflow-hidden relative border border-white/5 shadow-inner">
-                              <div
-                                className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FFBF00] to-[#FF5A1F] rounded-full shadow-[0_0_12px_rgba(255,191,0,0.6)] transition-all duration-500"
-                                style={{ width: "85%" }}
-                              ></div>
-                            </div>
-                            <div className="flex justify-end items-center px-1">
-                              <span className="text-[#FFBF00] font-mono font-black text-lg tracking-wider select-none">
-                                85%
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Centered Project Name styled with attractive custom shapes, glowing backgrounds - PLACED UNDERNEATH THE 85% PROGESS AND TEXT */}
-                          <div className="relative inline-flex items-center z-10">
-                            <div className="absolute -inset-1.5 bg-gradient-to-r from-[#FFBF00] to-[#FF5A1F] rounded-2xl blur-md opacity-25"></div>
-                            <div className="relative bg-[#141415] border border-white/10 rounded-2xl px-6 py-3 shadow-inner">
-                              <h2 className="text-xl md:text-2xl font-black text-[#FFBF00] tracking-wider uppercase font-sans text-center">
-                                {activeProjectName}
-                              </h2>
-                            </div>
-                          </div>
-
-                          {/* Onboarding welcome message */}
-                          <p className="text-base md:text-lg text-center text-white font-normal leading-relaxed w-full z-10 relative px-0 tracking-wide font-sans">
+                        {/* Onboarding welcome message styled with elegant top-padding without lines and inside a gorgeous callout block */}
+                        <div className="pt-12 w-full relative">
+                          <p className="text-base md:text-lg lg:text-xl text-center text-white/95 font-semibold leading-relaxed w-full max-w-2xl mx-auto px-6 py-6 tracking-wide font-sans bg-white/5 border border-white/10 rounded-2xl shadow-lg backdrop-blur-sm relative z-10">
                             Tienes delante el negocio digital que otros tardan
                             meses en configurar. Tienes los guiones, tienes la
                             web y tienes la estrategia. Revisa tu material,
@@ -3125,8 +3156,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                     : "👩‍👧"}
                               </div>
                               <div>
-                                <h4 className="text-xl font-extrabold text-white leading-tight font-sans text-left">
+                                <h4 className="text-xl font-extrabold text-white leading-tight font-sans text-left flex items-center flex-wrap gap-2">
                                   {av.name || "Avatar Especialista"}
+                                  <span className="px-2.5 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-[10px] font-black text-orange-400 uppercase tracking-widest leading-none">
+                                    {av.ageRange || av.age || "25-34 años"}
+                                  </span>
                                 </h4>
                                 <p className="text-xs md:text-sm text-orange-400 font-extrabold uppercase tracking-widest mt-1 text-left">
                                   {av.archetype || "Comprador Ideal"}
@@ -3157,6 +3191,35 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                     av.transformation_title ||
                                     "Lanzar un servicio calificado y rentable"}
                                 </p>
+                              </div>
+
+                              {/* Objeción / Barrera de venta */}
+                              <div className="p-5 bg-amber-500/5 rounded-2xl border border-amber-500/10">
+                                <p className="font-extrabold text-amber-400 uppercase tracking-widest text-xs mb-2">
+                                  Barrera de Venta (Objeción)
+                                </p>
+                                <p className="text-sm md:text-base text-zinc-200 leading-normal font-normal">
+                                  {av.objection || av.salesBarrier || "No saber si podrá conseguir clientas que paguen precios altos."}
+                                </p>
+                              </div>
+
+                              {/* Drivers de Decisión */}
+                              <div className="p-5 bg-blue-500/5 rounded-2xl border border-blue-500/10 md:col-span-2">
+                                <p className="font-extrabold text-blue-400 uppercase tracking-widest text-xs mb-2">
+                                  Drivers de Decisión
+                                </p>
+                                <div className="space-y-1.5 mt-2">
+                                  {((av.decisionDrivers || av.drivers || [
+                                    "Retorno de inversión garantizado con su primer set de clientas.",
+                                    "Soporte uno a uno para resolver problemas reales en cabina.",
+                                    "Certificación oficial de alta gama para destacar de la competencia."
+                                  ]) as string[]).map((driver, dIdx) => (
+                                    <div key={dIdx} className="flex items-start gap-2.5 text-sm md:text-[15px] text-zinc-300">
+                                      <span className="text-blue-400 font-bold shrink-0 mt-0.5">✦</span>
+                                      <span>{driver}</span>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             </div>
                           </div>
