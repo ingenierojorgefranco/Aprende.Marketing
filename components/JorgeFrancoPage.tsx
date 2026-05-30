@@ -58,9 +58,21 @@ export const JorgeFrancoPage: React.FC = () => {
 
   // System statistics of his development achievements
   const achievements = [
-    { count: '100%', label: 'Desplegado en Cloud Run', icon: <Server className="w-6 h-6 text-emerald-500" /> },
-    { count: '100%', label: 'Integrado con Gemini A.I', icon: <Cpu className="w-6 h-6 text-[#FFBF00]" /> },
-    { count: '100%', label: 'Integración con Cloud SQL', icon: <Zap className="w-6 h-6 text-yellow-400" /> },
+    { 
+      title: 'Arquitectura Cloud & Backend', 
+      subtext: 'Diseño de infraestructuras escalables y bases de datos relacionales (Node.js, GCP, Cloud SQL).', 
+      icon: <Server className="w-6 h-6 text-emerald-500" /> 
+    },
+    { 
+      title: 'Ingeniería de Inteligencia Artificial', 
+      subtext: 'Orquestación de modelos de lenguaje (LLMs) y pipelines generativos (Google Gemini SDK).', 
+      icon: <Cpu className="w-6 h-6 text-[#FFBF00]" /> 
+    },
+    { 
+      title: 'Desarrollo Full-Stack Avanzado', 
+      subtext: 'Creación de ecosistemas de alto rendimiento orientados a la conversión (React 19, TypeScript).', 
+      icon: <Zap className="w-6 h-6 text-yellow-400" /> 
+    },
   ];
 
   return (
@@ -97,8 +109,8 @@ export const JorgeFrancoPage: React.FC = () => {
                   {/* Photo Container */}
                   <div className="w-full aspect-square mx-auto rounded-2xl overflow-hidden border-2 border-[#FF5A1F]/30 bg-gradient-to-tr from-[#151515] to-[#252525] flex items-center justify-center relative shadow-inner">
                     <img 
-                      src="https://github.com/user-attachments/assets/223b5bc4-1459-4e54-9cbd-e8216ae1fd6f" 
-                      alt="Jorge Franco" 
+                      src="https://github.com/user-attachments/assets/b6dafd03-8d9c-448e-9981-aa250aee6b78" 
+                      alt="Jorge Franco - Full Stack Developer" 
                       className="w-full h-full object-cover transition-all duration-700 hover:scale-105"
                       referrerPolicy="no-referrer"
                     />
@@ -116,7 +128,7 @@ export const JorgeFrancoPage: React.FC = () => {
                     <p className="text-sm font-semibold text-[#FFBF00] uppercase tracking-wider">Creador de Aprende<span className="text-[#FF5A1F]">.Marketing</span></p>
                   </div>
 
-                  <p className="text-white text-sm md:text-base leading-relaxed font-semibold px-2">
+                  <p className="text-white text-sm md:text-base leading-relaxed font-normal px-2">
                     Ingeniero de Sistemas y Desarrollador Full-Stack especializado en el diseño de arquitecturas de alto rendimiento. Integro Inteligencia Artificial y procesos asíncronos para crear ecosistemas de marketing escalables y orientados a la conversión.
                   </p>
 
@@ -171,7 +183,7 @@ export const JorgeFrancoPage: React.FC = () => {
                   </a>
 
                   <a 
-                    href="https://drive.google.com/file/d/1fhe4nGHvkm3iZ4Pyb-GfoneN5t2g7hLI/view?usp=sharing"
+                    href="https://drive.google.com/file/d/1neROWIk7FfUgKqkNbTkEAbChTnbeJljI/view?usp=sharing"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full px-6 py-4 bg-[#FFBF00]/10 border border-[#FFBF00]/30 hover:border-[#FFBF00]/20 text-[#FFBF00] rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all hover:bg-[#FFBF00]/20"
@@ -192,13 +204,13 @@ export const JorgeFrancoPage: React.FC = () => {
 
               {/* Achievements Grid (Moved Below, updated styling for 3 columns) */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-                {achievements.map((ach, idx) => (
-                  <div key={idx} className="bg-[#111] border border-white/5 rounded-2xl p-4 text-center hover:border-white/10 transition-colors">
-                    <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center mx-auto mb-3">
+                {achievements.map((ach: any, idx) => (
+                  <div key={idx} className="bg-[#111] border border-white/5 rounded-2xl p-6 text-center hover:border-white/10 transition-colors flex flex-col items-center justify-start gap-3">
+                    <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center mx-auto mb-1">
                       {ach.icon}
                     </div>
-                    <div className="text-2xl md:text-3xl font-black text-white leading-none mb-1">{ach.count}</div>
-                    <div className="text-xs md:text-sm font-black uppercase text-white tracking-wider leading-tight">{ach.label}</div>
+                    <div className="text-base font-extrabold text-white leading-snug">{ach.title}</div>
+                    <div className="text-xs text-gray-400 font-light leading-relaxed">{ach.subtext}</div>
                   </div>
                 ))}
               </div>
@@ -241,7 +253,7 @@ export const JorgeFrancoPage: React.FC = () => {
                 </div>
                 <div className="w-full md:w-auto shrink-0">
                   <a 
-                    href="https://drive.google.com/file/d/1fhe4nGHvkm3iZ4Pyb-GfoneN5t2g7hLI/view?usp=sharing" 
+                    href="https://drive.google.com/file/d/1neROWIk7FfUgKqkNbTkEAbChTnbeJljI/view?usp=sharing" 
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full md:w-auto px-8 py-4 bg-[#FFBF00] hover:bg-[#E5AC00] text-black font-black text-sm uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#FFBF00]/10"
