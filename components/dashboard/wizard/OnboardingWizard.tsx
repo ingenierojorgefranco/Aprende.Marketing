@@ -209,7 +209,12 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   }, [selectedProject]);
 
   useEffect(() => {
-    if (step === "success" || step === "limit_reached") {
+    if (step === "success") {
+      localStorage.setItem("force_wizard_step", "success");
+      navigate("/dashboard/bienvenido-exito");
+      return;
+    }
+    if (step === "limit_reached") {
       if (containerRef.current) {
         containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -221,7 +226,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     if (step === "creating_web") scrollTo(creationRef);
     if (step === "landing_success") scrollTo(landingSuccessRef);
     if (step === "show_hooks") scrollTo(hooksRef);
-    if (step === "success") scrollTo(successRef);
     if (step === "limit_reached") scrollTo(limitReachedRef);
   }, [step]);
 

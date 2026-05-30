@@ -24,6 +24,7 @@ import { JorgeFrancoPage } from "./components/JorgeFrancoPage";
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
 import { DashboardHome } from "./components/dashboard/DashboardHome";
 import { WelcomePage } from "./components/dashboard/WelcomePage";
+import { OnboardingSuccessPage } from "./components/dashboard/wizard/OnboardingSuccessPage";
 
 // Dashboard Admin
 import { AdminPanel } from "./components/dashboard/admin/AdminPanel";
@@ -337,6 +338,7 @@ const App: React.FC = () => {
         >
           <Route index element={<DashboardHome />} />
           <Route path="bienvenido" element={<WelcomePage />} />
+          <Route path="bienvenido-exito" element={<OnboardingSuccessPage />} />
 
           {/* ADMIN */}
           <Route path="admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
