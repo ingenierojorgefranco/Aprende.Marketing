@@ -3324,6 +3324,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     const defaultAvsWithDetailedPains = [
                       {
                         name: "Valeria Mendoza",
+                        archetype: "Especialista Estancada",
                         transformation_title: "Si buscas escalar tu negocio de belleza con el servicio más lucrativo del mercado actual...",
                         detailed_pains: [
                           "Si te frustra ver cómo tu agenda se llena de servicios que apenas cubren tus gastos básicos.",
@@ -3333,6 +3334,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       },
                       {
                         name: "Mónica Silva",
+                        archetype: "Esteticista Principiante",
                         transformation_title: "Si sueñas con la libertad de manejar tu propio tiempo sin depender de un sueldo fijo...",
                         detailed_pains: [
                           "Si te frustra trabajar más de 10 horas al día sin ver un crecimiento real en tu cuenta bancaria.",
@@ -3342,6 +3344,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       },
                       {
                         name: "Laura Torres",
+                        archetype: "Emprendedora desde Cero",
                         transformation_title: "Si decides dar el salto al emprendimiento de alta rentabilidad reduciendo el riesgo al mínimo absoluto...",
                         detailed_pains: [
                           "Si te frustra el miedo constante de perder la inversión en materiales sin saber cómo conseguir clientas rápidas.",
@@ -3364,6 +3367,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                           }
                           return {
                             name: av.name || fallbackObj.name,
+                            archetype: av.archetype || fallbackObj.archetype,
                             transformation_title: av.transformation_title || av.archetype || fallbackObj.transformation_title,
                             detailed_pains: painsList
                           };
@@ -3387,7 +3391,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                   👤
                                 </div>
                                 <h4 className="text-lg font-black text-[#FFBF00] tracking-wide uppercase">
-                                  {av.name}
+                                  Avatar {idx + 1}: {av.archetype} ({av.name})
                                 </h4>
                               </div>
 
@@ -3419,11 +3423,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
                 {activeDetailsDrawer === "benefits" &&
                   (() => {
-                    const rawBenefits =
-                      strategyData?.modules?.web?.landingPageTabs?.benefits
-                        ?.items ||
-                      strategyData?.benefits ||
-                      [];
+                    const rawLearningModules = strategyData?.psychology?.learningModules || [];
+                    const rawWebBenefits = strategyData?.modules?.web?.landingPageTabs?.benefits?.items || [];
+                    const rawBenefits = strategyData?.benefits || [];
                     const defaultBenefitsList = [
                       {
                         title: "El Mapa de la Especialista de Alto Valor",
@@ -3471,9 +3473,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                           "El mapa exacto para recuperar tu propósito y sentirte orgullosa de lo que haces cada día.",
                       },
                     ];
-                    const benefitsToRenderList = (
-                      rawBenefits.length > 0 ? rawBenefits : defaultBenefitsList
-                    ).map((b: any) => ({
+
+                    let selectedSourceList = defaultBenefitsList;
+                    if (rawLearningModules.length > 0) {
+                      selectedSourceList = rawLearningModules;
+                    } else if (rawWebBenefits.length > 0) {
+                      selectedSourceList = rawWebBenefits;
+                    } else if (rawBenefits.length > 0) {
+                      selectedSourceList = rawBenefits;
+                    }
+
+                    const benefitsToRenderList = selectedSourceList.map((b: any) => ({
                       title: b.title || b.name || "Módulo de Valor",
                       description:
                         b.description ||
