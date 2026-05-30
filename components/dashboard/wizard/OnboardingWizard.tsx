@@ -836,9 +836,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                           </div>
                         </div>
 
-                        {/* Onboarding welcome message styled with elegant top-padding without lines and inside a gorgeous callout block */}
-                        <div className="pt-12 w-full relative">
-                          <p className="text-base md:text-lg lg:text-xl text-center text-white/95 font-normal leading-relaxed w-full max-w-2xl mx-auto px-6 py-6 tracking-wide font-sans bg-white/5 border border-white/10 rounded-2xl shadow-lg backdrop-blur-sm relative z-10">
+                        {/* Onboarding welcome message styled with elegant top-padding without lines */}
+                        <div className="pt-6 w-full relative">
+                          <p className="text-base md:text-lg lg:text-xl text-center text-white/95 font-normal leading-relaxed w-full max-w-2xl mx-auto px-6 py-2 tracking-wide font-sans relative z-10">
                             Tienes delante el negocio digital que otros tardan
                             meses en configurar. Tienes los guiones, tienes la
                             web y tienes la estrategia. Revisa tu material,
@@ -1069,9 +1069,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   <div className="space-y-6">
                     {/* Main Heading Text */}
                     <div className="text-center space-y-3 relative z-10 w-full px-2">
-                      <h4 className="text-lg md:text-xl font-black text-[#FFBF00] tracking-normal leading-tight font-sans text-center">
-                        ¡Actualiza a PRO Desbloquea todo el potencial de tu
-                        negocio Digital!
+                       <h4 className="text-lg md:text-xl font-black text-[#FFBF00] tracking-normal leading-tight font-sans text-center">
+                        EL 85% TE TRAERÁ NUEVAS VISITAS. PERO SOLO EL 100% TE CERRARÁ VENTAS.
                       </h4>
                     </div>
 
@@ -1082,11 +1081,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                         <div className="flex items-start gap-2">
                           <p className="text-base md:text-lg text-left text-white font-sans leading-relaxed">
                             <span className="font-bold text-white font-sans">
-                              👑 Ecosistema Multi-Proyecto:
+                              👑 3 Espacios de Negocio Activos:
                             </span>{" "}
                             <span className="text-white">
-                              Crea hasta 3 ecosistemas completos con sus páginas
-                              de captura y dominios propios.
+                              Lanza y mantén hasta 3 proyectos diferentes facturando al mismo tiempo por una única cuota. Si un nicho no funciona, borras el proyecto y ocupas ese slot con uno nuevo sin pagar de más.
                             </span>
                           </p>
                         </div>
@@ -1095,11 +1093,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                         <div className="flex items-start gap-2">
                           <p className="text-base md:text-lg text-left text-white font-sans leading-relaxed">
                             <span className="font-bold text-white font-sans">
-                              👑 Máquina de Atracción:
+                              👑 Contenido en Piloto Automático:
                             </span>{" "}
                             <span className="text-white">
-                              90 guiones en video y secuencias de email listas
-                              para nutrir a tu audiencia.
+                              90 guiones virales y secuencias de email persuasivas para que no vuelvas a quedarte en blanco frente a la pantalla.
                             </span>
                           </p>
                         </div>
@@ -1108,11 +1105,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                         <div className="flex items-start gap-2">
                           <p className="text-base md:text-lg text-left text-white font-sans leading-relaxed">
                             <span className="font-bold text-white font-sans">
-                              👑 Mentoría y Soporte VIP:
+                              👑 Soporte Directo de Cierre:
                             </span>{" "}
                             <span className="text-white">
-                              Acceso directo a expertos y grupo de WhatsApp para
-                              escalar tus resultados.
+                              No estás solo. Acceso a expertos por WhatsApp para lograr grandes resultados con tus embudos y escalar tus ingresos rápido.
                             </span>
                           </p>
                         </div>
@@ -3222,27 +3218,29 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       strategyData?.modules?.testimonials ||
                       strategyData?.testimonials ||
                       [];
+                    const specificExpertReplies = [
+                      "¡Qué increíble resultado! 🎉 Cuando tienes una meta y vas por ella seguro logras grandes resultados. ¡A seguir escalando ese proyecto! 🚀",
+                      "Nos encanta saber que estás aplicando lo aprendido. ¡Felicitaciones y sigue por más resultados! 💰",
+                      "¡Esa es la meta! Estás en una de las mejores oportunidades de los últimos tiempos. Sigue así y la recompensa llegará. 💎"
+                    ];
                     const defaultTestimonialsList = [
                       {
                         name: "Laura Torres",
                         img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop",
                         msg: `¡Hola! Solo quería contarles que estoy súper feliz. Con este proyecto logré mis primeras clientes esta semana y recuperé toda la inversión del material y del curso. ¡La metodología es súper clara!`,
-                        reply:
-                          "¡Qué increíble resultado Laura! 🎉 Nos alegra muchísimo tu éxito. ¡A seguir escalando tu negocio de belleza! 🚀",
+                        reply: specificExpertReplies[0],
                       },
                       {
                         name: "Carlos Mendoza",
                         img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop",
                         msg: "Nunca pensé que se pudiera aprender de manera tan fácil y práctica de forma 100% online. Las lecciones de diseño tridimensional y visagismo son oro puro.",
-                        reply:
-                          "¡Excelente Carlos! El visagismo y la simetría son la clave para que tus clientas amen su rostro. ¡Felicitaciones! 💎",
+                        reply: specificExpertReplies[1],
                       },
                       {
                         name: "Sofía Medina",
                         img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop",
                         msg: "Mis clientas están fascinadas con los resultados y las cejas les quedan súper naturales. ¡Mil gracias por el excelente soporte y paciencia!",
-                        reply:
-                          "¡Es lo que buscamos Sofía, que tus clientas vuelvan felices y te recomienden! Todo el éxito en tu zona VIP. 🚀",
+                        reply: specificExpertReplies[2],
                       },
                     ];
                     const testimonialsToRender =
@@ -3266,10 +3264,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                               : idx === 1
                                 ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop"
                                 : "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop");
+                          
+                          const replyToDeliver = t.reply || specificExpertReplies[idx % specificExpertReplies.length];
+                          
                           return (
                             <div
                               key={idx}
-                              className="p-6 bg-white/[0.01] border border-white/5 rounded-3xl relative overflow-hidden space-y-5 hover:border-white/10 transition-all text-left"
+                              className="p-6 bg-[#0d0d12] border border-white/5 rounded-3xl relative overflow-hidden space-y-5 hover:border-white/10 transition-all text-left"
                             >
                               {/* User Bubble */}
                               <div className="flex gap-4 items-start pr-6">
@@ -3279,13 +3280,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                   referrerPolicy="no-referrer"
                                   className="w-11 h-11 rounded-full object-cover border border-white/10 shrink-0"
                                 />
-                                <div className="flex-1 bg-white/[0.03] border border-white/5 rounded-2xl rounded-tl-none p-5 text-left">
+                                <div className="flex-1 bg-[#202c33] border border-[#202c33] rounded-2xl rounded-tl-none p-5 text-left shadow-lg">
                                   <div className="flex justify-between items-center mb-2">
-                                    <span className="font-extrabold text-[#FFBF00] text-sm uppercase tracking-wide">
+                                    <span className="font-extrabold text-[#53bdeb] text-sm uppercase tracking-wide">
                                       {t.name}
-                                    </span>
-                                    <span className="text-xs text-zinc-400 font-semibold">
-                                      Alumno verificado
                                     </span>
                                   </div>
                                   <p className="text-sm md:text-base leading-relaxed text-zinc-100 font-normal">
@@ -3296,21 +3294,20 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
                               {/* Admin Reply */}
                               <div className="flex gap-4 items-start justify-end pl-6">
-                                <div className="flex-1 bg-[#FF5A1F]/5 border border-[#FF5A1F]/10 rounded-2xl rounded-tr-none p-5 text-left">
+                                <div className="flex-1 bg-[#005c4b] border border-[#005c4b] rounded-2xl rounded-tr-none p-5 text-left shadow-lg">
                                   <div className="flex justify-between items-center mb-2 flex-row-reverse">
-                                    <span className="font-extrabold text-[#FF5A1F] text-sm uppercase tracking-wide">
+                                    <span className="font-extrabold text-[#25D366] text-sm uppercase tracking-wide">
                                       Instructor (Tú)
                                     </span>
-                                    <span className="text-xs text-[#FF5A1F]/75 font-semibold">
+                                    <span className="text-xs text-white/60 font-semibold">
                                       Expert Coach
                                     </span>
                                   </div>
-                                  <p className="text-sm md:text-base leading-relaxed text-zinc-100 font-normal">
-                                    {t.reply ||
-                                      "¡Espectacular! Sigue aplicando cada paso. ¡Vamos por más!"}
+                                  <p className="text-sm md:text-base leading-relaxed text-white font-normal">
+                                    {replyToDeliver}
                                   </p>
                                 </div>
-                                <div className="w-11 h-11 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-orange-400 shrink-0 mt-0.5 text-lg">
+                                <div className="w-11 h-11 rounded-full bg-[#005c4b]/20 border border-[#005c4b]/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5 text-lg">
                                   🎓
                                 </div>
                               </div>
@@ -3323,122 +3320,98 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
                 {activeDetailsDrawer === "objections" &&
                   (() => {
-                    const rawPains = strategyData?.psychology?.pains || [];
-                    const testPains = rawPains
-                      .slice(0, 3)
-                      .map((p: any) =>
-                        typeof p === "object"
-                          ? p.text || p.title || p.description
-                          : String(p),
-                      );
-                    const defaultPainsList = [
-                      "Miedo al fracaso y a no poder aprender la destreza de manera 100% online.",
-                      "Incertidumbre sobre qué materiales iniciales adquirir sin desperdiciar presupuesto.",
-                      "Pensar que se requiere un talento innato o virtuosismo artístico para diseñar cejas simétricas.",
+                    const rawAvatars = strategyData?.avatars || [];
+                    const defaultAvsWithDetailedPains = [
+                      {
+                        name: "Valeria Mendoza",
+                        transformation_title: "Si buscas escalar tu negocio de belleza con el servicio más lucrativo del mercado actual...",
+                        detailed_pains: [
+                          "Si te frustra ver cómo tu agenda se llena de servicios que apenas cubren tus gastos básicos.",
+                          "Si te agota sentirte invisible frente a competidores que cobran el triple que tú.",
+                          "Si te duele sentir que tu talento está estancado por no tener una técnica de alto impacto."
+                        ]
+                      },
+                      {
+                        name: "Mónica Silva",
+                        transformation_title: "Si sueñas con la libertad de manejar tu propio tiempo sin depender de un sueldo fijo...",
+                        detailed_pains: [
+                          "Si te frustra trabajar más de 10 horas al día sin ver un crecimiento real en tu cuenta bancaria.",
+                          "Si te agota la inseguridad de depender de que tus clientas agenden citas de bajo costo.",
+                          "Si te duele sentir que no pasas suficiente tiempo de calidad con tu familia por el cansancio."
+                        ]
+                      },
+                      {
+                        name: "Laura Torres",
+                        transformation_title: "Si decides dar el salto al emprendimiento de alta rentabilidad reduciendo el riesgo al mínimo absoluto...",
+                        detailed_pains: [
+                          "Si te frustra el miedo constante de perder la inversión en materiales sin saber cómo conseguir clientas rápidas.",
+                          "Si te agota buscar tutoriales gratuitos que solo te confunden con métodos contradictorios.",
+                          "Si te duele sentir el estancamiento profesional por no tener un plan paso a paso y validado."
+                        ]
+                      }
                     ];
-                    const painsToRenderList =
-                      testPains.length > 0 ? testPains : defaultPainsList;
 
-                    const rawBarriers =
-                      strategyData?.avatars?.map((a: any) => ({
-                        name: a.name || "Avatar",
-                        pain: a.pain,
-                        objection:
-                          a.objection ||
-                          "¿Esto me sirve si no tengo conocimientos previos?",
-                      })) || [];
-                    const defaultBarriersList = [
-                      {
-                        name: "Perfil de Ingreso Rápido",
-                        objection:
-                          "No dispongo de suficiente tiempo libre para estudiar largas horas al día.",
-                      },
-                      {
-                        name: "Perfil de Esteticista Principiante",
-                        objection:
-                          "Me da miedo dañar el rostro de una clienta o cometer un error irreparable.",
-                      },
-                    ];
-                    const barriersToRenderList =
-                      rawBarriers.length > 0
-                        ? rawBarriers
-                        : defaultBarriersList;
+                    const avsToRender = rawAvatars.length > 0
+                      ? rawAvatars.map((av: any, i: number) => {
+                          const fallbackObj = defaultAvsWithDetailedPains[i % defaultAvsWithDetailedPains.length];
+                          let painsList = av.detailed_pains;
+                          if (!painsList || !Array.isArray(painsList) || painsList.length === 0) {
+                            painsList = [
+                              av.pain ? `Si te frustra ver que: ${av.pain}` : fallbackObj.detailed_pains[0],
+                              av.daily_manifestation ? `Si te agota sentir que: ${av.daily_manifestation}` : fallbackObj.detailed_pains[1],
+                              av.objection ? `Si te duele dudar sobre: ${av.objection}` : fallbackObj.detailed_pains[2]
+                            ].filter(Boolean);
+                          }
+                          return {
+                            name: av.name || fallbackObj.name,
+                            transformation_title: av.transformation_title || av.archetype || fallbackObj.transformation_title,
+                            detailed_pains: painsList
+                          };
+                        })
+                      : defaultAvsWithDetailedPains;
 
                     return (
                       <div className="space-y-8 font-sans text-left">
-                        <p className="text-white text-base md:text-lg font-normal leading-relaxed tracking-wide">
-                          Dolores y objeciones frecuentes que frenan la compra
-                          de tus prospectos, mapeados detalladamente junto a
-                          contraargumentos lógicos.
+                        <p className="text-zinc-400 text-sm md:text-base font-normal leading-relaxed tracking-wide">
+                          Dolores y objeciones frecuentes que frenan la compra de tus prospectos, mapeados detalladamente en base a su perfil psicológico.
                         </p>
 
-                        <div>
-                          <h4 className="text-sm font-extrabold text-white/70 uppercase tracking-[0.2em] mb-4 flex items-center gap-2 text-left">
-                            <AlertTriangle className="w-5 h-5 text-rose-500" />{" "}
-                            Dolores Críticos Mapeados
-                          </h4>
-                          <div className="space-y-4">
-                            {painsToRenderList.map((p: string, i: number) => (
-                              <div
-                                key={i}
-                                className="p-5 bg-rose-500/5 border border-rose-500/10 rounded-2xl flex gap-4 items-start text-left"
-                              >
-                                <div className="w-6 h-6 rounded bg-rose-500/10 text-rose-400 font-mono text-xs flex items-center justify-center font-extrabold shrink-0 mt-0.5">
-                                  {i + 1}
+                        <div className="space-y-10">
+                          {avsToRender.map((av: any, idx: number) => (
+                            <div 
+                              key={idx}
+                              className="p-6 md:p-8 bg-[#0d0d12] border border-white/5 rounded-3xl relative overflow-hidden space-y-6 hover:border-white/10 transition-all duration-300"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-sm">
+                                  👤
                                 </div>
-                                <p className="text-sm md:text-base text-zinc-100 font-normal leading-relaxed">
-                                  {p}
-                                </p>
+                                <h4 className="text-lg font-black text-[#FFBF00] tracking-wide uppercase">
+                                  {av.name}
+                                </h4>
                               </div>
-                            ))}
-                          </div>
-                        </div>
 
-                        <div className="pt-6 border-t border-white/5 text-left">
-                          <h4 className="text-sm font-extrabold text-white/70 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                            <Lock className="w-5 h-5 text-yellow-500" />{" "}
-                            Objeciones y Barreras del Comprador
-                          </h4>
-                          <div className="space-y-5">
-                            {barriersToRenderList.map((b: any, i: number) => (
-                              <div
-                                key={i}
-                                className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl space-y-4 text-left"
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm md:text-base font-extrabold text-[#FFBF00] uppercase tracking-wider">
-                                    {b.name}
-                                  </span>
-                                  <span className="px-2.5 py-0.5 bg-yellow-500/10 border border-yellow-500/20 text-[10px] font-black uppercase text-yellow-500 rounded tracking-widest leading-none">
-                                    Barrera
-                                  </span>
-                                </div>
-                                <div className="space-y-4">
-                                  <div className="text-base text-zinc-100 font-normal pl-3 border-l-2 border-yellow-500/30 py-0.5 leading-relaxed">
-                                    <strong className="text-zinc-400 font-extrabold block text-xs uppercase tracking-wider mb-1">
-                                      Objeción mental:
-                                    </strong>{" "}
-                                    "{b.objection}"
-                                  </div>
-                                  <div className="p-5 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl flex items-start gap-3">
-                                    <span className="text-emerald-400 text-lg mt-0.5">
-                                      🛡️
-                                    </span>
+                              {av.transformation_title && (
+                                <p className="text-base md:text-lg italic text-zinc-100 bg-white/[0.02] border border-white/5 p-5 rounded-2xl leading-relaxed text-left font-sans">
+                                  {av.transformation_title}
+                                </p>
+                              )}
+
+                              <div className="space-y-3.5">
+                                {av.detailed_pains.map((pain: string, pIdx: number) => (
+                                  <div 
+                                    key={pIdx}
+                                    className="flex items-start gap-3 p-4 bg-rose-500/[0.02] border border-rose-500/5 hover:border-rose-500/10 rounded-2xl transition-all"
+                                  >
+                                    <span className="text-rose-500 font-bold shrink-0 mt-0.5 text-lg">✦</span>
                                     <p className="text-sm md:text-base text-zinc-350 leading-relaxed font-normal">
-                                      <strong className="text-emerald-400 font-black block uppercase tracking-wider text-[10px] mb-1">
-                                        Como lo neutralizamos:
-                                      </strong>{" "}
-                                      Al automatizar tu estrategia de ventas,
-                                      derribamos esta objeción explicando que
-                                      las clases duran poco, son totalmente
-                                      prácticas y se enfocan en la absoluta
-                                      simplicidad paso a paso estructurada.
+                                      {pain}
                                     </p>
                                   </div>
-                                </div>
+                                ))}
                               </div>
-                            ))}
-                          </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     );
@@ -3453,68 +3426,93 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       [];
                     const defaultBenefitsList = [
                       {
-                        title: "Metodología Visual Paso a Paso",
+                        title: "El Mapa de la Especialista de Alto Valor",
                         description:
-                          "Lecciones paso a paso en ultra-alta definición para dominar la simetría facial y el diseño perfecto sin esfuerzo inicial.",
+                          "Descubrirás el camino exacto para posicionarte como la opción preferida por clientas premium.",
                       },
                       {
-                        title: "Kit de Arranque Optimizado",
+                        title: "Ingeniería de Trazo Perfecto",
                         description:
-                          "Guía de abastecimiento de insumos para importar tus tinteros, teboris y plantillas de práctica a los mejores costos locales.",
+                          "La clave definitiva para dejar de sentir inseguridad y realizar diseños que hipnotizan a tus clientas.",
                       },
                       {
-                        title: "Mentoría Semanal Exclusiva",
+                        title: "El Secreto del Flujo de Trabajo Élite",
                         description:
-                          "Acceso a un canal privado de mentoría constante para revisar plantillas reales, resolver dudas y certificar tus trazos.",
+                          "Descubrirás cómo optimizar cada minuto en cabina para maximizar tu rentabilidad diaria.",
+                      },
+                      {
+                        title: "Blindaje Técnico de Seguridad",
+                        description:
+                          "El mapa exacto para recuperar tu confianza y saber que cada trazo es seguro y profesional.",
+                      },
+                      {
+                        title: "El Arte de la Simetría Garantizada",
+                        description:
+                          "Aprenderás a construir la perfección visual sin depender de un talento artístico innato.",
+                      },
+                      {
+                        title: "Tu Red de Soporte Profesional",
+                        description:
+                          "La clave definitiva para dejar de sentir el miedo a emprender en soledad.",
+                      },
+                      {
+                        title: "El Puente hacia tu Nueva Identidad",
+                        description:
+                          "Descubrirás el camino hacia la reinvención total de tu vida profesional y personal.",
+                      },
+                      {
+                        title: "Diseño de Vida y Horarios Libres",
+                        description:
+                          "Aprenderás a construir la libertad que tus hijos merecen manejando tu propio estudio.",
+                      },
+                      {
+                        title: "El Despertar de tu Pasión Creativa",
+                        description:
+                          "El mapa exacto para recuperar tu propósito y sentirte orgullosa de lo que haces cada día.",
                       },
                     ];
                     const benefitsToRenderList = (
                       rawBenefits.length > 0 ? rawBenefits : defaultBenefitsList
                     ).map((b: any) => ({
-                      title: b.title || b.name || "Beneficio Destacado",
+                      title: b.title || b.name || "Módulo de Valor",
                       description:
                         b.description ||
                         b.desc ||
-                        "Beneficio estructurado para detonar urgencia y persuasión de compra en la página web oficial.",
+                        "Módulo estructurado para detonar urgencia y persuasión de compra en tu oferta oficial.",
                     }));
                     return (
                       <div className="space-y-8 font-sans text-left">
-                        <p className="text-white text-base md:text-lg font-normal leading-relaxed tracking-wide">
-                          La oferta irresistible se crea empaquetando diversos
-                          entregables lógicos en ventajas magnéticas para
-                          disparar tu tasa de conversión.
+                        <p className="text-zinc-400 text-sm md:text-base font-normal leading-relaxed tracking-wide">
+                          La oferta irresistible se crea empaquetando diversos entregables lógicos en ventajas magnéticas para disparar tu tasa de conversión.
                         </p>
 
-                        <div className="p-6 bg-gradient-to-r from-emerald-500/5 to-[#FF5A1F]/5 border border-white/5 rounded-3xl mb-4 text-left">
+                        <div className="p-6 bg-gradient-to-r from-emerald-500/5 to-amber-500/5 border border-white/5 rounded-3xl mb-4 text-left">
                           <div className="flex gap-3 items-center mb-3">
                             <span className="text-xl">✨</span>
-                            <h4 className="text-base md:text-lg font-black text-white tracking-tight">
-                              Estructuración de Oferta Compuesta
+                            <h4 className="text-base md:text-lg font-black text-[#FFBF00] tracking-tight">
+                              Lo que aprenderás en nuestra clase
                             </h4>
                           </div>
-                          <p className="text-sm md:text-base text-zinc-300 leading-relaxed font-normal">
-                            Al combinar estos incentivos lógicos, tus prospectos
-                            percibirán un valor enorme en comparación con el
-                            precio real del producto, reduciendo la fricción al
-                            mínimo.
+                          <p className="text-xs md:text-sm text-zinc-300 leading-relaxed font-normal">
+                            Al estructurar el contenido bajo estos pilares de alto valor, derrumbas barreras de duda y transmites una ruta clara hacia la maestría.
                           </p>
                         </div>
 
-                        <div className="space-y-5 text-left">
+                        <div className="space-y-4 text-left">
                           {benefitsToRenderList.map((b: any, i: number) => (
                             <div
                               key={i}
-                              className="p-6 bg-white/[0.01] border border-white/5 rounded-3xl hover:border-emerald-500/20 transition-all duration-300 text-left"
+                              className="p-5 bg-white/[0.01] border border-white/5 rounded-2xl hover:border-emerald-500/20 transition-all duration-300 text-left"
                             >
-                              <div className="flex items-center gap-4 mb-3">
-                                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/35 flex items-center justify-center text-emerald-400 text-sm font-black">
+                              <div className="flex items-center gap-3.5 mb-2">
+                                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xs font-black">
                                   ✓
                                 </div>
-                                <h5 className="text-base md:text-lg font-extrabold text-white uppercase tracking-wider">
+                                <h5 className="text-sm md:text-base font-extrabold text-white uppercase tracking-wider">
                                   {b.title}
                                 </h5>
                               </div>
-                              <p className="text-sm md:text-base text-zinc-300 pl-12 leading-relaxed font-normal">
+                              <p className="text-sm text-zinc-300 pl-10 leading-relaxed font-normal">
                                 {b.description}
                               </p>
                             </div>
@@ -3916,10 +3914,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               </div>
 
               {/* Drawer Footer */}
-              <div className="p-6 border-t border-white/5 bg-[#14141c]/95 flex justify-between items-center relative z-10">
-                <span className="text-xs font-mono text-zinc-500">
-                  Persistencia local activa
-                </span>
+              <div className="p-6 border-t border-white/5 bg-[#14141c]/95 flex justify-end items-center relative z-10">
                 <button
                   onClick={() => setActiveDetailsDrawer(null)}
                   className="px-6 py-3 bg-[#FF5A1F] hover:bg-[#FF5A1F]/90 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_4px_15px_rgba(255,90,31,0.25)]"
