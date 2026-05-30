@@ -774,8 +774,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         ) : step === "success" ? (
           <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center pt-36 md:pt-40 pb-16 relative z-10 font-sans">
             {/* Page Title */}
-            <div className="text-center max-w-5xl mx-auto mb-12 space-y-6">
-              <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight uppercase font-sans">
+            <div className="text-center max-w-5xl mx-auto mb-8 space-y-6">
+              <h1 className="text-4xl md:text-[3.75rem] md:leading-[1.1] font-black text-white tracking-tight uppercase font-sans">
                 ¡PERFECTO!
                 <br />
                 <span className="text-white font-black">
@@ -790,7 +790,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               <div className="w-full max-w-3xl mx-auto bg-black/40 border border-white/10 rounded-[2rem] p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
                 <div className="absolute top-0 left-0 w-32 h-32 bg-[#FF5A1F]/5 blur-2xl rounded-full"></div>
                 <div className="relative z-10 space-y-4">
-                  <p className="text-gray-200 md:text-lg font-bold leading-relaxed font-sans">
+                  <p className="text-gray-200 text-[1.2rem] leading-[1.8rem] font-sans">
                     Tu máquina de ventas está al 85%. Activa tu plan mensual para completar el 15% restante y empezar a facturar hoy mismo.
                   </p>
                   
@@ -838,7 +838,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
                         {/* Onboarding welcome message styled with elegant top-padding without lines and inside a gorgeous callout block */}
                         <div className="pt-12 w-full relative">
-                          <p className="text-base md:text-lg lg:text-xl text-center text-white/95 font-semibold leading-relaxed w-full max-w-2xl mx-auto px-6 py-6 tracking-wide font-sans bg-white/5 border border-white/10 rounded-2xl shadow-lg backdrop-blur-sm relative z-10">
+                          <p className="text-base md:text-lg lg:text-xl text-center text-white/95 font-normal leading-relaxed w-full max-w-2xl mx-auto px-6 py-6 tracking-wide font-sans bg-white/5 border border-white/10 rounded-2xl shadow-lg backdrop-blur-sm relative z-10">
                             Tienes delante el negocio digital que otros tardan
                             meses en configurar. Tienes los guiones, tienes la
                             web y tienes la estrategia. Revisa tu material,
@@ -1069,16 +1069,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   <div className="space-y-6">
                     {/* Main Heading Text */}
                     <div className="text-center space-y-3 relative z-10 w-full px-2">
-                      {/* Capacity of the plan stats */}
-                      <div className="space-y-1 py-1 border-t border-b border-white/5">
-                        <p className="text-xs sm:text-sm font-normal text-white tracking-wide text-center leading-normal">
-                          Actualmente estás usando nuestro{" "}
-                          <span className="text-white font-normal">
-                            Plan Gratuito
-                          </span>
-                        </p>
-                      </div>
-                      <h4 className="text-lg md:text-xl font-black text-[#FFBF00] tracking-normal leading-tight font-sans text-center pt-[15px]">
+                      <h4 className="text-lg md:text-xl font-black text-[#FFBF00] tracking-normal leading-tight font-sans text-center">
                         ¡Actualiza a PRO Desbloquea todo el potencial de tu
                         negocio Digital!
                       </h4>
@@ -1109,19 +1100,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                             <span className="text-white">
                               90 guiones en video y secuencias de email listas
                               para nutrir a tu audiencia.
-                            </span>
-                          </p>
-                        </div>
-
-                        {/* Benefit 3 */}
-                        <div className="flex items-start gap-2">
-                          <p className="text-base md:text-lg text-left text-white font-sans leading-relaxed">
-                            <span className="font-bold text-white font-sans">
-                              👑 Lanzamientos por WhatsApp:
-                            </span>{" "}
-                            <span className="text-white">
-                              Embudos preconfigurados para cerrar ventas
-                              directas rápidamente.
                             </span>
                           </p>
                         </div>
@@ -3203,17 +3181,27 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 </p>
                               </div>
 
+                              {/* Para Qué Emocional */}
+                              <div className="p-5 bg-[#FF5A1F]/5 rounded-2xl border border-[#FF5A1F]/10">
+                                <p className="font-extrabold text-[#FF5A1F] uppercase tracking-widest text-xs mb-2">
+                                  Para Qué Emocional
+                                </p>
+                                <p className="text-sm md:text-base text-zinc-200 leading-normal font-normal">
+                                  {av.emotional_reason || av.emotionalReason || "Sentir el orgullo de ser una empresaria reconocida y exitosa."}
+                                </p>
+                              </div>
+
                               {/* Drivers de Decisión */}
                               <div className="p-5 bg-blue-500/5 rounded-2xl border border-blue-500/10 md:col-span-2">
                                 <p className="font-extrabold text-blue-400 uppercase tracking-widest text-xs mb-2">
                                   Drivers de Decisión
                                 </p>
                                 <div className="space-y-1.5 mt-2">
-                                  {((av.decisionDrivers || av.drivers || [
+                                  {((av.decisionDrivers || av.drivers || (av.motivations && typeof Object.values(av.motivations)[0] === 'string' ? Object.values(av.motivations) : [
                                     "Retorno de inversión garantizado con su primer set de clientas.",
                                     "Soporte uno a uno para resolver problemas reales en cabina.",
                                     "Certificación oficial de alta gama para destacar de la competencia."
-                                  ]) as string[]).map((driver, dIdx) => (
+                                  ])) as string[]).map((driver, dIdx) => (
                                     <div key={dIdx} className="flex items-start gap-2.5 text-sm md:text-[15px] text-zinc-300">
                                       <span className="text-blue-400 font-bold shrink-0 mt-0.5">✦</span>
                                       <span>{driver}</span>

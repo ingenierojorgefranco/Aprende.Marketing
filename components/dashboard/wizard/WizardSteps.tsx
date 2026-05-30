@@ -428,34 +428,34 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
         <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center space-y-10"
+            className="text-center space-y-6 md:space-y-8"
         >
             <div className="relative inline-block">
                 {/* Visual "Wow" Effect: Animated rings/glow */}
                 <div className="absolute inset-0 bg-emerald-500 blur-[80px] opacity-30 animate-pulse"></div>
                 <div className="absolute -inset-4 border-2 border-emerald-500/20 rounded-[3rem] animate-ping opacity-20"></div>
                 
-                <div className="w-28 h-28 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 relative border border-white/30 shadow-[0_0_50px_-10px_rgba(16,185,129,0.5)]">
+                <div className="w-28 h-28 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-0 relative border border-white/30 shadow-[0_0_50px_-10px_rgba(16,185,129,0.5)]">
                     <CheckCircle className="w-14 h-14 text-white" />
                 </div>
             </div>
 
-            <div className="space-y-8 max-w-3xl mx-auto mt-0">
-                <div className="space-y-6">
-                    <h2 className="text-[3rem] font-black text-white tracking-tight uppercase leading-[1.5]">
+            <div className="space-y-4 md:space-y-6 max-w-3xl mx-auto mt-0">
+                <div className="space-y-3 md:space-y-4">
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase leading-tight">
                         ¡Perfecto! <span className="text-emerald-500">Ya estamos listos</span>
                     </h2>
-                    <div className="space-y-4">
-                        <p className="text-2xl md:text-3xl text-slate-200 font-medium">
+                    <div className="space-y-2">
+                        <p className="text-lg md:text-xl text-slate-200 font-medium">
                             El proyecto <span className="text-emerald-400 font-bold">"{project?.name || 'Digital'}"</span> ya esta listo para que lo uses
                         </p>
-                        <p className="text-[1.3rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">
+                        <p className="text-base md:text-lg text-white max-w-2xl mx-auto font-medium leading-normal">
                             Ahora te ayudaré a crear todo un <span className="text-white font-bold">sistema de ventas completo</span> por ti.
                         </p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto pt-4 text-left">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-2 text-left">
                     {[
                         { title: 'Página Web', desc: 'Crearé tu página web profesional para capturar clientes interesados.', icon: MousePointer2 },
                         { title: 'Videos de Atracción', desc: 'Crearé los videos exactos para atraer clientes interesados.', icon: Play },
@@ -467,14 +467,14 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2 + (idx * 0.1) }}
-                            className="bg-white/5 border border-white/10 p-6 rounded-[2.5rem] flex items-center gap-5 hover:bg-white/10 transition-all group"
+                            className="bg-white/5 border border-white/10 p-4 rounded-[2rem] flex items-center gap-4 hover:bg-white/10 transition-all group"
                         >
-                            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/20 transition-colors">
-                                <item.icon className="w-7 h-7 text-emerald-500" />
+                            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/20 transition-colors">
+                                <item.icon className="w-6 h-6 text-emerald-500" />
                             </div>
-                            <div className="space-y-1">
-                                <p className="text-white font-bold text-lg tracking-tight leading-tight">{item.title}</p>
-                                <p className="text-white text-lg font-normal leading-relaxed">{item.desc}</p>
+                            <div className="space-y-0.5">
+                                <p className="text-white font-bold text-base tracking-tight leading-tight">{item.title}</p>
+                                <p className="text-gray-300 text-sm font-normal leading-snug">{item.desc}</p>
                             </div>
                         </motion.div>
                     ))}
@@ -483,10 +483,10 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
 
             <button 
                 onClick={() => onNext()}
-                className="group flex items-center gap-4 px-14 py-8 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[3rem] font-black text-2xl transition-all shadow-[0_20px_50px_-10px_rgba(16,185,129,0.5)] transform hover:-translate-y-2 active:scale-95 mx-auto"
+                className="group flex items-center gap-4 px-10 py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(16,185,129,0.5)] transform hover:-translate-y-1 active:scale-95 mx-auto mt-4"
             >
                 Excelente, Vamos a ello!!!
-                <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
+                <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
             </button>
         </motion.div>
     );

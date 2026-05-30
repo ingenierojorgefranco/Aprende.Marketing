@@ -179,21 +179,38 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                             <h5 className="text-xs font-black text-white/50 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
                                                 <Zap className="w-5 h-5 text-yellow-500" /> Drivers de Decisión
                                             </h5>
-                                            <div className="space-y-8">
-                                                {Object.entries(avatar.motivations).map(([key, value]: any) => (
-                                                    <div key={key} className="space-y-3">
-                                                        <div className="flex justify-between items-end">
-                                                            <span className="text-base text-gray-200 font-black uppercase tracking-widest">{key}</span>
-                                                            <span className="text-sm font-mono text-white/40">{value}%</span>
+                                            <div className="space-y-4">
+                                                {Object.entries(avatar.motivations).map(([key, value]: any) => {
+                                                    const isStringValue = typeof value === 'string';
+                                                    if (isStringValue) {
+                                                        return (
+                                                            <div key={key} className="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all">
+                                                                <div className="w-8 h-8 rounded-xl bg-yellow-500/10 flex items-center justify-center shrink-0">
+                                                                    <span className="text-yellow-400 font-bold">✦</span>
+                                                                </div>
+                                                                <div className="space-y-0.5">
+                                                                    <p className="text-xs text-yellow-500 font-black uppercase tracking-widest">{key}</p>
+                                                                    <p className="text-gray-200 text-base leading-relaxed font-normal">{value}</p>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    }
+
+                                                    return (
+                                                        <div key={key} className="space-y-3">
+                                                            <div className="flex justify-between items-end">
+                                                                <span className="text-base text-gray-200 font-black uppercase tracking-widest">{key}</span>
+                                                                <span className="text-sm font-mono text-white/40">{value}%</span>
+                                                            </div>
+                                                            <div className="h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 p-0.5">
+                                                                <div 
+                                                                    className={`h-full rounded-full transition-all duration-[2000ms] shadow-[0_0_20px_rgba(255,255,255,0.1)] ${idx === 0 ? 'bg-gradient-to-r from-pink-600 to-rose-400' : idx === 1 ? 'bg-gradient-to-r from-purple-600 to-fuchsia-400' : 'bg-gradient-to-r from-blue-600 to-cyan-400'}`} 
+                                                                    style={{width: `${value}%`}}
+                                                                ></div>
+                                                            </div>
                                                         </div>
-                                                        <div className="h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 p-0.5">
-                                                            <div 
-                                                                className={`h-full rounded-full transition-all duration-[2000ms] shadow-[0_0_20px_rgba(255,255,255,0.1)] ${idx === 0 ? 'bg-gradient-to-r from-pink-600 to-rose-400' : idx === 1 ? 'bg-gradient-to-r from-purple-600 to-fuchsia-400' : 'bg-gradient-to-r from-blue-600 to-cyan-400'}`} 
-                                                                style={{width: `${value}%`}}
-                                                            ></div>
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                                    );
+                                                })}
                                             </div>
                                         </div>
 

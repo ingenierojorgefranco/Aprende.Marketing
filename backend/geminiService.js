@@ -593,7 +593,7 @@ h2:
               "objection": "Miedo principal al éxito o al fallo",
               "interests": "Intereses específicos",
               "behavior": "Comportamiento en canales digitales",
-              "motivations": { "dinero": da un número de 30 a 100 con base en Avatar 1 y enfoque en dinero, "tiempo": da un número de 30 a 100 con base en Avatar 1 y enfoque en tiempo, "estatus": da un número  de 30 a 100 con base en Avatar 1 y enfoque en status, "seguridad": da un número de 30 a 100 con base en Avatar 1 y enfoque en seguridad }
+              "motivations": { "dinero": "Una sola frase persuasiva de beneficio adaptado acerca de cómo el dinero/retorno de inversión impulsa la decisión de este avatar (ej: 'Retorno de inversión garantizado con su primer set de clientas.')", "tiempo": "Una sola frase persuasiva de beneficio adaptado sobre cómo el ahorro de tiempo le impulsa (ej: 'Establecer un flujo de trabajo optimizado para atender en menos de 90 minutos.')", "estatus": "Una sola frase persuasiva sobre cómo el estatus/prestigio o reconocimiento le motiva (ej: 'Certificación oficial de alta gama para destacar de la competencia convencional.')", "seguridad": "Una sola frase persuasiva sobre la base de acompañamiento o soporte técnico para reducir riesgos (ej: 'Soporte uno a uno para resolver problemas reales en el inicio del negocio.')" }
             },
             {
               "id": 2,
@@ -610,7 +610,7 @@ h2:
               "objection": "Miedo al fraude o mala inversión",
               "interests": "Intereses específicos",
               "behavior": "Comportamiento en canales digitales",
-              "motivations": { "dinero": da un número de 30 a 100 con base en Avatar 2 y enfoque en dinero, "tiempo": da un número de 30 a 100 con base en Avatar 2 y enfoque en tiempo, "estatus": da un número  de 30 a 100 con base en Avatar 2 y enfoque en status, "seguridad": da un número de 30 a 100 con base en Avatar 2 y enfoque en seguridad }
+              "motivations": { "dinero": "Una sola frase persuasiva de beneficio mitigando el miedo a perder dinero o garantizando retorno (ej: 'Garantía de reembolso o método blindado para proteger su capital.')", "tiempo": "Una sola frase persuasiva sobre cómo evitar perder tiempo en métodos que no sirven (ej: 'Ir al grano con un sistema probado sin rodeos teóricos innecesarios.')", "estatus": "Una sola frase persuasiva sobre el estatus de tener un negocio seguro y validado (ej: 'Validación por expertos que te posiciona como un profesional serio.')", "seguridad": "Una sola frase persuasiva sobre blindar su seguridad y reducir la vulnerabilidad (ej: 'Acompañamiento cercano anticaídas para asegurar tus primeros pasos prácticos.')" }
             },
             {
               "id": 3,
@@ -627,7 +627,7 @@ h2:
               "objection": "Miedo a empezar de cero",
               "interests": "Intereses específicos",
               "behavior": "Comportamiento en canales digitales",
-              "motivations": { "dinero": da un número  de 30 a 100 con base en Avatar 3 y enfoque en dinero, "tiempo": da un número de 30 a 100 con base en Avatar 3 y enfoque en tiempo, "estatus": da un número  de 30 a 100 con base en Avatar 3 y enfoque en status, "seguridad": da un número de 30 a 100 con base en Avatar 3 y enfoque en seguridad }
+              "motivations": { "dinero": "Una sola frase impulsora sobre generar ingresos extras estables (ej: 'Generar ingresos estables desde casa para lograr libertad financiera real.')", "tiempo": "Una sola frase impulsora sobre flexibilidad de tiempo para su vida o familia (ej: 'Flexibilidad horaria absoluta para pasar más tiempo con tus hijos o seres queridos.')", "estatus": "Una sola frase impulsora de satisfacción, orgullo y crecimiento personal (ej: 'Sentir la satisfacción y el orgullo de transicionar hacia una profesión propia.')", "seguridad": "Una sola frase impulsora sobre la seguridad de empezar un nuevo camino con guía clara (ej: 'Guía paso a paso adaptada para principiantes absolutos sin experiencia previa.')" }
             }
           ],
 
