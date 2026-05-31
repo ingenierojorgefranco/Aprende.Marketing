@@ -2082,20 +2082,25 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                         id: item.id || item.jsonIndex,
                         title: item.title,
                         introduction: item.description || item.objective || item.strategy || "Artículo estratégico diseñado para captar tráfico altamente cualificado y derivarlo a la compra del producto.",
-                        seoStructure: {
-                          h1: item.title,
-                          headings: [
-                            { type: "h2", text: "Enfoque y Objetivo de Posicionamiento" },
-                            { type: "h3", text: item.psychologicalStrategy?.focus || item.objective || "Educación e intención de compra del cliente" },
-                            { type: "h2", text: "Estructura Estratégica de Conversión" },
-                            { type: "h3", text: item.strategy || "Gancho psicológico y derivación hacia la compra" }
-                          ],
-                          keywords: item.keyword || (item.psychologicalStrategy?.keyword) || "negocio, servicios, captacion de clientes",
-                          cta: item.psychologicalStrategy?.cta || "Llamado a la acción (CTA) personalizado integrado en el artículo para convertir lectores en clientes del canal de ventas."
-                        }
+                        enfoqueEstrategico: item.objective || item.psychologicalStrategy?.focus || item.psychologicalStrategy?.objective || "Enfoque y posicionamiento estratégico para captar clientes.",
+                        intencionBusqueda: item.strategy || item.psychologicalStrategy?.target || item.psychologicalStrategy?.intent || item.psychologicalStrategy?.strategy || "Intención de búsqueda de los clientes.",
+                        keywordSeo: item.keyword || item.psychologicalStrategy?.keyword || "negocio, servicios, captacion de clientes",
+                        volumenBusqueda: item.searchVolume || item.search_volume || item.psychologicalStrategy?.searchVolume || "100 - 1K"
                       };
                     })
-                  : defaultBlogsList.slice(0, 3);
+                  : defaultBlogsList.slice(0, 3).map((item: any) => {
+                      const seo = item.seoStructure || {};
+                      const headings = seo.headings || [];
+                      return {
+                        id: item.id,
+                        title: item.title,
+                        introduction: item.introduction,
+                        enfoqueEstrategico: headings[1]?.text || "Educación inicial para el futuro artista",
+                        intencionBusqueda: headings[3]?.text || "Gancho psicológico y derivación hacia la compra",
+                        keywordSeo: seo.keywords || "negocio, servicios, captacion de clientes",
+                        volumenBusqueda: item.searchVolume || "500 - 1K"
+                      };
+                    });
 
                 return (
                   <div
@@ -3674,111 +3679,88 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   (() => {
                     const blog = selectedBlogForDrawer;
                     const bTitle = blog.title;
-                    const bIntro = blog.introduction;
-                    const seo = blog.seoStructure || {};
-                    const h1Text = seo.h1 || bTitle;
-                    const headings = seo.headings || [];
-                    const keywordsStr = seo.keywords || "";
-                    const keywordsList = keywordsStr
+                    
+                    const enfoque = blog.enfoqueEstrategico || "Enfoque y posicionamiento estratégico para captar tráfico altamente cualificado.";
+                    const intencion = blog.intencionBusqueda || "Gancho psicológico y derivación hacia la compra del producto.";
+                    const keyword = blog.keywordSeo || "negocio, servicios, captacion de clientes";
+                    const volumen = blog.volumenBusqueda || "500 - 1K";
+
+                    const keywordsList = keyword
                       .split(",")
-                      .map((k: string) => k.trim());
-                    const ctaText = seo.cta || "";
+                      .map((k: string) => k.trim())
+                      .filter(Boolean);
 
                     return (
                       <div className="space-y-8 font-sans text-left">
-                        <p className="text-white text-base md:text-lg font-normal leading-relaxed tracking-wide">
-                          Esta es la estructura estratégica para tu Artículo de
-                          Blog SEO optimizado. Copia y utilízala en tu sitio web
-                          para empezar a posicionar en Google de manera
-                          totalmente orgánica.
+                        <p className="text-white text-sm md:text-base font-normal leading-relaxed tracking-wide opacity-80">
+                          Esta es la estructura estratégica de posicionamiento para tu Artículo de
+                          Blog SEO optimizado. Diseñado para atraer prospectos calificados y derivar tráfico orgánico de alto valor.
                         </p>
 
-                        {/* Section 1: H1 Title */}
-                        <div className="p-6 bg-gradient-to-r from-[#FFBF00]/10 via-[#FFBF00]/5 to-transparent border border-[#FFBF00]/20 rounded-3xl relative overflow-hidden space-y-3">
+                        {/* Título */}
+                        <div className="p-6 bg-gradient-to-r from-[#FFBF00]/10 via-[#FFBF00]/5 to-transparent border border-[#FFBF00]/20 rounded-3xl relative overflow-hidden space-y-2">
                           <div className="absolute top-0 right-0 w-24 h-24 bg-[#FFBF00]/5 blur-3xl rounded-full"></div>
                           <span className="text-[10px] font-black uppercase text-[#FFBF00] tracking-widest block">
-                            Encabezado Principal (Tag H1)
+                            Título del Artículo de Blog
                           </span>
                           <p className="text-xl md:text-2xl font-black text-white leading-relaxed font-sans">
-                            "{h1Text}"
+                            {bTitle}
                           </p>
                         </div>
 
-                        {/* Section 2: Introduccion / Resumen */}
-                        <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                          <span className="text-[10px] font-black uppercase text-amber-400 tracking-widest block mb-2 font-sans">
-                            Introducción y Enfoque Persuasivo
+                        {/* Enfoque Estratégico */}
+                        <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl space-y-1.5 hover:border-[#FFBF00]/20 transition-all duration-300">
+                          <span className="text-[10px] font-black uppercase text-amber-400 tracking-widest block font-sans">
+                            Enfoque Estratégico
                           </span>
-                          <p className="text-base md:text-lg text-zinc-300 leading-relaxed font-normal">
-                            {bIntro}
+                          <p className="text-sm md:text-base text-zinc-100 leading-relaxed font-normal">
+                            {enfoque}
                           </p>
                         </div>
 
-                        {/* Section 3: Jerarquía SEO de Encabezados (H2 & H3) */}
-                        {headings && headings.length > 0 && (
-                          <div className="space-y-3">
-                            <span className="text-xs font-black uppercase text-emerald-400 tracking-widest block font-sans">
-                              Estructura de Encabezados (H2 / H3)
+                        {/* Intención de Búsqueda */}
+                        <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl space-y-1.5 hover:border-[#FFBF00]/20 transition-all duration-300">
+                          <span className="text-[10px] font-black uppercase text-emerald-400 tracking-widest block font-sans">
+                            Intención de Búsqueda / Compra
+                          </span>
+                          <p className="text-sm md:text-base text-zinc-100 leading-relaxed font-normal">
+                            {intencion}
+                          </p>
+                        </div>
+
+                        {/* Keyword SEO & Volumen de Búsqueda (Grid Layout) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 leading-normal">
+                          {/* Keyword SEO Column */}
+                          <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-[#FFBF00]/20 transition-all duration-300">
+                            <span className="text-[10px] font-black uppercase text-indigo-400 tracking-widest block mb-3 font-sans">
+                              Keyword SEO
                             </span>
-                            <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-2xl relative space-y-4">
-                              {headings.map((heading: any, index: number) => {
-                                const isH2 = heading.type === "h2";
-                                return (
-                                  <div
-                                    key={index}
-                                    className={`flex items-start gap-3 ${isH2 ? "pl-0 border-b border-white/5 pb-2 last:border-0 last:pb-0" : "pl-6"}`}
-                                  >
-                                    <span
-                                      className={`text-[9px] font-black px-1.5 py-0.5 rounded leading-none font-sans shrink-0 ${isH2 ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" : "bg-teal-500/15 text-teal-400 border border-teal-500/30"}`}
-                                    >
-                                      {heading.type.toUpperCase()}
-                                    </span>
-                                    <p
-                                      className={`text-sm md:text-base font-sans ${isH2 ? "text-white font-black" : "text-zinc-300 font-medium"}`}
-                                    >
-                                      {heading.text}
-                                    </p>
-                                  </div>
-                                );
-                              })}
+                            <div className="flex flex-wrap gap-1.5">
+                              {keywordsList.map((tag: string, index: number) => (
+                                <span
+                                  key={index}
+                                  className="px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 rounded-lg text-xs font-bold font-mono"
+                                >
+                                  🔑 {tag}
+                                </span>
+                              ))}
                             </div>
                           </div>
-                        )}
 
-                        {/* Section 4: Palabras Clave */}
-                        {keywordsList.length > 0 && (
-                          <div className="space-y-3">
-                            <span className="text-xs font-black uppercase text-[#FFBF00] tracking-widest block font-sans">
-                              Palabras Clave Recomendadas (SEO Tags)
+                          {/* Volumen de Búsqueda Column */}
+                          <div className="p-5 bg-[#111116] border border-white/5 rounded-2xl hover:border-[#FFBF00]/20 transition-all duration-300">
+                            <span className="text-[10px] font-black uppercase text-pink-400 tracking-widest block mb-2 font-sans">
+                              Volumen de Búsqueda
                             </span>
-                            <div className="flex flex-wrap gap-2">
-                              {keywordsList.map(
-                                (tag: string, index: number) => (
-                                  <span
-                                    key={index}
-                                    className="px-3 py-1.5 bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 hover:border-[#FFBF00]/25 text-[#FFBF00] rounded-xl text-xs font-bold transition-all cursor-default font-sans"
-                                  >
-                                    🔑 {tag}
-                                  </span>
-                                ),
-                              )}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Section 5: Llamacion a la Acción */}
-                        {ctaText && (
-                          <div className="space-y-3">
-                            <span className="text-xs font-black uppercase text-[#FF5A1F] tracking-widest block font-sans">
-                              Llamada a la Acción Estratégica (CTA)
-                            </span>
-                            <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-2xl relative">
-                              <p className="text-base md:text-lg text-zinc-200 font-sans leading-relaxed font-normal">
-                                {ctaText}
+                            <div className="flex items-center gap-2">
+                              <span className="text-2xl">📈</span>
+                              <p className="text-lg font-black text-white font-mono tracking-tight leading-none">
+                                {volumen}
                               </p>
                             </div>
                           </div>
-                        )}
+                        </div>
+
                       </div>
                     );
                   })()}
