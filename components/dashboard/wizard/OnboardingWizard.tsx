@@ -93,6 +93,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [unlockedProject, setUnlockedProject] = useState<any>(null);
   const [strategyData, setStrategyData] = useState<any>(null);
+  const [unlockedArticles, setUnlockedArticles] = useState<any[]>([]);
   const [isLandingCreated, setIsLandingCreated] = useState(false);
   const [createdPageSubdomain, setCreatedPageSubdomain] = useState<string>("");
   const [isHooksUnlocked, setIsHooksUnlocked] = useState(false);
@@ -224,6 +225,23 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     if (step === "success") scrollTo(successRef);
     if (step === "limit_reached") scrollTo(limitReachedRef);
   }, [step]);
+
+  // Cargar artículos reales de la estrategia maestra/proyecto cuando se desbloquee
+  useEffect(() => {
+    const fetchArticles = async () => {
+      if (unlockedProject?.id) {
+        console.log("🔍 [PROYECTO DESBLOQUEADO] Cargando artículos desde el backend para proyecto ID:", unlockedProject.id);
+        try {
+          const articles = await api.getArticlesByProject(unlockedProject.id);
+          console.log("📊 [ARTÍCULOS ENCONTRADOS] Éxito al consultar artículos para el Wizard:", articles);
+          setUnlockedArticles(articles);
+        } catch (error) {
+          console.error("❌ [ERROR ARTÍCULOS] Error al cargar artículos del proyecto en el Wizard:", error);
+        }
+      }
+    };
+    fetchArticles();
+  }, [unlockedProject?.id]);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -463,10 +481,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     setGenerationProgress(0);
     setGenerationStatus("Obteniendo biblioteca de ganchos...");
 
-    console.log(
-      "🚀 Iniciando proceso de desbloqueo de hooks para el proyecto:",
-      unlockedProject?.id,
-    );
+    // Reducido log de ganchos
 
     try {
       setGenerationProgress(20);
@@ -475,10 +490,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       let allHooks = strategyData?.modules?.hooks || [];
 
       if (allHooks.length === 0 && selectedProject) {
-        console.log(
-          "📦 Estrategia sin hooks, consultando librería maestra para proyecto:",
-          selectedProject.id,
-        );
         const library = await api.getHooksLibrary(1, 50, selectedProject.id);
         allHooks = library.hooks || [];
       }
@@ -489,8 +500,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           h.isActive !== false && h.is_active !== 0 && h.is_active !== false,
       );
 
-      console.log(`📊 Ganchos activos encontrados: ${allHooks.length}`);
-
       if (allHooks.length > 0) {
         setGenerationStatus("Seleccionando ganchos estratégicos...");
         setGenerationProgress(40);
@@ -499,11 +508,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         const shuffled = [...allHooks].sort(() => 0.5 - Math.random());
         const selected = shuffled.slice(0, 3);
         const masterHookIds = selected.map((h: any) => h.id || h.masterHookId);
-
-        console.log(
-          "🎯 Ganchos seleccionados para desbloquear:",
-          masterHookIds,
-        );
 
         setGenerationStatus("Desbloqueando ganchos para tu proyecto...");
         setGenerationProgress(60);
@@ -515,7 +519,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             masterHookIds,
             true,
           );
-          console.log("✅ Resultado del desbloqueo masivo:", response);
 
           if (response && response.results) {
             // Mapear los resultados unlocked a la estructura que espera HooksRevealStep
@@ -2062,23 +2065,33 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   },
                 ];
 
-                const libraryContentList = strategyData?.modules?.content || strategyData?.content || [];
+                const libraryContentList = unlockedArticles.length > 0
+                  ? unlockedArticles
+                  : (strategyData?.modules?.content || strategyData?.content || []);
+
+                console.log("📝 [WIZARD ARTÍCULOS] Renderizando artículos en el wizard:", {
+                  hasUnlockedArticles: unlockedArticles.length > 0,
+                  unlockedArticlesCount: unlockedArticles.length,
+                  strategyContentCount: (strategyData?.modules?.content || strategyData?.content || []).length,
+                  finalListCount: libraryContentList.length
+                });
+
                 const blogsToRender = libraryContentList.length > 0
                   ? libraryContentList.slice(0, 3).map((item: any) => {
                       return {
-                        id: item.id,
+                        id: item.id || item.jsonIndex,
                         title: item.title,
-                        introduction: item.objective || item.strategy || "Artículo estratégico diseñado para captar tráfico altamente cualificado y derivarlo a la compra del producto.",
+                        introduction: item.description || item.objective || item.strategy || "Artículo estratégico diseñado para captar tráfico altamente cualificado y derivarlo a la compra del producto.",
                         seoStructure: {
                           h1: item.title,
                           headings: [
                             { type: "h2", text: "Enfoque y Objetivo de Posicionamiento" },
-                            { type: "h3", text: item.objective || "Educación e intención de compra del cliente" },
+                            { type: "h3", text: item.psychologicalStrategy?.focus || item.objective || "Educación e intención de compra del cliente" },
                             { type: "h2", text: "Estructura Estratégica de Conversión" },
                             { type: "h3", text: item.strategy || "Gancho psicológico y derivación hacia la compra" }
                           ],
-                          keywords: item.keyword || "negocio, servicios, captacion de clientes",
-                          cta: "Llamado a la acción (CTA) personalizado integrado en el artículo para convertir lectores en clientes del canal de ventas."
+                          keywords: item.keyword || (item.psychologicalStrategy?.keyword) || "negocio, servicios, captacion de clientes",
+                          cta: item.psychologicalStrategy?.cta || "Llamado a la acción (CTA) personalizado integrado en el artículo para convertir lectores en clientes del canal de ventas."
                         }
                       };
                     })
