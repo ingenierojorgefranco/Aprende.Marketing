@@ -340,7 +340,8 @@ export const DashboardLayout = ({
 
   const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin' && !hasCompletedSurvey;
   const isSurveyPending = !hasCompletedSurvey && user.role !== 'admin';
-  const showWizard = (wizardEnabled && !isSurveyPending && !isLaunchRestricted && user.role !== 'admin' && pageCount === 0) || (typeof window !== 'undefined' && localStorage.getItem('force_wizard_step') === 'success');
+  const isSuccessPageRoute = location.pathname === '/dashboard/bienvenido-exito';
+  const showWizard = !isSuccessPageRoute && ((wizardEnabled && !isSurveyPending && !isLaunchRestricted && user.role !== 'admin' && pageCount === 0) || (typeof window !== 'undefined' && localStorage.getItem('force_wizard_step') === 'success'));
 
   if (loadingMode) {
       return (

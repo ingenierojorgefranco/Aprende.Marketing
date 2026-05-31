@@ -112,6 +112,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   const [selectedBlogForDrawer, setSelectedBlogForDrawer] = useState<any>(null);
   const [selectedEmailForDrawer, setSelectedEmailForDrawer] = useState<any>(null);
   const [selectedWhatsappForDrawer, setSelectedWhatsappForDrawer] = useState<any>(null);
+  const [projectBlogArticles, setProjectBlogArticles] = useState<any[]>([]);
+  const [loadingBlogArticles, setLoadingBlogArticles] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState(false);
 
   // Modals de confirmación
@@ -209,7 +211,32 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   }, [selectedProject]);
 
   useEffect(() => {
-    if (step === "success" || step === "limit_reached") {
+    const fetchArticles = async () => {
+      const pId = unlockedProject?.id || selectedProject?.id;
+      if (!pId) {
+        setProjectBlogArticles([]);
+        return;
+      }
+      setLoadingBlogArticles(true);
+      try {
+        const articles = await api.getArticlesByProject(pId);
+        setProjectBlogArticles(articles || []);
+      } catch (err) {
+        console.error("Error fetching project articles in wizard:", err);
+      } finally {
+        setLoadingBlogArticles(false);
+      }
+    };
+    fetchArticles();
+  }, [unlockedProject?.id, selectedProject?.id]);
+
+  useEffect(() => {
+    if (step === "success") {
+      localStorage.setItem("force_wizard_step", "success");
+      navigate("/dashboard/bienvenido-exito");
+      return;
+    }
+    if (step === "limit_reached") {
       if (containerRef.current) {
         containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -221,7 +248,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     if (step === "creating_web") scrollTo(creationRef);
     if (step === "landing_success") scrollTo(landingSuccessRef);
     if (step === "show_hooks") scrollTo(hooksRef);
-    if (step === "success") scrollTo(successRef);
     if (step === "limit_reached") scrollTo(limitReachedRef);
   }, [step]);
 
@@ -2062,28 +2088,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   },
                 ];
 
-                const projectBlogs = strategyData?.modules?.content || [];
-                const blogsToRender = projectBlogs.length > 0 
-                  ? projectBlogs.slice(0, 3).map((item: any) => {
-                      return {
-                        title: item.title,
-                        introduction: item.strategy || item.objective || item.description || "Este es un artículo estratégico listo para ser publicado en tu blog, diseñado para posicionar en Google.",
-                        seoStructure: item.seoStructure || {
-                          h1: item.title,
-                          headings: [
-                            { type: "h2", text: "1. Introducción y Enfoque del Tema" },
-                            { type: "h3", text: `Análisis y contextualización de la palabra clave: ${item.keyword || 'General'}` },
-                            { type: "h2", text: "2. Desarrollo y Solución al Problema del Avatar" },
-                            { type: "h3", text: item.strategy || item.objective || "Detalles estratégicos del tema" },
-                            { type: "h2", text: "3. Conclusión y Siguiente Paso de Conversión" }
-                          ],
-                          keywords: item.keyword || "branding, marketing de contenido",
-                          cta: "Obtén más información sobre nuestros productos y servicios registrándote gratis hoy."
-                        },
-                        ...item
-                      };
-                    })
-                  : defaultBlogsList.slice(0, 3);
+                const blogsToRender =
+                  projectBlogArticles && projectBlogArticles.length > 0
+                    ? projectBlogArticles.slice(0, 3)
+                    : defaultBlogsList.slice(0, 3);
 
                 return (
                   <div
@@ -3066,6 +3074,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       "Neutralizar dolores y objeciones"}
                     {activeDetailsDrawer === "benefits" &&
                       "Crear una oferta magnética"}
+                    {activeDetailsDrawer === "hooks" &&
+                      "Guion Persuasivo de Video"}
                     {activeDetailsDrawer === "blog" &&
                       "Posicionamiento y Tráfico Orgánico"}
                     {activeDetailsDrawer === "email" &&
@@ -3082,6 +3092,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       "Dolores y Objeciones"}
                     {activeDetailsDrawer === "benefits" &&
                       "Beneficios Magnéticos"}
+                    {activeDetailsDrawer === "hooks" &&
+                      "Detalles del Hook de Atracción"}
                     {activeDetailsDrawer === "blog" &&
                       "Estructura de Artículo de Blog SEO"}
                     {activeDetailsDrawer === "email" &&
@@ -3570,14 +3582,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
                     return (
                       <div className="space-y-8 font-sans text-left">
-                        <div className="space-y-4">
-                          <p className="text-white text-lg font-bold leading-relaxed tracking-wide">
-                            El mayor freno para vender orgánico es el pánico a la cámara. Te lo acabamos de quitar.
-                          </p>
-                          <p className="text-zinc-300 text-sm md:text-base font-normal leading-relaxed tracking-wide">
-                            Aquí tienes el guion exacto diseñado para meterse en la cabeza de tu cliente. Y lo mejor: ya hemos creado el video por ti. Cero configuraciones, cero tomas falsas, cero excusas. Descárgalo ahora y publícalo en tus principales redes sociales antes de que lo haga tu competencia.
-                          </p>
-                        </div>
+                        <p className="text-white text-base md:text-lg font-normal leading-relaxed tracking-wide">
+                          Aquí tienes el guion exacto diseñado para meterse en
+                          la cabeza de tu cliente. Y lo mejor: ya hemos creado
+                          el video por ti. Cero configuraciones, cero tomas
+                          falsas, cero excusas. Descárgalo ahora y publícalo en
+                          tus principales redes sociales antes de que lo haga tu
+                          competencia.
+                        </p>
 
                         {/* Section 1: El Gancho (The Hook Quote) */}
                         <div className="p-6 bg-gradient-to-r from-[#FF5A1F]/10 via-[#FF5A1F]/5 to-transparent border border-[#FF5A1F]/20 rounded-3xl relative overflow-hidden space-y-3">
@@ -3627,6 +3639,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                             </div>
                           </div>
                         )}
+
+
                       </div>
                     );
                   })()}
@@ -3636,15 +3650,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   (() => {
                     const blog = selectedBlogForDrawer;
                     const bTitle = blog.title;
-                    const bIntro = blog.introduction;
+                    const bIntro = blog.introduction || blog.description || blog.psychologicalStrategy?.focus || "";
                     const seo = blog.seoStructure || {};
-                    const h1Text = seo.h1 || bTitle;
+                    const h1Text = seo.h1 || blog.metaTitle || bTitle;
                     const headings = seo.headings || [];
-                    const keywordsStr = seo.keywords || "";
+                    const keywordsStr = seo.keywords || blog.keyword || blog.psychologicalStrategy?.keyword || "";
                     const keywordsList = keywordsStr
-                      .split(",")
-                      .map((k: string) => k.trim());
-                    const ctaText = seo.cta || "";
+                      ? keywordsStr.split(",").map((k: string) => k.trim())
+                      : [];
+                    const ctaText = seo.cta || blog.psychologicalStrategy?.targetUrl || "";
 
                     return (
                       <div className="space-y-8 font-sans text-left">
@@ -3676,35 +3690,47 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                           </p>
                         </div>
 
-                        {/* Section 3: Jerarquía SEO de Encabezados (H2 & H3) */}
-                        {headings && headings.length > 0 && (
+                        {/* Section 3: Jerarquía SEO de Encabezados o Contenido Completo del Artículo */}
+                        {blog.contentHtml ? (
                           <div className="space-y-3">
                             <span className="text-xs font-black uppercase text-emerald-400 tracking-widest block font-sans">
-                              Estructura de Encabezados (H2 / H3)
+                              Contenido del Artículo
                             </span>
-                            <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-2xl relative space-y-4">
-                              {headings.map((heading: any, index: number) => {
-                                const isH2 = heading.type === "h2";
-                                return (
-                                  <div
-                                    key={index}
-                                    className={`flex items-start gap-3 ${isH2 ? "pl-0 border-b border-white/5 pb-2 last:border-0 last:pb-0" : "pl-6"}`}
-                                  >
-                                    <span
-                                      className={`text-[9px] font-black px-1.5 py-0.5 rounded leading-none font-sans shrink-0 ${isH2 ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" : "bg-teal-500/15 text-teal-400 border border-teal-500/30"}`}
-                                    >
-                                      {heading.type.toUpperCase()}
-                                    </span>
-                                    <p
-                                      className={`text-sm md:text-base font-sans ${isH2 ? "text-white font-black" : "text-zinc-300 font-medium"}`}
-                                    >
-                                      {heading.text}
-                                    </p>
-                                  </div>
-                                );
-                              })}
-                            </div>
+                            <div 
+                              className="p-6 bg-[#0c0c10] border border-white/5 rounded-2xl relative text-zinc-300 leading-relaxed font-sans max-h-[350px] overflow-y-auto space-y-4"
+                              dangerouslySetInnerHTML={{ __html: blog.contentHtml }}
+                            />
                           </div>
+                        ) : (
+                          headings && headings.length > 0 && (
+                            <div className="space-y-3">
+                              <span className="text-xs font-black uppercase text-emerald-400 tracking-widest block font-sans">
+                                Estructura de Encabezados (H2 / H3)
+                              </span>
+                              <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-2xl relative space-y-4">
+                                {headings.map((heading: any, index: number) => {
+                                  const isH2 = heading.type === "h2";
+                                  return (
+                                    <div
+                                      key={index}
+                                      className={`flex items-start gap-3 ${isH2 ? "pl-0 border-b border-white/5 pb-2 last:border-0 last:pb-0" : "pl-6"}`}
+                                    >
+                                      <span
+                                        className={`text-[9px] font-black px-1.5 py-0.5 rounded leading-none font-sans shrink-0 ${isH2 ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" : "bg-teal-500/15 text-teal-400 border border-teal-500/30"}`}
+                                      >
+                                        {heading.type.toUpperCase()}
+                                      </span>
+                                      <p
+                                        className={`text-sm md:text-base font-sans ${isH2 ? "text-white font-black" : "text-zinc-300 font-medium"}`}
+                                      >
+                                        {heading.text}
+                                      </p>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )
                         )}
 
                         {/* Section 4: Palabras Clave */}
