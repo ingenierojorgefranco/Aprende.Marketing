@@ -2062,7 +2062,28 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   },
                 ];
 
-                const blogsToRender = defaultBlogsList.slice(0, 3);
+                const projectBlogs = strategyData?.modules?.content || [];
+                const blogsToRender = projectBlogs.length > 0 
+                  ? projectBlogs.slice(0, 3).map((item: any) => {
+                      return {
+                        title: item.title,
+                        introduction: item.strategy || item.objective || item.description || "Este es un artículo estratégico listo para ser publicado en tu blog, diseñado para posicionar en Google.",
+                        seoStructure: item.seoStructure || {
+                          h1: item.title,
+                          headings: [
+                            { type: "h2", text: "1. Introducción y Enfoque del Tema" },
+                            { type: "h3", text: `Análisis y contextualización de la palabra clave: ${item.keyword || 'General'}` },
+                            { type: "h2", text: "2. Desarrollo y Solución al Problema del Avatar" },
+                            { type: "h3", text: item.strategy || item.objective || "Detalles estratégicos del tema" },
+                            { type: "h2", text: "3. Conclusión y Siguiente Paso de Conversión" }
+                          ],
+                          keywords: item.keyword || "branding, marketing de contenido",
+                          cta: "Obtén más información sobre nuestros productos y servicios registrándote gratis hoy."
+                        },
+                        ...item
+                      };
+                    })
+                  : defaultBlogsList.slice(0, 3);
 
                 return (
                   <div
@@ -3045,8 +3066,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       "Neutralizar dolores y objeciones"}
                     {activeDetailsDrawer === "benefits" &&
                       "Crear una oferta magnética"}
-                    {activeDetailsDrawer === "hooks" &&
-                      "Guion Persuasivo de Video"}
                     {activeDetailsDrawer === "blog" &&
                       "Posicionamiento y Tráfico Orgánico"}
                     {activeDetailsDrawer === "email" &&
@@ -3063,8 +3082,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       "Dolores y Objeciones"}
                     {activeDetailsDrawer === "benefits" &&
                       "Beneficios Magnéticos"}
-                    {activeDetailsDrawer === "hooks" &&
-                      "Detalles del Hook de Atracción"}
                     {activeDetailsDrawer === "blog" &&
                       "Estructura de Artículo de Blog SEO"}
                     {activeDetailsDrawer === "email" &&
@@ -3553,12 +3570,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
                     return (
                       <div className="space-y-8 font-sans text-left">
-                        <p className="text-white text-base md:text-lg font-normal leading-relaxed tracking-wide">
-                          Este es uno de tus guiones optimizados
-                          psicológicamente. Úsalo para captar la atención
-                          inmediata en tus contenidos orgánicos y anuncios de
-                          tráfico pago.
-                        </p>
+                        <div className="space-y-4">
+                          <p className="text-white text-lg font-bold leading-relaxed tracking-wide">
+                            El mayor freno para vender orgánico es el pánico a la cámara. Te lo acabamos de quitar.
+                          </p>
+                          <p className="text-zinc-300 text-sm md:text-base font-normal leading-relaxed tracking-wide">
+                            Aquí tienes el guion exacto diseñado para meterse en la cabeza de tu cliente. Y lo mejor: ya hemos creado el video por ti. Cero configuraciones, cero tomas falsas, cero excusas. Descárgalo ahora y publícalo en tus principales redes sociales antes de que lo haga tu competencia.
+                          </p>
+                        </div>
 
                         {/* Section 1: El Gancho (The Hook Quote) */}
                         <div className="p-6 bg-gradient-to-r from-[#FF5A1F]/10 via-[#FF5A1F]/5 to-transparent border border-[#FF5A1F]/20 rounded-3xl relative overflow-hidden space-y-3">
@@ -3605,30 +3624,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                               <pre className="text-sm text-zinc-205 font-sans whitespace-pre-wrap leading-relaxed">
                                 {adsText}
                               </pre>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Section 5: Sugerencias de Miniatura (Thumbs) */}
-                        {thumbsList && thumbsList.length > 0 && (
-                          <div className="space-y-3">
-                            <span className="text-xs font-black uppercase text-pink-400 tracking-widest block">
-                              Textos para Portadas / Miniaturas
-                            </span>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                              {thumbsList.map((thumb: string, tIdx: number) => (
-                                <div
-                                  key={tIdx}
-                                  className="p-3.5 bg-white/[0.02] border border-white/5 rounded-xl text-center"
-                                >
-                                  <p className="text-xs font-extrabold text-pink-300">
-                                    OPCIÓN {tIdx + 1}
-                                  </p>
-                                  <p className="mt-1.5 text-xs text-white leading-normal font-sans font-medium">
-                                    {thumb}
-                                  </p>
-                                </div>
-                              ))}
                             </div>
                           </div>
                         )}
