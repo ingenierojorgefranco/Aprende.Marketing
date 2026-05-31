@@ -2062,7 +2062,27 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   },
                 ];
 
-                const blogsToRender = defaultBlogsList.slice(0, 3);
+                const libraryContentList = strategyData?.modules?.content || strategyData?.content || [];
+                const blogsToRender = libraryContentList.length > 0
+                  ? libraryContentList.slice(0, 3).map((item: any) => {
+                      return {
+                        id: item.id,
+                        title: item.title,
+                        introduction: item.objective || item.strategy || "Artículo estratégico diseñado para captar tráfico altamente cualificado y derivarlo a la compra del producto.",
+                        seoStructure: {
+                          h1: item.title,
+                          headings: [
+                            { type: "h2", text: "Enfoque y Objetivo de Posicionamiento" },
+                            { type: "h3", text: item.objective || "Educación e intención de compra del cliente" },
+                            { type: "h2", text: "Estructura Estratégica de Conversión" },
+                            { type: "h3", text: item.strategy || "Gancho psicológico y derivación hacia la compra" }
+                          ],
+                          keywords: item.keyword || "negocio, servicios, captacion de clientes",
+                          cta: "Llamado a la acción (CTA) personalizado integrado en el artículo para convertir lectores en clientes del canal de ventas."
+                        }
+                      };
+                    })
+                  : defaultBlogsList.slice(0, 3);
 
                 return (
                   <div
