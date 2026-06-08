@@ -39,7 +39,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                     </h2>
                 </div>
                 <p className="text-[1.4rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">
-                    A continuación te ayudaré a construir tu primer sistema de ventas paso a paso.
+                    A continuación te ayudaré a construir tu primer sistema de ventas para productos digitales paso a paso.
                 </p>
             </div>
 
@@ -51,9 +51,9 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                 <div className="space-y-6 relative z-10 text-lg">
                     <div className="grid grid-cols-1 gap-6">
                         {[
-                            'Te ayudaré a seleccionar un proyecto digital rentable.',
-                            'Crearé tu página web donde visitantes interesados podrán registrarse.',
-                            'Crearé tus videos y contenidos listos para publicar en Redes Sociales'
+                            'Seleccionaremos un proyecto digital altamente rentable.',
+                            'Crearemos una Página Web donde visitantes interesados podrán registrarse.',
+                            'Crearemos videos y contenidos listos para publicar en Redes Sociales'
                         ].map((item, idx) => (
                             <div key={idx} className="flex items-start gap-4">
                                 <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 mt-1">
@@ -66,7 +66,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                     
                     <div className="pt-6 mt-6 border-t border-white/5">
                         <p className="text-[#FF5A1F] font-medium flex items-center gap-2">
-                            👉 <span className="tracking-tight">Empieza Ahora, no necesitas experiencia.</span>
+                            👉 <span className="tracking-tight">Lo mejor de todo es que no necesitas experiencia para empezar.</span>
                         </p>
                     </div>
                 </div>
@@ -77,7 +77,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                 disabled={disabled}
                 className={`group flex items-center gap-4 px-12 py-7 ${disabled ? 'bg-gray-800 cursor-not-allowed opacity-50' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95'} text-white rounded-[2.5rem] font-black text-2xl transition-all mx-auto`}
             >
-                {disabled ? 'Configuración en proceso' : 'Comenzar configuración'}
+                {disabled ? 'Configuración en proceso' : 'EMPEZAR'}
                 {!disabled && <ChevronRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />}
             </button>
         </motion.div>
@@ -103,10 +103,10 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
         >
             <div className="text-center space-y-4">
                 <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
-                    Elige el <span className="text-[#FF5A1F]">proyecto digital</span> con el que quieres empezar
+                    Elige tu <span className="text-[#FF5A1F]">Producto Digital</span> que más te interese
                 </h2>
                 <p className="text-[1.3rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">
-                    Selecciona la oportunidad que mejor se adapte a tus intereses y empieza a construir tu sistema de ventas.
+                    Hemos seleccionado por ti los Productos Digitales con los que tendrás la más alta probabilidad de generar altos ingresos.
                 </p>
             </div>
 
@@ -164,11 +164,11 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
     );
 };
 
-// 2.5 PROTOCOLO DE DESBLOQUEO (Modal-like)
+// 2.5 SISTEMA DE DESBLOQUEO (Modal-like)
 export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategyGenerated?: boolean, onBackToSelection?: () => void }> = ({ project, onNext, isStrategyGenerated, onBackToSelection }) => {
     const [isPlaying, setIsPlaying] = React.useState(false);
     
-    // Ensure commission is a whole number for display
+    // Calculo de Comision que se mostrará
     const rawCommission = project.commissionRate || 80;
     const displayCommission = rawCommission < 1 ? Math.round(rawCommission * 100) : Math.round(rawCommission);
     const profitValue = project.fullPrice && displayCommission ? (project.fullPrice * (displayCommission / 100)).toFixed(2) : '0.00';
@@ -189,18 +189,18 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                 <div className="md:col-span-2 bg-[#111] p-10 lg:p-14 border-r border-white/5 flex flex-col justify-center">
                     <div className="space-y-10">
                         <div className="space-y-2 text-center">
-                            <p className="text-[#FF5A1F] font-black text-xs uppercase tracking-[0.3em]">Producto que vas a vender</p>
+                            <p className="text-[#FF5A1F] font-black text-xs uppercase tracking-[0.3em]">Producto Seleccionado</p>
                             <h3 className="text-[2rem] font-black text-white uppercase leading-tight tracking-tighter">{project.name}</h3>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4">
                             <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-3xl px-8 py-4 flex flex-col items-center justify-center text-center space-y-2 shadow-lg shadow-emerald-500/5">
-                                <p className="text-emerald-500/70 font-medium text-sm uppercase tracking-wider">¿Cuánto vas a ganar? (Dólares)</p>
+                                <p className="text-emerald-500/70 font-medium text-sm uppercase tracking-wider">¿Cuánto ganarás por venta? (Dólares)</p>
                                 <p className="text-emerald-500 text-5xl font-black tracking-tighter">$ {profitValue}</p>
                             </div>
 
                             <div className="bg-blue-500/5 border border-blue-500/20 rounded-3xl px-8 py-4 flex flex-col items-center justify-center text-center space-y-2">
-                                <p className="text-blue-500/70 font-medium text-sm uppercase tracking-wider">Comisión por Venta</p>
+                                <p className="text-blue-500/70 font-medium text-sm uppercase tracking-wider">Comisión del Producto</p>
                                 <p className="text-blue-500 text-5xl font-black tracking-tighter">{displayCommission}%</p>
                             </div>
                             
@@ -215,7 +215,7 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                 {/* Video/Main Action */}
                 <div className="md:col-span-3 p-10 lg:p-14 flex flex-col items-center justify-center text-center space-y-10">
                     <div className="w-full space-y-6">
-                        <p className="text-xs text-white font-medium uppercase tracking-[0.2em] mb-4">Mira el video para conocer detalles del producto</p>
+                        
                         <div className="relative group w-full aspect-video bg-zinc-900 rounded-[2.5rem] overflow-hidden border border-white/10 flex items-center justify-center shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]">
                             <div 
                                 className="absolute inset-0 w-full h-full group/play overflow-hidden"
@@ -240,7 +240,7 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                                 </div>
                             </div>
                         </div>
-                        <p className="text-[1.1rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">Haz clic en Desbloquear para crear tu estrategia de ventas</p>
+                        <p className="text-[1.1rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">Haz clic en el video para conocer todos los detalles del Producto</p>
                     </div>
 
                     <div className="w-full space-y-8">
@@ -289,10 +289,10 @@ export const GenerationStep: React.FC<{ progress: number, status: string, second
             <div className="space-y-10 w-full max-w-2xl relative z-10">
                 <div className="space-y-4">
                     <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter italic leading-none">
-                        {status || 'Estoy creando tu estrategia de Ventas'}
+                        {status || 'Perfecto, estoy creando tu estrategia de Ventas'}
                     </h2>
-                    <p className="text-gray-500 text-lg md:text-xl font-medium italic max-w-lg mx-auto leading-relaxed opacity-80">
-                        "{message || "No cierres esta ventana, estoy analizando el producto que has elegido y configurando todo lo que necesitas para generar ventas masivas."}"
+                    <p className="text-white text-lg md:text-xl font-medium italic max-w-lg mx-auto leading-relaxed">
+                        "{message || "No cierres esta ventana, estoy analizando el producto digital que has elegido y configurando todo lo que necesitas para generar ventas masivas."}"
                     </p>
                 </div>
                 
@@ -315,7 +315,7 @@ export const GenerationStep: React.FC<{ progress: number, status: string, second
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">
-                                    Procesando arquitectura...
+                                    Desbloqueando Producto Digital...
                                 </span>
                             </div>
                             <span className="text-2xl font-black text-[#FF5A1F]">
@@ -336,7 +336,7 @@ export const GenerationStep: React.FC<{ progress: number, status: string, second
                     <div className="flex items-center gap-4 px-8 py-4 bg-red-500/5 border border-red-500/20 rounded-[2rem] backdrop-blur-md">
                         <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></div>
                         <p className="text-red-400 font-bold uppercase text-[10px] tracking-[0.2em]">
-                            ⚠️ No cierres esta pestaña, el sistema está trabajando...
+                            ⚠️ No cierres esta ventana, estoy creando tu estrategia digital...
                         </p>
                     </div>
                 </div>
@@ -443,14 +443,14 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
             <div className="space-y-4 md:space-y-6 max-w-3xl mx-auto mt-0">
                 <div className="space-y-3 md:space-y-4">
                     <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase leading-tight">
-                        ¡Perfecto! <span className="text-emerald-500">Ya estamos listos</span>
+                        ¡Perfecto! <span className="text-emerald-500">Estamos listos para Empezar!!! </span>
                     </h2>
                     <div className="space-y-2">
                         <p className="text-lg md:text-xl text-slate-200 font-medium">
-                            El proyecto <span className="text-emerald-400 font-bold">"{project?.name || 'Digital'}"</span> ya esta listo para que lo uses
+                            Ya tienes disponible el producto digital <span className="text-emerald-400 font-bold">"{project?.name || 'Digital'}"</span> para que lo uses
                         </p>
                         <p className="text-base md:text-lg text-white max-w-2xl mx-auto font-medium leading-normal">
-                            Ahora te ayudaré a crear todo un <span className="text-white font-bold">sistema de ventas completo</span> por ti.
+                            Ahora te ayudaré a crear todo un <span className="text-white font-bold">sistema de ventas completo por ti</span>.
                         </p>
                     </div>
                 </div>
@@ -467,14 +467,12 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2 + (idx * 0.1) }}
-                            className="bg-white/5 border border-white/10 p-4 rounded-[2rem] flex items-center gap-4 hover:bg-white/10 transition-all group"
+                            className="bg-white/5 border border-white/10 p-5 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors group"
                         >
-                            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/20 transition-colors">
-                                <item.icon className="w-6 h-6 text-emerald-500" />
-                            </div>
-                            <div className="space-y-0.5">
-                                <p className="text-white font-bold text-base tracking-tight leading-tight">{item.title}</p>
-                                <p className="text-gray-300 text-sm font-normal leading-snug">{item.desc}</p>
+                            <item.icon className="w-6 h-6 text-emerald-500 shrink-0 group-hover:scale-110 transition-transform" />
+                            <div className="space-y-1">
+                                <p className="text-white text-lg font-bold tracking-tight leading-relaxed">{item.title}</p>
+                                <p className="text-gray-300 text-base font-normal leading-relaxed">{item.desc}</p>
                             </div>
                         </motion.div>
                     ))}
@@ -511,10 +509,10 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
                 <div className="space-y-4 max-w-2xl mx-auto">
                     <p className="text-[#FF5A1F] text-sm font-bold uppercase tracking-widest">Ahora crearé tu</p>
                     <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
-                        Tu página <span className="text-emerald-500">de captura</span>
+                        Tu página Web <span className="text-emerald-500">de captura</span>
                     </h2>
                     <p className="text-[1.3rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">
-                        Tu página será el lugar donde las personas dejarán sus datos para conocer más sobre tu oferta.
+                        Tu página web de captura será el lugar donde las personas registrarán sus datos para conocer más sobre tu producto digital.
                     </p>
                 </div>
 
@@ -541,7 +539,7 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
                 disabled={isCreated}
                 className={`group flex items-center gap-4 px-10 py-6 ${isCreated ? 'bg-emerald-500 cursor-default' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform ${!isCreated ? 'hover:-translate-y-2 active:scale-95' : ''} mx-auto`}
             >
-                {isCreated ? 'TU PÁGINA DE CAPTURA HA SIDO GENERADA' : 'Crear mi página ahora'}
+                {isCreated ? 'TU PÁGINA DE CAPTURA HA SIDO GENERADA' : 'CREAR PÁGINA DE CAPTURA'}
                 <ArrowRight className={`w-6 h-6 ${!isCreated ? 'group-hover:translate-x-2 transition-transform' : ''}`} />
             </button>
         </motion.div>
@@ -565,14 +563,14 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
 
             <div className="space-y-4">
                 <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase leading-none max-w-3xl mx-auto">
-                    ¡Tu página Web <span className="text-emerald-500">de captura ha sido creada</span>!
+                    ¡Excelente! <span className="text-emerald-500">He creado tu Web de Captura</span>!
                 </h2>
                 <p className="text-xl text-white max-w-2xl mx-auto font-medium leading-relaxed">
-                    Esta página será tu centro de operaciones para capturar leads y convertirlos en clientes reales.
+                    Esta página web será el lugar donde personas interesadas se registrarán para acceder a la información de tu producto digital y convertirlos en clientes reales
                 </p>
                 <div className="space-y-2 pt-4">
                     <p className="text-[#FF5A1F] font-black uppercase tracking-widest text-sm italic">
-                        🚀 Ahora puedes ver la página que creado para ti
+                        🚀 Haz clic para ver la Página Web de Captura profesional que he creado para ti
                     </p>
                 </div>
             </div>
@@ -586,7 +584,7 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
                     Ver mi página
                 </button>
                 <p className="text-gray-400 font-bold text-sm uppercase tracking-widest italic">
-                    más adelante puedes modificarla
+                    Más adelante podrás modificarla, cambiar textos y colores
                 </p>
             </div>
 
@@ -594,7 +592,7 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
                 onClick={() => onNext()}
                 className="group flex items-center gap-4 px-12 py-7 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-[2.5rem] font-black text-2xl transition-all shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95 mx-auto"
             >
-                Vamos por el siguiente paso
+                Ahora Creemos Videos para atraer clientes
                 <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
             </button>
         </motion.div>
@@ -668,10 +666,10 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                         <div className="space-y-4 max-w-2xl mx-auto">
                             <p className="text-[#FF5A1F] text-sm font-bold uppercase tracking-widest">Ahora crearé tus</p>
                             <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
-                                Videos de <span className="text-purple-500">Atracción</span>
+                                Videos de <span className="text-purple-500">para atraer clientes</span>
                             </h2>
                             <p className="text-[1.3rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">
-                                Crearé los de videos de atracción exactos para captar clientes interesados.
+                                Crearé videos de menos de 1 minuto que publicarás en tus redes sociales para atraer cientos de clientes interesados.
                             </p>
                         </div>
 
@@ -679,10 +677,10 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                             <p className="text-white text-xl font-bold uppercase tracking-tight">Con estos videos podrás:</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left">
                                 {[
-                                    'Atraer personas interesadas en tu proyecto digital',
-                                    'Capturar prospectos automáticamente las 24 horas',
-                                    'Construir una audiencia propia para futuras ventas',
-                                    'Generar más confianza y credibilidad en tu oferta'
+                                    'Atraer todos los días personas interesadas en tu producto digital.',
+                                    'Hacer que tus redes sociales crezcan ilimitadamente',
+                                    'Construir una audiencia propia que te generará futuras ventas',
+                                    'Generar más confianza y credibilidad con tu audiencia.'
                                 ].map((benefit, bIdx) => (
                                     <div key={bIdx} className="flex items-center gap-4 bg-white/5 border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-colors">
                                         <CheckCircle className="w-6 h-6 text-purple-500 shrink-0" />
@@ -726,10 +724,10 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                             <Sparkles className="w-32 h-32 text-purple-400 animate-pulse" />
                         </div>
                         <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase mb-3">
-                            Tus videos están <span className="text-purple-400">listos para usarse</span>
+                           Excelente, he creado <span className="text-purple-400">tus Videos de Atracción</span>
                         </h2>
                         <p className="text-gray-300 max-w-2xl mx-auto font-medium text-lg leading-relaxed">
-                            ¡Excelente! Ya puedes descargar tus videos de atracción, los cuales podrás publicar como videos cortos (Reels) en YouTube, Instagram, Tik Tok y Facebook.
+                            A continuación podrás ver y descargar 3 videos que he creado para ti y con los que puedes empezar a publicar en YouTube, Instagram, Tik Tok y Facebook para atraer cientos de usuarios interesados.
                         </p>
                     </div>
 
@@ -766,7 +764,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                                     className="w-full py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5A1F]/10 cursor-pointer"
                                                 >
                                                     <Play className="w-3 h-3 fill-white" />
-                                                    Descargar Video
+                                                    Ver y Descargar Video
                                                 </a>
                                             ) : (
                                                 <div 
@@ -794,7 +792,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                 className="w-full group flex items-center justify-center gap-4 px-12 py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-lg transition-all shadow-[0_20px_50px_-10px_rgba(16,185,129,0.3)] transform hover:-translate-y-1 active:scale-95 cursor-pointer whitespace-nowrap"
                                 id="btn-finalize-customization"
                             >
-                                FINALIZAR CONFIGURACIÓN
+                                ÚLTIMOS PASOS
                                 <Rocket className="w-5 h-5 animate-pulse" />
                             </button>
                         </div>

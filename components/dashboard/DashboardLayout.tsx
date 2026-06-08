@@ -340,7 +340,7 @@ export const DashboardLayout = ({
 
   const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin' && !hasCompletedSurvey;
   const isSurveyPending = !hasCompletedSurvey && user.role !== 'admin';
-  const showWizard = (wizardEnabled && !isSurveyPending && !isLaunchRestricted && user.role !== 'admin' && pageCount === 0) || (typeof window !== 'undefined' && localStorage.getItem('force_wizard_step') === 'success');
+  const showWizard = (wizardEnabled && !isSurveyPending && !isLaunchRestricted && user.role !== 'admin' && pageCount === 0) || (typeof window !== 'undefined' && (localStorage.getItem('force_wizard_step') === 'success' || localStorage.getItem('force_wizard_step') === 'welcome'));
 
   if (loadingMode) {
       return (

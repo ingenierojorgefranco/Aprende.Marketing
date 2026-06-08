@@ -331,7 +331,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     setShowCreateLandingConfirm(false);
     setStep("creating_web");
     setGenerationProgress(0);
-    setGenerationStatus("Estoy creando tu Página Web Profesional");
+    setGenerationStatus("Estoy creando tu Página Web de Captura");
 
     try {
       setGenerationProgress(20);
@@ -2745,7 +2745,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     <div className="text-center mb-6">
                       <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-black text-emerald-500 uppercase tracking-[0.2em]">
                         <CheckCircle className="w-4 h-4" />
-                        Tu proyecto está listo para activarse
+                        Tu Producto Digital está listo para activarse
                       </div>
                     </div>
 

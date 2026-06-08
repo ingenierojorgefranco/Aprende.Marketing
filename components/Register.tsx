@@ -20,6 +20,46 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
 
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname.includes('ais-dev');
 
+  const handleTestWizard = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const testName = 'Pepe';
+      const testEmail = 'prueba@ejemplo.com';
+      const testPassword = 'password123';
+      
+      const user = await api.register({ name: testName, email: testEmail, password: testPassword });
+      
+      const mappedUser: User = {
+        ...user,
+        id: user.id.toString(),
+        planLimits: user.planLimits || {
+            planName: 'starter',
+            maxProjects: 1,
+            maxLandings: 3,
+            maxDomains: 1,
+            maxArticles: 2,
+            maxEmailSequences: 1,
+            maxEmailSequencesNurturing: 15,
+            maxWhatsAppLaunches: 1,
+            maxHooks: 10,
+            features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false }
+        }
+      };
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('force_wizard_step', 'welcome');
+      }
+
+      onLogin(mappedUser);
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'Error al iniciar modo wizard');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleTestDashboard = async () => {
     setLoading(true);
     setError(null);
@@ -161,7 +201,7 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
         <div className="mt-8 text-center pt-6 border-t border-white/5 space-y-4">
             <p className="text-[#B0B0B0] text-sm">¿Ya tienes cuenta? <button type="button" onClick={() => navigate('/login')} className="text-[#FF5A1F] font-bold hover:underline transition">Inicia Sesión</button></p>
             {isLocal && (
-              <div className="pt-2">
+              <div className="pt-2 flex items-center justify-center gap-3">
                 <button 
                   type="button"
                   onClick={handleTestDashboard} 
@@ -169,6 +209,14 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
                   className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF5A1F]/10 hover:bg-[#FF5A1F]/20 text-[#FF5A1F] hover:text-white border border-[#FF5A1F]/20 hover:border-[#FF5A1F]/40 rounded-xl font-bold text-xs uppercase tracking-widest transition-all duration-300"
                 >
                   🛠️ dashboard
+                </button>
+                <button 
+                  type="button"
+                  onClick={handleTestWizard} 
+                  disabled={loading}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF5A1F]/10 hover:bg-[#FF5A1F]/20 text-[#FF5A1F] hover:text-white border border-[#FF5A1F]/20 hover:border-[#FF5A1F]/40 rounded-xl font-bold text-xs uppercase tracking-widest transition-all duration-300"
+                >
+                  🛠️ wizard
                 </button>
               </div>
             )}
