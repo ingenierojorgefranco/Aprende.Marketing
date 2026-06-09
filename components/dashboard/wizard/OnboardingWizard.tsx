@@ -27,6 +27,11 @@ import {
   Check,
   Calendar,
   Plus,
+  ChevronDown,
+  Search,
+  BookOpen,
+  PenTool,
+  Lightbulb,
 } from "lucide-react";
 import { generateLandingPageContent } from "../../../services/geminiService";
 import { UpgradeModal } from "../UpgradeModal";
@@ -120,6 +125,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   const [showCreateLandingConfirm, setShowCreateLandingConfirm] =
     useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [successSearchQuery, setSuccessSearchQuery] = useState("");
 
   const [secondsElapsed, setSecondsElapsed] = useState(0);
   const [revealedSections, setRevealedSections] = useState<WizardStep[]>([
@@ -479,84 +485,103 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   const handleUnlockHooks = async () => {
     setStep("generating_hooks");
     setGenerationProgress(0);
-    setGenerationStatus("Obteniendo biblioteca de ganchos...");
+    setGenerationStatus("Creando video 1...");
 
-    // Reducido log de ganchos
+    // 1. Iniciar la carga/generación en segundo plano de inmediato para no perder tiempo técnico
+    const apiPromise = (async () => {
+      try {
+        let allHooks = strategyData?.modules?.hooks || [];
 
-    try {
-      setGenerationProgress(20);
-
-      // 1. Obtener ganchos de la estrategia o de la librería maestra
-      let allHooks = strategyData?.modules?.hooks || [];
-
-      if (allHooks.length === 0 && selectedProject) {
-        const library = await api.getHooksLibrary(1, 50, selectedProject.id);
-        allHooks = library.hooks || [];
-      }
-
-      // Filtrar para asegurar que solo escogemos ganchos activos (donde isActive !== false e is_active !== 0)
-      allHooks = allHooks.filter(
-        (h: any) =>
-          h.isActive !== false && h.is_active !== 0 && h.is_active !== false,
-      );
-
-      if (allHooks.length > 0) {
-        setGenerationStatus("Seleccionando ganchos estratégicos...");
-        setGenerationProgress(40);
-
-        // Mezclar y seleccionar 3 aleatorios
-        const shuffled = [...allHooks].sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, 3);
-        const masterHookIds = selected.map((h: any) => h.id || h.masterHookId);
-
-        setGenerationStatus("Desbloqueando ganchos para tu proyecto...");
-        setGenerationProgress(60);
-
-        // 2. Desbloquear en lote en el backend (Pasamos true para que ya se creen marcados como generados)
-        if (unlockedProject?.id && masterHookIds.length > 0) {
-          const response = await api.unlockMultipleHooks(
-            unlockedProject.id,
-            masterHookIds,
-            true,
-          );
-
-          if (response && response.results) {
-            // Mapear los resultados unlocked a la estructura que espera HooksRevealStep
-            // El state unlockedHooks debe contener los IDs reales devueltos por el servidor
-            const finalizedHooks = response.results.map(
-              (h: any, idx: number) => ({
-                ...selected[idx], // Mantenemos la data visual (título, copy, etc)
-                id: h.id, // Usamos el ID real generado en DB (ahora retornado por el backend como id)
-                isGenerated: true,
-              }),
-            );
-
-            setUnlockedHooks(finalizedHooks);
-          } else {
-            setUnlockedHooks(selected);
-          }
+        if (allHooks.length === 0 && selectedProject) {
+          const library = await api.getHooksLibrary(1, 50, selectedProject.id);
+          allHooks = library.hooks || [];
         }
 
-        setGenerationProgress(90);
-        setGenerationStatus("Configurando activos de video...");
-      } else {
-        console.warn("⚠️ No se encontraron hooks para desbloquear.");
-      }
+        allHooks = allHooks.filter(
+          (h: any) =>
+            h.isActive !== false && h.is_active !== 0 && h.is_active !== false,
+        );
 
-      // Simular un pequeño tiempo de carga para que el usuario perciba "trabajo" (UX)
-      setTimeout(() => {
-        setGenerationProgress(100);
-        setGenerationStatus("¡Ganchos Listos!");
-        setIsHooksUnlocked(true);
-        setTimeout(() => {
+        if (allHooks.length > 0) {
+          const shuffled = [...allHooks].sort(() => 0.5 - Math.random());
+          const selected = shuffled.slice(0, 3);
+          const masterHookIds = selected.map((h: any) => h.id || h.masterHookId);
+
+          if (unlockedProject?.id && masterHookIds.length > 0) {
+            const response = await api.unlockMultipleHooks(
+              unlockedProject.id,
+              masterHookIds,
+              true,
+            );
+
+            if (response && response.results) {
+              return response.results.map((h: any, idx: number) => ({
+                ...selected[idx],
+                id: h.id,
+                isGenerated: true,
+              }));
+            } else {
+              return selected.map(h => ({ ...h, isGenerated: true }));
+            }
+          }
+          return selected.map(h => ({ ...h, isGenerated: true }));
+        }
+        return [];
+      } catch (err) {
+        console.error("Error en segundo plano al cargar hooks:", err);
+        return [];
+      }
+    })();
+
+    // 2. Temporizador de cuenta progresiva artificial de exactamente 15 segundos
+    const startTime = Date.now();
+    const duration = 15000;
+
+    const timer = setInterval(() => {
+      const elapsedMs = Date.now() - startTime;
+
+      if (elapsedMs < 5000) {
+        // Segundos 0 al 5: "Creando video 1..." y avanzará uniformemente hasta 33%
+        setGenerationStatus("Creando video 1...");
+        const ratio = elapsedMs / 5000;
+        setGenerationProgress(Math.min(33, Math.round(ratio * 33)));
+      } else if (elapsedMs < 10000) {
+        // Segundos 5 al 10: "Creando video 2..." y avanzará del 33% al 66%
+        setGenerationStatus("Creando video 2...");
+        const ratio = (elapsedMs - 5000) / 5000;
+        setGenerationProgress(Math.min(66, 33 + Math.round(ratio * 33)));
+      } else if (elapsedMs < 14000) {
+        // Segundos 10 al 14: "Creando video 3..." y avanzará del 66% al 93%
+        setGenerationStatus("Creando video 3...");
+        const ratio = (elapsedMs - 10000) / 4000;
+        setGenerationProgress(Math.min(93, 66 + Math.round(ratio * 27)));
+      } else if (elapsedMs < duration) {
+        // Último segundo (14 al 15): "Configurando activos de video..."
+        setGenerationStatus("Configurando activos de video...");
+        const ratio = (elapsedMs - 14000) / 1000;
+        setGenerationProgress(Math.min(98, 93 + Math.round(ratio * 5)));
+      } else {
+        // Cumplidos los 15 segundos, esperamos a que el API resolve
+        clearInterval(timer);
+
+        apiPromise.then((finalizedHooks) => {
+          if (finalizedHooks && finalizedHooks.length > 0) {
+            setUnlockedHooks(finalizedHooks);
+          }
+          setGenerationProgress(100);
+          setGenerationStatus("¡Videos Listos!");
+          setIsHooksUnlocked(true);
+
+          setTimeout(() => {
+            setStep("show_hooks");
+          }, 800);
+        }).catch((error) => {
+          console.error("❌ Error en proceso de ganchos:", error);
+          setIsHooksUnlocked(true);
           setStep("show_hooks");
-        }, 800);
-      }, 1000);
-    } catch (error) {
-      console.error("❌ Error en proceso de ganchos:", error);
-      setIsHooksUnlocked(true); // Fallback
-      setStep("show_hooks");
-    }
+        });
+      }
+    }, 100);
   };
 
   const activeProjectName =
@@ -776,8 +801,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           </div>
         ) : step === "success" ? (
           <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center pt-36 md:pt-40 pb-16 relative z-10 font-sans">
-            {/* Page Title */}
-            <div className="text-center max-w-5xl mx-auto mb-8 space-y-6">
+            {/* Page Title - Moved above "¡Tu sistema está listo!" */}
+            <div className="text-center max-w-5xl mx-auto mb-10 space-y-6">
               <h1 className="text-4xl md:text-[3.75rem] md:leading-[1.1] font-black text-white tracking-tight uppercase font-sans">
                 ¡PERFECTO!
                 <br />
@@ -788,9 +813,783 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   ATRAER CLIENTES Y GANAR ALTAS COMISIONES
                 </span>
               </h1>
+            </div>
 
-              {/* 85% Progress Container - Moved under Title and Styled elegantly */}
-              <div className="w-full max-w-3xl mx-auto bg-black/40 border border-white/10 rounded-[2rem] p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
+            {/* NUEVA SECCIÓN DEL BANNER DE SISTEMA LISTO (85% COMPLETADO) */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="w-full bg-[#0D0D0D]/90 border border-white/10 p-6 md:p-8 rounded-[2.5rem] grid grid-cols-1 lg:grid-cols-12 gap-8 items-center shadow-2xl relative overflow-hidden backdrop-blur-md mb-8 font-sans"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF5A1F]/5 blur-3xl rounded-full"></div>
+              
+              {/* Bloque Izquierdo: Mensaje de Éxito (lg:col-span-6) */}
+              <div className="lg:col-span-6 flex items-center gap-4 lg:gap-5 self-start lg:self-center">
+                <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 relative">
+                  <span className="absolute inset-0 rounded-full bg-emerald-500/5 animate-ping opacity-75"></span>
+                  <CheckCircle className="w-8 h-8 text-emerald-500" />
+                </div>
+                <div className="space-y-1">
+                  <h2 className="text-white text-[2.1rem] font-black tracking-tight leading-[2.25rem] uppercase pb-[1rem]">
+                    ¡Tu sistema está listo!
+                  </h2>
+                  <p className="text-white text-[1.2rem] font-medium leading-[1.7rem]">
+                    Hemos creado tu Máquina de Ventas Personalizada con todo lo que necesitas para empezar.
+                  </p>
+                </div>
+              </div>
+
+              {/* Bloque Central: Círculo de Progreso Gráfico (lg:col-span-2) */}
+              <div className="lg:col-span-2 relative flex items-center justify-center shrink-0 my-4 lg:my-0">
+                <svg className="w-[210px] h-[210px] transform -rotate-90">
+                  {/* Círculo de fondo oscuro */}
+                  <circle
+                    cx="105"
+                    cy="105"
+                    r="90"
+                    className="stroke-[#1C1C1E]"
+                    strokeWidth="14"
+                    fill="transparent"
+                  />
+                  {/* Círculo de progreso animado con brillo degradado palpitante */}
+                  <motion.circle
+                    cx="105"
+                    cy="105"
+                    r="90"
+                    className="stroke-[#FF5A1F]"
+                    strokeWidth="14"
+                    fill="transparent"
+                    strokeDasharray="565"
+                    initial={{ strokeDashoffset: 565 }}
+                    animate={{ 
+                      strokeDashoffset: 565 * (1 - 0.85),
+                      filter: [
+                        "drop-shadow(0 0 8px rgba(255, 90, 31, 0.45))",
+                        "drop-shadow(0 0 25px rgba(255, 90, 31, 0.9))",
+                        "drop-shadow(0 0 8px rgba(255, 90, 31, 0.45))"
+                      ]
+                    }}
+                    transition={{ 
+                      strokeDashoffset: { duration: 1.5, ease: "easeOut", delay: 0.2 },
+                      filter: { repeat: Infinity, duration: 2, ease: "easeInOut" }
+                    }}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                {/* Textos centrales ampliados */}
+                <div className="absolute flex flex-col items-center justify-center">
+                  <span className="text-6xl font-black text-white tracking-tighter leading-none">85%</span>
+                  <span className="text-[12px] tracking-[0.25em] text-[#FF5A1F] font-black mt-2.5 uppercase">COMPLETADO</span>
+                </div>
+              </div>
+
+              {/* Bloque Derecho: Llamada a la Acción Funcional (lg:col-span-4) */}
+              <div className="lg:col-span-4 flex flex-col items-center lg:items-end text-center lg:text-right w-full gap-3">
+                <p className="text-white text-[1.1rem] font-medium max-w-[280px] leading-[1.7rem] pb-[0.8rem] text-center">
+                  Solo faltan 3 elementos para activar el sistema completo.
+                </p>
+                
+                <button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="w-full lg:w-auto group flex items-center justify-center gap-2 px-8 py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-black text-base transition-all shadow-lg hover:-translate-y-0.5 active:scale-95 cursor-pointer shadow-[#FF5A1F]/20 uppercase tracking-wider"
+                >
+                  <Rocket className="w-5 h-5 group-hover:animate-bounce shrink-0" />
+                  Actualizar a PRO
+                </button>
+                
+                <button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="text-gray-400 hover:text-white font-black text-sm transition-colors cursor-pointer flex items-center gap-1 group/link mt-1 uppercase tracking-wider bg-transparent border-none py-0 px-0"
+                >
+                  Ver qué incluye PRO <span className="group-hover/link:translate-x-1 transition-transform">→</span>
+                </button>
+              </div>
+            </motion.div>
+
+            {/* NUEVA SECCIÓN: RESUMEN DE TU SISTEMA */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+              className="w-full bg-[#0D0D0D]/90 border border-white/10 p-6 md:p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden backdrop-blur-md mb-8 font-sans"
+            >
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/5 blur-3xl rounded-full"></div>
+              
+              <h3 className="text-white text-[1.2rem] leading-[2rem] tracking-[0.15em] font-black mb-6 uppercase text-left opacity-100 pl-1">
+                RESUMEN DE TU SISTEMA
+              </h3>
+
+              {/* 6 Grids */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 relative z-10">
+                {/* Card 1: Estrategia */}
+                <div className="bg-gradient-to-b from-[#141415] to-[#0A0A0B] border border-white/10 hover:border-[#FF5A1F]/30 rounded-[2rem] p-6 flex flex-col items-center text-center gap-5 transition-all duration-300 relative group hover:-translate-y-1 hover:shadow-xl hover:shadow-[#FF5A1F]/5 min-h-[220px] justify-between">
+                  <div className="absolute top-3 left-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full p-1 shadow-sm flex items-center justify-center">
+                    <Check className="w-3.5 h-3.5 font-bold animate-pulse" />
+                  </div>
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-2 transition-all duration-300">
+                    <Target className="w-9 h-9" />
+                  </div>
+                  <div className="space-y-1.5 flex-1 flex flex-col justify-center">
+                    <h4 className="text-white text-[1.3rem] leading-[1.8rem] tracking-[0.1rem] pb-4 font-black uppercase transition-colors font-sans">Estrategia</h4>
+                    <div>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs md:text-sm font-black tracking-wider uppercase rounded-full">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block"></span>
+                        Completada
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      document.getElementById("success-estrategia-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }}
+                    className="w-full py-2.5 bg-white/5 hover:bg-[#FF5A1F] border border-white/10 hover:border-[#FF5A1F] text-white hover:text-white font-black text-xs rounded-xl uppercase tracking-[0.1em] transition-all duration-300 hover:scale-[1.02] active:scale-95 cursor-pointer flex items-center justify-center gap-1"
+                  >
+                    Ver <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                  </button>
+                </div>
+
+                {/* Card 2: Página de Captura */}
+                <div className="bg-gradient-to-b from-[#141415] to-[#0A0A0B] border border-white/10 hover:border-[#FF5A1F]/30 rounded-[2rem] p-6 flex flex-col items-center text-center gap-5 transition-all duration-300 relative group hover:-translate-y-1 hover:shadow-xl hover:shadow-[#FF5A1F]/5 min-h-[220px] justify-between">
+                  <div className="absolute top-3 left-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full p-1 shadow-sm flex items-center justify-center">
+                    <Check className="w-3.5 h-3.5 font-bold animate-pulse" />
+                  </div>
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-2 transition-all duration-300">
+                    <Globe className="w-9 h-9" />
+                  </div>
+                  <div className="space-y-1.5 flex-1 flex flex-col justify-center">
+                    <h4 className="text-white text-[1.3rem] leading-[1.8rem] tracking-[0.1rem] pb-4 font-black uppercase transition-colors font-sans">Página de Captura</h4>
+                    <div>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs md:text-sm font-black tracking-wider uppercase rounded-full">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block"></span>
+                        Completada
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      document.getElementById("success-pagina-captura-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }}
+                    className="w-full py-2.5 bg-white/5 hover:bg-[#FF5A1F] border border-white/10 hover:border-[#FF5A1F] text-white hover:text-white font-black text-xs rounded-xl uppercase tracking-[0.1em] transition-all duration-300 hover:scale-[1.02] active:scale-95 cursor-pointer flex items-center justify-center gap-1"
+                  >
+                    Ver <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                  </button>
+                </div>
+
+                {/* Card 3: Hooks de Video */}
+                <div className="bg-gradient-to-b from-[#141415] to-[#0A0A0B] border border-white/10 hover:border-[#FF5A1F]/30 rounded-[2rem] p-6 flex flex-col items-center text-center gap-5 transition-all duration-300 relative group hover:-translate-y-1 hover:shadow-xl hover:shadow-[#FF5A1F]/5 min-h-[220px] justify-between">
+                  <div className="absolute top-3 left-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full p-1 shadow-sm flex items-center justify-center">
+                    <Check className="w-3.5 h-3.5 font-bold animate-pulse" />
+                  </div>
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-2 transition-all duration-300">
+                    <Video className="w-9 h-9" />
+                  </div>
+                  <div className="space-y-1.5 flex-1 flex flex-col justify-center">
+                    <h4 className="text-white text-[1.3rem] leading-[1.8rem] tracking-[0.1rem] pb-4 font-black uppercase transition-colors font-sans">Hooks de Video</h4>
+                    <div>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs md:text-sm font-black tracking-wider uppercase rounded-full">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block"></span>
+                        Completados
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      document.getElementById("hooks-of-attraction-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }}
+                    className="w-full py-2.5 bg-white/5 hover:bg-[#FF5A1F] border border-white/10 hover:border-[#FF5A1F] text-white hover:text-white font-black text-xs rounded-xl uppercase tracking-[0.1em] transition-all duration-300 hover:scale-[1.02] active:scale-95 cursor-pointer flex items-center justify-center gap-1"
+                  >
+                    Ver <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                  </button>
+                </div>
+
+                {/* Card 4: Artículos de Blog */}
+                <div className="bg-gradient-to-b from-[#141415] to-[#0A0A0B] border border-white/10 hover:border-[#FF5A1F]/30 rounded-[2rem] p-6 flex flex-col items-center text-center gap-5 transition-all duration-300 relative group hover:-translate-y-1 hover:shadow-xl hover:shadow-[#FF5A1F]/5 min-h-[220px] justify-between">
+                  <div className="absolute top-3 left-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full p-1 shadow-sm flex items-center justify-center">
+                    <Check className="w-3.5 h-3.5 font-bold animate-pulse" />
+                  </div>
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-2 transition-all duration-300">
+                    <FileText className="w-9 h-9" />
+                  </div>
+                  <div className="space-y-1.5 flex-1 flex flex-col justify-center">
+                    <h4 className="text-white text-[1.3rem] leading-[1.8rem] tracking-[0.1rem] pb-4 font-black uppercase transition-colors font-sans">Artículos de Blog</h4>
+                    <div>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs md:text-sm font-black tracking-wider uppercase rounded-full">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block"></span>
+                        Completados
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      document.getElementById("seo-blog-articles-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }}
+                    className="w-full py-2.5 bg-white/5 hover:bg-[#FF5A1F] border border-white/10 hover:border-[#FF5A1F] text-white hover:text-white font-black text-xs rounded-xl uppercase tracking-[0.1em] transition-all duration-300 hover:scale-[1.02] active:scale-95 cursor-pointer flex items-center justify-center gap-1"
+                  >
+                    Ver <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                  </button>
+                </div>
+
+                {/* Card 5: Secuencia Email */}
+                <div className="bg-gradient-to-b from-[#141415] to-[#0A0A0B] border border-white/10 hover:border-[#FF5A1F]/30 rounded-[2rem] p-6 flex flex-col items-center text-center gap-5 transition-all duration-300 relative group hover:-translate-y-1 hover:shadow-xl hover:shadow-[#FF5A1F]/5 min-h-[220px] justify-between">
+                  <div className="absolute top-3 left-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full p-1 shadow-sm flex items-center justify-center">
+                    <Check className="w-3.5 h-3.5 font-bold animate-pulse" />
+                  </div>
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-2 transition-all duration-300">
+                    <Mail className="w-9 h-9" />
+                  </div>
+                  <div className="space-y-1.5 flex-1 flex flex-col justify-center">
+                    <h4 className="text-white text-[1.3rem] leading-[1.8rem] tracking-[0.1rem] pb-4 font-black uppercase transition-colors font-sans">Secuencia Email</h4>
+                    <div>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs md:text-sm font-black tracking-wider uppercase rounded-full">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block"></span>
+                        Completada
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      document.getElementById("email-marketing-nutrition-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }}
+                    className="w-full py-2.5 bg-white/5 hover:bg-[#FF5A1F] border border-white/10 hover:border-[#FF5A1F] text-white hover:text-white font-black text-xs rounded-xl uppercase tracking-[0.1em] transition-all duration-300 hover:scale-[1.02] active:scale-95 cursor-pointer flex items-center justify-center gap-1"
+                  >
+                    Ver <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                  </button>
+                </div>
+
+                {/* Card 6: WhatsApp Automatizado */}
+                <div className="bg-gradient-to-b from-[#141415] to-[#0A0A0B] border border-[#FF5A1F]/20 hover:border-[#FF5A1F] rounded-[2rem] p-6 flex flex-col items-center text-center gap-5 transition-all duration-300 relative group overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:shadow-[#FF5A1F]/10 min-h-[220px] justify-between">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF5A1F]/5 blur-xl rounded-full opacity-60 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="absolute top-3 left-3 bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 text-[#FF5A1F] rounded-full p-1.5 shadow-sm flex items-center justify-center relative">
+                    <span className="absolute inset-0 rounded-full bg-[#FF5A1F]/10 animate-ping"></span>
+                    <Lock className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="w-16 h-16 rounded-2xl bg-[#FF5A1F]/15 border border-[#FF5A1F]/20 flex items-center justify-center shrink-0 mt-2 text-[#FF5A1F] group-hover:scale-110 group-hover:bg-[#FF5A1F]/20 transition-all duration-300">
+                    <MessageSquare className="w-9 h-9" />
+                  </div>
+                  <div className="space-y-1.5 flex-1 flex flex-col justify-center relative z-10">
+                    <h4 className="text-white text-[1.3rem] leading-[1.8rem] tracking-[0.1rem] pb-4 font-black uppercase transition-colors font-sans">WhatsApp Automatizado</h4>
+                    <div>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs md:text-sm font-black tracking-wider uppercase rounded-full">
+                        <span className="w-2 h-2 rounded-full bg-[#FF5A1F] animate-pulse inline-block"></span>
+                        Disponible en PRO
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowUpgradeModal(true);
+                    }}
+                    className="w-full py-2.5 bg-[#FF5A1F]/15 hover:bg-[#FF5A1F] border border-[#FF5A1F]/30 hover:border-[#FF5A1F] text-[#FF5A1F] hover:text-white font-black text-xs rounded-xl uppercase tracking-[0.1em] transition-all duration-300 hover:scale-[1.02] active:scale-95 cursor-pointer flex items-center justify-center"
+                  >
+                    Desbloquear
+                  </button>
+                </div>
+              </div>
+
+              {/* Bottom link: Ver todo mi contenido */}
+              <div className="mt-8 flex justify-center border-t border-white/5 pt-5">
+                <button
+                  onClick={() => {
+                    document.getElementById("success-estrategia-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }}
+                  className="text-[#FF5A1F] hover:text-white font-black text-sm uppercase tracking-widest transition-colors duration-300 flex items-center gap-2 group/all cursor-pointer bg-transparent border-none py-0 px-0"
+                >
+                  Ver todo mi contenido <span className="group-hover/all:translate-x-1.5 transition-transform duration-300">→</span>
+                </button>
+              </div>
+            </motion.div>
+
+            {/* SECCIÓN ADICIONAL: CONTENIDO GENERADO VS SECCIÓN PRO */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full mb-12 font-sans relative z-10"
+            >
+              {/* Columna Izquierda: CONTENIDO GENERADO (65% u 8 cols) */}
+              <div className="lg:col-span-8 bg-[#0D0D0D]/95 border border-white/10 rounded-[2.5rem] p-6 md:p-8 space-y-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
+                <div className="absolute top-0 left-0 w-64 h-64 bg-white/5 blur-3xl rounded-full"></div>
+                
+                {/* Cabecera de Contenido */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-4 relative z-10">
+                  <div className="text-left space-y-1">
+                    <h3 className="text-white text-[1.3rem] leading-[2rem] tracking-[0.09em] font-black uppercase">
+                      CONTENIDO GENERADO
+                    </h3>
+                    <p className="text-gray-400 text-xs md:text-sm font-medium">
+                      Revisa, edita y utiliza todo el contenido creado para tu negocio.
+                    </p>
+                  </div>
+
+                  {/* Barra de Búsqueda */}
+                  <div className="relative w-full md:w-64">
+                    <input
+                      type="text"
+                      placeholder="Buscar contenido..."
+                      value={successSearchQuery}
+                      onChange={(e) => setSuccessSearchQuery(e.target.value)}
+                      className="w-full pl-4 pr-10 py-2 bg-[#141415] border border-white/10 rounded-xl text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-[#FF5A1F]/50 transition-colors"
+                    />
+                    <Search className="w-4 h-4 text-gray-500 absolute right-3.5 top-1/2 -translate-y-1/2" />
+                  </div>
+                </div>
+
+                {/* Lista de Contenido */}
+                <div className="space-y-3 relative z-10">
+                  {[
+                    {
+                      id: "estrategia",
+                      title: "Estrategia de Ventas",
+                      desc: "Tu estrategia completa para atraer, convertir y escalar.",
+                      status: "Completado",
+                      icon: Target,
+                      targetId: "success-estrategia-card",
+                      drawerKey: "avatar",
+                      isPro: false,
+                    },
+                    {
+                      id: "landing",
+                      title: "Página Web de Captura",
+                      desc: "Landing page optimizada para convertir visitantes en clientes.",
+                      status: "Completado",
+                      icon: Globe,
+                      targetId: "success-pagina-captura-card",
+                      drawerKey: null,
+                      isPro: false,
+                    },
+                    {
+                      id: "hooks",
+                      title: "Video Hooks de Atracción",
+                      desc: "Hooks listos para captar la atención de tu audiencia.",
+                      status: "Completado",
+                      icon: Video,
+                      targetId: "hooks-of-attraction-card",
+                      drawerKey: "hooks",
+                      isPro: false,
+                    },
+                    {
+                      id: "blog",
+                      title: "Artículos de Blog (SEO)",
+                      desc: "15 artículos optimizados para atraer tráfico orgánico.",
+                      status: "Completado",
+                      icon: FileText,
+                      targetId: "seo-blog-articles-card",
+                      drawerKey: "blog",
+                      isPro: false,
+                    },
+                    {
+                      id: "email",
+                      title: "Email Marketing Automatizado",
+                      desc: "Secuencia de emails para nutrir y convertir leads.",
+                      status: "Completado",
+                      icon: Mail,
+                      targetId: "email-marketing-nutrition-card",
+                      drawerKey: "email",
+                      isPro: false,
+                    },
+                    {
+                      id: "whatsapp",
+                      title: "Secuencias de WhatsApp",
+                      desc: "Automatizaciones avanzadas para vender por WhatsApp.",
+                      status: "Disponible en PRO",
+                      icon: MessageSquare,
+                      targetId: "whatsapp-launch-sequence-card",
+                      drawerKey: "whatsapp",
+                      isPro: true,
+                    }
+                  ]
+                    .filter(
+                      (item) =>
+                        item.title.toLowerCase().includes(successSearchQuery.toLowerCase()) ||
+                        item.desc.toLowerCase().includes(successSearchQuery.toLowerCase())
+                    )
+                    .map((item) => (
+                      <div
+                        key={item.id}
+                        className="bg-[#141415]/60 hover:bg-[#141415] border border-white/5 rounded-2xl md:rounded-[1.5rem] p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all duration-300"
+                      >
+                        {/* Icono y Textos */}
+                        <div className="flex items-center gap-4 text-left">
+                          <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center shrink-0 text-[#FF5A1F]">
+                            <item.icon className="w-5 h-5" />
+                          </div>
+                          <div className="flex flex-col">
+                            <h4 className="text-white text-base font-bold tracking-tight">
+                              {item.title}
+                            </h4>
+                            <p className="text-gray-400 text-xs md:text-sm font-medium leading-normal">
+                              {item.desc}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Estado y Acciones */}
+                        <div className="w-full md:w-auto flex items-center justify-between md:justify-end gap-3.5">
+                          {/* Badge de Estado */}
+                          {item.isPro ? (
+                            <span className="text-[#FF5A1F] font-black text-xs md:text-sm tracking-wide uppercase select-none mr-2">
+                              Disponible en PRO
+                            </span>
+                          ) : (
+                            <span className="text-[#10B981] font-black text-xs md:text-sm tracking-wide uppercase select-none mr-2">
+                              Completado
+                            </span>
+                          )}
+
+                          {/* Botones de Acción */}
+                          <div className="flex items-center gap-2">
+                            {item.isPro ? (
+                              <button
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="px-5 py-1.5 bg-transparent hover:bg-[#FF5A1F] border border-[#FF5A1F]/40 hover:border-[#FF5A1F] text-[#FF5A1F] hover:text-white font-black text-xs rounded-xl uppercase tracking-widest transition-all cursor-pointer"
+                              >
+                                Desbloquear
+                              </button>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    if (item.targetId) {
+                                      document
+                                        .getElementById(item.targetId)
+                                        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+                                    }
+                                  }}
+                                  className="px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black text-xs rounded-xl uppercase tracking-wider transition-all cursor-pointer"
+                                >
+                                  Ver
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (item.drawerKey) {
+                                      setActiveDetailsDrawer(item.drawerKey as any);
+                                    } else if (item.targetId) {
+                                      document
+                                        .getElementById(item.targetId)
+                                        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+                                    }
+                                  }}
+                                  className="px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black text-xs rounded-xl uppercase tracking-wider transition-all cursor-pointer"
+                                >
+                                  Editar
+                                </button>
+                              </>
+                            )}
+                            <ChevronDown className="w-5 h-5 text-gray-500 shrink-0 select-none hidden sm:block" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                  {/* Sin resultados */}
+                  {[
+                    {
+                      id: "estrategia",
+                      title: "Estrategia de Ventas",
+                      desc: "Tu estrategia completa para atraer, convertir y escalar.",
+                    },
+                    {
+                      id: "landing",
+                      title: "Página Web de Captura",
+                      desc: "Landing page optimizada para convertir visitantes en clientes.",
+                    },
+                    {
+                      id: "hooks",
+                      title: "Video Hooks de Atracción",
+                      desc: "Hooks listos para captar la atención de tu audiencia.",
+                    },
+                    {
+                      id: "blog",
+                      title: "Artículos de Blog (SEO)",
+                      desc: "15 artículos optimizados para atraer tráfico orgánico.",
+                    },
+                    {
+                      id: "email",
+                      title: "Email Marketing Automatizado",
+                      desc: "Secuencia de emails para nutrir y convertir leads.",
+                    },
+                    {
+                      id: "whatsapp",
+                      title: "Secuencias de WhatsApp",
+                      desc: "Automatizaciones avanzadas para vender por WhatsApp.",
+                    }
+                  ].filter(
+                    (item) =>
+                      item.title.toLowerCase().includes(successSearchQuery.toLowerCase()) ||
+                      item.desc.toLowerCase().includes(successSearchQuery.toLowerCase())
+                  ).length === 0 && (
+                    <div className="py-12 text-center text-gray-500 text-sm">
+                      No se encontraron elementos que coincidan con la búsqueda.
+                    </div>
+                  )}
+                </div>
+
+                {/* Pie de Lista */}
+                <div className="pt-3 border-t border-white/5 flex justify-center relative z-10">
+                  <button
+                    onClick={() => {
+                      document
+                        .getElementById("status-checklist-container")
+                        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }}
+                    className="text-[#FF5A1F] hover:text-white font-bold text-sm uppercase tracking-widest transition-colors flex items-center justify-center gap-2 cursor-pointer bg-transparent border-none py-0 px-0"
+                  >
+                    <BookOpen className="w-4 h-4 text-[#FF5A1F]" />
+                    ¿Cómo usar todo esto? Ver guía rápida
+                  </button>
+                </div>
+              </div>
+
+              {/* Columna Derecha: DESBLOQUEA EL 15% RESTANTE (45% o 4 cols) */}
+              <div className="lg:col-span-4 bg-[#0D0D0D]/95 border border-[#FF5A1F]/30 shadow-[#FF5A1F]/5 rounded-[2.5rem] p-6 md:p-8 flex flex-col justify-between h-full gap-6 relative overflow-hidden backdrop-blur-md">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-[#FF5A1F]/5 blur-3xl rounded-full"></div>
+
+                <div className="space-y-6 relative z-10 text-left">
+                  {/* Cabecera de Oferta */}
+                  <div className="flex items-center gap-3 border-b border-white/5 pb-4">
+                    <div className="w-12 h-12 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                      <Crown className="w-6 h-6 animate-pulse" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <h4 className="text-white text-base font-black tracking-wider uppercase leading-none">
+                        DESBLOQUEA EL 15%
+                      </h4>
+                      <p className="text-gray-400 text-[11px] font-bold uppercase tracking-wider">
+                        Con PRO activas todo el potencial de tu Máquina de Ventas
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Lista de Características */}
+                  <div className="space-y-5">
+                    {[
+                      {
+                        title: "Dominio profesional",
+                        desc: "Conecta tu propio dominio y proyecta más confianza.",
+                        icon: Globe,
+                      },
+                      {
+                        title: "Automatizaciones completas",
+                        desc: "Funnels, seguimientos y automatizaciones avanzadas.",
+                        icon: Zap,
+                      },
+                      {
+                        title: "WhatsApp avanzado",
+                        desc: "Secuencias, plantillas personalizadas y chatbot inteligente.",
+                        icon: MessageSquare,
+                      },
+                      {
+                        title: "15 Artículos SEO adicionales",
+                        desc: "Más tráfico orgánico para tu negocio cada mes.",
+                        icon: FileText,
+                      },
+                      {
+                        title: "Embudo de ventas completo",
+                        desc: "Páginas, upsells, downsells y más.",
+                        icon: Target,
+                      },
+                      {
+                        title: "Soporte prioritario",
+                        desc: "Atención personalizada cuando la necesites.",
+                        icon: Users,
+                      },
+                    ].map((feat, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5">
+                          <feat.icon className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="space-y-0.5">
+                          <h5 className="text-white text-sm font-black tracking-tight leading-snug">
+                            {feat.title}
+                          </h5>
+                          <p className="text-gray-400 text-xs leading-normal">
+                            {feat.desc}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Bloque de Precios y CTA */}
+                <div className="space-y-5 pt-4 border-t border-white/5 relative z-10 text-center">
+                  <div className="space-y-1 py-1">
+                    <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider">
+                      Plan PRO por solo
+                    </p>
+                    <h5 className="text-white text-5xl font-black tracking-tight font-sans">
+                      $39/mes
+                    </h5>
+                    <p className="text-gray-500 text-[10px] font-black uppercase tracking-wider">
+                      Facturado anualmente o $49 mes a mes
+                    </p>
+                  </div>
+
+                  {/* CTA e Indicadores */}
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => setShowUpgradeModal(true)}
+                      className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-300 shadow-lg cursor-pointer transform hover:-translate-y-0.5 active:scale-95 shadow-[#FF5A1F]/20"
+                    >
+                      <Rocket className="w-4 h-4 shrink-0 animate-bounce" />
+                      Actualizar a PRO
+                    </button>
+                    <p className="flex items-center justify-center gap-1.5 text-gray-500 text-xs font-semibold">
+                      <Lock className="w-3.5 h-3.5 text-amber-500" />
+                      Cancelas cuando quieras. Sin permanencia.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* NUEVA SECCIÓN: PRÓXIMOS PASOS RECOMENDADOS */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
+              className="w-full bg-[#0D0D0D]/90 border border-white/10 p-6 md:p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden backdrop-blur-md mb-8 font-sans text-left"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-3xl rounded-full"></div>
+              
+              <h3 className="text-white text-[11px] font-black tracking-[0.25em] mb-6 uppercase pl-1 opacity-90">
+                PRÓXIMOS PASOS RECOMENDADOS
+              </h3>
+
+              {/* 3 Columns Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                {/* Passo 1 */}
+                <div className="bg-[#141415]/80 border border-white/5 hover:border-[#FF5A1F]/20 rounded-3xl p-6 flex flex-col justify-between gap-6 transition-all duration-300 relative group overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  
+                  <div className="space-y-4">
+                    {/* Badge y Titulo */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-sm flex items-center justify-center shrink-0">
+                        1
+                      </div>
+                      <h4 className="text-white text-base font-bold tracking-tight">
+                        Revisa tu estrategia
+                      </h4>
+                    </div>
+
+                    {/* Descrip y Visual */}
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed max-w-[65%]">
+                        Alinea tu estrategia con tus objetivos y tu mercado.
+                      </p>
+                      
+                      {/* Floating illustration */}
+                      <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-lg relative -rotate-6 group-hover:rotate-0 group-hover:scale-110 transition-all duration-300">
+                        <Target className="w-8 h-8 text-white/90 group-hover:text-white" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Accion Link */}
+                  <button
+                    onClick={() => {
+                      document.getElementById("success-estrategia-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }}
+                    className="text-[#FF5A1F] hover:text-white font-black text-xs uppercase tracking-widest transition-colors duration-300 flex items-center gap-1.5 self-start cursor-pointer bg-transparent border-none py-0 px-0"
+                  >
+                    Abrir estrategia <span className="group-hover:translate-x-1 transition-transform duration-300">➔</span>
+                  </button>
+                </div>
+
+                {/* Passo 2 */}
+                <div className="bg-[#141415]/80 border border-white/5 hover:border-[#FF5A1F]/20 rounded-3xl p-6 flex flex-col justify-between gap-6 transition-all duration-300 relative group overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  
+                  <div className="space-y-4">
+                    {/* Badge y Titulo */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-sm flex items-center justify-center shrink-0">
+                        2
+                      </div>
+                      <h4 className="text-white text-base font-bold tracking-tight">
+                        Personaliza tu contenido
+                      </h4>
+                    </div>
+
+                    {/* Descrip y Visual */}
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed max-w-[65%]">
+                        Edita y adapta el contenido a tu estilo y oferta.
+                      </p>
+                      
+                      {/* Floating illustration */}
+                      <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-lg relative -rotate-6 group-hover:rotate-0 group-hover:scale-110 transition-all duration-300">
+                        <PenTool className="w-8 h-8 text-white/90 group-hover:text-white" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Accion Link */}
+                  <button
+                    onClick={() => {
+                      document.getElementById("status-checklist-container")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }}
+                    className="text-[#FF5A1F] hover:text-white font-black text-xs uppercase tracking-widest transition-colors duration-300 flex items-center gap-1.5 self-start cursor-pointer bg-transparent border-none py-0 px-0"
+                  >
+                    Editar contenido <span className="group-hover:translate-x-1 transition-transform duration-300">➔</span>
+                  </button>
+                </div>
+
+                {/* Passo 3 */}
+                <div className="bg-[#141415]/80 border border-white/5 hover:border-[#FF5A1F]/20 rounded-3xl p-6 flex flex-col justify-between gap-6 transition-all duration-300 relative group overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  
+                  <div className="space-y-4">
+                    {/* Badge y Titulo */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-sm flex items-center justify-center shrink-0">
+                        3
+                      </div>
+                      <h4 className="text-white text-base font-bold tracking-tight">
+                        Lanza tu sistema
+                      </h4>
+                    </div>
+
+                    {/* Descrip y Visual */}
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed max-w-[65%]">
+                        Pon en marcha tu Máquina de Ventas y empieza a vender.
+                      </p>
+                      
+                      {/* Floating illustration */}
+                      <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-lg relative -rotate-6 group-hover:rotate-0 group-hover:scale-110 transition-all duration-300">
+                        <Rocket className="w-8 h-8 text-white/90 group-hover:text-white" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Accion Link */}
+                  <button
+                    onClick={() => {
+                      document.getElementById("status-checklist-container")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }}
+                    className="text-[#FF5A1F] hover:text-white font-black text-xs uppercase tracking-widest transition-colors duration-300 flex items-center gap-1.5 self-start cursor-pointer bg-transparent border-none py-0 px-0"
+                  >
+                    Ver guía de lanzamiento <span className="group-hover:translate-x-1 transition-transform duration-300">➔</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Banner de Consejo */}
+              <div className="mt-8 bg-[#141415]/60 hover:bg-[#141415]/80 border border-white/5 rounded-2xl md:rounded-[1.5rem] p-4 flex items-center gap-4 transition-colors relative z-10">
+                <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                  <Lightbulb className="w-5 h-5 animate-pulse" />
+                </div>
+                <p className="text-gray-400 text-xs sm:text-sm leading-relaxed text-left">
+                  <span className="text-[#FF5A1F] font-bold">Consejo:</span> Dedica de 30 a 60 minutos esta semana para revisar y personalizar tu sistema. La acción es la clave para ver resultados.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* 85% Progress Container - Moved under Title and Styled elegantly */}
+            <div className="w-full max-w-3xl mx-auto bg-black/40 border border-white/10 rounded-[2rem] p-6 shadow-2xl relative overflow-hidden backdrop-blur-md mt-6">
                 <div className="absolute top-0 left-0 w-32 h-32 bg-[#FF5A1F]/5 blur-2xl rounded-full"></div>
                 <div className="relative z-10 space-y-4">
                   <p className="text-gray-200 text-[1.2rem] leading-[1.8rem] font-sans">
@@ -815,7 +1614,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
 
             {/* Big Layout (Bento Grid) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full mb-12">
@@ -1173,7 +1971,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             {/* List of 6 Operation Modules in a robust full-width stack layout */}
             <div className="flex flex-col gap-6 w-full mb-16">
               {/* Card 1: Estrategia de Ventas Completada */}
-              <div className="bg-[#111] border border-[#FFBF00]/20 rounded-[2.5rem] p-6 md:p-8 flex flex-col lg:flex-row items-stretch hover:border-[#FF5A1F]/30 transition-all text-left relative overflow-hidden gap-8 lg:gap-11 w-full">
+              <div id="success-estrategia-card" className="bg-[#111] border border-[#FFBF00]/20 rounded-[2.5rem] p-6 md:p-8 flex flex-col lg:flex-row items-stretch hover:border-[#FF5A1F]/30 transition-all text-left relative overflow-hidden gap-8 lg:gap-11 w-full">
                 <div className="absolute top-0 left-0 w-32 h-32 bg-[#FFBF00]/5 blur-3xl rounded-full"></div>
 
                 {/* Left Column: The Context and the Value */}
@@ -1407,7 +2205,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               </div>
 
               {/* Card 2: Landing Page Oficial */}
-              <div className="bg-[#111] border border-white/5 rounded-[2.5rem] p-6 md:p-8 flex flex-col lg:flex-row items-stretch hover:border-[#FF5A1F]/30 transition-all text-left relative overflow-hidden gap-8 lg:gap-11 w-full">
+              <div id="success-pagina-captura-card" className="bg-[#111] border border-white/5 rounded-[2.5rem] p-6 md:p-8 flex flex-col lg:flex-row items-stretch hover:border-[#FF5A1F]/30 transition-all text-left relative overflow-hidden gap-8 lg:gap-11 w-full">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF5A1F]/5 blur-3xl rounded-full"></div>
 
                 {/* Left Column: The Context and the Value */}

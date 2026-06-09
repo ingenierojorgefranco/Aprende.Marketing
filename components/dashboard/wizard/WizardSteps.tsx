@@ -443,14 +443,14 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
             <div className="space-y-4 md:space-y-6 max-w-3xl mx-auto mt-0">
                 <div className="space-y-3 md:space-y-4">
                     <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase leading-tight">
-                        ¡Perfecto! <span className="text-emerald-500">Estamos listos para Empezar!!! </span>
+                        ¡Perfecto! <span className="text-emerald-500">Estamos listos!!! </span>
                     </h2>
                     <div className="space-y-2">
                         <p className="text-lg md:text-xl text-slate-200 font-medium">
-                            Ya tienes disponible el producto digital <span className="text-emerald-400 font-bold">"{project?.name || 'Digital'}"</span> para que lo uses
+                            Ya he desbloqueado el producto digital <span className="text-emerald-400 font-bold">"{project?.name || 'Digital'}"</span> para que lo uses
                         </p>
                         <p className="text-base md:text-lg text-white max-w-2xl mx-auto font-medium leading-normal">
-                            Ahora te ayudaré a crear todo un <span className="text-white font-bold">sistema de ventas completo por ti</span>.
+                            Ahora crearé por ti todo un <span className="text-white font-bold">sistema de ventas completo</span>.
                         </p>
                     </div>
                 </div>
@@ -566,7 +566,7 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
                     ¡Excelente! <span className="text-emerald-500">He creado tu Web de Captura</span>!
                 </h2>
                 <p className="text-xl text-white max-w-2xl mx-auto font-medium leading-relaxed">
-                    Esta página web será el lugar donde personas interesadas se registrarán para acceder a la información de tu producto digital y convertirlos en clientes reales
+                    Esta página web será el lugar donde tus visitantes interesadas dejarán sus datos de contacto para acceder a la información de tu producto digital
                 </p>
                 <div className="space-y-2 pt-4">
                     <p className="text-[#FF5A1F] font-black uppercase tracking-widest text-sm italic">
@@ -584,7 +584,7 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
                     Ver mi página
                 </button>
                 <p className="text-gray-400 font-bold text-sm uppercase tracking-widest italic">
-                    Más adelante podrás modificarla, cambiar textos y colores
+                    Más adelante podrás cambiar los textos y colores de tu página de captura
                 </p>
             </div>
 
@@ -592,7 +592,7 @@ export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit
                 onClick={() => onNext()}
                 className="group flex items-center gap-4 px-12 py-7 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-[2.5rem] font-black text-2xl transition-all shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95 mx-auto"
             >
-                Ahora Creemos Videos para atraer clientes
+                Ahora crearemos Videos para atraer visitantes interesados
                 <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
             </button>
         </motion.div>
@@ -724,10 +724,10 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                             <Sparkles className="w-32 h-32 text-purple-400 animate-pulse" />
                         </div>
                         <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase mb-3">
-                           Excelente, he creado <span className="text-purple-400">tus Videos de Atracción</span>
+                           He creado <span className="text-purple-400">tus Videos de Atracción</span>
                         </h2>
                         <p className="text-gray-300 max-w-2xl mx-auto font-medium text-lg leading-relaxed">
-                            A continuación podrás ver y descargar 3 videos que he creado para ti y con los que puedes empezar a publicar en YouTube, Instagram, Tik Tok y Facebook para atraer cientos de usuarios interesados.
+                            A continuación podrás descargar 3 videos que publicarás en YouTube, Instagram, Tik Tok y Facebook para atraer clientes interesados.
                         </p>
                     </div>
 
@@ -748,7 +748,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                     >
                                         <div className="flex-1 space-y-3 relative z-10 flex flex-col justify-center pt-2 pb-4">
                                             <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-black text-emerald-400 uppercase tracking-widest inline-block self-center mb-4 animate-pulse">
-                                                📅 PUBLICAR: {idx === 0 ? 'HOY' : idx === 1 ? 'MAÑANA' : idx === 2 ? 'PASADO MAÑANA' : `DÍA ${idx + 1}`}
+                                                📅 PUBLICALO EL VIDEO: {idx === 0 ? 'HOY' : idx === 1 ? 'MAÑANA' : idx === 2 ? 'PASADO MAÑANA' : `DÍA ${idx + 1}`}
                                             </div>
                                             <h3 className="text-[1.3rem] leading-[1.8rem] font-medium mb-4 text-center group-hover:text-orange-400 transition-colors duration-300 text-white">
                                                 {hook.hookText || hook.text || hook.title || hook.question || 'Descubre el secreto para automatizar tus ventas.'}
@@ -792,7 +792,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                 className="w-full group flex items-center justify-center gap-4 px-12 py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-lg transition-all shadow-[0_20px_50px_-10px_rgba(16,185,129,0.3)] transform hover:-translate-y-1 active:scale-95 cursor-pointer whitespace-nowrap"
                                 id="btn-finalize-customization"
                             >
-                                ÚLTIMOS PASOS
+                                FINALZIAR CONFIGURACIÓN DE TU SISTEMA DE VENTAS
                                 <Rocket className="w-5 h-5 animate-pulse" />
                             </button>
                         </div>
