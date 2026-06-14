@@ -58,7 +58,12 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 "Buscas una habilidad rentable que puedas iniciar desde cero sin complicaciones.",
                 "Deseas libertad de tiempo para disfrutar con tu familia mientras generas ingresos altos."
             ],
-            motivations: { dinero: 90, tiempo: 80, estatus: 70, seguridad: 60 }
+            motivations: {
+                dinero: "Retorno de inversión garantizado con su primer set de clientas.",
+                tiempo: "Establecer un flujo de trabajo optimizado para atender en menos de 90 minutos.",
+                estatus: "Certificación oficial de alta gama para destacar de la competencia convencional.",
+                seguridad: "Soporte uno a uno para resolver problemas reales en el inicio del negocio."
+            }
         },
         {
             id: 2,
@@ -78,7 +83,12 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 "Buscas aumentar el ticket promedio de tus servicios con procedimientos de alto valor.",
                 "Necesitas perfeccionar tu técnica para ganar la confianza total de tus clientes."
             ],
-            motivations: { dinero: 95, tiempo: 60, estatus: 70, seguridad: 80 }
+            motivations: {
+                dinero: "Garantía de duplicar su ticket de cobro y recuperar la inversión en el primer mes de servicios.",
+                tiempo: "Optimizar cada servicio para duplicar su facturación por hora trabajada.",
+                estatus: "Destacar como la única facialista o cosmetóloga certificada premium en su zona.",
+                seguridad: "Respaldado por soporte técnico uno a uno con expertos activos."
+            }
         },
         {
             id: 3,
@@ -98,7 +108,12 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 "Tienes miedo a realizar una inversión y no recuperar el dinero rápidamente.",
                 "Buscas una certificación que realmente te abra puertas en el mercado profesional."
             ],
-            motivations: { dinero: 70, tiempo: 100, estatus: 50, seguridad: 90 }
+            motivations: {
+                dinero: "Generar ingresos independientes partiendo desde cero de forma predecible.",
+                tiempo: "Flexibilidad horaria absoluta para emprender sin descuidar el tiempo con sus hijos.",
+                estatus: "Orgullo y satisfacción de construir una profesión prestigiosa propia.",
+                seguridad: "Acompañamiento paso a paso adaptado para principiantes sin experiencia previa."
+            }
         }
     ],
     psychology: {

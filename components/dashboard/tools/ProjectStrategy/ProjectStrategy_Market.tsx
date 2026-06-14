@@ -38,24 +38,53 @@ export const ProjectStrategy_Market: React.FC<ProjectStrategy_MarketProps> = ({ 
                                 <p className="text-gray-300 italic text-xl border-l-4 border-gray-700 pl-4 mb-6 font-serif">"{avatar.quote}"</p>
                                 
                                 <div className="mt-auto">
-                                    <p className="text-xs text-gray-500 font-bold uppercase mb-3 tracking-wider">Impulsores de Compra (Scores)</p>
-                                    <div className="space-y-3">
-                                        {Object.entries(avatar.motivations)
-                                            .sort(([,a]: any, [,b]: any) => b - a) 
-                                            .slice(0, 3) 
-                                            .map(([key, value]: any) => (
-                                            <div key={key} className="flex items-center gap-3">
-                                                <span className="text-sm text-gray-400 w-16 capitalize font-medium">{key}</span>
-                                                <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
-                                                    <div 
-                                                        className={`h-full rounded-full ${idx === 0 ? 'bg-pink-500' : idx === 1 ? 'bg-purple-500' : 'bg-blue-500'}`} 
-                                                        style={{width: `${value}%`}}
-                                                    ></div>
+                                    {(() => {
+                                        const motivations = avatar.motivations || {};
+                                        const isTextMotivations = Object.values(motivations).some(val => typeof val === 'string');
+                                        
+                                        if (isTextMotivations) {
+                                            return (
+                                                <div className="space-y-3 mt-4">
+                                                    <p className="text-xs text-amber-500 font-bold uppercase tracking-wider">⚡ Drivers de Decisión</p>
+                                                    <div className="space-y-2">
+                                                        {Object.entries(motivations).map(([key, value]: any) => (
+                                                            <div key={key} className="bg-black/30 border border-gray-800/80 rounded-xl p-3 hover:border-gray-700/80 transition-all flex flex-col">
+                                                                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 flex items-center gap-1 font-mono">
+                                                                    <span className="text-amber-400 text-xs">✦</span> {key}
+                                                                </span>
+                                                                <p className="text-xs text-gray-300 mt-1 leading-relaxed font-sans font-light">
+                                                                    {value}
+                                                                </p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                                <span className="text-sm text-white font-bold">{value}%</span>
-                                            </div>
-                                        ))}
-                                    </div>
+                                            );
+                                        }
+
+                                        return (
+                                            <>
+                                                <p className="text-xs text-gray-500 font-bold uppercase mb-3 tracking-wider">Impulsores de Compra (Scores)</p>
+                                                <div className="space-y-3">
+                                                    {Object.entries(motivations)
+                                                        .sort(([,a]: any, [,b]: any) => b - a) 
+                                                        .slice(0, 3) 
+                                                        .map(([key, value]: any) => (
+                                                        <div key={key} className="flex items-center gap-3">
+                                                            <span className="text-sm text-gray-400 w-16 capitalize font-medium">{key}</span>
+                                                            <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                                                                <div 
+                                                                    className={`h-full rounded-full ${idx === 0 ? 'bg-pink-500' : idx === 1 ? 'bg-purple-500' : 'bg-blue-500'}`} 
+                                                                    style={{width: `${value}%`}}
+                                                                ></div>
+                                                            </div>
+                                                            <span className="text-sm text-white font-bold">{value}%</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </>
+                                        );
+                                    })()}
                                 </div>
                             </div>
 
