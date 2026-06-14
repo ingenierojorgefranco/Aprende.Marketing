@@ -142,6 +142,14 @@ export const ProjectWizard: React.FC = () => {
     const [painPoints, setPainPoints] = useState<string[]>([]);
     const [keyBenefits, setKeyBenefits] = useState<string[]>([]);
     
+    // Demographic Profile manually edited attributes
+    const [demographicsStudies, setDemographicsStudies] = useState('');
+    const [demographicsOccupation, setDemographicsOccupation] = useState('');
+    const [demographicsIncome, setDemographicsIncome] = useState('');
+    const [demographicsLocation, setDemographicsLocation] = useState('');
+    const [demographicsCivilStatus, setDemographicsCivilStatus] = useState('');
+    const [demographicsDevices, setDemographicsDevices] = useState('');
+    
     const [errors, setErrors] = useState<Record<string, string>>({});
     
     const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([
@@ -219,6 +227,14 @@ export const ProjectWizard: React.FC = () => {
                 setIsMaster(!!proj.isMaster);
                 setMasterParentId(proj.masterParentId);
                 setOriginalStrategyJson(proj.strategy_json);
+                const avatars = proj.strategy_json?.avatars || [];
+                const firstAvatar = avatars[0] || {};
+                setDemographicsStudies(firstAvatar.education || firstAvatar.studies || '');
+                setDemographicsOccupation(firstAvatar.archetype || firstAvatar.occupation || '');
+                setDemographicsIncome(firstAvatar.incomeRange || firstAvatar.income || '');
+                setDemographicsLocation(firstAvatar.location || firstAvatar.geographic || '');
+                setDemographicsCivilStatus(firstAvatar.civilStatus || firstAvatar.marital_status || '');
+                setDemographicsDevices(firstAvatar.devices || '');
                 if (proj.multimedia_json) {
                     setMultimedia({
                         heroImages: proj.multimedia_json.heroImages || [],
@@ -282,6 +298,31 @@ export const ProjectWizard: React.FC = () => {
     const saveProject = async () => {
         if (!name || !productName) return alert('Por favor completa el nombre del proyecto y del producto.');
         setLoading(true);
+
+        const currentStrategy = originalStrategyJson ? JSON.parse(JSON.stringify(originalStrategyJson)) : {};
+        if (!currentStrategy.avatars) {
+            currentStrategy.avatars = [{}, {}, {}];
+        }
+        if (!Array.isArray(currentStrategy.avatars)) {
+            currentStrategy.avatars = [currentStrategy.avatars, {}, {}];
+        }
+        while (currentStrategy.avatars.length < 3) {
+            currentStrategy.avatars.push({});
+        }
+        currentStrategy.avatars[0] = {
+            ...currentStrategy.avatars[0],
+            education: demographicsStudies,
+            studies: demographicsStudies,
+            archetype: demographicsOccupation,
+            occupation: demographicsOccupation,
+            incomeRange: demographicsIncome,
+            income: demographicsIncome,
+            location: demographicsLocation,
+            geographic: demographicsLocation,
+            civilStatus: demographicsCivilStatus,
+            marital_status: demographicsCivilStatus,
+            devices: demographicsDevices
+        };
         
         const projectData: any = {
             name,
@@ -302,7 +343,7 @@ export const ProjectWizard: React.FC = () => {
             affiliateLinks: affiliateLinks.filter(l => (l.url || '').trim() !== ''),
             isMaster: (user.role === 'admin' && !isSimulating) ? isMaster : false,
             multimedia_json: (user.role === 'admin' && !isSimulating) ? multimedia : undefined,
-            strategy_json: id ? originalStrategyJson : undefined
+            strategy_json: currentStrategy
         };
 
         if (!id) {
@@ -704,6 +745,76 @@ export const ProjectWizard: React.FC = () => {
                                         {errors.leadMagnetUrl && <p className="text-red-500 text-xs mt-2 font-medium">{errors.leadMagnetUrl}</p>}
                                     </div>
                                 )}
+                            </div>
+
+                            <div className="border-b border-gray-800 pb-4 pt-6">
+                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <UserIcon className="w-5 h-5 text-purple-400" /> Perfil Demográfico de la Audiencia
+                                </h3>
+                                <p className="text-xs text-gray-500 mt-1">Configura manualmente los datos sociodemográficos esenciales para tu Avatar Principal.</p>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Nivel de Estudios</label>
+                                    <input 
+                                        type="text" 
+                                        value={demographicsStudies} 
+                                        onChange={e => setDemographicsStudies(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700 font-sans" 
+                                        placeholder="Ej: Universitario o Técnico Superior" 
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Ocupación de Preferencia</label>
+                                    <input 
+                                        type="text" 
+                                        value={demographicsOccupation} 
+                                        onChange={e => setDemographicsOccupation(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700 font-sans" 
+                                        placeholder="Ej: Cosmetóloga independiente o Esteticista" 
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Rango de Ingresos</label>
+                                    <input 
+                                        type="text" 
+                                        value={demographicsIncome} 
+                                        onChange={e => setDemographicsIncome(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700 font-sans" 
+                                        placeholder="Ej: Ingreso base inestable ($600 - $1,200 USD/mes)" 
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Ubicación Geográfica</label>
+                                    <input 
+                                        type="text" 
+                                        value={demographicsLocation} 
+                                        onChange={e => setDemographicsLocation(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700 font-sans" 
+                                        placeholder="Ej: Zonas semi-urbanas y urbanas" 
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Estado Civil</label>
+                                    <input 
+                                        type="text" 
+                                        value={demographicsCivilStatus} 
+                                        onChange={e => setDemographicsCivilStatus(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700 font-sans" 
+                                        placeholder="Ej: Soltera o casada con hijos pequeños" 
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Dispositivos de Uso</label>
+                                    <input 
+                                        type="text" 
+                                        value={demographicsDevices} 
+                                        onChange={e => setDemographicsDevices(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700 font-sans"  
+                                        placeholder="Ej: Smartphone de gama media-alta, Instagram, WhatsApp" 
+                                    />
+                                </div>
                             </div>
                         </div>
                     )}

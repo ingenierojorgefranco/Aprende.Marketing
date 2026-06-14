@@ -996,6 +996,42 @@ h2:
     try {
         // 5. CONSOLIDACIÓN FINAL
         process.stdout.write(`[PIPELINE DEBUG] Ensamblando JSON final...\n`);
+
+        // Inyectar / Preservar Perfil Demográfico
+        try {
+            let demogSource = null;
+            if (masterParentId) {
+                const [masterRows] = await pool.query("SELECT strategy_json FROM projects WHERE id = ?", [masterParentId]);
+                if (masterRows.length > 0 && masterRows[0].strategy_json) {
+                    demogSource = typeof masterRows[0].strategy_json === 'string' ? JSON.parse(masterRows[0].strategy_json) : masterRows[0].strategy_json;
+                }
+            } else {
+                const [existingRows] = await pool.query("SELECT strategy_json FROM projects WHERE id = ?", [projectId]);
+                if (existingRows.length > 0 && existingRows[0].strategy_json) {
+                    demogSource = typeof existingRows[0].strategy_json === 'string' ? JSON.parse(existingRows[0].strategy_json) : existingRows[0].strategy_json;
+                }
+            }
+
+            if (demogSource && demogSource.avatars && Array.isArray(demogSource.avatars) && demogSource.avatars[0]) {
+                const sourceAv = demogSource.avatars[0];
+                if (step1Data.avatars && step1Data.avatars[0]) {
+                    const trg = step1Data.avatars[0];
+                    trg.education = sourceAv.education || sourceAv.studies || trg.education;
+                    trg.studies = sourceAv.studies || sourceAv.education || trg.studies;
+                    trg.archetype = sourceAv.archetype || sourceAv.occupation || trg.archetype;
+                    trg.occupation = sourceAv.occupation || sourceAv.archetype || trg.occupation;
+                    trg.incomeRange = sourceAv.incomeRange || sourceAv.income || trg.incomeRange;
+                    trg.income = sourceAv.income || sourceAv.incomeRange || trg.income;
+                    trg.location = sourceAv.location || sourceAv.geographic || trg.location;
+                    trg.geographic = sourceAv.geographic || sourceAv.location || trg.geographic;
+                    trg.civilStatus = sourceAv.civilStatus || sourceAv.marital_status || trg.civilStatus;
+                    trg.marital_status = sourceAv.marital_status || sourceAv.civilStatus || trg.marital_status;
+                    trg.devices = sourceAv.devices || trg.devices;
+                }
+            }
+        } catch (dbErr) {
+            console.error("Error keeping demographics:", dbErr);
+        }
         
         const finalJson = { 
             meta: step1Data.meta,

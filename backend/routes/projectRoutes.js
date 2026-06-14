@@ -139,6 +139,37 @@ router.post('/unlock/:id', async (req, res) => {
         // 4. Invocar internamente a la función generateFullStrategy para que la IA genere avatares y contenidos únicos
         try {
             const strategyJson = await generateFullStrategy(newProjectId);
+            
+            // Inyectar de manera exacta la configuración manual del Perfil Demográfico que rellenaste en el proyecto maestro
+            const masterStrategy = safeParseJson(master.strategy_json);
+            if (masterStrategy && masterStrategy.avatars && Array.isArray(masterStrategy.avatars) && masterStrategy.avatars[0]) {
+                const masterAvatar = masterStrategy.avatars[0];
+                if (!strategyJson.avatars) {
+                    strategyJson.avatars = [{}, {}, {}];
+                }
+                if (!Array.isArray(strategyJson.avatars)) {
+                    strategyJson.avatars = [strategyJson.avatars, {}, {}];
+                }
+                while (strategyJson.avatars.length < 3) {
+                    strategyJson.avatars.push({});
+                }
+                
+                strategyJson.avatars[0] = {
+                    ...strategyJson.avatars[0],
+                    education: masterAvatar.education || masterAvatar.studies,
+                    studies: masterAvatar.studies || masterAvatar.education,
+                    archetype: masterAvatar.archetype || masterAvatar.occupation,
+                    occupation: masterAvatar.occupation || masterAvatar.archetype,
+                    incomeRange: masterAvatar.incomeRange || masterAvatar.income,
+                    income: masterAvatar.income || masterAvatar.incomeRange,
+                    location: masterAvatar.location || masterAvatar.geographic,
+                    geographic: masterAvatar.geographic || masterAvatar.location,
+                    civilStatus: masterAvatar.civilStatus || masterAvatar.marital_status,
+                    marital_status: masterAvatar.marital_status || masterAvatar.civilStatus,
+                    devices: masterAvatar.devices
+                };
+            }
+            
             await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), newProjectId]);
         } catch (genError) {
             console.error("[Unlock Strategy Gen Error]", genError);
