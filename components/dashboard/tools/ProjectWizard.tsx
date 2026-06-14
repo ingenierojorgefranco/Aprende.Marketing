@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -101,6 +101,51 @@ const VisualEditor = ({ value, onChange, className, placeholder }: VisualEditorP
     );
 };
 
+const DEFAULT_AVATARS_DATA = [
+  {
+    name: "María Fernanda",
+    studies: "Universitario o Técnico Superior",
+    education: "Universitario o Técnico Superior",
+    archetype: "Cosmetóloga independiente o Esteticista",
+    occupation: "Cosmetóloga independiente o Esteticista",
+    incomeRange: "Ingreso base inestable ($600 - $1,200 USD/mes)",
+    income: "Ingreso base inestable ($600 - $1,200 USD/mes)",
+    location: "Zonas semi-urbanas y urbanas",
+    geographic: "Zonas semi-urbanas y urbanas",
+    civilStatus: "Soltera o casada con hijos pequeños",
+    marital_status: "Soltera o casada con hijos pequeños",
+    devices: "Smartphone de gama media-alta, Instagram, WhatsApp"
+  },
+  {
+    name: "Valeria Mendoza",
+    studies: "Técnico medio o Curso comercial avanzado",
+    education: "Técnico medio o Curso comercial avanzado",
+    archetype: "Cosmetóloga Junior",
+    occupation: "Cosmetóloga Junior",
+    incomeRange: "Ingreso fijo bajo ($350 - $550 USD/mes)",
+    income: "Ingreso fijo bajo ($350 - $550 USD/mes)",
+    location: "Zonas urbanas y residenciales",
+    geographic: "Zonas urbanas y residenciales",
+    civilStatus: "Soltera, vive con sus padres",
+    marital_status: "Soltera, vive con sus padres",
+    devices: "Smartphone Android gama de entrada, TikTok, Instagram"
+  },
+  {
+    name: "Mónica Silva",
+    studies: "Educación técnica o administrativa",
+    education: "Educación técnica o administrativa",
+    archetype: "Emprendedora desde cero",
+    occupation: "Emprendedora desde cero",
+    incomeRange: "Sin ingresos estables (depende de comisiones)",
+    income: "Sin ingresos estables (depende de comisiones)",
+    location: "Zonas residenciales y capitales de provincia",
+    geographic: "Zonas residenciales y capitales de provincia",
+    civilStatus: "Casada con hijos adolescentes, jefa de hogar",
+    marital_status: "Casada con hijos adolescentes, jefa de hogar",
+    devices: "Computadora y Smartphone gama media, Facebook, WhatsApp"
+  }
+];
+
 interface DashboardContext {
   user: User;
   projectCount: number;
@@ -142,13 +187,10 @@ export const ProjectWizard: React.FC = () => {
     const [painPoints, setPainPoints] = useState<string[]>([]);
     const [keyBenefits, setKeyBenefits] = useState<string[]>([]);
     
-    // Demographic Profile manually edited attributes
-    const [demographicsStudies, setDemographicsStudies] = useState('');
-    const [demographicsOccupation, setDemographicsOccupation] = useState('');
-    const [demographicsIncome, setDemographicsIncome] = useState('');
-    const [demographicsLocation, setDemographicsLocation] = useState('');
-    const [demographicsCivilStatus, setDemographicsCivilStatus] = useState('');
-    const [demographicsDevices, setDemographicsDevices] = useState('');
+    // Demographic Profile manually edited attributes (Modern Modal Setup)
+    const [isOpenAvatarsModal, setIsOpenAvatarsModal] = useState(false);
+    const [activeAvatarTab, setActiveAvatarTab] = useState(0);
+    const [tempAvatars, setTempAvatars] = useState<any[]>(DEFAULT_AVATARS_DATA);
     
     const [errors, setErrors] = useState<Record<string, string>>({});
     
@@ -228,13 +270,27 @@ export const ProjectWizard: React.FC = () => {
                 setMasterParentId(proj.masterParentId);
                 setOriginalStrategyJson(proj.strategy_json);
                 const avatars = proj.strategy_json?.avatars || [];
-                const firstAvatar = avatars[0] || {};
-                setDemographicsStudies(firstAvatar.education || firstAvatar.studies || '');
-                setDemographicsOccupation(firstAvatar.archetype || firstAvatar.occupation || '');
-                setDemographicsIncome(firstAvatar.incomeRange || firstAvatar.income || '');
-                setDemographicsLocation(firstAvatar.location || firstAvatar.geographic || '');
-                setDemographicsCivilStatus(firstAvatar.civilStatus || firstAvatar.marital_status || '');
-                setDemographicsDevices(firstAvatar.devices || '');
+                const initialized = [0, 1, 2].map((idx) => {
+                    const masterAv = avatars[idx] || {};
+                    const defAv = DEFAULT_AVATARS_DATA[idx];
+                    return {
+                        ...defAv,
+                        ...masterAv,
+                        name: masterAv.name || defAv.name,
+                        education: masterAv.education || masterAv.studies || defAv.education,
+                        studies: masterAv.studies || masterAv.education || defAv.studies,
+                        archetype: masterAv.archetype || masterAv.occupation || defAv.archetype,
+                        occupation: masterAv.occupation || masterAv.archetype || defAv.occupation,
+                        incomeRange: masterAv.incomeRange || masterAv.income || defAv.incomeRange,
+                        income: masterAv.income || masterAv.incomeRange || defAv.income,
+                        location: masterAv.location || masterAv.geographic || defAv.location,
+                        geographic: masterAv.geographic || masterAv.location || defAv.geographic,
+                        civilStatus: masterAv.civilStatus || masterAv.marital_status || defAv.civilStatus,
+                        marital_status: masterAv.marital_status || masterAv.civilStatus || defAv.marital_status,
+                        devices: masterAv.devices || defAv.devices
+                    };
+                });
+                setTempAvatars(initialized);
                 if (proj.multimedia_json) {
                     setMultimedia({
                         heroImages: proj.multimedia_json.heroImages || [],
@@ -300,29 +356,7 @@ export const ProjectWizard: React.FC = () => {
         setLoading(true);
 
         const currentStrategy = originalStrategyJson ? JSON.parse(JSON.stringify(originalStrategyJson)) : {};
-        if (!currentStrategy.avatars) {
-            currentStrategy.avatars = [{}, {}, {}];
-        }
-        if (!Array.isArray(currentStrategy.avatars)) {
-            currentStrategy.avatars = [currentStrategy.avatars, {}, {}];
-        }
-        while (currentStrategy.avatars.length < 3) {
-            currentStrategy.avatars.push({});
-        }
-        currentStrategy.avatars[0] = {
-            ...currentStrategy.avatars[0],
-            education: demographicsStudies,
-            studies: demographicsStudies,
-            archetype: demographicsOccupation,
-            occupation: demographicsOccupation,
-            incomeRange: demographicsIncome,
-            income: demographicsIncome,
-            location: demographicsLocation,
-            geographic: demographicsLocation,
-            civilStatus: demographicsCivilStatus,
-            marital_status: demographicsCivilStatus,
-            devices: demographicsDevices
-        };
+        currentStrategy.avatars = tempAvatars;
         
         const projectData: any = {
             name,
@@ -747,75 +781,233 @@ export const ProjectWizard: React.FC = () => {
                                 )}
                             </div>
 
-                            <div className="border-b border-gray-800 pb-4 pt-6">
-                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                                    <UserIcon className="w-5 h-5 text-purple-400" /> Perfil Demográfico de la Audiencia
-                                </h3>
-                                <p className="text-xs text-gray-500 mt-1">Configura manualmente los datos sociodemográficos esenciales para tu Avatar Principal.</p>
+                            <div className="border border-gray-800 rounded-2xl p-6 bg-zinc-950/40 flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+                                <div className="space-y-1">
+                                    <h3 className="text-lg font-bold text-white flex items-center gap-2 font-sans">
+                                        <Users className="w-5 h-5 text-[#FF5D1E]" /> Estrategia de Avatares del Proyecto
+                                    </h3>
+                                    <p className="text-xs text-gray-400 font-sans">
+                                        Administra y edita manualmente los datos sociodemográficos de los 3 avatares de tu biblioteca para personalizar su inteligencia.
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const avatars = originalStrategyJson?.avatars || [];
+                                        const initialized = [0, 1, 2].map((idx) => {
+                                            const masterAv = avatars[idx] || {};
+                                            const defAv = DEFAULT_AVATARS_DATA[idx];
+                                            return {
+                                                ...defAv,
+                                                ...masterAv,
+                                                name: masterAv.name || defAv.name,
+                                                education: masterAv.education || masterAv.studies || defAv.education,
+                                                studies: masterAv.studies || masterAv.education || defAv.studies,
+                                                archetype: masterAv.archetype || masterAv.occupation || defAv.archetype,
+                                                occupation: masterAv.occupation || masterAv.archetype || defAv.occupation,
+                                                incomeRange: masterAv.incomeRange || masterAv.income || defAv.incomeRange,
+                                                income: masterAv.income || masterAv.incomeRange || defAv.income,
+                                                location: masterAv.location || masterAv.geographic || defAv.location,
+                                                geographic: masterAv.geographic || masterAv.location || defAv.geographic,
+                                                civilStatus: masterAv.civilStatus || masterAv.marital_status || defAv.civilStatus,
+                                                marital_status: masterAv.marital_status || masterAv.civilStatus || defAv.marital_status,
+                                                devices: masterAv.devices || defAv.devices
+                                            };
+                                        });
+                                        setTempAvatars(initialized);
+                                        setIsOpenAvatarsModal(true);
+                                    }}
+                                    className="flex items-center gap-2 bg-gradient-to-r from-[#FF5D1E] to-amber-500 text-white font-bold px-5 py-3 rounded-xl transition-all hover:opacity-90 hover:scale-[1.02] shadow-lg shadow-orange-500/10 active:scale-[0.98] text-sm whitespace-nowrap cursor-pointer"
+                                    id="btn-edit-avatars-wizard"
+                                >
+                                    <Users className="w-4 h-4" /> Editar Avatares del Proyecto
+                                </button>
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Nivel de Estudios</label>
-                                    <input 
-                                        type="text" 
-                                        value={demographicsStudies} 
-                                        onChange={e => setDemographicsStudies(e.target.value)} 
-                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700 font-sans" 
-                                        placeholder="Ej: Universitario o Técnico Superior" 
-                                    />
+                            {/* AVATARS MODAL */}
+                            {isOpenAvatarsModal && (
+                                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+                                    <div className="bg-[#111115] border border-gray-800 rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+                                        
+                                        {/* Header */}
+                                        <div className="p-6 border-b border-gray-800 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2.5 bg-orange-500/10 rounded-xl">
+                                                    <Users className="w-6 h-6 text-[#FF5D1E]" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-white font-sans">Editar Avatares del Proyecto</h3>
+                                                    <p className="text-xs text-gray-500 mt-0.5 font-sans">Personaliza de forma manual los datos de los 3 avatares de tu estrategia maestra.</p>
+                                                </div>
+                                            </div>
+                                            <button 
+                                                type="button"
+                                                onClick={() => setIsOpenAvatarsModal(false)}
+                                                className="text-gray-500 hover:text-white p-2 rounded-xl hover:bg-gray-800/50 transition-all cursor-pointer"
+                                            >
+                                                <X className="w-5 h-5" />
+                                            </button>
+                                        </div>
+
+                                        {/* Tabs Navigation */}
+                                        <div className="px-6 py-2 bg-black/20 border-b border-gray-800 flex gap-2">
+                                            {tempAvatars.map((av, idx) => {
+                                                const isActive = activeAvatarTab === idx;
+                                                const priorityColor = idx === 0 ? 'text-emerald-400' : idx === 1 ? 'text-amber-400' : 'text-violet-400';
+                                                return (
+                                                    <button
+                                                        key={idx}
+                                                        type="button"
+                                                        onClick={() => setActiveAvatarTab(idx)}
+                                                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
+                                                            isActive 
+                                                                ? 'bg-zinc-800 border border-zinc-700 text-white shadow-md' 
+                                                                : 'text-gray-500 hover:text-gray-300'
+                                                        }`}
+                                                    >
+                                                        <span className={`w-2 h-2 rounded-full ${idx === 0 ? 'bg-emerald-400' : idx === 1 ? 'bg-amber-400' : 'bg-violet-400'}`}></span>
+                                                        Avatar {idx + 1}: <span className={priorityColor}>{av.name || `Avatar ${idx + 1}`}</span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Content Fields Area */}
+                                        <div className="p-6 overflow-y-auto space-y-5 flex-1 custom-scrollbar">
+                                            {tempAvatars.map((av, idx) => {
+                                                if (activeAvatarTab !== idx) return null;
+                                                return (
+                                                    <div key={idx} className="space-y-5 animate-in fade-in duration-200">
+                                                        <div className="grid md:grid-cols-2 gap-4">
+                                                            <div>
+                                                                <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Nombre del Avatar</label>
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={av.name || ''} 
+                                                                    onChange={e => {
+                                                                        const copy = [...tempAvatars];
+                                                                        copy[idx] = { ...copy[idx], name: e.target.value };
+                                                                        setTempAvatars(copy);
+                                                                    }}
+                                                                    className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
+                                                                    placeholder="Ej: María Fernanda" 
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Nivel de Estudios</label>
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={av.education || av.studies || ''} 
+                                                                    onChange={e => {
+                                                                        const copy = [...tempAvatars];
+                                                                        copy[idx] = { ...copy[idx], education: e.target.value, studies: e.target.value };
+                                                                        setTempAvatars(copy);
+                                                                    }}
+                                                                    className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
+                                                                    placeholder="Ej: Universitario o Técnico Superior" 
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Ocupación de Preferencia</label>
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={av.occupation || av.archetype || ''} 
+                                                                    onChange={e => {
+                                                                        const copy = [...tempAvatars];
+                                                                        copy[idx] = { ...copy[idx], occupation: e.target.value, archetype: e.target.value };
+                                                                        setTempAvatars(copy);
+                                                                    }}
+                                                                    className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
+                                                                    placeholder="Ej: Cosmetóloga independiente o Esteticista" 
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Rango de Ingresos</label>
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={av.income || av.incomeRange || ''} 
+                                                                    onChange={e => {
+                                                                        const copy = [...tempAvatars];
+                                                                        copy[idx] = { ...copy[idx], income: e.target.value, incomeRange: e.target.value };
+                                                                        setTempAvatars(copy);
+                                                                    }}
+                                                                    className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
+                                                                    placeholder="Ej: Ingreso base inestable ($600 - $1,200 USD/mes)" 
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Ubicación Geográfica</label>
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={av.location || av.geographic || ''} 
+                                                                    onChange={e => {
+                                                                        const copy = [...tempAvatars];
+                                                                        copy[idx] = { ...copy[idx], location: e.target.value, geographic: e.target.value };
+                                                                        setTempAvatars(copy);
+                                                                    }}
+                                                                    className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
+                                                                    placeholder="Ej: Zonas semi-urbanas y urbanas" 
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Estado Civil</label>
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={av.civilStatus || av.marital_status || ''} 
+                                                                    onChange={e => {
+                                                                        const copy = [...tempAvatars];
+                                                                        copy[idx] = { ...copy[idx], civilStatus: e.target.value, marital_status: e.target.value };
+                                                                        setTempAvatars(copy);
+                                                                    }}
+                                                                    className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
+                                                                    placeholder="Ej: Soltera o casada con hijos pequeños" 
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Dispositivos de Uso</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={av.devices || ''} 
+                                                                onChange={e => {
+                                                                    const copy = [...tempAvatars];
+                                                                    copy[idx] = { ...copy[idx], devices: e.target.value };
+                                                                    setTempAvatars(copy);
+                                                                }}
+                                                                className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
+                                                                placeholder="Ej: Smartphone de gama media-alta, Instagram, WhatsApp" 
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Footer Actions */}
+                                        <div className="p-6 bg-black/40 border-t border-gray-800 flex items-center justify-end gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsOpenAvatarsModal(false)}
+                                                className="text-gray-400 hover:text-white font-bold text-xs px-5 py-3 rounded-xl transition-all hover:bg-gray-800/40 cursor-pointer font-sans"
+                                            >
+                                                Cancelar
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const currentStrategy = originalStrategyJson ? JSON.parse(JSON.stringify(originalStrategyJson)) : {};
+                                                    currentStrategy.avatars = tempAvatars;
+                                                    setOriginalStrategyJson(currentStrategy);
+                                                    setIsOpenAvatarsModal(false);
+                                                }}
+                                                className="bg-[#FF5D1E] hover:bg-orange-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all shadow-md active:scale-[0.98] cursor-pointer font-sans"
+                                            >
+                                                Guardar Avatares
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Ocupación de Preferencia</label>
-                                    <input 
-                                        type="text" 
-                                        value={demographicsOccupation} 
-                                        onChange={e => setDemographicsOccupation(e.target.value)} 
-                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700 font-sans" 
-                                        placeholder="Ej: Cosmetóloga independiente o Esteticista" 
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Rango de Ingresos</label>
-                                    <input 
-                                        type="text" 
-                                        value={demographicsIncome} 
-                                        onChange={e => setDemographicsIncome(e.target.value)} 
-                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700 font-sans" 
-                                        placeholder="Ej: Ingreso base inestable ($600 - $1,200 USD/mes)" 
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Ubicación Geográfica</label>
-                                    <input 
-                                        type="text" 
-                                        value={demographicsLocation} 
-                                        onChange={e => setDemographicsLocation(e.target.value)} 
-                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700 font-sans" 
-                                        placeholder="Ej: Zonas semi-urbanas y urbanas" 
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Estado Civil</label>
-                                    <input 
-                                        type="text" 
-                                        value={demographicsCivilStatus} 
-                                        onChange={e => setDemographicsCivilStatus(e.target.value)} 
-                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700 font-sans" 
-                                        placeholder="Ej: Soltera o casada con hijos pequeños" 
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Dispositivos de Uso</label>
-                                    <input 
-                                        type="text" 
-                                        value={demographicsDevices} 
-                                        onChange={e => setDemographicsDevices(e.target.value)} 
-                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700 font-sans"  
-                                        placeholder="Ej: Smartphone de gama media-alta, Instagram, WhatsApp" 
-                                    />
-                                </div>
-                            </div>
+                            )}
                         </div>
                     )}
                     {step === 2 && (
