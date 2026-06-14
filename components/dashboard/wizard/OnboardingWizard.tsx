@@ -6627,22 +6627,31 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 const baseAv = baseAvs[idx];
                                 const realAv = strategyData?.avatars?.[idx];
 
-                                const name = baseAv.name;
-                                const age = baseAv.age;
-                                const occupation = baseAv.occupation;
-                                const income = baseAv.income;
-                                const img = baseAv.img;
+                                const name = realAv?.name || baseAv.name;
+                                const age = realAv?.ageRange || realAv?.age || realAv?.age_range || baseAv.age;
+                                const occupation = realAv?.occupation || realAv?.archetype || realAv?.profession || realAv?.profession_title || realAv?.job || realAv?.role || baseAv.occupation;
+                                const income = realAv?.income || realAv?.incomeRange || baseAv.income;
+                                const img = realAv?.image || realAv?.img || baseAv.img;
                                 const quote = realAv?.quote || realAv?.message || defaultAv.quote;
                                 
                                 let dolores_principales = defaultAv.dolores_principales;
-                                if (realAv?.pain) {
+                                if (realAv?.dolores_principales && Array.isArray(realAv.dolores_principales)) {
+                                  dolores_principales = realAv.dolores_principales;
+                                } else if (realAv?.pain_points && Array.isArray(realAv.pain_points)) {
+                                  dolores_principales = realAv.pain_points;
+                                } else if (realAv?.pain) {
                                   dolores_principales = [
                                     realAv.pain,
                                     ...defaultAv.dolores_principales.slice(1)
                                   ];
                                 }
+
                                 let deseos_principales = defaultAv.deseos_principales;
-                                if (realAv?.desire || realAv?.transformation_title) {
+                                if (realAv?.deseos_principales && Array.isArray(realAv.deseos_principales)) {
+                                  deseos_principales = realAv.deseos_principales;
+                                } else if (realAv?.desires && Array.isArray(realAv.desires)) {
+                                  deseos_principales = realAv.desires;
+                                } else if (realAv?.desire || realAv?.transformation_title) {
                                   deseos_principales = [
                                     realAv.desire || realAv.transformation_title,
                                     ...defaultAv.deseos_principales.slice(1)
@@ -6659,7 +6668,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 ];
 
                                 let dolores_ocultos = defaultAv.dolores_ocultos;
-                                if (realAv?.pain || realAv?.detailed_pains) {
+                                if (realAv?.dolores_ocultos && Array.isArray(realAv.dolores_ocultos)) {
+                                  dolores_ocultos = realAv.dolores_ocultos;
+                                } else if (realAv?.pain || realAv?.detailed_pains) {
                                   const list = Array.isArray(realAv.detailed_pains) ? realAv.detailed_pains : (realAv.pain ? [realAv.pain] : []);
                                   if (list.length > 0) {
                                     dolores_ocultos = list.map((p: any, i: number) => ({
@@ -6670,7 +6681,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 }
 
                                 let deseos_motivaciones = defaultAv.deseos_motivaciones;
-                                if (realAv?.desire || realAv?.motivations || realAv?.decisionDrivers || realAv?.drivers) {
+                                if (realAv?.deseos_motivaciones && Array.isArray(realAv.deseos_motivaciones)) {
+                                  deseos_motivaciones = realAv.deseos_motivaciones;
+                                } else if (realAv?.desire || realAv?.motivations || realAv?.decisionDrivers || realAv?.drivers) {
                                   const list = Array.isArray(realAv.drivers) ? realAv.drivers : (Array.isArray(realAv.decisionDrivers) ? realAv.decisionDrivers : (realAv.desire ? [realAv.desire] : []));
                                   if (list.length > 0) {
                                     deseos_motivaciones = list.map((d: any, i: number) => ({
@@ -6681,13 +6694,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 }
 
                                 let comportamientos = defaultAv.comportamientos;
-                                if (realAv?.behaviors && Array.isArray(realAv.behaviors)) {
+                                if (realAv?.comportamientos && Array.isArray(realAv.comportamientos)) {
+                                  comportamientos = realAv.comportamientos;
+                                } else if (realAv?.behaviors && Array.isArray(realAv.behaviors)) {
                                   comportamientos = realAv.behaviors;
                                 }
 
                                 const defaultMotivationsForIdx = {
                                   dinero: idx === 0 ? "Retorno de inversión garantizado con su primer set de clientas." : idx === 1 ? "Garantía de reembolso o método blindado para proteger su capital y no desperdiciar ni un dólar más." : "Generar ingresos estables desde casa para lograr libertad financiera real.",
-                                  tiempo: idx === 0 ? "Establecer un flujo de trabajo optimizado para atender en menos de 90 minutos." : idx === 1 ? "Ir al grano con un sistema probado sin rodeos teóricos innecesarios." : "Flexibilidad horaria absoluta para pasar más tiempo con tus hijos o seres queridos.",
+                                  tiempo: idx === 0 ? "Establecer un flujo de trabajo optimizado para atender en menos de 90 minutes." : idx === 1 ? "Ir al grano con un sistema probado sin rodeos teóricos innecesarios." : "Flexibilidad horaria absoluta para pasar más tiempo con tus hijos o seres queridos.",
                                   estatus: idx === 0 ? "Certificación oficial de alta gama para destacar de la competencia convencional." : idx === 1 ? "Validación por expertos que la posiciona como una profesional seria ante sus clientes." : "Sentir la satisfacción y el orgullo de transicionar hacia una profesión propia.",
                                   seguridad: idx === 0 ? "Soporte uno a uno para resolver problemas reales en el inicio del negocio." : idx === 1 ? "Acompañamiento cercano anticaídas para asegurar sus primeros pasos prácticos." : "Guía paso a paso adaptada para principiantes absolutos sin experiencia previa."
                                 };

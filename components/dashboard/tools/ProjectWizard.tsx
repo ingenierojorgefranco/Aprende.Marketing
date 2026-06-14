@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -104,45 +104,206 @@ const VisualEditor = ({ value, onChange, className, placeholder }: VisualEditorP
 const DEFAULT_AVATARS_DATA = [
   {
     name: "María Fernanda",
-    studies: "Universitario o Técnico Superior",
-    education: "Universitario o Técnico Superior",
-    archetype: "Cosmetóloga independiente o Esteticista",
+    priority: "PRINCIPAL",
+    priorityClass: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 border",
+    audiencePct: "68% DE TU AUDIENCIA",
+    audienceClass: "bg-[#FF5D1E]/10 border-[#FF5D1E]/30 text-[#FF5D1E] border",
+    img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300&h=300",
+    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300&h=300",
+    age: "28 - 35 años",
+    ageRange: "28 - 35 años",
     occupation: "Cosmetóloga independiente o Esteticista",
+    archetype: "Cosmetóloga independiente o Esteticista",
     incomeRange: "Ingreso base inestable ($600 - $1,200 USD/mes)",
     income: "Ingreso base inestable ($600 - $1,200 USD/mes)",
     location: "Zonas semi-urbanas y urbanas",
     geographic: "Zonas semi-urbanas y urbanas",
     civilStatus: "Soltera o casada con hijos pequeños",
     marital_status: "Soltera o casada con hijos pequeños",
-    devices: "Smartphone de gama media-alta, Instagram, WhatsApp"
+    devices: "Smartphone de gama media-alta, Instagram, WhatsApp",
+    studies: "Universitario o Técnico Superior",
+    education: "Universitario o Técnico Superior",
+    // Resumen Tab
+    dolores_principales: [
+      "No tiene suficientes clientes estables.",
+      "Siente que su trabajo no es valorado como debería.",
+      "Le cuesta diferenciarse en un mercado saturado.",
+      "Miedo a invertir en formación y no ver resultados."
+    ],
+    deseos_principales: [
+      "Tener más clientes y agenda llena.",
+      "Ser reconocida como experta en su área.",
+      "Lograr independencia financiera.",
+      "Tener flexibilidad de tiempo and ubicación."
+    ],
+    quote: "Aprende una técnica profesional, con acompañamiento real, para que consigas más clientes, mejores ingresos y la libertad que mereces.",
+    // Dolores y miedos ocultos Tab
+    dolores_ocultos: [
+      { title: "CLIENTELA INESTABLE", text: "No tiene suficientes clientes estables, lo que le genera una alta incertidumbre mensual sobre la facturación de su negocio." },
+      { title: "TRABAJO DESVALORADO", text: "Siente que su trabajo no es valorado como debería y que las clientas siempre buscan la opción más barata regateando precios." },
+      { title: "MARKETING INVISIBLE", text: "Le cuesta diferenciarse en un mercado saturado de profesionales independientes ofreciendo lo mismo a precios muy bajos." },
+      { title: "INVERSIÓN SIN RETORNO", text: "Miedo a invertir en formación y no ver resultados, perdiendo sus recursos en teoría aburrida que no puede aplicar en la práctica real." }
+    ],
+    // Deseos y motivaciones Tab
+    deseos_motivaciones: [
+      { title: "AGENDA LLENA", text: "Tener más clientes y la agenda completamente llena con meses de anticipación sin tener que regatear tarifas." },
+      { title: "EXPERTA RECONOCIDA", text: "Ser reconocida formalmente como una de las mejores expertas referentes en su área y ciudad." },
+      { title: "INDEPENDENCIA FINANCIERA", text: "Lograr verdadera estabilidad e independencia económica para tomar decisiones con libertad." },
+      { title: "FLEXIBILIDAD ABSOLUTA", text: "Tener control total de sus propios horarios de atención y la flexibilidad de tiempo y ubicación que siempre soñó." }
+    ],
+    // Comportamientos Tab
+    comportamientos: [
+      "Sigue activamente cuentas de gurús de belleza y marketing estético en Instagram y TikTok.",
+      "Paga pequeños talleres o webinars rápidos de $20 a $50 USD buscando secretos aplicables.",
+      "Pregunta constantemente en grupos de Facebook qué marcas de pigmentos o inductores son mejores.",
+      "Consume video tutoriales rápidos por las noches antes de dormir buscando perfeccionar trazo de cejas."
+    ],
+    behaviors: [
+      "Sigue activamente cuentas de gurús de belleza y marketing estético en Instagram y TikTok.",
+      "Paga pequeños talleres o webinars rápidos de $20 a $50 USD buscando secretos aplicables.",
+      "Pregunta constantemente en grupos de Facebook qué marcas de pigmentos o inductores son mejores.",
+      "Consume video tutoriales rápidos por las noches antes de dormir buscando perfeccionar trazo de cejas."
+    ],
+    motivations: {
+      dinero: "Retorno de inversión garantizado con su primer set de clientas.",
+      tiempo: "Establecer un flujo de trabajo optimizado para atender en menos de 90 minutos.",
+      estatus: "Certificación oficial de alta gama para destacar de la competencia convencional.",
+      seguridad: "Soporte uno a uno para resolver problemas reales en el inicio del negocio."
+    }
   },
   {
     name: "Valeria Mendoza",
-    studies: "Técnico medio o Curso comercial avanzado",
-    education: "Técnico medio o Curso comercial avanzado",
-    archetype: "Cosmetóloga Junior",
+    priority: "SECUNDARIO",
+    priorityClass: "bg-amber-500/10 border-amber-500/30 text-amber-400 border",
+    audiencePct: "22% DE TU AUDIENCIA",
+    audienceClass: "bg-amber-500/10 border-amber-500/30 text-amber-500 border",
+    img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300&h=300",
+    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300&h=300",
+    age: "22 - 27 años",
+    ageRange: "22 - 27 años",
     occupation: "Cosmetóloga Junior",
+    archetype: "Cosmetóloga Junior",
     incomeRange: "Ingreso fijo bajo ($350 - $550 USD/mes)",
     income: "Ingreso fijo bajo ($350 - $550 USD/mes)",
     location: "Zonas urbanas y residenciales",
     geographic: "Zonas urbanas y residenciales",
     civilStatus: "Soltera, vive con sus padres",
     marital_status: "Soltera, vive con sus padres",
-    devices: "Smartphone Android gama de entrada, TikTok, Instagram"
+    devices: "Smartphone Android gama de entrada, TikTok, Instagram",
+    studies: "Técnico medio o Curso comercial avanzado",
+    education: "Técnico medio o Curso comercial avanzado",
+    // Resumen Tab
+    dolores_principales: [
+      "Siente estancamiento profesional por falta de especialización.",
+      "Su sueldo actual en un centro de estética no compensa su esfuerzo.",
+      "Temor a estropear el rostro de un cliente con técnicas dudosas.",
+      "Falta de contactos y red de clientes para iniciar sola."
+    ],
+    deseos_principales: [
+      "Especializarse en la técnica más demandada del rubro.",
+      "Abrir su propio centro o cabina privada el próximo año.",
+      "Cobrar el dible o triple por hora de servicio certificado.",
+      "Desarrollar un portafolio de cejas impactante."
+    ],
+    quote: "Especialízate con un método paso a paso garantizado para que dupliques tus tarifas actuales y obtengas la acreditación que tus clientes valoran.",
+    // Dolores y miedos ocultos Tab
+    dolores_ocultos: [
+      { title: "El miedo al estancamiento profesional", text: "Teme trabajar como empleada toda su vida sin ver su propio crecimiento financiero." },
+      { title: "Falta de credibilidad", text: "Le preocupa que las clientas no confíen en ella por verse muy joven o no tener certificación reconocida de alta gama." },
+      { title: "Inestabilidad emocional", text: "La baja remuneración genera que dude de su propia pasión por la belleza y estética profesional." }
+    ],
+    // Deseos y motivaciones Tab
+    deseos_motivaciones: [
+      { title: "Reconocimiento y Estatus", text: "Ser la especialista de referencia a la que las clientas agendan con semanas de anticipación corporativa." },
+      { title: "Aumentar Tarifas", text: "Pasar de cobrar servicios baratos de $15 a tratamientos premium de más de text de forma segura." },
+      { title: "Estilo de Vida Independiente", text: "Crear una marca personal respetada con identidad visual propia en redes sociales." }
+    ],
+    // Comportamientos Tab
+    comportamientos: [
+      "Guarda tableros de fotos de cejas perfectas y estética minimalista en Pinterest.",
+      "Sigue tendencias de micropigmentación internacionales de Europa y Brasil.",
+      "Compara activamente los precios de academias en línea para decidir su inversión.",
+      "Práctica exhaustivamente en látex para perfeccionar la precisión de sus trazos."
+    ],
+    behaviors: [
+      "Guarda tableros de fotos de cejas perfectas y estética minimalista en Pinterest.",
+      "Sigue tendencias de micropigmentación internacionales de Europa y Brasil.",
+      "Compara activamente los precios de academias en línea para decidir su inversión.",
+      "Práctica exhaustivamente en látex para perfeccionar la precisión de sus trazos."
+    ],
+    motivations: {
+      dinero: "Garantía de reembolso o método blindado para proteger su capital y no desperdiciar ni un dólar más.",
+      tiempo: "Ir al grano con un sistema probado sin rodeos teóricos innecesarios.",
+      estatus: "Validación por expertos que la posiciona como una profesional seria ante sus clientes.",
+      seguridad: "Acompañamiento cercano anticaídas para asegurar sus primeros pasos prácticos."
+    }
   },
   {
     name: "Mónica Silva",
-    studies: "Educación técnica o administrativa",
-    education: "Educación técnica o administrativa",
-    archetype: "Emprendedora desde cero",
+    priority: "COMPLEMENTARIO",
+    priorityClass: "bg-violet-500/10 border-violet-500/30 text-violet-400 border",
+    audiencePct: "10% DE TU AUDIENCIA",
+    audienceClass: "bg-violet-500/10 border-violet-500/30 text-violet-500 border",
+    img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300&h=300",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300&h=300",
+    age: "36 - 45 años",
+    ageRange: "36 - 45 años",
     occupation: "Emprendedora desde cero",
+    archetype: "Emprendedora desde cero",
     incomeRange: "Sin ingresos estables (depende de comisiones)",
     income: "Sin ingresos estables (depende de comisiones)",
     location: "Zonas residenciales y capitales de provincia",
     geographic: "Zonas residenciales y capitales de provincia",
     civilStatus: "Casada con hijos adolescentes, jefa de hogar",
     marital_status: "Casada con hijos adolescentes, jefa de hogar",
-    devices: "Computadora y Smartphone gama media, Facebook, WhatsApp"
+    devices: "Computadora y Smartphone gama media, Facebook, WhatsApp",
+    studies: "Educación técnica o administrativa",
+    education: "Educación técnica o administrativa",
+    // Resumen Tab
+    dolores_principales: [
+      "Miedo extremo a comenzar en un rubro totalmente desconocido.",
+      "Creer que ya 'pasó su momento' o es muy mayor para aprender tecnologías de belleza.",
+      "Dudas sobre su pulso y coordinación motora fina.",
+      "Inseguridad al vender o hacer marketing en su nueva etapa."
+    ],
+    deseos_principales: [
+      "Reinventarse profesionalmente con un negocio moderno.",
+      "Generar una fuente confiable de ingresos para el hogar.",
+      "Demostrar a su entorno que puede liderar su propio proyecto.",
+      "Tener el control total de sus finanzas corporativas."
+    ],
+    quote: "No necesitas experiencia previa para triunfar. Nuestro programa te acompaña desde cero, cuidando tu técnica y enseñándote a vender sin esfuerzo.",
+    // Dolores y miedos ocultos Tab
+    dolores_ocultos: [
+      { title: "La barrera del aprendizaje técnico", text: "Duda de su capacidad para asimilar conceptos modernos o dominar herramientas de alta precisión." },
+      { title: "Miedo al rechazo comercial", text: "Le aterra el proceso de vender o hablar con clientas desconocidas sobre precios y retornos." },
+      { title: "El síndrome de la impostora tardía", text: "Siente que el mercado es para jóvenes influencers de belleza y le cuesta encajar visualmente." }
+    ],
+    // Deseos y motivaciones Tab
+    deseos_motivaciones: [
+      { title: "Seguridad Financiera Post-Jubilación", text: "Construir un activo rentable y duradero que le dé tranquilidad a mediano-largo plazo." },
+      { title: "Empoderamiento Familiar", text: "Aportar económicamente al hogar disminuyendo la presión financiera sobre su cónyuge." },
+      { title: "Autorealización Personal", text: "Desarrollar un oficio creativo e inspirador que llene su tiempo de valor y orgullo propio." }
+    ],
+    // Comportamientos Tab
+    comportamientos: [
+      "Sigue grupos comunitarios locales de emprendedores locales y negocios pymes.",
+      "Prefiere cursos con soporte personalizado, llamadas en vivo o grupos cerrados de ayuda.",
+      "Busca recomendaciones de boca en boca para evaluar la seriedad de una propuesta.",
+      "Toma notas escritas detalladas en cuadernos físicos durante las clases teóricas."
+    ],
+    behaviors: [
+      "Sigue grupos comunitarios locales de emprendedores locales y negocios pymes.",
+      "Prefiere cursos con soporte personalizado, llamadas en vivo o grupos cerrados de ayuda.",
+      "Busca recomendaciones de boca en boca para evaluar la seriedad de una propuesta.",
+      "Toma notas escritas detalladas en cuadernos físicos durante las clases teóricas."
+    ],
+    motivations: {
+      dinero: "Generar ingresos estables desde casa para lograr libertad financiera real.",
+      tiempo: "Flexibilidad horaria absoluta para pasar más tiempo con tus hijos o seres queridos.",
+      estatus: "Sentir la satisfacción y el orgullo de transicionar hacia una profesión propia.",
+      seguridad: "Guía paso a paso adaptada para principiantes absolutos sin experiencia previa."
+    }
   }
 ];
 
@@ -191,6 +352,8 @@ export const ProjectWizard: React.FC = () => {
     const [isOpenAvatarsModal, setIsOpenAvatarsModal] = useState(false);
     const [activeAvatarTab, setActiveAvatarTab] = useState(0);
     const [tempAvatars, setTempAvatars] = useState<any[]>(DEFAULT_AVATARS_DATA);
+    const [expandedAvatarIdx, setExpandedAvatarIdx] = useState<number | null>(0);
+    const [modalSubTab, setModalSubTab] = useState<string>('resumen');
     
     const [errors, setErrors] = useState<Record<string, string>>({});
     
@@ -811,7 +974,15 @@ export const ProjectWizard: React.FC = () => {
                                                 geographic: masterAv.geographic || masterAv.location || defAv.geographic,
                                                 civilStatus: masterAv.civilStatus || masterAv.marital_status || defAv.civilStatus,
                                                 marital_status: masterAv.marital_status || masterAv.civilStatus || defAv.marital_status,
-                                                devices: masterAv.devices || defAv.devices
+                                                devices: masterAv.devices || defAv.devices,
+                                                dolores_principales: masterAv.dolores_principales || [...defAv.dolores_principales],
+                                                deseos_principales: masterAv.deseos_principales || [...defAv.deseos_principales],
+                                                quote: masterAv.quote || defAv.quote,
+                                                dolores_ocultos: masterAv.dolores_ocultos || [...defAv.dolores_ocultos],
+                                                deseos_motivaciones: masterAv.deseos_motivaciones || [...defAv.deseos_motivaciones],
+                                                comportamientos: masterAv.comportamientos || [...defAv.comportamientos],
+                                                behaviors: masterAv.behaviors || [...defAv.behaviors],
+                                                motivations: masterAv.motivations ? { ...defAv.motivations, ...masterAv.motivations } : { ...defAv.motivations }
                                             };
                                         });
                                         setTempAvatars(initialized);
@@ -827,7 +998,7 @@ export const ProjectWizard: React.FC = () => {
                             {/* AVATARS MODAL */}
                             {isOpenAvatarsModal && (
                                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-                                    <div className="bg-[#111115] border border-gray-800 rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+                                    <div className="bg-[#111115] border border-gray-800 rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
                                         
                                         {/* Header */}
                                         <div className="p-6 border-b border-gray-800 flex items-center justify-between">
@@ -837,7 +1008,7 @@ export const ProjectWizard: React.FC = () => {
                                                 </div>
                                                 <div>
                                                     <h3 className="text-xl font-bold text-white font-sans">Editar Avatares del Proyecto</h3>
-                                                    <p className="text-xs text-gray-500 mt-0.5 font-sans">Personaliza de forma manual los datos de los 3 avatares de tu estrategia maestra.</p>
+                                                    <p className="text-xs text-gray-500 mt-0.5 font-sans">Personaliza de forma manual los datos, comportamientos y secretos psicológicos de los 3 avatares.</p>
                                                 </div>
                                             </div>
                                             <button 
@@ -849,135 +1020,502 @@ export const ProjectWizard: React.FC = () => {
                                             </button>
                                         </div>
 
-                                        {/* Tabs Navigation */}
-                                        <div className="px-6 py-2 bg-black/20 border-b border-gray-800 flex gap-2">
+                                        {/* Avatar Cards Accordion Area */}
+                                        <div className="p-6 overflow-y-auto space-y-4 flex-1 custom-scrollbar">
                                             {tempAvatars.map((av, idx) => {
-                                                const isActive = activeAvatarTab === idx;
-                                                const priorityColor = idx === 0 ? 'text-emerald-400' : idx === 1 ? 'text-amber-400' : 'text-violet-400';
-                                                return (
-                                                    <button
-                                                        key={idx}
-                                                        type="button"
-                                                        onClick={() => setActiveAvatarTab(idx)}
-                                                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
-                                                            isActive 
-                                                                ? 'bg-zinc-800 border border-zinc-700 text-white shadow-md' 
-                                                                : 'text-gray-500 hover:text-gray-300'
-                                                        }`}
-                                                    >
-                                                        <span className={`w-2 h-2 rounded-full ${idx === 0 ? 'bg-emerald-400' : idx === 1 ? 'bg-amber-400' : 'bg-violet-400'}`}></span>
-                                                        Avatar {idx + 1}: <span className={priorityColor}>{av.name || `Avatar ${idx + 1}`}</span>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
+                                                const isExpanded = expandedAvatarIdx === idx;
+                                                const badgeText = av.priority || (idx === 0 ? "PRINCIPAL" : idx === 1 ? "SECUNDARIO" : "COMPLEMENTARIO");
+                                                const priorityClass = av.priorityClass || (idx === 0 ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 border" : idx === 1 ? "bg-amber-500/10 border-amber-500/30 text-amber-550 border" : "bg-violet-500/10 border-violet-500/30 text-violet-400 border");
+                                                const avatarImg = av.img || av.image || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300&h=300";
 
-                                        {/* Content Fields Area */}
-                                        <div className="p-6 overflow-y-auto space-y-5 flex-1 custom-scrollbar">
-                                            {tempAvatars.map((av, idx) => {
-                                                if (activeAvatarTab !== idx) return null;
                                                 return (
-                                                    <div key={idx} className="space-y-5 animate-in fade-in duration-200">
-                                                        <div className="grid md:grid-cols-2 gap-4">
-                                                            <div>
-                                                                <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Nombre del Avatar</label>
-                                                                <input 
-                                                                    type="text" 
-                                                                    value={av.name || ''} 
-                                                                    onChange={e => {
-                                                                        const copy = [...tempAvatars];
-                                                                        copy[idx] = { ...copy[idx], name: e.target.value };
-                                                                        setTempAvatars(copy);
-                                                                    }}
-                                                                    className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
-                                                                    placeholder="Ej: María Fernanda" 
-                                                                />
+                                                    <div key={idx} className={`bg-[#16161c] border rounded-3xl overflow-hidden transition-all duration-300 ${isExpanded ? 'border-orange-500/50 shadow-[0_0_25px_rgba(255,93,30,0.15)] bg-[#191922]' : 'border-zinc-800 hover:border-zinc-700 bg-[#121217]'}`}>
+                                                        {/* Header Toggle Clickable Area */}
+                                                        <div 
+                                                            onClick={() => setExpandedAvatarIdx(isExpanded ? null : idx)}
+                                                            className="p-6 cursor-pointer flex items-center justify-between gap-4 select-none"
+                                                        >
+                                                            <div className="flex items-center gap-5">
+                                                                <div className="relative">
+                                                                    <div className="absolute -inset-1 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full blur opacity-40 transition duration-300"></div>
+                                                                    <img 
+                                                                        src={avatarImg} 
+                                                                        className="w-16 h-16 rounded-full object-cover border-2 border-orange-505 relative z-10 shadow-[0_0_12px_rgba(255,93,30,0.45)]"
+                                                                        referrerPolicy="no-referrer"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <div className="flex items-center gap-3 flex-wrap">
+                                                                        <h4 className="text-lg font-black text-white font-sans leading-none">{av.name}</h4>
+                                                                        <span className={`px-2.5 py-0.5 rounded text-[9px] font-black tracking-widest ${priorityClass}`}>
+                                                                            {badgeText}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="text-[13px] text-zinc-400 mt-2 flex items-center gap-2 flex-wrap font-sans">
+                                                                        <span>📅 {av.age || av.ageRange || '28 - 35 años'}</span>
+                                                                        <span className="text-zinc-600">•</span>
+                                                                        <span>💼 {av.occupation || av.archetype || 'Cosmetóloga'}</span>
+                                                                        <span className="text-zinc-600">•</span>
+                                                                        <span>💰 {av.income || av.incomeRange || 'Ingresos variables'}</span>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Nivel de Estudios</label>
-                                                                <input 
-                                                                    type="text" 
-                                                                    value={av.education || av.studies || ''} 
-                                                                    onChange={e => {
-                                                                        const copy = [...tempAvatars];
-                                                                        copy[idx] = { ...copy[idx], education: e.target.value, studies: e.target.value };
-                                                                        setTempAvatars(copy);
-                                                                    }}
-                                                                    className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
-                                                                    placeholder="Ej: Universitario o Técnico Superior" 
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Ocupación de Preferencia</label>
-                                                                <input 
-                                                                    type="text" 
-                                                                    value={av.occupation || av.archetype || ''} 
-                                                                    onChange={e => {
-                                                                        const copy = [...tempAvatars];
-                                                                        copy[idx] = { ...copy[idx], occupation: e.target.value, archetype: e.target.value };
-                                                                        setTempAvatars(copy);
-                                                                    }}
-                                                                    className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
-                                                                    placeholder="Ej: Cosmetóloga independiente o Esteticista" 
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Rango de Ingresos</label>
-                                                                <input 
-                                                                    type="text" 
-                                                                    value={av.income || av.incomeRange || ''} 
-                                                                    onChange={e => {
-                                                                        const copy = [...tempAvatars];
-                                                                        copy[idx] = { ...copy[idx], income: e.target.value, incomeRange: e.target.value };
-                                                                        setTempAvatars(copy);
-                                                                    }}
-                                                                    className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
-                                                                    placeholder="Ej: Ingreso base inestable ($600 - $1,200 USD/mes)" 
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Ubicación Geográfica</label>
-                                                                <input 
-                                                                    type="text" 
-                                                                    value={av.location || av.geographic || ''} 
-                                                                    onChange={e => {
-                                                                        const copy = [...tempAvatars];
-                                                                        copy[idx] = { ...copy[idx], location: e.target.value, geographic: e.target.value };
-                                                                        setTempAvatars(copy);
-                                                                    }}
-                                                                    className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
-                                                                    placeholder="Ej: Zonas semi-urbanas y urbanas" 
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Estado Civil</label>
-                                                                <input 
-                                                                    type="text" 
-                                                                    value={av.civilStatus || av.marital_status || ''} 
-                                                                    onChange={e => {
-                                                                        const copy = [...tempAvatars];
-                                                                        copy[idx] = { ...copy[idx], civilStatus: e.target.value, marital_status: e.target.value };
-                                                                        setTempAvatars(copy);
-                                                                    }}
-                                                                    className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
-                                                                    placeholder="Ej: Soltera o casada con hijos pequeños" 
-                                                                />
+                                                            <div className={`p-2 bg-zinc-800/40 hover:bg-zinc-800 rounded-full text-zinc-400 hover:text-white transition-all transform ${isExpanded ? 'rotate-180 text-orange-500' : ''}`}>
+                                                                <ChevronDown className="w-5 h-5" />
                                                             </div>
                                                         </div>
-                                                        <div>
-                                                            <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-2 font-sans">Dispositivos de Uso</label>
-                                                            <input 
-                                                                type="text" 
-                                                                value={av.devices || ''} 
-                                                                onChange={e => {
-                                                                    const copy = [...tempAvatars];
-                                                                    copy[idx] = { ...copy[idx], devices: e.target.value };
-                                                                    setTempAvatars(copy);
-                                                                }}
-                                                                className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all text-sm font-sans" 
-                                                                placeholder="Ej: Smartphone de gama media-alta, Instagram, WhatsApp" 
-                                                            />
-                                                        </div>
+
+                                                        {/* Expanded Content Section */}
+                                                        {isExpanded && (
+                                                            <div className="border-t border-zinc-800/80 bg-black/40 p-6 space-y-6">
+                                                                {/* Subtabs Header */}
+                                                                <div className="flex flex-wrap gap-1.5 p-1 bg-zinc-950 rounded-2xl border border-zinc-900">
+                                                                    {[
+                                                                        { id: 'resumen', label: 'Resumen' },
+                                                                        { id: 'demografico', label: 'Perfil Demográfico' },
+                                                                        { id: 'dolores', label: 'Dolores y Miedos' },
+                                                                        { id: 'deseos', label: 'Deseos y Motivaciones' },
+                                                                        { id: 'comportamientos', label: 'Comportamientos' }
+                                                                    ].map((tab) => {
+                                                                        const isSubActive = modalSubTab === tab.id;
+                                                                        return (
+                                                                            <button
+                                                                                key={tab.id}
+                                                                                type="button"
+                                                                                onClick={() => setModalSubTab(tab.id)}
+                                                                                className={`flex-grow md:flex-1 min-w-[120px] text-center py-2.5 px-3 rounded-xl font-bold text-xs transition-all ${
+                                                                                    isSubActive 
+                                                                                        ? 'bg-[#FF5D1E] text-white shadow-md' 
+                                                                                        : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/35'
+                                                                                }`}
+                                                                            >
+                                                                                {tab.label}
+                                                                            </button>
+                                                                        );
+                                                                    })}
+                                                                </div>
+
+                                                                {/* Sub-tab rendering */}
+                                                                <div className="space-y-6 animate-in fade-in duration-200">
+                                                                    {/* SUBTAB: RESUMEN */}
+                                                                    {modalSubTab === 'resumen' && (
+                                                                        <div className="space-y-5">
+                                                                            <div className="grid md:grid-cols-2 gap-4">
+                                                                                <div className="space-y-1">
+                                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Dolor Crítico</label>
+                                                                                    <textarea 
+                                                                                        value={av.dolores_principales?.[0] || ''} 
+                                                                                        onChange={e => {
+                                                                                            const copy = [...tempAvatars];
+                                                                                            const currentDol = [...(copy[idx].dolores_principales || [])];
+                                                                                            while (currentDol.length < 1) currentDol.push('');
+                                                                                            currentDol[0] = e.target.value;
+                                                                                            copy[idx] = { ...copy[idx], dolores_principales: currentDol };
+                                                                                            setTempAvatars(copy);
+                                                                                        }}
+                                                                                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans"
+                                                                                        rows={2}
+                                                                                        placeholder="El dolor más crítico e inmediato del cliente..."
+                                                                                    />
+                                                                                </div>
+                                                                                <div className="space-y-1">
+                                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Transformación Deseada</label>
+                                                                                    <textarea 
+                                                                                        value={av.deseos_principales?.[0] || ''} 
+                                                                                        onChange={e => {
+                                                                                            const copy = [...tempAvatars];
+                                                                                            const currentDes = [...(copy[idx].deseos_principales || [])];
+                                                                                            while (currentDes.length < 1) currentDes.push('');
+                                                                                            currentDes[0] = e.target.value;
+                                                                                            copy[idx] = { ...copy[idx], deseos_principales: currentDes };
+                                                                                            setTempAvatars(copy);
+                                                                                        }}
+                                                                                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans"
+                                                                                        rows={2}
+                                                                                        placeholder="Consolidar un negocio o la meta máxima del cliente..."
+                                                                                    />
+                                                                                </div>
+                                                                                <div className="space-y-1">
+                                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Barrera de Venta</label>
+                                                                                    <textarea 
+                                                                                        value={av.dolores_principales?.[1] || ''} 
+                                                                                        onChange={e => {
+                                                                                            const copy = [...tempAvatars];
+                                                                                            const currentDol = [...(copy[idx].dolores_principales || [])];
+                                                                                            while (currentDol.length < 2) currentDol.push('');
+                                                                                            currentDol[1] = e.target.value;
+                                                                                            copy[idx] = { ...copy[idx], dolores_principales: currentDol };
+                                                                                            setTempAvatars(copy);
+                                                                                        }}
+                                                                                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans"
+                                                                                        rows={2}
+                                                                                        placeholder="Por qué no compra actualmente..."
+                                                                                    />
+                                                                                </div>
+                                                                                <div className="space-y-1">
+                                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Para qué Emocional</label>
+                                                                                    <textarea 
+                                                                                        value={av.deseos_principales?.[1] || ''} 
+                                                                                        onChange={e => {
+                                                                                            const copy = [...tempAvatars];
+                                                                                            const currentDes = [...(copy[idx].deseos_principales || [])];
+                                                                                            while (currentDes.length < 2) currentDes.push('');
+                                                                                            currentDes[1] = e.target.value;
+                                                                                            copy[idx] = { ...copy[idx], deseos_principales: currentDes };
+                                                                                            setTempAvatars(copy);
+                                                                                        }}
+                                                                                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans"
+                                                                                        rows={2}
+                                                                                        placeholder="La razón subyacente o emocional de su transformación..."
+                                                                                    />
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="space-y-1">
+                                                                                <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Frase de Conexión (Quote)</label>
+                                                                                <textarea 
+                                                                                    value={av.quote || ''} 
+                                                                                    onChange={e => {
+                                                                                        const copy = [...tempAvatars];
+                                                                                        copy[idx] = { ...copy[idx], quote: e.target.value };
+                                                                                        setTempAvatars(copy);
+                                                                                    }}
+                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans"
+                                                                                    rows={2}
+                                                                                    placeholder="Quote o frase estelar con la que este cliente conecta de inmediato..."
+                                                                                />
+                                                                            </div>
+
+                                                                            {/* drivers column */}
+                                                                            <div className="space-y-2 mt-4">
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest">Tarjetas de Decisión (Drivers)</label>
+                                                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                                                                    <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-950">
+                                                                                        <label className="block text-[9px] font-extrabold text-emerald-400 uppercase tracking-wider mb-1">💸 Dinero</label>
+                                                                                        <input 
+                                                                                            type="text" 
+                                                                                            value={av.motivations?.dinero || ''} 
+                                                                                            onChange={e => {
+                                                                                                const copy = [...tempAvatars];
+                                                                                                copy[idx] = {
+                                                                                                    ...copy[idx],
+                                                                                                    motivations: { ...(copy[idx].motivations || {}), dinero: e.target.value }
+                                                                                                };
+                                                                                                setTempAvatars(copy);
+                                                                                            }}
+                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-[11px] text-white focus:border-orange-500 outline-none"
+                                                                                            placeholder="Retorno garantizado..."
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-950">
+                                                                                        <label className="block text-[9px] font-extrabold text-sky-400 uppercase tracking-wider mb-1">⏱️ Tiempo</label>
+                                                                                        <input 
+                                                                                            type="text" 
+                                                                                            value={av.motivations?.tiempo || ''} 
+                                                                                            onChange={e => {
+                                                                                                const copy = [...tempAvatars];
+                                                                                                copy[idx] = {
+                                                                                                    ...copy[idx],
+                                                                                                    motivations: { ...(copy[idx].motivations || {}), tiempo: e.target.value }
+                                                                                                };
+                                                                                                setTempAvatars(copy);
+                                                                                            }}
+                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-[11px] text-white focus:border-orange-500 outline-none"
+                                                                                            placeholder="Optimizar paso a paso..."
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-955">
+                                                                                        <label className="block text-[9px] font-extrabold text-yellow-500 uppercase tracking-wider mb-1">👑 Estatus</label>
+                                                                                        <input 
+                                                                                            type="text" 
+                                                                                            value={av.motivations?.estatus || ''} 
+                                                                                            onChange={e => {
+                                                                                                const copy = [...tempAvatars];
+                                                                                                copy[idx] = {
+                                                                                                    ...copy[idx],
+                                                                                                    motivations: { ...(copy[idx].motivations || {}), estatus: e.target.value }
+                                                                                                };
+                                                                                                setTempAvatars(copy);
+                                                                                            }}
+                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-[11px] text-white focus:border-orange-500 outline-none"
+                                                                                            placeholder="Certificación premium..."
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-955">
+                                                                                        <label className="block text-[9px] font-extrabold text-purple-400 uppercase tracking-wider mb-1">🛡️ Seguridad</label>
+                                                                                        <input 
+                                                                                            type="text" 
+                                                                                            value={av.motivations?.seguridad || ''} 
+                                                                                            onChange={e => {
+                                                                                                const copy = [...tempAvatars];
+                                                                                                copy[idx] = {
+                                                                                                    ...copy[idx],
+                                                                                                    motivations: { ...(copy[idx].motivations || {}), seguridad: e.target.value }
+                                                                                                };
+                                                                                                setTempAvatars(copy);
+                                                                                            }}
+                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-[11px] text-white focus:border-orange-500 outline-none"
+                                                                                            placeholder="Acompañamiento..."
+                                                                                        />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+
+                                                                    {/* SUBTAB: PERFIL DEMOGRAFICO */}
+                                                                    {modalSubTab === 'demografico' && (
+                                                                        <div className="grid md:grid-cols-2 gap-4">
+                                                                            <div>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Nombre del Avatar</label>
+                                                                                <input 
+                                                                                    type="text" 
+                                                                                    value={av.name || ''} 
+                                                                                    onChange={e => {
+                                                                                        const copy = [...tempAvatars];
+                                                                                        copy[idx] = { ...copy[idx], name: e.target.value };
+                                                                                        setTempAvatars(copy);
+                                                                                    }}
+                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    placeholder="Ej: María Fernanda" 
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Rango de Edad</label>
+                                                                                <input 
+                                                                                    type="text" 
+                                                                                    value={av.age || av.ageRange || ''} 
+                                                                                    onChange={e => {
+                                                                                        const copy = [...tempAvatars];
+                                                                                        copy[idx] = { ...copy[idx], age: e.target.value, ageRange: e.target.value };
+                                                                                        setTempAvatars(copy);
+                                                                                    }}
+                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    placeholder="Ej: 28 - 35 años" 
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Nivel de Estudios / Educación</label>
+                                                                                <input 
+                                                                                    type="text" 
+                                                                                    value={av.education || av.studies || ''} 
+                                                                                    onChange={e => {
+                                                                                        const copy = [...tempAvatars];
+                                                                                        copy[idx] = { ...copy[idx], education: e.target.value, studies: e.target.value };
+                                                                                        setTempAvatars(copy);
+                                                                                    }}
+                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    placeholder="Ej: Universitario o Técnico Superior" 
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Ocupación / Arquetipo</label>
+                                                                                <input 
+                                                                                    type="text" 
+                                                                                    value={av.occupation || av.archetype || ''} 
+                                                                                    onChange={e => {
+                                                                                        const copy = [...tempAvatars];
+                                                                                        copy[idx] = { ...copy[idx], occupation: e.target.value, archetype: e.target.value };
+                                                                                        setTempAvatars(copy);
+                                                                                    }}
+                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    placeholder="Ej: Cosmetóloga independiente o Esteticista" 
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Ingresos Mensuales</label>
+                                                                                <input 
+                                                                                    type="text" 
+                                                                                    value={av.income || av.incomeRange || ''} 
+                                                                                    onChange={e => {
+                                                                                        const copy = [...tempAvatars];
+                                                                                        copy[idx] = { ...copy[idx], income: e.target.value, incomeRange: e.target.value };
+                                                                                        setTempAvatars(copy);
+                                                                                    }}
+                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    placeholder="Ej: Ingreso base inestable ($600 - $1,200 USD/mes)" 
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Ubicación Geográfica</label>
+                                                                                <input 
+                                                                                    type="text" 
+                                                                                    value={av.location || av.geographic || ''} 
+                                                                                    onChange={e => {
+                                                                                        const copy = [...tempAvatars];
+                                                                                        copy[idx] = { ...copy[idx], location: e.target.value, geographic: e.target.value };
+                                                                                        setTempAvatars(copy);
+                                                                                    }}
+                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    placeholder="Ej: Zonas semi-urbanas y urbanas" 
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Estado Civil / Familia</label>
+                                                                                <input 
+                                                                                    type="text" 
+                                                                                    value={av.civilStatus || av.marital_status || ''} 
+                                                                                    onChange={e => {
+                                                                                        const copy = [...tempAvatars];
+                                                                                        copy[idx] = { ...copy[idx], civilStatus: e.target.value, marital_status: e.target.value };
+                                                                                        setTempAvatars(copy);
+                                                                                    }}
+                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    placeholder="Ej: Soltera o casada con hijos pequeños" 
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Dispositivos y Redes</label>
+                                                                                <input 
+                                                                                    type="text" 
+                                                                                    value={av.devices || ''} 
+                                                                                    onChange={e => {
+                                                                                        const copy = [...tempAvatars];
+                                                                                        copy[idx] = { ...copy[idx], devices: e.target.value };
+                                                                                        setTempAvatars(copy);
+                                                                                    }}
+                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    placeholder="Ej: Instagram, WhatsApp, Smartphone gama media-alta" 
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+
+                                                                    {/* SUBTAB: DOLORES Y MIEDOS */}
+                                                                    {modalSubTab === 'dolores' && (
+                                                                        <div className="grid gap-4">
+                                                                            {Array.from({ length: 4 }).map((_, di) => {
+                                                                                const dolor = av.dolores_ocultos?.[di] || { title: '', text: '' };
+                                                                                return (
+                                                                                    <div key={di} className="bg-zinc-950/40 p-4 rounded-2xl border border-zinc-800/60 space-y-3">
+                                                                                        <span className="text-[9px] font-black tracking-widest text-[#FF5D1E] bg-[#FF5D1E]/10 px-2.5 py-0.5 rounded">FRUSTRACIÓN OCULTA {di + 1}</span>
+                                                                                        <div className="grid md:grid-cols-3 gap-3">
+                                                                                            <div className="md:col-span-1">
+                                                                                                <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Título resumido</label>
+                                                                                                <input 
+                                                                                                    type="text" 
+                                                                                                    value={dolor.title || ''} 
+                                                                                                    onChange={e => {
+                                                                                                        const copy = [...tempAvatars];
+                                                                                                        const currentDolores = [...(copy[idx].dolores_ocultos || [])];
+                                                                                                        while (currentDolores.length <= di) currentDolores.push({ title: '', text: '' });
+                                                                                                        currentDolores[di] = { ...currentDolores[di], title: e.target.value };
+                                                                                                        copy[idx] = { ...copy[idx], dolores_ocultos: currentDolores };
+                                                                                                        setTempAvatars(copy);
+                                                                                                    }}
+                                                                                                    className="w-full bg-black/60 border border-zinc-800 rounded-xl px-3 py-2 text-white focus:border-orange-500 outline-none text-xs"
+                                                                                                    placeholder="Ej: CLIENTELA INESTABLE"
+                                                                                                />
+                                                                                            </div>
+                                                                                            <div className="md:col-span-2">
+                                                                                                <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Explicación a profundidad</label>
+                                                                                                <textarea 
+                                                                                                    value={dolor.text || ''} 
+                                                                                                    onChange={e => {
+                                                                                                        const copy = [...tempAvatars];
+                                                                                                        const currentDolores = [...(copy[idx].dolores_ocultos || [])];
+                                                                                                        while (currentDolores.length <= di) currentDolores.push({ title: '', text: '' });
+                                                                                                        currentDolores[di] = { ...currentDolores[di], text: e.target.value };
+                                                                                                        copy[idx] = { ...copy[idx], dolores_ocultos: currentDolores };
+                                                                                                        setTempAvatars(copy);
+                                                                                                    }}
+                                                                                                    className="w-full bg-black/60 border border-zinc-800 rounded-xl px-3 py-2 text-white focus:border-orange-500 outline-none text-xs"
+                                                                                                    rows={2}
+                                                                                                    placeholder="Explica qué miedos o dolores ocultos experimenta con esto..."
+                                                                                                />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                );
+                                                                            })}
+                                                                        </div>
+                                                                    )}
+
+                                                                    {/* SUBTAB: DESEOS Y MOTIVACIONES */}
+                                                                    {modalSubTab === 'deseos' && (
+                                                                        <div className="grid gap-4">
+                                                                            {Array.from({ length: 4 }).map((_, di) => {
+                                                                                const deseo = av.deseos_motivaciones?.[di] || { title: '', text: '' };
+                                                                                return (
+                                                                                    <div key={di} className="bg-zinc-950/40 p-4 rounded-2xl border border-zinc-800/60 space-y-3">
+                                                                                        <span className="text-[9px] font-black tracking-widest text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded">ANHELO PROFUNDO {di + 1}</span>
+                                                                                        <div className="grid md:grid-cols-3 gap-3">
+                                                                                            <div className="md:col-span-1">
+                                                                                                <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Título resumido</label>
+                                                                                                <input 
+                                                                                                    type="text" 
+                                                                                                    value={deseo.title || ''} 
+                                                                                                    onChange={e => {
+                                                                                                        const copy = [...tempAvatars];
+                                                                                                        const currentDeseos = [...(copy[idx].deseos_motivaciones || [])];
+                                                                                                        while (currentDeseos.length <= di) currentDeseos.push({ title: '', text: '' });
+                                                                                                        currentDeseos[di] = { ...currentDeseos[di], title: e.target.value };
+                                                                                                        copy[idx] = { ...copy[idx], deseos_motivaciones: currentDeseos };
+                                                                                                        setTempAvatars(copy);
+                                                                                                    }}
+                                                                                                    className="w-full bg-black/60 border border-zinc-800 rounded-xl px-3 py-2 text-white focus:border-orange-500 outline-none text-xs"
+                                                                                                    placeholder="Ej: AGENDA LLENA"
+                                                                                                />
+                                                                                            </div>
+                                                                                            <div className="md:col-span-2">
+                                                                                                <label className="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Explicación a profundidad</label>
+                                                                                                <textarea 
+                                                                                                    value={deseo.text || ''} 
+                                                                                                    onChange={e => {
+                                                                                                        const copy = [...tempAvatars];
+                                                                                                        const currentDeseos = [...(copy[idx].deseos_motivaciones || [])];
+                                                                                                        while (currentDeseos.length <= di) currentDeseos.push({ title: '', text: '' });
+                                                                                                        currentDeseos[di] = { ...currentDeseos[di], text: e.target.value };
+                                                                                                        copy[idx] = { ...copy[idx], deseos_motivaciones: currentDeseos };
+                                                                                                        setTempAvatars(copy);
+                                                                                                    }}
+                                                                                                    className="w-full bg-black/60 border border-zinc-800 rounded-xl px-3 py-2 text-white focus:border-orange-500 outline-none text-xs"
+                                                                                                    rows={2}
+                                                                                                    placeholder="Explica qué sueña alcanzar con esto..."
+                                                                                                />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                );
+                                                                            })}
+                                                                        </div>
+                                                                    )}
+
+                                                                    {/* SUBTAB: COMPORTAMIENTOS */}
+                                                                    {modalSubTab === 'comportamientos' && (
+                                                                        <div className="grid gap-4">
+                                                                            {Array.from({ length: 4 }).map((_, ci) => {
+                                                                                const comp = av.comportamientos?.[ci] || '';
+                                                                                return (
+                                                                                    <div key={ci} className="space-y-1">
+                                                                                        <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest">HÁBITO O COMPORTAMIENTO {ci + 1}</label>
+                                                                                        <textarea 
+                                                                                            value={comp} 
+                                                                                            onChange={e => {
+                                                                                                const copy = [...tempAvatars];
+                                                                                                const currentComp = [...(copy[idx].comportamientos || [])];
+                                                                                                while (currentComp.length <= ci) currentComp.push('');
+                                                                                                currentComp[ci] = e.target.value;
+                                                                                                
+                                                                                                const currentBehaviors = [...(copy[idx].behaviors || [])];
+                                                                                                while (currentBehaviors.length <= ci) currentBehaviors.push('');
+                                                                                                currentBehaviors[ci] = e.target.value;
+                                                                                                
+                                                                                                copy[idx] = { ...copy[idx], comportamientos: currentComp, behaviors: currentBehaviors };
+                                                                                                setTempAvatars(copy);
+                                                                                            }}
+                                                                                            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans"
+                                                                                            rows={2}
+                                                                                            placeholder="Ej: Sigue activamente referentes de belleza en Instagram..."
+                                                                                        />
+                                                                                    </div>
+                                                                                );
+                                                                            })}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 );
                                             })}
