@@ -436,6 +436,18 @@ export const ProjectWizard: React.FC = () => {
                 const initialized = [0, 1, 2].map((idx) => {
                     const masterAv = avatars[idx] || {};
                     const defAv = DEFAULT_AVATARS_DATA[idx];
+                    
+                    const defaultMotivations = defAv.motivations || {};
+                    const rawMotivations = masterAv.motivations || {};
+                    const healedMotivations = { ...defaultMotivations };
+                    for (const k of ['dinero', 'tiempo', 'estatus', 'seguridad'] as const) {
+                        const val = rawMotivations[k];
+                        const isNumeric = val !== undefined && val !== null && val !== '' && (!isNaN(Number(val)) || typeof val === 'number');
+                        if (val && !isNumeric) {
+                            healedMotivations[k] = val;
+                        }
+                    }
+
                     return {
                         ...defAv,
                         ...masterAv,
@@ -450,7 +462,8 @@ export const ProjectWizard: React.FC = () => {
                         geographic: masterAv.geographic || masterAv.location || defAv.geographic,
                         civilStatus: masterAv.civilStatus || masterAv.marital_status || defAv.civilStatus,
                         marital_status: masterAv.marital_status || masterAv.civilStatus || defAv.marital_status,
-                        devices: masterAv.devices || defAv.devices
+                        devices: masterAv.devices || defAv.devices,
+                        motivations: healedMotivations
                     };
                 });
                 setTempAvatars(initialized);
@@ -960,6 +973,18 @@ export const ProjectWizard: React.FC = () => {
                                         const initialized = [0, 1, 2].map((idx) => {
                                             const masterAv = avatars[idx] || {};
                                             const defAv = DEFAULT_AVATARS_DATA[idx];
+                                            
+                                            const defaultMotivations = defAv.motivations || {};
+                                            const rawMotivations = masterAv.motivations || {};
+                                            const healedMotivations = { ...defaultMotivations };
+                                            for (const k of ['dinero', 'tiempo', 'estatus', 'seguridad'] as const) {
+                                                const val = rawMotivations[k];
+                                                const isNumeric = val !== undefined && val !== null && val !== '' && (!isNaN(Number(val)) || typeof val === 'number');
+                                                if (val && !isNumeric) {
+                                                    healedMotivations[k] = val;
+                                                }
+                                            }
+
                                             return {
                                                 ...defAv,
                                                 ...masterAv,
@@ -982,7 +1007,7 @@ export const ProjectWizard: React.FC = () => {
                                                 deseos_motivaciones: masterAv.deseos_motivaciones || [...defAv.deseos_motivaciones],
                                                 comportamientos: masterAv.comportamientos || [...defAv.comportamientos],
                                                 behaviors: masterAv.behaviors || [...defAv.behaviors],
-                                                motivations: masterAv.motivations ? { ...defAv.motivations, ...masterAv.motivations } : { ...defAv.motivations }
+                                                motivations: healedMotivations
                                             };
                                         });
                                         setTempAvatars(initialized);
@@ -1190,10 +1215,10 @@ export const ProjectWizard: React.FC = () => {
                                                                             <div className="space-y-2 mt-4">
                                                                                 <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest">Tarjetas de Decisión (Drivers)</label>
                                                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                                                                                    <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-950">
-                                                                                        <label className="block text-[9px] font-extrabold text-emerald-400 uppercase tracking-wider mb-1">💸 Dinero</label>
-                                                                                        <input 
-                                                                                            type="text" 
+                                                                                    <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-900/60">
+                                                                                        <label className="block text-[10px] font-extrabold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1">💸 Dinero</label>
+                                                                                        <textarea 
+                                                                                            rows={3}
                                                                                             value={av.motivations?.dinero || ''} 
                                                                                             onChange={e => {
                                                                                                 const copy = [...tempAvatars];
@@ -1203,14 +1228,14 @@ export const ProjectWizard: React.FC = () => {
                                                                                                 };
                                                                                                 setTempAvatars(copy);
                                                                                             }}
-                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-[11px] text-white focus:border-orange-500 outline-none"
-                                                                                            placeholder="Retorno garantizado..."
+                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-orange-500 outline-none resize-none font-sans leading-relaxed"
+                                                                                            placeholder="Beneficios de dinero o retorno..."
                                                                                         />
                                                                                     </div>
-                                                                                    <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-950">
-                                                                                        <label className="block text-[9px] font-extrabold text-sky-400 uppercase tracking-wider mb-1">⏱️ Tiempo</label>
-                                                                                        <input 
-                                                                                            type="text" 
+                                                                                    <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-900/60">
+                                                                                        <label className="block text-[10px] font-extrabold text-sky-400 uppercase tracking-wider mb-2 flex items-center gap-1">⏱️ Tiempo</label>
+                                                                                        <textarea 
+                                                                                            rows={3}
                                                                                             value={av.motivations?.tiempo || ''} 
                                                                                             onChange={e => {
                                                                                                 const copy = [...tempAvatars];
@@ -1220,14 +1245,14 @@ export const ProjectWizard: React.FC = () => {
                                                                                                 };
                                                                                                 setTempAvatars(copy);
                                                                                             }}
-                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-[11px] text-white focus:border-orange-500 outline-none"
-                                                                                            placeholder="Optimizar paso a paso..."
+                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-orange-500 outline-none resize-none font-sans leading-relaxed"
+                                                                                            placeholder="Valor del ahorro de tiempo..."
                                                                                         />
                                                                                     </div>
-                                                                                    <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-955">
-                                                                                        <label className="block text-[9px] font-extrabold text-yellow-500 uppercase tracking-wider mb-1">👑 Estatus</label>
-                                                                                        <input 
-                                                                                            type="text" 
+                                                                                    <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-900/60">
+                                                                                        <label className="block text-[10px] font-extrabold text-yellow-500 uppercase tracking-wider mb-2 flex items-center gap-1">👑 Estatus</label>
+                                                                                        <textarea 
+                                                                                            rows={3}
                                                                                             value={av.motivations?.estatus || ''} 
                                                                                             onChange={e => {
                                                                                                 const copy = [...tempAvatars];
@@ -1237,14 +1262,14 @@ export const ProjectWizard: React.FC = () => {
                                                                                                 };
                                                                                                 setTempAvatars(copy);
                                                                                             }}
-                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-[11px] text-white focus:border-orange-500 outline-none"
-                                                                                            placeholder="Certificación premium..."
+                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-orange-500 outline-none resize-none font-sans leading-relaxed"
+                                                                                            placeholder="Prestigio, autoridad o reconocimiento..."
                                                                                         />
                                                                                     </div>
-                                                                                    <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-955">
-                                                                                        <label className="block text-[9px] font-extrabold text-purple-400 uppercase tracking-wider mb-1">🛡️ Seguridad</label>
-                                                                                        <input 
-                                                                                            type="text" 
+                                                                                    <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-900/60">
+                                                                                        <label className="block text-[10px] font-extrabold text-purple-400 uppercase tracking-wider mb-2 flex items-center gap-1">🛡️ Seguridad</label>
+                                                                                        <textarea 
+                                                                                            rows={3}
                                                                                             value={av.motivations?.seguridad || ''} 
                                                                                             onChange={e => {
                                                                                                 const copy = [...tempAvatars];
@@ -1254,8 +1279,8 @@ export const ProjectWizard: React.FC = () => {
                                                                                                 };
                                                                                                 setTempAvatars(copy);
                                                                                             }}
-                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-[11px] text-white focus:border-orange-500 outline-none"
-                                                                                            placeholder="Acompañamiento..."
+                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-orange-500 outline-none resize-none font-sans leading-relaxed"
+                                                                                            placeholder="Garantías, soporte de confianza..."
                                                                                         />
                                                                                     </div>
                                                                                 </div>
