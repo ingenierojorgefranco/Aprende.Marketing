@@ -80,6 +80,7 @@ type WizardStep =
   | "limit_reached";
 
 const getSystemAvatars = (strategyData: any) => {
+  const hasSavedAvatars = !!(strategyData?.avatars && strategyData.avatars.length > 0);
   const defaultAvs = [
     {
       name: "María Fernanda",
@@ -119,12 +120,27 @@ const getSystemAvatars = (strategyData: any) => {
   return [0, 1, 2].map((idx) => {
     const defaultAv = defaultAvs[idx];
     const realAv = strategyData?.avatars?.[idx];
-    if (!realAv) return defaultAv;
+    if (!realAv) {
+      if (hasSavedAvatars) {
+        return {
+          name: "(no definido)",
+          priority: idx === 0 ? "PRINCIPAL" : idx === 1 ? "SECUNDARIO" : "COMPLEMENTARIO",
+          priorityClass: idx === 0 ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 border" : idx === 1 ? "bg-amber-500/10 border-amber-500/30 text-amber-400 border" : "bg-violet-500/10 border-violet-500/30 text-violet-400 border",
+          audiencePct: idx === 0 ? "68% DE TU AUDIENCIA" : idx === 1 ? "22% DE TU AUDIENCIA" : "10% DE TU AUDIENCIA",
+          audienceClass: idx === 0 ? "bg-[#FF5D1E]/10 border-[#FF5D1E]/30 text-[#FF5D1E] border" : idx === 1 ? "bg-amber-500/10 border-amber-500/30 text-amber-550 border" : "bg-violet-500/10 border-violet-500/30 text-violet-550 border",
+          img: idx === 0 ? "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300&h=300" : idx === 1 ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300&h=300" : "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300&h=300",
+          age: "(no definido)",
+          occupation: "(no definido)",
+          income: "(no definido)",
+        };
+      }
+      return defaultAv;
+    }
 
-    const name = realAv.name || defaultAv.name;
-    const age = realAv.ageRange || realAv.age || realAv.age_range || defaultAv.age;
-    const occupation = realAv.archetype || realAv.occupation || realAv.profession || realAv.profession_title || realAv.job || realAv.role || defaultAv.occupation;
-    const income = realAv.incomeRange || realAv.income || defaultAv.income;
+    const name = realAv.name || (hasSavedAvatars ? "(no definido)" : defaultAv.name);
+    const age = realAv.ageRange || realAv.age || realAv.age_range || (hasSavedAvatars ? "(no definido)" : defaultAv.age);
+    const occupation = realAv.archetype || realAv.occupation || realAv.profession || realAv.profession_title || realAv.job || realAv.role || (hasSavedAvatars ? "(no definido)" : defaultAv.occupation);
+    const income = realAv.incomeRange || realAv.income || (hasSavedAvatars ? "(no definido)" : defaultAv.income);
     const img = realAv.image || realAv.img || defaultAv.img;
 
     const rawPriority = (realAv.priority || realAv.role || realAv.type || defaultAv.priority || "").toUpperCase();
@@ -6620,6 +6636,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 }
                               ];
 
+                              const hasSavedAvatars = !!(strategyData?.avatars && strategyData.avatars.length > 0);
                               const baseAvs = getSystemAvatars(strategyData);
 
                               const avatarsToRender = [0, 1, 2].map((idx) => {
@@ -6627,14 +6644,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 const baseAv = baseAvs[idx];
                                 const realAv = strategyData?.avatars?.[idx];
 
-                                const name = realAv?.name || baseAv.name;
-                                const age = realAv?.ageRange || realAv?.age || realAv?.age_range || baseAv.age;
-                                const occupation = realAv?.occupation || realAv?.archetype || realAv?.profession || realAv?.profession_title || realAv?.job || realAv?.role || baseAv.occupation;
-                                const income = realAv?.income || realAv?.incomeRange || baseAv.income;
+                                const name = realAv?.name || (hasSavedAvatars ? "(no definido)" : baseAv.name);
+                                const age = realAv?.ageRange || realAv?.age || realAv?.age_range || (hasSavedAvatars ? "(no definido)" : baseAv.age);
+                                const occupation = realAv?.occupation || realAv?.archetype || realAv?.profession || realAv?.profession_title || realAv?.job || realAv?.role || (hasSavedAvatars ? "(no definido)" : baseAv.occupation);
+                                const income = realAv?.income || realAv?.incomeRange || (hasSavedAvatars ? "(no definido)" : baseAv.income);
                                 const img = realAv?.image || realAv?.img || baseAv.img;
-                                const quote = realAv?.quote || realAv?.message || defaultAv.quote;
+                                const quote = realAv?.quote || realAv?.message || (hasSavedAvatars ? "(no definido)" : defaultAv.quote);
                                 
-                                let dolores_principales = defaultAv.dolores_principales;
+                                let dolores_principales = hasSavedAvatars ? [] : defaultAv.dolores_principales;
                                 if (realAv?.dolores_principales && Array.isArray(realAv.dolores_principales)) {
                                   dolores_principales = realAv.dolores_principales;
                                 } else if (realAv?.pain_points && Array.isArray(realAv.pain_points)) {
@@ -6642,11 +6659,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 } else if (realAv?.pain) {
                                   dolores_principales = [
                                     realAv.pain,
-                                    ...defaultAv.dolores_principales.slice(1)
+                                    ...(hasSavedAvatars ? [] : defaultAv.dolores_principales.slice(1))
                                   ];
                                 }
 
-                                let deseos_principales = defaultAv.deseos_principales;
+                                let deseos_principales = hasSavedAvatars ? [] : defaultAv.deseos_principales;
                                 if (realAv?.deseos_principales && Array.isArray(realAv.deseos_principales)) {
                                   deseos_principales = realAv.deseos_principales;
                                 } else if (realAv?.desires && Array.isArray(realAv.desires)) {
@@ -6654,20 +6671,20 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 } else if (realAv?.desire || realAv?.transformation_title) {
                                   deseos_principales = [
                                     realAv.desire || realAv.transformation_title,
-                                    ...defaultAv.deseos_principales.slice(1)
+                                    ...(hasSavedAvatars ? [] : defaultAv.deseos_principales.slice(1))
                                   ];
                                 }
 
                                 const demographics = [
-                                  { label: "Nivel de Estudios", val: realAv?.education || realAv?.studies || defaultAv.demographics[0].val },
-                                  { label: "Ocupación de Preferencia", val: realAv?.occupation || realAv?.archetype || defaultAv.demographics[1].val },
-                                  { label: "Rango de Ingresos", val: realAv?.income || realAv?.incomeRange || defaultAv.demographics[2].val },
-                                  { label: "Ubicación Geográfica", val: realAv?.location || realAv?.geographic || defaultAv.demographics[3].val },
-                                  { label: "Estado Civil", val: realAv?.civilStatus || realAv?.marital_status || defaultAv.demographics[4].val },
-                                  { label: "Dispositivos de uso", val: realAv?.devices || defaultAv.demographics[5].val },
+                                  { label: "Nivel de Estudios", val: realAv?.education || realAv?.studies || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[0].val) },
+                                  { label: "Ocupación de Preferencia", val: realAv?.occupation || realAv?.archetype || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[1].val) },
+                                  { label: "Rango de Ingresos", val: realAv?.income || realAv?.incomeRange || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[2].val) },
+                                  { label: "Ubicación Geográfica", val: realAv?.location || realAv?.geographic || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[3].val) },
+                                  { label: "Estado Civil", val: realAv?.civilStatus || realAv?.marital_status || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[4].val) },
+                                  { label: "Dispositivos de uso", val: realAv?.devices || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[5].val) },
                                 ];
 
-                                let dolores_ocultos = defaultAv.dolores_ocultos;
+                                let dolores_ocultos = hasSavedAvatars ? [] : defaultAv.dolores_ocultos;
                                 if (realAv?.dolores_ocultos && Array.isArray(realAv.dolores_ocultos)) {
                                   dolores_ocultos = realAv.dolores_ocultos;
                                 } else if (realAv?.pain || realAv?.detailed_pains) {
@@ -6680,7 +6697,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                   }
                                 }
 
-                                let deseos_motivaciones = defaultAv.deseos_motivaciones;
+                                let deseos_motivaciones = hasSavedAvatars ? [] : defaultAv.deseos_motivaciones;
                                 if (realAv?.deseos_motivaciones && Array.isArray(realAv.deseos_motivaciones)) {
                                   deseos_motivaciones = realAv.deseos_motivaciones;
                                 } else if (realAv?.desire || realAv?.motivations || realAv?.decisionDrivers || realAv?.drivers) {
@@ -6693,7 +6710,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                   }
                                 }
 
-                                let comportamientos = defaultAv.comportamientos;
+                                let comportamientos = hasSavedAvatars ? [] : defaultAv.comportamientos;
                                 if (realAv?.comportamientos && Array.isArray(realAv.comportamientos)) {
                                   comportamientos = realAv.comportamientos;
                                 } else if (realAv?.behaviors && Array.isArray(realAv.behaviors)) {
@@ -6703,7 +6720,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 const defaultMotivationsForIdx = {
                                   dinero: idx === 0 ? "Retorno de inversión garantizado con su primer set de clientas." : idx === 1 ? "Garantía de reembolso o método blindado para proteger su capital y no desperdiciar ni un dólar más." : "Generar ingresos estables desde casa para lograr libertad financiera real.",
                                   tiempo: idx === 0 ? "Establecer un flujo de trabajo optimizado para atender en menos de 90 minutes." : idx === 1 ? "Ir al grano con un sistema probado sin rodeos teóricos innecesarios." : "Flexibilidad horaria absoluta para pasar más tiempo con tus hijos o seres queridos.",
-                                  estatus: idx === 0 ? "Certificación oficial de alta gama para destacar de la competencia convencional." : idx === 1 ? "Validación por expertos que la posiciona como una profesional seria ante sus clientes." : "Sentir la satisfacción y el orgullo de transicionar hacia una profesión propia.",
+                                  estatus: idx === 0 ? "Certificación oficial de alta gama para destacar de la competencia convencional." : idx === 1 ? "Validación por expertos que la posiciona como una profesional seria ante sus clientes." : "Sentir la satisfacción and el orgullo de transicionar hacia una profesión propia.",
                                   seguridad: idx === 0 ? "Soporte uno a uno para resolver problemas reales en el inicio del negocio." : idx === 1 ? "Acompañamiento cercano anticaídas para asegurar sus primeros pasos prácticos." : "Guía paso a paso adaptada para principiantes absolutos sin experiencia previa."
                                 };
 
@@ -6850,7 +6867,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                                           <span className="px-2 py-0.5 rounded bg-red-500/10 text-red-400 text-[10px] font-black uppercase tracking-wide border border-red-500/20">Dolor Crítico</span>
                                                         </div>
                                                         <p className="text-zinc-300 text-xs sm:text-sm font-semibold leading-relaxed">
-                                                          Miedo a gastar dinero en cursos sin saber si podré recuperar la inversión de materiales.
+                                                          {av.dolores_principales?.[0] || "(no definido)"}
                                                         </p>
                                                       </div>
 
@@ -6860,7 +6877,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                                           <span className="px-2 py-0.5 rounded bg-[#10b981]/10 text-[#34d399] text-[10px] font-black uppercase tracking-wide border border-[#10b981]/20">Transformación Deseada</span>
                                                         </div>
                                                         <p className="text-zinc-300 text-xs sm:text-sm font-semibold leading-relaxed">
-                                                          Aprender una técnica pulida para dar servicios premium desde la primera semana.
+                                                          {av.deseos_principales?.[0] || "(no definido)"}
                                                         </p>
                                                       </div>
 
@@ -6870,7 +6887,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                                           <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] font-black uppercase tracking-wide border border-amber-500/20">Barrera de Venta</span>
                                                         </div>
                                                         <p className="text-zinc-300 text-xs sm:text-sm font-semibold leading-relaxed">
-                                                          No saber si podrá conseguir clientas que paguen precios altos.
+                                                          {av.dolores_principales?.[1] || "(no definido)"}
                                                         </p>
                                                       </div>
 
@@ -6880,7 +6897,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                                           <span className="px-2 py-0.5 rounded bg-pink-500/10 text-pink-400 text-[10px] font-black uppercase tracking-wide border border-pink-500/20">Para qué Emocional</span>
                                                         </div>
                                                         <p className="text-zinc-300 text-xs sm:text-sm font-semibold leading-relaxed">
-                                                          Sentir el orgullo de ser una empresaria reconocida y exitosa.
+                                                          {av.deseos_principales?.[1] || "(no definido)"}
                                                         </p>
                                                       </div>
                                                     </div>

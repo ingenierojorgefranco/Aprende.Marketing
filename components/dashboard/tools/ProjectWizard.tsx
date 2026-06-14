@@ -307,6 +307,47 @@ const DEFAULT_AVATARS_DATA = [
   }
 ];
 
+const getBlankAvatar = (idx: number) => ({
+    name: "",
+    priority: idx === 0 ? "PRINCIPAL" : idx === 1 ? "SECUNDARIO" : "COMPLEMENTARIO",
+    priorityClass: idx === 0 ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 border" : idx === 1 ? "bg-amber-500/10 border-amber-500/30 text-amber-550 border" : "bg-violet-500/10 border-violet-500/30 text-violet-400 border",
+    audiencePct: idx === 0 ? "46% DE TU AUDIENCIA" : idx === 1 ? "32% DE TU AUDIENCIA" : "22% DE TU AUDIENCIA",
+    audienceClass: idx === 0 ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 border" : idx === 1 ? "bg-amber-500/10 border-amber-500/30 text-amber-400 border" : "bg-violet-500/10 border-violet-500/30 text-violet-400 border",
+    img: idx === 0 ? "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300&h=300" : idx === 1 ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300&h=300" : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300&h=300",
+    image: idx === 0 ? "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300&h=300" : idx === 1 ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300&h=300" : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300&h=300",
+    age: "",
+    ageRange: "",
+    studies: "",
+    education: "",
+    archetype: "",
+    occupation: "",
+    incomeRange: "",
+    income: "",
+    location: "",
+    geographic: "",
+    civilStatus: "",
+    marital_status: "",
+    devices: "",
+    dolores_principales: ["", "", "", ""],
+    deseos_principales: ["", "", "", ""],
+    quote: "",
+    dolores_ocultos: [
+      { title: "", text: "" },
+      { title: "", text: "" },
+      { title: "", text: "" },
+      { title: "", text: "" }
+    ],
+    deseos_motivaciones: [
+      { title: "", text: "" },
+      { title: "", text: "" },
+      { title: "", text: "" },
+      { title: "", text: "" }
+    ],
+    comportamientos: ["", "", "", ""],
+    behaviors: ["", "", "", ""],
+    motivations: { dinero: "", tiempo: "", estatus: "", seguridad: "" }
+});
+
 interface DashboardContext {
   user: User;
   projectCount: number;
@@ -433,9 +474,10 @@ export const ProjectWizard: React.FC = () => {
                 setMasterParentId(proj.masterParentId);
                 setOriginalStrategyJson(proj.strategy_json);
                 const avatars = proj.strategy_json?.avatars || [];
+                const hasSavedAvatars = avatars.length > 0;
                 const initialized = [0, 1, 2].map((idx) => {
                     const masterAv = avatars[idx] || {};
-                    const defAv = DEFAULT_AVATARS_DATA[idx];
+                    const defAv = hasSavedAvatars ? getBlankAvatar(idx) : DEFAULT_AVATARS_DATA[idx];
                     
                     const defaultMotivations = defAv.motivations || {};
                     const rawMotivations = masterAv.motivations || {};
@@ -451,18 +493,25 @@ export const ProjectWizard: React.FC = () => {
                     return {
                         ...defAv,
                         ...masterAv,
-                        name: masterAv.name || defAv.name,
-                        education: masterAv.education || masterAv.studies || defAv.education,
-                        studies: masterAv.studies || masterAv.education || defAv.studies,
-                        archetype: masterAv.archetype || masterAv.occupation || defAv.archetype,
-                        occupation: masterAv.occupation || masterAv.archetype || defAv.occupation,
-                        incomeRange: masterAv.incomeRange || masterAv.income || defAv.incomeRange,
-                        income: masterAv.income || masterAv.incomeRange || defAv.income,
-                        location: masterAv.location || masterAv.geographic || defAv.location,
-                        geographic: masterAv.geographic || masterAv.location || defAv.geographic,
-                        civilStatus: masterAv.civilStatus || masterAv.marital_status || defAv.civilStatus,
-                        marital_status: masterAv.marital_status || masterAv.civilStatus || defAv.marital_status,
-                        devices: masterAv.devices || defAv.devices,
+                        name: masterAv.name || defAv.name || '',
+                        education: masterAv.education || masterAv.studies || defAv.education || '',
+                        studies: masterAv.studies || masterAv.education || defAv.studies || '',
+                        archetype: masterAv.archetype || masterAv.occupation || defAv.archetype || '',
+                        occupation: masterAv.occupation || masterAv.archetype || defAv.occupation || '',
+                        incomeRange: masterAv.incomeRange || masterAv.income || defAv.incomeRange || '',
+                        income: masterAv.income || masterAv.incomeRange || defAv.income || '',
+                        location: masterAv.location || masterAv.geographic || defAv.location || '',
+                        geographic: masterAv.geographic || masterAv.location || defAv.geographic || '',
+                        civilStatus: masterAv.civilStatus || masterAv.marital_status || defAv.civilStatus || '',
+                        marital_status: masterAv.marital_status || masterAv.civilStatus || defAv.marital_status || '',
+                        devices: masterAv.devices || defAv.devices || '',
+                        dolores_principales: masterAv.dolores_principales || [...defAv.dolores_principales],
+                        deseos_principales: masterAv.deseos_principales || [...defAv.deseos_principales],
+                        quote: masterAv.quote || defAv.quote || '',
+                        dolores_ocultos: masterAv.dolores_ocultos || [...defAv.dolores_ocultos],
+                        deseos_motivaciones: masterAv.deseos_motivaciones || [...defAv.deseos_motivaciones],
+                        comportamientos: masterAv.comportamientos || [...defAv.comportamientos],
+                        behaviors: masterAv.behaviors || [...defAv.behaviors],
                         motivations: healedMotivations
                     };
                 });
@@ -970,9 +1019,10 @@ export const ProjectWizard: React.FC = () => {
                                     type="button"
                                     onClick={() => {
                                         const avatars = originalStrategyJson?.avatars || [];
+                                        const hasSavedAvatars = avatars.length > 0;
                                         const initialized = [0, 1, 2].map((idx) => {
                                             const masterAv = avatars[idx] || {};
-                                            const defAv = DEFAULT_AVATARS_DATA[idx];
+                                            const defAv = hasSavedAvatars ? getBlankAvatar(idx) : DEFAULT_AVATARS_DATA[idx];
                                             
                                             const defaultMotivations = defAv.motivations || {};
                                             const rawMotivations = masterAv.motivations || {};
@@ -988,21 +1038,21 @@ export const ProjectWizard: React.FC = () => {
                                             return {
                                                 ...defAv,
                                                 ...masterAv,
-                                                name: masterAv.name || defAv.name,
-                                                education: masterAv.education || masterAv.studies || defAv.education,
-                                                studies: masterAv.studies || masterAv.education || defAv.studies,
-                                                archetype: masterAv.archetype || masterAv.occupation || defAv.archetype,
-                                                occupation: masterAv.occupation || masterAv.archetype || defAv.occupation,
-                                                incomeRange: masterAv.incomeRange || masterAv.income || defAv.incomeRange,
-                                                income: masterAv.income || masterAv.incomeRange || defAv.income,
-                                                location: masterAv.location || masterAv.geographic || defAv.location,
-                                                geographic: masterAv.geographic || masterAv.location || defAv.geographic,
-                                                civilStatus: masterAv.civilStatus || masterAv.marital_status || defAv.civilStatus,
-                                                marital_status: masterAv.marital_status || masterAv.civilStatus || defAv.marital_status,
-                                                devices: masterAv.devices || defAv.devices,
+                                                name: masterAv.name || defAv.name || '',
+                                                education: masterAv.education || masterAv.studies || defAv.education || '',
+                                                studies: masterAv.studies || masterAv.education || defAv.studies || '',
+                                                archetype: masterAv.archetype || masterAv.occupation || defAv.archetype || '',
+                                                occupation: masterAv.occupation || masterAv.archetype || defAv.occupation || '',
+                                                incomeRange: masterAv.incomeRange || masterAv.income || defAv.incomeRange || '',
+                                                income: masterAv.income || masterAv.incomeRange || defAv.income || '',
+                                                location: masterAv.location || masterAv.geographic || defAv.location || '',
+                                                geographic: masterAv.geographic || masterAv.location || defAv.geographic || '',
+                                                civilStatus: masterAv.civilStatus || masterAv.marital_status || defAv.civilStatus || '',
+                                                marital_status: masterAv.marital_status || masterAv.civilStatus || defAv.marital_status || '',
+                                                devices: masterAv.devices || defAv.devices || '',
                                                 dolores_principales: masterAv.dolores_principales || [...defAv.dolores_principales],
                                                 deseos_principales: masterAv.deseos_principales || [...defAv.deseos_principales],
-                                                quote: masterAv.quote || defAv.quote,
+                                                quote: masterAv.quote || defAv.quote || '',
                                                 dolores_ocultos: masterAv.dolores_ocultos || [...defAv.dolores_ocultos],
                                                 deseos_motivaciones: masterAv.deseos_motivaciones || [...defAv.deseos_motivaciones],
                                                 comportamientos: masterAv.comportamientos || [...defAv.comportamientos],
@@ -1127,7 +1177,10 @@ export const ProjectWizard: React.FC = () => {
                                                                         <div className="space-y-5">
                                                                             <div className="grid md:grid-cols-2 gap-4">
                                                                                 <div className="space-y-1">
-                                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Dolor Crítico</label>
+                                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center justify-between">
+                                                                                        <span>Dolor Crítico</span>
+                                                                                        {!av.dolores_principales?.[0] && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                    </label>
                                                                                     <textarea 
                                                                                         value={av.dolores_principales?.[0] || ''} 
                                                                                         onChange={e => {
@@ -1138,13 +1191,16 @@ export const ProjectWizard: React.FC = () => {
                                                                                             copy[idx] = { ...copy[idx], dolores_principales: currentDol };
                                                                                             setTempAvatars(copy);
                                                                                         }}
-                                                                                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans"
+                                                                                        className={`w-full bg-zinc-950 border ${!av.dolores_principales?.[0] ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans`}
                                                                                         rows={2}
                                                                                         placeholder="El dolor más crítico e inmediato del cliente..."
                                                                                     />
                                                                                 </div>
                                                                                 <div className="space-y-1">
-                                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Transformación Deseada</label>
+                                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center justify-between">
+                                                                                        <span>Transformación Deseada</span>
+                                                                                        {!av.deseos_principales?.[0] && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                    </label>
                                                                                     <textarea 
                                                                                         value={av.deseos_principales?.[0] || ''} 
                                                                                         onChange={e => {
@@ -1155,13 +1211,16 @@ export const ProjectWizard: React.FC = () => {
                                                                                             copy[idx] = { ...copy[idx], deseos_principales: currentDes };
                                                                                             setTempAvatars(copy);
                                                                                         }}
-                                                                                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans"
+                                                                                        className={`w-full bg-zinc-950 border ${!av.deseos_principales?.[0] ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans`}
                                                                                         rows={2}
                                                                                         placeholder="Consolidar un negocio o la meta máxima del cliente..."
                                                                                     />
                                                                                 </div>
                                                                                 <div className="space-y-1">
-                                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Barrera de Venta</label>
+                                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center justify-between">
+                                                                                        <span>Barrera de Venta</span>
+                                                                                        {!av.dolores_principales?.[1] && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                    </label>
                                                                                     <textarea 
                                                                                         value={av.dolores_principales?.[1] || ''} 
                                                                                         onChange={e => {
@@ -1172,13 +1231,16 @@ export const ProjectWizard: React.FC = () => {
                                                                                             copy[idx] = { ...copy[idx], dolores_principales: currentDol };
                                                                                             setTempAvatars(copy);
                                                                                         }}
-                                                                                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans"
+                                                                                        className={`w-full bg-zinc-950 border ${!av.dolores_principales?.[1] ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans`}
                                                                                         rows={2}
                                                                                         placeholder="Por qué no compra actualmente..."
                                                                                     />
                                                                                 </div>
                                                                                 <div className="space-y-1">
-                                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Para qué Emocional</label>
+                                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center justify-between">
+                                                                                        <span>Para qué Emocional</span>
+                                                                                        {!av.deseos_principales?.[1] && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                    </label>
                                                                                     <textarea 
                                                                                         value={av.deseos_principales?.[1] || ''} 
                                                                                         onChange={e => {
@@ -1189,7 +1251,7 @@ export const ProjectWizard: React.FC = () => {
                                                                                             copy[idx] = { ...copy[idx], deseos_principales: currentDes };
                                                                                             setTempAvatars(copy);
                                                                                         }}
-                                                                                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans"
+                                                                                        className={`w-full bg-zinc-950 border ${!av.deseos_principales?.[1] ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans`}
                                                                                         rows={2}
                                                                                         placeholder="La razón subyacente o emocional de su transformación..."
                                                                                     />
@@ -1197,7 +1259,10 @@ export const ProjectWizard: React.FC = () => {
                                                                             </div>
 
                                                                             <div className="space-y-1">
-                                                                                <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Frase de Conexión (Quote)</label>
+                                                                                <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center justify-between">
+                                                                                    <span>Frase de Conexión (Quote)</span>
+                                                                                    {!av.quote && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                </label>
                                                                                 <textarea 
                                                                                     value={av.quote || ''} 
                                                                                     onChange={e => {
@@ -1205,7 +1270,7 @@ export const ProjectWizard: React.FC = () => {
                                                                                         copy[idx] = { ...copy[idx], quote: e.target.value };
                                                                                         setTempAvatars(copy);
                                                                                     }}
-                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans"
+                                                                                    className={`w-full bg-zinc-950 border ${!av.quote ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans`}
                                                                                     rows={2}
                                                                                     placeholder="Quote o frase estelar con la que este cliente conecta de inmediato..."
                                                                                 />
@@ -1216,7 +1281,10 @@ export const ProjectWizard: React.FC = () => {
                                                                                 <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest">Tarjetas de Decisión (Drivers)</label>
                                                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                                                                     <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-900/60">
-                                                                                        <label className="block text-[10px] font-extrabold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1">💸 Dinero</label>
+                                                                                        <label className="block text-[10px] font-extrabold text-emerald-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                                                                                            <span>💸 Dinero</span>
+                                                                                            {!av.motivations?.dinero && <span className="text-amber-550 lowercase italic text-[8px] font-normal">(vacío)</span>}
+                                                                                        </label>
                                                                                         <textarea 
                                                                                             rows={3}
                                                                                             value={av.motivations?.dinero || ''} 
@@ -1228,12 +1296,15 @@ export const ProjectWizard: React.FC = () => {
                                                                                                 };
                                                                                                 setTempAvatars(copy);
                                                                                             }}
-                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-orange-500 outline-none resize-none font-sans leading-relaxed"
+                                                                                            className={`w-full bg-black/60 border ${!av.motivations?.dinero ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-orange-500 outline-none resize-none font-sans leading-relaxed`}
                                                                                             placeholder="Beneficios de dinero o retorno..."
                                                                                         />
                                                                                     </div>
                                                                                     <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-900/60">
-                                                                                        <label className="block text-[10px] font-extrabold text-sky-400 uppercase tracking-wider mb-2 flex items-center gap-1">⏱️ Tiempo</label>
+                                                                                        <label className="block text-[10px] font-extrabold text-sky-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                                                                                            <span>⏱️ Tiempo</span>
+                                                                                            {!av.motivations?.tiempo && <span className="text-amber-550 lowercase italic text-[8px] font-normal">(vacío)</span>}
+                                                                                        </label>
                                                                                         <textarea 
                                                                                             rows={3}
                                                                                             value={av.motivations?.tiempo || ''} 
@@ -1245,12 +1316,15 @@ export const ProjectWizard: React.FC = () => {
                                                                                                 };
                                                                                                 setTempAvatars(copy);
                                                                                             }}
-                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-orange-500 outline-none resize-none font-sans leading-relaxed"
+                                                                                            className={`w-full bg-black/60 border ${!av.motivations?.tiempo ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-orange-500 outline-none resize-none font-sans leading-relaxed`}
                                                                                             placeholder="Valor del ahorro de tiempo..."
                                                                                         />
                                                                                     </div>
                                                                                     <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-900/60">
-                                                                                        <label className="block text-[10px] font-extrabold text-yellow-500 uppercase tracking-wider mb-2 flex items-center gap-1">👑 Estatus</label>
+                                                                                        <label className="block text-[10px] font-extrabold text-yellow-500 uppercase tracking-wider mb-2 flex items-center justify-between">
+                                                                                            <span>👑 Estatus</span>
+                                                                                            {!av.motivations?.estatus && <span className="text-amber-550 lowercase italic text-[8px] font-normal">(vacío)</span>}
+                                                                                        </label>
                                                                                         <textarea 
                                                                                             rows={3}
                                                                                             value={av.motivations?.estatus || ''} 
@@ -1262,12 +1336,15 @@ export const ProjectWizard: React.FC = () => {
                                                                                                 };
                                                                                                 setTempAvatars(copy);
                                                                                             }}
-                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-orange-500 outline-none resize-none font-sans leading-relaxed"
+                                                                                            className={`w-full bg-black/60 border ${!av.motivations?.estatus ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-orange-500 outline-none resize-none font-sans leading-relaxed`}
                                                                                             placeholder="Prestigio, autoridad o reconocimiento..."
                                                                                         />
                                                                                     </div>
                                                                                     <div className="bg-zinc-950 p-3 rounded-2xl border border-zinc-900/60">
-                                                                                        <label className="block text-[10px] font-extrabold text-purple-400 uppercase tracking-wider mb-2 flex items-center gap-1">🛡️ Seguridad</label>
+                                                                                        <label className="block text-[10px] font-extrabold text-purple-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                                                                                            <span>🛡️ Seguridad</span>
+                                                                                            {!av.motivations?.seguridad && <span className="text-amber-550 lowercase italic text-[8px] font-normal">(vacío)</span>}
+                                                                                        </label>
                                                                                         <textarea 
                                                                                             rows={3}
                                                                                             value={av.motivations?.seguridad || ''} 
@@ -1279,7 +1356,7 @@ export const ProjectWizard: React.FC = () => {
                                                                                                 };
                                                                                                 setTempAvatars(copy);
                                                                                             }}
-                                                                                            className="w-full bg-black/60 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-orange-500 outline-none resize-none font-sans leading-relaxed"
+                                                                                            className={`w-full bg-black/60 border ${!av.motivations?.seguridad ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-orange-500 outline-none resize-none font-sans leading-relaxed`}
                                                                                             placeholder="Garantías, soporte de confianza..."
                                                                                         />
                                                                                     </div>
@@ -1292,7 +1369,10 @@ export const ProjectWizard: React.FC = () => {
                                                                     {modalSubTab === 'demografico' && (
                                                                         <div className="grid md:grid-cols-2 gap-4">
                                                                             <div>
-                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Nombre del Avatar</label>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans flex items-center justify-between">
+                                                                                    <span>Nombre del Avatar</span>
+                                                                                    {!av.name && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                </label>
                                                                                 <input 
                                                                                     type="text" 
                                                                                     value={av.name || ''} 
@@ -1301,12 +1381,15 @@ export const ProjectWizard: React.FC = () => {
                                                                                         copy[idx] = { ...copy[idx], name: e.target.value };
                                                                                         setTempAvatars(copy);
                                                                                     }}
-                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    className={`w-full bg-zinc-950 border ${!av.name ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans`} 
                                                                                     placeholder="Ej: María Fernanda" 
                                                                                 />
                                                                             </div>
                                                                             <div>
-                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Rango de Edad</label>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans flex items-center justify-between">
+                                                                                    <span>Rango de Edad</span>
+                                                                                    {!(av.age || av.ageRange) && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                </label>
                                                                                 <input 
                                                                                     type="text" 
                                                                                     value={av.age || av.ageRange || ''} 
@@ -1315,12 +1398,15 @@ export const ProjectWizard: React.FC = () => {
                                                                                         copy[idx] = { ...copy[idx], age: e.target.value, ageRange: e.target.value };
                                                                                         setTempAvatars(copy);
                                                                                     }}
-                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    className={`w-full bg-zinc-950 border ${!(av.age || av.ageRange) ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans`} 
                                                                                     placeholder="Ej: 28 - 35 años" 
                                                                                 />
                                                                             </div>
                                                                             <div>
-                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Nivel de Estudios / Educación</label>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans flex items-center justify-between">
+                                                                                    <span>Nivel de Estudios / Educación</span>
+                                                                                    {!(av.education || av.studies) && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                </label>
                                                                                 <input 
                                                                                     type="text" 
                                                                                     value={av.education || av.studies || ''} 
@@ -1329,12 +1415,15 @@ export const ProjectWizard: React.FC = () => {
                                                                                         copy[idx] = { ...copy[idx], education: e.target.value, studies: e.target.value };
                                                                                         setTempAvatars(copy);
                                                                                     }}
-                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    className={`w-full bg-zinc-950 border ${!(av.education || av.studies) ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans`} 
                                                                                     placeholder="Ej: Universitario o Técnico Superior" 
                                                                                 />
                                                                             </div>
                                                                             <div>
-                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Ocupación / Arquetipo</label>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans flex items-center justify-between">
+                                                                                    <span>Ocupación / Arquetipo</span>
+                                                                                    {!(av.occupation || av.archetype) && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                </label>
                                                                                 <input 
                                                                                     type="text" 
                                                                                     value={av.occupation || av.archetype || ''} 
@@ -1343,12 +1432,15 @@ export const ProjectWizard: React.FC = () => {
                                                                                         copy[idx] = { ...copy[idx], occupation: e.target.value, archetype: e.target.value };
                                                                                         setTempAvatars(copy);
                                                                                     }}
-                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    className={`w-full bg-zinc-950 border ${!(av.occupation || av.archetype) ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans`} 
                                                                                     placeholder="Ej: Cosmetóloga independiente o Esteticista" 
                                                                                 />
                                                                             </div>
                                                                             <div>
-                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Ingresos Mensuales</label>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans flex items-center justify-between">
+                                                                                    <span>Ingresos Mensuales</span>
+                                                                                    {!(av.income || av.incomeRange) && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                </label>
                                                                                 <input 
                                                                                     type="text" 
                                                                                     value={av.income || av.incomeRange || ''} 
@@ -1357,12 +1449,15 @@ export const ProjectWizard: React.FC = () => {
                                                                                         copy[idx] = { ...copy[idx], income: e.target.value, incomeRange: e.target.value };
                                                                                         setTempAvatars(copy);
                                                                                     }}
-                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    className={`w-full bg-zinc-950 border ${!(av.income || av.incomeRange) ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans`} 
                                                                                     placeholder="Ej: Ingreso base inestable ($600 - $1,200 USD/mes)" 
                                                                                 />
                                                                             </div>
                                                                             <div>
-                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Ubicación Geográfica</label>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans flex items-center justify-between">
+                                                                                    <span>Ubicación Geográfica</span>
+                                                                                    {!(av.location || av.geographic) && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                </label>
                                                                                 <input 
                                                                                     type="text" 
                                                                                     value={av.location || av.geographic || ''} 
@@ -1371,12 +1466,15 @@ export const ProjectWizard: React.FC = () => {
                                                                                         copy[idx] = { ...copy[idx], location: e.target.value, geographic: e.target.value };
                                                                                         setTempAvatars(copy);
                                                                                     }}
-                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    className={`w-full bg-zinc-950 border ${!(av.location || av.geographic) ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans`} 
                                                                                     placeholder="Ej: Zonas semi-urbanas y urbanas" 
                                                                                 />
                                                                             </div>
                                                                             <div>
-                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Estado Civil / Familia</label>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans flex items-center justify-between">
+                                                                                    <span>Estado Civil / Familia</span>
+                                                                                    {!(av.civilStatus || av.marital_status) && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                </label>
                                                                                 <input 
                                                                                     type="text" 
                                                                                     value={av.civilStatus || av.marital_status || ''} 
@@ -1385,12 +1483,15 @@ export const ProjectWizard: React.FC = () => {
                                                                                         copy[idx] = { ...copy[idx], civilStatus: e.target.value, marital_status: e.target.value };
                                                                                         setTempAvatars(copy);
                                                                                     }}
-                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    className={`w-full bg-zinc-950 border ${!(av.civilStatus || av.marital_status) ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans`} 
                                                                                     placeholder="Ej: Soltera o casada con hijos pequeños" 
                                                                                 />
                                                                             </div>
                                                                             <div>
-                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans">Dispositivos y Redes</label>
+                                                                                <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans flex items-center justify-between">
+                                                                                    <span>Dispositivos y Redes</span>
+                                                                                    {!av.devices && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                </label>
                                                                                 <input 
                                                                                     type="text" 
                                                                                     value={av.devices || ''} 
@@ -1399,7 +1500,7 @@ export const ProjectWizard: React.FC = () => {
                                                                                         copy[idx] = { ...copy[idx], devices: e.target.value };
                                                                                         setTempAvatars(copy);
                                                                                     }}
-                                                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans" 
+                                                                                    className={`w-full bg-zinc-950 border ${!av.devices ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans`} 
                                                                                     placeholder="Ej: Instagram, WhatsApp, Smartphone gama media-alta" 
                                                                                 />
                                                                             </div>
