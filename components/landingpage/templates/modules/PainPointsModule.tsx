@@ -48,13 +48,9 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
   const learningModules = strategy?.psychology?.learningModules || [];
 
   const getPainsForAvatar = (index: number) => {
-    const avatarPains = pains.filter((p: any) => p.avatarId === index + 1);
+    const avatarPains = pains.filter((p: any) => p && typeof p !== 'string' && (String(p.avatarId) === String(index + 1)));
     if (avatarPains.length > 0) return avatarPains.map((p: any) => p.text);
-    
-    // Fallback logic
-    const itemsPerAvatar = 3;
-    const start = index * itemsPerAvatar;
-    return pains.length > 0 ? pains.slice(start, start + itemsPerAvatar).map((p: any) => p.text) : [];
+    return ["El contenido de la frustración del avatar no existe o no ha sido encontrado en la base de datos."];
   };
   
   const getAvatarTitle = (index: number) => {
@@ -86,9 +82,7 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
           ...data,
           icon: getIconByName(data.iconName, idx === 0 ? <Sparkles className="w-10 h-10 text-purple-400" /> : idx === 1 ? <TrendingUp className="w-10 h-10 text-blue-400" /> : <UserCheck className="w-10 h-10 text-emerald-400" />),
           gradient: colors.bg,
-          points: getPainsForAvatar(idx).length > 0 ? getPainsForAvatar(idx) : [
-              idx === 0 ? "Construye algo propio desde cero." : idx === 1 ? "Domina la técnica natural." : "Recupera tu inversión pronto."
-          ]
+          points: getPainsForAvatar(idx)
       };
   });
 

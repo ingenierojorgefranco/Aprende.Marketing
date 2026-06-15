@@ -7295,16 +7295,24 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 const occupation = baseAv.occupation;
                                 const income = baseAv.income;
                                 
+                                const id = realAv?.id || idx + 1;
+
                                 let transformation_title = realAv?.transformation_title || realAv?.learning_hook || defaultAv.transformation_title;
                                 let detailed_pains = defaultAv.detailed_pains;
-                                if (realAv?.detailed_pains && Array.isArray(realAv.detailed_pains) && realAv.detailed_pains.length > 0) {
-                                  detailed_pains = realAv.detailed_pains;
+
+                                // 1. Buscamos dolores altamente persuasivos en la base de datos (psychology.pains) para este avatar
+                                const customPains = strategyData?.psychology?.pains && Array.isArray(strategyData.psychology.pains)
+                                  ? strategyData.psychology.pains.filter((p: any) => 
+                                      p && typeof p !== 'string' && 
+                                      (String(p.avatarId) === String(id) || String(p.avatarId) === String(idx + 1))
+                                    )
+                                  : [];
+
+                                // 2. Si existen, los asignamos directamente, si no, se muestra el mensaje de diagnóstico de base de datos
+                                if (customPains.length > 0) {
+                                  detailed_pains = customPains.map((p: any) => typeof p === 'string' ? p : p.text);
                                 } else {
-                                  detailed_pains = [
-                                    realAv?.pain ? `Si te frustra ver que: ${realAv.pain}` : defaultAv.detailed_pains[0],
-                                    realAv?.daily_manifestation ? `Si te agota sentir que: ${realAv.daily_manifestation}` : defaultAv.detailed_pains[1],
-                                    realAv?.objection ? `Si te duele dudar sobre: ${realAv.objection}` : defaultAv.detailed_pains[2]
-                                  ].filter(Boolean);
+                                  detailed_pains = ["El contenido de la frustración del avatar no existe o no ha sido encontrado en la base de datos."];
                                 }
 
                                 return {

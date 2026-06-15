@@ -148,17 +148,11 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                   )
                 : [];
             
-            let detailed_pains = defaultAv.detailed_pains;
+            let detailed_pains = [];
             if (customPains.length > 0) {
                 detailed_pains = customPains.map((p: any) => typeof p === 'string' ? p : p.text);
-            } else if (realAv.detailed_pains && Array.isArray(realAv.detailed_pains) && realAv.detailed_pains.length > 0) {
-                detailed_pains = realAv.detailed_pains;
             } else {
-                detailed_pains = [
-                    realAv.pain ? `Si te frustra ver que: ${realAv.pain}` : defaultAv.detailed_pains[0],
-                    realAv.daily_manifestation ? `Si te agota sentir que: ${realAv.daily_manifestation}` : defaultAv.detailed_pains[1],
-                    realAv.objection ? `Si te duele dudar sobre: ${realAv.objection}` : defaultAv.detailed_pains[2]
-                ].filter(Boolean);
+                detailed_pains = ["El contenido de la frustración del avatar no existe o no ha sido encontrado en la base de datos."];
             }
 
             return {
@@ -605,7 +599,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
 
                                                         {/* Right column with 3 pains details */}
                                                         <div className="lg:col-span-6 space-y-6 text-left">
-                                                            {av.detailed_pains.map((dolor, pIdx) => (
+                                                            {av.detailed_pains.map((dolor: string, pIdx: number) => (
                                                                 <div key={pIdx} className="flex gap-5 items-start text-left">
                                                                     {/* High contrast custom glowing dot element */}
                                                                     <div className="relative shrink-0 mt-2">
@@ -680,20 +674,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                             return customPains;
                                         }
 
-                                        // 2. Si no hay, construimos fallback dinámico basado en avatar.pain, daily_manifestation y objection
-                                        const p1 = avatar.pain 
-                                            ? (avatar.pain.toLowerCase().startsWith('si te frustra') ? avatar.pain : `Si te frustra ver que: ${avatar.pain}`)
-                                            : `Si te frustra ver que: (no definido)`;
-
-                                        const p2 = avatar.daily_manifestation 
-                                            ? (avatar.daily_manifestation.toLowerCase().startsWith('si te agota') ? avatar.daily_manifestation : `Si te agota sentir que: ${avatar.daily_manifestation}`)
-                                            : `Si te agota sentir que: (no definido)`;
-
-                                        const p3 = avatar.objection 
-                                            ? (avatar.objection.toLowerCase().startsWith('si te duele') ? avatar.objection : `Si te duele dudar sobre: ${avatar.objection}`)
-                                            : `Si te duele dudar sobre: (no definido)`;
-
-                                        return [p1, p2, p3];
+                                        return ["El contenido de la frustración del avatar no existe o no ha sido encontrado en la base de datos."];
                                     })().map((painPoint, pIdx) => (
                                         <div key={pIdx} className="flex gap-6">
                                             <div className="mt-3 shrink-0">
