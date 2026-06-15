@@ -4,7 +4,7 @@ import {
     Flame, AlertTriangle, Brain, 
     Play, TrendingUp, UserCheck, CheckCircle2, Users, Sparkles,
     Target, Star, Zap, Lightbulb, Shield, Loader2,
-    MessageSquare, Calendar, ChevronDown
+    MessageSquare, Calendar, ChevronDown, BookOpen, Crown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../../../services/api';
@@ -24,7 +24,9 @@ const IconMap: Record<string, React.ReactNode> = {
   Zap: <Zap />,
   Star: <Star />,
   Shield: <Shield />,
-  UserCheck: <UserCheck />
+  UserCheck: <UserCheck />,
+  BookOpen: <BookOpen />,
+  Crown: <Crown />
 };
 
 interface ProjectStrategy_PsychologyProps {
@@ -353,17 +355,38 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
 
     const { avatars = [], psychology = { pains: [], solutions: [], awarenessStages: { stage1_pain: '', stage2_solution: '', stage3_barrier: '' }, conversionStrategy: { mainFocus: [], tacticalNote: '' }, learningModules: [] } } = localStrategy;
 
-    const learningModules = (psychology.learningModules && psychology.learningModules.length > 0) 
-        ? psychology.learningModules 
-        : (psychology.solutions || []).map((sol: any, idx: number) => ({
-            title: typeof sol === 'object' ? sol.title : "Módulo de aprendizaje",
-            description: typeof sol === 'object' ? sol.description : sol,
-            icon: idx % 3 === 0 ? 'Brain' : idx % 3 === 1 ? 'Target' : 'Zap',
-            color: idx < 3 ? 'text-blue-400' : idx < 6 ? 'text-emerald-400' : 'text-purple-400',
-            bg: idx < 3 ? 'bg-blue-500/10' : idx < 6 ? 'bg-emerald-500/10' : 'bg-purple-500/10',
-            border: idx < 3 ? 'border-blue-500/20' : idx < 6 ? 'border-emerald-500/20' : 'border-purple-500/20',
-            glow: idx < 3 ? 'hover:shadow-blue-500/10' : idx < 6 ? 'hover:shadow-emerald-500/10' : 'hover:shadow-purple-500/10'
-        }));
+    const defaultBenefitsList = [
+        { title: "EL MAPA DEL ÉXITO PREMIUM", description: "Descubrirás el camino exacto para posicionarte como la opción de lujo que las clientas desean.", icon: "Target", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20", glow: "hover:shadow-blue-500/10" },
+        { title: "ARQUITECTURA DE LA MIRADA", description: "Dominarás el arte de diseñar rostros que generen recomendaciones automáticas y ventas masivas.", icon: "BookOpen", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", glow: "hover:shadow-purple-500/10" },
+        { title: "INGRESOS DE ALTO IMPACTO", description: "La clave definitiva para dejar de competir por precio y empezar a cobrar por tu maestría.", icon: "TrendingUp", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", glow: "hover:shadow-emerald-500/10" },
+        { title: "EL ESCUDO DE SEGURIDAD", description: "Aprende los protocolos clínicos que protegen tu trabajo y te brindan confianza absoluta.", icon: "Shield", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20", glow: "hover:shadow-rose-500/10" },
+        { title: "PROTOCOLO DE ATENCIÓN ÉLITE", description: "Cómo estructurar citas de alta gama completas que fidelicen a tus clientes desde la primera sesión.", icon: "Crown", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", glow: "hover:shadow-amber-500/10" },
+        { title: "LA COMUNIDAD PRIVADA VIP", description: "Soporte constante las 24 horas para guiarte en tus prácticas reales con modelos.", icon: "Users", color: "text-indigo-400", bg: "bg-indigo-500/10", border: "border-indigo-500/20", glow: "hover:shadow-indigo-500/10" }
+    ];
+
+    const getStyledItem = (item: any, idx: number) => {
+        const title = item.title || item.name || "Módulo de Valor";
+        const description = item.description || item.desc || item.text || "Módulo estructurado para detonar urgencia y persuasión de compra.";
+        const icon = item.icon || (idx % 3 === 0 ? 'Brain' : idx % 3 === 1 ? 'Target' : 'Zap');
+        const color = item.color || (idx % 3 === 0 ? 'text-blue-400' : idx % 3 === 1 ? 'text-emerald-400' : 'text-purple-400');
+        const bg = item.bg || (idx % 3 === 0 ? 'bg-blue-500/10' : idx % 3 === 1 ? 'bg-emerald-500/10' : 'bg-purple-500/10');
+        const border = item.border || (idx % 3 === 0 ? 'border-blue-500/20' : idx % 3 === 1 ? 'border-emerald-500/20' : 'border-purple-500/20');
+        const glow = item.glow || (idx % 3 === 0 ? 'hover:shadow-blue-500/10' : idx % 3 === 1 ? 'hover:shadow-emerald-500/10' : 'hover:shadow-purple-500/10');
+        return { title, description, icon, color, bg, border, glow };
+    };
+
+    const rawWebBenefits = (localStrategy as any)?.modules?.web?.landingPageTabs?.benefits?.items || [];
+    const rawBenefits = (localStrategy as any)?.benefits || [];
+
+    const learningModules = (psychology.learningModules && psychology.learningModules.length > 0)
+        ? psychology.learningModules
+        : (psychology.solutions && psychology.solutions.length > 0)
+        ? psychology.solutions.map((sol: any, idx: number) => getStyledItem(typeof sol === 'object' ? sol : { title: "Módulo de aprendizaje", description: sol }, idx))
+        : (rawWebBenefits.length > 0)
+        ? rawWebBenefits.map((item: any, idx: number) => getStyledItem(item, idx))
+        : (rawBenefits.length > 0)
+        ? rawBenefits.map((item: any, idx: number) => getStyledItem(item, idx))
+        : defaultBenefitsList;
 
     const EditableField = ({ value, onSave, multiline = false, className = "" }: { value: string, onSave: (val: string) => void, multiline?: boolean, className?: string }) => {
         const [isEditing, setIsEditing] = useState(false);
@@ -701,7 +724,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                 </div>
 
                 <div className="grid gap-8 md:grid-cols-3 text-left">
-                    {learningModules.map((item, idx) => (
+                    {learningModules.map((item: any, idx: number) => (
                         <div key={idx} className={`relative p-10 rounded-[3.5rem] border bg-gradient-to-br ${item.bg} ${item.border} shadow-2xl transition-all duration-700 group overflow-hidden ${item.glow} backdrop-blur-sm hover:-translate-y-2`}>
                             <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.07] group-hover:scale-125 transition-all duration-700 pointer-events-none">
                                 {IconMap[item.icon] && React.cloneElement(IconMap[item.icon] as any, { size: 180 })}

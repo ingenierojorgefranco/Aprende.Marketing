@@ -348,6 +348,41 @@ const getBlankAvatar = (idx: number) => ({
     motivations: { dinero: "", tiempo: "", estatus: "", seguridad: "" }
 });
 
+const DEFAULT_COMMERCIAL_DATA = {
+    proposition: {
+        positioningStatement: "Ayudamos a esteticistas y emprendedoras de belleza a dominar la técnica de micropigmentación hiperrealista en 30 días con certificación oficial, logrando multiplicar por 5 sus ingresos por servicio sin depender de las marcas tradicionales o manuales complejos.",
+        traditionalMarketDescription: "Enfoque teórico aburrido, soporte ausente, sin orientación comercial, guerra de precios e insumos genéricos.",
+        ourAlternativeDescription: "Trazos hiperrealistas milimétricos garantizados, acompañamiento clínico activo, kit premium y tutoría para captar sus primeras 5 clientas estables."
+    },
+    offer: {
+        productName: "",
+        recommendedPrice: "297",
+        originalPrice: "597",
+        packageItems: [
+            { concept: "Acceso Completo al Entrenamiento en Alta Definición", cost: "Valor de $197 USD" },
+            { concept: "Kit Integral de Micropigmentación (Zonas autorizadas)", cost: "Valor de $150 USD" },
+            { concept: "Sesiones de Consultas Clínicas de zoom 1-a-1", cost: "Cupo Limitado ($100 USD)" },
+            { concept: "Acceso Vitalicio + Diploma Especialización", cost: "Bono Exclusivo (Gratuito)" }
+        ],
+        guaranteeTitle: "Garantía Incondicional de Satisfacción",
+        guaranteeDescription: "Si durante los primeros 7 días aplicas los trazos prácticos iniciales del kit y sientes que no es para ti, te devolvemos el 100% de tu dinero sin preguntas. Riesgo Cero."
+    },
+    funnel: {
+        funnelSteps: [
+            { stage: "Atracción Orgánica / Pauta", idea: "Anuncios y Reels hipersegmentados basados en el dolor del estancamiento financiero laboral tradicional de las esteticistas." },
+            { stage: "Captura de Datos", idea: "Landing de registro optimizada donde el prospecto se inscribe para ver una clase práctica express de Micropigmentación." },
+            { stage: "Nutrición con Persuasión", idea: "Secuencia automatizada de emails y recordatorios por WhatsApp calentando el escepticismo inicial y demostrando viabilidad." },
+            { stage: "Presentación de la Oferta / Cierre", idea: "Clase definitiva de 25 minutos con simulación guiada donde se abre la inscripción exclusiva al entrenamiento máster con su precio promocional." }
+        ]
+    },
+    cta: {
+        buttonText: "¡Quiero Especializarme e Incrementar mis Ingresos Ahora!",
+        safetyMicrocopy: "Inscripción 100% segura. Accede de inmediato al kit premium de micropigmentación.",
+        scarcityTrigger: "Solo quedan 7 cupos con precio promocional en este lote de soporte.",
+        urgencyTrigger: "Oferta válida únicamente por las próximas 48 horas de calentamiento."
+    }
+};
+
 interface DashboardContext {
   user: User;
   projectCount: number;
@@ -395,6 +430,11 @@ export const ProjectWizard: React.FC = () => {
     const [tempAvatars, setTempAvatars] = useState<any[]>(DEFAULT_AVATARS_DATA);
     const [expandedAvatarIdx, setExpandedAvatarIdx] = useState<number | null>(0);
     const [modalSubTab, setModalSubTab] = useState<string>('resumen');
+    
+    // Commercial Strategy manually edited attributes
+    const [isOpenCommercialModal, setIsOpenCommercialModal] = useState(false);
+    const [activeCommercialTab, setActiveCommercialTab] = useState<'proposition' | 'offer' | 'funnel' | 'cta'>('proposition');
+    const [tempCommercial, setTempCommercial] = useState<any>(JSON.parse(JSON.stringify(DEFAULT_COMMERCIAL_DATA)));
     
     const [errors, setErrors] = useState<Record<string, string>>({});
     
@@ -516,6 +556,32 @@ export const ProjectWizard: React.FC = () => {
                     };
                 });
                 setTempAvatars(initialized);
+                if (proj.strategy_json?.commercial) {
+                    setTempCommercial({
+                        ...DEFAULT_COMMERCIAL_DATA,
+                        ...proj.strategy_json.commercial,
+                        proposition: {
+                            ...DEFAULT_COMMERCIAL_DATA.proposition,
+                            ...proj.strategy_json.commercial.proposition
+                        },
+                        offer: {
+                            ...DEFAULT_COMMERCIAL_DATA.offer,
+                            ...proj.strategy_json.commercial.offer,
+                            packageItems: proj.strategy_json.commercial.offer?.packageItems || [...DEFAULT_COMMERCIAL_DATA.offer.packageItems]
+                        },
+                        funnel: {
+                            ...DEFAULT_COMMERCIAL_DATA.funnel,
+                            ...proj.strategy_json.commercial.funnel,
+                            funnelSteps: proj.strategy_json.commercial.funnel?.funnelSteps || [...DEFAULT_COMMERCIAL_DATA.funnel.funnelSteps]
+                        },
+                        cta: {
+                            ...DEFAULT_COMMERCIAL_DATA.cta,
+                            ...proj.strategy_json.commercial.cta
+                        }
+                    });
+                } else {
+                    setTempCommercial(JSON.parse(JSON.stringify(DEFAULT_COMMERCIAL_DATA)));
+                }
                 if (proj.multimedia_json) {
                     setMultimedia({
                         heroImages: proj.multimedia_json.heroImages || [],
@@ -582,6 +648,7 @@ export const ProjectWizard: React.FC = () => {
 
         const currentStrategy = originalStrategyJson ? JSON.parse(JSON.stringify(originalStrategyJson)) : {};
         currentStrategy.avatars = tempAvatars;
+        currentStrategy.commercial = tempCommercial; // Persistencia de datos del modal comercial
         
         const projectData: any = {
             name,
@@ -1069,6 +1136,485 @@ export const ProjectWizard: React.FC = () => {
                                     <Users className="w-4 h-4" /> Editar Avatares del Proyecto
                                 </button>
                             </div>
+
+                            <div className="border border-gray-800 rounded-2xl p-6 bg-zinc-950/40 flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+                                <div className="space-y-1">
+                                    <h3 className="text-lg font-bold text-white flex items-center gap-2 font-sans">
+                                        <Briefcase className="w-5 h-5 text-amber-500" /> Estrategia Comercial del Proyecto
+                                    </h3>
+                                    <p className="text-xs text-gray-400 font-sans">
+                                        Perfecciona y unifica la Propuesta de Valor, Oferta de Alto Impacto, Embudo de Ventas y Llamados a la Acción interactivos.
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (!tempCommercial || !tempCommercial.proposition) {
+                                            setTempCommercial(JSON.parse(JSON.stringify(DEFAULT_COMMERCIAL_DATA)));
+                                        }
+                                        setIsOpenCommercialModal(true);
+                                    }}
+                                    className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold px-5 py-3 rounded-xl transition-all hover:opacity-90 hover:scale-[1.02] shadow-lg shadow-[#FF5D1E]/10 active:scale-[0.98] text-sm whitespace-nowrap cursor-pointer"
+                                    id="btn-edit-commercial-wizard"
+                                >
+                                    <Briefcase className="w-4 h-4" /> Editar Estrategia Comercial
+                                </button>
+                            </div>
+
+                            {/* COMMERCIAL STRATEGY MODAL */}
+                            {isOpenCommercialModal && (
+                                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+                                    <div className="bg-[#111115] border border-gray-800 rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+                                        
+                                        {/* Header */}
+                                        <div className="p-6 border-b border-gray-800 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2.5 bg-amber-500/10 rounded-xl">
+                                                    <Briefcase className="w-6 h-6 text-amber-500" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-white font-sans">Estrategia Comercial del Proyecto</h3>
+                                                    <p className="text-xs text-gray-500 mt-0.5 font-sans">Unifica e integra la propuesta de valor, la oferta, el embudo y los llamados a la acción.</p>
+                                                </div>
+                                            </div>
+                                            <button 
+                                                type="button"
+                                                onClick={() => setIsOpenCommercialModal(false)}
+                                                className="text-gray-500 hover:text-white p-2 rounded-xl hover:bg-gray-800/50 transition-all cursor-pointer"
+                                            >
+                                                <X className="w-5 h-5" />
+                                            </button>
+                                        </div>
+
+                                        {/* Tabs Section */}
+                                        <div className="flex border-b border-gray-800 bg-black/40 overflow-x-auto no-scrollbar">
+                                            {[
+                                                { id: 'proposition', label: 'Propuesta de Valor' },
+                                                { id: 'offer', label: 'Oferta Principal' },
+                                                { id: 'funnel', label: 'Embudo de Conversión' },
+                                                { id: 'cta', label: 'CTA Principal' }
+                                            ].map((tab) => (
+                                                <button
+                                                    key={tab.id}
+                                                    type="button"
+                                                    onClick={() => setActiveCommercialTab(tab.id as any)}
+                                                    className={`px-6 py-4 text-xs font-bold uppercase tracking-wider border-b-2 transition-all font-sans cursor-pointer whitespace-nowrap ${
+                                                        activeCommercialTab === tab.id 
+                                                            ? 'border-amber-500 text-amber-500 bg-amber-500/5' 
+                                                            : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800/30'
+                                                    }`}
+                                                >
+                                                    {tab.label}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {/* Modal Active Tab Body Area */}
+                                        <div className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
+                                            {activeCommercialTab === 'proposition' && (
+                                                <div className="space-y-4 text-left">
+                                                    <div>
+                                                        <label className="block text-xs font-bold uppercase tracking-wider text-amber-500 mb-2">Declaración de Posicionamiento Único</label>
+                                                        <textarea 
+                                                            rows={3} 
+                                                            value={tempCommercial.proposition?.positioningStatement || ''}
+                                                            onChange={(e) => {
+                                                                setTempCommercial({
+                                                                    ...tempCommercial,
+                                                                    proposition: {
+                                                                        ...tempCommercial.proposition,
+                                                                        positioningStatement: e.target.value
+                                                                    }
+                                                                });
+                                                            }}
+                                                            className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none transition-all text-sm font-sans"
+                                                            placeholder="Ej: Ayudamos a esteticistas y emprendedoras..."
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-[#FF5D1E] mb-2">El Mercado Tradicional (Frustraciones/Dolores)</label>
+                                                            <textarea 
+                                                                rows={4} 
+                                                                value={tempCommercial.proposition?.traditionalMarketDescription || ''}
+                                                                onChange={(e) => {
+                                                                    setTempCommercial({
+                                                                        ...tempCommercial,
+                                                                        proposition: {
+                                                                            ...tempCommercial.proposition,
+                                                                            traditionalMarketDescription: e.target.value
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-[#FF5D1E] outline-none transition-all text-sm font-sans"
+                                                                placeholder="Ej: Enfoque teórico aburrido..."
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">Nuestra Alternativa Única (Soluciones/Diferenciación)</label>
+                                                            <textarea 
+                                                                rows={4} 
+                                                                value={tempCommercial.proposition?.ourAlternativeDescription || ''}
+                                                                onChange={(e) => {
+                                                                    setTempCommercial({
+                                                                        ...tempCommercial,
+                                                                        proposition: {
+                                                                            ...tempCommercial.proposition,
+                                                                            ourAlternativeDescription: e.target.value
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-emerald-400 outline-none transition-all text-sm font-sans"
+                                                                placeholder="Ej: Trazos hiperrealistas avanzados..."
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {activeCommercialTab === 'offer' && (
+                                                <div className="space-y-4 font-sans text-left">
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                        <div className="md:col-span-1">
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Nombre del Producto</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={tempCommercial.offer?.productName || ''}
+                                                                onChange={(e) => {
+                                                                    setTempCommercial({
+                                                                        ...tempCommercial,
+                                                                        offer: {
+                                                                            ...tempCommercial.offer,
+                                                                            productName: e.target.value
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none transition-all text-sm"
+                                                                placeholder="Masterclass en Micropigmentación"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">Precio Recomendado (USD)</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={tempCommercial.offer?.recommendedPrice || ''}
+                                                                onChange={(e) => {
+                                                                    setTempCommercial({
+                                                                        ...tempCommercial,
+                                                                        offer: {
+                                                                            ...tempCommercial.offer,
+                                                                            recommendedPrice: e.target.value
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-emerald-400 outline-none transition-all text-sm"
+                                                                placeholder="297"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-red-400 mb-2">Precio Original (USD)</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={tempCommercial.offer?.originalPrice || ''}
+                                                                onChange={(e) => {
+                                                                    setTempCommercial({
+                                                                        ...tempCommercial,
+                                                                        offer: {
+                                                                            ...tempCommercial.offer,
+                                                                            originalPrice: e.target.value
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-red-400 outline-none transition-all text-sm"
+                                                                placeholder="597"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-amber-500">Desglose Detallado del Paquete (Bonos / Módulos)</label>
+                                                            <button 
+                                                                type="button" 
+                                                                onClick={() => {
+                                                                    const items = tempCommercial.offer?.packageItems || [];
+                                                                    setTempCommercial({
+                                                                        ...tempCommercial,
+                                                                        offer: {
+                                                                            ...tempCommercial.offer,
+                                                                            packageItems: [...items, { concept: '', cost: '' }]
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="text-xs font-semibold text-amber-500 hover:text-white flex items-center gap-1 cursor-pointer"
+                                                            >
+                                                                <Plus className="w-3.5 h-3.5" /> Agregar Item
+                                                            </button>
+                                                        </div>
+                                                        <div className="space-y-2 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar">
+                                                            {(tempCommercial.offer?.packageItems || []).map((item: any, idx: number) => (
+                                                                <div key={idx} className="flex gap-2 items-center">
+                                                                    <div className="flex-1">
+                                                                        <input 
+                                                                            type="text" 
+                                                                            value={item.concept || ''} 
+                                                                            onChange={(e) => {
+                                                                                const newItems = [...(tempCommercial.offer?.packageItems || [])];
+                                                                                newItems[idx] = { ...newItems[idx], concept: e.target.value };
+                                                                                setTempCommercial({
+                                                                                    ...tempCommercial,
+                                                                                    offer: {
+                                                                                        ...tempCommercial.offer,
+                                                                                        packageItems: newItems
+                                                                                    }
+                                                                                });
+                                                                            }}
+                                                                            className="w-full bg-[#16161c] border border-gray-800 rounded-lg px-3 py-2 text-xs text-white" 
+                                                                            placeholder="Concepto (ej. Certificación Internacional)" 
+                                                                        />
+                                                                    </div>
+                                                                    <div className="w-48">
+                                                                        <input 
+                                                                            type="text" 
+                                                                            value={item.cost || ''} 
+                                                                            onChange={(e) => {
+                                                                                const newItems = [...(tempCommercial.offer?.packageItems || [])];
+                                                                                newItems[idx] = { ...newItems[idx], cost: e.target.value };
+                                                                                setTempCommercial({
+                                                                                    ...tempCommercial,
+                                                                                    offer: {
+                                                                                        ...tempCommercial.offer,
+                                                                                        packageItems: newItems
+                                                                                    }
+                                                                                });
+                                                                            }}
+                                                                            className="w-full bg-[#16161c] border border-gray-800 rounded-lg px-3 py-2 text-xs text-green-400" 
+                                                                            placeholder="Valor / Costo ($150 USD)" 
+                                                                        />
+                                                                    </div>
+                                                                    <button 
+                                                                        type="button" 
+                                                                        onClick={() => {
+                                                                            const newItems = (tempCommercial.offer?.packageItems || []).filter((_: any, k: number) => k !== idx);
+                                                                            setTempCommercial({
+                                                                                ...tempCommercial,
+                                                                                offer: {
+                                                                                    ...tempCommercial.offer,
+                                                                                    packageItems: newItems
+                                                                                }
+                                                                            });
+                                                                        }}
+                                                                        className="p-2 text-gray-500 hover:text-red-500 hover:bg-gray-800/40 rounded transition-all cursor-pointer"
+                                                                    >
+                                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-purple-400 mb-2">Título de la Garantía</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={tempCommercial.offer?.guaranteeTitle || ''}
+                                                                onChange={(e) => {
+                                                                    setTempCommercial({
+                                                                        ...tempCommercial,
+                                                                        offer: {
+                                                                            ...tempCommercial.offer,
+                                                                            guaranteeTitle: e.target.value
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-purple-400 outline-none transition-all text-sm"
+                                                                placeholder="Garantía de Satisfacción de 7 Días"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-purple-400 mb-2">Descripción de la Garantía</label>
+                                                            <textarea 
+                                                                rows={2}
+                                                                value={tempCommercial.offer?.guaranteeDescription || ''}
+                                                                onChange={(e) => {
+                                                                    setTempCommercial({
+                                                                        ...tempCommercial,
+                                                                        offer: {
+                                                                            ...tempCommercial.offer,
+                                                                            guaranteeDescription: e.target.value
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-purple-400 outline-none transition-all text-sm"
+                                                                placeholder="Si en los primeros 7 días sientes que no..."
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {activeCommercialTab === 'funnel' && (
+                                                <div className="space-y-4 text-left font-sans">
+                                                    <label className="block text-xs font-bold uppercase tracking-wider text-amber-500 mb-1">Pasos y Etapas del Embudo de Conversión</label>
+                                                    <div className="space-y-4">
+                                                        {(tempCommercial.funnel?.funnelSteps || []).map((stepObj: any, idx: number) => (
+                                                            <div key={idx} className="p-4 bg-[#16161c] border border-gray-800 rounded-2xl space-y-3">
+                                                                <div className="flex gap-4 items-center justify-between">
+                                                                    <div className="w-full text-left">
+                                                                        <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Nombre de la Etapa {idx + 1}</label>
+                                                                        <input 
+                                                                            type="text" 
+                                                                            value={stepObj.stage || ''} 
+                                                                            onChange={(e) => {
+                                                                                const newSteps = [...(tempCommercial.funnel?.funnelSteps || [])];
+                                                                                newSteps[idx] = { ...newSteps[idx], stage: e.target.value };
+                                                                                setTempCommercial({
+                                                                                    ...tempCommercial,
+                                                                                    funnel: {
+                                                                                        ...tempCommercial.funnel,
+                                                                                        funnelSteps: newSteps
+                                                                                    }
+                                                                                });
+                                                                            }}
+                                                                            className="w-full bg-[#111115] border border-gray-800 rounded-lg px-3 py-2 text-xs font-semibold text-white"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-left">
+                                                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Idea de Contenido o Ejecución de Tráfico</label>
+                                                                    <textarea 
+                                                                        rows={2} 
+                                                                        value={stepObj.idea || ''} 
+                                                                        onChange={(e) => {
+                                                                            const newSteps = [...(tempCommercial.funnel?.funnelSteps || [])];
+                                                                            newSteps[idx] = { ...newSteps[idx], idea: e.target.value };
+                                                                            setTempCommercial({
+                                                                                ...tempCommercial,
+                                                                                funnel: {
+                                                                                    ...tempCommercial.funnel,
+                                                                                    funnelSteps: newSteps
+                                                                                }
+                                                                            });
+                                                                        }}
+                                                                        className="w-full bg-[#111115] border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-300"
+                                                                        placeholder="Ej: Vídeo corto de..."
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {activeCommercialTab === 'cta' && (
+                                                <div className="space-y-4 text-left font-sans">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-amber-550 mb-2">Texto del Botón Principal</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={tempCommercial.cta?.buttonText || ''}
+                                                                onChange={(e) => {
+                                                                    setTempCommercial({
+                                                                        ...tempCommercial,
+                                                                        cta: {
+                                                                            ...tempCommercial.cta,
+                                                                            buttonText: e.target.value
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-amber-550 outline-none transition-all text-sm font-sans"
+                                                                placeholder="Inscribirme en el Programa Oficial..."
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Microcopia Inferior de Seguridad</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={tempCommercial.cta?.safetyMicrocopy || ''}
+                                                                onChange={(e) => {
+                                                                    setTempCommercial({
+                                                                        ...tempCommercial,
+                                                                        cta: {
+                                                                            ...tempCommercial.cta,
+                                                                            safetyMicrocopy: e.target.value
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-gray-500 outline-none transition-all text-sm font-sans"
+                                                                placeholder="Garantía de Satisfacción • SSL"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-[#FF5D1E] mb-2">Gatillo Mental de Escasez</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={tempCommercial.cta?.scarcityTrigger || ''}
+                                                                onChange={(e) => {
+                                                                    setTempCommercial({
+                                                                        ...tempCommercial,
+                                                                        cta: {
+                                                                            ...tempCommercial.cta,
+                                                                            scarcityTrigger: e.target.value
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-[#FF5D1E] outline-none transition-all text-sm font-sans"
+                                                                placeholder="Solo 7 plazas disponibles..."
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-orange-500 mb-2">Gatillo Mental de Urgencia</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={tempCommercial.cta?.urgencyTrigger || ''}
+                                                                onChange={(e) => {
+                                                                    setTempCommercial({
+                                                                        ...tempCommercial,
+                                                                        cta: {
+                                                                            ...tempCommercial.cta,
+                                                                            urgencyTrigger: e.target.value
+                                                                        }
+                                                                    });
+                                                                }}
+                                                                className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-orange-500 outline-none transition-all text-sm font-sans"
+                                                                placeholder="El descuento expira hoy..."
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Footer Actions */}
+                                        <div className="p-6 bg-black/40 border-t border-gray-800 flex items-center justify-end gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsOpenCommercialModal(false)}
+                                                className="text-gray-400 hover:text-white font-bold text-xs px-5 py-3 rounded-xl transition-all hover:bg-gray-800/40 cursor-pointer font-sans"
+                                            >
+                                                Cancelar
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const currentStrategy = originalStrategyJson ? JSON.parse(JSON.stringify(originalStrategyJson)) : {};
+                                                    currentStrategy.commercial = tempCommercial;
+                                                    setOriginalStrategyJson(currentStrategy);
+                                                    setIsOpenCommercialModal(false);
+                                                }}
+                                                className="bg-[#FF5D1E] hover:bg-orange-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all shadow-md active:scale-[0.98] cursor-pointer font-sans"
+                                            >
+                                                Guardar Estrategia Comercial
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* AVATARS MODAL */}
                             {isOpenAvatarsModal && (

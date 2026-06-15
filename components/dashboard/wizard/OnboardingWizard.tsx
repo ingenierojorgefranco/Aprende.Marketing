@@ -39,6 +39,7 @@ import {
   TrendingUp,
   Clock,
   Trophy,
+  Brain,
 } from "lucide-react";
 import { generateLandingPageContent } from "../../../services/geminiService";
 import { UpgradeModal } from "../UpgradeModal";
@@ -7462,7 +7463,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
                             {(() => {
-                              const rawLearningModules = strategyData?.psychology?.learningModules || [];
+                              const rawLearningModulesSource = (strategyData?.psychology?.learningModules && strategyData.psychology.learningModules.length > 0)
+                                ? strategyData.psychology.learningModules
+                                : (strategyData?.psychology?.solutions && strategyData.psychology.solutions.length > 0)
+                                ? strategyData.psychology.solutions.map((sol: any, idx: number) => ({
+                                    title: typeof sol === 'object' ? sol.title : "Módulo de aprendizaje",
+                                    description: typeof sol === 'object' ? sol.description : sol,
+                                    icon: idx % 3 === 0 ? 'Brain' : idx % 3 === 1 ? 'Target' : 'Zap',
+                                    color: idx < 3 ? 'text-blue-400' : idx < 6 ? 'text-emerald-400' : 'text-purple-400',
+                                    bgIcon: idx < 3 ? 'bg-blue-500/10 border-blue-500/20' : idx < 6 ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-purple-500/10 border-purple-500/20'
+                                  }))
+                                : [];
                               const rawWebBenefits = strategyData?.modules?.web?.landingPageTabs?.benefits?.items || [];
                               const rawBenefits = strategyData?.benefits || [];
                               
@@ -7476,8 +7487,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                               ];
 
                               let selectedSourceList = [];
-                              if (rawLearningModules.length > 0) {
-                                selectedSourceList = rawLearningModules;
+                              if (rawLearningModulesSource.length > 0) {
+                                selectedSourceList = rawLearningModulesSource;
                               } else if (rawWebBenefits.length > 0) {
                                 selectedSourceList = rawWebBenefits;
                               } else if (rawBenefits.length > 0) {
@@ -7496,6 +7507,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                   case "Shield": return <Shield className={classes} />;
                                   case "Crown": return <Crown className={classes} />;
                                   case "Users": return <Users className={classes} />;
+                                  case "Brain": return <Brain className={classes} />;
                                   default: return <Sparkles className={classes} />;
                                 }
                               };
@@ -7530,183 +7542,212 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                           </div>
                         </div>
                       )}
-
-                      {/* 5. COMPONENTE: PROPUESTA DE VALOR */}
-                      {activeComercialOption === "proposition" && (
-                        <div className="space-y-6 text-left">
-                          {/* Inner Header */}
-                          <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5D1E] shrink-0 shadow-lg shadow-orange-500/5">
-                              <Target className="w-6 h-6" />
-                            </div>
-                            <div className="text-left">
-                              <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Propuesta de Valor</h2>
-                              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mt-1">
-                                Tu factor de diferenciación definitiva para salirte de la competencia destructiva de precios bajos.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="p-6 bg-white/[0.01] border border-white/[0.04] rounded-3xl relative space-y-6 pt-5">
-                            <div className="text-left space-y-2">
-                              <h3 className="text-base sm:text-lg font-extrabold text-white">Declaración de Posicionamiento Único</h3>
-                              <p className="text-[#FFBF00] text-sm md:text-base font-medium leading-relaxed italic border-l-2 border-[#FF5A1F] pl-4 text-left">
-                                "Ayudamos a esteticistas y emprendedoras de belleza a dominar la técnica de micropigmentación hiperrealista en 30 días con certificación oficial, logrando multiplicar por 5 sus ingresos por servicio sin depender de las marcas tradicionales o manuales complejos."
-                              </p>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                              <div className="p-5 bg-rose-500/[0.015] border border-rose-500/10 rounded-2xl space-y-2 text-left">
-                                <span className="text-[10px] uppercase font-bold text-rose-400 tracking-wider block">El mercado tradicional</span>
-                                <p className="text-xs sm:text-sm text-zinc-400 font-semibold leading-relaxed">
-                                  Enfoque teórico aburrido, soporte ausente, sin orientación comercial, guerra de precios e insumos genéricos.
-                                </p>
+                      {activeComercialOption === "proposition" && (() => {
+                        const comm = strategyData?.commercial || {};
+                        const positioningStatement = comm.proposition?.positioningStatement || "Ayudamos a esteticistas y emprendedoras de belleza a dominar la técnica de micropigmentación hiperrealista en 30 días con certificación oficial, logrando multiplicar por 5 sus ingresos por servicio sin depender de las marcas tradicionales o manuales complejos.";
+                        const traditionalMarketDescription = comm.proposition?.traditionalMarketDescription || "Enfoque teórico aburrido, soporte ausente, sin orientación comercial, guerra de precios e insumos genéricos.";
+                        const ourAlternativeDescription = comm.proposition?.ourAlternativeDescription || "Trazos hiperrealistas milimétricos garantizados, acompañamiento clínico activo, kit premium y tutoría para captar sus primeras 5 clientas estables.";
+                        return (
+                          <div className="space-y-6 text-left">
+                            {/* Inner Header */}
+                            <div className="flex items-start gap-4">
+                              <div className="w-12 h-12 rounded-2xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5D1E] shrink-0 shadow-lg shadow-orange-500/5">
+                                <Target className="w-6 h-6" />
                               </div>
-                              <div className="p-5 bg-emerald-500/[0.015] border border-emerald-500/10 rounded-2xl space-y-2 text-left">
-                                <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider block">Nuestra Alternativa Única</span>
-                                <p className="text-xs sm:text-sm text-zinc-300 font-semibold leading-relaxed">
-                                  Trazos hiperrealistas milimétricos garantizados, acompañamiento clínico activo, kit premium y tutoría para captar sus primeras 5 clientas estables.
+                              <div className="text-left">
+                                <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Propuesta de Valor</h2>
+                                <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mt-1">
+                                  Tu factor de diferenciación definitiva para salirte de la competencia destructiva de precios bajos.
                                 </p>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                      )}
 
-                      {/* 6. COMPONENTE: OFERTA PRINCIPAL */}
-                      {activeComercialOption === "offer" && (
-                        <div className="space-y-6 text-left">
-                          {/* Inner Header */}
-                          <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0 shadow-lg shadow-amber-500/5">
-                              <FileText className="w-6 h-6" />
-                            </div>
-                            <div className="text-left">
-                              <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Oferta Principal</h2>
-                              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mt-1">
-                                Estructuración exacta del paquete para que la decisión de compra sea una obviedad irresistible para tu avatar.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="p-6 bg-white/[0.01] border border-white/[0.04] rounded-3xl relative space-y-6 pt-5">
-                            <div className="flex justify-between items-center bg-[#FF5D1E]/10 p-5 rounded-2xl border border-[#FF5D1E]/30 flex-wrap gap-4">
-                              <div className="text-left space-y-1">
-                                <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider block">Producto Recomendado</span>
-                                <h3 className="text-base sm:text-lg font-black text-white">{activeProjectName}</h3>
-                              </div>
-                              <div className="text-left sm:text-right">
-                                <span className="text-[10px] text-[#FF5D1E] uppercase font-black tracking-wider block">Precio Recomendado</span>
-                                <p className="text-lg sm:text-2xl font-black text-[#FF5D1E]">$297.00 USD <span className="text-xs text-zinc-550 line-through">$597.00</span></p>
-                              </div>
-                            </div>
-
-                            <div className="space-y-3.5 text-left">
-                              <span className="text-xs font-black uppercase text-amber-400 tracking-widest block font-sans">
-                                Desglose del Paquete Irresistible
-                              </span>
-                              <div className="space-y-2.5">
-                                {[
-                                  { item: "Acceso Completo al Entrenamiento en Alta Definición", val: "Valor de $197 USD" },
-                                  { item: "Kit Integral de Micropigmentación (Zonas autorizadas)", val: "Valor de $150 USD" },
-                                  { item: "Sesiones de Consultas Clínicas de zoom 1-a-1", val: "Cupo Limitado ($100 USD)" },
-                                  { item: "Acceso Vitalicio + Diploma Especialización", val: "Bono Exclusivo (Gratuito)" },
-                                ].map((pack, idx) => (
-                                  <div key={idx} className="flex justify-between items-center p-3.5 bg-white/[0.01] border border-white/[0.04] rounded-xl text-left gap-4 flex-wrap">
-                                    <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold select-none text-zinc-350">
-                                      <span className="text-amber-500 font-bold">✦</span>
-                                      <span>{pack.item}</span>
-                                    </div>
-                                    <span className="text-[11px] font-extrabold uppercase text-amber-500 font-mono tracking-tight">{pack.val}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="p-4 bg-emerald-500/[0.01] border border-emerald-500/10 rounded-2xl flex gap-3 text-left">
-                              <CheckCircle className="w-5.5 h-5.5 text-emerald-400 shrink-0 mt-0.5" />
-                              <div className="space-y-1">
-                                <h4 className="text-sm font-bold text-emerald-400">Garantía Incondicional de Satisfacción</h4>
-                                <p className="text-xs sm:text-sm text-zinc-400 font-medium leading-relaxed font-sans">
-                                  Si durante los primeros 7 días aplicas los trazos prácticos iniciales del kit y sientes que no es para ti, te devolvemos el 100% de tu dinero sin preguntas. Riesgo Cero.
+                            <div className="p-6 bg-white/[0.01] border border-white/[0.04] rounded-3xl relative space-y-6 pt-5">
+                              <div className="text-left space-y-2">
+                                <h3 className="text-base sm:text-lg font-extrabold text-white">Declaración de Posicionamiento Único</h3>
+                                <p className="text-[#FFBF00] text-sm md:text-base font-medium leading-relaxed italic border-l-2 border-[#FF5A1F] pl-4 text-left">
+                                  "{positioningStatement}"
                                 </p>
                               </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
 
-                      {/* 7. COMPONENTE: EMBUDO DE CONVERSIÓN */}
-                      {activeComercialOption === "funnel" && (
-                        <div className="space-y-6 text-left">
-                          {/* Inner Header */}
-                          <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 shadow-lg shadow-blue-500/5">
-                              <Globe className="w-6 h-6" />
-                            </div>
-                            <div className="text-left">
-                              <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Embudo de Conversión</h2>
-                              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mt-1">
-                                El recorrido optimizado del usuario para calentar prospectos frios y convertirlos en clientes calificados de forma predecible.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="space-y-4 pt-2">
-                            {[
-                              { step: "01", stage: "Atracción Orgánica / Pauta", desc: "Anuncios y Reels hipersegmentados basados en el dolor del estancamiento financiero laboral tradicional de las esteticistas." },
-                              { step: "02", stage: "Captura de Datos", desc: "Landing de registro optimizada donde el prospecto se inscribe para ver una clase práctica express de Micropigmentación." },
-                              { step: "03", stage: "Nutrición con Persuasión", desc: "Secuencia automatizada de emails y recordatorios por WhatsApp calentando el escepticismo inicial y demostrando viabilidad." },
-                              { step: "04", stage: "Presentación de la Oferta / Cierre", desc: "Clase definitiva de 25 minutos con simulación guiada donde se abre la inscripción exclusiva al entrenamiento máster con su precio promocional." }
-                            ].map((fun, fIdx) => (
-                              <div key={fIdx} className="p-4 bg-white/[0.01] border border-white/[0.04] rounded-2xl flex items-start gap-4 relative">
-                                <div className="w-9 h-9 rounded-xl bg-[#0c62e6]/10 border border-[#0c62e6]/20 flex items-center justify-center text-[#0c62e6] font-extrabold font-mono text-xs shrink-0">{fun.step}</div>
-                                <div className="space-y-1 text-left">
-                                  <h4 className="text-sm font-bold text-white uppercase tracking-tight text-left">{fun.stage}</h4>
-                                  <p className="text-xs sm:text-sm text-zinc-400 font-semibold leading-relaxed text-left">{fun.desc}</p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                <div className="p-5 bg-rose-500/[0.015] border border-rose-500/10 rounded-2xl space-y-2 text-left">
+                                  <span className="text-[10px] uppercase font-bold text-rose-400 tracking-wider block">El mercado tradicional</span>
+                                  <p className="text-xs sm:text-sm text-zinc-400 font-semibold leading-relaxed">
+                                    {traditionalMarketDescription}
+                                  </p>
+                                </div>
+                                <div className="p-5 bg-emerald-500/[0.015] border border-emerald-500/10 rounded-2xl space-y-2 text-left">
+                                  <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider block">Nuestra Alternativa Única</span>
+                                  <p className="text-xs sm:text-sm text-zinc-300 font-semibold leading-relaxed">
+                                    {ourAlternativeDescription}
+                                  </p>
                                 </div>
                               </div>
-                            ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
+
+                      {/* 6. COMPONENTE: OFERTA PRINCIPAL */}
+                      {activeComercialOption === "offer" && (() => {
+                        const comm = strategyData?.commercial || {};
+                        const recommendedPrice = comm.offer?.recommendedPrice || "297";
+                        const originalPrice = comm.offer?.originalPrice || "597";
+                        const packageItems = comm.offer?.packageItems || [
+                          { concept: "Acceso Completo al Entrenamiento en Alta Definición", cost: "Valor de $197 USD" },
+                          { concept: "Kit Integral de Micropigmentación (Zonas autorizadas)", cost: "Valor de $150 USD" },
+                          { concept: "Sesiones de Consultas Clínicas de zoom 1-a-1", cost: "Cupo Limitado ($100 USD)" },
+                          { concept: "Acceso Vitalicio + Diploma Especialización", cost: "Bono Exclusivo (Gratuito)" }
+                        ];
+                        const guaranteeTitle = comm.offer?.guaranteeTitle || "Garantía Incondicional de Satisfacción";
+                        const guaranteeDescription = comm.offer?.guaranteeDescription || "Si durante los primeros 7 días aplicas los trazos prácticos iniciales del kit y sientes que no es para ti, te devolvemos el 100% de tu dinero sin preguntas. Riesgo Cero.";
+                        
+                        return (
+                          <div className="space-y-6 text-left">
+                            {/* Inner Header */}
+                            <div className="flex items-start gap-4">
+                              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0 shadow-lg shadow-amber-500/5">
+                                <FileText className="w-6 h-6" />
+                              </div>
+                              <div className="text-left">
+                                <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Oferta Principal</h2>
+                                <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mt-1">
+                                  Estructuración exacta del paquete para que la decisión de compra sea una obviedad irresistible para tu avatar.
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="p-6 bg-white/[0.01] border border-white/[0.04] rounded-3xl relative space-y-6 pt-5">
+                              <div className="flex justify-between items-center bg-[#FF5D1E]/10 p-5 rounded-2xl border border-[#FF5D1E]/30 flex-wrap gap-4 text-left">
+                                <div className="text-left space-y-1">
+                                  <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider block">Producto Recomendado</span>
+                                  <h3 className="text-base sm:text-lg font-black text-white">{comm.offer?.productName || activeProjectName}</h3>
+                                </div>
+                                <div className="text-left sm:text-right">
+                                  <span className="text-[10px] text-[#FF5D1E] uppercase font-black tracking-wider block">Precio Recomendado</span>
+                                  <p className="text-lg sm:text-2xl font-black text-[#FF5D1E]">${recommendedPrice}.00 USD <span className="text-xs text-zinc-350 line-through">${originalPrice}.00</span></p>
+                                </div>
+                              </div>
+
+                              <div className="space-y-3.5 text-left">
+                                <span className="text-xs font-black uppercase text-amber-400 tracking-widest block font-sans">
+                                  Desglose del Paquete Irresistible
+                                </span>
+                                <div className="space-y-2.5">
+                                  {packageItems.map((pack: any, idx: number) => (
+                                    <div key={idx} className="flex justify-between items-center p-3.5 bg-white/[0.01] border border-white/[0.04] rounded-xl text-left gap-4 flex-wrap">
+                                      <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold select-none text-zinc-350">
+                                        <span className="text-amber-500 font-bold">✦</span>
+                                        <span>{pack.concept || pack.item}</span>
+                                      </div>
+                                      <span className="text-[11px] font-extrabold uppercase text-amber-500 font-mono tracking-tight">{pack.cost || pack.val}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="p-4 bg-emerald-500/[0.01] border border-emerald-500/10 rounded-2xl flex gap-3 text-left">
+                                <CheckCircle className="w-5.5 h-5.5 text-emerald-400 shrink-0 mt-0.5" />
+                                <div className="space-y-1">
+                                  <h4 className="text-sm font-bold text-emerald-400">{guaranteeTitle}</h4>
+                                  <p className="text-xs sm:text-sm text-zinc-400 font-medium leading-relaxed font-sans">
+                                    {guaranteeDescription}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* 7. COMPONENTE: EMBUDO DE CONVERSIÓN */}
+                      {activeComercialOption === "funnel" && (() => {
+                        const comm = strategyData?.commercial || {};
+                        const funnelSteps = comm.funnel?.funnelSteps || [
+                          { stage: "Atracción Orgánica / Pauta", idea: "Anuncios y Reels hipersegmentados basados en el dolor del estancamiento financiero laboral tradicional de las esteticistas." },
+                          { stage: "Captura de Datos", idea: "Landing de registro optimizada donde el prospecto se inscribe para ver una clase práctica express de Micropigmentación." },
+                          { stage: "Nutrición con Persuasión", idea: "Secuencia automatizada de emails y recordatorios por WhatsApp calentando el escepticismo inicial y demostrando viabilidad." },
+                          { stage: "Presentación de la Oferta / Cierre", idea: "Clase definitiva de 25 minutos con simulación guiada donde se abre la inscripción exclusiva al entrenamiento máster con su precio promocional." }
+                        ];
+                        
+                        return (
+                          <div className="space-y-6 text-left">
+                            {/* Inner Header */}
+                            <div className="flex items-start gap-4">
+                              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 shadow-lg shadow-blue-500/5">
+                                <Globe className="w-6 h-6" />
+                              </div>
+                              <div className="text-left">
+                                <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Embudo de Conversión</h2>
+                                <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mt-1">
+                                  El recorrido optimizado del usuario para calentar prospectos frios y convertirlos en clientes calificados de forma predecible.
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="space-y-4 pt-2">
+                              {funnelSteps.map((fun: any, fIdx: number) => {
+                                const stepNum = String(fIdx + 1).padStart(2, '0');
+                                return (
+                                  <div key={fIdx} className="p-4 bg-white/[0.01] border border-white/[0.04] rounded-2xl flex items-start gap-4 relative">
+                                    <div className="w-9 h-9 rounded-xl bg-[#0c62e6]/10 border border-[#0c62e6]/20 flex items-center justify-center text-[#0c62e6] font-extrabold font-mono text-xs shrink-0">{stepNum}</div>
+                                    <div className="space-y-1 text-left">
+                                      <h4 className="text-sm font-bold text-white uppercase tracking-tight text-left">{fun.stage}</h4>
+                                      <p className="text-xs sm:text-sm text-zinc-400 font-semibold leading-relaxed text-left">{fun.idea || fun.desc}</p>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       {/* 8. COMPONENTE: CTA PRINCIPAL */}
-                      {activeComercialOption === "cta" && (
-                        <div className="space-y-6 text-left">
-                          {/* Inner Header */}
-                          <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shrink-0 shadow-lg shadow-rose-500/5">
-                              <Target className="w-6 h-6 animate-pulse" />
-                            </div>
-                            <div className="text-left">
-                              <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">CTA Principal</h2>
-                              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mt-1">
-                                Los llamados a la acción definitivos de alta conversión configurados para incentivar decisiones de compra impulsivas.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="p-6 bg-white/[0.01] border border-white/[0.04] rounded-3xl relative space-y-6 pt-5 text-center">
-                            <div className="max-w-md mx-auto space-y-4">
-                              <span className="text-[10px] text-[#FF5D1E] font-black uppercase tracking-widest leading-none block">DISEÑO DE BOTÓN DE ALTO IMPACTO</span>
-                              
-                              {/* CTA Demo Button */}
-                              <div className="p-3 bg-zinc-900 rounded-2xl border border-white/5 shadow-2xl flex justify-center">
-                                <button className="w-full bg-[#FF5D1E] hover:bg-[#FF6E33] text-white font-extrabold text-sm sm:text-base py-3.5 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-[#FF5D1E]/20 flex items-center justify-center gap-2 select-none">
-                                  ¡Quiero Especializarme e Incrementar mis Ingresos Ahora! <ChevronRight className="w-5 h-5 shrink-0" />
-                                </button>
+                      {activeComercialOption === "cta" && (() => {
+                        const comm = strategyData?.commercial || {};
+                        const buttonText = comm.cta?.buttonText || "¡Quiero Especializarme e Incrementar mis Ingresos Ahora!";
+                        const safetyMicrocopy = comm.cta?.safetyMicrocopy || "Inscripción 100% segura. Accede de inmediato al kit premium de micropigmentación.";
+                        const scarcityTrigger = comm.cta?.scarcityTrigger || "Solo quedan 7 cupos con precio promocional en este lote de soporte.";
+                        const urgencyTrigger = comm.cta?.urgencyTrigger || "Oferta válida únicamente por las próximas 48 horas de calentamiento.";
+                        
+                        return (
+                          <div className="space-y-6 text-left">
+                            {/* Inner Header */}
+                            <div className="flex items-start gap-4">
+                              <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shrink-0 shadow-lg shadow-rose-500/5">
+                                <Target className="w-6 h-6 animate-pulse" />
                               </div>
-
-                              <div className="text-zinc-500 text-xs sm:text-[13px] font-semibold leading-relaxed pt-2 flex flex-col gap-1.5 list-none text-left">
-                                <li className="text-left">✦ <span className="font-bold text-zinc-400">Microcopia persuasiva inferior:</span> "Inscripción 100% segura. Accede de inmediato al kit premium de micropigmentación."</li>
-                                <li className="text-left">✦ <span className="font-bold text-zinc-400">Gatillo de escasez:</span> "Solo quedan 7 cupos con precio promocional en este lote de soporte."</li>
-                                <li className="text-left">✦ <span className="font-bold text-zinc-400">Gatillo de urgencia:</span> "Oferta válida únicamente por las próximas 48 horas de calentamiento."</li>
+                              <div className="text-left">
+                                <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">CTA Principal</h2>
+                                <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mt-1">
+                                  Los llamados a la acción definitivos de alta conversión configurados para incentivar decisiones de compra impulsivas.
+                                </p>
                               </div>
                             </div>
+
+                            <div className="p-6 bg-white/[0.01] border border-white/[0.04] rounded-3xl relative space-y-6 pt-5 text-center">
+                              <div className="max-w-md mx-auto space-y-4">
+                                <span className="text-[10px] text-[#FF5D1E] font-black uppercase tracking-widest leading-none block">DISEÑO DE BOTÓN DE ALTO IMPACTO</span>
+                                
+                                {/* CTA Demo Button */}
+                                <div className="p-3 bg-zinc-900 rounded-2xl border border-white/5 shadow-2xl flex justify-center">
+                                  <button className="w-full bg-[#FF5D1E] hover:bg-[#FF6E33] text-white font-extrabold text-sm sm:text-base py-3.5 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-[#FF5D1E]/20 flex items-center justify-center gap-2 select-none">
+                                    {buttonText} <ChevronRight className="w-5 h-5 shrink-0" />
+                                  </button>
+                                </div>
+
+                                <div className="text-zinc-500 text-xs sm:text-[13px] font-semibold leading-relaxed pt-2 flex flex-col gap-1.5 list-none text-left">
+                                  <li className="text-left">✦ <span className="font-bold text-zinc-400">Microcopia persuasiva inferior:</span> "{safetyMicrocopy}"</li>
+                                  <li className="text-left">✦ <span className="font-bold text-zinc-400">Gatillo de escasez:</span> "{scarcityTrigger}"</li>
+                                  <li className="text-left">✦ <span className="font-bold text-zinc-400">Gatillo de urgencia:</span> "{urgencyTrigger}"</li>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
 
                     </div>
                   </div>
