@@ -1012,25 +1012,19 @@ h2:
                 }
             }
 
-            if (demogSource && demogSource.avatars && Array.isArray(demogSource.avatars) && demogSource.avatars[0]) {
-                const sourceAv = demogSource.avatars[0];
-                if (step1Data.avatars && step1Data.avatars[0]) {
-                    const trg = step1Data.avatars[0];
-                    trg.education = sourceAv.education || sourceAv.studies || trg.education;
-                    trg.studies = sourceAv.studies || sourceAv.education || trg.studies;
-                    trg.archetype = sourceAv.archetype || sourceAv.occupation || trg.archetype;
-                    trg.occupation = sourceAv.occupation || sourceAv.archetype || trg.occupation;
-                    trg.incomeRange = sourceAv.incomeRange || sourceAv.income || trg.incomeRange;
-                    trg.income = sourceAv.income || sourceAv.incomeRange || trg.income;
-                    trg.location = sourceAv.location || sourceAv.geographic || trg.location;
-                    trg.geographic = sourceAv.geographic || sourceAv.location || trg.geographic;
-                    trg.civilStatus = sourceAv.civilStatus || sourceAv.marital_status || trg.civilStatus;
-                    trg.marital_status = sourceAv.marital_status || sourceAv.civilStatus || trg.marital_status;
-                    trg.devices = sourceAv.devices || trg.devices;
+            // SI EXISTE UNA ESTRATEGIA PREVIA (Misma o del Master), COPIAMOS AVATARES Y PSICOLOGÍA DIRECTAMENTE SIN PASAR POR IA
+            if (demogSource) {
+                if (demogSource.avatars && Array.isArray(demogSource.avatars) && demogSource.avatars.length > 0) {
+                    process.stdout.write(`🧬 [PIPELINE] Copiando directamente avatares originales guardados/maestros sin intervención de IA.\n`);
+                    step1Data.avatars = demogSource.avatars;
+                }
+                if (demogSource.psychology) {
+                    process.stdout.write(`🧬 [PIPELINE] Copiando directamente psicología guardada/maestra sin intervención de IA.\n`);
+                    step1Data.psychology = demogSource.psychology;
                 }
             }
         } catch (dbErr) {
-            console.error("Error keeping demographics:", dbErr);
+            console.error("Error bypassing AI for avatars and psychology:", dbErr);
         }
         
         const finalJson = { 

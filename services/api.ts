@@ -1463,7 +1463,7 @@ export const api = {
     },
 
     getWizardMode: async (): Promise<boolean> => {
-        if (isMockMode) return true;
+        if (isMockMode) return false;
         if (apiCache.wizardEnabled !== null) return apiCache.wizardEnabled;
         try {
             const data = await fetchWithFallback('/settings/wizard-mode');
