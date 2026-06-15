@@ -1002,6 +1002,7 @@ h2:
     try {
         // 5. CONSOLIDACIÓN FINAL
         process.stdout.write(`[PIPELINE DEBUG] Ensamblando JSON final...\n`);
+        let copiedCommercial = null;
 
         // Inyectar / Preservar Perfil Demográfico
         try {
@@ -1028,6 +1029,10 @@ h2:
                     process.stdout.write(`🧬 [PIPELINE] Copiando directamente psicología guardada/maestra sin intervención de IA.\n`);
                     step1Data.psychology = demogSource.psychology;
                 }
+                if (demogSource.commercial) {
+                    process.stdout.write(`🧬 [PIPELINE] Copiando directamente datos comerciales guardados/maestros sin intervención de IA.\n`);
+                    copiedCommercial = demogSource.commercial;
+                }
             }
         } catch (dbErr) {
             console.error("Error bypassing AI for avatars and psychology:", dbErr);
@@ -1038,6 +1043,7 @@ h2:
             teacher: step1Data.teacher,
             avatars: step1Data.avatars,
             psychology: step1Data.psychology, // Sincronizado: Usando datos de Step 1 (IA)
+            commercial: copiedCommercial,
             modules: { 
                 web: {
                     landingPageTabs: step1Data.landingPageTabs,
