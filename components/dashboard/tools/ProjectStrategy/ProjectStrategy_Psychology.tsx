@@ -3,9 +3,10 @@ import { useParams } from 'react-router-dom';
 import { 
     Flame, AlertTriangle, Brain, 
     Play, TrendingUp, UserCheck, CheckCircle2, Users, Sparkles,
-    Target, Star, Zap, Lightbulb, Shield, Loader2
+    Target, Star, Zap, Lightbulb, Shield, Loader2,
+    MessageSquare, Calendar, ChevronDown
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../../../services/api';
 import { LandingPage } from '../../../../types';
 import { ProjectMasterStrategy } from '../../../../services/strategySchema';
@@ -34,6 +35,144 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
     const { id } = useParams() as { id: string };
     const [localStrategy, setLocalStrategy] = useState<ProjectMasterStrategy | null>(strategy);
     const [isSaving, setIsSaving] = useState(false);
+    const [activeAvatarIndex, setActiveAvatarIndex] = useState<number | null>(0);
+
+    const getSystemAvatarsProps = (strategyData: any) => {
+        const hasSavedAvatars = !!(strategyData?.avatars && strategyData.avatars.length > 0);
+        const defaultAvs = [
+            {
+                name: "María Fernanda",
+                priority: "PRINCIPAL",
+                priorityClass: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 border",
+                audiencePct: "68% DE TU AUDIENCIA",
+                audienceClass: "bg-[#FF5D1E]/10 border-[#FF5D1E]/30 text-[#FF5D1E] border",
+                img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300&h=300",
+                age: "28 - 35 años",
+                occupation: "Emprendedora",
+                income: "Ingresos variables",
+                transformation_title: "Si buscas escalar tu negocio con el servicio más rentable del sector estética...",
+                detailed_pains: [
+                    "Si te frustra ver tu agenda vacía mientras la competencia cobra fortunas por servicios que tú aún no dominas.",
+                    "Si te agota trabajar largas jornadas por un ingreso que no refleja tu esfuerzo ni tu talento.",
+                    "Si te duele sentirte invisible en un mercado saturado de servicios baratos que nadie valora."
+                ]
+            },
+            {
+                name: "Valeria Mendoza",
+                priority: "SECUNDARIO",
+                priorityClass: "bg-amber-500/10 border-amber-500/30 text-amber-400 border",
+                audiencePct: "22% DE TU AUDIENCIA",
+                audienceClass: "bg-[#FF5D1E]/10 border-[#FF5D1E]/30 text-[#FF5D1E] border",
+                img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300&h=300",
+                age: "22 - 27 años",
+                occupation: "Cosmetóloga Junior",
+                income: "Ingreso fijo bajo",
+                transformation_title: "Si buscas escalar tu negocio de belleza con el servicio más lucrativo del mercado actual...",
+                detailed_pains: [
+                    "Si te frustra ver cómo tu agenda se llena de servicios que apenas cubren tus gastos básicos.",
+                    "Si te agota sentirte invisible frente a competidores que cobran el triple que tú.",
+                    "Si te duele sentir que tu talento está estancado por no tener una técnica de alto impacto."
+                ]
+            },
+            {
+                name: "Mónica Silva",
+                priority: "COMPLEMENTARIO",
+                priorityClass: "bg-violet-500/10 border-violet-500/30 text-violet-400 border",
+                audiencePct: "10% DE TU AUDIENCIA",
+                audienceClass: "bg-[#FF5D1E]/10 border-[#FF5D1E]/30 text-[#FF5D1E] border",
+                img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300&h=300",
+                age: "36 - 45 años",
+                occupation: "Emprendedora desde cero",
+                income: "Sin ingresos estables",
+                transformation_title: "Si sueñas con la libertad de manejar tu propio tiempo sin depender de un sueldo fijo...",
+                detailed_pains: [
+                    "Si te frustra trabajar más de 10 horas al día sin ver un crecimiento real en tu cuenta bancaria.",
+                    "Si te agota la inseguridad de depender de que tus clientas agenden citas de bajo costo.",
+                    "Si te duele sentir que no pasas suficiente tiempo de calidad con tu familia por el cansancio."
+                ]
+            }
+        ];
+
+        return [0, 1, 2].map((idx) => {
+            const defaultAv = defaultAvs[idx];
+            const realAv = strategyData?.avatars?.[idx];
+            
+            if (!realAv) {
+                if (hasSavedAvatars) {
+                    return {
+                        id: `fallback-${idx}`,
+                        name: "(no definido)",
+                        priority: idx === 0 ? "PRINCIPAL" : idx === 1 ? "SECUNDARIO" : "COMPLEMENTARIO",
+                        priorityClass: idx === 0 ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 border" : idx === 1 ? "bg-amber-500/10 border-amber-500/30 text-amber-400 border" : "bg-violet-500/10 border-violet-500/30 text-violet-400 border",
+                        audiencePct: idx === 0 ? "68% DE TU AUDIENCIA" : idx === 1 ? "22% DE TU AUDIENCIA" : "10% DE TU AUDIENCIA",
+                        audienceClass: idx === 0 ? "bg-[#FF5D1E]/10 border-[#FF5D1E]/30 text-[#FF5D1E] border" : idx === 1 ? "bg-amber-500/10 border-amber-500/30 text-amber-550 border" : "bg-violet-500/10 border-violet-500/30 text-violet-550 border",
+                        img: idx === 0 ? "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300&h=300" : idx === 1 ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300&h=300" : "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300&h=300",
+                        age: "(no definido)",
+                        occupation: "(no definido)",
+                        income: "(no definido)",
+                        transformation_title: defaultAv.transformation_title,
+                        detailed_pains: defaultAv.detailed_pains
+                    };
+                }
+                return { ...defaultAv, id: `default-${idx}` };
+            }
+
+            const id = realAv.id || `real-${idx}`;
+            const name = realAv.name || (hasSavedAvatars ? "(no definido)" : defaultAv.name);
+            const age = realAv.ageRange || realAv.age || realAv.age_range || (hasSavedAvatars ? "(no definido)" : defaultAv.age);
+            const occupation = realAv.archetype || realAv.occupation || realAv.profession || realAv.profession_title || realAv.job || realAv.role || (hasSavedAvatars ? "(no definido)" : defaultAv.occupation);
+            const income = realAv.incomeRange || realAv.income || (hasSavedAvatars ? "(no definido)" : defaultAv.income);
+            const img = realAv.image || realAv.img || defaultAv.img;
+
+            const rawPriority = (realAv.priority || realAv.role || realAv.type || defaultAv.priority || "").toUpperCase();
+            const priority = rawPriority;
+            let priorityClass = defaultAv.priorityClass;
+
+            if (rawPriority.includes("PRINCIPAL")) {
+                priorityClass = "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 border";
+            } else if (rawPriority.includes("SECUNDARIO")) {
+                priorityClass = "bg-amber-500/10 border-amber-500/30 text-amber-400 border";
+            } else if (rawPriority.includes("COMPLEMENTARIO")) {
+                priorityClass = "bg-violet-500/10 border-violet-500/30 text-violet-400 border";
+            }
+
+            let transformation_title = realAv.transformation_title || realAv.learning_hook || defaultAv.transformation_title;
+            
+            // Comparación cruzada para dolores cargados
+            const customPains = strategyData?.psychology?.pains && Array.isArray(strategyData.psychology.pains)
+                ? strategyData.psychology.pains.filter((p: any) => 
+                    p && typeof p !== 'string' && 
+                    (String(p.avatarId) === String(id) || String(p.avatarId) === String(idx + 1))
+                  )
+                : [];
+            
+            let detailed_pains = defaultAv.detailed_pains;
+            if (customPains.length > 0) {
+                detailed_pains = customPains.map((p: any) => typeof p === 'string' ? p : p.text);
+            } else if (realAv.detailed_pains && Array.isArray(realAv.detailed_pains) && realAv.detailed_pains.length > 0) {
+                detailed_pains = realAv.detailed_pains;
+            } else {
+                detailed_pains = [
+                    realAv.pain ? `Si te frustra ver que: ${realAv.pain}` : defaultAv.detailed_pains[0],
+                    realAv.daily_manifestation ? `Si te agota sentir que: ${realAv.daily_manifestation}` : defaultAv.detailed_pains[1],
+                    realAv.objection ? `Si te duele dudar sobre: ${realAv.objection}` : defaultAv.detailed_pains[2]
+                ].filter(Boolean);
+            }
+
+            return {
+                id,
+                name,
+                img,
+                age,
+                occupation,
+                income,
+                priority,
+                priorityClass,
+                transformation_title,
+                detailed_pains
+            };
+        });
+    };
 
     useEffect(() => {
         if (strategy) setLocalStrategy(strategy);
@@ -70,29 +209,120 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
         
         if (path.startsWith('avatar-title-')) {
             const avatarId = path.split('avatar-title-')[1];
-            newStrategy.avatars = newStrategy.avatars.map(av => 
-                String(av.id) === String(avatarId) ? { ...av, transformation_title: value } : av
-            );
+            let targetIdx = -1;
+            if (avatarId.startsWith('default-')) {
+                targetIdx = parseInt(avatarId.split('default-')[1]);
+            } else if (avatarId.startsWith('real-')) {
+                targetIdx = parseInt(avatarId.split('real-')[1]);
+            } else if (avatarId.startsWith('fallback-')) {
+                targetIdx = parseInt(avatarId.split('fallback-')[1]);
+            } else {
+                targetIdx = newStrategy.avatars.findIndex(av => String(av.id) === String(avatarId));
+            }
+
+            if (targetIdx !== -1) {
+                if (!newStrategy.avatars || !Array.isArray(newStrategy.avatars)) {
+                    newStrategy.avatars = [];
+                }
+                while (newStrategy.avatars.length <= targetIdx) {
+                    newStrategy.avatars.push({
+                        id: newStrategy.avatars.length + 1,
+                        name: "",
+                        pain: "",
+                        daily_manifestation: "",
+                        objection: ""
+                    } as any);
+                }
+                newStrategy.avatars[targetIdx].transformation_title = value;
+            } else {
+                newStrategy.avatars = newStrategy.avatars.map(av => 
+                    String(av.id) === String(avatarId) ? { ...av, transformation_title: value } : av
+                );
+            }
         } else if (path.startsWith('pain-')) {
             const painTarget = path.split('pain-')[1];
             const [avatarId, painIdx] = painTarget.split('|');
+            const indexInt = parseInt(painIdx);
+
+            const cleanPrefix = (text: string, prefixPattern: string) => {
+                let clean = text.trim();
+                if (clean.toLowerCase().startsWith(prefixPattern.toLowerCase())) {
+                    clean = clean.substring(prefixPattern.length).trim();
+                }
+                if (clean.startsWith(':')) {
+                    clean = clean.substring(1).trim();
+                }
+                return clean;
+            };
             
-            // Buscar todos los dolores de este avatar
-            const avatarPains = newStrategy.psychology.pains.filter((p: any) => 
-                typeof p !== 'string' && String(p.avatarId) === String(avatarId)
-            );
-            
-            if (avatarPains.length > 0) {
-               // Encontrar el objeto exacto en la lista global
-               const targetItem = avatarPains[parseInt(painIdx)];
-               newStrategy.psychology.pains = newStrategy.psychology.pains.map((p: any) => 
-                   p === targetItem ? { ...p, text: value } : p
-               );
+            // Let's identify the index (0, 1, or 2) of this avatar being edited
+            let targetIdx = -1;
+            if (avatarId.startsWith('default-')) {
+                targetIdx = parseInt(avatarId.split('default-')[1]);
+            } else if (avatarId.startsWith('real-')) {
+                targetIdx = parseInt(avatarId.split('real-')[1]);
+            } else if (avatarId.startsWith('fallback-')) {
+                targetIdx = parseInt(avatarId.split('fallback-')[1]);
             } else {
-               // Si es el pain por defecto del avatar (avatar.pain)
-               newStrategy.avatars = newStrategy.avatars.map(av => 
-                   String(av.id) === String(avatarId) ? { ...av, pain: value } : av
-               );
+                targetIdx = newStrategy.avatars.findIndex(av => String(av.id) === String(avatarId));
+            }
+
+            if (targetIdx !== -1) {
+                if (!newStrategy.avatars || !Array.isArray(newStrategy.avatars)) {
+                    newStrategy.avatars = [];
+                }
+                while (newStrategy.avatars.length <= targetIdx) {
+                    newStrategy.avatars.push({
+                        id: newStrategy.avatars.length + 1,
+                        name: "",
+                        pain: "",
+                        daily_manifestation: "",
+                        objection: ""
+                    } as any);
+                }
+
+                const targetAvatar = newStrategy.avatars[targetIdx];
+                const realId = targetAvatar.id;
+
+                const avatarIdxStr = String(targetIdx + 1);
+                const avatarPains = newStrategy.psychology.pains && Array.isArray(newStrategy.psychology.pains)
+                    ? newStrategy.psychology.pains.filter((p: any) => 
+                        p && typeof p !== 'string' && (String(p.avatarId) === String(realId) || String(p.avatarId) === avatarIdxStr)
+                      )
+                    : [];
+
+                if (avatarPains.length > 0) {
+                    const targetItem = avatarPains[indexInt];
+                    if (targetItem) {
+                        newStrategy.psychology.pains = newStrategy.psychology.pains.map((p: any) => 
+                            p === targetItem ? { ...p, text: value } : p
+                        );
+                    } else {
+                        let cleanVal = value;
+                        if (indexInt === 0) {
+                            cleanVal = cleanPrefix(value, "Si te frustra ver que");
+                            targetAvatar.pain = cleanVal;
+                        } else if (indexInt === 1) {
+                            cleanVal = cleanPrefix(value, "Si te agota sentir que");
+                            targetAvatar.daily_manifestation = cleanVal;
+                        } else if (indexInt === 2) {
+                            cleanVal = cleanPrefix(value, "Si te duele dudar sobre");
+                            targetAvatar.objection = cleanVal;
+                        }
+                    }
+                } else {
+                    let cleanVal = value;
+                    if (indexInt === 0) {
+                        cleanVal = cleanPrefix(value, "Si te frustra ver que");
+                        targetAvatar.pain = cleanVal;
+                    } else if (indexInt === 1) {
+                        cleanVal = cleanPrefix(value, "Si te agota sentir que");
+                        targetAvatar.daily_manifestation = cleanVal;
+                    } else if (indexInt === 2) {
+                        cleanVal = cleanPrefix(value, "Si te duele dudar sobre");
+                        targetAvatar.objection = cleanVal;
+                    }
+                }
             }
         } else if (path.startsWith('module-')) {
             const [_, field, idx] = path.split('-');
@@ -228,6 +458,160 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                 </div>
             </div>
             
+            {/* --- SECCIÓN FRUSTRACIONES DEL AVATAR (Interactive Accordions) --- */}
+            <div className="max-w-[75em] mx-auto px-6 mt-32 space-y-12">
+                {/* Inner Header */}
+                <div className="flex items-start gap-5">
+                    <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 shadow-lg shadow-blue-500/5">
+                        <MessageSquare className="w-7 h-7" />
+                    </div>
+                    <div className="text-left">
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-white uppercase tracking-tight font-sans">
+                            Frustraciones del Avatar
+                        </h2>
+                        <p className="text-zinc-400 text-sm md:text-base leading-relaxed mt-2 font-sans">
+                            Retos emocionales, miedos ocultos e insatisfacciones profundas que impulsan a tu cliente a buscar una solución de inmediato. Mapeado detalladamente por avatar.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Banner instructivo elegante */}
+                <div className="flex items-center gap-3 px-2 text-sm text-zinc-400 select-none font-sans">
+                    <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+                    </span>
+                    <span>Haz clic en cualquiera de los avatares para expandir y ver sus frustraciones específicas.</span>
+                </div>
+
+                {/* Accordion List for 3 Avatars Pains */}
+                <div className="space-y-6 mt-4">
+                    {(() => {
+                        const objectionsAvsToRender = getSystemAvatarsProps(localStrategy);
+
+                        return objectionsAvsToRender.map((av, idx) => {
+                            const isOpen = activeAvatarIndex === idx;
+                            return (
+                                <div
+                                    key={idx}
+                                    className={`border rounded-3xl overflow-hidden transition-all duration-300 cursor-pointer hover:border-blue-500/60 hover:shadow-[0_0_20px_rgba(59,130,246,0.12)] hover:bg-[#121216]/50 ${
+                                        isOpen
+                                            ? "bg-[#0c0c11]/90 border-blue-500/40 shadow-[0_10px_30px_rgba(59,130,246,0.06)]"
+                                            : "bg-white/[0.02] border-white/5 hover:border-white/10"
+                                    }`}
+                                >
+                                    {/* Header clickable bar */}
+                                    <div
+                                        onClick={() => {
+                                            setActiveAvatarIndex(isOpen ? null : idx);
+                                        }}
+                                        className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 cursor-pointer select-none"
+                                    >
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-6 text-left">
+                                            {/* Avatar Picture with custom border */}
+                                            <div className="relative shrink-0 flex justify-center">
+                                                <div className="w-[84px] h-[84px] sm:w-[96px] sm:h-[96px] rounded-full border-2 border-blue-500 p-0.5 bg-zinc-950 shadow-[0_0_15px_rgba(59,130,246,0.25)] flex items-center justify-center overflow-hidden">
+                                                    <img
+                                                        src={av.img}
+                                                        alt={av.name}
+                                                        referrerPolicy="no-referrer"
+                                                        className="w-full h-full rounded-full object-cover"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <div className="flex items-center gap-3 flex-wrap">
+                                                    <h3 className="text-xl sm:text-2xl font-black text-white leading-tight font-sans">
+                                                        {av.name}
+                                                    </h3>
+                                                    {/* Badges */}
+                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest leading-none ${av.priorityClass}`}>
+                                                        {av.priority}
+                                                    </span>
+                                                </div>
+
+                                                {/* demographic line with icon */}
+                                                <div className="flex items-center gap-2 text-zinc-400 text-sm md:text-[14px] font-medium flex-wrap">
+                                                    <Calendar className="w-4 h-4 text-blue-400 shrink-0" />
+                                                    <span>{av.age}</span>
+                                                    <span>•</span>
+                                                    <span>{av.occupation}</span>
+                                                    <span>•</span>
+                                                    <span>{av.income}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Chevron status */}
+                                        <div className="flex justify-end items-center md:pl-4">
+                                            <div className="w-10 h-10 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
+                                                <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Accordion expandable body */}
+                                    <AnimatePresence initial={false}>
+                                        {isOpen && (
+                                            <motion.div
+                                                key="content"
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: "auto", opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                transition={{ duration: 0.25, ease: "easeInOut" }}
+                                            >
+                                                <div className="p-6 md:p-10 space-y-8 bg-gradient-to-b from-[#0c0c11]/80 to-[#08080c]/95 border-t border-white/[0.04]">
+                                                    {/* Content block inside active view */}
+                                                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                                                        {/* Left column hook */}
+                                                        <div className="lg:col-span-5 space-y-6 text-left">
+                                                            <div className="w-14 h-14 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shadow-md shadow-blue-500/5">
+                                                                <TrendingUp className="w-7 h-7" />
+                                                            </div>
+                                                            <h4 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight leading-tight uppercase font-sans">
+                                                                <EditableField 
+                                                                    value={av.transformation_title}
+                                                                    onSave={(val) => handleUpdate(`avatar-title-${av.id}`, val)}
+                                                                />
+                                                            </h4>
+                                                        </div>
+
+                                                        {/* Line element separator */}
+                                                        <div className="hidden lg:block lg:col-span-1 h-32 w-px bg-white/[0.06] mx-auto" />
+
+                                                        {/* Right column with 3 pains details */}
+                                                        <div className="lg:col-span-6 space-y-6 text-left">
+                                                            {av.detailed_pains.map((dolor, pIdx) => (
+                                                                <div key={pIdx} className="flex gap-5 items-start text-left">
+                                                                    {/* High contrast custom glowing dot element */}
+                                                                    <div className="relative shrink-0 mt-2">
+                                                                        <div className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                                                                        <div className="absolute inset-0 w-3 h-3 rounded-full bg-blue-500 animate-ping opacity-70" />
+                                                                    </div>
+                                                                    <div className="flex-1">
+                                                                        <EditableField 
+                                                                            value={dolor}
+                                                                            onSave={(val) => handleUpdate(`pain-${av.id}|${pIdx}`, val)}
+                                                                            multiline
+                                                                            className="text-zinc-200 text-lg md:text-xl leading-relaxed font-semibold cursor-edit"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            );
+                        });
+                    })()}
+                </div>
+            </div>
+
             {/* --- SECCIÓN DINÁMICA: ESTA CLASE ES PARA TI SI... --- */}
             <div className="max-w-[75em] mx-auto px-6 text-center mt-32 space-y-16">
                 <h2 className="text-4xl md:text-6xl font-['Verdana'] font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 leading-tight tracking-tight">Esta clase es para ti si...</h2>
@@ -259,10 +643,35 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                 </div>
                                 
                                 <div className="lg:w-[45%] space-y-8 lg:pl-16 lg:border-l border-white/10">
-                                    {(psychology.pains.some(p => typeof p !== 'string' && p.avatarId === avatar.id) 
-                                        ? psychology.pains.filter(p => typeof p !== 'string' && p.avatarId === avatar.id).map(p => (typeof p === 'string' ? p : p.text))
-                                        : [avatar.pain]
-                                    ).map((painPoint, pIdx) => (
+                                    {(() => {
+                                        // 1. Buscamos dolores personalizados en psychology.pains para este avatar (objeto)
+                                        // o para su índice idx + 1
+                                        const customPains = psychology.pains && Array.isArray(psychology.pains)
+                                            ? psychology.pains.filter((p: any) => 
+                                                p && typeof p !== 'string' && 
+                                                (String(p.avatarId) === String(avatar.id) || String(p.avatarId) === String(idx + 1))
+                                              ).map((p: any) => typeof p === 'string' ? p : p.text)
+                                            : [];
+
+                                        if (customPains.length > 0) {
+                                            return customPains;
+                                        }
+
+                                        // 2. Si no hay, construimos fallback dinámico basado en avatar.pain, daily_manifestation y objection
+                                        const p1 = avatar.pain 
+                                            ? (avatar.pain.toLowerCase().startsWith('si te frustra') ? avatar.pain : `Si te frustra ver que: ${avatar.pain}`)
+                                            : `Si te frustra ver que: (no definido)`;
+
+                                        const p2 = avatar.daily_manifestation 
+                                            ? (avatar.daily_manifestation.toLowerCase().startsWith('si te agota') ? avatar.daily_manifestation : `Si te agota sentir que: ${avatar.daily_manifestation}`)
+                                            : `Si te agota sentir que: (no definido)`;
+
+                                        const p3 = avatar.objection 
+                                            ? (avatar.objection.toLowerCase().startsWith('si te duele') ? avatar.objection : `Si te duele dudar sobre: ${avatar.objection}`)
+                                            : `Si te duele dudar sobre: (no definido)`;
+
+                                        return [p1, p2, p3];
+                                    })().map((painPoint, pIdx) => (
                                         <div key={pIdx} className="flex gap-6">
                                             <div className="mt-3 shrink-0">
                                                 <div className={`w-3.5 h-3.5 rounded-full bg-gradient-to-tr ${idx === 0 ? 'from-blue-600 to-cyan-500 shadow-[0_0_20px_rgba(37,99,235,0.8)]' : idx === 1 ? 'from-emerald-600 to-green-500 shadow-[0_0_20px_rgba(5,150,105,0.8)]' : 'from-purple-600 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.8)]'}`}></div>
