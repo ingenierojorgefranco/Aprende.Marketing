@@ -978,10 +978,16 @@ h2:
         // 3. Testimonios
         if (step1Data.testimonials && Array.isArray(step1Data.testimonials)) {
             step1Data.testimonials.forEach((t, index) => {
-                const gender = Math.random() > 0.5 ? 'women' : 'men';
-                const id = 30 + index + Math.floor(Math.random() * 10);
-                if (!t.image || !t.image.includes('randomuser.me')) {
-                    t.image = `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
+                // Si existe el avatar en la misma posición, copiamos su foto
+                if (step1Data.avatars && step1Data.avatars[index] && step1Data.avatars[index].image) {
+                    t.image = step1Data.avatars[index].image;
+                } else {
+                    // Fallback por si acaso
+                    const gender = Math.random() > 0.5 ? 'women' : 'men';
+                    const id = 30 + index + Math.floor(Math.random() * 10);
+                    if (!t.image || !t.image.includes('randomuser.me')) {
+                        t.image = `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
+                    }
                 }
             });
         }

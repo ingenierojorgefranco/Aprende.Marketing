@@ -25,18 +25,43 @@ export const WhatsAppTestimonials: React.FC<WhatsAppTestimonialsProps> = ({
   ds,
   project
 }) => {
-  // Extraer testimonios de la estrategia del proyecto como fuente de verdad absoluta
-  const strategyTestimonials = project?.strategy_json?.modules?.testimonials || project?.strategy_json?.testimonials;
-  
+  // Extraer testimonios y avatares de la estrategia del proyecto como fuente de verdad absoluta
+  let parsedStrategy = project?.strategy_json;
+  if (typeof parsedStrategy === 'string') {
+    try {
+      parsedStrategy = JSON.parse(parsedStrategy);
+    } catch (e) {
+      console.error("Error parsing strategy_json in WhatsAppTestimonialsProps:", e);
+    }
+  }
+
+  const avatars = parsedStrategy?.avatars || [];
+  const strategyTestimonials = parsedStrategy?.modules?.testimonials || parsedStrategy?.testimonials;
+
   const testimonials = (strategyTestimonials && strategyTestimonials.length > 0)
-    ? strategyTestimonials.map((t: any) => ({
-        name: t.name,
-        text: t.text,
-        rating: 5,
-        image: t.image,
-        location: t.location || ""
-      }))
-    : initialTestimonials;
+    ? strategyTestimonials.map((t: any, i: number) => {
+        let resolvedImage = t.image;
+        if (avatars && avatars[i] && avatars[i].image) {
+            resolvedImage = avatars[i].image;
+        }
+        return {
+            name: t.name,
+            text: t.text,
+            rating: t.rating || 5,
+            image: resolvedImage,
+            location: t.location || ""
+        };
+      })
+    : (initialTestimonials || []).map((t: any, i: number) => {
+        let resolvedImage = t.image;
+        if (avatars && avatars[i] && avatars[i].image) {
+            resolvedImage = avatars[i].image;
+        }
+        return {
+            ...t,
+            image: resolvedImage
+        };
+    });
 
   if (!testimonials || testimonials.length === 0) return null;
 

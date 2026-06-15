@@ -80,11 +80,24 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
 
   const dynamicTestimonials = hasTestimonials
     ? strategyData.modules.testimonials.slice(0, 3).map((t: any, i: number) => {
-        // Si el usuario seleccionó uno manualmente, lo usamos. Si no, detección automática.
+        const correspondingAvatar = strategyData.avatars && strategyData.avatars[i];
+        const avatarImg = correspondingAvatar?.image || "";
+
+        // Si el usuario seleccionó uno manualmente, lo usamos. Si no, detección automática o por avatar.
         if (customAvatars[i]) {
             return {
                 name: t.name,
                 img: customAvatars[i],
+                msg: t.text,
+                reply: expertReplies[i]
+            };
+        }
+
+        // PRIORIDAD: La imagen original editada del Avatar del Proyecto !
+        if (avatarImg) {
+            return {
+                name: t.name,
+                img: avatarImg,
                 msg: t.text,
                 reply: expertReplies[i]
             };
