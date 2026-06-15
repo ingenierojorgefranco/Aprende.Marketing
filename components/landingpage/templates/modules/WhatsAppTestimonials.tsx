@@ -41,7 +41,7 @@ export const WhatsAppTestimonials: React.FC<WhatsAppTestimonialsProps> = ({
   const testimonials = (strategyTestimonials && strategyTestimonials.length > 0)
     ? strategyTestimonials.map((t: any, i: number) => {
         let resolvedImage = t.image;
-        if (avatars && avatars[i] && avatars[i].image) {
+        if (!t.is_custom_avatar && avatars && avatars[i] && avatars[i].image) {
             resolvedImage = avatars[i].image;
         }
         return {
@@ -54,7 +54,7 @@ export const WhatsAppTestimonials: React.FC<WhatsAppTestimonialsProps> = ({
       })
     : (initialTestimonials || []).map((t: any, i: number) => {
         let resolvedImage = t.image;
-        if (avatars && avatars[i] && avatars[i].image) {
+        if (!t.is_custom_avatar && avatars && avatars[i] && avatars[i].image) {
             resolvedImage = avatars[i].image;
         }
         return {

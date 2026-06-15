@@ -83,11 +83,21 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
         const correspondingAvatar = strategyData.avatars && strategyData.avatars[i];
         const avatarImg = correspondingAvatar?.image || "";
 
-        // Si el usuario seleccionó uno manualmente, lo usamos. Si no, detección automática o por avatar.
+        // Si el usuario seleccionó uno manualmente en la sesión actual, lo usamos.
         if (customAvatars[i]) {
             return {
                 name: t.name,
                 img: customAvatars[i],
+                msg: t.text,
+                reply: expertReplies[i]
+            };
+        }
+
+        // Si es una imagen personalizada elegida y guardada persistente, tiene prioridad absoluta sobre la original del avatar del proyecto
+        if (t.is_custom_avatar && t.image) {
+            return {
+                name: t.name,
+                img: t.image,
                 msg: t.text,
                 reply: expertReplies[i]
             };
@@ -144,11 +154,15 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
         updatedTestimonials[editingIdx].msg = tempText;
         
         // Mapeamos los datos finales a guardar, asegurando que la imagen persista
-        const testimonialsToSave = updatedTestimonials.map((t, idx) => ({
-            name: t.name,
-            text: t.msg,
-            image: t.img // Persistimos la imagen actual que puede ser la detectada o la elegida
-        }));
+        const testimonialsToSave = updatedTestimonials.map((t, idx) => {
+            const originalTestimonial = strategyData?.modules?.testimonials?.[idx];
+            return {
+                name: t.name,
+                text: t.msg,
+                image: t.img, // Persistimos la imagen actual que puede ser la detectada o la elegida
+                is_custom_avatar: originalTestimonial?.is_custom_avatar || !!customAvatars[idx]
+            };
+        });
 
         await api.updateProjectTestimonials(projectId, testimonialsToSave);
         
@@ -212,9 +226,9 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
           const testimonialsToSave = currentData.map((t: any, i: number) => {
               const baseImg = customAvatars[i] || t.image || "";
               if (i === testimonialIdx) {
-                  return { ...t, image: imgUrl };
+                  return { ...t, image: imgUrl, is_custom_avatar: true };
               }
-              return { ...t, image: baseImg };
+              return { ...t, image: baseImg, is_custom_avatar: t.is_custom_avatar || false };
           });
 
           await api.updateProjectTestimonials(projectId, testimonialsToSave);
