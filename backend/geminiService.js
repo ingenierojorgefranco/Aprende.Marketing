@@ -32,7 +32,7 @@ const safetySettings = [
 
 /**
  * Función auxiliar para gestionar reintentos automáticos ante errores de saturación (503/504)
- */
+ */ 
 const withRetries = async (fn, maxRetries = 3) => {
     let lastError;
     for (let i = 0; i < maxRetries; i++) {
