@@ -292,7 +292,10 @@ export const generateFullStrategy = async (projectId) => {
         INSTRUCCIONES PARA LA PSICOLOGÍA (OBLIGATORIO):
         Genera un análisis de miedos, objeciones y motivaciones reales para este nicho.
 
-        Genera exactamente 9 dolores (pains) y 9 soluciones (solutions) vinculadas: 3 para el Avatar 1, 3 para el Avatar 2 y 3 para el Avatar 3.
+        REGLA CRÍTICA DE CANTIDAD (OBLIGATORIA): El array de miedos/dolores ("pains") de la sección "psychology" debe tener EXACTAMENTE 9 objetos (ni uno más, ni uno menos: 3 objetos para avatarId 1, 3 objetos para avatarId 2, y 3 objetos para avatarId 3).
+        REGLA CRÍTICA DE CANTIDAD (OBLIGATORIA): El array de soluciones ("solutions") de la sección "psychology" debe tener EXACTAMENTE 9 objetos (ni uno más, ni uno menos: 3 objetos para avatarId 1, 3 objetos para avatarId 2, y 3 objetos para avatarId 3).
+        
+        Está TERMINANTEMENTE PROHIBIDO resumir, truncar o enviar un número menor de dolores o soluciones. El orden debe ser estrictamente secuencial y correlacionado con el avatar correspondiente. No dejes campos con puntos suspensivos ("..."), genera contenido real de alto impacto persuasivo para cada uno.
 
         Instrucciones para Pains (Agitación del Dolor) los cuales estaran en psychology > pains:
         NO uses descripciones técnicas o de gestión. Genera dolores ALTAMENTE PERSUASIVOS que "toquen el nervio" emocional. Enfócate en la frustración, el miedo o la invisibilidad. Usa verbos de acción emocional (frustra, agota, aterra, duele) y describe una consecuencia visual o mental real (ej: Si estás cansada de ver tu agenda vacía, Si sientes un nudo en el estómago, Si te sientes invisible frente a competidores con menos talento). Escribe en SEGUNDA persona y CADA DOLOR DEBE EMPEZAR CON LA PALABRA "Si" seguido del sentimiento (ej: "Si te frustra...", "Si te duele...", "Si te agota..."). El usuario debe sentir que conoces su situación mejor que él mismo. Cada dolor debe ser un objeto con { "text": "...", "avatarId": number }.
