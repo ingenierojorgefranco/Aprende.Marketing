@@ -16,7 +16,7 @@ const addColumnSafe = async (connection, tableName, columnDef) => {
     }
 };
 
-/**
+/** 
  * Helper para eliminar columnas de forma segura en MySQL (idempotente)
  */
 const dropColumnSafe = async (connection, tableName, columnName) => {
