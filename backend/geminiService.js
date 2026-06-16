@@ -1029,8 +1029,22 @@ h2:
                     step1Data.avatars = demogSource.avatars;
                 }
                 if (demogSource.psychology) {
-                    process.stdout.write(`🧬 [PIPELINE] Copiando directamente psicología guardada/maestra sin intervención de IA.\n`);
+                    process.stdout.write(`🧬 [PIPELINE] Copiando psicología guardada/maestra, pero preservando dolores y soluciones nuevos de la IA.\n`);
+                    
+                    // Almacenamos dolores y soluciones frescos generados de forma única por la IA para este subproyecto
+                    const freshPains = step1Data.psychology?.pains;
+                    const freshSolutions = step1Data.psychology?.solutions;
+                    
+                    // Copiamos la psicología guardada
                     step1Data.psychology = demogSource.psychology;
+                    
+                    // Reestablecemos con carácter obligatorio los nuevos dolores y soluciones generados por la IA
+                    if (freshPains && Array.isArray(freshPains) && freshPains.length > 0) {
+                        step1Data.psychology.pains = freshPains;
+                    }
+                    if (freshSolutions && Array.isArray(freshSolutions) && freshSolutions.length > 0) {
+                        step1Data.psychology.solutions = freshSolutions;
+                    }
                 }
                 if (demogSource.commercial) {
                     process.stdout.write(`🧬 [PIPELINE] Copiando directamente datos comerciales guardados/maestros sin intervención de IA.\n`);
