@@ -47,6 +47,32 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
   const learningModules = strategy?.psychology?.learningModules || [];
 
   const getPainsForAvatar = (index: number) => {
+    // Consulta directa a los dolores reales sincronizados de la estrategia maestra
+    const painsArray = strategy?.psychology?.pains;
+    if (Array.isArray(painsArray) && painsArray.length > 0) {
+      const avatarId = index + 1; // index 0->avatarId 1, index 1->avatarId 2, index 2->avatarId 3
+      
+      // Filtramos consecutivamente según el avatar correspondiente de la estrategia
+      const objectPains = painsArray.filter((p: any) => 
+        p && typeof p === 'object' && p.text &&
+        (Number(p.avatarId) === Number(avatarId))
+      );
+      
+      if (objectPains.length > 0) {
+        return objectPains.map((p: any) => p.text);
+      } else {
+        // Distribución lineal automatizada como reaseguro si no tienen avatarId
+        const stringPains = painsArray.map((p: any) => p && typeof p === 'object' ? (p.text || p.title || "") : String(p)).filter(Boolean);
+        if (stringPains.length > 0) {
+          const itemsPerAvatar = Math.max(1, Math.ceil(stringPains.length / 3));
+          const start = index * itemsPerAvatar;
+          const end = start + itemsPerAvatar;
+          return stringPains.slice(start, end);
+        }
+      }
+    }
+
+    // Fallback del content autogenerado original únicamente en caso de que no existiera la estrategia
     const rawItems = content.whatYouWillLearn?.items || [];
     const start = index * 3;
     const end = start + 3;
@@ -58,6 +84,13 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
   };
   
   const getAvatarTitle = (index: number) => {
+    // Consulta directa al título/transformación de avatar de la estrategia del proyecto
+    const realAv = strategy?.avatars?.[index];
+    if (realAv) {
+      const transTitle = realAv.transformation_title || realAv.learning_hook || realAv.name;
+      if (transTitle) return transTitle;
+    }
+
     if (content.whatYouWillLearn?.avatarTitles?.[index]) {
       return content.whatYouWillLearn.avatarTitles[index];
     }
