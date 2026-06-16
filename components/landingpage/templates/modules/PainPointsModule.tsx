@@ -44,36 +44,30 @@ const getModuleColors = (color: string = 'purple') => {
 export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds, project, pageId, basePath }) => {
   const [showModal, setShowModal] = useState(false);
   const strategy = project?.strategy_json;
-  const pains = strategy?.psychology?.pains || [];
   const learningModules = strategy?.psychology?.learningModules || [];
 
   const getPainsForAvatar = (index: number) => {
-    const avatarPains = pains.filter((p: any) => p && typeof p !== 'string' && (String(p.avatarId) === String(index + 1)));
-    if (avatarPains.length > 0) return avatarPains.map((p: any) => p.text);
-    return ["El contenido de la frustración del avatar no existe o no ha sido encontrado en la base de datos."];
+    const rawItems = content.whatYouWillLearn?.items || [];
+    const start = index * 3;
+    const end = start + 3;
+    const slice = rawItems.slice(start, end);
+    if (slice.length > 0) {
+      return slice;
+    }
+    return ["No se encontraron dolores de transformación en la base de datos."];
   };
   
   const getAvatarTitle = (index: number) => {
-    // 1. Intentar desde la estrategia del proyecto (Prioridad máxima)
-    const strategyAvatar = strategy?.avatars?.[index];
-    if (strategyAvatar?.transformation_title) return strategyAvatar.transformation_title;
-    
-    // 2. Intentar desde el contenido generado
-    if (content.whatYouWillLearn.avatarTitles?.[index]) return content.whatYouWillLearn.avatarTitles[index];
-    
-    // 3. Fallback quemado
-    const fallbacks = [
-        "Si buscas crear tu propio negocio y reinventarte profesionalmente",
-        "Si ya estás en el sector belleza y quieres dominar la técnica más top",
-        "Si te da miedo fallar por falta de experiencia pero buscas respaldo"
-    ];
-    return fallbacks[index];
+    if (content.whatYouWillLearn?.avatarTitles?.[index]) {
+      return content.whatYouWillLearn.avatarTitles[index];
+    }
+    return "No existe título para este perfil registrado en la base de datos.";
   };
 
   const avatarData = [
-    { title: getAvatarTitle(0), iconName: content.whatYouWillLearn.avatarIcons?.[0] || "Sparkles" },
-    { title: getAvatarTitle(1), iconName: content.whatYouWillLearn.avatarIcons?.[1] || "TrendingUp" },
-    { title: getAvatarTitle(2), iconName: content.whatYouWillLearn.avatarIcons?.[2] || "UserCheck" }
+    { title: getAvatarTitle(0), iconName: content.whatYouWillLearn?.avatarIcons?.[0] || "Sparkles" },
+    { title: getAvatarTitle(1), iconName: content.whatYouWillLearn?.avatarIcons?.[1] || "TrendingUp" },
+    { title: getAvatarTitle(2), iconName: content.whatYouWillLearn?.avatarIcons?.[2] || "UserCheck" }
   ];
 
   const avatars = avatarData.map((data, idx) => {

@@ -119,7 +119,11 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                 return { ...defaultAv, id: `default-${idx}` };
             }
 
-            const id = realAv.id || `real-${idx}`;
+            const id = typeof realAv.id === 'number' 
+                ? realAv.id 
+                : (typeof realAv.id === 'string' && !isNaN(parseInt(realAv.id, 10)) 
+                    ? parseInt(realAv.id, 10) 
+                    : (idx + 1));
             const name = realAv.name || (hasSavedAvatars ? "(no definido)" : defaultAv.name);
             const age = realAv.ageRange || realAv.age || realAv.age_range || (hasSavedAvatars ? "(no definido)" : defaultAv.age);
             const occupation = realAv.archetype || realAv.occupation || realAv.profession || realAv.profession_title || realAv.job || realAv.role || (hasSavedAvatars ? "(no definido)" : defaultAv.occupation);
@@ -141,16 +145,33 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
             let transformation_title = realAv.transformation_title || realAv.learning_hook || defaultAv.transformation_title;
             
             // Comparación cruzada para dolores cargados
-            const customPains = strategyData?.psychology?.pains && Array.isArray(strategyData.psychology.pains)
-                ? strategyData.psychology.pains.filter((p: any) => 
-                    p && typeof p !== 'string' && 
-                    (String(p.avatarId) === String(id) || String(p.avatarId) === String(idx + 1))
-                  )
-                : [];
+            const painsArray = strategyData?.psychology?.pains || [];
+            let customPains: string[] = [];
+            
+            if (Array.isArray(painsArray) && painsArray.length > 0) {
+                // Intentamos filtrar si son objetos con la clave avatarId coincidente como entero
+                const objectPains = painsArray.filter((p: any) => 
+                    p && typeof p === 'object' && p.text &&
+                    (Number(p.avatarId) === Number(id))
+                );
+                
+                if (objectPains.length > 0) {
+                    customPains = objectPains.map((p: any) => p.text);
+                } else {
+                    // Si son cadenas simples, distribuimos de forma lineal basada estrictamente en el id numérico del avatar
+                    const stringPains = painsArray.map((p: any) => p && typeof p === 'object' ? (p.text || p.title || "") : String(p)).filter(Boolean);
+                    if (stringPains.length > 0) {
+                        const itemsPerAvatar = Math.max(1, Math.ceil(stringPains.length / 3));
+                        const start = (Number(id) - 1) * itemsPerAvatar;
+                        const end = start + itemsPerAvatar;
+                        customPains = stringPains.slice(start, end);
+                    }
+                }
+            }
             
             let detailed_pains = [];
             if (customPains.length > 0) {
-                detailed_pains = customPains.map((p: any) => typeof p === 'string' ? p : p.text);
+                detailed_pains = customPains;
             } else {
                 detailed_pains = ["El contenido de la frustración del avatar no existe o no ha sido encontrado en la base de datos."];
             }
@@ -661,14 +682,26 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                 
                                 <div className="lg:w-[45%] space-y-8 lg:pl-16 lg:border-l border-white/10">
                                     {(() => {
-                                        // 1. Buscamos dolores personalizados en psychology.pains para este avatar (objeto)
-                                        // o para su índice idx + 1
-                                        const customPains = psychology.pains && Array.isArray(psychology.pains)
-                                            ? psychology.pains.filter((p: any) => 
-                                                p && typeof p !== 'string' && 
-                                                (String(p.avatarId) === String(avatar.id) || String(p.avatarId) === String(idx + 1))
-                                              ).map((p: any) => typeof p === 'string' ? p : p.text)
-                                            : [];
+                                        const painsArray = psychology?.pains || [];
+                                        let customPains = [];
+
+                                        if (Array.isArray(painsArray) && painsArray.length > 0) {
+                                            const objectPains = painsArray.filter((p: any) => 
+                                                p && typeof p === 'object' && p.text &&
+                                                (Number(p.avatarId) === Number(avatar.id))
+                                            );
+                                            if (objectPains.length > 0) {
+                                                customPains = objectPains.map((p: any) => p.text);
+                                            } else {
+                                                const stringPains = painsArray.map((p: any) => typeof p === 'object' ? (p.text || p.title || "") : String(p)).filter(Boolean);
+                                                if (stringPains.length > 0) {
+                                                    const itemsPerAvatar = Math.max(1, Math.ceil(stringPains.length / 3));
+                                                    const start = (Number(avatar.id) - 1) * itemsPerAvatar;
+                                                    const end = start + itemsPerAvatar;
+                                                    customPains = stringPains.slice(start, end);
+                                                }
+                                            }
+                                        }
 
                                         if (customPains.length > 0) {
                                             return customPains;

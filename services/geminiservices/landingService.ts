@@ -378,12 +378,8 @@ export const generateLandingPageContent = async (
             }
 
             // 3. INYECCIÓN OBLIGATORIA DE IDENTIFICACIÓN DE AVATARES (ESTA CLASE ES PARA TI)
-            // Limpieza: No guardamos snapshots de títulos o dolores en el contenido de la landing
-            // para que siempre se extraigan en tiempo real de la estrategia del proyecto.
             content.whatYouWillLearn.title = "Esta clase es para ti si...";
             content.whatYouWillLearn.avatarIcons = ["Sparkles", "TrendingUp", "UserCheck"];
-            content.whatYouWillLearn.avatarTitles = []; // Vacío para forzar extracción de estrategia
-            content.whatYouWillLearn.items = [];        // Vacío para forzar extracción de estrategia
 
             // 4. INYECCIÓN OBLIGATORIA DE TESTIMONIOS (ESTRATEGIA) - ELIMINADA PARA EVITAR DUPLICIDAD
             // Los testimonios ahora se extraen directamente de la estrategia en los componentes
