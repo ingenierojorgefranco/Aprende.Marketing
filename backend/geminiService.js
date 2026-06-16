@@ -427,7 +427,7 @@ Elige automáticamente el mecanismo de persuasión más efectivo según el nicho
 --------------------------------------------------
 DIRECCIONES CREATIVAS (LO QUE SÍ DEBES HACER)
 --------------------------------------------------
-
+ 
 - Céntrate en la transformación REAL del usuario.
 - Habla de resultados tangibles y nueva realidad.
 - Usa lenguaje emocional y específico del nicho (${niche}).
