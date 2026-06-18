@@ -4,7 +4,7 @@ import {
   ArrowRight, LayoutDashboard, LogOut, Play, 
   Layout, MessageCircle, PenTool, Search, Briefcase, Mail, Users, BarChart, Link as LinkIcon,
   CheckCircle, Zap, Shield, Rocket, Bot, Server, Star, Target, Globe, Gift, ChevronRight, TrendingUp, X, Menu, Smartphone, Cpu, Repeat, Phone, MoreVertical, Send, Smile, BookOpen, GraduationCap,
-  List, Facebook, Instagram, Youtube, TrendingUp as ChartIcon, DollarSign, Calendar, ChevronDown, ChevronUp
+  List, Facebook, Instagram, Youtube, TrendingUp as ChartIcon, DollarSign, Calendar, ChevronDown, ChevronUp, Box
 } from 'lucide-react';
 ////////// Importación de Recharts para gráfica de ingresos - 27/05/2025 02:15 //////////
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
@@ -130,11 +130,11 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
           
           <div className="hidden lg:flex items-center gap-10 text-base font-medium text-white">
             <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Inicio</button>
-            <button onClick={() => scrollToSection('features')} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Herramientas</button>
-            <button onClick={() => scrollToSection('process')} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">¿Cómo Funciona?</button>
+            <button onClick={() => scrollToSection('process')} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Cómo funciona</button>
+            <button onClick={() => scrollToSection('features')} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Productos</button>
             <button onClick={() => scrollToSection('academy')} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Academia</button>
+            <button onClick={() => scrollToSection('testimonials')} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Precios</button>
             <button onClick={() => scrollToSection('footer')} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Blog</button>
-            <button onClick={() => navigate('/contacto')} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Contáctenos</button>
           </div>
           
           <div className="flex items-center gap-4">
@@ -153,7 +153,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                 onClick={() => navigate('/login')}
                 className="hidden sm:block px-8 md:px-12 py-3 md:py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm md:text-[1.1rem] rounded-2xl transition-all shadow-[0_20px_40px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-1 active:scale-95"
               >
-                Acceso Usuarios
+                Iniciar sesión
               </button>
             )}
             
@@ -179,18 +179,18 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
             
             <div className="flex flex-col gap-6 text-xl font-bold text-white mb-12">
               <button onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setIsMenuOpen(false); }} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Inicio <ChevronRight className="w-5 h-5 text-gray-600" /></button>
-              <button onClick={() => scrollToSection('features')} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Herramientas <ChevronRight className="w-5 h-5 text-gray-600" /></button>
-              <button onClick={() => scrollToSection('process')} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">¿Cómo Funciona? <ChevronRight className="w-5 h-5 text-gray-600" /></button>
-              <button onClick={() => scrollToSection('academy')} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Academia <ChevronRight className="w-5 h-5 text-gray-600" /></button>
-              <button onClick={() => scrollToSection('footer')} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Blog <ChevronRight className="w-5 h-5 text-gray-600" /></button>
-              <button onClick={() => navigate('/contacto')} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Contáctenos <ChevronRight className="w-5 h-5 text-gray-600" /></button>
+              <button onClick={() => { scrollToSection('process'); setIsMenuOpen(false); }} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Cómo funciona <ChevronRight className="w-5 h-5 text-gray-600" /></button>
+              <button onClick={() => { scrollToSection('features'); setIsMenuOpen(false); }} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Productos <ChevronRight className="w-5 h-5 text-gray-600" /></button>
+              <button onClick={() => { scrollToSection('academy'); setIsMenuOpen(false); }} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Academia <ChevronRight className="w-5 h-5 text-gray-600" /></button>
+              <button onClick={() => { scrollToSection('testimonials'); setIsMenuOpen(false); }} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Precios <ChevronRight className="w-5 h-5 text-gray-600" /></button>
+              <button onClick={() => { scrollToSection('footer'); setIsMenuOpen(false); }} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Blog <ChevronRight className="w-5 h-5 text-gray-600" /></button>
             </div>
 
             <button
               onClick={() => navigate('/login')}
               className="w-full py-5 bg-[#FF5A1F] text-white font-black text-lg rounded-2xl shadow-xl active:scale-95 transition-transform"
             >
-              Acceso Usuarios
+              Iniciar sesión
             </button>
             
             <p className="mt-auto text-center text-gray-500 text-xs font-bold uppercase tracking-widest">Aprende.Marketing v2.0</p>
@@ -200,147 +200,126 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
       </nav>
 
       {/* Hero Section - DARK BACKGROUND */}
-      <header className="relative pt-32 pb-4 lg:pt-52 lg:pb-8 z-10 overflow-hidden bg-[#0B0B0B]">
+      <header className="relative pt-32 pb-16 lg:pt-48 lg:pb-24 z-10 overflow-hidden bg-[#0B0B0B]">
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#FF5A1F]/5 rounded-full blur-[150px]" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/5 rounded-full blur-[150px]" />
         </div>
 
-        <div className="container mx-auto px-6 text-center relative">
-          
-          {/* ////////// Actualización: Ajuste de ancho de marquesina Hero a 36rem (md:max-w-xl) para PC y Tablet - 15/06/2024 16:30 ////////// */}
-          <div className="inline-flex items-center gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-base md:text-xl text-white mb-8 animate-fade-in-up hover:border-[#FF5A1F]/50 transition duration-300 cursor-default font-bold max-w-full md:max-w-xl overflow-hidden relative">
-          {/* ////////// Fin de actualización - 15/06/2024 16:30 ////////// */}
-            <div className="flex items-center gap-3 shrink-0 z-10 bg-black/20 pr-3 border-r border-white/10">
-              <span className="flex h-3 w-3 rounded-full bg-[#FF5A1F] animate-pulse"></span>
-            </div>
-            <div className="overflow-hidden flex-1 relative">
-                <div className="animate-marquee-scroll flex gap-12 items-center whitespace-nowrap">
-                  <span className="flex items-center gap-8">
-                    La plataforma #1 para Afiliados de Hotmart® <span className="opacity-30">|</span> 
-                    Automatiza tu Negocio con Inteligencia Artificial <span className="opacity-30">|</span> 
-                    Crea Embudos de Venta en Segundos con IA <span className="opacity-30">|</span> 
-                    Escala tu Facturación en Piloto Automático
-                  </span>
-                  <span className="flex items-center gap-8">
-                    La plataforma #1 para Afiliados de Hotmart® <span className="opacity-30">|</span> 
-                    Automatiza tu Negocio con Inteligencia Artificial <span className="opacity-30">|</span> 
-                    Crea Embudos de Venta en Segundos con IA <span className="opacity-30">|</span> 
-                    Escala tu Facturación en Piloto Automático
-                  </span>
-                </div>
-            </div>
-          </div>
-          {/* ////////// Fin de actualización - 03/06/2025 15:45 ////////// */}
-
-          {/* ////////// Actualización: Ajuste de padding horizontal, interlineado y tamaño de fuente - 27/05/2025 18:45 ////////// */}
-          <h1 className="text-[3rem] px-[0.5em] leading-[1.25] sm:text-5xl md:text-7xl lg:text-8xl font-extrabold mb-0 tracking-tight max-w-6xl mx-auto text-white text-center">
-            Vende tus Infoproductos<br />
-            <span className="text-[#FF5A1F]">
-              En Piloto Automático
-            </span>
-          </h1>
-          {/* ////////// Fin de actualización - 27/05/2025 18:45 ////////// */}
-
-          <section id="register-now" className="pb-12 relative overflow-hidden mb-4">
-            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_30%,#FF5A1F15_0%,transparent_50%)]" />
-            </div>
+        <div className="container mx-auto px-6 relative max-w-7xl">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
             
-            <div className="container mx-auto">
-              <div className="relative">
-                <div className="flex flex-col lg:flex-row items-center text-left">
-                  {/* ////////// Actualización: Reordenamiento de sección (Imagen primero en móvil) y espaciado optimizado - 24/05/2025 12:45 ////////// */}
-                  <div className="lg:w-1/2 h-[300px] md:h-[400px] lg:h-[600px] w-full relative group cursor-pointer overflow-hidden rounded-2xl md:rounded-none order-1 lg:order-1 mt-10 lg:mt-0">
-                    <img 
-                      src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1288&auto=format&fit=crop" 
-                      alt="Éxito en Marketing Digital" 
-                      className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-16 md:w-20 h-16 md:h-20 bg-[#FF5A1F]/90 rounded-full flex items-center justify-center border border-white/20 shadow-2xl group-hover:scale-110 transition duration-300 z-20">
-                            <Play className="w-6 md:w-8 h-6 md:h-8 text-white fill-white ml-1" />
-                        </div>
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#0B0B0B] hidden lg:block" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0B0B] lg:hidden" />
-                  </div>
+            {/* Columna Izquierda: Mensaje y Acción */}
+            <div className="w-full lg:w-1/2 flex flex-col justify-center text-center lg:text-left">
+              {/* Badge superior */}
+              <div className="mx-auto lg:mx-0 inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black uppercase tracking-widest mb-6 w-fit animate-fade-in-up">
+                <span className="flex h-2 w-2 rounded-full bg-[#FF5A1F] animate-pulse"></span>
+                <span>Plataforma para afiliados de Hotmart</span>
+              </div>
 
-                  <div className="lg:w-1/2 p-0 md:p-8 lg:p-16 order-2 lg:order-2">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black uppercase tracking-widest mb-4">
-                      <Rocket className="w-4 h-4" /> Comienza Gratis Hoy
-                    </div>
-                    
-                    <h2 className="text-3xl md:text-4xl lg:text-6xl font-black text-white leading-tight mb-6 md:mb-8 mt-4 md:mt-6">
-                      Tu imperio digital comienza aquí, <span className="text-[#FF5A1F]">sin letras pequeñas</span>
-                    </h2>
-                    
-                    <p className="text-lg md:text-[1.3rem] leading-[1.6] md:leading-[1.7] text-white mb-8 md:mb-10 font-light mt-4 md:mt-6">
-                      Aprende.Marketing es la plataforma "Todo en Uno" para Productores y Afiliados. Crea Embudos de Venta, Páginas de Alta Conversión generadas por IA en segundos.
-                    </p>
+              {/* Título de Gran Impacto */}
+              <h1 className="text-[2.6rem] sm:text-5xl md:text-6xl lg:text-[3.8rem] font-extrabold tracking-tight text-white leading-[1.1] animate-fade-in-up">
+                Lanza tu estrategia de afiliación en <span className="text-[#FF5A1F]">Hotmart</span> <span className="text-[#FF5A1F]">sin empezar desde cero</span>
+              </h1>
 
-                    <div className="space-y-4 md:space-y-6 mb-8 md:mb-12">
-                       {[
-                         "Acceso instantáneo a la Inteligencia Artificial",
-                         "Crea tu primera Landing Page en 60 segundos",
-                         "Academia de formación gratuita incluida",
-                         "Comunidad de soporte en WhatsApp"
-                       ].map((benefit, i) => (
-                         <div key={i} className="flex items-center gap-3 md:gap-4 text-white font-medium text-base md:text-[1.3rem] leading-[1.7]">
-                            <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#FF5A1F] flex items-center justify-center shrink-0">
-                              <CheckCircle className="w-3 md:w-4 h-3 md:h-4 text-white" />
-                            </div>
-                            {benefit}
-                         </div>
-                       ))}
-                    </div>
+              {/* Descripción */}
+              <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
+                Elige un producto analizado, define tu audiencia y crea tu página, contenidos y seguimiento desde una sola plataforma.
+              </p>
 
-                    {/* ////////// Actualización: Botón "Comienza Gratis Hoy" destacado y centrado en móviles - 24/05/2025 12:45 ////////// */}
-                    <button
-                      onClick={() => user ? navigate('/dashboard') : navigate('/register')}
-                      className="w-full md:w-auto mx-auto md:mx-0 px-8 md:px-12 py-7 md:py-6 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-2xl md:text-2xl rounded-2xl transition-all shadow-[0_20px_40px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3"
-                    >
-                      <span className="hidden sm:inline">Crear mi cuenta 100% gratis</span>
-                      <span className="sm:hidden">Comenzar Gratis</span>
-                      <ArrowRight className="w-6 md:w-7 h-6 md:h-7" />
-                    </button>
-                    {/* ////////// Fin de actualización - 24/05/2025 12:45 ////////// */}
-                    
-                    <p className="text-[#B0B0B0] text-sm mt-6 text-center lg:text-left opacity-60">
-                      * Sin compromisos. Cancela o mejora tu cuenta cuando quieras.
-                    </p>
-                  </div>
-                  {/* ////////// Fin de actualización - 24/05/2025 12:45 ////////// */}
+              {/* Botón CTA y Seguridad */}
+              <div className="mt-8 flex flex-col items-center lg:items-start animate-fade-in-up">
+                <button
+                  onClick={() => user ? navigate('/dashboard') : navigate('/register')}
+                  className="w-full sm:w-auto px-10 py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl rounded-2xl transition-all duration-300 shadow-[0_20px_40px_-10px_rgba(255,90,31,0.4)] transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3 cursor-pointer group"
+                >
+                  <span>Crear mi cuenta gratis</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+                
+                <div className="mt-4 flex items-center gap-2 text-zinc-500 font-semibold text-sm justify-center lg:justify-start">
+                  <CheckCircle className="w-4 h-4 text-[#FF5A1F]" />
+                  <span>Sin tarjeta de crédito. Configura tu primer proyecto paso a paso.</span>
                 </div>
               </div>
             </div>
-          </section>
 
-          {/* ////////// Actualización: Rediseño Impactante de Prueba Social con espaciado compacto y texto corregido - 27/05/2025 01:25 ////////// */}
-          <div className="flex flex-col items-center justify-center mb-6 px-4">
-            <div className="relative group w-full max-w-4xl">
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#FF5A1F] to-indigo-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-                <div className="relative bg-[#161616] border border-white/5 px-6 md:px-10 py-6 md:py-8 rounded-3xl flex flex-col md:flex-row items-center gap-6 shadow-2xl">
-                    <div className="text-center md:text-left">
-                        <p className="text-4xl md:text-6xl font-black text-white leading-none">+500</p>
-                    </div>
-                    <div className="hidden md:block w-px h-12 bg-white/10"></div>
-                    <div className="text-center md:text-left flex flex-col justify-center">
-                        <p className="text-indigo-300 font-bold uppercase tracking-widest text-[10px] md:text-[11px] mb-1">Emprendedores Exitosos ya se unieron gratis</p>
-                        <p className="text-white text-base md:text-lg font-bold">
-                            Están vendiendo sus productos digitales con nuestro Sistema Estratégico
-                        </p>
-                        <div className="mt-6 md:mt-8 flex items-center justify-center md:justify-start gap-4 bg-white/5 px-4 md:px-6 py-2 md:py-3 rounded-full border border-white/10 w-fit self-center md:self-start">
-                            <div className="flex gap-1 text-[#FF5A1F]">
-                            {[...Array(5)].map((_, idx) => <Star key={idx} className="w-4 md:w-5 h-4 md:h-5 fill-current" />)}
-                            </div>
-                            <span className="text-white font-black text-[10px] md:sm uppercase tracking-[0.2em]">Calificación 5/5 Verificada</span>
-                        </div>
-                    </div>
+            {/* Columna Derecha: Captura de pantalla de la Plataforma */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center animate-fade-in-up relative">
+              {/* Resplandor naranja de fondo */}
+              <div className="absolute -inset-1 bg-gradient-to-tr from-[#FF5A1F] to-indigo-600 rounded-[2rem] blur-2xl opacity-10 pointer-events-none"></div>
+              
+              {/* Contenedor del Navegador/Applicación simulando marco prémium */}
+              <div className="relative w-full rounded-[2rem] border border-white/10 overflow-hidden bg-[#121212]/90 shadow-[0_0_60px_rgba(255,90,31,0.12)] p-2 backdrop-blur-xl group hover:border-[#FF5A1F]/30 transition-all duration-500">
+                
+                {/* Cabecera del Navegador */}
+                <div className="flex items-center justify-between px-4 py-3 bg-[#0B0B0B]/80 border-b border-white/5 rounded-t-[1.7rem]">
+                  <div className="flex gap-2">
+                    <span className="w-3 h-3 rounded-full bg-red-500/20 group-hover:bg-red-500/80 transition duration-300"></span>
+                    <span className="w-3 h-3 rounded-full bg-yellow-500/20 group-hover:bg-yellow-500/80 transition duration-300"></span>
+                    <span className="w-3 h-3 rounded-full bg-green-500/20 group-hover:bg-green-500/80 transition duration-300"></span>
+                  </div>
+                  <div className="bg-white/5 rounded-full px-8 py-1 text-[11px] font-mono text-zinc-500 border border-white/5">
+                    aprende.marketing/onboarding/wizard
+                  </div>
+                  <div className="w-6"></div>
                 </div>
+
+                {/* Imagen de Captura de pantalla del Producto Real */}
+                <div className="relative overflow-hidden rounded-b-[1.7rem]">
+                  <img 
+                    src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200" 
+                    alt="Plataforma de Afiliados Aprende Marketing" 
+                    className="w-full h-auto object-cover grayscale-[10%] group-hover:grayscale-0 transition duration-500"
+                  />
+                  {/* Overlay gradiente suave superior */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                </div>
+              </div>
             </div>
           </div>
-          {/* ////////// Fin de actualización - 27/05/2025 01:25 ////////// */}
+
+            {/* Barra de Características / Pilares en el Pie del Hero */}
+          <div className="mt-20 lg:mt-24 bg-[#111111]/90 border border-white/5 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-2xl relative">
+            <div className="absolute -inset-px bg-gradient-to-r from-zinc-800 via-transparent to-zinc-800 rounded-3xl opacity-20 pointer-events-none"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+              
+              {/* Pilar 1: Productos Analizados */}
+              <div className="flex items-center gap-5 p-5 rounded-2xl transition-all duration-300 hover:bg-[#1A1A1A]/90 hover:shadow-[0_15px_30px_rgba(255,90,31,0.06)] border border-transparent hover:border-white/10 group cursor-pointer">
+                <div className="w-14 h-14 bg-[#FF5A1F]/10 rounded-2xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 shadow-lg shadow-[#FF5A1F]/5 group-hover:scale-105 group-hover:bg-[#FF5A1F]/20 group-hover:shadow-[0_0_20px_rgba(255,90,31,0.2)] transition-all duration-300">
+                  <Briefcase className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-white text-base leading-tight uppercase tracking-wider group-hover:text-[#FF5A1F] transition-colors duration-300">Productos analizados</h3>
+                  <p className="text-zinc-500 text-xs md:text-sm font-light mt-1.5 leading-relaxed group-hover:text-zinc-300 transition-colors duration-300">Las ofertas más rentables del mercado de afiliados previamente filtradas.</p>
+                </div>
+              </div>
+              
+              {/* Pilar 2: Embudos Listos Para Lanzar */}
+              <div className="flex items-center gap-5 p-5 rounded-2xl transition-all duration-300 hover:bg-[#1A1A1A]/90 hover:shadow-[0_15px_30px_rgba(99,102,241,0.06)] border border-transparent hover:border-white/10 group cursor-pointer">
+                <div className="w-14 h-14 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-400 shrink-0 border border-indigo-500/25 shadow-lg shadow-indigo-500/5 group-hover:scale-105 group-hover:bg-indigo-500/20 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.2)] transition-all duration-300">
+                  <Rocket className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-white text-base leading-tight uppercase tracking-wider group-hover:text-indigo-400 transition-colors duration-300">Embudos listos para lanzar</h3>
+                  <p className="text-zinc-500 text-xs md:text-sm font-light mt-1.5 leading-relaxed group-hover:text-zinc-300 transition-colors duration-300">Embudos de alta conversión listos para instalarse en segundos por IA.</p>
+                </div>
+              </div>
+
+              {/* Pilar 3: Contenido y Seguimiento */}
+              <div className="flex items-center gap-5 p-5 rounded-2xl transition-all duration-300 hover:bg-[#1A1A1A]/90 hover:shadow-[0_15px_30px_rgba(255,90,31,0.06)] border border-transparent hover:border-white/10 group cursor-pointer">
+                <div className="w-14 h-14 bg-[#FF5A1F]/10 rounded-2xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 shadow-lg shadow-[#FF5A1F]/5 group-hover:scale-105 group-hover:bg-[#FF5A1F]/20 group-hover:shadow-[0_0_20px_rgba(255,90,31,0.2)] transition-all duration-300">
+                  <Target className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-white text-base leading-tight uppercase tracking-wider group-hover:text-[#FF5A1F] transition-colors duration-300">Contenido y seguimiento</h3>
+                  <p className="text-zinc-500 text-xs md:text-sm font-light mt-1.5 leading-relaxed group-hover:text-zinc-300 transition-colors duration-300">Copia secuencias de email preconfiguradas y guiones de alto impacto.</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
         </div>
       </header>
 

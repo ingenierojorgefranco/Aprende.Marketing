@@ -356,7 +356,7 @@ export const DashboardLayout = ({
         <aside className={`fixed md:relative top-0 left-0 h-full w-[25rem] bg-[#0B0B0B] border-r border-white/5 shadow-2xl z-40 transition-transform duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
           <div className="p-8 pb-6 flex justify-between items-center">
             <div className="flex items-center gap-3">
-                <div className="w-16 h-10 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-base shadow-lg shadow-[#FF5A1F]/20 px-1.5">A.MKT</div>
+                <div className="w-16 h-10 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-base shadow-lg shadow-[#FF5A1F]/20 px-1.5">AM</div>
                 <div>
                     <h2 className="text-2xl font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
                     <p className="text-[10px] text-[#B0B0B0] uppercase tracking-widest mt-1 font-black">Tu Panel de Control</p>
@@ -405,7 +405,7 @@ export const DashboardLayout = ({
              <div className={`flex items-center gap-4 ${isWizardGenerating ? 'w-full justify-center' : ''}`}>
                  {isSurveyPending || showWizard ? (
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-[#FF5A1F]/20 px-1">A.MKT</div>
+                        <div className="w-12 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-[#FF5A1F]/20 px-1">AM</div>
                         <h2 className="text-lg font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
                     </div>
                  ) : (

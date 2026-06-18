@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock } from 'lucide-react';
+import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface StepProps {
@@ -14,60 +14,94 @@ interface StepProps {
 
 // 1. BIENVENIDA
 export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled }) => {
-    const userName = userData.name?.split(' ')[0] || 'Emprendedor';
+    const userName = userData.name?.split(' ')[0] || 'Mundo';
     
     return (
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-8"
+            className="text-center space-y-8 max-w-3xl mx-auto px-4 md:px-0 font-sans"
         >
-            <div className="relative inline-block">
-                <div className="absolute inset-0 bg-[#FF5A1F] blur-3xl opacity-20 animate-pulse"></div>
-                <div className="w-24 h-24 bg-[#FF5A1F] rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
-                    <Sparkles className="w-12 h-12 text-white" />
+            <div className="relative inline-block mb-2">
+                <div className="absolute inset-0 bg-[#FF5A1F]/30 blur-3xl opacity-30 animate-pulse rounded-full"></div>
+                <div className="w-20 h-20 bg-[#FF5A1F] rounded-2xl flex items-center justify-center mx-auto relative border border-white/15 shadow-2xl">
+                    <Sparkles className="w-10 h-10 text-white" />
                 </div>
             </div>
             
-            <div className="space-y-6">
-                <div className="space-y-2">
-                    <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight">
-                        ¡Hola, {userName}!
-                    </h1>
-                    <h2 className="text-2xl md:text-3xl font-medium text-[#FF5A1F] tracking-tight">
-                        Bienvenido a Aprende.Marketing
-                    </h2>
-                </div>
-                <p className="text-[1.4rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">
-                    A continuación te ayudaré a construir tu primer sistema de ventas para productos digitales paso a paso.
+            <div className="space-y-4">
+                <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
+                    ¡Hola, <span className="text-[#FF5A1F]">{userName}</span>!
+                </h1>
+                <h2 className="text-xl md:text-3xl font-extrabold text-zinc-100 tracking-tight">
+                    Tu recorrido inicial está listo
+                </h2>
+                <p className="text-sm md:text-base text-zinc-400 max-w-xl mx-auto leading-relaxed">
+                    Hemos preparado los primeros pasos de acuerdo con tu experiencia, objetivos y recursos disponibles.
                 </p>
             </div>
 
-            <div className="bg-[#111] border border-white/5 p-10 rounded-[3.5rem] max-w-2xl mx-auto shadow-2xl relative overflow-hidden text-left mt-8">
-                <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
-                    <Rocket className="w-32 h-32 text-white" />
+            <div className="bg-[#111111]/80 border border-white/5 p-6 md:p-8 rounded-[2rem] shadow-2xl relative overflow-hidden text-left mt-6">
+                <div className="text-center font-bold text-[#FF5A1F] uppercase tracking-wider text-xs md:text-sm mb-6 pb-2 border-b border-white/5">
+                    Dentro del asistente vas a:
                 </div>
                 
-                <div className="space-y-6 relative z-10 text-lg">
-                    <div className="grid grid-cols-1 gap-6">
-                        {[
-                            'Seleccionaremos un proyecto digital altamente rentable.',
-                            'Crearemos una Página Web donde visitantes interesados podrán registrarse.',
-                            'Crearemos videos y contenidos listos para publicar en Redes Sociales'
-                        ].map((item, idx) => (
-                            <div key={idx} className="flex items-start gap-4">
-                                <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 mt-1">
-                                    <CheckCircle className="w-4 h-4 text-emerald-500" />
-                                </div>
-                                <p className="text-white text-[1.1em] font-normal leading-relaxed">{item}</p>
-                            </div>
-                        ))}
+                <div className="space-y-6 relative z-10">
+                    {/* Paso 1 */}
+                    <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
+                            <Package className="w-6 h-6" />
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="font-extrabold text-white text-base md:text-lg leading-tight">
+                                Definir el producto que vas a promocionar
+                            </h3>
+                            <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
+                                Podrás elegir una oportunidad analizada por Aprende Marketing o utilizar un producto que ya hayas seleccionado.
+                            </p>
+                        </div>
                     </div>
-                    
+
+                    {/* Paso 2 */}
+                    <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
+                            <Target className="w-6 h-6" />
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="font-extrabold text-white text-base md:text-lg leading-tight">
+                                Construir la estrategia de tu proyecto
+                            </h3>
+                            <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
+                                Definiremos la audiencia, el problema principal y el ángulo desde el que presentarás el producto.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Paso 3 */}
+                    <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
+                            <FileText className="w-6 h-6" />
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="font-extrabold text-white text-base md:text-lg leading-tight">
+                                Preparar tus recursos de lanzamiento
+                            </h3>
+                            <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
+                                Generarás la estructura de tu página, el contenido inicial y el sistema para captar y hacer seguimiento a tus contactos.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Bloque de Nota Integradora */}
                     <div className="pt-6 mt-6 border-t border-white/5">
-                        <p className="text-[#FF5A1F] font-medium flex items-center gap-2">
-                            👉 <span className="tracking-tight">Lo mejor de todo es que no necesitas experiencia para empezar.</span>
-                        </p>
+                        <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/15 p-4 rounded-xl flex gap-3 items-start">
+                            <div className="w-8 h-8 bg-[#FF5A1F]/10 rounded-lg flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5 border border-[#FF5A1F]/20">
+                                <Lightbulb className="w-4 h-4" />
+                            </div>
+                            <p className="text-zinc-300 text-xs md:text-sm font-medium leading-relaxed">
+                                <strong className="text-[#FF5A1F]">No necesitas tener conocimientos técnicos.</strong> Te guiaremos paso a paso y podrás revisar cada decisión antes de continuar.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -75,10 +109,10 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
             <button 
                 onClick={() => !disabled && onNext()}
                 disabled={disabled}
-                className={`group flex items-center gap-4 px-12 py-7 ${disabled ? 'bg-gray-800 cursor-not-allowed opacity-50' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95'} text-white rounded-[2.5rem] font-black text-2xl transition-all mx-auto`}
+                className={`group flex items-center gap-3 px-8 py-5 ${disabled ? 'bg-zinc-800 cursor-not-allowed opacity-50 text-zinc-500' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] shadow-[0_12px_30px_-5px_rgba(255,90,31,0.4)] transform hover:-translate-y-1 active:scale-98'} text-white rounded-2xl font-black text-lg md:text-xl tracking-wide transition-all mx-auto`}
             >
-                {disabled ? 'Configuración en proceso' : 'EMPEZAR'}
-                {!disabled && <ChevronRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />}
+                {disabled ? 'Configuración en proceso' : 'Crear mi primer proyecto'}
+                {!disabled && <ChevronRight className="w-6 h-6 group-hover:translate-x-1.5 transition-transform" />}
             </button>
         </motion.div>
     );
@@ -86,6 +120,8 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
 
 // 2. SELECCIÓN DE PROYECTO
 export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loading: boolean, selectedProjectId?: string, isLocked?: boolean }> = ({ projects, loading, onNext, selectedProjectId, isLocked }) => {
+    const [showCustomProduct, setShowCustomProduct] = React.useState(false);
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-[#FF5A1F]">
@@ -99,60 +135,144 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="space-y-10"
+            className="space-y-10 font-sans"
         >
             <div className="text-center space-y-4">
-                <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
-                    Elige tu <span className="text-[#FF5A1F]">Producto Digital</span> que más te interese
+                <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                    Elige el producto con el que crearás tu <span className="text-[#FF5A1F]">primer proyecto</span>
                 </h2>
-                <p className="text-[1.3rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">
-                    Hemos seleccionado por ti los Productos Digitales con los que tendrás la más alta probabilidad de generar altos ingresos.
+                <p className="text-sm md:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+                    Según tus respuestas, estas son las oportunidades que mejor encajan con tu experiencia, tus intereses y los recursos que tienes disponibles.
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[1400px] mx-auto w-full">
-                {projects.map((project) => {
+            {/* Subcabecera interactiva con doble alineación */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 border-b border-white/5 max-w-[1240px] mx-auto w-full">
+                <div className="flex items-center gap-2 text-[#FF5A1F] font-bold text-sm md:text-base">
+                    <span>✨ {projects.length} productos recomendados para ti</span>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => setShowCustomProduct(true)}
+                    className="text-amber-500 hover:text-amber-400 transition-colors font-bold text-xs md:text-sm flex items-center gap-1.5 uppercase tracking-wide cursor-pointer"
+                >
+                    ¿Ya tienes un producto? <span className="underline">Añadir mi producto</span>
+                    <ArrowRight className="w-4 h-4" />
+                </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[1240px] mx-auto w-full">
+                {projects.slice(0, 3).map((project, index) => {
                     const isSelected = selectedProjectId === project.id;
-                    
+                    const isRecommended = index === 0;
+
+                    // Ideal descriptions customized elegant wording or dynamic fallback
+                    let idealForDesc = "Ideal para personas interesadas en belleza, contenido visual y aprendizaje de una habilidad profesional.";
+                    if (project.name.toLowerCase().includes("manicurista")) {
+                        idealForDesc = "Ideal para personas creativas que disfrutan del cuidado de manos y uñas y quieren profesionalizar sus servicios.";
+                    } else if (project.name.toLowerCase().includes("pestañas") || project.name.toLowerCase().includes("lashista")) {
+                        idealForDesc = "Ideal para personas apasionadas por la belleza que buscan especializarse en una técnica de alta demanda.";
+                    } else if (project.name.toLowerCase().includes("resina") || project.name.toLowerCase().includes("pisos")) {
+                        idealForDesc = "Ideal para personas interesadas en la construcción, decoración de interiores y modelado de alta rentabilidad.";
+                    } else if (project.shortDescription || project.description) {
+                        idealForDesc = project.shortDescription || project.description;
+                    }
+
+                    // Level label dynamically mapped
+                    const levelLabel = project.level || "inicial";
+
                     return (
                         <motion.div 
                             key={project.id}
-                            whileHover={isLocked ? {} : { y: -10 }}
-                            className={`bg-[#111] border ${isSelected ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/20' : 'border-white/5'} ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-[2.5rem] overflow-hidden group cursor-pointer hover:border-[#FF5A1F]/50 transition-all flex flex-col h-full shadow-2xl relative min-h-[520px] w-full`}
+                            whileHover={isLocked ? {} : { y: -6 }}
+                            className={`bg-[#0F0F0F] border ${
+                                isRecommended 
+                                    ? 'border-[#FF5A1F] ring-1 ring-[#FF5A1F]/30 shadow-[0_15px_40px_-15px_rgba(255,90,31,0.2)]' 
+                                    : 'border-white/5 hover:border-white/10'
+                            } ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-3xl overflow-hidden group cursor-pointer transition-all flex flex-col h-full relative w-full`}
                             onClick={() => !isLocked && onNext(project)}
                         >
-                            {isSelected && (
-                                <div className="absolute top-4 right-4 z-20">
-                                    <div className="bg-[#FF5A1F] text-white p-1 rounded-full">
-                                        <CheckCircle className="w-5 h-5" />
-                                    </div>
+                            {/* Recommended Header Badge */}
+                            {isRecommended && (
+                                <div className="absolute top-0 left-0 right-0 py-2 bg-[#FF5A1F] text-center z-10 rounded-t-3xl">
+                                    <span className="text-[10px] md:text-xs font-black text-white tracking-[0.1em] uppercase flex items-center justify-center gap-1">
+                                        ★ RECOMENDADO PARA COMENZAR
+                                    </span>
                                 </div>
                             )}
-                            <div className="h-64 bg-gray-800 relative overflow-hidden">
+
+                            {/* Image Container with floating Category badge */}
+                            <div className={`h-48 bg-zinc-900 relative overflow-hidden shrink-0 ${isRecommended ? 'pt-8' : ''}`}>
                                 {project.multimedia_json?.heroImages?.[0] ? (
-                                    <img src={project.multimedia_json.heroImages[0]} alt={project.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                    <img 
+                                        src={project.multimedia_json.heroImages[0]} 
+                                        alt={project.name} 
+                                        referrerPolicy="no-referrer"
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                    />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
-                                        <Target className="w-12 h-12 text-[#FF5A1F] opacity-20" />
+                                        <Package className="w-10 h-10 text-[#FF5A1F] opacity-30" />
                                     </div>
                                 )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#111] to-transparent opacity-60"></div>
-                                <div className="absolute bottom-4 left-6">
-                                    <span className="px-4 py-2 bg-white text-[#FF5A1F] text-[12px] font-black uppercase rounded-full shadow-lg">
-                                        {project.niche || 'Digital'}
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/30 to-transparent"></div>
+                                
+                                {/* Floating category Badge */}
+                                <div className="absolute bottom-3 left-4">
+                                    <span className="px-3 py-1.5 bg-black/60 backdrop-blur-md text-white text-[10px] md:text-xs font-bold uppercase rounded-xl flex items-center gap-1.5 border border-white/10">
+                                        <Flower2 className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                                        {project.niche || 'Belleza y estética'}
                                     </span>
                                 </div>
                             </div>
-                            <div className="p-10 flex flex-col flex-1">
-                                <h3 className={`text-3xl font-black mb-4 ${isSelected ? 'text-[#FF5A1F]' : 'text-white'} group-hover:text-[#FF5A1F] transition-colors`}>
+
+                            {/* Card Content */}
+                            <div className="p-6 flex flex-col flex-grow space-y-4">
+                                <h3 className={`text-xl font-black leading-snug tracking-tight ${isSelected ? 'text-[#FF5A1F]' : 'text-white'} group-hover:text-[#FF5A1F] transition-colors line-clamp-2`}>
                                     {project.name}
                                 </h3>
-                                <p className="text-white text-base leading-relaxed mb-8 flex-1 line-clamp-4">
-                                    {project.shortDescription || project.description}
+
+                                <p className="text-zinc-400 text-xs md:text-sm leading-relaxed line-clamp-4 min-h-[72px]">
+                                    {idealForDesc}
                                 </p>
-                                <div className="flex items-center justify-center pt-8 border-t border-white/5">
-                                    <button className="w-full py-4 bg-[#FF5A1F] text-white font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl shadow-[#FF5A1F]/20 group-hover:bg-[#D94A1E] transition-all">
-                                        Seleccionar
+
+                                {/* Specifications Table/Rows */}
+                                <div className="space-y-2 pt-2">
+                                    <div className="bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 flex items-center gap-2.5">
+                                        <Camera className="w-4 h-4 text-zinc-500 shrink-0" />
+                                        <span className="text-xs text-zinc-400 font-medium">
+                                            <strong className="text-white font-bold">Ideal para:</strong> contenido visual
+                                        </span>
+                                    </div>
+
+                                    <div className="bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 flex items-center gap-2.5">
+                                        <BarChart2 className="w-4 h-4 text-zinc-500 shrink-0" />
+                                        <span className="text-xs text-zinc-400 font-medium">
+                                            <strong className="text-white font-bold">Nivel:</strong> {levelLabel}
+                                        </span>
+                                    </div>
+
+                                    <div className="bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 flex items-center gap-2.5">
+                                        <Target className="w-4 h-4 text-[#FF5A1F] shrink-0 animate-pulse" />
+                                        <span className="text-xs text-zinc-400 font-medium">
+                                            <strong className="text-white font-bold">Estrategia:</strong> orgánico + clase gratuita
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 border-t border-white/5 flex flex-col space-y-3 mt-auto">
+                                    {/* Action links */}
+                                    <div className="text-center">
+                                        <span className="text-zinc-500 hover:text-[#FF5A1F] transition-colors font-bold text-xs tracking-wider inline-flex items-center gap-1 uppercase">
+                                            Ver análisis <ArrowRight className="w-3.5 h-3.5" />
+                                        </span>
+                                    </div>
+
+                                    <button 
+                                        type="button"
+                                        className="w-full py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs md:text-sm uppercase tracking-wider rounded-xl shadow-lg transition-all"
+                                    >
+                                        Elegir este producto
                                     </button>
                                 </div>
                             </div>
@@ -160,111 +280,259 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                     );
                 })}
             </div>
+
+            {/* Bottom Proof Panel */}
+            <div className="pt-4 flex items-center justify-center gap-2 text-zinc-500">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span className="text-xs font-bold leading-none uppercase tracking-wider text-center">
+                    Podrás revisar la estrategia antes de confirmar tu elección.
+                </span>
+            </div>
+
+            {/* Toast/Modal for Add my product */}
+            {showCustomProduct && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
+                    <div className="bg-[#111] border border-[#FF5A1F]/30 p-6 md:p-8 rounded-3xl max-w-md w-full text-center space-y-6">
+                        <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500 mx-auto">
+                            <Sparkles className="w-6 h-6 animate-pulse" />
+                        </div>
+                        <div className="space-y-2">
+                            <h4 className="text-lg font-black text-white">¡Excelente! Pronto podrás subir tu producto</h4>
+                            <p className="text-xs md:text-sm text-zinc-400 leading-relaxed">
+                                Actualmente estamos optimizando el asistente para que puedas integrar cualquier producto de Hotmart o tu propio infoproducto. 
+                                Por ahora, te recomendamos seleccionar uno de nuestros nichos validados para que experimentes el poder de la estrategia instantánea de Aprende.Marketing.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setShowCustomProduct(false)}
+                            className="px-6 py-2.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all"
+                        >
+                            Entendido
+                        </button>
+                    </div>
+                </div>
+            )}
         </motion.div>
     );
 };
 
 // 2.5 SISTEMA DE DESBLOQUEO (Modal-like)
 export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategyGenerated?: boolean, onBackToSelection?: () => void }> = ({ project, onNext, isStrategyGenerated, onBackToSelection }) => {
-    const [isPlaying, setIsPlaying] = React.useState(false);
-    
     // Calculo de Comision que se mostrará
     const rawCommission = project.commissionRate || 80;
     const displayCommission = rawCommission < 1 ? Math.round(rawCommission * 100) : Math.round(rawCommission);
     const profitValue = project.fullPrice && displayCommission ? (project.fullPrice * (displayCommission / 100)).toFixed(2) : '0.00';
 
+    // Customized product ideal description
+    let idealText = "Una oportunidad ideal para personas interesadas en belleza, contenido visual y una estrategia basada en clase gratuita.";
+    if (project.name?.toLowerCase().includes("manicurista")) {
+        idealText = "Una oportunidad ideal para personas creativas que disfrutan del cuidado de manos y uñas y quieren profesionalizar sus servicios.";
+    } else if (project.name?.toLowerCase().includes("pestañas") || project.name?.toLowerCase().includes("lashista")) {
+        idealText = "Una oportunidad ideal para personas apasionadas por la belleza que buscan especializarse en una técnica de alta demanda.";
+    } else if (project.name?.toLowerCase().includes("resina") || project.name?.toLowerCase().includes("pisos")) {
+        idealText = "Una oportunidad ideal para personas interesadas en la construcción, decoración de interiores y modelado de alta rentabilidad.";
+    } else if (project.shortDescription || project.description) {
+        idealText = project.shortDescription || project.description;
+    }
+
+    const uppercaseNiche = (project.niche || 'Belleza y estética').toUpperCase();
+
     return (
         <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="max-w-6xl mx-auto bg-[#0A0A0A] border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] relative"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-8 font-sans max-w-6xl mx-auto px-4 md:px-0"
         >
-            {/* Niche Badge - Corner Position */}
-            <div className="absolute top-4 right-4 z-20 px-6 py-2 bg-[#FF5A1F] border border-white/20 rounded-full shadow-2xl">
-                <p className="text-xs font-black text-white uppercase tracking-[0.2em]">{project.niche || 'Digital'}</p>
+            {/* Header / Title Area */}
+            <div className="text-center space-y-3">
+                <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                    Revisa el producto antes de crear tu estrategia
+                </h2>
+                <p className="text-sm md:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+                    Conoce la oportunidad y decide si quieres usarla para construir tu primer proyecto.
+                </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-5 h-full">
-                {/* Lateral info */}
-                <div className="md:col-span-2 bg-[#111] p-10 lg:p-14 border-r border-white/5 flex flex-col justify-center">
-                    <div className="space-y-10">
-                        <div className="space-y-2 text-center">
-                            <p className="text-[#FF5A1F] font-black text-xs uppercase tracking-[0.3em]">Producto Seleccionado</p>
-                            <h3 className="text-[2rem] font-black text-white uppercase leading-tight tracking-tighter">{project.name}</h3>
+            {/* Main Rounded Component Container */}
+            <div className="bg-[#0A0A0A] border border-white/10 rounded-3xl overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] p-6 md:p-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+                    
+                    {/* Left Column - Product details */}
+                    <div className="space-y-6 flex flex-col justify-between">
+                        <div className="space-y-6">
+                            {/* Niche/Category badge top left */}
+                            <div>
+                                <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-[10px] md:text-xs font-black uppercase tracking-wider rounded-lg">
+                                    {uppercaseNiche}
+                                </span>
+                            </div>
+
+                            {/* Product Title and Description */}
+                            <div className="space-y-3">
+                                <h3 className="text-2xl md:text-4xl font-extrabold text-white leading-tight tracking-tight">
+                                    {project.name}
+                                </h3>
+                                <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
+                                    {idealText}
+                                </p>
+                            </div>
+
+                            {/* Bullet Features (Camera, Star, Target) */}
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-[#FF5A1F]/10 flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
+                                        <Camera className="w-4 h-4" />
+                                    </div>
+                                    <p className="text-zinc-200 text-xs md:text-sm font-medium">Contenido visual y educativo</p>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-[#FF5A1F]/10 flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
+                                        <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                                    </div>
+                                    <p className="text-zinc-200 text-xs md:text-sm font-medium">Nivel {project.level || 'inicial'}</p>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-[#FF5A1F]/10 flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
+                                        <Target className="w-4 h-4" />
+                                    </div>
+                                    <p className="text-zinc-200 text-xs md:text-sm font-medium">Estrategia orgánica + clase gratuita</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4">
-                            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-3xl px-8 py-4 flex flex-col items-center justify-center text-center space-y-2 shadow-lg shadow-emerald-500/5">
-                                <p className="text-emerald-500/70 font-medium text-sm uppercase tracking-wider">¿Cuánto ganarás por venta? (Dólares)</p>
-                                <p className="text-emerald-500 text-5xl font-black tracking-tighter">$ {profitValue}</p>
-                            </div>
+                        {/* Bottom stats cards */}
+                        <div className="space-y-3 pt-6 border-t border-white/5">
+                            <div className="grid grid-cols-3 gap-3">
+                                {/* Price Card */}
+                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex flex-col items-center justify-center text-center space-y-1">
+                                    <div className="flex items-center gap-1 text-zinc-500">
+                                        <Tag className="w-3.5 h-3.5" />
+                                        <span className="text-[10px] md:text-xs font-medium uppercase tracking-wider">Precio</span>
+                                    </div>
+                                    <span className="text-white text-sm md:text-base font-extrabold tracking-tight">
+                                        USD {project.fullPrice || '0'}
+                                    </span>
+                                </div>
 
-                            <div className="bg-blue-500/5 border border-blue-500/20 rounded-3xl px-8 py-4 flex flex-col items-center justify-center text-center space-y-2">
-                                <p className="text-blue-500/70 font-medium text-sm uppercase tracking-wider">Comisión del Producto</p>
-                                <p className="text-blue-500 text-5xl font-black tracking-tighter">{displayCommission}%</p>
+                                {/* Commission Card */}
+                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex flex-col items-center justify-center text-center space-y-1">
+                                    <div className="flex items-center gap-1 text-zinc-500">
+                                        <Percent className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                                        <span className="text-[10px] md:text-xs font-medium uppercase tracking-wider">Comisión</span>
+                                    </div>
+                                    <span className="text-white text-sm md:text-base font-extrabold tracking-tight">
+                                        {displayCommission} %
+                                    </span>
+                                </div>
+
+                                {/* Estimated Revenue Card */}
+                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex flex-col items-center justify-center text-center space-y-1">
+                                    <div className="flex items-center gap-1 text-zinc-500">
+                                        <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                                        <span className="text-[10px] md:text-xs font-medium uppercase tracking-wider">Estimado</span>
+                                    </div>
+                                    <span className="text-emerald-500 text-sm md:text-base font-extrabold tracking-tight">
+                                        USD {profitValue}
+                                    </span>
+                                </div>
                             </div>
-                            
-                            <div className="bg-white/5 border border-white/10 rounded-3xl px-8 py-4 flex flex-col items-center justify-center text-center space-y-2">
-                                <p className="text-gray-400 font-medium text-sm uppercase tracking-wider">Precio de Venta al Público</p>
-                                <p className="text-white text-5xl font-black tracking-tighter">$ {project.fullPrice || '0.00'}</p>
+                            <div className="flex items-center gap-1.5 text-[10px] md:text-[11px] text-zinc-500 italic">
+                                <Info className="w-3.5 h-3.5 shrink-0" />
+                                <span>Datos de referencia sujetos a cambios del productor.</span>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Video/Main Action */}
-                <div className="md:col-span-3 p-10 lg:p-14 flex flex-col items-center justify-center text-center space-y-10">
-                    <div className="w-full space-y-6">
-                        
-                        <div className="relative group w-full aspect-video bg-zinc-900 rounded-[2.5rem] overflow-hidden border border-white/10 flex items-center justify-center shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]">
-                            <div 
-                                className="absolute inset-0 w-full h-full group/play overflow-hidden"
-                            >
+                    {/* Right Column - Video overlay, checklists and CTA buttons */}
+                    <div className="space-y-6">
+                        {/* Video / Image with Play Trigger */}
+                        <div className="space-y-2">
+                            <span className="text-zinc-400 text-xs font-bold uppercase tracking-wider">
+                                Conoce esta oportunidad en 90 segundos
+                            </span>
+                            <div className="relative group w-full aspect-video bg-zinc-900 rounded-2xl overflow-hidden border border-white/10 flex items-center justify-center shadow-lg">
                                 {project.multimedia_json?.heroImages?.[0] ? (
                                     <img 
                                         src={project.multimedia_json.heroImages[0]} 
                                         alt={project.name} 
-                                        className="w-full h-full object-cover group-hover/play:scale-105 transition-transform duration-700" 
                                         referrerPolicy="no-referrer"
+                                        className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500" 
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
-                                        <Target className="w-12 h-12 text-[#FF5A1F] opacity-20" />
+                                        <Target className="w-10 h-10 text-[#FF5A1F] opacity-30 animate-pulse" />
                                     </div>
                                 )}
-                                <div className="absolute inset-0 bg-black/40 group-hover/play:bg-black/30 transition-colors flex items-center justify-center">
-                                    <div className="w-20 h-20 bg-[#FF5A1F] rounded-full flex items-center justify-center shadow-2xl group-hover/play:scale-110 transition-transform relative">
-                                        <Play className="w-8 h-8 text-white fill-current translate-x-0.5" />
+                                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/35 transition-colors flex items-center justify-center">
+                                    <div className="w-16 h-16 bg-[#FF5A1F] rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform relative cursor-pointer">
+                                        <Play className="w-6 h-6 text-white fill-current translate-x-0.5" />
                                         <div className="absolute inset-0 bg-[#FF5A1F] rounded-full animate-ping opacity-25"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <p className="text-[1.1rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">Haz clic en el video para conocer todos los detalles del Producto</p>
-                    </div>
 
-                    <div className="w-full space-y-8">
-                        <div className="space-y-6">
-                            <button 
-                                onClick={() => !isStrategyGenerated && onNext()}
-                                disabled={isStrategyGenerated}
-                                className={`w-full py-7 ${isStrategyGenerated ? 'bg-emerald-500 cursor-default' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-[2.5rem] font-black text-2xl transition-all shadow-[0_25px_50px_-10px_rgba(255,90,31,0.5)] flex items-center justify-center gap-4 group transform hover:-translate-y-1 active:scale-95`}
-                            >
-                                {isStrategyGenerated ? 'ESTRATEGIA DESBLOQUEADA' : 'DESBLOQUEAR AHORA'}
-                                <Zap className={`w-7 h-7 fill-white ${!isStrategyGenerated ? 'animate-pulse' : ''}`} />
-                            </button>
-                            
-                            {(onBackToSelection && !isStrategyGenerated) && (
+                        {/* Checklist Section */}
+                        <div className="space-y-3 pt-2">
+                            <h4 className="text-white text-sm md:text-base font-extrabold">Qué obtendrás</h4>
+                            <div className="space-y-2.5">
+                                <div className="flex items-center gap-3">
+                                    <Users className="w-4 h-4 text-[#FF5A1F]" />
+                                    <span className="text-zinc-300 text-xs md:text-sm">Audiencia y ángulo de venta</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <FileText className="w-4 h-4 text-[#FF5A1F]" />
+                                    <span className="text-zinc-300 text-xs md:text-sm">Página de captación</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <Mail className="w-4 h-4 text-[#FF5A1F]" />
+                                    <span className="text-zinc-300 text-xs md:text-sm">Contenido y seguimiento inicial</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Highlight review text */}
+                        <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/15 p-3 md:p-4 rounded-xl flex items-center gap-2.5">
+                            <Info className="w-4.5 h-4.5 text-[#FF5A1F] shrink-0" />
+                            <p className="text-zinc-300 font-medium text-xs md:text-sm">
+                                Tú revisarás y personalizarás la estrategia antes de publicarla.
+                            </p>
+                        </div>
+
+                        {/* Actions stack */}
+                        <div className="space-y-3 pt-2">
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                {/* Back selection button */}
+                                {onBackToSelection && (
+                                    <button 
+                                        type="button"
+                                        onClick={onBackToSelection}
+                                        className="sm:w-1/3 py-3 px-4 bg-transparent hover:bg-white/[0.02] text-zinc-400 hover:text-white border border-white/10 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+                                    >
+                                        ← Volver a los productos
+                                    </button>
+                                )}
+                                
+                                {/* Choose primary strategy build button */}
                                 <button 
-                                    onClick={onBackToSelection}
-                                    className="px-8 py-3 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all mx-auto flex items-center gap-2"
+                                    type="button"
+                                    onClick={() => !isStrategyGenerated && onNext()}
+                                    disabled={isStrategyGenerated}
+                                    className={`flex-1 py-3.5 px-6 ${isStrategyGenerated ? 'bg-emerald-600' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-xl font-black text-xs md:text-sm uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 group`}
                                 >
-                                    <ChevronRight className="w-4 h-4 rotate-180" />
-                                    Seleccionar otro proyecto
+                                    <span>{isStrategyGenerated ? 'Estrategia Generada' : 'Elegir este producto y crear mi estrategia'}</span>
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </button>
-                            )}
+                            </div>
+                            <div className="text-center">
+                                <span className="text-[11px] text-zinc-500 font-medium">Esta acción utilizará 1 de tus proyectos disponibles.</span>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </motion.div>

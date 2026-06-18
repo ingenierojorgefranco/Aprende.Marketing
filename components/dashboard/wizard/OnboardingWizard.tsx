@@ -40,6 +40,8 @@ import {
   Clock,
   Trophy,
   Brain,
+  Folder,
+  Info,
 } from "lucide-react";
 import { generateLandingPageContent } from "../../../services/geminiService";
 import { UpgradeModal } from "../UpgradeModal";
@@ -976,7 +978,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         {/* Logo a la izquierda */}
         <div className="flex items-center gap-3">
           <div className="w-12 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-[#FF5A1F]/20 px-1">
-            A.MKT
+            AM
           </div>
           <h2 className="text-lg font-bold text-white tracking-tight">
             Aprende.<span className="text-[#FF5A1F]">Marketing</span>
@@ -4080,40 +4082,96 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   onClick={() => setShowActivateConfirm(false)}
                 >
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
                     onClick={(e) => e.stopPropagation()}
-                    className="bg-[#0B0B0B] border border-emerald-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden relative text-center"
+                    className="bg-[#0A0A0A] border border-[#FF5A1F]/30 rounded-[2rem] w-full max-w-lg shadow-[0_25px_60px_-15px_rgba(255,90,31,0.2)] overflow-hidden relative text-center p-8 md:p-10 space-y-6 font-sans"
                   >
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
-                    <div className="p-10 space-y-8">
-                      <div className="w-20 h-20 bg-emerald-500/10 text-emerald-500 rounded-3xl flex items-center justify-center mx-auto border border-emerald-500/20 shadow-lg">
-                        <Zap className="w-10 h-10 fill-current" />
-                      </div>
-                      <div className="space-y-4">
-                        <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">
-                          ¿Estás seguro?
-                        </h3>
-                        <p className="text-gray-400 text-lg leading-relaxed font-medium">
-                          ¿Estás seguro de que deseas desbloquear este proyecto
-                          ahora mismo?
+                    {/* Header stylized icon */}
+                    <div className="w-16 h-16 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] rounded-2xl flex items-center justify-center mx-auto relative">
+                      <Folder className="w-8 h-8 text-[#FF5A1F]" />
+                      <span className="absolute bottom-3 right-3 bg-[#FF5A1F] text-black text-[9px] font-black rounded-full w-3.5 h-3.5 flex items-center justify-center">+</span>
+                    </div>
+
+                    {/* Titles */}
+                    <div className="space-y-2">
+                      <p className="text-[#FF5A1F]/90 text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">
+                        CONFIRMAR PROYECTO
+                      </p>
+                      <h3 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">
+                        ¿Creamos tu primer proyecto?
+                      </h3>
+                      <p className="text-zinc-500 text-xs md:text-sm font-medium">
+                        Vas a crear una estrategia para:
+                      </p>
+                    </div>
+
+                    {/* Dynamic Integrated Product Card */}
+                    <div className="bg-white/[0.02] border border-white/5 p-3 rounded-2xl flex items-center gap-4 text-left w-full">
+                      {selectedProject?.multimedia_json?.heroImages?.[0] ? (
+                        <img 
+                          src={selectedProject.multimedia_json.heroImages[0]} 
+                          alt={selectedProject.name} 
+                          className="w-16 h-16 rounded-xl object-cover shrink-0 border border-white/10"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-xl bg-[#FF5A1F]/10 flex items-center justify-center text-[#FF5A1F] shrink-0 border border-white/5">
+                          <Folder className="w-6 h-6" />
+                        </div>
+                      )}
+                      <div className="flex-grow min-w-0">
+                        <p className="text-white font-extrabold text-sm md:text-base leading-snug line-clamp-2">
+                          {selectedProject?.name}
                         </p>
                       </div>
-                      <div className="flex flex-col gap-4">
-                        <button
-                          onClick={handleUnlockConfirm}
-                          className="w-full py-5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-lg shadow-xl shadow-emerald-500/20 transition-all transform hover:scale-[1.02] active:scale-95"
-                        >
-                          SÍ, DESBLOQUEAR AHORA
-                        </button>
-                        <button
-                          onClick={() => setShowActivateConfirm(false)}
-                          className="w-full py-5 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-bold text-sm uppercase tracking-widest transition-all"
-                        >
-                          No, cancelar
-                        </button>
-                      </div>
+                    </div>
+
+                    {/* Value generation paragraph */}
+                    <p className="text-zinc-400 text-xs leading-relaxed max-w-sm mx-auto">
+                      A continuación generaremos la audiencia, los principales dolores y los ángulos de venta que utilizarás en tu proyecto.
+                    </p>
+
+                    {/* Project Consumption Info Box */}
+                    {(() => {
+                      const maxProjects = user?.planLimits?.maxProjects || 1;
+                      const currentCount = userActiveProjects?.length || 0;
+                      const remainingProjects = Math.max(0, maxProjects - currentCount - 1);
+                      return (
+                        <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/15 rounded-xl px-4 py-3.5 flex items-center justify-center gap-2.5 text-zinc-300 text-xs">
+                          <Info className="w-4 h-4 text-[#FF5A1F] shrink-0" />
+                          <span className="leading-tight">
+                            Utilizarás <strong className="text-[#FF5A1F] font-bold">1 proyecto</strong> · Te quedarán <strong className="text-amber-500 font-bold">{remainingProjects} disponibles</strong>
+                          </span>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Actions and cancellation buttons row */}
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowActivateConfirm(false)}
+                        className="flex-1 py-3 px-4 bg-transparent hover:bg-white/[0.02] text-zinc-400 hover:text-white border border-white/10 rounded-xl font-bold text-xs uppercase tracking-wider transition-all"
+                      >
+                        Volver
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleUnlockConfirm}
+                        className="flex-[2] py-3.5 px-6 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 group"
+                      >
+                        <span>Confirmar y crear proyecto</span>
+                      </button>
+                    </div>
+
+                    {/* Footer security proof badge */}
+                    <div className="flex items-center justify-center gap-2 text-zinc-500 pt-2 border-t border-white/5">
+                      <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <p className="text-[10px] md:text-xs font-medium text-left leading-normal">
+                        Podrás revisar y personalizar la estrategia antes de publicar cualquier contenido.
+                      </p>
                     </div>
                   </motion.div>
                 </div>
