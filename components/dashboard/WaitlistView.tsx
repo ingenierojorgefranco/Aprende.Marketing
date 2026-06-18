@@ -12,46 +12,8 @@ interface WaitlistViewProps {
 
 export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, onComplete }) => {
     return (
-        <div id="survey-container" className="flex flex-col items-center justify-start pb-20 px-6 sm:px-12 relative z-10 w-full min-h-screen">
-            {/* Background Effects */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />
-
-            <div className="w-full max-w-5xl relative">
-                <div className="text-center mb-12">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="inline-block px-8 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full mb-8 shadow-lg shadow-emerald-500/5"
-                    >
-                        <span className="text-emerald-500 text-lg md:text-xl font-black uppercase tracking-widest">
-                            ¡Felicidades por registrarte, {user.name?.split(' ')[0] || 'Emprendedor'}!
-                        </span>
-                    </motion.div>
-                    
-                    <motion.h1 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="font-black text-white mb-8 uppercase px-2 tracking-tight"
-                        style={{ lineHeight: '1.2em', fontSize: '3.2rem' }}
-                    >
-                        Estás a punto de acceder a una plataforma diseñada para <br className="hidden md:block" />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600">
-                            ayudarte a construir y automatizar tu negocio digital con IA
-                        </span>
-                    </motion.h1>
-
-                    <motion.p 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-white text-xl md:text-2xl font-medium max-w-3xl mx-auto opacity-90"
-                    >
-                        Antes de comenzar, queremos entender tu perfil para personalizar tu experiencia dentro de la plataforma.
-                    </motion.p>
-                </div>
-
+        <div id="survey-container" className="flex flex-col items-center justify-center py-10 md:py-16 px-4 sm:px-6 relative z-10 w-full min-h-screen bg-black/40">
+            <div className="w-full max-w-3xl relative">
                 <OnboardingSurvey 
                     user={user} 
                     onComplete={() => {

@@ -158,44 +158,28 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
         <div className="w-full max-w-3xl mx-auto py-8 px-4">
             
             {/* Cabecera del Stepper */}
-            <div id="survey-step-header" className="mb-10 text-center scroll-mt-32">
-                <span className="text-zinc-500 font-extrabold text-xs uppercase tracking-[0.2em] block mb-2">
-                    PASO {step + 1} DE 4
-                </span>
-                
-                {/* Stepper visual con los números con círculos conectados */}
-                <div className="flex items-center justify-between max-w-sm mx-auto mb-8 relative">
-                    <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px] bg-white/5 z-0" />
-                    
-                    <div 
-                        className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-[#FF5A1F] transition-all duration-300 z-0" 
-                        style={{ width: `${(step / 3) * 100}%` }} 
-                    />
-                    
-                    {[0, 1, 2, 3].map((index) => {
-                        const isCompleted = step > index;
-                        const isActive = step === index;
-                        return (
-                            <div 
-                                key={index} 
-                                className={`relative z-10 w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
-                                    isActive 
-                                        ? 'bg-[#FF5A1F] text-white ring-4 ring-[#FF5A1F]/20 scale-110 shadow-[0_0_15px_rgba(255,90,31,0.4)]' 
-                                        : isCompleted
-                                            ? 'bg-[#FF5A1F] text-white'
-                                            : 'bg-[#111111] border-2 border-white/10 text-zinc-500'
-                                }`}
-                            >
-                                {isCompleted ? <Check className="w-4 h-4 stroke-[3px]" /> : index + 1}
-                            </div>
-                        );
-                    })}
+            <div id="survey-step-header" className="mb-8 w-full font-sans select-none scroll-mt-32">
+                <div className="flex items-center justify-between mb-4.5 px-1 bg-transparent">
+                    <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center font-black text-xs md:text-sm shadow-[0_2px_10px_rgba(255,90,31,0.25)] shrink-0">
+                            {step + 1}
+                        </div>
+                        <span className="text-zinc-400 font-extrabold text-[10px] md:text-xs uppercase tracking-[0.18em] leading-normal pt-0.5">
+                            ETAPA DE ONBOARDING
+                        </span>
+                    </div>
+                    <div className="text-zinc-400 font-extrabold text-[10px] md:text-xs uppercase tracking-[0.12em] pt-0.5">
+                        TU PROGRESO <span className="text-[#FF5A1F] font-black tracking-normal ml-1">{progress}%</span>
+                    </div>
                 </div>
 
-                <div className="text-center">
-                    <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest inline-block bg-white/5 px-3 py-1 rounded-full border border-white/5">
-                        Tu Progreso {progress}%
-                    </p>
+                <div className="w-full h-1.5 rounded-full bg-zinc-900 overflow-hidden">
+                    <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress}%` }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                        className="h-full bg-[#FF5A1F] rounded-full shadow-[0_0_8px_rgba(255,90,31,0.3)]"
+                    />
                 </div>
             </div>
 
@@ -251,16 +235,16 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }}
                                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4 ${
                                                         isSelected 
-                                                            ? 'border-[#FF5A1F] bg-[#FF5A1F]/5 text-white shadow-lg shadow-[#FF5A1F]/5' 
+                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && !formData.experienceLevel 
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1C]'
+                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1D]'
                                                     }`}
                                                 >
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-600'
+                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
                                                     }`}>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
                                                     <span className="font-bold text-sm md:text-base">{opt.label}</span>
                                                 </button>
@@ -296,16 +280,16 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }}
                                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4 ${
                                                         isSelected 
-                                                            ? 'border-[#FF5A1F] bg-[#FF5A1F]/5 text-white shadow-lg shadow-[#FF5A1F]/5' 
+                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && !formData.mainGoal 
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1C]'
+                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1D]'
                                                     }`}
                                                 >
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-600'
+                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
                                                     }`}>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
                                                     <span className="font-bold text-sm md:text-base">{opt.label}</span>
                                                 </button>
@@ -354,12 +338,6 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Trust Footer for Step 1 */}
-                            <div className="mt-8 pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-zinc-500">
-                                <Lock className="w-4 h-4 text-[#FF5A1F]" />
-                                <span className="text-xs font-bold leading-none uppercase tracking-wider">Podrás modificar esta información más adelante.</span>
-                            </div>
                         </div>
                     )}
 
@@ -403,16 +381,16 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }}
                                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4 ${
                                                         isSelected 
-                                                            ? 'border-[#FF5A1F] bg-[#FF5A1F]/5 text-white shadow-lg shadow-[#FF5A1F]/5' 
+                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && !formData.howToStart 
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1C]'
+                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1D]'
                                                     }`}
                                                 >
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-600'
+                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
                                                     }`}>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
                                                     <span className="font-bold text-sm md:text-base">{opt.label}</span>
                                                 </button>
@@ -452,16 +430,16 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }}
                                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4 ${
                                                         isSelected 
-                                                            ? 'border-[#FF5A1F] bg-[#FF5A1F]/5 text-white shadow-lg shadow-[#FF5A1F]/5' 
+                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && !formData.niche 
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1C]'
+                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1D]'
                                                     }`}
                                                 >
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-600'
+                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
                                                     }`}>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
                                                     <span className="font-bold text-sm md:text-base">{opt.label}</span>
                                                 </button>
@@ -497,16 +475,16 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }}
                                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4 ${
                                                         isSelected 
-                                                            ? 'border-[#FF5A1F] bg-[#FF5A1F]/5 text-white shadow-lg shadow-[#FF5A1F]/5' 
+                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && !formData.achievementPriority 
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1C]'
+                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1D]'
                                                     }`}
                                                 >
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-600'
+                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
                                                     }`}>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
                                                     <span className="font-bold text-sm md:text-base">{opt.label}</span>
                                                 </button>
@@ -514,12 +492,6 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         })}
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Trust Footer for Step 2 */}
-                            <div className="mt-8 pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-zinc-500">
-                                <Lock className="w-4 h-4 text-[#FF5A1F]" />
-                                <span className="text-xs font-bold leading-none uppercase tracking-wider">Tus respuestas están seguras y solo las usaremos para personalizar tu experiencia.</span>
                             </div>
                         </div>
                     )}
@@ -814,41 +786,44 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                         </div>
                     )}
 
-                    {/* Botones de navegación (Atrás / Continuar / Crear plan) */}
-                    <div className="flex flex-col sm:flex-row gap-4 mt-10">
+                    {/* Botones de navegación (Atrás / Continuar) */}
+                    <div className="flex flex-col sm:flex-row gap-4 mt-8">
                         {step > 0 && (
                             <button
                                 type="button"
                                 onClick={handleBack}
-                                className="flex-1 py-4 px-6 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-extrabold text-base transition-all border border-white/10 flex items-center justify-center gap-2 active:scale-95"
+                                className="flex-1 py-3.5 px-6 rounded-xl bg-transparent hover:bg-white/[0.02] text-zinc-450 hover:text-white border border-white/10 hover:border-white/20 font-bold text-sm uppercase tracking-wider transition-all duration-250 flex items-center justify-center gap-1.5"
                             >
-                                <ChevronLeft className="w-5 h-5" />
-                                Atrás
+                                <ChevronLeft className="w-4 h-4 shrink-0" />
+                                Volver
                             </button>
                         )}
                         <button
                             type="button"
                             onClick={handleNext}
                             disabled={loading}
-                            className="flex-[2] py-4 px-6 rounded-2xl bg-[#FF5A1F] hover:bg-[#FF6D38] text-white font-extrabold text-lg transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+                            className="flex-[2] py-4 px-6 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-[#FF7A42] hover:brightness-110 text-white font-extrabold text-base transition-all shadow-lg shadow-[#FF5A1F]/10 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                         >
                             {loading ? (
                                 <>
-                                    <Zap className="w-5 h-5 animate-pulse" />
+                                    <Zap className="w-4 h-4 animate-pulse" />
                                     Guardando...
-                                </>
-                            ) : step === 3 ? (
-                                <>
-                                    Crear mi plan personalizado
-                                    <ChevronRight className="w-5 h-5" />
                                 </>
                             ) : (
                                 <>
                                     Continuar
-                                    <ChevronRight className="w-5 h-5" />
+                                    <ChevronRight className="w-4 h-4 shrink-0" />
                                 </>
                             )}
                         </button>
+                    </div>
+
+                    {/* Centered Security Footer */}
+                    <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-center gap-2 text-zinc-500">
+                        <Lock className="w-3.5 h-3.5 text-[#FF5A1F] shrink-0" />
+                        <span className="text-xs font-semibold leading-none">
+                            Podrás modificar esta información más adelante.
+                        </span>
                     </div>
 
                 </motion.div>
