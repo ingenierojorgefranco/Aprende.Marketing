@@ -59,6 +59,7 @@ import { ProjectsList } from "./components/dashboard/tools/ProjectsList";
 import { HooksList } from "./components/dashboard/tools/HooksList";
 import { MyPages } from "./components/dashboard/tools/MyPages";
 import { ProjectStrategyDashboard } from "./components/dashboard/tools/ProjectStrategyDashboard";
+import WizardDashboard from "./components/dashboard/wizard/WizardDashboard";
 
 // Dashboard CRM
 import { CRM_Layout } from "./components/dashboard/crm/CRM_Layout";
@@ -320,6 +321,15 @@ const App: React.FC = () => {
         <Route path="/privacidad" element={<PrivacyPage />} />
         <Route path="/jorge-franco" element={<JorgeFrancoPage />} />
         {/* ////////// Fin de nuevas rutas - 27/05/2025 01:15 ////////// */}
+
+        <Route 
+          path="/wizard/dashboard" 
+          element={
+            <ProtectedRoute>
+              <WizardDashboard user={user!} onLogout={handleLogout} />
+            </ProtectedRoute>
+          } 
+        />
 
         {/* RUTAS DEL DASHBOARD (PROTEGIDAS) */}
         <Route

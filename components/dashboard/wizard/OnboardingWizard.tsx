@@ -64,6 +64,7 @@ interface OnboardingWizardProps {
   onLogout?: () => void;
   onGenerationStateChange?: (isGenerating: boolean) => void;
   onUpdateUser?: (updatedUser: User) => void;
+  isStandaloneDashboard?: boolean;
 }
 
 type WizardStep =
@@ -175,9 +176,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   onLogout,
   onGenerationStateChange,
   onUpdateUser,
+  isStandaloneDashboard = false,
 }) => {
   const navigate = useNavigate();
   const [step, setStep] = useState<WizardStep>(() => {
+    if (isStandaloneDashboard) {
+      return "success";
+    }
     if (typeof window !== "undefined") {
       const forced = localStorage.getItem("force_wizard_step");
       if (forced === "success") {
@@ -214,6 +219,69 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   >(null);
   const [selectedHookForDrawer, setSelectedHookForDrawer] = useState<any>(null);
   const [activeTestimonialIndex, setActiveTestimonialIndex] = useState<number>(-1);
+  const [editingTestimonialIndex, setEditingTestimonialIndex] = useState<number | null>(null);
+  const [editingTestimonialText, setEditingTestimonialText] = useState<string>("");
+  const [isSavingTestimonial, setIsSavingTestimonial] = useState<boolean>(false);
+
+  const handleStartEditTestimonial = (idx: number, currentText: string) => {
+    setEditingTestimonialIndex(idx);
+    setEditingTestimonialText(currentText);
+  };
+
+  const handleCancelEditTestimonial = () => {
+    setEditingTestimonialIndex(null);
+    setEditingTestimonialText("");
+  };
+
+  const handleSaveTestimonial = async (idx: number) => {
+    if (!editingTestimonialText.trim()) return;
+    setIsSavingTestimonial(true);
+    try {
+      const projectId = unlockedProject?.id || selectedProject?.id;
+      if (!projectId) {
+        console.error("No project loaded");
+        return;
+      }
+      const rawTestimonials = [
+        ...(strategyData?.modules?.testimonials ||
+          strategyData?.testimonials ||
+          [])
+      ];
+      
+      if (rawTestimonials[idx]) {
+        if (typeof rawTestimonials[idx] === 'string') {
+          rawTestimonials[idx] = editingTestimonialText;
+        } else {
+          rawTestimonials[idx] = {
+            ...rawTestimonials[idx],
+            text: editingTestimonialText,
+            msg: editingTestimonialText,
+            quote: editingTestimonialText
+          };
+        }
+      } else {
+        rawTestimonials[idx] = { text: editingTestimonialText, msg: editingTestimonialText };
+      }
+
+      await api.updateProjectTestimonials(projectId, rawTestimonials);
+
+      setStrategyData((prev: any) => {
+        if (!prev) return prev;
+        const updated = { ...prev };
+        if (!updated.modules) updated.modules = {};
+        updated.modules.testimonials = rawTestimonials;
+        updated.testimonials = rawTestimonials;
+        return updated;
+      });
+
+      setEditingTestimonialIndex(null);
+    } catch (error) {
+      console.error("Error saving testimonial:", error);
+    } finally {
+      setIsSavingTestimonial(false);
+    }
+  };
+
   const [activeHookTab, setActiveHookTab] = useState<string>("Gancho");
   const [hookSearchSearchText, setHookSearchSearchText] = useState<string>("");
 
@@ -407,10 +475,65 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     };
   }, [activeDetailsDrawer, isEstrategiaDrawerOpen]);
 
-  // Cargar proyectos recomendados al inicio o cuando sea necesario
+  // Cargar proyectos recomendados al inicio o cuando sea necesario, o hidratar el dashboard si es modo standalone
   useEffect(() => {
-    loadMasterProjects();
-  }, []);
+    if (isStandaloneDashboard) {
+      const initDashboard = async () => {
+        setLoadingProjects(true);
+        try {
+          // 1. Obtener proyectos del usuario en tiempo real
+          const myProjects = await api.getProjects();
+          setUserActiveProjects(myProjects);
+          
+          // 2. Encontrar el primer proyecto del wizard o el más reciente
+          const wizardProj = myProjects.find((p: any) => p.registered_via === "wizard" || p.name?.toLowerCase().includes("microblading") || p.name?.toLowerCase().includes("cejas")) || myProjects[0];
+          
+          if (wizardProj) {
+            setSelectedProject(wizardProj);
+            setUnlockedProject(wizardProj);
+            
+            // 3. Cargar estrategia psicologica profunda
+            const strategy = await api.getProjectStrategy(wizardProj.id);
+            setStrategyData(strategy);
+            
+            // 4. Buscar landing pages para extraer de forma dinamica el subdominio
+            try {
+              const pages = await api.getPages();
+              const projPage = pages.find((pg: any) => pg.projectId === wizardProj.id);
+              if (projPage && projPage.subdomain) {
+                setCreatedPageSubdomain(projPage.subdomain);
+                setIsLandingCreated(true);
+              }
+            } catch (err) {
+              console.error("Error cargando páginas para el subdomain del wizard:", err);
+            }
+            
+            // 5. Cargar guiones/hooks generados
+            try {
+              const library = await api.getHooksLibrary(1, 50, undefined, wizardProj.id);
+              if (library && library.hooks) {
+                setUnlockedHooks(library.hooks);
+                setIsHooksUnlocked(true);
+              }
+            } catch (err) {
+              console.error("Error cargando hooks para el wizard standalone:", err);
+            }
+            
+            setStep("success");
+          } else {
+            setStep("welcome");
+          }
+        } catch (error) {
+          console.error("Error en inicializacion de wizard standalone:", error);
+        } finally {
+          setLoadingProjects(false);
+        }
+      };
+      initDashboard();
+    } else {
+      loadMasterProjects();
+    }
+  }, [isStandaloneDashboard]);
 
   const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) => {
     setTimeout(() => {
@@ -826,6 +949,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     return "https://www.mipagina.com";
   };
 
+  if (isStandaloneDashboard && (loadingProjects || !strategyData)) {
+    return (
+      <div className="fixed inset-0 bg-black flex flex-col items-center justify-center font-sans z-[60]">
+        <div className="space-y-4 text-center">
+          <div className="w-12 h-12 border-2 border-t-2 border-t-[#FF5A1F] border-white/10 rounded-full animate-spin mx-auto"></div>
+          <p className="text-zinc-400 text-sm font-semibold">Cargando tu Centro de Operaciones estratégico...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={containerRef}
@@ -1006,7 +1140,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             {/* Botón de Regresar al Panel de Administración abajo del todo */}
             <div className="flex justify-center mt-4">
               <button
-                onClick={onComplete}
+                onClick={() => {
+                  if (isStandaloneDashboard) {
+                    navigate("/dashboard");
+                  } else {
+                    onComplete();
+                  }
+                }}
                 className="px-8 py-4 sm:px-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[#FF5A1F]/30 text-white font-black text-sm tracking-widest uppercase transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl hover:shadow-[#FF5A1F]/5"
               >
                 Regresar al panel de administración
@@ -1040,7 +1180,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                 </p>
               </div>
               <button
-                onClick={onComplete}
+                onClick={() => {
+                  if (isStandaloneDashboard) {
+                    navigate("/dashboard");
+                  } else {
+                    onComplete();
+                  }
+                }}
                 className="bg-[#0b0b0e]/80 text-[#ccc2bc] hover:text-white border border-white/5 hover:border-white/10 font-bold text-xs py-2.5 px-4 rounded-xl transition-all duration-300 cursor-pointer shrink-0 self-start md:self-auto flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" /> Volver al listado
@@ -7063,35 +7209,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                               strategyData?.modules?.testimonials ||
                               strategyData?.testimonials ||
                               [];
-                            const specificExpertReplies = [
-                              "¡Qué increíble resultado! 🎉 Cuando tienes una meta y vas por ella seguro logras grandes resultados. ¡A seguir escalando ese proyecto! 🚀",
-                              "Nos encanta saber que estás aplicando lo aprendido. ¡Felicitaciones y sigue por más resultados! 💰",
-                              "¡Esa es la meta! Estás en una de las mejores oportunidades de los últimos tiempos. Sigue así y la recompensa llegará. 💎"
-                            ];
-                            const defaultTestimonialsList = [
-                              {
-                                name: "María Fernanda",
-                                img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300&h=300",
-                                msg: `¡Hola! Solo quería contarles que estoy súper feliz. Con este proyecto logré mis primeras clientes esta semana y recuperé toda la inversión del material y del curso. ¡La metodología es súper clara!`,
-                                reply: specificExpertReplies[0],
-                              },
-                              {
-                                name: "Valeria Mendoza",
-                                img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300&h=300",
-                                msg: "Nunca pensé que se pudiera aprender de manera tan fácil y práctica de forma 100% online. Las lecciones de diseño tridimensional y visagismo son oro puro.",
-                                reply: specificExpertReplies[1],
-                              },
-                              {
-                                name: "Mónica Silva",
-                                img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300&h=300",
-                                msg: "Mis clientas están fascinadas con los resultados y las cejas les quedan súper naturales. ¡Mil gracias por el excelente soporte y paciencia!",
-                                reply: specificExpertReplies[2],
-                              },
-                            ];
-                            const testimonialsToRender =
-                              rawTestimonials.length > 0
-                                ? rawTestimonials
-                                : defaultTestimonialsList;
+
+                            if (rawTestimonials.length === 0) {
+                              return (
+                                <div className="text-zinc-500 text-center py-12 px-6 border border-white/5 bg-black/20 rounded-2xl font-sans mt-4">
+                                  No existen testimonios guardados en la base de datos para este proyecto.
+                                </div>
+                              );
+                            }
 
                             return (
                               <div className="space-y-4 pt-2">
@@ -7100,7 +7225,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                   <span>Haz clic en cualquiera de los testimonios para expandir y ver sus detalles de conversión.</span>
                                 </div>
-                                {testimonialsToRender.map((t: any, idx: number) => {
+                                {rawTestimonials.map((t: any, idx: number) => {
                                   const textMsg = t.text || t.msg || t.quote || "";
                                   const assocAv = baseAvs[idx % 3];
 
@@ -7110,9 +7235,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                   const occupationToUse = assocAv.occupation;
                                   const incomeToUse = assocAv.income;
                                   const badgeTypeToUse = assocAv.priority;
-                                  const audiencePercentageToUse = assocAv.audiencePct;
 
                                   const isOpen = activeTestimonialIndex === idx;
+                                  const isCurrentlyEditing = editingTestimonialIndex === idx;
 
                                   return (
                                     <div
@@ -7123,7 +7248,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                     >
                                       {/* Cabecera de Identidad del Avatar (Interactiva y Clickeable) */}
                                       <div
-                                        onClick={() => setActiveTestimonialIndex(isOpen ? -1 : idx)}
+                                        onClick={() => {
+                                          if (!isCurrentlyEditing) {
+                                            setActiveTestimonialIndex(isOpen ? -1 : idx);
+                                          }
+                                        }}
                                         className="p-6 flex items-center justify-between gap-4 cursor-pointer select-none"
                                       >
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-5">
@@ -7177,26 +7306,61 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                             className="border-t border-white/[0.04]"
                                           >
                                             <div className="p-6 space-y-5 bg-[#0d0d12]/20">
-                                              {/* Testimonial text only - without duplicate image or expert reply */}
-                                              <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl relative">
-                                                <p className="text-sm md:text-base leading-relaxed text-zinc-200 font-sans italic selection:bg-[#FF5D1E]/30">
-                                                  "{textMsg}"
-                                                </p>
-                                              </div>
+                                              {/* Testimonial text edit/view */}
+                                              {isCurrentlyEditing ? (
+                                                <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl relative">
+                                                  <textarea
+                                                    value={editingTestimonialText}
+                                                    onChange={(e) => setEditingTestimonialText(e.target.value)}
+                                                    className="w-full text-zinc-200 bg-zinc-950 border border-white/10 rounded-xl p-3 text-sm focus:outline-none focus:border-[#FF5D1E] focus:ring-1 focus:ring-[#FF5D1E]"
+                                                    rows={4}
+                                                    placeholder="Escribe el testimonio aquí..."
+                                                  />
+                                                </div>
+                                              ) : (
+                                                <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl relative">
+                                                  <p className="text-sm md:text-base leading-relaxed text-zinc-200 font-sans italic selection:bg-[#FF5D1E]/30">
+                                                    "{textMsg}"
+                                                  </p>
+                                                </div>
+                                              )}
 
                                               {/* Action buttons: Ver en la Web & Editar */}
-                                              <div className="flex items-center gap-3 flex-wrap">
-                                                <button
-                                                  className="flex items-center gap-2 px-4 py-2.5 text-xs md:text-sm text-[#FF5D1E] hover:text-[#ff743c] bg-[#FF5D1E]/5 hover:bg-[#FF5D1E]/10 border border-[#FF5D1E]/30 hover:border-[#FF5D1E]/50 rounded-xl transition-all font-bold cursor-pointer"
-                                                >
-                                                  <Globe className="w-4 h-4" /> Ver en la web
-                                                </button>
-                                                <button
-                                                  className="flex items-center gap-2 px-4 py-2.5 text-xs md:text-sm text-zinc-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 hover:border-white/15 rounded-xl transition-all font-bold cursor-pointer"
-                                                >
-                                                  <PenTool className="w-4 h-4" /> Editar
-                                                </button>
-                                              </div>
+                                              {isCurrentlyEditing ? (
+                                                <div className="flex items-center gap-3 flex-wrap">
+                                                  <button
+                                                    onClick={() => handleSaveTestimonial(idx)}
+                                                    disabled={isSavingTestimonial || !editingTestimonialText.trim()}
+                                                    className="flex items-center gap-2 px-4 py-2.5 text-xs md:text-sm text-white bg-[#FF5D1E] hover:bg-[#ff743c] disabled:opacity-50 border border-transparent rounded-xl transition-all font-bold cursor-pointer"
+                                                  >
+                                                    {isSavingTestimonial ? "Guardando..." : "Guardar"}
+                                                  </button>
+                                                  <button
+                                                    onClick={handleCancelEditTestimonial}
+                                                    disabled={isSavingTestimonial}
+                                                    className="flex items-center gap-2 px-4 py-2.5 text-xs md:text-sm text-zinc-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-50 border border-white/5 rounded-xl transition-all font-bold cursor-pointer"
+                                                  >
+                                                    Cancelar
+                                                  </button>
+                                                </div>
+                                              ) : (
+                                                <div className="flex items-center gap-3 flex-wrap">
+                                                  <a
+                                                    href={`${getPageUrl()}#testimonios`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="flex items-center gap-2 px-4 py-2.5 text-xs md:text-sm text-[#FF5D1E] hover:text-[#ff743c] bg-[#FF5D1E]/5 hover:bg-[#FF5D1E]/10 border border-[#FF5D1E]/30 hover:border-[#FF5D1E]/50 rounded-xl transition-all font-bold cursor-pointer"
+                                                  >
+                                                    <Globe className="w-4 h-4" /> Ver en la web
+                                                  </a>
+                                                  <button
+                                                    onClick={() => handleStartEditTestimonial(idx, textMsg)}
+                                                    className="flex items-center gap-2 px-4 py-2.5 text-xs md:text-sm text-zinc-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 hover:border-white/15 rounded-xl transition-all font-bold cursor-pointer"
+                                                  >
+                                                    <PenTool className="w-4 h-4" /> Editar
+                                                  </button>
+                                                </div>
+                                              )}
                                             </div>
                                           </motion.div>
                                         )}
