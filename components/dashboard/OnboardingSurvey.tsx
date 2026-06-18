@@ -183,6 +183,32 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                 </div>
             </div>
 
+            {/* Títulos y descripciones principales fuera de la tarjeta translúcida */}
+            <motion.div
+                key={`survey-header-${step}`}
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="text-center mb-10 px-2 select-none"
+            >
+                <h2 className="text-3xl md:text-[36px] font-extrabold text-white leading-tight tracking-tight mb-3">
+                    {step === 0 && "Personalicemos tu experiencia"}
+                    {step === 1 && "Definamos qué quieres promocionar"}
+                    {step === 2 && "Cuéntanos con qué recursos cuentas"}
+                    {step === 3 && "Preparemos un plan que puedas cumplir"}
+                </h2>
+                <p className="text-zinc-405 text-sm md:text-base leading-relaxed max-w-xl mx-auto font-medium">
+                    {step === 0 && (
+                        <>
+                            Cuéntanos cuál es tu punto de partida para recomendarte el mejor recorrido dentro de Aprende Marketing. Te tomará <span className="text-[#FF5A1F] font-semibold">menos de 3 minutos</span>.
+                        </>
+                    )}
+                    {step === 1 && "Esto nos ayudará a recomendarte productos, audiencias y estrategias relevantes."}
+                    {step === 2 && "Adaptaremos el contenido y el embudo a los canales que ya utilizas."}
+                    {step === 3 && "Ajustaremos la estrategia a tu disponibilidad, presupuesto y principal dificultad."}
+                </p>
+            </motion.div>
+
             {/* Contenido de la Encuesta */}
             <AnimatePresence mode="wait">
                 <motion.div
@@ -198,23 +224,14 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                     {/* Paso 1: Personalicemos tu experiencia */}
                     {step === 0 && (
                         <div className="space-y-8 relative z-10">
-                            <div className="text-center mb-8">
-                                <h2 className="text-2xl md:text-3xl font-extrabold text-white leading-tight tracking-tight mb-3">
-                                    Personalicemos tu experiencia
-                                </h2>
-                                <p className="text-zinc-400 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
-                                    Cuéntanos cuál es tu punto de partida para recomendarte el mejor recorrido dentro de Aprende Marketing. Te tomará <span className="text-[#FF5A1F] font-bold">menos de 3 minutos</span>.
-                                </p>
-                            </div>
-
                             <div className="space-y-8">
                                 {/* Pregunta 1 */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                            <BarChart className="w-5 h-5" />
+                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                            <BarChart className="w-4.5 h-4.5" />
                                         </div>
-                                        <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wide">
+                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
                                             ¿Cuánta experiencia tienes vendiendo productos digitales?
                                         </h3>
                                     </div>
@@ -238,7 +255,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                             ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && !formData.experienceLevel 
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1D]'
+                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
                                                     }`}
                                                 >
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
@@ -256,10 +273,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                 {/* Pregunta 2 */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                            <Target className="w-5 h-5" />
+                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                            <Target className="w-4.5 h-4.5" />
                                         </div>
-                                        <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wide">
+                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
                                             ¿Cuál es tu objetivo principal?
                                         </h3>
                                     </div>
@@ -283,7 +300,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                             ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && !formData.mainGoal 
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1D]'
+                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
                                                     }`}
                                                 >
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
@@ -301,10 +318,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                 {/* Pregunta 3 */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                            <Globe className="w-5 h-5" />
+                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                            <Globe className="w-4.5 h-4.5" />
                                         </div>
-                                        <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wide">
+                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
                                             ¿En qué país estás?
                                         </h3>
                                     </div>
@@ -344,23 +361,14 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                     {/* Paso 2: Definamos qué quieres promocionar */}
                     {step === 1 && (
                         <div className="space-y-8 relative z-10">
-                            <div className="text-center mb-8">
-                                <h2 className="text-2xl md:text-3xl font-extrabold text-white leading-tight tracking-tight mb-3">
-                                    Definamos qué quieres promocionar
-                                </h2>
-                                <p className="text-zinc-400 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
-                                    Esto nos ayudará a recomendarte productos, audiencias y estrategias relevantes.
-                                </p>
-                            </div>
-
                             <div className="space-y-8">
                                 {/* Pregunta 1 */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                            <Rocket className="w-5 h-5" />
+                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                            <Rocket className="w-4.5 h-4.5" />
                                         </div>
-                                        <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wide">
+                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
                                             ¿Cómo quieres comenzar?
                                         </h3>
                                     </div>
@@ -384,7 +392,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                             ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && !formData.howToStart 
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1D]'
+                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
                                                     }`}
                                                 >
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
@@ -402,10 +410,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                 {/* Pregunta 2 */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                            <Tag className="w-5 h-5" />
+                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                            <Tag className="w-4.5 h-4.5" />
                                         </div>
-                                        <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wide">
+                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
                                             ¿Qué temática te interesa más?
                                         </h3>
                                     </div>
@@ -433,7 +441,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                             ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && !formData.niche 
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1D]'
+                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
                                                     }`}
                                                 >
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
@@ -451,10 +459,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                 {/* Pregunta 3 */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                            <Target className="w-5 h-5" />
+                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                            <Target className="w-4.5 h-4.5" />
                                         </div>
-                                        <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wide">
+                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
                                             ¿Qué quieres conseguir primero?
                                         </h3>
                                     </div>
@@ -478,7 +486,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                             ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && !formData.achievementPriority 
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1D]'
+                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
                                                     }`}
                                                 >
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
@@ -499,27 +507,18 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                     {/* Paso 3: Cuéntanos con qué recursos cuentas */}
                     {step === 2 && (
                         <div className="space-y-8 relative z-10">
-                            <div className="text-center mb-8">
-                                <h2 className="text-2xl md:text-3xl font-extrabold text-white leading-tight tracking-tight mb-3">
-                                    Cuéntanos con qué recursos cuentas
-                                </h2>
-                                <p className="text-zinc-400 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
-                                    Adaptaremos el contenido y el embudo a los canales que ya utilizas.
-                                </p>
-                            </div>
-
                             <div className="space-y-8">
                                 {/* Pregunta 1 */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                            <Megaphone className="w-5 h-5" />
+                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                            <Megaphone className="w-4.5 h-4.5" />
                                         </div>
                                         <div className="flex flex-col">
-                                            <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wide">
+                                            <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
                                                 ¿Qué canales o recursos tienes actualmente?
                                             </h3>
-                                            <span className="text-xs text-zinc-500 font-bold uppercase tracking-wider mt-0.5">Selección múltiple</span>
+                                            <span className="text-xs text-zinc-500 font-semibold uppercase tracking-wider mt-0.5">Selección múltiple</span>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -543,14 +542,14 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     onClick={() => handleToggleResource(item.label)}
                                                     className={`p-4 rounded-xl border transition-all duration-200 flex items-center gap-3 ${
                                                         isSelected 
-                                                            ? 'border-[#FF5A1F] bg-[#FF5A1F]/5 text-white shadow-lg shadow-[#FF5A1F]/5' 
+                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && formData.currentResources.length === 0
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1C]'
+                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
                                                     }`}
                                                 >
                                                     <span className="text-[#FF5A1F] shrink-0">
-                                                        <Icon className="w-5 h-5" />
+                                                        <Icon className="w-4.5 h-4.5" />
                                                     </span>
                                                     <span className="font-bold text-xs md:text-sm text-left leading-snug">{item.label}</span>
                                                 </button>
@@ -562,10 +561,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                 {/* Pregunta 2 */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                            <PenTool className="w-5 h-5" />
+                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                            <PenTool className="w-4.5 h-4.5" />
                                         </div>
-                                        <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wide">
+                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
                                             ¿Cómo te gustaría crear contenido?
                                         </h3>
                                     </div>
@@ -587,16 +586,16 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }}
                                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4 ${
                                                         isSelected 
-                                                            ? 'border-[#FF5A1F] bg-[#FF5A1F]/5 text-white shadow-lg shadow-[#FF5A1F]/5' 
+                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && !formData.contentCreationPreference
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1C]'
+                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
                                                     }`}
                                                 >
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-600'
+                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
                                                     }`}>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
                                                     <span className="font-bold text-sm md:text-base">{opt.label}</span>
                                                 </button>
@@ -605,39 +604,24 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Trust Footer for Step 3 */}
-                            <div className="mt-8 pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-zinc-500">
-                                <Lock className="w-4 h-4 text-[#FF5A1F]" />
-                                <span className="text-xs font-bold leading-none uppercase tracking-wider">Tus respuestas están seguras y solo las usaremos para personalizar tu experiencia.</span>
-                            </div>
                         </div>
                     )}
 
                     {/* Paso 4: Preparemos un plan que puedas cumplir */}
                     {step === 3 && (
-                        <div className="space-y-8 relative z-10 font-sans">
-                            <div className="text-center mb-8">
-                                <h2 className="text-2xl md:text-3xl font-extrabold text-white leading-tight tracking-tight mb-3">
-                                    Preparemos un plan que puedas cumplir
-                                </h2>
-                                <p className="text-zinc-400 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
-                                    Ajustaremos la estrategia a tu disponibilidad, presupuesto y principal dificultad.
-                                </p>
-                            </div>
-
+                        <div className="space-y-8 relative z-10">
                             <div className="space-y-8">
                                 {/* Pregunta 1 */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                            <Clock className="w-5 h-5" />
+                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                            <Clock className="w-4.5 h-4.5" />
                                         </div>
-                                        <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wide">
+                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
                                             ¿Cuánto tiempo puedes dedicar semanalmente?
                                         </h3>
                                     </div>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                                         {[
                                             { id: "menos_2", label: "Menos de 2 horas." },
                                             { id: "entre_2_5", label: "Entre 2 y 5 horas." },
@@ -655,16 +639,16 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }}
                                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-3 ${
                                                         isSelected 
-                                                            ? 'border-[#FF5A1F] bg-[#FF5A1F]/5 text-white shadow-lg shadow-[#FF5A1F]/5' 
+                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && !formData.dedicationTime 
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1C]'
+                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
                                                     }`}
                                                 >
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-600'
+                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
                                                     }`}>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
                                                     <span className="font-bold text-xs md:text-sm leading-snug">{opt.label}</span>
                                                 </button>
@@ -676,10 +660,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                 {/* Pregunta 2 */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                            <Target className="w-5 h-5" />
+                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                            <Target className="w-4.5 h-4.5" />
                                         </div>
-                                        <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wide">
+                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
                                             ¿Cuál es el principal obstáculo que quieres resolver?
                                         </h3>
                                     </div>
@@ -705,16 +689,16 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }}
                                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-3 ${
                                                         isSelected 
-                                                            ? 'border-[#FF5A1F] bg-[#FF5A1F]/5 text-white shadow-lg shadow-[#FF5A1F]/5' 
+                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
                                                             : attemptedNext && !formData.mainObstacle 
                                                                 ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1C]'
+                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
                                                     }`}
                                                 >
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-600'
+                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
                                                     }`}>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
                                                     <span className="font-bold text-xs md:text-sm leading-snug">{opt}</span>
                                                 </button>
@@ -726,14 +710,14 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                 {/* Pregunta 3 */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                            <Wallet className="w-5 h-5" />
+                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                            <Wallet className="w-4.5 h-4.5" />
                                         </div>
                                         <div className="flex flex-col">
-                                            <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wide">
+                                            <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
                                                 ¿Qué presupuesto mensual podrías destinar a herramientas o promoción?
                                             </h3>
-                                            <span className="text-xs text-zinc-500 font-bold uppercase tracking-wider mt-0.5">Opcional</span>
+                                            <span className="text-xs text-zinc-500 font-semibold uppercase tracking-wider mt-0.5">Opcional</span>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -755,8 +739,8 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }}
                                                     className={`w-full text-center p-4 rounded-xl border transition-all duration-200 flex flex-col items-center justify-center min-h-[72px] ${
                                                         isSelected 
-                                                            ? 'border-[#FF5A1F] bg-[#FF5A1F]/5 text-white shadow-lg shadow-[#FF5A1F]/5' 
-                                                            : 'border-white/5 bg-[#161616]/60 text-zinc-300 hover:border-white/20 hover:bg-[#1C1C1C]'
+                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
+                                                            : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
                                                     }`}
                                                 >
                                                     <span className="font-bold text-xs md:text-sm text-center leading-snug">{opt.label}</span>
@@ -764,45 +748,43 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                             );
                                         })}
                                     </div>
-                                    <p className="text-xs text-zinc-500 font-bold text-center mt-2 uppercase tracking-wide">
+                                    <p className="text-[11px] text-zinc-500 font-semibold text-center mt-2 uppercase tracking-wide">
                                         Esta respuesta solo se utilizará para adaptar tus recomendaciones.
                                     </p>
                                 </div>
-                            </div>
-
-                            {/* Trust Footer for Step 4 */}
-                            <div className="mt-8 pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-zinc-500">
-                                <Lock className="w-4 h-4 text-[#FF5A1F]" />
-                                <span className="text-xs font-bold leading-none uppercase tracking-wider text-center">Tus respuestas están seguras y solo las usaremos para personalizar tu experiencia.</span>
                             </div>
                         </div>
                     )}
 
                     {/* Display validation or generic errors beautifully */}
                     {errorMessage && (
-                        <div className="mt-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm font-semibold flex items-center gap-3 animate-pulse">
+                        <div id="survey-error-message" className="mt-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm font-semibold flex items-center gap-3 animate-pulse">
                             <Zap className="w-5 h-5 shrink-0" />
                             <span>{errorMessage}</span>
                         </div>
                     )}
 
                     {/* Botones de navegación (Atrás / Continuar) */}
-                    <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                    <div id="survey-navigation-buttons" className="flex flex-col sm:flex-row gap-4 mt-10">
                         {step > 0 && (
                             <button
+                                id="btn-onboarding-back"
                                 type="button"
                                 onClick={handleBack}
-                                className="flex-1 py-3.5 px-6 rounded-xl bg-transparent hover:bg-white/[0.02] text-zinc-450 hover:text-white border border-white/10 hover:border-white/20 font-bold text-sm uppercase tracking-wider transition-all duration-250 flex items-center justify-center gap-1.5"
+                                className="flex-1 py-4 px-6 rounded-xl bg-transparent hover:bg-white/[0.02] text-zinc-400 hover:text-white border border-white/10 hover:border-white/20 font-bold text-base uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 focus:outline-none"
                             >
                                 <ChevronLeft className="w-4 h-4 shrink-0" />
                                 Volver
                             </button>
                         )}
                         <button
+                            id="btn-onboarding-continue"
                             type="button"
                             onClick={handleNext}
                             disabled={loading}
-                            className="flex-[2] py-4 px-6 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-[#FF7A42] hover:brightness-110 text-white font-extrabold text-base transition-all shadow-lg shadow-[#FF5A1F]/10 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+                            className={`py-4 px-6 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-[#FF7A42] hover:brightness-110 text-white font-extrabold text-base transition-all shadow-lg shadow-[#FF5A1F]/10 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 focus:outline-none ${
+                                step > 0 ? 'flex-[2]' : 'w-full'
+                            }`}
                         >
                             {loading ? (
                                 <>
@@ -819,7 +801,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                     </div>
 
                     {/* Centered Security Footer */}
-                    <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-center gap-2 text-zinc-500">
+                    <div id="survey-security-footer" className="mt-8 pt-6 border-t border-white/5 flex items-center justify-center gap-2 text-zinc-500 select-none">
                         <Lock className="w-3.5 h-3.5 text-[#FF5A1F] shrink-0" />
                         <span className="text-xs font-semibold leading-none">
                             Podrás modificar esta información más adelante.

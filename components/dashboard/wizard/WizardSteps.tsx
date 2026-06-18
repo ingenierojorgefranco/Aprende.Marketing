@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail } from 'lucide-react';
+import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface StepProps {
@@ -33,10 +33,8 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                 <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
                     ¡Hola, <span className="text-[#FF5A1F]">{userName}</span>!
                 </h1>
-                <h2 className="text-xl md:text-3xl font-extrabold text-zinc-100 tracking-tight">
-                    Tu recorrido inicial está listo
-                </h2>
-                <p className="text-sm md:text-base text-zinc-400 max-w-xl mx-auto leading-relaxed">
+
+                <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
                     Hemos preparado los primeros pasos de acuerdo con tu experiencia, objetivos y recursos disponibles.
                 </p>
             </div>
@@ -56,7 +54,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                             <h3 className="font-extrabold text-white text-base md:text-lg leading-tight">
                                 Definir el producto que vas a promocionar
                             </h3>
-                            <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
+                            <p className="text-zinc-400 font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
                                 Podrás elegir una oportunidad analizada por Aprende Marketing o utilizar un producto que ya hayas seleccionado.
                             </p>
                         </div>
@@ -71,7 +69,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                             <h3 className="font-extrabold text-white text-base md:text-lg leading-tight">
                                 Construir la estrategia de tu proyecto
                             </h3>
-                            <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
+                            <p className="text-zinc-400 font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
                                 Definiremos la audiencia, el problema principal y el ángulo desde el que presentarás el producto.
                             </p>
                         </div>
@@ -86,7 +84,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                             <h3 className="font-extrabold text-white text-base md:text-lg leading-tight">
                                 Preparar tus recursos de lanzamiento
                             </h3>
-                            <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
+                            <p className="text-zinc-400 font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
                                 Generarás la estructura de tu página, el contenido inicial y el sistema para captar y hacer seguimiento a tus contactos.
                             </p>
                         </div>
@@ -694,66 +692,102 @@ export const AvatarRevealStep: React.FC<StepProps & { avatars: any[] }> = ({ ava
 export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onNext, project }) => {
     return (
         <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center space-y-6 md:space-y-8"
+            className="text-center space-y-6 md:space-y-8 max-w-4xl mx-auto px-4"
         >
+            {/* Círculo de Éxito Superior con Glow Verde */}
             <div className="relative inline-block">
-                {/* Visual "Wow" Effect: Animated rings/glow */}
-                <div className="absolute inset-0 bg-emerald-500 blur-[80px] opacity-30 animate-pulse"></div>
-                <div className="absolute -inset-4 border-2 border-emerald-500/20 rounded-[3rem] animate-ping opacity-20"></div>
-                
-                <div className="w-28 h-28 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-0 relative border border-white/30 shadow-[0_0_50px_-10px_rgba(16,185,129,0.5)]">
-                    <CheckCircle className="w-14 h-14 text-white" />
+                <div className="absolute inset-0 bg-green-500/20 blur-2xl rounded-full"></div>
+                <div className="w-16 h-16 rounded-full bg-green-500/10 border-2 border-green-500/80 flex items-center justify-center relative shadow-[0_0_25px_rgba(34,197,94,0.3)]">
+                    <svg className="w-8 h-8 text-green-500 stroke-[3px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
                 </div>
             </div>
 
-            <div className="space-y-4 md:space-y-6 max-w-3xl mx-auto mt-0">
-                <div className="space-y-3 md:space-y-4">
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase leading-tight">
-                        ¡Perfecto! <span className="text-emerald-500">Estamos listos!!! </span>
-                    </h2>
-                    <div className="space-y-2">
-                        <p className="text-lg md:text-xl text-slate-200 font-medium">
-                            Ya he desbloqueado el producto digital <span className="text-emerald-400 font-bold">"{project?.name || 'Digital'}"</span> para que lo uses
-                        </p>
-                        <p className="text-base md:text-lg text-white max-w-2xl mx-auto font-medium leading-normal">
-                            Ahora crearé por ti todo un <span className="text-white font-bold">sistema de ventas completo</span>.
-                        </p>
+            {/* Títulos Principales */}
+            <div className="space-y-3 max-w-2xl mx-auto">
+                <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                    Tu estrategia inicial está lista
+                </h2>
+                <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
+                    Hemos preparado la base estratégica para promocionar el{" "}
+                    <span className="text-[#FF5A1F] font-bold">
+                        {project?.name || "Curso Profesional de Microblading de Cejas"}
+                    </span>.
+                </p>
+            </div>
+
+            {/* Tarjeta Translúcida de Progreso ("Lo que ya está preparado") */}
+            <div className="w-full max-w-2xl mx-auto bg-[#0b0b0c]/60 border border-white/5 rounded-3xl p-6 md:p-8 space-y-6 text-left">
+                <h3 className="text-white font-semibold text-lg tracking-tight px-1 block">
+                    Lo que ya está preparado
+                </h3>
+                
+                <div className="space-y-3">
+                    {/* Item 1 - Producto */}
+                    <div className="flex items-center gap-4 bg-[#141416]/50 border border-white/5 p-4 rounded-2xl">
+                        <div className="w-11 h-11 bg-orange-500/5 border border-white/5 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                            <Package className="w-5 h-5 stroke-[2px]" />
+                        </div>
+                        <div>
+                            <p className="text-white text-sm font-semibold tracking-tight">Producto seleccionado</p>
+                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">{project?.name || "Curso Profesional de Microblading de Cejas"}</p>
+                        </div>
+                    </div>
+
+                    {/* Item 2 - Público */}
+                    <div className="flex items-center gap-4 bg-[#141416]/50 border border-white/5 p-4 rounded-2xl">
+                        <div className="w-11 h-11 bg-orange-500/5 border border-white/5 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                            <Users className="w-5 h-5 stroke-[2px]" />
+                        </div>
+                        <div>
+                            <p className="text-white text-sm font-semibold tracking-tight">Público y necesidades</p>
+                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">Audiencia, dolores, deseos y objeciones relacionados con el producto.</p>
+                        </div>
+                    </div>
+
+                    {/* Item 3 - Estrategia */}
+                    <div className="flex items-center gap-4 bg-[#141416]/50 border border-white/5 p-4 rounded-2xl">
+                        <div className="w-11 h-11 bg-orange-500/5 border border-white/5 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                            <Target className="w-5 h-5 stroke-[2px]" />
+                        </div>
+                        <div>
+                            <p className="text-white text-sm font-semibold tracking-tight">Estrategia de comunicación</p>
+                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">Ángulos de venta y mensajes iniciales para presentar la oportunidad.</p>
+                        </div>
+                    </div>
+
+                    {/* Item 4 - Siguiente Paso (Destacado) */}
+                    <div className="flex items-start gap-4 bg-orange-500/[0.02] border border-[#FF5A1F]/30 p-5 rounded-2xl shadow-[0_4px_30px_rgba(255,90,31,0.03)]">
+                        <div className="w-11 h-11 bg-orange-500/10 border border-[#FF5A1F]/20 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5">
+                            <Sparkles className="w-5 h-5 stroke-[2px]" />
+                        </div>
+                        <div>
+                            <p className="text-white text-sm font-semibold tracking-tight">Siguiente paso</p>
+                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
+                                Ahora utilizaremos esta estrategia para crear tu página de captación. La página incluirá la estructura, los textos y las llamadas a la acción necesarias para registrar personas interesadas.
+                            </p>
+                        </div>
                     </div>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-2 text-left">
-                    {[
-                        { title: 'Página Web', desc: 'Crearé tu página web profesional para capturar clientes interesados.', icon: MousePointer2 },
-                        { title: 'Videos de Atracción', desc: 'Crearé los videos exactos para atraer clientes interesados.', icon: Play },
-                        { title: 'Email Marketing', desc: 'Crearé secuencias de correos para generar confianza', icon: Zap },
-                        { title: 'Estrategia WhatsApp', desc: 'Diseñará la mejor estrategia para que vendas usando tu grupo de Whatsapp', icon: ShieldCheck }
-                    ].map((item, idx) => (
-                        <motion.div 
-                            key={idx}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 + (idx * 0.1) }}
-                            className="bg-white/5 border border-white/10 p-5 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors group"
-                        >
-                            <item.icon className="w-6 h-6 text-emerald-500 shrink-0 group-hover:scale-110 transition-transform" />
-                            <div className="space-y-1">
-                                <p className="text-white text-lg font-bold tracking-tight leading-relaxed">{item.title}</p>
-                                <p className="text-gray-300 text-base font-normal leading-relaxed">{item.desc}</p>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
             </div>
 
-            <button 
-                onClick={() => onNext()}
-                className="group flex items-center gap-4 px-10 py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(16,185,129,0.5)] transform hover:-translate-y-1 active:scale-95 mx-auto mt-4"
-            >
-                Excelente, Vamos a ello!!!
-                <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-            </button>
+            {/* Botón de Acción Principal (Naranja Vibrante) */}
+            <div className="flex flex-col items-center gap-3 pt-2">
+                <button 
+                    onClick={() => onNext()}
+                    className="w-full max-w-md py-4 px-6 bg-[#FF5A1F] hover:bg-[#FF7A42] text-white rounded-2xl font-extrabold text-base transition-all shadow-lg shadow-[#FF5A1F]/10 flex items-center justify-between gap-3 active:scale-[0.98] focus:outline-none"
+                >
+                    <Rocket className="w-5 h-5 shrink-0" />
+                    <span className="flex-1 text-center font-bold">Crear mi página web</span>
+                    <ArrowRight className="w-5 h-5 shrink-0" />
+                </button>
+                <p className="text-xs text-zinc-650 font-semibold tracking-tight select-none mt-1">
+                    Proyecto 1 de 3 creado.
+                </p>
+            </div>
         </motion.div>
     );
 };
@@ -815,54 +849,221 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
 };
 
 // 5.5 ÉXITO DE LANDING
-export const LandingSuccessStep: React.FC<StepProps> = ({ onNext, onView, onEdit }) => {
+interface LandingSuccessProps extends StepProps {
+    project?: any;
+    createdPageSubdomain?: string;
+}
+
+export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onView, onEdit, project, createdPageSubdomain }) => {
+    const subdomainPart = createdPageSubdomain ? createdPageSubdomain.split(".")[0] : "";
+
     return (
         <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center space-y-10"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-[1400px] mx-auto p-2 md:p-6 lg:p-8 font-sans"
         >
-            <div className="relative inline-block">
-                <div className="absolute inset-0 bg-emerald-500 blur-3xl opacity-20"></div>
-                <div className="w-24 h-24 bg-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
-                    <CheckCircle className="w-12 h-12 text-white" />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
+                {/* Columna Izquierda: Información y Control */}
+                <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
+                    <div className="space-y-6">
+                        {/* Cabecera */}
+                        <div className="space-y-3">
+                            <div className="flex flex-wrap items-center gap-3">
+                                <h1 className="text-3xl md:text-[2.5rem] font-extrabold text-white tracking-tight leading-tight">
+                                    Revisar y publicar tu página
+                                </h1>
+                                <span className="bg-emerald-950/60 border border-emerald-500/20 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider select-none shrink-0">
+                                    Borrador
+                                </span>
+                            </div>
+                            <p className="text-zinc-400 text-sm md:text-base leading-relaxed">
+                                Comprueba el contenido, el formulario y la apariencia antes de publicar tu página de captación.
+                            </p>
+                        </div>
+
+                        {/* Ficha de Detalles */}
+                        <div className="bg-[#0b0b0c]/85 border border-zinc-800/80 rounded-2xl overflow-hidden divide-y divide-zinc-800/40">
+                            {/* Proyecto */}
+                            <div className="flex items-center justify-between p-4 flex-wrap sm:flex-nowrap gap-3">
+                                <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                                    <Package className="w-4.5 h-4.5 text-[#FF5A1F]" />
+                                    <span>Proyecto</span>
+                                </div>
+                                <span className="text-white text-sm font-semibold truncate text-right">
+                                    {project?.name || "Curso Profesional de Microblading de Cejas"}
+                                </span>
+                            </div>
+
+                            {/* URL Temporal */}
+                            <div className="flex items-center justify-between p-4 flex-wrap sm:flex-nowrap gap-3">
+                                <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                                    <Link className="w-4.5 h-4.5 text-[#FF5A1F]" />
+                                    <span>URL temporal</span>
+                                </div>
+                                <span className="text-zinc-300 text-sm font-mono truncate text-right">
+                                    aprende.marketing/{subdomainPart || "microblading-demo"}
+                                </span>
+                            </div>
+
+                            {/* Formulario */}
+                            <div className="flex items-center justify-between p-4 flex-wrap sm:flex-nowrap gap-3">
+                                <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                                    <FileText className="w-4.5 h-4.5 text-[#FF5A1F]" />
+                                    <span>Formulario</span>
+                                </div>
+                                <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
+                                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                                    Configurado
+                                </span>
+                            </div>
+
+                            {/* Estado */}
+                            <div className="flex items-center justify-between p-4 flex-wrap sm:flex-nowrap gap-3">
+                                <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                                    <ShieldCheck className="w-4.5 h-4.5 text-[#FF5A1F]" />
+                                    <span>Estado</span>
+                                </div>
+                                <span className="bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                    Borrador
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Antes de Publicar Checklist */}
+                        <div className="bg-[#0b0b0c]/40 border border-zinc-800/40 rounded-2xl p-5 space-y-4">
+                            <h3 className="text-white text-sm font-bold tracking-wide flex items-center gap-2">
+                                <span className="w-1.5 h-4 bg-[#FF5A1F] rounded-full"></span>
+                                Antes de publicar
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div className="flex items-center gap-2.5 text-zinc-300 text-xs font-medium">
+                                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                                    <span>Titular revisado</span>
+                                </div>
+                                <div className="flex items-center gap-2.5 text-zinc-300 text-xs font-medium">
+                                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                                    <span>Formulario revisado</span>
+                                </div>
+                                <div className="flex items-center gap-2.5 text-zinc-300 text-xs font-medium">
+                                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                                    <span>Llamadas a la acción revisadas</span>
+                                </div>
+                                <div className="flex items-center gap-2.5 text-zinc-300 text-xs font-medium">
+                                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                                    <span>Aviso de privacidad visible</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Cuadro de Información */}
+                        <div className="bg-[#121214]/60 border border-zinc-800/40 rounded-2xl p-4 flex gap-3.5 items-start">
+                            <div className="w-8 h-8 rounded-lg bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5">
+                                <Info className="w-4.5 h-4.5 animate-pulse" />
+                            </div>
+                            <div className="space-y-1">
+                                <h4 className="text-[#FF5A1F] font-extrabold text-xs tracking-wider uppercase">Qué puedes hacer aquí</h4>
+                                <p className="text-zinc-400 text-xs leading-relaxed">
+                                    Visualiza la página real, realiza ajustes y publícala cuando esté lista.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Botones de Acción */}
+                    <div className="pt-6 border-t border-zinc-900 flex flex-col gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <button 
+                                onClick={onEdit}
+                                className="px-5 py-4 bg-transparent hover:bg-zinc-800/60 text-white border border-zinc-750 hover:border-zinc-500 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 w-full active:scale-98"
+                            >
+                                <Edit3 className="w-4 h-4 text-zinc-400" />
+                                Editar página
+                            </button>
+                            <button 
+                                onClick={() => onNext()}
+                                className="px-5 py-4 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-bold text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 w-full shadow-lg shadow-[#FF5A1F]/15 active:scale-98"
+                            >
+                                <Rocket className="w-4 h-4" />
+                                Publicar página
+                            </button>
+                        </div>
+                        <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs font-medium">
+                            <Lock className="w-3.5 h-3.5" />
+                            <span>Tu página todavía no es pública.</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Columna Derecha: Vista Previa en Vivo Interactiva */}
+                <div className="lg:col-span-7 flex flex-col justify-between">
+                    <div className="flex flex-col h-full bg-[#080809]/40 border border-zinc-800/60 rounded-3xl p-5 md:p-6 shadow-3xl">
+                        {/* Indicador de Vista Previa */}
+                        <div className="flex items-center justify-between mb-4">
+                            <span className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-widest select-none">
+                                Vista previa en vivo
+                            </span>
+                        </div>
+
+                        {/* Mockup de Navegador Web */}
+                        <div className="flex-1 min-h-[380px] lg:min-h-[480px] bg-[#121214] border border-zinc-800 rounded-2xl overflow-hidden flex flex-col shadow-2xl">
+                            {/* Barra de Direcciones estilo Chrome/Safari */}
+                            <div className="bg-[#1c1c1f] px-4 py-3 flex items-center gap-3 border-b border-zinc-900 select-none">
+                                {/* Botones del sistema window */}
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                    <div className="w-3 h-3 rounded-full bg-red-500/70"></div>
+                                    <div className="w-3 h-3 rounded-full bg-yellow-500/70"></div>
+                                    <div className="w-3 h-3 rounded-full bg-green-500/70"></div>
+                                </div>
+                                {/* Botones de navegación */}
+                                <div className="flex items-center gap-2 text-zinc-600 shrink-0 ml-2">
+                                    <ChevronRight className="w-4 h-4 rotate-180 hover:text-zinc-400 cursor-pointer" />
+                                    <ChevronRight className="w-4 h-4 hover:text-zinc-400 cursor-pointer" />
+                                    <RotateCw className="w-3.5 h-3.5 ml-1 hover:text-zinc-400 cursor-pointer" />
+                                </div>
+                                {/* Barra de Direcciones segura */}
+                                <div className="flex-1 bg-[#121214] border border-zinc-800/80 rounded-lg px-4 py-1.5 text-xs text-zinc-400 flex items-center gap-2 overflow-hidden select-all shadow-inner">
+                                    <Lock className="w-3 h-3 text-emerald-500 shrink-0" />
+                                    <span className="truncate font-mono">
+                                        aprende.marketing/{subdomainPart || "microblading-demo"}
+                                    </span>
+                                </div>
+                                <span className="text-zinc-500 hover:text-zinc-300 cursor-pointer shrink-0">
+                                    <RotateCw className="w-3.5 h-3.5" />
+                                </span>
+                            </div>
+
+                            {/* Contenedor del Iframe interactivo */}
+                            <div className="flex-1 bg-zinc-950 relative overflow-hidden h-full">
+                                {subdomainPart ? (
+                                    <iframe 
+                                        src={`/admin/lp/${subdomainPart}`} 
+                                        className="w-full h-full border-none bg-zinc-950"
+                                        title="Vista previa interactiva de Landing Page"
+                                        sandbox="allow-scripts allow-same-origin allow-forms"
+                                    />
+                                ) : (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center text-zinc-500 bg-zinc-950/90 gap-3">
+                                        <Loader2 className="w-8 h-8 animate-spin text-[#FF5A1F]" />
+                                        <p className="text-sm font-semibold text-zinc-400">Preparando tu vista previa interactiva...</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Enlace para Ampliar */}
+                        <div className="flex justify-end mt-4">
+                            <button 
+                                onClick={onView}
+                                className="inline-flex items-center gap-2 text-zinc-400 hover:text-zinc-200 text-xs md:text-sm font-bold transition-all duration-200 group active:scale-95"
+                            >
+                                <Maximize2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                Ampliar vista previa
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div className="space-y-4">
-                <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase leading-none max-w-3xl mx-auto">
-                    ¡Excelente! <span className="text-emerald-500">He creado tu Web de Captura</span>!
-                </h2>
-                <p className="text-xl text-white max-w-2xl mx-auto font-medium leading-relaxed">
-                    Esta página web será el lugar donde tus visitantes interesadas dejarán sus datos de contacto para acceder a la información de tu producto digital
-                </p>
-                <div className="space-y-2 pt-4">
-                    <p className="text-[#FF5A1F] font-black uppercase tracking-widest text-sm italic">
-                        🚀 Haz clic para ver la Página Web de Captura profesional que he creado para ti
-                    </p>
-                </div>
-            </div>
-
-            <div className="flex flex-col items-center gap-6 justify-center">
-                <button 
-                    onClick={() => onView?.()}
-                    className="px-16 py-6 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-black text-xl uppercase tracking-widest transition-all flex items-center gap-4 shadow-xl shadow-blue-500/20 transform hover:scale-105 active:scale-95"
-                >
-                    <Play className="w-6 h-6 fill-current" />
-                    Ver mi página
-                </button>
-                <p className="text-gray-400 font-bold text-sm uppercase tracking-widest italic">
-                    Más adelante podrás cambiar los textos y colores de tu página de captura
-                </p>
-            </div>
-
-            <button 
-                onClick={() => onNext()}
-                className="group flex items-center gap-4 px-12 py-7 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-[2.5rem] font-black text-2xl transition-all shadow-[0_20px_50px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95 mx-auto"
-            >
-                Ahora crearemos Videos para atraer visitantes interesados
-                <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
-            </button>
         </motion.div>
     );
 };
@@ -910,164 +1111,258 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
         { hookText: "La estrategia exacta de las artistas de microblading top para atraer clientas de alto valor sin competir por precio." }
     ] : defaultLockedHooks;
 
-    return (
-        <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-0 w-full relative"
-        >
-            {/* SECCIÓN A: Introducción y Generador de Vídeos */}
-            <div 
-                ref={hooksRef} 
-                className="w-full max-w-6xl mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center py-20 snap-start snap-always relative"
-                id="hooks-intro-section"
-            >
-                <div className="text-center space-y-10">
-                    <div className="relative inline-block">
-                        <div className="absolute inset-0 bg-purple-500 blur-3xl opacity-20 animate-pulse"></div>
-                        <div className="w-24 h-24 bg-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
-                            <Quote className="w-12 h-12 text-white" />
-                        </div>
-                    </div>
+    const currentDisplayHooks = displayHooks && displayHooks.length > 0 
+        ? displayHooks 
+        : customizedLockedHooks;
 
-                    <div className="space-y-8 max-w-5xl mx-auto">
-                        <div className="space-y-4 max-w-2xl mx-auto">
-                            <p className="text-[#FF5A1F] text-sm font-bold uppercase tracking-widest">Ahora crearé tus</p>
-                            <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">
-                                Videos de <span className="text-purple-500">para atraer clientes</span>
-                            </h2>
-                            <p className="text-[1.3rem] text-white max-w-2xl mx-auto font-medium leading-relaxed">
-                                Crearé videos de menos de 1 minuto que publicarás en tus redes sociales para atraer cientos de clientes interesados.
+    // Helper to highlight key words in orange for maximum psychological and visual fidelity
+    const highlightText = (text: string) => {
+        if (!text) return "";
+        const keywords = [
+            "triplicar", "ingresos mensuales", "técnica de belleza", "alta demanda",
+            "uñas rusas", "cobrar $10 a $50", "agenda llena", "clientas premium",
+            "tarifas de lujo", "microblading de cejas", "diseño de miradas perfectas",
+            "error", "principiantes", "atraer clientas", "competir por precio",
+            "clase gratuita", "nueva profesión", "desde cero", "sector de la belleza",
+            "salones de alta gama", "cobrar 5 veces más", "mito", "fórmulas tradicionales"
+        ];
+        
+        const regex = new RegExp(`(${keywords.join("|")})`, "gi");
+        const parts = text.split(regex);
+        
+        return parts.map((part, index) => {
+            const isMatch = keywords.some(kw => kw.toLowerCase() === part.toLowerCase());
+            return isMatch ? (
+                <span key={index} className="text-[#FF5A1F] font-extrabold">{part}</span>
+            ) : (
+                <span key={index}>{part}</span>
+            );
+        });
+    };    return (
+        <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-[1400px] mx-auto p-2 md:p-6 lg:p-8 font-sans"
+        >
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
+                {/* Columna Izquierda: Configuración y Control */}
+                <div className="lg:col-span-12 xl:col-span-5 flex flex-col justify-between space-y-6">
+                    <div className="space-y-6">
+                        {/* Identificador de paso */}
+                        <div className="space-y-2">
+                            <span className="text-[#FF5A1F] text-xs font-bold uppercase tracking-wider">
+                                Paso 3 de 4 · Reels de atracción
+                            </span>
+                            <h1 className="text-3xl md:text-[2.5rem] font-extrabold text-white tracking-tight leading-tight">
+                                Preparemos tus primeros reels de atracción
+                            </h1>
+                            <p className="text-zinc-400 text-sm md:text-base leading-relaxed">
+                                Utilizaremos la estrategia de tu proyecto y tu página de captación para preparar contenido que dirija personas interesadas hacia tu clase gratuita.
                             </p>
                         </div>
 
-                        <div className="space-y-6 pt-4">
-                            <p className="text-white text-xl font-bold uppercase tracking-tight">Con estos videos podrás:</p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left">
-                                {[
-                                    'Atraer todos los días personas interesadas en tu producto digital.',
-                                    'Hacer que tus redes sociales crezcan ilimitadamente',
-                                    'Construir una audiencia propia que te generará futuras ventas',
-                                    'Generar más confianza y credibilidad con tu audiencia.'
-                                ].map((benefit, bIdx) => (
-                                    <div key={bIdx} className="flex items-center gap-4 bg-white/5 border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-colors">
-                                        <CheckCircle className="w-6 h-6 text-purple-500 shrink-0" />
-                                        <p className="text-white text-lg font-normal leading-relaxed">{benefit}</p>
+                        {/* Tarjeta Configuración recomendada */}
+                        <div className="bg-[#0b0b0c]/85 border border-zinc-800/80 rounded-2xl overflow-hidden p-5 space-y-4">
+                            <h3 className="text-[#FF5A1F] text-xs font-bold tracking-wider uppercase flex items-center gap-2">
+                                <span className="w-1.5 h-4 bg-[#FF5A1F] rounded-full"></span>
+                                Configuración recomendada
+                            </h3>
+                            <div className="divide-y divide-zinc-800/40">
+                                {/* Producto */}
+                                <div className="flex items-center justify-between py-3 flex-wrap sm:flex-nowrap gap-3">
+                                    <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                                        <Briefcase className="w-4 h-4 text-[#FF5A1F]" />
+                                        <span>Producto</span>
                                     </div>
-                                ))}
+                                    <span className="text-white text-sm font-semibold truncate text-right max-w-[240px]">
+                                        {project?.name || "Curso Profesional de Microblading de Cejas"}
+                                    </span>
+                                </div>
+
+                                {/* Objetivo */}
+                                <div className="flex items-center justify-between py-3 flex-wrap sm:flex-nowrap gap-3">
+                                    <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                                        <Target className="w-4 h-4 text-[#FF5A1F]" />
+                                        <span>Objetivo</span>
+                                    </div>
+                                    <span className="text-white text-sm font-semibold text-right">
+                                        Llevar visitas hacia la clase gratuita
+                                    </span>
+                                </div>
+
+                                {/* Canales */}
+                                <div className="flex items-center justify-between py-3 flex-wrap sm:flex-nowrap gap-3">
+                                    <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                                        <Smartphone className="w-4 h-4 text-[#FF5A1F]" />
+                                        <span>Canales</span>
+                                    </div>
+                                    <span className="text-white text-sm font-semibold text-right">
+                                        Instagram Reels y TikTok
+                                    </span>
+                                </div>
+
+                                {/* Formato */}
+                                <div className="flex items-center justify-between py-3 flex-wrap sm:flex-nowrap gap-3">
+                                    <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                                        <Film className="w-4 h-4 text-[#FF5A1F]" />
+                                        <span>Formato</span>
+                                    </div>
+                                    <span className="text-white text-sm font-semibold text-right">
+                                        Videos sin mostrar el rostro
+                                    </span>
+                                </div>
                             </div>
+                        </div>
+
+                        {/* Sección Cada reel incluirá */}
+                        <div className="bg-[#0b0b0c]/40 border border-zinc-800/40 rounded-2xl p-5 space-y-3">
+                            <h4 className="text-white text-sm font-bold tracking-wide">
+                                Cada reel incluirá
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                                <span className="bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs px-3 py-1.5 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
+                                    ⚓ Hook
+                                </span>
+                                <span className="bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs px-3 py-1.5 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
+                                    📝 Guion
+                                </span>
+                                <span className="bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs px-3 py-1.5 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
+                                    🔤 Texto para publicar
+                                </span>
+                                <span className="bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs px-3 py-1.5 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
+                                    ⚡ CTA hacia tu página
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Faja de Plan */}
+                        <div className="bg-orange-950/20 border border-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-3 rounded-full flex items-center gap-2 justify-center">
+                            <span>🎁 Plan gratuito · 3 reels disponibles</span>
+                        </div>
+                    </div>
+
+                    {/* Botones y Candado */}
+                    <div className="pt-6 border-t border-zinc-900 flex flex-col gap-4">
+                        <button 
+                            onClick={() => onNext()}
+                            className="px-6 py-4.5 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-extrabold text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2.5 w-full shadow-lg shadow-[#FF5A1F]/15 active:scale-98 transform hover:-translate-y-0.5"
+                        >
+                            <Flame className="w-4 h-4 shrink-0 animate-pulse" />
+                            {isUnlocked ? "Finalizar configuración del sistema" : "Preparar mis 3 reels"}
+                        </button>
+                        <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs font-medium">
+                            <Lock className="w-3.5 h-3.5" />
+                            <span>Podrás revisar los reels antes de utilizarlos en tu proyecto.</span>
                         </div>
                     </div>
                 </div>
 
-                {!isUnlocked && (
-                    <div className="flex flex-col items-center gap-6 mt-16">
-                        <button 
-                            onClick={() => onNext()}
-                            className="group flex items-center gap-4 px-12 py-6 bg-purple-500 hover:bg-purple-600 text-white rounded-[2rem] font-black text-xl transition-all shadow-[0_20px_50px_-10px_rgba(168,85,247,0.3)] transform hover:-translate-y-2 active:scale-95 animate-bounce"
-                        >
-                            GENERAR VIDEOS DE ATRACCIÓN
-                            <Zap className="w-6 h-6 fill-white animate-pulse" />
-                        </button>
-                    </div>
-                )}
-                
-                {isUnlocked && (
-                    <div className="flex flex-col items-center gap-3 mt-12 animate-pulse">
-                        <span className="text-purple-400 text-xs font-black uppercase tracking-[0.2em]">Tus videos se han generado abajo</span>
-                        <div className="text-purple-400 animate-bounce text-sm">↓ Desliza hacia abajo para verlos ↓</div>
-                    </div>
-                )}
-            </div>
-
-            {/* SECCIÓN B: Vídeos Listos para Usarse (Desbloqueados y Bloqueados) */}
-            {isUnlocked && (
-                <div 
-                    ref={hooksGridRef} 
-                    className="w-full max-w-7xl mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-start py-20 snap-start snap-always relative border-t border-white/5 animate-in fade-in slide-in-from-bottom-10 duration-700"
-                    id="hooks-grid-section"
-                >
-                    <div className="max-w-4xl mx-auto rounded-[3rem] bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-black border border-purple-500/20 p-8 md:p-12 text-center relative overflow-hidden shadow-[0_25px_60px_rgba(168,85,247,0.15)] mb-16">
-                        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                            <Sparkles className="w-32 h-32 text-purple-400 animate-pulse" />
+                {/* Columna Derecha: Vista Previa de los 3 Reels */}
+                <div className="lg:col-span-12 xl:col-span-7 flex flex-col justify-between">
+                    <div className="flex flex-col h-full bg-[#080809]/40 border border-zinc-800/60 rounded-3xl p-5 md:p-6 shadow-3xl">
+                        {/* Indicador superior */}
+                        <div className="flex items-center justify-between mb-4">
+                            <span className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-widest select-none">
+                                Vista previa
+                            </span>
                         </div>
-                        <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase mb-3">
-                           He creado <span className="text-purple-400">tus Videos de Atracción</span>
-                        </h2>
-                        <p className="text-gray-300 max-w-2xl mx-auto font-medium text-lg leading-relaxed">
-                            A continuación podrás descargar 3 videos que publicarás en YouTube, Instagram, Tik Tok y Facebook para atraer clientes interesados.
-                        </p>
-                    </div>
 
-                    <div className="flex flex-col gap-6 w-full">
-                        {/* Seccion 1: Hooks Desbloqueados Activos */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto w-full mb-0">
-                            {displayHooks.length > 0 ? displayHooks.map((hook, idx) => {
+                        {/* Grid de 3 Reels con diseño Vertical de Video */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 flex-1 items-stretch">
+                            {currentDisplayHooks.slice(0, 3).map((hook, idx) => {
+                                const hookTextStr = hook.hookText || hook.text || hook.title || hook.question || '';
                                 const downloadVideoUrl = hook.contentJson?.downloadUrl || hook.contentJson?.videoUrl || hook.downloadUrl || hook.videoUrl;
                                 const hasDownloadUrl = downloadVideoUrl && downloadVideoUrl !== '#';
 
-                                return (
-                                    <motion.div 
-                                        key={idx}
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: idx * 0.2 }}
-                                        className="bg-gradient-to-b from-[#082215] to-[#04140b] border border-emerald-500/20 px-6 py-6 rounded-[2rem] relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] group hover:border-emerald-400/40 hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 flex flex-col h-full"
-                                    >
-                                        <div className="flex-1 space-y-3 relative z-10 flex flex-col justify-center pt-2 pb-4">
-                                            <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-black text-emerald-400 uppercase tracking-widest inline-block self-center mb-4 animate-pulse">
-                                                📅 PUBLICALO EL VIDEO: {idx === 0 ? 'HOY' : idx === 1 ? 'MAÑANA' : idx === 2 ? 'PASADO MAÑANA' : `DÍA ${idx + 1}`}
-                                            </div>
-                                            <h3 className="text-[1.3rem] leading-[1.8rem] font-medium mb-4 text-center group-hover:text-orange-400 transition-colors duration-300 text-white">
-                                                {hook.hookText || hook.text || hook.title || hook.question || 'Descubre el secreto para automatizar tus ventas.'}
-                                            </h3>
-                                        </div>
-                                        
-                                        <div className="mt-4 pt-4 border-t border-white/5 relative z-10">
-                                            {hasDownloadUrl ? (
-                                                <a 
-                                                    href={downloadVideoUrl} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    className="w-full py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5A1F]/10 cursor-pointer"
-                                                >
-                                                    <Play className="w-3 h-3 fill-white" />
-                                                    Ver y Descargar Video
-                                                </a>
-                                            ) : (
-                                                <div 
-                                                    className="w-full py-3 bg-gray-800/40 text-gray-500 rounded-xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-white/5 cursor-not-allowed select-none"
-                                                    title="Video de descarga no asignado"
-                                                >
-                                                    <Play className="w-3 h-3 fill-gray-500 opacity-50" />
-                                                    No Habilitado / En Proceso
-                                                </div>
-                                            )}
-                                        </div>
-                                    </motion.div>
-                                 );
-                            }) : (
-                                <div className="col-span-full text-center py-20 bg-white/5 rounded-3xl border border-white/5 italic text-gray-500">
-                                    Cargando ganchos especializados...
-                                </div>
-                            )}
-                        </div>
+                                // Custom format and times matching mockups
+                                const formats = ["Educativo", "Problema y solución", "Oportunidad"];
+                                const formattedDurations = ["35 s", "42 s", "38 s"];
 
-                        {/* Botón Verde Finalizar Configuración */}
-                        <div className="flex flex-col items-center justify-center p-6 w-full max-w-xl mx-auto">
-                            <button 
-                                onClick={() => onNext()}
-                                className="w-full group flex items-center justify-center gap-4 px-12 py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black text-lg transition-all shadow-[0_20px_50px_-10px_rgba(16,185,129,0.3)] transform hover:-translate-y-1 active:scale-95 cursor-pointer whitespace-nowrap"
-                                id="btn-finalize-customization"
-                            >
-                                FINALZIAR CONFIGURACIÓN DE TU SISTEMA DE VENTAS
-                                <Rocket className="w-5 h-5 animate-pulse" />
-                            </button>
+                                return (
+                                    <div 
+                                        key={idx}
+                                        className="bg-[#121214] border border-zinc-800 rounded-2xl overflow-hidden flex flex-col h-full shadow-lg group hover:border-[#FF5A1F]/30 hover:shadow-2xl hover:shadow-[#FF5A1F]/5 transition-all duration-300"
+                                    >
+                                        {/* Mockup de Celular Vertical (Estructura de Video) */}
+                                        <div className="aspect-[9/13] w-full bg-gradient-to-b from-zinc-900 to-zinc-950 relative p-4 flex flex-col justify-between overflow-hidden border-b border-zinc-800/85">
+                                            {/* Top Bar de Video */}
+                                            <div className="flex items-center justify-between w-full relative z-10 select-none">
+                                                <span className="bg-black/60 backdrop-blur-md text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border border-white/5">
+                                                    {idx + 1}
+                                                </span>
+                                                <Clapperboard className="w-4 h-4 text-zinc-400" />
+                                            </div>
+
+                                            {/* Video Background Effect Overlay */}
+                                            <div className="absolute inset-0 bg-radial-gradient from-[#FF5A1F]/10 via-transparent to-transparent opacity-40 pointer-events-none group-hover:opacity-60 transition-opacity duration-300"></div>
+
+                                            {/* Hook Overlaid on Video Screen */}
+                                            <div className="relative z-10 flex-1 flex items-center justify-center text-center px-1 py-4">
+                                                <p className="text-white text-xs font-semibold tracking-tight leading-relaxed max-w-full text-center select-none">
+                                                    {highlightText(hookTextStr)}
+                                                </p>
+                                            </div>
+
+                                            {/* Gradient Shade on Bottom */}
+                                            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/80 to-transparent pointer-events-none"></div>
+                                        </div>
+
+                                        {/* Info & Metadata Section under Screen */}
+                                        <div className="p-4 flex-1 flex flex-col justify-between bg-zinc-950/40 space-y-3">
+                                            <div className="space-y-2.5">
+                                                {/* Hook full info text */}
+                                                <div>
+                                                    <span className="text-[#FF5A1F] text-[10px] font-black uppercase tracking-widest block mb-1">
+                                                        Hook
+                                                    </span>
+                                                    <p className="text-zinc-400 text-xs leading-relaxed font-semibold line-clamp-3">
+                                                        {hookTextStr}
+                                                    </p>
+                                                </div>
+
+                                                {/* Formato info */}
+                                                <div className="flex items-center justify-between text-xs py-1 border-t border-zinc-900">
+                                                    <span className="text-[#888] font-medium">Formato</span>
+                                                    <span className="text-zinc-300 font-semibold">{formats[idx] || "Educativo"}</span>
+                                                </div>
+
+                                                {/* Duracion info */}
+                                                <div className="flex items-center justify-between text-xs py-1 border-t border-zinc-900">
+                                                    <span className="text-[#888] font-medium">Duración</span>
+                                                    <span className="text-zinc-300 font-semibold">{formattedDurations[idx] || "40 s"}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Button to download/play */}
+                                            <div className="pt-2">
+                                                {hasDownloadUrl ? (
+                                                    <a 
+                                                        href={downloadVideoUrl} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="w-full py-2 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all whitespace-nowrap active:scale-98"
+                                                    >
+                                                        <Play className="w-3.5 h-3.5 fill-white shrink-0" />
+                                                        Ver y descargar video
+                                                    </a>
+                                                ) : (
+                                                    <button 
+                                                        disabled
+                                                        className="w-full py-2 bg-zinc-900/40 text-zinc-650 border border-zinc-800/45 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed select-none transition-all"
+                                                    >
+                                                        <Play className="w-3.5 h-3.5 fill-zinc-650 shrink-0 opacity-40" />
+                                                        Video listo
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
-            )}
-
+            </div>
 
             <UpgradeModal 
                 isOpen={showUpgradeModal} 

@@ -4301,10 +4301,12 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             {revealedSections.includes("landing_success") && (
               <div
                 ref={landingSuccessRef}
-                className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
+                className="w-full max-w-[1440px] mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
               >
                 <LandingSuccessStep
                   userData={user}
+                  project={selectedProject || unlockedProject}
+                  createdPageSubdomain={createdPageSubdomain}
                   onNext={() => setStep("show_hooks")}
                   onView={() => {
                     const subdomainPart = createdPageSubdomain
@@ -4356,7 +4358,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             {/* 7. HOOKS REVEAL */}
             {revealedSections.includes("show_hooks") &&
               step !== "generating_hooks" && (
-                <div className="relative w-full pt-24 pb-12 px-4 md:px-6">
+                <div className="w-full max-w-[1440px] mx-auto pt-24 pb-12 px-4 md:px-6 relative">
                   <HooksRevealStep
                     userData={user}
                     hooks={
