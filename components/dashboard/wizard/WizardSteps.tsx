@@ -924,7 +924,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                                 <CheckCircle className="w-8 h-8 text-white fill-emerald-500" />
                             </div>
                             
-                            <h2 className="text-3xl md:text-4xl lg:text-[2.5rem] font-black text-white leading-[1.1] tracking-tight mt-3">
+                            <h2 className="text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3rem] font-black text-white leading-[1.05] tracking-tight mt-3">
                                 Tu página de <br />
                                 <span className="text-emerald-400">captación</span> ha sido <br />
                                 generada
@@ -932,42 +932,6 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                             <p className="text-zinc-400 text-xs md:text-sm leading-relaxed font-semibold">
                                 La primera versión está guardada como borrador dentro de tu proyecto.
                             </p>
-                        </div>
-
-                        {/* Fila de Progreso (Horizontal, 3 Columnas) */}
-                        <div className="grid grid-cols-3 gap-2.5">
-                            {/* Tarjeta 1 */}
-                            <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3 flex flex-col items-start gap-2 shadow-sm">
-                                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/10">
-                                    <FileText className="w-4 h-4" />
-                                </div>
-                                <div className="leading-tight">
-                                    <p className="text-white text-xs font-bold">Estructura</p>
-                                    <p className="text-zinc-500 text-[10px] font-semibold">preparada</p>
-                                </div>
-                            </div>
-                            
-                            {/* Tarjeta 2 */}
-                            <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3 flex flex-col items-start gap-2 shadow-sm">
-                                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/10">
-                                    <Users className="w-4 h-4" />
-                                </div>
-                                <div className="leading-tight">
-                                    <p className="text-white text-xs font-bold">Formulario</p>
-                                    <p className="text-zinc-500 text-[10px] font-semibold">configurado</p>
-                                </div>
-                            </div>
-                            
-                            {/* Tarjeta 3 */}
-                            <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3 flex flex-col items-start gap-2 shadow-sm">
-                                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/10">
-                                    <ShieldCheck className="w-4 h-4" />
-                                </div>
-                                <div className="leading-tight">
-                                    <p className="text-white text-xs font-bold">Borrador</p>
-                                    <p className="text-zinc-500 text-[10px] font-semibold">guardado</p>
-                                </div>
-                            </div>
                         </div>
 
                         {/* Sección "Resumen de tu página" */}
@@ -1037,22 +1001,13 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
 
                     {/* Botones de Acción */}
                     <div className="pt-6 border-t border-zinc-900 flex flex-col gap-4">
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <button 
-                                onClick={onView}
-                                className="px-5 py-4 bg-transparent hover:bg-zinc-800/40 text-white border border-zinc-800 hover:border-zinc-700 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 min-w-[150px] active:scale-98 cursor-pointer"
-                            >
-                                <Eye className="w-4 h-4 text-zinc-400" />
-                                Ver vista previa
-                            </button>
-                            <button 
-                                onClick={() => onNext()}
-                                className="px-6 py-4 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-black text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 flex-1 shadow-lg shadow-[#FF5A1F]/15 active:scale-98 cursor-pointer"
-                            >
-                                <span>Continuar: preparar mis 3 reels</span>
-                                <Play className="w-3.5 h-3.5 fill-current shrink-0" />
-                            </button>
-                        </div>
+                        <button 
+                            onClick={() => onNext()}
+                            className="w-full px-6 py-4 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-black text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-[#FF5A1F]/15 active:scale-98 cursor-pointer"
+                        >
+                            <span>Continuar: preparar mis 3 reels</span>
+                            <Play className="w-3.5 h-3.5 fill-current shrink-0" />
+                        </button>
                         <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs font-bold">
                             <Lock className="w-3.5 h-3.5" />
                             <span>Podrás editar y publicar tu página más adelante desde la sección Página web.</span>
@@ -1064,7 +1019,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                 <div className="lg:col-span-7 flex flex-col justify-between">
                     <div className="flex flex-col h-full bg-[#080809]/40 border border-zinc-805 rounded-[2.5rem] p-5 md:p-6 shadow-3xl">
                         {/* Mockup de Navegador Web */}
-                        <div className="flex-1 min-h-[380px] lg:min-h-[480px] bg-[#121214] border border-zinc-800 rounded-[1.75rem] overflow-hidden flex flex-col shadow-2xl relative">
+                        <div className="flex-1 min-h-[280px] lg:min-h-[360px] bg-[#121214] border border-zinc-800 rounded-[1.75rem] overflow-hidden flex flex-col shadow-2xl relative">
                             {/* Barra de Direcciones estilo Chrome/Safari */}
                             <div className="bg-[#1c1c1f] px-4 py-3.5 flex items-center justify-between border-b border-zinc-900 select-none">
                                 <div className="flex items-center gap-4 flex-1">
