@@ -124,14 +124,19 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
             className="space-y-10 font-sans"
         >
             <div className="text-center space-y-4">
-                <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight" style={{
+                    paddingBottom: '0.5em',
+                    paddingTop: '4em'
+                }}>
                     Elige el producto con el que crearás tu <span className="text-[#FF5A1F]">primer proyecto</span>
                 </h2>
                 <p className="max-w-2xl mx-auto leading-relaxed text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{
                     fontSize: '1.2em',
-                    lineHeight: '1.4em'
+                    lineHeight: '1.4em',
+                    paddingTop: 0,
+                    marginTop: 0
                 }}>
-                    Según tus respuestas, estas son las oportunidades que mejor encajan con tu experiencia, tus intereses y los recursos que tienes disponibles.
+                    Elige el producto digital que mejor encaja con tu experiencia, intereses y recursos que tienes disponibles.
                 </p>
             </div>
 
@@ -212,22 +217,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                     {idealForDesc}
                                 </p>
 
-                                {/* Specifications Table/Rows */}
-                                <div className="space-y-2 pt-2">
-                                    <div className="bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 flex items-center gap-2.5">
-                                        <Camera className="w-4 h-4 text-zinc-500 shrink-0" />
-                                        <span className="text-xs text-zinc-400 font-medium">
-                                            <strong className="text-white font-bold">Ideal para:</strong> contenido visual
-                                        </span>
-                                    </div>
 
-                                    <div className="bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 flex items-center gap-2.5">
-                                        <Target className="w-4 h-4 text-[#FF5A1F] shrink-0 animate-pulse" />
-                                        <span className="text-xs text-zinc-400 font-medium">
-                                            <strong className="text-white font-bold">Estrategia:</strong> orgánico + clase gratuita
-                                        </span>
-                                    </div>
-                                </div>
 
                                 <div className="pt-4 border-t border-white/5 flex flex-col space-y-3 mt-auto">
                                     <button 
@@ -254,13 +244,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                 </button>
             </div>
 
-            {/* Bottom Proof Panel */}
-            <div className="pt-4 flex items-center justify-center gap-2 text-zinc-500">
-                <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                <span className="text-xs font-bold leading-none uppercase tracking-wider text-center">
-                    Podrás revisar la estrategia antes de confirmar tu elección.
-                </span>
-            </div>
+
 
             {/* Toast/Modal for Add my product */}
             {showCustomProduct && (
@@ -297,9 +281,13 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
     const displayCommission = rawCommission < 1 ? Math.round(rawCommission * 100) : Math.round(rawCommission);
     const profitValue = project.fullPrice && displayCommission ? (project.fullPrice * (displayCommission / 100)).toFixed(2) : '0.00';
 
+    const isCejasOrMicroblading = project.name?.toLowerCase().includes("cejas") || project.name?.toLowerCase().includes("microblading") || project.id === "proj-microblading-01";
+
     // Customized product ideal description
     let idealText = "Una oportunidad ideal para personas interesadas en belleza, contenido visual y una estrategia basada en clase gratuita.";
-    if (project.name?.toLowerCase().includes("manicurista")) {
+    if (isCejasOrMicroblading) {
+        idealText = "Una oportunidad ideal para personas interesadas en belleza, contenido visual y una estrategia basada en clase gratuita.";
+    } else if (project.name?.toLowerCase().includes("manicurista")) {
         idealText = "Una oportunidad ideal para personas creativas que disfrutan del cuidado de manos y uñas y quieren profesionalizar sus servicios.";
     } else if (project.name?.toLowerCase().includes("pestañas") || project.name?.toLowerCase().includes("lashista")) {
         idealText = "Una oportunidad ideal para personas apasionadas por la belleza que buscan especializarse en una técnica de alta demanda.";
@@ -309,7 +297,8 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
         idealText = project.shortDescription || project.description;
     }
 
-    const uppercaseNiche = (project.niche || 'Belleza y estética').toUpperCase();
+    const displayTitle = isCejasOrMicroblading ? "Curso Profesional de Microblading de Cejas" : project.name;
+    const uppercaseNiche = isCejasOrMicroblading ? "BELLEZA Y CUIDADO PERSONAL" : (project.niche || 'Belleza y estética').toUpperCase();
 
     return (
         <motion.div 
@@ -336,7 +325,7 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                         <div className="space-y-6">
                             {/* Niche/Category badge top left */}
                             <div>
-                                <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-[10px] md:text-xs font-black uppercase tracking-wider rounded-lg">
+                                <span className={`inline-flex items-center gap-1 px-3 py-1.5 ${isCejasOrMicroblading ? 'bg-[#200A03] border-[#FF5A1F] text-[#FF5A1F]' : 'bg-[#FF5A1F]/10 border-[#FF5A1F]/20 text-[#FF5A1F]'} border text-[10px] md:text-xs font-black uppercase tracking-wider rounded-lg`}>
                                     {uppercaseNiche}
                                 </span>
                             </div>
@@ -344,33 +333,27 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                             {/* Product Title and Description */}
                             <div className="space-y-3">
                                 <h3 className="text-2xl md:text-4xl font-extrabold text-white leading-tight tracking-tight">
-                                    {project.name}
+                                    {displayTitle}
                                 </h3>
                                 <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
                                     {idealText}
                                 </p>
                             </div>
 
-                            {/* Bullet Features (Camera, Star, Target) */}
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-[#FF5A1F]/10 flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                        <Camera className="w-4 h-4" />
-                                    </div>
+                            {/* Bullet Features (Play, Star, Target - Delineados en naranja vivo, sin caja de fondo) */}
+                            <div className="space-y-4 pt-2">
+                                <div className="flex items-center gap-4">
+                                    <Play className="w-5 h-5 text-[#FF5A1F] shrink-0" />
                                     <p className="text-zinc-200 text-xs md:text-sm font-medium">Contenido visual y educativo</p>
                                 </div>
 
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-[#FF5A1F]/10 flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                        <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                                    </div>
+                                <div className="flex items-center gap-4">
+                                    <Star className="w-5 h-5 text-[#FF5A1F] shrink-0" />
                                     <p className="text-zinc-200 text-xs md:text-sm font-medium">Nivel {project.level || 'inicial'}</p>
                                 </div>
 
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-[#FF5A1F]/10 flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20">
-                                        <Target className="w-4 h-4" />
-                                    </div>
+                                <div className="flex items-center gap-4">
+                                    <Target className="w-5 h-5 text-[#FF5A1F] shrink-0" />
                                     <p className="text-zinc-200 text-xs md:text-sm font-medium">Estrategia orgánica + clase gratuita</p>
                                 </div>
                             </div>
@@ -380,36 +363,36 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                         <div className="space-y-3 pt-6 border-t border-white/5">
                             <div className="grid grid-cols-3 gap-3">
                                 {/* Price Card */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex flex-col items-center justify-center text-center space-y-1">
-                                    <div className="flex items-center gap-1 text-zinc-500">
-                                        <Tag className="w-3.5 h-3.5" />
-                                        <span className="text-[10px] md:text-xs font-medium uppercase tracking-wider">Precio</span>
+                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex items-center gap-3">
+                                    <Tag className="w-5 h-5 text-[#FF5A1F] shrink-0" />
+                                    <div className="flex flex-col text-left">
+                                        <span className="text-[10px] md:text-[11px] font-semibold text-zinc-500 uppercase tracking-wider leading-none">Precio</span>
+                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1">
+                                            USD {project.fullPrice || '200'}
+                                        </span>
                                     </div>
-                                    <span className="text-white text-sm md:text-base font-extrabold tracking-tight">
-                                        USD {project.fullPrice || '0'}
-                                    </span>
                                 </div>
 
                                 {/* Commission Card */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex flex-col items-center justify-center text-center space-y-1">
-                                    <div className="flex items-center gap-1 text-zinc-500">
-                                        <Percent className="w-3.5 h-3.5 text-[#FF5A1F]" />
-                                        <span className="text-[10px] md:text-xs font-medium uppercase tracking-wider">Comisión</span>
+                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex items-center gap-3">
+                                    <Percent className="w-5 h-5 text-[#FF5A1F] shrink-0" />
+                                    <div className="flex flex-col text-left">
+                                        <span className="text-[10px] md:text-[11px] font-semibold text-zinc-500 uppercase tracking-wider leading-none">Comisión</span>
+                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1">
+                                            {displayCommission} %
+                                        </span>
                                     </div>
-                                    <span className="text-white text-sm md:text-base font-extrabold tracking-tight">
-                                        {displayCommission} %
-                                    </span>
                                 </div>
 
                                 {/* Estimated Revenue Card */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex flex-col items-center justify-center text-center space-y-1">
-                                    <div className="flex items-center gap-1 text-zinc-500">
-                                        <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-                                        <span className="text-[10px] md:text-xs font-medium uppercase tracking-wider">Estimado</span>
+                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex items-center gap-3">
+                                    <TrendingUp className="w-5 h-5 text-[#FF5A1F] shrink-0" />
+                                    <div className="flex flex-col text-left">
+                                        <span className="text-[10px] md:text-[11px] font-semibold text-zinc-500 uppercase tracking-wider leading-none">Estimado por venta</span>
+                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1">
+                                            USD {Math.round(parseFloat(profitValue))}
+                                        </span>
                                     </div>
-                                    <span className="text-emerald-500 text-sm md:text-base font-extrabold tracking-tight">
-                                        USD {profitValue}
-                                    </span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-1.5 text-[10px] md:text-[11px] text-zinc-500 italic">
@@ -439,7 +422,37 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                                         <Target className="w-10 h-10 text-[#FF5A1F] opacity-30 animate-pulse" />
                                     </div>
                                 )}
-                                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/35 transition-colors flex items-center justify-center">
+                                
+                                {isCejasOrMicroblading && (
+                                    <div className="absolute inset-0 flex items-center justify-end p-6 select-none pointer-events-none">
+                                        {/* El degradado horizontal de izquierda a derecha */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-neutral-950/80 to-neutral-955/95" />
+                                        
+                                        {/* Logotipo dorado "M" y marca */}
+                                        <div className="relative z-10 w-1/2 flex flex-col items-center text-center space-y-1.5 justify-center h-full pt-4">
+                                            {/* Logo de la M dorada */}
+                                            <div className="text-[#DFB56C] font-serif text-3xl font-light tracking-widest leading-none">
+                                                M
+                                            </div>
+                                            
+                                            {/* Separador de marca sutil */}
+                                            <div className="w-6 h-[1px] bg-[#DFB56C]/30" />
+                                            
+                                            {/* Título de la marca */}
+                                            <div className="text-white font-semibold text-[13px] md:text-[15px] tracking-[0.2em] uppercase leading-snug">
+                                                Microblading
+                                                <span className="block text-[11px] md:text-[12px] tracking-[0.3em] font-light text-zinc-100">de Cejas</span>
+                                            </div>
+                                            
+                                            {/* Subtítulo */}
+                                            <div className="text-[#DFB56C]/80 font-mono text-[8px] md:text-[9px] tracking-[0.25em] uppercase font-bold pt-1">
+                                                Formación Profesional
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/25 transition-colors flex items-center justify-center">
                                     <div className="w-16 h-16 bg-[#FF5A1F] rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform relative cursor-pointer">
                                         <Play className="w-6 h-6 text-white fill-current translate-x-0.5" />
                                         <div className="absolute inset-0 bg-[#FF5A1F] rounded-full animate-ping opacity-25"></div>
@@ -475,31 +488,31 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                             </p>
                         </div>
 
-                        {/* Actions stack */}
-                        <div className="space-y-3 pt-2">
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                {/* Back selection button */}
-                                {onBackToSelection && (
-                                    <button 
-                                        type="button"
-                                        onClick={onBackToSelection}
-                                        className="sm:w-1/3 py-3 px-4 bg-transparent hover:bg-white/[0.02] text-zinc-400 hover:text-white border border-white/10 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
-                                    >
-                                        ← Volver a los productos
-                                    </button>
-                                )}
-                                
-                                {/* Choose primary strategy build button */}
+                        {/* Actions stack (Vertical flow identical to Image 2) */}
+                        <div className="flex flex-col gap-3 pt-2">
+                            {/* Back selection button (Top button) */}
+                            {onBackToSelection && (
                                 <button 
                                     type="button"
-                                    onClick={() => !isStrategyGenerated && onNext()}
-                                    disabled={isStrategyGenerated}
-                                    className={`flex-1 py-3.5 px-6 ${isStrategyGenerated ? 'bg-emerald-600' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-xl font-black text-xs md:text-sm uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 group`}
+                                    onClick={onBackToSelection}
+                                    className="w-full py-3 px-4 bg-transparent hover:bg-white/[0.04] text-white hover:text-zinc-200 border border-white/20 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
                                 >
-                                    <span>{isStrategyGenerated ? 'Estrategia Generada' : 'Elegir este producto y crear mi estrategia'}</span>
-                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                    <span>← Volver a los productos</span>
                                 </button>
-                            </div>
+                            )}
+                            
+                            {/* Choose primary strategy build button (Bottom button) */}
+                            <button 
+                                type="button"
+                                onClick={() => !isStrategyGenerated && onNext()}
+                                disabled={isStrategyGenerated}
+                                className={`w-full py-4 px-6 ${isStrategyGenerated ? 'bg-emerald-600' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-xl font-black text-xs md:text-sm uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 group`}
+                            >
+                                <span>{isStrategyGenerated ? 'Estrategia Generada' : 'Elegir este producto y crear mi estrategia'}</span>
+                                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </button>
+
+                            {/* Centered credit info */}
                             <div className="text-center">
                                 <span className="text-[11px] text-zinc-500 font-medium">Esta acción utilizará 1 de tus proyectos disponibles.</span>
                             </div>

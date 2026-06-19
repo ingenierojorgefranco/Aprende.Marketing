@@ -977,15 +977,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       >
         {/* Logo a la izquierda */}
         <div className="flex items-center gap-3">
-          <div className="w-12 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-[#FF5A1F]/20 px-1">
-            AM
+          <div className="bg-[#FF5A1F] rounded-lg flex items-center justify-center font-black text-white text-[11px] shadow-lg shadow-[#FF5A1F]/20 px-2 py-1 select-none">
+            A.MKT
           </div>
           <h2 className="text-lg font-bold text-white tracking-tight">
             Aprende.<span className="text-[#FF5A1F]">Marketing</span>
           </h2>
         </div>
 
-        {/* Perfil y Salir a la derecha (sin fondo, flotando) */}
+        {/* Perfil del Usuario en Cabecera (sin fondo, flotando, con ChevronDown) */}
         <div className="flex items-center gap-2 sm:gap-4 z-10 font-sans">
           <button
             onClick={() => setShowProfileModal(true)}
@@ -1002,24 +1002,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                 user.name.charAt(0).toUpperCase()
               )}
             </div>
-            <span className="text-sm font-bold text-[#B0B0B0] hidden sm:block truncate max-w-[124px] hover:text-white transition-colors">
+            <span className="text-sm font-bold text-[#B0B0B0] hidden sm:inline-flex items-center gap-1 hover:text-white transition-colors">
               {user.name}
+              <ChevronDown className="w-4 h-4 text-[#B0B0B0] ml-0.5" />
             </span>
           </button>
-
-          {onLogout && (
-            <button
-              onClick={onLogout}
-              className="flex items-center gap-2 sm:gap-3 pl-2 pr-3 sm:pr-4 py-1.5 rounded-full bg-transparent border border-transparent text-[#B0B0B0] hover:text-red-400 hover:bg-red-900/10 hover:border-red-500/10 transition-all"
-            >
-              <div className="w-8 h-8 rounded-full bg-[#FF5A1F]/10 text-[#FF5A1F] hover:bg-[#FF5A1F]/20 flex items-center justify-center flex-shrink-0 transition-colors">
-                <LogOut className="w-4 h-4" />
-              </div>
-              <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">
-                Salir
-              </span>
-            </button>
-          )}
         </div>
       </header>
 
@@ -4387,13 +4374,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     animate={{ opacity: 1, y: 0 }}
                     className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
                   >
-                    <div className="text-center mb-6">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-black text-emerald-500 uppercase tracking-[0.2em]">
-                        <CheckCircle className="w-4 h-4" />
-                        Tu Producto Digital está listo para activarse
-                      </div>
-                    </div>
-
                     <UnlockProtocolStep
                       project={selectedProject}
                       userData={user}
