@@ -1012,7 +1012,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-[#B0B0B0] hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline">Cerrar sesión</span>
+              <span>Salir</span>
             </button>
           )}
         </div>
@@ -4573,7 +4573,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                 <StrategyReadyStep
                   userData={user}
                   project={selectedProject}
-                  onNext={() => setStep("show_landing_prep")}
+                  onNext={handleCreateWeb}
                 />
               </div>
             )}

@@ -284,8 +284,10 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
     const isCejasOrMicroblading = project.name?.toLowerCase().includes("cejas") || project.name?.toLowerCase().includes("microblading") || project.id === "proj-microblading-01";
 
     // Customized product ideal description
-    let idealText = "Una oportunidad ideal para personas interesadas en belleza, contenido visual y una estrategia basada en clase gratuita.";
-    if (isCejasOrMicroblading) {
+    let idealText = "";
+    if (project.shortDescription || project.description) {
+        idealText = project.shortDescription || project.description;
+    } else if (isCejasOrMicroblading) {
         idealText = "Una oportunidad ideal para personas interesadas en belleza, contenido visual y una estrategia basada en clase gratuita.";
     } else if (project.name?.toLowerCase().includes("manicurista")) {
         idealText = "Una oportunidad ideal para personas creativas que disfrutan del cuidado de manos y uñas y quieren profesionalizar sus servicios.";
@@ -293,8 +295,8 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
         idealText = "Una oportunidad ideal para personas apasionadas por la belleza que buscan especializarse en una técnica de alta demanda.";
     } else if (project.name?.toLowerCase().includes("resina") || project.name?.toLowerCase().includes("pisos")) {
         idealText = "Una oportunidad ideal para personas interesadas en la construcción, decoración de interiores y modelado de alta rentabilidad.";
-    } else if (project.shortDescription || project.description) {
-        idealText = project.shortDescription || project.description;
+    } else {
+        idealText = "Una oportunidad ideal para personas interesadas en belleza, contenido visual y una estrategia basada en clase gratuita.";
     }
 
     const displayTitle = isCejasOrMicroblading ? "Curso Profesional de Microblading de Cejas" : project.name;
@@ -345,12 +347,12 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                         <div className="space-y-3 pt-6 border-t border-white/5">
                             <div className="flex flex-col gap-3">
                                 {/* Price Card */}
-                                <div className="bg-gradient-to-r from-white/[0.02] to-transparent border border-white/5 rounded-xl p-3.5 flex items-center gap-4 hover:from-[#FF5A1F]/5 hover:border-[#FF5A1F]/30 hover:shadow-[0_8px_24px_-10px_rgba(255,90,31,0.15)] transition-all duration-300 group/item">
-                                    <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#FF5A1F] group-hover/item:bg-[#FF5A1F]/10 group-hover/item:border-[#FF5A1F]/30 transition-all duration-300 shrink-0">
+                                <div className="bg-gradient-to-r from-cyan-600/10 via-cyan-950/5 to-transparent border border-cyan-500/30 rounded-xl p-3.5 flex items-center gap-4 hover:from-cyan-500/15 hover:border-cyan-500/50 hover:shadow-[0_8px_24px_-10px_rgba(6,182,212,0.25)] transition-all duration-300 group/item">
+                                    <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover/item:bg-cyan-500/20 group-hover/item:border-cyan-500/40 transition-all duration-300 shrink-0">
                                         <Tag className="w-5 h-5 shrink-0" />
                                     </div>
                                     <div className="flex flex-col text-left">
-                                        <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider leading-none font-sans">Precio del producto</span>
+                                        <span className="text-[11px] font-semibold text-cyan-400/80 uppercase tracking-wider leading-none font-sans">Precio del producto</span>
                                         <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1.5 font-sans">
                                             USD {project.fullPrice || '200'}
                                         </span>
@@ -358,12 +360,12 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                                 </div>
 
                                 {/* Commission Card */}
-                                <div className="bg-gradient-to-r from-white/[0.02] to-transparent border border-white/5 rounded-xl p-3.5 flex items-center gap-4 hover:from-[#FF5A1F]/5 hover:border-[#FF5A1F]/30 hover:shadow-[0_8px_24px_-10px_rgba(255,90,31,0.15)] transition-all duration-300 group/item">
-                                    <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#FF5A1F] group-hover/item:bg-[#FF5A1F]/10 group-hover/item:border-[#FF5A1F]/30 transition-all duration-300 shrink-0">
+                                <div className="bg-gradient-to-r from-emerald-600/10 via-emerald-900/5 to-transparent border border-emerald-500/30 rounded-xl p-3.5 flex items-center gap-4 hover:from-emerald-500/15 hover:border-emerald-500/50 hover:shadow-[0_8px_24px_-10px_rgba(16,185,129,0.25)] transition-all duration-300 group/item">
+                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover/item:bg-emerald-500/20 group-hover/item:border-emerald-500/40 transition-all duration-300 shrink-0">
                                         <Percent className="w-5 h-5 shrink-0" />
                                     </div>
                                     <div className="flex flex-col text-left">
-                                        <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider leading-none font-sans">Comisión que obtendrás</span>
+                                        <span className="text-[11px] font-semibold text-emerald-400/80 uppercase tracking-wider leading-none font-sans">Comisión que obtendrás</span>
                                         <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1.5 font-sans">
                                             {displayCommission} %
                                         </span>
@@ -371,13 +373,13 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                                 </div>
 
                                 {/* Estimated Revenue Card */}
-                                <div className="bg-gradient-to-r from-amber-500/5 to-transparent border border-amber-500/20 rounded-xl p-3.5 flex items-center gap-4 hover:from-amber-500/10 hover:border-amber-500/40 hover:shadow-[0_8px_24px_-10px_rgba(245,158,11,0.25)] transition-all duration-300 group/item">
-                                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 group-hover/item:bg-amber-500/20 group-hover/item:border-amber-500/50 transition-all duration-300 shrink-0">
+                                <div className="bg-gradient-to-r from-[#FF5A1F]/15 via-[#FF5A1F]/5 to-transparent border border-[#FF5A1F]/40 rounded-xl p-3.5 flex items-center gap-4 hover:from-[#FF5A1F]/20 hover:border-[#FF5A1F]/60 hover:shadow-[0_8px_24px_-10px_rgba(255,90,31,0.35)] transition-all duration-300 group/item">
+                                    <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shadow-[0_0_15px_-3px_rgba(255,90,31,0.4)] group-hover/item:bg-[#FF5A1F]/20 group-hover/item:border-[#FF5A1F]/50 transition-all duration-300 shrink-0">
                                         <TrendingUp className="w-5 h-5 shrink-0" />
                                     </div>
                                     <div className="flex flex-col text-left">
-                                        <span className="text-[11px] font-semibold text-amber-500/80 uppercase tracking-wider leading-none font-sans font-medium">Tu ganancia por venta</span>
-                                        <span className="text-amber-400 text-sm md:text-base font-extrabold tracking-tight mt-1.5 font-sans">
+                                        <span className="text-[11px] font-semibold text-[#FF5A1F]/90 uppercase tracking-wider leading-none font-sans font-medium">Tu ganancia por venta</span>
+                                        <span className="text-[#FF5A1F] text-sm md:text-base font-extrabold tracking-tight mt-1.5 font-sans">
                                             USD {Math.round(parseFloat(profitValue))}
                                         </span>
                                     </div>
@@ -611,10 +613,10 @@ export const GenerationStep: React.FC<{
                     {renderCircle(step1State)}
                     <div className="flex flex-col">
                         <span className={`text-sm font-bold leading-tight ${step1State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
-                            Analizando el producto
+                            {isWeb ? "Diseñando la estructura web" : "Analizando el producto"}
                         </span>
                         <span className="text-xs text-zinc-500 mt-0.5">
-                            Identificando su propuesta, público y principales beneficios.
+                            {isWeb ? "Generando bloques, secciones y distribución visual persuasiva." : "Identificando su propuesta, público y principales beneficios."}
                         </span>
                     </div>
                 </div>
@@ -624,10 +626,10 @@ export const GenerationStep: React.FC<{
                     {renderCircle(step2State)}
                     <div className="flex flex-col">
                         <span className={`text-sm font-bold leading-tight ${step2State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
-                            Preparando la audiencia
+                            {isWeb ? "Redactando textos persuasivos" : "Preparando la audiencia"}
                         </span>
                         <span className="text-xs text-zinc-500 mt-0.5">
-                            Organizando los perfiles de cliente que podrás revisar.
+                            {isWeb ? "Escribiendo títulos profesionales y llamados a la acción de alta conversión." : "Organizando los perfiles de cliente que podrás revisar."}
                         </span>
                     </div>
                 </div>
@@ -637,10 +639,10 @@ export const GenerationStep: React.FC<{
                     {renderCircle(step3State)}
                     <div className="flex flex-col">
                         <span className={`text-sm font-bold leading-tight ${step3State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
-                            Construyendo la estrategia inicial
+                            {isWeb ? "Publicando en la nube segura" : "Construyendo la estrategia inicial"}
                         </span>
                         <span className="text-xs text-zinc-500 mt-0.5">
-                            Preparando dolores, deseos y posibles ángulos de venta.
+                            {isWeb ? "Desplegando tu página web optimizada para capturar clientes interesados." : "Preparando dolores, deseos y posibles ángulos de venta."}
                         </span>
                     </div>
                 </div>
@@ -762,34 +764,21 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
             animate={{ opacity: 1, scale: 1 }}
             className="text-center space-y-6 md:space-y-8 max-w-4xl mx-auto px-4"
         >
-            {/* Círculo de Éxito Superior con Glow Verde */}
-            <div className="relative inline-block">
-                <div className="absolute inset-0 bg-green-500/20 blur-2xl rounded-full"></div>
-                <div className="w-16 h-16 rounded-full bg-green-500/10 border-2 border-green-500/80 flex items-center justify-center relative shadow-[0_0_25px_rgba(34,197,94,0.3)]">
-                    <svg className="w-8 h-8 text-green-500 stroke-[3px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-            </div>
-
             {/* Títulos Principales */}
             <div className="space-y-3 max-w-2xl mx-auto">
                 <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
                     Tu estrategia inicial está lista
                 </h2>
-                <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
-                    Hemos preparado la base estratégica para promocionar el{" "}
-                    <span className="text-[#FF5A1F] font-bold">
-                        {project?.name || "Curso Profesional de Microblading de Cejas"}
-                    </span>.
-                </p>
             </div>
 
             {/* Tarjeta Translúcida de Progreso ("Lo que ya está preparado") */}
             <div className="w-full max-w-2xl mx-auto bg-[#0b0b0c]/60 border border-white/5 rounded-3xl p-6 md:p-8 space-y-6 text-left">
-                <h3 className="text-white font-semibold text-lg tracking-tight px-1 block">
-                    Lo que ya está preparado
-                </h3>
+                <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up text-left px-1 block" style={{ fontSize: '1em', color: '#a2afaf' }}>
+                    Hemos preparado la base estratégica para promocionar el{" "}
+                    <span className="text-[#FF5A1F] font-bold">
+                        {project?.name || "Certificación Expert Microblading"}
+                    </span>.
+                </p>
                 
                 <div className="space-y-3">
                     {/* Item 1 - Producto */}
@@ -799,7 +788,7 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                         </div>
                         <div>
                             <p className="text-white text-sm font-semibold tracking-tight">Producto seleccionado</p>
-                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">{project?.name || "Curso Profesional de Microblading de Cejas"}</p>
+                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{ fontSize: '1em', color: '#a2afaf' }}>{project?.name || "Curso Profesional de Microblading de Cejas"}</p>
                         </div>
                     </div>
 
@@ -810,7 +799,7 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                         </div>
                         <div>
                             <p className="text-white text-sm font-semibold tracking-tight">Público y necesidades</p>
-                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">Audiencia, dolores, deseos y objeciones relacionados con el producto.</p>
+                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{ fontSize: '1em', color: '#a2afaf' }}>Audiencia, dolores, deseos y objeciones relacionados con el producto.</p>
                         </div>
                     </div>
 
@@ -821,7 +810,7 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                         </div>
                         <div>
                             <p className="text-white text-sm font-semibold tracking-tight">Estrategia de comunicación</p>
-                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">Ángulos de venta y mensajes iniciales para presentar la oportunidad.</p>
+                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{ fontSize: '1em', color: '#a2afaf' }}>Ángulos de venta y mensajes iniciales para presentar la oportunidad.</p>
                         </div>
                     </div>
 
@@ -832,8 +821,8 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                         </div>
                         <div>
                             <p className="text-white text-sm font-semibold tracking-tight">Siguiente paso</p>
-                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
-                                Ahora utilizaremos esta estrategia para crear tu página de captación. La página incluirá la estructura, los textos y las llamadas a la acción necesarias para registrar personas interesadas.
+                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{ fontSize: '1em', color: '#a2afaf' }}>
+                                Ahora crearemos tu página web de captura de clientes. La página incluirá textos profesionales que atraerán personas realmente interesadas.
                             </p>
                         </div>
                     </div>
@@ -850,9 +839,6 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                     <span className="flex-1 text-center font-bold">Crear mi página web</span>
                     <ArrowRight className="w-5 h-5 shrink-0" />
                 </button>
-                <p className="text-xs text-zinc-650 font-semibold tracking-tight select-none mt-1">
-                    Proyecto 1 de 3 creado.
-                </p>
             </div>
         </motion.div>
     );
