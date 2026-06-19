@@ -320,7 +320,7 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
                     
                     {/* Left Column - Product details */}
-                    <div className="space-y-6 flex flex-col justify-between">
+                    <div className="space-y-6 flex flex-col justify-start">
                         <div className="space-y-6">
                             {/* Niche/Category badge top left */}
                             <div>
@@ -899,8 +899,6 @@ export const LandingIntroStep: React.FC<StepProps & { isCreated?: boolean }> = (
         </motion.div>
     );
 };
-
-// 5.5 ÉXITO DE LANDING
 interface LandingSuccessProps extends StepProps {
     project?: any;
     createdPageSubdomain?: string;
@@ -921,100 +919,118 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                     <div className="space-y-6">
                         {/* Cabecera Izquierda */}
                         <div className="space-y-4">
-                            {/* Icono circular superior verde esmeralda con check */}
-                            <div className="bg-emerald-500/10 text-emerald-400 p-3.5 rounded-2xl w-14 h-14 flex items-center justify-center border border-emerald-500/20 shadow-md">
-                                <CheckCircle className="w-7 h-7" />
+                            {/* Icono Check superior verde esmeralda brillante */}
+                            <div className="bg-emerald-500 text-white rounded-xl w-14 h-14 flex items-center justify-center border border-emerald-400/20 shadow-lg shadow-emerald-500/10">
+                                <CheckCircle className="w-8 h-8 text-white fill-emerald-500" />
                             </div>
                             
-                            <h2 className="text-3xl md:text-4xl lg:text-[2.5rem] font-black text-white leading-tight tracking-tight mt-3">
-                                Tu página de <span className="text-emerald-400">captación</span> está lista
+                            <h2 className="text-3xl md:text-4xl lg:text-[2.5rem] font-black text-white leading-[1.1] tracking-tight mt-3">
+                                Tu página de <br />
+                                <span className="text-emerald-400">captación</span> ha sido <br />
+                                generada
                             </h2>
-                            <p className="text-zinc-400 text-sm md:text-base leading-relaxed font-semibold">
-                                Hemos utilizado la estrategia de tu proyecto para generar la primera versión de tu página.
+                            <p className="text-zinc-400 text-xs md:text-sm leading-relaxed font-semibold">
+                                La primera versión está guardada como borrador dentro de tu proyecto.
                             </p>
                         </div>
 
-                        {/* Sección de Progreso (Grupo de 3 Paneles) */}
-                        <div className="space-y-3.5">
-                            {/* Panel 1 */}
-                            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex gap-4 items-center shadow-md">
-                                <div className="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center border border-emerald-500/10 shrink-0">
-                                    <FileText className="w-5 h-5" />
+                        {/* Fila de Progreso (Horizontal, 3 Columnas) */}
+                        <div className="grid grid-cols-3 gap-2.5">
+                            {/* Tarjeta 1 */}
+                            <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3 flex flex-col items-start gap-2 shadow-sm">
+                                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/10">
+                                    <FileText className="w-4 h-4" />
                                 </div>
-                                <div className="space-y-0.5">
-                                    <h4 className="text-white text-sm font-bold tracking-tight">Página generada</h4>
-                                    <p className="text-zinc-400 text-xs font-semibold">La estructura y los textos iniciales están preparados.</p>
-                                </div>
-                            </div>
-
-                            {/* Panel 2 */}
-                            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex gap-4 items-center shadow-md">
-                                <div className="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center border border-emerald-500/10 shrink-0">
-                                    <Users className="w-5 h-5" />
-                                </div>
-                                <div className="space-y-0.5">
-                                    <h4 className="text-white text-sm font-bold tracking-tight">Formulario configurado</h4>
-                                    <p className="text-zinc-400 text-xs font-semibold">Tu página está lista para registrar personas interesadas.</p>
+                                <div className="leading-tight">
+                                    <p className="text-white text-xs font-bold">Estructura</p>
+                                    <p className="text-zinc-500 text-[10px] font-semibold">preparada</p>
                                 </div>
                             </div>
-
-                            {/* Panel 3 */}
-                            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex gap-4 items-center shadow-md">
-                                <div className="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center border border-emerald-500/10 shrink-0">
-                                    <ShieldCheck className="w-5 h-5" />
+                            
+                            {/* Tarjeta 2 */}
+                            <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3 flex flex-col items-start gap-2 shadow-sm">
+                                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/10">
+                                    <Users className="w-4 h-4" />
                                 </div>
-                                <div className="space-y-0.5">
-                                    <h4 className="text-white text-sm font-bold tracking-tight">Guardada como borrador</h4>
-                                    <p className="text-zinc-400 text-xs font-semibold">Podrás editarla y publicarla más adelante desde la sección Página web.</p>
+                                <div className="leading-tight">
+                                    <p className="text-white text-xs font-bold">Formulario</p>
+                                    <p className="text-zinc-500 text-[10px] font-semibold">configurado</p>
+                                </div>
+                            </div>
+                            
+                            {/* Tarjeta 3 */}
+                            <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3 flex flex-col items-start gap-2 shadow-sm">
+                                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/10">
+                                    <ShieldCheck className="w-4 h-4" />
+                                </div>
+                                <div className="leading-tight">
+                                    <p className="text-white text-xs font-bold">Borrador</p>
+                                    <p className="text-zinc-500 text-[10px] font-semibold">guardado</p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Ficha de Detalles del Proyecto */}
-                        <div className="bg-[#0b0b0c]/85 border border-zinc-800/40 rounded-2xl overflow-hidden divide-y divide-zinc-800/30">
-                            {/* Proyecto */}
-                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
-                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
-                                    <Package className="w-4.5 h-4.5 text-[#FF5A1F]" />
-                                    <span>Proyecto</span>
+                        {/* Sección "Resumen de tu página" */}
+                        <div className="space-y-2.5">
+                            <h3 className="text-white text-xs font-bold tracking-tight uppercase text-zinc-500">Resumen de tu página</h3>
+                            <div className="bg-[#0b0b0c]/85 border border-zinc-800/40 rounded-2xl overflow-hidden divide-y divide-zinc-800/30">
+                                {/* Proyecto */}
+                                <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
+                                    <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
+                                        <Package className="w-4.5 h-4.5 text-[#FF5A1F]" />
+                                        <span>Proyecto</span>
+                                    </div>
+                                    <span className="text-white text-xs font-extrabold truncate text-right">
+                                        {project?.name || "Curso Profesional Certificado de Microblading de Cejas"}
+                                    </span>
                                 </div>
-                                <span className="text-white text-xs font-extrabold truncate text-right">
-                                    {project?.name || "Curso Profesional Certificado de Microblading de Cejas"}
-                                </span>
-                            </div>
 
-                            {/* URL Temporal */}
-                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
-                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
-                                    <Link className="w-4.5 h-4.5 text-[#FF5A1F]" />
-                                    <span>URL temporal</span>
+                                {/* URL Temporal */}
+                                <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
+                                    <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
+                                        <Link className="w-4.5 h-4.5 text-[#FF5A1F]" />
+                                        <span>URL temporal</span>
+                                    </div>
+                                    <span className="text-zinc-400 text-xs font-mono truncate text-right font-semibold">
+                                        aprende.marketing/{subdomainPart || "microblading-demo"}
+                                    </span>
                                 </div>
-                                <span className="text-zinc-400 text-xs font-mono truncate text-right font-semibold">
-                                    aprende.marketing/{subdomainPart || "microblading-demo"}
-                                </span>
-                            </div>
 
-                            {/* Formulario */}
-                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
-                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
-                                    <FileText className="w-4.5 h-4.5 text-[#FF5A1F]" />
-                                    <span>Formulario</span>
+                                {/* Formulario */}
+                                <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
+                                    <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
+                                        <FileText className="w-4.5 h-4.5 text-[#FF5A1F]" />
+                                        <span>Formulario</span>
+                                    </div>
+                                    <span className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">
+                                        <CheckCircle className="w-3.5 h-3.5" />
+                                        Configurado
+                                    </span>
                                 </div>
-                                <span className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">
-                                    <CheckCircle className="w-3.5 h-3.5" />
-                                    Configurado
-                                </span>
-                            </div>
 
-                            {/* Estado */}
-                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
-                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
-                                    <ShieldCheck className="w-4.5 h-4.5 text-[#FF5A1F]" />
-                                    <span>Estado</span>
+                                {/* Estado */}
+                                <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
+                                    <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
+                                        <ShieldCheck className="w-4.5 h-4.5 text-[#FF5A1F]" />
+                                        <span>Estado</span>
+                                    </div>
+                                    <span className="bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black px-2.5 py-0.5 rounded-lg uppercase tracking-wider">
+                                        Borrador
+                                    </span>
                                 </div>
-                                <span className="bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black px-2.5 py-0.5 rounded-lg uppercase tracking-wider">
-                                    Borrador
-                                </span>
+                            </div>
+                        </div>
+
+                        {/* Nueva Tarjeta "Siguiente paso del sistema" */}
+                        <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/10 rounded-2xl p-4 flex gap-4 items-center">
+                            <div className="w-12 h-12 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#FF5A1F]/20">
+                                <Rocket className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="space-y-1">
+                                <h4 className="text-white text-sm font-bold tracking-tight">Siguiente paso del sistema</h4>
+                                <p className="text-zinc-400 text-xs font-semibold leading-relaxed">
+                                    Ahora prepararemos los 3 reels de atracción que utilizarás para llevar visitantes hacia tu página.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -1033,13 +1049,13 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                                 onClick={() => onNext()}
                                 className="px-6 py-4 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-black text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 flex-1 shadow-lg shadow-[#FF5A1F]/15 active:scale-98 cursor-pointer"
                             >
-                                <span>Continuar: crear reels de atracción</span>
-                                <ArrowRight className="w-4 h-4" />
+                                <span>Continuar: preparar mis 3 reels</span>
+                                <Play className="w-3.5 h-3.5 fill-current shrink-0" />
                             </button>
                         </div>
                         <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs font-bold">
                             <Lock className="w-3.5 h-3.5" />
-                            <span>Podrás editar y publicar tu página desde el panel de tu proyecto.</span>
+                            <span>Podrás editar y publicar tu página más adelante desde la sección Página web.</span>
                         </div>
                     </div>
                 </div>
@@ -1056,7 +1072,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                                     <div className="flex items-center gap-1.5 shrink-0">
                                         <div className="w-3 h-3 rounded-full bg-red-500"></div>
                                         <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                        <div className="w-3 h-3 rounded-full bg-green-500 font-bold"></div>
                                     </div>
                                     
                                     {/* Botones de navegación mockup */}
