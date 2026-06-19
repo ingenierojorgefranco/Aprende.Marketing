@@ -12,7 +12,7 @@ interface WaitlistViewProps {
 
 export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, onComplete }) => {
     return (
-        <div id="survey-container" className="flex flex-col items-center justify-center py-10 md:py-16 px-4 sm:px-6 relative z-10 w-full min-h-screen bg-black/40">
+        <div id="survey-container" className="flex flex-col items-center justify-center pb-10 md:pb-16 px-4 sm:px-6 relative z-10 w-full min-h-screen bg-black/40" style={{ paddingTop: '0rem' }}>
             <div className="w-full max-w-3xl relative">
                 <OnboardingSurvey 
                     user={user} 

@@ -159,16 +159,16 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
             
             {/* Cabecera del Stepper */}
             <div id="survey-step-header" className="mb-8 w-full font-sans select-none scroll-mt-32">
-                <div className="flex items-center justify-between mb-4.5 px-1 bg-transparent">
+                <div className="flex items-center justify-between mb-4.5 px-1 bg-transparent" style={{ paddingBottom: '2em' }}>
                     <div className="flex items-center gap-3">
                         <div className="w-7 h-7 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center font-black text-xs md:text-sm shadow-[0_2px_10px_rgba(255,90,31,0.25)] shrink-0">
                             {step + 1}
                         </div>
-                        <span className="text-zinc-400 font-extrabold text-[10px] md:text-xs uppercase tracking-[0.18em] leading-normal pt-0.5">
+                        <span className="text-white font-extrabold text-[10px] md:text-xs uppercase tracking-[0.18em] leading-normal pt-0.5">
                             ETAPA DE ONBOARDING
                         </span>
                     </div>
-                    <div className="text-zinc-400 font-extrabold text-[10px] md:text-xs uppercase tracking-[0.12em] pt-0.5">
+                    <div className="text-white font-extrabold uppercase tracking-[0.12em] pt-0.5" style={{ fontSize: '1em', color: 'white' }}>
                         TU PROGRESO <span className="text-[#FF5A1F] font-black tracking-normal ml-1">{progress}%</span>
                     </div>
                 </div>
@@ -197,7 +197,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                     {step === 2 && "Cuéntanos con qué recursos cuentas"}
                     {step === 3 && "Preparemos un plan que puedas cumplir"}
                 </h2>
-                <p className="text-zinc-405 text-sm md:text-base leading-relaxed max-w-xl mx-auto font-medium">
+                <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up max-w-xl mx-auto" style={{ fontSize: '1.2rem' }}>
                     {step === 0 && (
                         <>
                             Cuéntanos cuál es tu punto de partida para recomendarte el mejor recorrido dentro de Aprende Marketing. Te tomará <span className="text-[#FF5A1F] font-semibold">menos de 3 minutos</span>.
@@ -263,7 +263,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }`}>
                                                         {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
-                                                    <span className="font-bold text-sm md:text-base">{opt.label}</span>
+                                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-0 animate-fade-in-up" style={{ marginTop: '0', fontSize: '1rem' }}>{opt.label}</span>
                                                 </button>
                                             );
                                         })}
@@ -308,7 +308,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }`}>
                                                         {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
-                                                    <span className="font-bold text-sm md:text-base">{opt.label}</span>
+                                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-0 animate-fade-in-up" style={{ marginTop: '0', fontSize: '1rem' }}>{opt.label}</span>
                                                 </button>
                                             );
                                         })}
@@ -400,7 +400,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }`}>
                                                         {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
-                                                    <span className="font-bold text-sm md:text-base">{opt.label}</span>
+                                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-0 animate-fade-in-up" style={{ marginTop: '0', fontSize: '1rem' }}>{opt.label}</span>
                                                 </button>
                                             );
                                         })}
@@ -449,7 +449,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }`}>
                                                         {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
-                                                    <span className="font-bold text-sm md:text-base">{opt.label}</span>
+                                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-0 animate-fade-in-up" style={{ marginTop: '0', fontSize: '1rem' }}>{opt.label}</span>
                                                 </button>
                                             );
                                         })}
@@ -494,7 +494,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }`}>
                                                         {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
-                                                    <span className="font-bold text-sm md:text-base">{opt.label}</span>
+                                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-0 animate-fade-in-up" style={{ marginTop: '0', fontSize: '1rem' }}>{opt.label}</span>
                                                 </button>
                                             );
                                         })}
@@ -597,7 +597,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                                     }`}>
                                                         {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
                                                     </div>
-                                                    <span className="font-bold text-sm md:text-base">{opt.label}</span>
+                                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-0 animate-fade-in-up" style={{ marginTop: '0', fontSize: '1rem' }}>{opt.label}</span>
                                                 </button>
                                             );
                                         })}
@@ -800,13 +800,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                         </button>
                     </div>
 
-                    {/* Centered Security Footer */}
-                    <div id="survey-security-footer" className="mt-8 pt-6 border-t border-white/5 flex items-center justify-center gap-2 text-zinc-500 select-none">
-                        <Lock className="w-3.5 h-3.5 text-[#FF5A1F] shrink-0" />
-                        <span className="text-xs font-semibold leading-none">
-                            Podrás modificar esta información más adelante.
-                        </span>
-                    </div>
+
 
                 </motion.div>
             </AnimatePresence>

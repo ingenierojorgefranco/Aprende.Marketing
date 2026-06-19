@@ -29,7 +29,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                 </div>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-4" style={{ marginTop: '0' }}>
                 <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
                     ¡Hola, <span className="text-[#FF5A1F]">{userName}</span>!
                 </h1>
@@ -54,8 +54,8 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                             <h3 className="font-extrabold text-white text-base md:text-lg leading-tight">
                                 Definir el producto que vas a promocionar
                             </h3>
-                            <p className="text-zinc-400 font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
-                                Podrás elegir una oportunidad analizada por Aprende Marketing o utilizar un producto que ya hayas seleccionado.
+                            <p className="text-zinc-400 font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{ color: '#c5c5c5', fontSize: '1.07em', lineHeight: '1.5em' }}>
+                                Selecciona cualquiera de los productos digitales que nuestros profesionales han elegido para ti
                             </p>
                         </div>
                     </div>
@@ -69,8 +69,8 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                             <h3 className="font-extrabold text-white text-base md:text-lg leading-tight">
                                 Construir la estrategia de tu proyecto
                             </h3>
-                            <p className="text-zinc-400 font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
-                                Definiremos la audiencia, el problema principal y el ángulo desde el que presentarás el producto.
+                            <p className="text-zinc-400 font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{ color: '#c5c5c5', fontSize: '1.07em', lineHeight: '1.5em' }}>
+                                Definiremos tu audiencia, público objetivo y mejor estrategia de ventas para tu producto elegido
                             </p>
                         </div>
                     </div>
@@ -84,20 +84,8 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                             <h3 className="font-extrabold text-white text-base md:text-lg leading-tight">
                                 Preparar tus recursos de lanzamiento
                             </h3>
-                            <p className="text-zinc-400 font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
-                                Generarás la estructura de tu página, el contenido inicial y el sistema para captar y hacer seguimiento a tus contactos.
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Bloque de Nota Integradora */}
-                    <div className="pt-6 mt-6 border-t border-white/5">
-                        <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/15 p-4 rounded-xl flex gap-3 items-start">
-                            <div className="w-8 h-8 bg-[#FF5A1F]/10 rounded-lg flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5 border border-[#FF5A1F]/20">
-                                <Lightbulb className="w-4 h-4" />
-                            </div>
-                            <p className="text-zinc-300 text-xs md:text-sm font-medium leading-relaxed">
-                                <strong className="text-[#FF5A1F]">No necesitas tener conocimientos técnicos.</strong> Te guiaremos paso a paso y podrás revisar cada decisión antes de continuar.
+                            <p className="text-zinc-400 font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{ color: '#c5c5c5', fontSize: '1.07em', lineHeight: '1.5em' }}>
+                                Generaremos tu página web, el contenido inicial y los videos para atraer visitantes interesados desde tus redes sociales.
                             </p>
                         </div>
                     </div>
@@ -139,24 +127,12 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                 <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
                     Elige el producto con el que crearás tu <span className="text-[#FF5A1F]">primer proyecto</span>
                 </h2>
-                <p className="text-sm md:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+                <p className="max-w-2xl mx-auto leading-relaxed text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{
+                    fontSize: '1.2em',
+                    lineHeight: '1.4em'
+                }}>
                     Según tus respuestas, estas son las oportunidades que mejor encajan con tu experiencia, tus intereses y los recursos que tienes disponibles.
                 </p>
-            </div>
-
-            {/* Subcabecera interactiva con doble alineación */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 border-b border-white/5 max-w-[1240px] mx-auto w-full">
-                <div className="flex items-center gap-2 text-[#FF5A1F] font-bold text-sm md:text-base">
-                    <span>✨ {projects.length} productos recomendados para ti</span>
-                </div>
-                <button
-                    type="button"
-                    onClick={() => setShowCustomProduct(true)}
-                    className="text-amber-500 hover:text-amber-400 transition-colors font-bold text-xs md:text-sm flex items-center gap-1.5 uppercase tracking-wide cursor-pointer"
-                >
-                    ¿Ya tienes un producto? <span className="underline">Añadir mi producto</span>
-                    <ArrowRight className="w-4 h-4" />
-                </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[1240px] mx-auto w-full">
@@ -175,9 +151,6 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                     } else if (project.shortDescription || project.description) {
                         idealForDesc = project.shortDescription || project.description;
                     }
-
-                    // Level label dynamically mapped
-                    const levelLabel = project.level || "inicial";
 
                     return (
                         <motion.div 
@@ -230,7 +203,12 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                     {project.name}
                                 </h3>
 
-                                <p className="text-zinc-400 text-xs md:text-sm leading-relaxed line-clamp-4 min-h-[72px]">
+                                <p className="text-zinc-400 text-xs md:text-sm leading-relaxed line-clamp-4 min-h-[72px]" style={{
+                                    color: '#efe4e4',
+                                    fontSize: '1em',
+                                    lineHeight: '1.5em',
+                                    textAlign: 'center'
+                                }}>
                                     {idealForDesc}
                                 </p>
 
@@ -244,13 +222,6 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                     </div>
 
                                     <div className="bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 flex items-center gap-2.5">
-                                        <BarChart2 className="w-4 h-4 text-zinc-500 shrink-0" />
-                                        <span className="text-xs text-zinc-400 font-medium">
-                                            <strong className="text-white font-bold">Nivel:</strong> {levelLabel}
-                                        </span>
-                                    </div>
-
-                                    <div className="bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 flex items-center gap-2.5">
                                         <Target className="w-4 h-4 text-[#FF5A1F] shrink-0 animate-pulse" />
                                         <span className="text-xs text-zinc-400 font-medium">
                                             <strong className="text-white font-bold">Estrategia:</strong> orgánico + clase gratuita
@@ -259,13 +230,6 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                 </div>
 
                                 <div className="pt-4 border-t border-white/5 flex flex-col space-y-3 mt-auto">
-                                    {/* Action links */}
-                                    <div className="text-center">
-                                        <span className="text-zinc-500 hover:text-[#FF5A1F] transition-colors font-bold text-xs tracking-wider inline-flex items-center gap-1 uppercase">
-                                            Ver análisis <ArrowRight className="w-3.5 h-3.5" />
-                                        </span>
-                                    </div>
-
                                     <button 
                                         type="button"
                                         className="w-full py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs md:text-sm uppercase tracking-wider rounded-xl shadow-lg transition-all"
@@ -277,6 +241,17 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                         </motion.div>
                     );
                 })}
+            </div>
+
+            <div className="flex justify-center mt-8">
+                <button
+                    type="button"
+                    onClick={() => setShowCustomProduct(true)}
+                    className="text-amber-500 hover:text-amber-400 transition-colors font-bold text-xs md:text-sm flex items-center gap-1.5 uppercase tracking-wide cursor-pointer"
+                >
+                    ¿Ya tienes un producto? <span className="underline">Añadir mi producto</span>
+                    <ArrowRight className="w-4 h-4" />
+                </button>
             </div>
 
             {/* Bottom Proof Panel */}
