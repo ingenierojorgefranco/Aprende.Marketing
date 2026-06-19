@@ -985,11 +985,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           </h2>
         </div>
 
-        {/* Perfil del Usuario en Cabecera (sin fondo, flotando, con ChevronDown) */}
-        <div className="flex items-center gap-2 sm:gap-4 z-10 font-sans">
-          <button
-            onClick={() => setShowProfileModal(true)}
-            className="flex items-center gap-2 sm:gap-3 pl-2 pr-3 sm:pr-4 py-1.5 rounded-full bg-transparent border border-transparent hover:bg-white/5 hover:border-white/10 transition shadow-sm"
+        {/* Perfil del Usuario en Cabecera (sin fondo, flotando) */}
+        <div className="flex items-center gap-3 sm:gap-4 z-10 font-sans">
+          <div
+            className="flex items-center gap-2 sm:gap-3 pl-2 pr-1 py-1.5 rounded-full select-none"
           >
             <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center font-bold overflow-hidden shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
               {user.avatarUrl ? (
@@ -1002,11 +1001,20 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                 user.name.charAt(0).toUpperCase()
               )}
             </div>
-            <span className="text-sm font-bold text-[#B0B0B0] hidden sm:inline-flex items-center gap-1 hover:text-white transition-colors">
+            <span className="text-sm font-bold text-[#B0B0B0] hidden sm:inline-flex">
               {user.name}
-              <ChevronDown className="w-4 h-4 text-[#B0B0B0] ml-0.5" />
             </span>
-          </button>
+          </div>
+
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-[#B0B0B0] hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden xs:inline">Cerrar sesión</span>
+            </button>
+          )}
         </div>
       </header>
 

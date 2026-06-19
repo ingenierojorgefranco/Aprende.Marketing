@@ -126,7 +126,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
             <div className="text-center space-y-4">
                 <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight" style={{
                     paddingBottom: '0.5em',
-                    paddingTop: '4em'
+                    paddingTop: '0em'
                 }}>
                     Elige el producto con el que crearás tu <span className="text-[#FF5A1F]">primer proyecto</span>
                 </h2>
@@ -311,9 +311,6 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                 <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
                     Revisa el producto antes de crear tu estrategia
                 </h2>
-                <p className="text-sm md:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-                    Conoce la oportunidad y decide si quieres usarla para construir tu primer proyecto.
-                </p>
             </div>
 
             {/* Main Rounded Component Container */}
@@ -342,72 +339,49 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                                     {idealText}
                                 </p>
                             </div>
-
-                            {/* Bullet Features (Play, Star, Target - Delineados en naranja vivo, sin caja de fondo) */}
-                            <div className="space-y-4 pt-2">
-                                <div className="flex items-center gap-4">
-                                    <Play className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                    <p className="text-zinc-200 text-xs md:text-sm font-medium">Contenido visual y educativo</p>
-                                </div>
-
-                                <div className="flex items-center gap-4">
-                                    <Star className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                    <p className="text-zinc-200 text-xs md:text-sm font-medium">Nivel {project.level || 'inicial'}</p>
-                                </div>
-
-                                <div className="flex items-center gap-4">
-                                    <Target className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                    <p className="text-zinc-200 text-xs md:text-sm font-medium">Estrategia orgánica + clase gratuita</p>
-                                </div>
-
-                                <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/15 p-3 md:p-4 rounded-xl flex items-center gap-2.5 mt-4">
-                                    <Info className="w-4.5 h-4.5 text-[#FF5A1F] shrink-0" />
-                                    <p className="text-zinc-300 font-medium text-xs md:text-sm">
-                                        Tú revisarás y personalizarás la estrategia antes de publicarla.
-                                    </p>
-                                </div>
-                            </div>
                         </div>
 
                         {/* Bottom stats cards */}
                         <div className="space-y-3 pt-6 border-t border-white/5">
                             <div className="flex flex-col gap-3">
                                 {/* Price Card */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex items-center gap-4 hover:border-white/10 transition-colors">
-                                    <Tag className="w-5 h-5 text-[#FF5A1F] shrink-0" />
+                                <div className="bg-gradient-to-r from-white/[0.02] to-transparent border border-white/5 rounded-xl p-3.5 flex items-center gap-4 hover:from-[#FF5A1F]/5 hover:border-[#FF5A1F]/30 hover:shadow-[0_8px_24px_-10px_rgba(255,90,31,0.15)] transition-all duration-300 group/item">
+                                    <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#FF5A1F] group-hover/item:bg-[#FF5A1F]/10 group-hover/item:border-[#FF5A1F]/30 transition-all duration-300 shrink-0">
+                                        <Tag className="w-5 h-5 shrink-0" />
+                                    </div>
                                     <div className="flex flex-col text-left">
-                                        <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider leading-none">Precio del producto</span>
-                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1.5">
+                                        <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider leading-none font-sans">Precio del producto</span>
+                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1.5 font-sans">
                                             USD {project.fullPrice || '200'}
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Commission Card */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex items-center gap-4 hover:border-white/10 transition-colors">
-                                    <Percent className="w-5 h-5 text-[#FF5A1F] shrink-0" />
+                                <div className="bg-gradient-to-r from-white/[0.02] to-transparent border border-white/5 rounded-xl p-3.5 flex items-center gap-4 hover:from-[#FF5A1F]/5 hover:border-[#FF5A1F]/30 hover:shadow-[0_8px_24px_-10px_rgba(255,90,31,0.15)] transition-all duration-300 group/item">
+                                    <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#FF5A1F] group-hover/item:bg-[#FF5A1F]/10 group-hover/item:border-[#FF5A1F]/30 transition-all duration-300 shrink-0">
+                                        <Percent className="w-5 h-5 shrink-0" />
+                                    </div>
                                     <div className="flex flex-col text-left">
-                                        <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider leading-none">Comisión que obtendrás</span>
-                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1.5">
+                                        <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider leading-none font-sans">Comisión que obtendrás</span>
+                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1.5 font-sans">
                                             {displayCommission} %
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Estimated Revenue Card */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex items-center gap-4 hover:border-white/10 transition-colors">
-                                    <TrendingUp className="w-5 h-5 text-[#FF5A1F] shrink-0" />
+                                <div className="bg-gradient-to-r from-amber-500/5 to-transparent border border-amber-500/20 rounded-xl p-3.5 flex items-center gap-4 hover:from-amber-500/10 hover:border-amber-500/40 hover:shadow-[0_8px_24px_-10px_rgba(245,158,11,0.25)] transition-all duration-300 group/item">
+                                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 group-hover/item:bg-amber-500/20 group-hover/item:border-amber-500/50 transition-all duration-300 shrink-0">
+                                        <TrendingUp className="w-5 h-5 shrink-0" />
+                                    </div>
                                     <div className="flex flex-col text-left">
-                                        <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider leading-none">Tu ganancia por venta</span>
-                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1.5">
+                                        <span className="text-[11px] font-semibold text-amber-500/80 uppercase tracking-wider leading-none font-sans font-medium">Tu ganancia por venta</span>
+                                        <span className="text-amber-400 text-sm md:text-base font-extrabold tracking-tight mt-1.5 font-sans">
                                             USD {Math.round(parseFloat(profitValue))}
                                         </span>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-[10px] md:text-[11px] text-zinc-500 italic">
-                                <Info className="w-3.5 h-3.5 shrink-0" />
-                                <span>Datos de referencia sujetos a cambios del productor.</span>
                             </div>
                         </div>
                     </div>
