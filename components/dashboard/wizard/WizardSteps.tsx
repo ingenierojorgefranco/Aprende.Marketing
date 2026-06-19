@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings } from 'lucide-react';
+import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface StepProps {
@@ -919,170 +919,167 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                 {/* Columna Izquierda: Información y Control */}
                 <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
                     <div className="space-y-6">
-                        {/* Cabecera */}
-                        <div className="space-y-3">
-                            <div className="flex flex-wrap items-center gap-3">
-                                <h1 className="text-3xl md:text-[2.5rem] font-extrabold text-white tracking-tight leading-tight">
-                                    Revisar y publicar tu página
-                                </h1>
-                                <span className="bg-emerald-950/60 border border-emerald-500/20 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider select-none shrink-0">
-                                    Borrador
-                                </span>
+                        {/* Cabecera Izquierda */}
+                        <div className="space-y-4">
+                            {/* Icono circular superior verde esmeralda con check */}
+                            <div className="bg-emerald-500/10 text-emerald-400 p-3.5 rounded-2xl w-14 h-14 flex items-center justify-center border border-emerald-500/20 shadow-md">
+                                <CheckCircle className="w-7 h-7" />
                             </div>
-                            <p className="text-zinc-400 text-sm md:text-base leading-relaxed">
-                                Comprueba el contenido, el formulario y la apariencia antes de publicar tu página de captación.
+                            
+                            <h2 className="text-3xl md:text-4xl lg:text-[2.5rem] font-black text-white leading-tight tracking-tight mt-3">
+                                Tu página de <span className="text-emerald-400">captación</span> está lista
+                            </h2>
+                            <p className="text-zinc-400 text-sm md:text-base leading-relaxed font-semibold">
+                                Hemos utilizado la estrategia de tu proyecto para generar la primera versión de tu página.
                             </p>
                         </div>
 
-                        {/* Ficha de Detalles */}
-                        <div className="bg-[#0b0b0c]/85 border border-zinc-800/80 rounded-2xl overflow-hidden divide-y divide-zinc-800/40">
+                        {/* Sección de Progreso (Grupo de 3 Paneles) */}
+                        <div className="space-y-3.5">
+                            {/* Panel 1 */}
+                            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex gap-4 items-center shadow-md">
+                                <div className="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center border border-emerald-500/10 shrink-0">
+                                    <FileText className="w-5 h-5" />
+                                </div>
+                                <div className="space-y-0.5">
+                                    <h4 className="text-white text-sm font-bold tracking-tight">Página generada</h4>
+                                    <p className="text-zinc-400 text-xs font-semibold">La estructura y los textos iniciales están preparados.</p>
+                                </div>
+                            </div>
+
+                            {/* Panel 2 */}
+                            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex gap-4 items-center shadow-md">
+                                <div className="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center border border-emerald-500/10 shrink-0">
+                                    <Users className="w-5 h-5" />
+                                </div>
+                                <div className="space-y-0.5">
+                                    <h4 className="text-white text-sm font-bold tracking-tight">Formulario configurado</h4>
+                                    <p className="text-zinc-400 text-xs font-semibold">Tu página está lista para registrar personas interesadas.</p>
+                                </div>
+                            </div>
+
+                            {/* Panel 3 */}
+                            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex gap-4 items-center shadow-md">
+                                <div className="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center border border-emerald-500/10 shrink-0">
+                                    <ShieldCheck className="w-5 h-5" />
+                                </div>
+                                <div className="space-y-0.5">
+                                    <h4 className="text-white text-sm font-bold tracking-tight">Guardada como borrador</h4>
+                                    <p className="text-zinc-400 text-xs font-semibold">Podrás editarla y publicarla más adelante desde la sección Página web.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Ficha de Detalles del Proyecto */}
+                        <div className="bg-[#0b0b0c]/85 border border-zinc-800/40 rounded-2xl overflow-hidden divide-y divide-zinc-800/30">
                             {/* Proyecto */}
-                            <div className="flex items-center justify-between p-4 flex-wrap sm:flex-nowrap gap-3">
-                                <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
+                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
                                     <Package className="w-4.5 h-4.5 text-[#FF5A1F]" />
                                     <span>Proyecto</span>
                                 </div>
-                                <span className="text-white text-sm font-semibold truncate text-right">
-                                    {project?.name || "Curso Profesional de Microblading de Cejas"}
+                                <span className="text-white text-xs font-extrabold truncate text-right">
+                                    {project?.name || "Curso Profesional Certificado de Microblading de Cejas"}
                                 </span>
                             </div>
 
                             {/* URL Temporal */}
-                            <div className="flex items-center justify-between p-4 flex-wrap sm:flex-nowrap gap-3">
-                                <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
+                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
                                     <Link className="w-4.5 h-4.5 text-[#FF5A1F]" />
                                     <span>URL temporal</span>
                                 </div>
-                                <span className="text-zinc-300 text-sm font-mono truncate text-right">
+                                <span className="text-zinc-400 text-xs font-mono truncate text-right font-semibold">
                                     aprende.marketing/{subdomainPart || "microblading-demo"}
                                 </span>
                             </div>
 
                             {/* Formulario */}
-                            <div className="flex items-center justify-between p-4 flex-wrap sm:flex-nowrap gap-3">
-                                <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
+                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
                                     <FileText className="w-4.5 h-4.5 text-[#FF5A1F]" />
                                     <span>Formulario</span>
                                 </div>
-                                <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
-                                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                                <span className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">
+                                    <CheckCircle className="w-3.5 h-3.5" />
                                     Configurado
                                 </span>
                             </div>
 
                             {/* Estado */}
-                            <div className="flex items-center justify-between p-4 flex-wrap sm:flex-nowrap gap-3">
-                                <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
+                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
                                     <ShieldCheck className="w-4.5 h-4.5 text-[#FF5A1F]" />
                                     <span>Estado</span>
                                 </div>
-                                <span className="bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                <span className="bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black px-2.5 py-0.5 rounded-lg uppercase tracking-wider">
                                     Borrador
                                 </span>
-                            </div>
-                        </div>
-
-                        {/* Antes de Publicar Checklist */}
-                        <div className="bg-[#0b0b0c]/40 border border-zinc-800/40 rounded-2xl p-5 space-y-4">
-                            <h3 className="text-white text-sm font-bold tracking-wide flex items-center gap-2">
-                                <span className="w-1.5 h-4 bg-[#FF5A1F] rounded-full"></span>
-                                Antes de publicar
-                            </h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div className="flex items-center gap-2.5 text-zinc-300 text-xs font-medium">
-                                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                                    <span>Titular revisado</span>
-                                </div>
-                                <div className="flex items-center gap-2.5 text-zinc-300 text-xs font-medium">
-                                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                                    <span>Formulario revisado</span>
-                                </div>
-                                <div className="flex items-center gap-2.5 text-zinc-300 text-xs font-medium">
-                                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                                    <span>Llamadas a la acción revisadas</span>
-                                </div>
-                                <div className="flex items-center gap-2.5 text-zinc-300 text-xs font-medium">
-                                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                                    <span>Aviso de privacidad visible</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Cuadro de Información */}
-                        <div className="bg-[#121214]/60 border border-zinc-800/40 rounded-2xl p-4 flex gap-3.5 items-start">
-                            <div className="w-8 h-8 rounded-lg bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5">
-                                <Info className="w-4.5 h-4.5 animate-pulse" />
-                            </div>
-                            <div className="space-y-1">
-                                <h4 className="text-[#FF5A1F] font-extrabold text-xs tracking-wider uppercase">Qué puedes hacer aquí</h4>
-                                <p className="text-zinc-400 text-xs leading-relaxed">
-                                    Visualiza la página real, realiza ajustes y publícala cuando esté lista.
-                                </p>
                             </div>
                         </div>
                     </div>
 
                     {/* Botones de Acción */}
                     <div className="pt-6 border-t border-zinc-900 flex flex-col gap-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex flex-col sm:flex-row gap-4">
                             <button 
-                                onClick={onEdit}
-                                className="px-5 py-4 bg-transparent hover:bg-zinc-800/60 text-white border border-zinc-750 hover:border-zinc-500 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 w-full active:scale-98"
+                                onClick={onView}
+                                className="px-5 py-4 bg-transparent hover:bg-zinc-800/40 text-white border border-zinc-800 hover:border-zinc-700 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 min-w-[150px] active:scale-98 cursor-pointer"
                             >
-                                <Edit3 className="w-4 h-4 text-zinc-400" />
-                                Editar página
+                                <Eye className="w-4 h-4 text-zinc-400" />
+                                Ver vista previa
                             </button>
                             <button 
                                 onClick={() => onNext()}
-                                className="px-5 py-4 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-bold text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 w-full shadow-lg shadow-[#FF5A1F]/15 active:scale-98"
+                                className="px-6 py-4 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-black text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 flex-1 shadow-lg shadow-[#FF5A1F]/15 active:scale-98 cursor-pointer"
                             >
-                                <Rocket className="w-4 h-4" />
-                                Publicar página
+                                <span>Continuar: crear reels de atracción</span>
+                                <ArrowRight className="w-4 h-4" />
                             </button>
                         </div>
-                        <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs font-medium">
+                        <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs font-bold">
                             <Lock className="w-3.5 h-3.5" />
-                            <span>Tu página todavía no es pública.</span>
+                            <span>Podrás editar y publicar tu página desde el panel de tu proyecto.</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Columna Derecha: Vista Previa en Vivo Interactiva */}
                 <div className="lg:col-span-7 flex flex-col justify-between">
-                    <div className="flex flex-col h-full bg-[#080809]/40 border border-zinc-800/60 rounded-3xl p-5 md:p-6 shadow-3xl">
-                        {/* Indicador de Vista Previa */}
-                        <div className="flex items-center justify-between mb-4">
-                            <span className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-widest select-none">
-                                Vista previa en vivo
-                            </span>
-                        </div>
-
+                    <div className="flex flex-col h-full bg-[#080809]/40 border border-zinc-805 rounded-[2.5rem] p-5 md:p-6 shadow-3xl">
                         {/* Mockup de Navegador Web */}
-                        <div className="flex-1 min-h-[380px] lg:min-h-[480px] bg-[#121214] border border-zinc-800 rounded-2xl overflow-hidden flex flex-col shadow-2xl">
+                        <div className="flex-1 min-h-[380px] lg:min-h-[480px] bg-[#121214] border border-zinc-800 rounded-[1.75rem] overflow-hidden flex flex-col shadow-2xl relative">
                             {/* Barra de Direcciones estilo Chrome/Safari */}
-                            <div className="bg-[#1c1c1f] px-4 py-3 flex items-center gap-3 border-b border-zinc-900 select-none">
-                                {/* Botones del sistema window */}
-                                <div className="flex items-center gap-1.5 shrink-0">
-                                    <div className="w-3 h-3 rounded-full bg-red-500/70"></div>
-                                    <div className="w-3 h-3 rounded-full bg-yellow-500/70"></div>
-                                    <div className="w-3 h-3 rounded-full bg-green-500/70"></div>
+                            <div className="bg-[#1c1c1f] px-4 py-3.5 flex items-center justify-between border-b border-zinc-900 select-none">
+                                <div className="flex items-center gap-4 flex-1">
+                                    {/* Botones del sistema window */}
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                    </div>
+                                    
+                                    {/* Botones de navegación mockup */}
+                                    <div className="hidden sm:flex items-center gap-2.5 text-zinc-650 shrink-0">
+                                        <ChevronRight className="w-4 h-4 rotate-180 hover:text-[#FF5A1F] cursor-pointer text-zinc-600 transition-colors" />
+                                        <ChevronRight className="w-4 h-4 hover:text-[#FF5A1F] cursor-pointer text-zinc-500 transition-colors" />
+                                        <RotateCw className="w-3.5 h-3.5 hover:text-[#FF5A1F] cursor-pointer text-zinc-500 transition-colors" />
+                                    </div>
+
+                                    {/* Barra de Direcciones segura */}
+                                    <div className="flex-1 bg-[#121214] border border-zinc-800 rounded-xl px-4 py-2 text-xs text-zinc-300 flex items-center gap-2 overflow-hidden select-all shadow-inner max-w-lg">
+                                        <Lock className="w-3 h-3 text-emerald-500 shrink-0" />
+                                        <span className="truncate font-mono text-zinc-400 font-semibold">
+                                            tuproyecto.aprendemarketing.com
+                                        </span>
+                                    </div>
                                 </div>
-                                {/* Botones de navegación */}
-                                <div className="flex items-center gap-2 text-zinc-600 shrink-0 ml-2">
-                                    <ChevronRight className="w-4 h-4 rotate-180 hover:text-zinc-400 cursor-pointer" />
-                                    <ChevronRight className="w-4 h-4 hover:text-zinc-400 cursor-pointer" />
-                                    <RotateCw className="w-3.5 h-3.5 ml-1 hover:text-zinc-400 cursor-pointer" />
-                                </div>
-                                {/* Barra de Direcciones segura */}
-                                <div className="flex-1 bg-[#121214] border border-zinc-800/80 rounded-lg px-4 py-1.5 text-xs text-zinc-400 flex items-center gap-2 overflow-hidden select-all shadow-inner">
-                                    <Lock className="w-3 h-3 text-emerald-500 shrink-0" />
-                                    <span className="truncate font-mono">
-                                        aprende.marketing/{subdomainPart || "microblading-demo"}
+
+                                <div className="flex items-center gap-2 shrink-0">
+                                    <span className="bg-[#FFB800]/10 border border-[#FFB800]/20 text-[#FFB800] text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider shadow-inner font-mono">
+                                        BORRADOR
                                     </span>
                                 </div>
-                                <span className="text-zinc-500 hover:text-zinc-300 cursor-pointer shrink-0">
-                                    <RotateCw className="w-3.5 h-3.5" />
-                                </span>
                             </div>
 
                             {/* Contenedor del Iframe interactivo */}
@@ -1095,7 +1092,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                                         sandbox="allow-scripts allow-same-origin allow-forms"
                                     />
                                 ) : (
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center text-zinc-500 bg-zinc-950/90 gap-3">
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center text-zinc-500 bg-zinc-950/95 gap-3">
                                         <Loader2 className="w-8 h-8 animate-spin text-[#FF5A1F]" />
                                         <p className="text-sm font-semibold text-zinc-400">Preparando tu vista previa interactiva...</p>
                                     </div>
@@ -1107,10 +1104,10 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                         <div className="flex justify-end mt-4">
                             <button 
                                 onClick={onView}
-                                className="inline-flex items-center gap-2 text-zinc-400 hover:text-zinc-200 text-xs md:text-sm font-bold transition-all duration-200 group active:scale-95"
+                                className="inline-flex items-center gap-2 text-[#FF5A1F] hover:text-[#E54E15] text-xs md:text-sm font-extrabold transition-all duration-200 group active:scale-95 cursor-pointer"
                             >
                                 <Maximize2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                Ampliar vista previa
+                                <span>Ampliar vista previa</span>
                             </button>
                         </div>
                     </div>

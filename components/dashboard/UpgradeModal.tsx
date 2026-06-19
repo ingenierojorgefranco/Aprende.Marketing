@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { X, Check, Crown, ShieldCheck, Loader2, Star, Sparkles, Zap, Rocket, Shield, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  X, Check, Crown, ShieldCheck, Loader2, Star, Sparkles, Zap, Rocket, Shield, ArrowRight,
+  ArrowLeft, ChevronDown, Lock, Mail, Video, Layers, HelpCircle, ChevronUp, BookOpen, CreditCard 
+} from 'lucide-react';
 import { api } from '../../services/api';
 import { Plan, User } from '../../types';
 
@@ -13,358 +17,522 @@ interface UpgradeModalProps {
   projectId?: string;
 }
 
-export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, user, currentPlan, reason, userId, projectId }) => {
+export const UpgradeModal: React.FC<UpgradeModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  user, 
+  currentPlan, 
+  reason, 
+  userId, 
+  projectId 
+}) => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
-  ////////// Estado para el método de pago activo del sistema - 24/05/2025 10:30 //////////
   const [activePaymentMethod, setActivePaymentMethod] = useState<'stripe' | 'hotmart'>('stripe');
-  ////////// Fin de actualización - 24/05/2025 10:30 //////////
   const [processing, setProcessing] = useState<string | null>(null);
-
-  // ////////// Nuevo estado para el plan seleccionado e información persuasiva - 01/06/2025 10:00 //////////
-  const [selectedPlanSlug, setSelectedPlanSlug] = useState<string | null>(null);
+  const [project, setProject] = useState<any>(null);
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const planOrder = ['starter', 'plan-max-1', 'plan-max-2', 'plan-max-3', 'plan-max-4', 'plan-max-5', 'plan-max-6', 'plan-max-7', 'plan-max-8', 'plan-max-9', 'plan-max-10'];
 
-  const planPitchMap: Record<string, string> = {
-      'starter': "Perfecto para validar tu nicho sin costes fijos.",
-      'plan-max-1': "Desbloquea tu primer proyecto profesional con dominios y potencia total.",
-      'plan-max-2': "Escala a tu segundo proyecto independiente con todas las funciones activas.",
-      'default': "Potencia adicional para escalar tus proyectos simultáneamente sin barreras."
-  };
-  // ////////// Fin de actualización - 01/06/2025 10:00 //////////
-
   useEffect(() => {
-      if (isOpen) {
-          console.log("UpgradeModal - Parámetros recibidos:", { currentPlan, reason, userId, projectId });
-          setLoading(true);
-          ////////// Se cargan los planes públicos y el método de pago activo - 24/05/2025 10:30 //////////
-          Promise.all([
-              api.getPublicPlans(),
-              api.getActivePaymentMethod().catch(() => 'stripe')
-          ]).then(([plansData, method]) => {
-              setPlans(plansData);
-              setActivePaymentMethod(method as any);
-              
-              // ////////// Selección inteligente del plan actual por defecto - 26/02/2026 //////////
-              const effectiveCurrentPlan = (currentPlan && planOrder.includes(currentPlan)) ? currentPlan : 'starter';
-              const currentIndex = planOrder.indexOf(effectiveCurrentPlan);
-              const nextSlug = currentIndex < planOrder.length - 1 ? planOrder[currentIndex + 1] : null;
-              
-              // Seleccionamos el siguiente plan por defecto para incentivar la mejora
-              setSelectedPlanSlug(nextSlug || effectiveCurrentPlan);
-              // ////////// Fin de actualización //////////
-          })
-          .catch(err => console.error("Error loading upgrade modal data", err))
-          .finally(() => setLoading(false));
-          ////////// Fin de actualización - 24/05/2025 10:30 //////////
-      }
+    if (isOpen) {
+      console.log("UpgradeModal - Parámetros recibidos:", { currentPlan, reason, userId, projectId });
+      setLoading(true);
+      
+      // Carga de planes públicos, método de pago activo, y proyecto actual
+      Promise.all([
+        api.getPublicPlans(),
+        api.getActivePaymentMethod().catch(() => 'stripe'),
+        api.getProjects().catch(() => [])
+      ]).then(([plansData, method, projectsList]) => {
+        setPlans(plansData);
+        setActivePaymentMethod(method as any);
+
+        // Intentar rescatar el proyecto que se está editando o el primero disponible
+        if (projectsList && projectsList.length > 0) {
+          const found = projectId ? projectsList.find(p => p.id === projectId) : projectsList[0];
+          setProject(found || projectsList[0]);
+        }
+      })
+      .catch(err => console.error("Error loading upgrade modal data", err))
+      .finally(() => setLoading(false));
+    }
   }, [isOpen]);
 
   const handleUpgrade = async (plan: Plan) => {
-      setProcessing(plan.slug);
-      console.log(`[UpgradeModal] Iniciando proceso de pago para plan: ${plan.slug} vía ${activePaymentMethod}`);
+    setProcessing(plan.slug);
+    console.log(`[UpgradeModal] Iniciando proceso de pago para plan: ${plan.slug} vía ${activePaymentMethod}`);
 
-      try {
-          ////////// Lógica de redirección dinámica según el método configurado - 24/05/2025 10:30 //////////
-          if (activePaymentMethod === 'hotmart') {
-              if (plan.hotmartId) {
-                  ////////// Obtención robusta del userId para el tracking SRC - 25/05/2025 11:30 //////////
-                  // Priorizamos el ID del objeto user, luego la prop userId, y finalmente localStorage
-                  const finalUserId = user?.id || userId || localStorage.getItem('plataformadeventacom_user_id') || '0';
-                  
-                  ////////// Nueva lógica para construcción de URL de Hotmart con Oferta y CheckoutMode - 25/05/2025 18:45 //////////
-                  const hotmartProductId = plan.hotmartId;
-                  const baseUrl = `https://pay.hotmart.com/${hotmartProductId}`;
-                  const params = new URLSearchParams();
-                  
-                  // Si el plan tiene un código de oferta configurado, lo añadimos como 'off'
-                  if (plan.hotmartOffer) {
-                      params.set('off', plan.hotmartOffer);
-                  }
-                  
-                  // Si el plan tiene un modo de checkout personalizado, lo usamos. 
-                  if (plan.hotmartCheckoutMode) {
-                      params.set('checkoutMode', plan.hotmartCheckoutMode);
-                  }
-                  
-                  // El parámetro SRC ahora incluye userId y projectId para identificar qué proyecto actualizar
-                  const srcValue = projectId ? `${finalUserId}-${projectId}` : finalUserId;
-                  params.set('src', srcValue);
-                  
-                  const hotmartUrl = `${baseUrl}?${params.toString()}`;
-                  ////////// Fin de actualización - 25/05/2025 18:45 //////////
-                  
-                  ////////// Se abre Hotmart en una pestaña nueva - 25/05/2025 19:30 //////////
-                  window.open(hotmartUrl, '_blank');
-                  ////////// Fin de actualización - 25/05/2025 19:30 //////////
-              } else {
-                  alert("⚠️ Error: El administrador no ha configurado un ID de Hotmart para este plan.");
-              }
-          } else {
-              // Lógica original de Stripe Checkout
-              const response = await api.createCheckoutSession(plan.slug);
-              if (response && response.url) {
-                  if (response.url === '#') {
-                      alert("⚠️ MODO OFFLINE DETECTADO\n\nEstás usando la versión Demo/Offline. La redirección a Stripe está simulada.\n\nPara probar pagos reales, asegúrate de iniciar sesión en modo 'Base de Datos'.");
-                  } else {
-                      ////////// Se abre Stripe en una pestaña nueva - 25/05/2025 19:30 //////////
-                      window.open(response.url, '_blank');
-                      ////////// Fin de actualización - 25/05/2025 19:30 //////////
-                  }
-              } else {
-                  alert("Error: El servidor no devolvió una URL de pago válida.");
-              }
+    try {
+      if (activePaymentMethod === 'hotmart') {
+        if (plan.hotmartId) {
+          const finalUserId = user?.id || userId || localStorage.getItem('plataformadeventacom_user_id') || '0';
+          const hotmartProductId = plan.hotmartId;
+          const baseUrl = `https://pay.hotmart.com/${hotmartProductId}`;
+          const params = new URLSearchParams();
+          
+          if (plan.hotmartOffer) {
+            params.set('off', plan.hotmartOffer);
           }
-          ////////// Fin de actualización - 24/05/2025 10:30 //////////
-      } catch (error: any) {
-          console.error("[UpgradeModal] Payment error critical:", error);
-          alert(`❌ Error al iniciar el pago:\n${error.message || JSON.stringify(error)}`);
-      } finally {
-          setProcessing(null);
+          if (plan.hotmartCheckoutMode) {
+            params.set('checkoutMode', plan.hotmartCheckoutMode);
+          }
+          
+          const srcValue = projectId ? `${finalUserId}-${projectId}` : finalUserId;
+          params.set('src', srcValue);
+          
+          const hotmartUrl = `${baseUrl}?${params.toString()}`;
+          window.open(hotmartUrl, '_blank');
+        } else {
+          alert("⚠️ Error: El administrador no ha configurado un ID de Hotmart para este plan.");
+        }
+      } else {
+        // Redirección directa para Stripe Checkout
+        const response = await api.createCheckoutSession(plan.slug);
+        if (response && response.url) {
+          if (response.url === '#') {
+            alert("⚠️ MODO OFFLINE DETECTADO\n\nEstás usando la versión Demo/Offline. La redirección a Stripe está simulada.");
+          } else {
+            window.open(response.url, '_blank');
+          }
+        } else {
+          alert("Error: El servidor no devolvió una URL de pago válida.");
+        }
       }
+    } catch (error: any) {
+      console.error("[UpgradeModal] Payment error critical:", error);
+      alert(`❌ Error al iniciar el pago:\n${error.message || JSON.stringify(error)}`);
+    } finally {
+      setProcessing(null);
+    }
   };
 
   if (!isOpen) return null;
 
-  // ////////// Lógica para obtener el plan actualmente enfocado/seleccionado - 27/05/2025 15:30 //////////
-  const selectedPlanData = plans.find(p => p.slug === selectedPlanSlug);
-  // ////////// Fin de actualización - 27/05/2025 15:30 //////////
-
   return (
-    <div 
-      ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
-      onClick={() => onClose && onClose()}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300"
-    >
-      {/* ////////// Actualización: Evitar propagación del clic al contenido de la modal - 28/05/2025 15:30 ////////// */}
-      <div 
-        onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-7xl bg-gray-900 border border-gray-800 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh]"
+    <div className="fixed inset-0 z-[100] bg-[#050505] overflow-y-auto custom-scrollbar flex">
+      <motion.div
+        initial={{ x: '-100%', opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ x: '-100%', opacity: 0 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+        className="w-full min-h-screen bg-[#050505] text-white flex flex-col"
       >
-        
-        {onClose && (
+        {/* Sticky Header styled after Image 2 */}
+        <header className="bg-[#0b0b0d]/90 backdrop-blur-md border-b border-white/5 sticky top-0 z-[110] w-full">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 h-18 flex items-center justify-between gap-4">
+            {/* Branding Logo */}
+            <div className="flex items-center gap-2.5">
+              <span className="bg-[#FF5A1F] text-white text-[11px] font-black px-2 py-0.5 rounded-lg tracking-tight font-mono shadow-md">A.MKT</span>
+              <span className="text-base md:text-lg font-bold text-white tracking-tight">
+                Aprende.<span className="text-[#FF5A1F]">Marketing</span>
+              </span>
+            </div>
+
+            {/* Back Arrow button */}
             <button 
-                onClick={onClose} 
-                className="absolute top-6 right-6 z-30 p-3 bg-gray-800/80 text-gray-400 rounded-full hover:text-white hover:bg-gray-700 transition backdrop-blur-md"
+              onClick={onClose} 
+              className="text-gray-400 hover:text-white text-sm flex items-center gap-2 font-bold transition-all py-2.5 px-4 rounded-xl hover:bg-white/5 active:scale-95 group"
             >
-                <X className="w-6 h-6" />
+              <ArrowLeft className="w-4 h-4 text-[#FF5A1F] transition-transform group-hover:-translate-x-1" />
+              <span>Volver a mi proyecto</span>
             </button>
-        )}
 
-        <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
-            {/* Sidebar / Header Info */}
-            <div className="md:w-1/4 bg-gradient-to-br from-gray-900 via-[#0b0b0b] to-black p-10 border-r border-white/5 flex flex-col justify-center text-center md:text-left shrink-0 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
-                    <Zap className="w-64 h-64 text-indigo-500 absolute -top-10 -left-10" />
-                </div>
+            {/* Account Icon dropdown mockup */}
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#FF5A1F] to-amber-600 text-white flex items-center justify-center text-sm font-black shadow-lg shadow-[#FF5A1F]/15">
+                {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'B'}
+              </div>
+              <span className="text-sm font-semibold text-gray-300 hidden sm:flex items-center gap-1">
+                {user?.name || 'Mi cuenta'}
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              </span>
+            </div>
+          </div>
+        </header>
 
-                <div className="relative z-10">
-                    <div className="mb-8 inline-flex items-center justify-center md:justify-start gap-2 text-[#FF5A1F] font-black bg-[#FF5A1F]/10 px-5 py-2 rounded-full border border-[#FF5A1F]/20 self-center md:self-start text-xs uppercase tracking-[0.2em]">
-                        <Crown className="w-4 h-4 fill-current" /> Plan Estratégico
-                    </div>
-                    {/* ////////// Actualización de titulares y sellos de confianza para mayor persuasión de venta - 01/06/2025 10:00 ////////// */}
-                    <h2 className="text-3xl md:text-5xl font-black text-white mb-6 leading-[1.1] tracking-tight">
-                        Impulsa tu <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500">Éxito Digital</span>
-                    </h2>
-                    <p className="text-gray-400 text-lg mb-10 leading-relaxed font-light">
-                        {reason ? "Desbloquea el siguiente nivel de tu negocio. Elige la potencia necesaria para escalar tus resultados en Hotmart." : "Desbloquea el siguiente nivel de tu negocio. Elige la potencia necesaria para escalar tus resultados en Hotmart."}
-                    </p>
-
-                    {/* Bloque de información técnica del plan actual */}
-                    <div className="mb-10 p-6 bg-white/5 border border-white/10 rounded-2xl">
-                        <p className="text-[10px] text-[#FF5A1F] font-black uppercase tracking-widest mb-2">Estado de tu Cuenta</p>
-                        <div className="flex flex-col gap-2">
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-500">Plan Actual:</span>
-                                <span className="text-white font-bold uppercase">{currentPlan || 'starter'}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-500">Límite Proyectos:</span>
-                                <span className="text-white font-bold">{selectedPlanData?.limitsConfig?.maxProjects || '-'}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-500">Límite Ganchos:</span>
-                                <span className="text-white font-bold">{selectedPlanData?.limitsConfig?.maxHooks || '-'}</span>
-                            </div>
-                        </div>
-                    </div>
+        {/* Content Container */}
+        <main className="max-w-7xl mx-auto w-full px-4 md:px-8 py-8 md:py-12 flex-1 flex flex-col gap-12">
+          
+          {loading ? (
+            <div className="flex-1 flex items-center justify-center text-gray-500 flex-col gap-4 py-20">
+              <Loader2 className="w-12 h-12 animate-spin text-[#FF5A1F]" />
+              <p className="font-bold uppercase tracking-widest text-xs font-mono">Sincronizando Planes...</p>
+            </div>
+          ) : (
+            <>
+              {/* Dual Column Layout: Left Overview + Right Focus Panel */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
+                
+                {/* 1. Left Column: Account Details & Limits */}
+                <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+                  
+                  {/* Item 1: Lo que ya construiste */}
+                  <div className="bg-[#0c0c0e] border border-white/5 p-6 rounded-3xl space-y-4 shadow-xl">
+                    <h3 className="text-white text-base font-extrabold tracking-tight">Lo que ya construiste</h3>
                     
-                    <div className="space-y-4 pt-10 border-t border-white/5">
-                        <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] font-black mb-4">Confianza Máxima</p>
-                        <div className="flex flex-col gap-3 text-gray-400 text-sm">
-                            <div className="flex items-center gap-3 font-medium"><ShieldCheck className="w-5 h-5 text-emerald-500" /> Compra 100% segura en Hotmart®</div>
-                            <div className="flex items-center gap-3 font-medium"><ShieldCheck className="w-5 h-5 text-emerald-500" /> Garantía incondicional de 7 días</div>
-                            <div className="flex items-center gap-3 font-medium"><ShieldCheck className="w-5 h-5 text-emerald-500" /> Activación automática e inmediata</div>
-                            <div className="flex items-center gap-3 font-medium"><ShieldCheck className="w-5 h-5 text-emerald-500" /> Soporte VIP Prioritario</div>
+                    <div className="flex gap-4 p-4 bg-white/[0.02] border border-white/5 rounded-2xl items-center">
+                      <div className="w-12 h-12 bg-[#FF5A1F]/10 rounded-xl border border-[#FF5A1F]/20 flex items-center justify-center font-bold text-[#FF5A1F] shrink-0">
+                        <BookOpen className="w-6 h-6" />
+                      </div>
+                      <div className="overflow-hidden">
+                        <h4 className="text-white text-sm font-extrabold tracking-tight truncate">
+                          {project?.name || "Curso Profesional de Microblading de Cejas"}
+                        </h4>
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                          <span className="text-emerald-400 text-[11px] font-bold">Página publicada</span>
                         </div>
+                      </div>
                     </div>
-                    {/* ////////// Fin de actualización - 01/06/2025 10:00 ////////// */}
-                </div>
-            </div>
 
-            {/* Pricing Columns */}
-            <div className="flex-1 flex flex-col bg-[#050505] overflow-y-auto custom-scrollbar relative">
-                {/* Visual Grid Background */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.03] pointer-events-none"></div>
+                    <ul className="space-y-3.5">
+                      {[
+                        "Estrategia preparada",
+                        "Página de captación publicada",
+                        "3 de 3 reels utilizados",
+                        "1 proyecto activo"
+                      ].map((item, idx) => (
+                        <li key={idx} className="flex gap-3 text-sm items-center text-gray-300 font-semibold">
+                          <div className="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/10">
+                            <Check className="w-3.5 h-3.5" />
+                          </div>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                <div className="p-8 md:p-12 relative z-10 flex flex-col flex-1">
-                    {loading ? (
-                        <div className="flex-1 flex items-center justify-center text-gray-500 flex-col gap-4">
-                            <Loader2 className="w-12 h-12 animate-spin text-[#FF5A1F]" />
-                            <p className="font-bold uppercase tracking-widest text-xs">Sincronizando Planes...</p>
+                  {/* Item 2: Límites del plan gratuito */}
+                  <div className="bg-[#0c0c0e] border border-white/5 p-6 rounded-3xl space-y-4 shadow-xl">
+                    <h3 className="text-white text-base font-extrabold tracking-tight">Has alcanzado los límites de tu plan gratuito</h3>
+                    <div className="space-y-1">
+                      {[
+                        { name: 'Proyectos activos', val: '1 de 1', accent: true },
+                        { name: 'Reels utilizados', val: '3 de 3', accent: true },
+                        { name: 'Artículos disponibles este mes', val: '1 de 1', accent: true },
+                        { name: 'Email marketing', val: 'No incluido', accent: false },
+                        { name: 'Secuencias de WhatsApp', val: 'No incluido', accent: false }
+                      ].map((lim, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-sm py-3 border-b border-white/[0.03] last:border-0">
+                          <span className="text-gray-300 flex items-center gap-2.5">
+                            <Lock className="w-4 h-4 text-gray-600 shrink-0" />
+                            {lim.name}
+                          </span>
+                          <span className={`${lim.accent ? 'text-amber-500 font-extrabold' : 'text-gray-600 hover:text-gray-500 transition-colors'}`}>{lim.val}</span>
                         </div>
-                    ) : (
-                        <>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto w-full">
-                                {(() => {
-                                    const normalizedCurrent = String(currentPlan || 'starter').toLowerCase().trim();
-                                    const effectiveCurrentPlan = planOrder.includes(normalizedCurrent) ? normalizedCurrent : 'starter';
-                                    const currentIndex = planOrder.indexOf(effectiveCurrentPlan);
-                                    const nextSlug = currentIndex < planOrder.length - 1 ? planOrder[currentIndex + 1] : null;
-                                    
-                                    console.log("[UpgradeModal Render] Logic:", { 
-                                        effectiveCurrentPlan, 
-                                        currentIndex, 
-                                        nextSlug, 
-                                        availableSlugs: plans.map(p => p.slug) 
-                                    });
+                      ))}
+                    </div>
+                  </div>
 
-                                    let filteredPlans = plans.filter(p => {
-                                        const pSlug = String(p.slug || '').toLowerCase().trim();
-                                        return pSlug === effectiveCurrentPlan || pSlug === nextSlug;
-                                    });
-                                    
-                                    // Fallback: Si no hay planes filtrados (ej: planes no creados en DB), mostrar los 2 primeros disponibles
-                                    if (filteredPlans.length === 0 && plans.length > 0) {
-                                        console.warn("[UpgradeModal] No plans matched filter, using fallback slice.");
-                                        filteredPlans = plans.slice(0, 2);
-                                    }
+                  {/* Item 3: Tu siguiente oportunidad */}
+                  <div className="relative overflow-hidden bg-gradient-to-br from-[#121215] to-[#08080a] border border-white/5 p-6 rounded-3xl shadow-xl">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF5A1F]/5 blur-3xl rounded-full pointer-events-none"></div>
+                    <div className="flex gap-4 relative z-10">
+                      <div className="w-10 h-10 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5 shadow-md">
+                        <Zap className="w-5 h-5 fill-[#FF5A1F]/10" />
+                      </div>
+                      <div className="space-y-1.5 flex-1">
+                        <h4 className="text-sm font-extrabold text-white tracking-tight">Tu siguiente oportunidad</h4>
+                        <p className="text-xs text-gray-400 leading-relaxed font-semibold">
+                          Tu página ya puede captar registros. Con Pro podrás hacer seguimiento automático a esas personas y convertirlas en clientes con emails, WhatsApp y automatizaciones.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-                                    return filteredPlans
-                                      .sort((a, b) => planOrder.indexOf(String(a.slug).toLowerCase().trim()) - planOrder.indexOf(String(b.slug).toLowerCase().trim()))
-                                      .map((plan) => {
-                                        const pSlug = String(plan.slug || '').toLowerCase().trim();
-                                        const isCurrent = effectiveCurrentPlan === pSlug;
-                                        const isSelected = selectedPlanSlug === pSlug;
-
-                                        const cardClasses = `
-                                            relative p-8 rounded-[2.5rem] border-2 transition-all duration-500 cursor-pointer flex flex-col gap-4 group
-                                            ${isSelected ? 'scale-105 z-20' : 'scale-100 z-10'}
-                                            ${isCurrent 
-                                                ? 'border-emerald-500/50 bg-emerald-500/5 shadow-[0_0_40px_rgba(16,185,129,0.1)]' 
-                                                : 'border-[#FF5A1F]/50 bg-gray-900 shadow-[0_0_60px_rgba(255,90,31,0.15)]'}
-                                            ${isSelected && !isCurrent ? 'ring-4 ring-[#FF5A1F]/20' : ''}
-                                            ${isCurrent ? 'ring-4 ring-emerald-500/20' : ''}
-                                        `;
-
-                                        return (
-                                            <div 
-                                                key={plan.id}
-                                                onClick={() => setSelectedPlanSlug(pSlug)}
-                                                className={cardClasses}
-                                            >
-                                                {/* Badges de Estado */}
-                                                {isCurrent && (
-                                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-emerald-500 text-black text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
-                                                        Tu Nivel Actual
-                                                    </div>
-                                                )}
-                                                {!isCurrent && (
-                                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FF5A1F] text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg animate-pulse">
-                                                        Siguiente Nivel
-                                                    </div>
-                                                )}
-                                                
-                                                <div className="text-center">
-                                                    <h3 className={`font-black text-xl mb-1 ${isCurrent ? 'text-emerald-400' : 'text-[#FF5A1F]'}`}>{plan.name}</h3>
-                                                    <div className="flex items-baseline justify-center gap-1">
-                                                        <span className="text-4xl font-black text-white tracking-tighter">
-                                                            {Number(plan.priceMonthly) === 0 ? '$0' : `$${plan.priceMonthly}`}
-                                                        </span>
-                                                        <span className="text-sm text-gray-500 font-bold uppercase">/mes</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="h-px bg-white/5 w-full my-2"></div>
-
-                                                <ul className="space-y-4 flex-1">
-                                                    {(plan.uiFeatures || []).slice(0, 5).map((feat, idx) => (
-                                                        <li key={idx} className="flex gap-3 text-sm font-medium items-center text-gray-300">
-                                                            <div className={`p-1 rounded-full ${isCurrent ? 'bg-emerald-500/20 text-emerald-500' : 'bg-[#FF5A1F]/20 text-[#FF5A1F]'}`}>
-                                                                <Check className="w-3 h-3" />
-                                                            </div>
-                                                            {feat}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                                
-                                                <div className="pt-4">
-                                                    <div className={`w-full py-2 rounded-xl text-center text-[10px] font-black uppercase tracking-widest transition-colors ${isSelected ? 'bg-white/10 text-white border border-white/20' : 'text-gray-600'}`}>
-                                                        {isSelected ? 'Seleccionado' : 'Hacer clic para ver detalles'}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                      });
-                                })()}
-                            </div>
-
-                            {/* ////////// Reemplazo de estadísticas técnicas por argumentos de venta persuasivos en el panel de detalles - 01/06/2025 10:00 ////////// */}
-                            {selectedPlanData && (
-                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    <div className="bg-gray-900/80 backdrop-blur-xl border border-white/5 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden group">
-                                        <div className="absolute top-0 right-0 p-10 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
-                                            {selectedPlanData.slug === 'max' ? <Rocket className="w-48 h-48 text-white" /> : <Shield className="w-48 h-48 text-white" />}
-                                        </div>
-
-                                        <div className="grid md:grid-cols-12 gap-12 items-center relative z-10">
-                                            <div className="md:col-span-8 space-y-6">
-                                                <div>
-                                                    <span className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.3em] mb-2 block">Análisis del Plan {selectedPlanData.name}</span>
-                                                    <h4 className="text-3xl font-black text-white leading-tight">
-                                                        {planPitchMap[selectedPlanData.slug] || planPitchMap['default']}
-                                                    </h4>
-                                                </div>
-
-                                                <div className="p-8 rounded-2xl bg-black/40 border border-white/5">
-                                                    <p className="text-gray-300 text-lg leading-relaxed font-medium">
-                                                    {selectedPlanData.slug === 'starter' && "Inicia tu camino hoy mismo validando tus ofertas con la potencia de la IA sin riesgos innecesarios."}
-                                                    {selectedPlanData.slug.startsWith('plan-max-') && `Lleva tu proyecto ${selectedPlanData.slug.split('-').pop()} al estándar profesional con dominios propios, mayor capacidad de landing pages y todas las herramientas de conversión activadas.`}
-                                                    {!selectedPlanData.slug.startsWith('plan-max-') && selectedPlanData.slug !== 'starter' && "Diseñado para agencias y productores de alto impacto. Control total, activos ilimitados y la máxima prioridad en nuestros servidores de generación."}
-                                                </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="md:col-span-4 flex flex-col gap-4">
-                                                <button 
-                                                    onClick={() => handleUpgrade(selectedPlanData)}
-                                                    disabled={!!processing || currentPlan === selectedPlanData.slug}
-                                                    className={`w-full py-6 rounded-2xl font-black text-xl transition-all shadow-2xl transform hover:scale-[1.03] active:scale-95 flex items-center justify-center gap-3 ${
-                                                        currentPlan === selectedPlanData.slug 
-                                                            ? 'bg-gray-800 text-gray-500 cursor-default opacity-50' 
-                                                            : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-[#FF5A1F]/20'
-                                                    }`}
-                                                >
-                                                    {processing === selectedPlanData.slug ? <Loader2 className="w-6 h-6 animate-spin" /> : null}
-                                                    {currentPlan === selectedPlanData.slug ? 'Tu Nivel Actual' : `Activar ${selectedPlanData.name}`}
-                                                    <ArrowRight className="w-6 h-6" />
-                                                </button>
-                                                <p className="text-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                                                    Acceso instantáneo tras el pago
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                            {/* ////////// Fin de actualización - 01/06/2025 10:00 ////////// */}
-                        </>
-                    )}
                 </div>
-            </div>
-        </div>
-      </div>
+
+                {/* 2. Right Column: Plan conversion center card */}
+                <div className="lg:col-span-8 bg-[#0c0c0e] border-2 border-[#FF5A1F]/30 rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden flex flex-col gap-8 shadow-2xl shadow-[#FF5A1F]/5">
+                  {/* Recommended Ribbon */}
+                  <div className="text-center">
+                    <span className="bg-[#FF5A1F] text-white text-[10px] font-black px-4.5 py-1.5 rounded-full uppercase tracking-widest inline-block shadow-md shadow-[#FF5A1F]/20 border border-white/10 font-mono">
+                      RECOMENDADO PARA CONTINUAR
+                    </span>
+                  </div>
+
+                  {/* Title and pitch */}
+                  <div className="text-center space-y-4">
+                    <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
+                      Aprende Marketing <span className="text-[#FF5A1F]">Pro</span>
+                    </h2>
+                    <p className="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed font-semibold">
+                      Automatiza el seguimiento, mantén tu contenido activo y gestiona hasta tres proyectos desde una sola plataforma.
+                    </p>
+                  </div>
+
+                  {/* Switch Monthly vs Yearly */}
+                  <div className="space-y-6">
+                    <div className="p-1.5 bg-black/50 border border-white/5 rounded-2xl grid grid-cols-2 max-w-md mx-auto relative shadow-inner">
+                      <button 
+                        type="button"
+                        onClick={() => setBillingPeriod('monthly')}
+                        className={`py-3.5 px-4 rounded-xl flex flex-col items-center justify-center transition-all duration-300 ${billingPeriod === 'monthly' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/[0.02]'}`}
+                      >
+                        <span className="text-sm font-bold tracking-tight">Mensual</span>
+                        <span className={`text-xs mt-0.5 font-semibold ${billingPeriod === 'monthly' ? 'text-white/80' : 'text-gray-500'}`}>USD 39 / mes</span>
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setBillingPeriod('yearly')}
+                        className={`py-3.5 px-4 rounded-xl flex flex-col items-center justify-center transition-all duration-300 relative ${billingPeriod === 'yearly' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/[0.02]'}`}
+                      >
+                        <span className="absolute -top-3.5 right-2 bg-emerald-500 text-black text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md">
+                          Ahorra 2 meses
+                        </span>
+                        <span className="text-sm font-bold tracking-tight">Anual</span>
+                        <span className={`text-xs mt-0.5 font-semibold ${billingPeriod === 'yearly' ? 'text-white/80' : 'text-gray-500'}`}>USD 390 / año</span>
+                      </button>
+                    </div>
+
+                    {/* Prominent Pricing display */}
+                    <div className="text-center space-y-1">
+                      <div className="flex items-baseline justify-center gap-1.5">
+                        <span className="text-5xl md:text-6xl font-black text-white tracking-tighter">
+                          {billingPeriod === 'monthly' ? 'USD 39' : 'USD 390'}
+                        </span>
+                        <span className="text-lg text-gray-400 font-bold uppercase tracking-wider">/{billingPeriod === 'monthly' ? 'mes' : 'año'}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 font-semibold tracking-wide">Cancela en cualquier momento.</p>
+                    </div>
+                  </div>
+
+                  {/* Circular Icon cards rows */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                    {[
+                      {
+                        title: "Haz seguimiento a cada registro",
+                        desc: "Secuencia de conversión, correos de nutrición, mensajes de WhatsApp e integración con Systeme.io.",
+                        icon: Mail,
+                      },
+                      {
+                        title: "Mantén activo tu tráfico",
+                        desc: "Hasta 30 reels y 15 artículos mensuales adaptados a tus proyectos. Hooks, guiones, textos y CTA listos para publicar.",
+                        icon: Video,
+                      },
+                      {
+                        title: "Amplía tu operación",
+                        desc: "Hasta 3 proyectos activos, gestión y segmentación de contactos, automatizaciones avanzadas y más.",
+                        icon: Layers,
+                      }
+                    ].map((ben, idx) => {
+                      const BenIcon = ben.icon;
+                      return (
+                        <div key={idx} className="bg-white/[0.02] border border-white/5 p-5 rounded-3xl flex flex-col gap-4 text-center items-center shadow-lg hover:border-white/10 transition-colors">
+                          <div className="w-12 h-12 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-full flex items-center justify-center shadow-inner">
+                            <BenIcon className="w-5 h-5" />
+                          </div>
+                          <div className="space-y-1.5">
+                            <h4 className="text-sm font-extrabold text-white tracking-tight">{ben.title}</h4>
+                            <p className="text-xs text-gray-400 leading-relaxed font-medium">{ben.desc}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Immediate values checklist */}
+                  <div className="p-6 bg-black/40 border border-white/5 rounded-3xl space-y-4">
+                    <h4 className="text-xs font-black text-[#FF5A1F] uppercase tracking-wider">Al activar Pro hoy:</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[
+                        "Activarás el seguimiento automático de tu proyecto actual.",
+                        "Tendrás acceso a las secuencias de conversión y nutrición.",
+                        "Podrás preparar hasta 30 reels durante el mes.",
+                        "Podrás crear hasta 15 artículos durante el mes.",
+                        "Podrás crear 2 proyectos adicionales asociados."
+                      ].map((chk, idx) => (
+                        <div key={idx} className="flex gap-3 text-sm items-start font-semibold text-gray-300">
+                          <div className="w-5 h-5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                            <Check className="w-3.5 h-3.5" />
+                          </div>
+                          <span className="leading-snug">{chk}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Primary CTA Orange Button */}
+                  <div className="pt-4 space-y-4">
+                    <button
+                      onClick={() => {
+                        // Selección de plan premium de forma inteligente
+                        const targetPlan = plans.find(p => p.slug !== 'starter' && p.slug.includes('pro')) || 
+                                           plans.find(p => p.slug !== 'starter' && p.isRecommended) ||
+                                           plans.find(p => p.slug !== 'starter') || 
+                                           plans[0];
+                        if (targetPlan) {
+                          handleUpgrade(targetPlan);
+                        }
+                      }}
+                      disabled={!!processing}
+                      className="w-full bg-[#FF5A1F] hover:bg-[#E54E18] active:scale-[0.99] font-black text-lg py-5 px-8 rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/15 flex items-center justify-center gap-3 disabled:opacity-50 text-white"
+                    >
+                      {processing ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span>Procesando pago seguro...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Activar Pro por {billingPeriod === 'monthly' ? 'USD 39 al mes' : 'USD 390 al año'}</span>
+                          <ArrowRight className="w-5 h-5" />
+                        </>
+                      )}
+                    </button>
+
+                    {/* Sello de confianza */}
+                    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-gray-500 font-bold uppercase tracking-wider font-mono">
+                      <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-500" /> Activación inmediata</span>
+                      <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-500" /> Cancela cuando quieras</span>
+                      <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-500" /> Pago seguro</span>
+                    </div>
+                  </div>
+
+                  {/* Link alternative cancel button */}
+                  <div className="text-center pt-2">
+                    <button 
+                      type="button"
+                      onClick={onClose}
+                      className="text-gray-500 hover:text-gray-300 text-sm font-bold tracking-tight underline cursor-pointer transition-colors"
+                    >
+                      Seguir con el plan gratuito
+                    </button>
+                    <p className="text-[10px] text-gray-600 mt-1.5 font-medium">Puedes cambiar de plan en cualquier momento.</p>
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* 3. Bottom comparative table */}
+              <div className="border border-white/5 bg-[#0c0c0e]/50 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-10 space-y-8 shadow-xl">
+                <div className="space-y-2">
+                  <span className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.3em]">CONOCE LA DIFERENCIA</span>
+                  <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">Gratis vs Pro</h3>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse min-w-[500px]">
+                    <thead>
+                      <tr className="border-b border-white/5 text-gray-500 text-xs font-black uppercase tracking-wider">
+                        <th className="pb-4 font-mono">Funcionalidad</th>
+                        <th className="pb-4 font-mono">Gratis</th>
+                        <th className="pb-4 text-[#FF5A1F] font-mono">Pro</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/[0.03] text-sm">
+                      {[
+                        { feature: "Proyectos activos", free: "1", pro: "Hasta 3" },
+                        { feature: "Reels al mes", free: "3", pro: "Hasta 30" },
+                        { feature: "Artículos al mes", free: "1", pro: "Hasta 15" },
+                        { feature: "Email marketing", free: "No incluido", pro: "Conversión y nutrición" },
+                        { feature: "Secuencias de WhatsApp", free: "No incluido", pro: "Secuencias de lanzamiento" },
+                        { feature: "Automatizaciones", free: "No incluidas", pro: "Incluidas" },
+                        { feature: "Integración con Systeme.io", free: "No incluida", pro: "Incluida" },
+                        { feature: "Soporte prioritario", free: "No incluido", pro: "Incluido" }
+                      ].map((row, idx) => (
+                        <tr key={idx} className="hover:bg-white/[0.01] transition-colors">
+                          <td className="py-4 font-bold text-gray-300">{row.feature}</td>
+                          <td className="py-4 text-gray-500 font-semibold">{row.free}</td>
+                          <td className="py-4 text-white font-black">{row.pro}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* 4. Help desk FAQs Accordion */}
+              <div className="space-y-6">
+                <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">Preguntas frecuentes</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { 
+                      q: "¿Perderé mi proyecto actual?", 
+                      a: "No. Tu estrategia, página, reels y contactos permanecerán en tu cuenta." 
+                    },
+                    { 
+                      q: "¿Puedo cancelar cuando quiera?", 
+                      a: "Sí. Mantendrás las funciones Pro hasta finalizar el período que ya hayas pagado." 
+                    },
+                    { 
+                      q: "¿Necesito conocimientos técnicos?", 
+                      a: "No. La plataforma te guiará durante la configuración de correos, WhatsApp y automatizaciones." 
+                    },
+                    { 
+                      q: "¿Pro garantiza que conseguiré ventas?", 
+                      a: "No. Aprende Marketing proporciona estrategias, herramientas y materiales, pero los resultados dependen de tu oferta, tráfico y ejecución." 
+                    }
+                  ].map((faq, idx) => {
+                    const isFaqOpen = openFaq === idx;
+                    return (
+                      <div 
+                        key={idx}
+                        onClick={() => setOpenFaq(isFaqOpen ? null : idx)}
+                        className="border border-white/5 bg-[#0c0c0e] hover:bg-[#121216] p-6 rounded-2xl cursor-pointer transition-all space-y-3.5 select-none"
+                      >
+                        <div className="flex justify-between items-center gap-4">
+                          <h4 className="text-sm font-bold text-white tracking-tight flex-1">{faq.q}</h4>
+                          <div className={`p-1 rounded-lg bg-white/5 text-gray-400 transition-transform duration-300 ${isFaqOpen ? 'rotate-180 text-[#FF5A1F]' : ''}`}>
+                            <ChevronDown className="w-4 h-4" />
+                          </div>
+                        </div>
+                        
+                        <AnimatePresence initial={false}>
+                          {isFaqOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
+                            >
+                              <p className="text-xs text-gray-400 leading-relaxed font-semibold pt-2 border-t border-white/5">
+                                {faq.a}
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 5. Clean footer logos block */}
+              <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left mb-10">
+                <div className="flex gap-4 items-center">
+                  <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center shrink-0 shadow-md">
+                    <Lock className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-extrabold text-white tracking-tight">Pago 100% seguro</h5>
+                    <p className="text-xs text-gray-500 mt-0.5 font-semibold">Tus datos y pagos están protegidos con cifrado de nivel bancario.</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 bg-white/[0.01] border border-white/5 p-2 rounded-2xl">
+                  {["Visa", "Mastercard", "American Express", "Stripe Seguro"].map((brand, bIdx) => (
+                    <span 
+                      key={bIdx} 
+                      className="text-[10px] font-black text-gray-400 uppercase bg-black/40 px-3 py-1.5 rounded-lg font-mono border border-white/5 shadow-inner"
+                    >
+                      {brand}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+            </>
+          )}
+
+        </main>
+      </motion.div>
     </div>
   );
 };
