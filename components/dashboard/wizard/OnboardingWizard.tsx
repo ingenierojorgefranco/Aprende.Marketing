@@ -4419,7 +4419,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       <h3 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">
                         ¿Creamos tu primer proyecto?
                       </h3>
-                      <p className="text-zinc-500 text-xs md:text-sm font-medium">
+                      <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up">
                         Vas a crear una estrategia para:
                       </p>
                     </div>
@@ -4446,7 +4446,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     </div>
 
                     {/* Value generation paragraph */}
-                    <p className="text-zinc-400 text-xs leading-relaxed max-w-sm mx-auto">
+                    <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{ fontSize: "1.1em", lineHeight: "1.3em" }}>
                       A continuación generaremos la audiencia, los principales dolores y los ángulos de venta que utilizarás en tu proyecto.
                     </p>
 
@@ -4458,7 +4458,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       return (
                         <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/15 rounded-xl px-4 py-3.5 flex items-center justify-center gap-2.5 text-zinc-300 text-xs">
                           <Info className="w-4 h-4 text-[#FF5A1F] shrink-0" />
-                          <span className="leading-tight">
+                          <span className="leading-tight text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{ fontSize: "1.3em" }}>
                             Utilizarás <strong className="text-[#FF5A1F] font-bold">1 proyecto</strong> · Te quedarán <strong className="text-amber-500 font-bold">{remainingProjects} disponibles</strong>
                           </span>
                         </div>
@@ -4551,6 +4551,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     progress={generationProgress}
                     status={generationStatus}
                     secondsElapsed={secondsElapsed}
+                    project={selectedProject || unlockedProject}
                   />
                 </div>
               )}
@@ -4603,14 +4604,12 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   ref={creationRef}
                   className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
                 >
-                  <h1 className="text-center text-emerald-500 font-black uppercase tracking-widest mb-10">
-                    Estoy creando tu Página Web Profesional
-                  </h1>
                   <GenerationStep
                     progress={generationProgress}
                     status={generationStatus}
                     secondsElapsed={secondsElapsed}
                     message="Crearé tu página web profesional para capturar clientes interesados."
+                    project={selectedProject || unlockedProject}
                   />
                 </div>
               )}
@@ -4660,14 +4659,12 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             {/* 6.5 GENERANDO HOOKS (LOADING) */}
             {step === "generating_hooks" && (
               <div className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
-                <h1 className="text-center text-purple-500 font-black uppercase tracking-widest mb-10">
-                  Generando Activos de Atracción
-                </h1>
                 <GenerationStep
                   progress={generationProgress}
                   status={generationStatus}
                   secondsElapsed={secondsElapsed}
                   message="Estamos creando los videos para atraer tus potenciales clientes."
+                  project={selectedProject || unlockedProject}
                 />
               </div>
             )}

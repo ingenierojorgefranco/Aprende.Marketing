@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame } from 'lucide-react';
+import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface StepProps {
@@ -335,7 +335,10 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                                 <h3 className="text-2xl md:text-4xl font-extrabold text-white leading-tight tracking-tight">
                                     {displayTitle}
                                 </h3>
-                                <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
+                                <p 
+                                    className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" 
+                                    style={{ fontSize: "1.06rem", lineHeight: "1.6rem" }}
+                                >
                                     {idealText}
                                 </p>
                             </div>
@@ -356,40 +359,47 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                                     <Target className="w-5 h-5 text-[#FF5A1F] shrink-0" />
                                     <p className="text-zinc-200 text-xs md:text-sm font-medium">Estrategia orgánica + clase gratuita</p>
                                 </div>
+
+                                <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/15 p-3 md:p-4 rounded-xl flex items-center gap-2.5 mt-4">
+                                    <Info className="w-4.5 h-4.5 text-[#FF5A1F] shrink-0" />
+                                    <p className="text-zinc-300 font-medium text-xs md:text-sm">
+                                        Tú revisarás y personalizarás la estrategia antes de publicarla.
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
                         {/* Bottom stats cards */}
                         <div className="space-y-3 pt-6 border-t border-white/5">
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="flex flex-col gap-3">
                                 {/* Price Card */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex items-center gap-3">
+                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex items-center gap-4 hover:border-white/10 transition-colors">
                                     <Tag className="w-5 h-5 text-[#FF5A1F] shrink-0" />
                                     <div className="flex flex-col text-left">
-                                        <span className="text-[10px] md:text-[11px] font-semibold text-zinc-500 uppercase tracking-wider leading-none">Precio</span>
-                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1">
+                                        <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider leading-none">Precio del producto</span>
+                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1.5">
                                             USD {project.fullPrice || '200'}
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Commission Card */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex items-center gap-3">
+                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex items-center gap-4 hover:border-white/10 transition-colors">
                                     <Percent className="w-5 h-5 text-[#FF5A1F] shrink-0" />
                                     <div className="flex flex-col text-left">
-                                        <span className="text-[10px] md:text-[11px] font-semibold text-zinc-500 uppercase tracking-wider leading-none">Comisión</span>
-                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1">
+                                        <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider leading-none">Comisión que obtendrás</span>
+                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1.5">
                                             {displayCommission} %
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Estimated Revenue Card */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex items-center gap-3">
+                                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 flex items-center gap-4 hover:border-white/10 transition-colors">
                                     <TrendingUp className="w-5 h-5 text-[#FF5A1F] shrink-0" />
                                     <div className="flex flex-col text-left">
-                                        <span className="text-[10px] md:text-[11px] font-semibold text-zinc-500 uppercase tracking-wider leading-none">Estimado por venta</span>
-                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1">
+                                        <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider leading-none">Tu ganancia por venta</span>
+                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1.5">
                                             USD {Math.round(parseFloat(profitValue))}
                                         </span>
                                     </div>
@@ -467,41 +477,22 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                             <div className="space-y-2.5">
                                 <div className="flex items-center gap-3">
                                     <Users className="w-4 h-4 text-[#FF5A1F]" />
-                                    <span className="text-zinc-300 text-xs md:text-sm">Audiencia y ángulo de venta</span>
+                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up">Audiencia y ángulo de venta</span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <FileText className="w-4 h-4 text-[#FF5A1F]" />
-                                    <span className="text-zinc-300 text-xs md:text-sm">Página de captación</span>
+                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up">Página de captación</span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <Mail className="w-4 h-4 text-[#FF5A1F]" />
-                                    <span className="text-zinc-300 text-xs md:text-sm">Contenido y seguimiento inicial</span>
+                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up">Contenido y seguimiento inicial</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Highlight review text */}
-                        <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/15 p-3 md:p-4 rounded-xl flex items-center gap-2.5">
-                            <Info className="w-4.5 h-4.5 text-[#FF5A1F] shrink-0" />
-                            <p className="text-zinc-300 font-medium text-xs md:text-sm">
-                                Tú revisarás y personalizarás la estrategia antes de publicarla.
-                            </p>
-                        </div>
-
                         {/* Actions stack (Vertical flow identical to Image 2) */}
                         <div className="flex flex-col gap-3 pt-2">
-                            {/* Back selection button (Top button) */}
-                            {onBackToSelection && (
-                                <button 
-                                    type="button"
-                                    onClick={onBackToSelection}
-                                    className="w-full py-3 px-4 bg-transparent hover:bg-white/[0.04] text-white hover:text-zinc-200 border border-white/20 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
-                                >
-                                    <span>← Volver a los productos</span>
-                                </button>
-                            )}
-                            
-                            {/* Choose primary strategy build button (Bottom button) */}
+                            {/* Choose primary strategy build button (Top button) */}
                             <button 
                                 type="button"
                                 onClick={() => !isStrategyGenerated && onNext()}
@@ -512,10 +503,16 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </button>
 
-                            {/* Centered credit info */}
-                            <div className="text-center">
-                                <span className="text-[11px] text-zinc-500 font-medium">Esta acción utilizará 1 de tus proyectos disponibles.</span>
-                            </div>
+                            {/* Back selection button (Bottom button) */}
+                            {onBackToSelection && (
+                                <button 
+                                    type="button"
+                                    onClick={onBackToSelection}
+                                    className="w-full py-3 px-4 bg-transparent hover:bg-white/[0.04] text-white hover:text-zinc-200 border border-white/20 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+                                >
+                                    <span>← Volver a los productos</span>
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -526,73 +523,180 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
 };
 
 // 3. GENERACIÓN (LOADING STATE)
-export const GenerationStep: React.FC<{ progress: number, status: string, secondsElapsed?: number, message?: string }> = ({ progress, status, secondsElapsed = 0, message }) => {
+export const GenerationStep: React.FC<{ 
+    progress: number; 
+    status: string; 
+    secondsElapsed?: number; 
+    message?: string;
+    project?: any;
+}> = ({ progress, status, secondsElapsed = 0, message, project }) => {
+    const isWeb = message?.toLowerCase().includes('web') || message?.toLowerCase().includes('página') || status?.toLowerCase().includes('página');
+    const isVideo = message?.toLowerCase().includes('video') || message?.toLowerCase().includes('atracción') || message?.toLowerCase().includes('video') || status?.toLowerCase().includes('videos');
+
+    let displayTitle = (
+        <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+            Estamos <span className="text-[#FF5A1F]">preparando</span> tu proyecto
+        </h2>
+    );
+    if (isWeb) {
+        displayTitle = (
+            <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                Estamos <span className="text-[#FF5A1F]">creando</span> tu página web
+            </h2>
+        );
+    } else if (isVideo) {
+        displayTitle = (
+            <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                Estamos <span className="text-[#FF5A1F]">creando</span> tus videos
+            </h2>
+        );
+    } else {
+        displayTitle = (
+            <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                Estamos <span className="text-[#FF5A1F]">preparando</span> tu proyecto
+            </h2>
+        );
+    }
+
+    let displaySubtitle = "Analizamos el producto seleccionado para crear la base inicial de tu estrategia.";
+    if (isWeb) {
+        displaySubtitle = "Crearemos tu página web profesional para capturar clientes interesados.";
+    } else if (isVideo) {
+        displaySubtitle = "Estamos creando los videos para atraer tus potenciales clientes.";
+    }
+
+    const step1State = (progress >= 33 ? 'completed' : 'active') as 'completed' | 'active' | 'pending';
+    const step2State = (progress >= 66 ? 'completed' : (progress >= 33 ? 'active' : 'pending')) as 'completed' | 'active' | 'pending';
+    const step3State = (progress >= 100 ? 'completed' : (progress >= 66 ? 'active' : 'pending')) as 'completed' | 'active' | 'pending';
+
+    const renderCircle = (state: 'completed' | 'active' | 'pending') => {
+        if (state === 'completed') {
+            return (
+                <div className="w-6 h-6 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-[0_0_12px_rgba(255,90,31,0.4)] shrink-0">
+                    <svg className="w-3.5 h-3.5 text-white stroke-[3.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                </div>
+            );
+        }
+        if (state === 'active') {
+            return (
+                <div className="w-6 h-6 rounded-full border border-[#FF5A1F] bg-[#FF5A1F]/5 flex items-center justify-center shrink-0 relative">
+                    <div className="absolute inset-0 rounded-full border-2 border-t-transparent border-[#FF5A1F] animate-spin"></div>
+                    <div className="w-2 h-2 rounded-full bg-[#FF5A1F] animate-ping"></div>
+                </div>
+            );
+        }
+        return (
+            <div className="w-6 h-6 rounded-full border border-zinc-700 bg-transparent flex items-center justify-center shrink-0"></div>
+        );
+    };
+
+    const imageUrl = project?.multimedia_json?.heroImages?.[0] || 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=2670&auto=format&fit=cover';
+    const productName = project?.productName || project?.name || 'Curso Profesional de Microblading de Cejas';
+
     return (
-        <div className="flex flex-col items-center justify-center px-6 space-y-12 text-center max-w-4xl mx-auto py-10">
+        <div className="flex flex-col items-center justify-center px-6 space-y-8 text-center max-w-xl mx-auto py-10">
+            {/* 1. Header with orange glow and slow spinning settings icon */}
             <div className="relative">
-                <div className="absolute inset-x-0 -top-20 -bottom-20 bg-[#FF5A1F]/20 blur-[120px] rounded-full animate-pulse transition-all duration-1000"></div>
-                <div className="relative w-40 h-40 rounded-[3rem] bg-[#0A0A0A] border-2 border-[#FF5A1F]/30 flex items-center justify-center shadow-[0_25px_100px_-20px_rgba(255,90,31,0.3)] group overflow-hidden">
-                    <Brain className="w-20 h-20 text-[#FF5A1F] animate-bounce" />
+                <div className="absolute inset-x-0 -top-12 -bottom-12 bg-[#FF5A1F]/20 blur-[80px] rounded-full animate-pulse transition-all duration-1000"></div>
+                <div className="relative w-28 h-28 rounded-3xl bg-[#0A0A0A] border-2 border-[#FF5A1F]/30 flex items-center justify-center shadow-[0_15px_60px_-15px_rgba(255,90,31,0.3)] group overflow-hidden">
+                    <Settings className="w-14 h-14 text-[#FF5A1F] animate-spin-slow" />
                     <div className="absolute inset-0 bg-gradient-to-tr from-[#FF5A1F]/5 to-transparent"></div>
-                    <div className="absolute -bottom-2 -right-2 bg-emerald-500 p-3 rounded-full shadow-2xl border-4 border-[#0A0A0A] animate-in zoom-in-50 duration-500">
-                        <Sparkles className="w-5 h-5 text-white animate-spin-slow" />
+                </div>
+            </div>
+
+            {/* 2. Titles */}
+            <div className="space-y-3">
+                {displayTitle}
+                <p className="text-zinc-400 text-sm md:text-base font-light max-w-md mx-auto leading-relaxed">
+                    {displaySubtitle}
+                </p>
+            </div>
+
+            {/* 3. Selected Product Card */}
+            <div className="w-full bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex items-center gap-4 text-left max-w-md mx-auto shadow-xl">
+                <div className="w-20 md:w-24 aspect-video rounded-lg overflow-hidden relative shrink-0 bg-zinc-900 border border-white/10 flex items-center justify-center">
+                    <img referrerPolicy="no-referrer" src={imageUrl} alt={productName} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <div className="w-8 h-8 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-lg">
+                            <Play className="w-4 h-4 text-white fill-current translate-x-0.5" />
+                        </div>
+                    </div>
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-[#FF5A1F] uppercase tracking-[0.2em]">PRODUCTO SELECCIONADO</span>
+                    <h4 className="text-white font-extrabold text-sm md:text-base leading-snug mt-1 line-clamp-2">{productName}</h4>
+                </div>
+            </div>
+
+            {/* 4. Progressive Checklist */}
+            <div className="w-full bg-[#111111]/40 border border-white/5 rounded-2xl p-5 space-y-4 max-w-md mx-auto text-left backdrop-blur-sm shadow-xl">
+                {/* Step 1 */}
+                <div className="flex items-start gap-3.5 font-sans">
+                    {renderCircle(step1State)}
+                    <div className="flex flex-col">
+                        <span className={`text-sm font-bold leading-tight ${step1State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
+                            Analizando el producto
+                        </span>
+                        <span className="text-xs text-zinc-500 mt-0.5">
+                            Identificando su propuesta, público y principales beneficios.
+                        </span>
+                    </div>
+                </div>
+
+                {/* Step 2 */}
+                <div className="flex items-start gap-3.5 font-sans">
+                    {renderCircle(step2State)}
+                    <div className="flex flex-col">
+                        <span className={`text-sm font-bold leading-tight ${step2State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
+                            Preparando la audiencia
+                        </span>
+                        <span className="text-xs text-zinc-500 mt-0.5">
+                            Organizando los perfiles de cliente que podrás revisar.
+                        </span>
+                    </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="flex items-start gap-3.5 font-sans">
+                    {renderCircle(step3State)}
+                    <div className="flex flex-col">
+                        <span className={`text-sm font-bold leading-tight ${step3State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
+                            Construyendo la estrategia inicial
+                        </span>
+                        <span className="text-xs text-zinc-500 mt-0.5">
+                            Preparando dolores, deseos y posibles ángulos de venta.
+                        </span>
                     </div>
                 </div>
             </div>
 
-            <div className="space-y-10 w-full max-w-2xl relative z-10">
-                <div className="space-y-4">
-                    <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter italic leading-none">
-                        {status || 'Perfecto, estoy creando tu estrategia de Ventas'}
-                    </h2>
-                    <p className="text-white text-lg md:text-xl font-medium italic max-w-lg mx-auto leading-relaxed">
-                        "{message || "No cierres esta ventana, estoy analizando el producto digital que has elegido y configurando todo lo que necesitas para generar ventas masivas."}"
-                    </p>
+            {/* 5. Progress Bar */}
+            <div className="w-full max-w-md space-y-2">
+                <div className="w-full bg-[#111] h-5 rounded-full overflow-hidden border border-white/10 p-1 relative shadow-inner">
+                    <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress}%` }}
+                        className="h-full bg-gradient-to-r from-[#FF5A1F] via-[#FF8C00] to-[#FFCD42] rounded-full relative shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                    >
+                        <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] -translate-x-full animate-[loading-shine_1.5s_infinite]"></div>
+                    </motion.div>
                 </div>
-                
-                <div className="flex flex-col items-center gap-8">
-                    {/* Contador de tiempo */}
-                    <div className="bg-gradient-to-br from-[#111] to-black p-10 rounded-[3rem] border border-white/5 shadow-2xl text-center min-w-[320px] transform hover:scale-105 transition-transform">
-                        <p className="text-[#FF5A1F] font-black uppercase tracking-[0.4em] text-[10px] mb-4">Terminaré en menos de</p>
-                        <div className="text-white font-mono text-6xl font-black tracking-tighter drop-shadow-[0_5px_15px_rgba(255,255,255,0.1)]">
-                            {Math.floor(Math.max(0, 90 - secondsElapsed) / 60).toString().padStart(2, '0')}:{(Math.max(0, 90 - secondsElapsed) % 60).toString().padStart(2, '0')}
-                        </div>
-                        {secondsElapsed > 90 && (
-                            <p className="text-amber-500 font-bold text-sm mt-4 animate-pulse">
-                                Espera un poco más, estoy ultimando detalles
-                            </p>
-                        )}
-                    </div>
+                <div className="flex justify-end pr-1">
+                    <span className="text-xs font-bold text-[#FF5A1F]">
+                        {Math.round(progress)}%
+                    </span>
+                </div>
+            </div>
 
-                    <div className="w-full space-y-6">
-                        <div className="flex justify-between items-end px-4">
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">
-                                    Desbloqueando Producto Digital...
-                                </span>
-                            </div>
-                            <span className="text-2xl font-black text-[#FF5A1F]">
-                                {Math.round(progress)}%
-                            </span>
-                        </div>
-                        <div className="w-full bg-[#111] h-8 rounded-full overflow-hidden border border-white/10 p-1.5 shadow-2xl relative">
-                            <motion.div 
-                                initial={{ width: 0 }}
-                                animate={{ width: `${progress}%` }}
-                                className="h-full bg-gradient-to-r from-[#FF5A1F] via-[#FF8C00] to-white rounded-full relative"
-                            >
-                                <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] -translate-x-full animate-[loading-shine_1.5s_infinite]"></div>
-                            </motion.div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 px-8 py-4 bg-red-500/5 border border-red-500/20 rounded-[2rem] backdrop-blur-md">
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></div>
-                        <p className="text-red-400 font-bold uppercase text-[10px] tracking-[0.2em]">
-                            ⚠️ No cierres esta ventana, estoy creando tu estrategia digital...
-                        </p>
-                    </div>
+            {/* 6. Info card footer */}
+            <div className="flex items-center gap-3 justify-center text-zinc-400 text-xs md:text-sm max-w-md mx-auto pt-2 font-sans">
+                <Info className="w-5 h-5 text-[#FF5A1F] shrink-0" />
+                <div className="text-left">
+                    <p className="font-bold text-zinc-300 text-xs md:text-sm">Este proceso suele tardar unos instantes.</p>
+                    <p className="text-zinc-500 text-[10px] md:text-xs">Te llevaremos automáticamente al siguiente paso cuando esté listo.</p>
                 </div>
             </div>
         </div>
