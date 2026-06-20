@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink, GraduationCap, Puzzle, Clock } from 'lucide-react';
+import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink, GraduationCap, Puzzle, Clock, Download, Check } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface StepProps {
@@ -919,18 +919,13 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                     <div className="space-y-6">
                         {/* Cabecera Izquierda */}
                         <div className="space-y-4">
-                            {/* Icono Check superior verde esmeralda brillante */}
-                            <div className="bg-emerald-500 text-white rounded-xl w-14 h-14 flex items-center justify-center border border-emerald-400/20 shadow-lg shadow-emerald-500/10">
-                                <CheckCircle className="w-8 h-8 text-white fill-emerald-500" />
-                            </div>
-                            
                             <h2 className="text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[4rem] font-black text-white leading-[1.05] tracking-tight mt-3">
                                 Tu página de <br />
                                 <span className="text-emerald-400">Captura de Clientes</span> ha sido <br />
                                 generada
                             </h2>
                             <p className="text-white font-light text-base md:text-lg md:leading-relaxed animate-fade-in-up">
-                                Tu página está lista y configurada para recibir visitas y capturar registros
+                                Con tu Página Web de Captura tus visitantes podrán conocer la oferta de tu producto digital y dejar sus datos para acceder a su clase gratuita.
                             </p>
                         </div>
 
@@ -956,10 +951,10 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                                     <input
                                         type="text"
                                         readOnly
-                                        value={`aprende.marketing/${subdomainPart || "microblading-demo"}`}
+                                        value={`aprende.marketing/admin/lp/${subdomainPart || "microblading-demo"}`}
                                         onClick={(e) => {
                                             e.currentTarget.select();
-                                            navigator.clipboard.writeText(`https://aprende.marketing/${subdomainPart || "microblading-demo"}`);
+                                            navigator.clipboard.writeText(`https://aprende.marketing/admin/lp/${subdomainPart || "microblading-demo"}`);
                                         }}
                                         className="bg-zinc-900/60 border border-zinc-800/60 text-zinc-400 text-xs font-mono px-3 py-1.5 rounded-lg w-full sm:w-56 cursor-pointer focus:outline-none focus:border-[#FF5A1F]/50 select-all font-semibold"
                                         title="Haz clic para copiar automáticamente"
@@ -990,7 +985,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
 
                         <div className="space-y-3 mt-4">
                             <p className="text-white font-light text-base md:text-lg md:leading-relaxed animate-fade-in-up">
-                                Ahora prepararemos los 3 videos de atracción que utilizarás para llevar visitantes hacia tu página.
+                                Ahora prepararemos 3 videos de menos de un minuto (Reels) que utilizarás para atraer visitas y llevarles hacia la página que acabamos de crear .
                             </p>
                         </div>
                     </div>
@@ -1015,7 +1010,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                 <div className="lg:col-span-7 flex flex-col justify-center">
                     <div className="flex flex-col h-full bg-[#080809]/40 border border-zinc-805 rounded-[2.5rem] p-5 md:p-6 shadow-3xl justify-center">
                         {/* Mockup de Navegador Web */}
-                        <div className="min-h-[400px] lg:min-h-[520px] max-h-[620px] bg-[#121214] border border-zinc-800 rounded-[1.75rem] overflow-hidden flex flex-col shadow-2xl relative w-full">
+                        <div className="h-[75vh] lg:h-[82vh] min-h-[500px] bg-[#121214] border border-zinc-800 rounded-[1.75rem] overflow-hidden flex flex-col shadow-2xl relative w-full">
                             {/* Barra de Direcciones estilo Chrome/Safari */}
                             <div className="bg-[#1c1c1f] px-4 py-3.5 flex items-center justify-between border-b border-zinc-900 select-none">
                                 <div className="flex items-center gap-4 flex-1">
@@ -1037,7 +1032,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                                     <div className="flex-1 bg-[#121214] border border-zinc-800 rounded-xl px-4 py-2 text-xs text-zinc-300 flex items-center gap-2 overflow-hidden select-all shadow-inner max-w-lg">
                                         <Lock className="w-3 h-3 text-emerald-500 shrink-0" />
                                         <span className="truncate font-mono text-zinc-400 font-semibold">
-                                            tuproyecto.aprendemarketing.com
+                                            aprende.marketing/admin/lp/{subdomainPart || "microblading-demo"}
                                         </span>
                                     </div>
                                 </div>
@@ -1091,6 +1086,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
     const hooksGridRef = React.useRef<HTMLDivElement>(null);
     const [showUpgradeModal, setShowUpgradeModal] = React.useState(false);
     const [showWarningModal, setShowWarningModal] = React.useState(false);
+    const [selectedScript, setSelectedScript] = React.useState<string | null>(null);
 
     // Scroll automatically when unlocked
     React.useEffect(() => {
@@ -1156,6 +1152,399 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
             );
         });
     };
+
+    if (isUnlocked) {
+        return (
+            <motion.div 
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full max-w-[1400px] mx-auto p-2 md:p-6 lg:p-8 font-sans animate-fade-in"
+                style={{ paddingTop: 0 }}
+            >
+                {/* Stepper Superior de Progreso al tope de la pantalla */}
+                <div id="step-progress-header" className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-zinc-800/60 pb-6 mb-8 select-none">
+                    <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs font-semibold text-zinc-400">
+                        {/* Paso 1: Estrategia */}
+                        <div className="flex items-center gap-2 text-zinc-300">
+                            <span className="w-5 h-5 rounded-full border border-orange-500/50 flex items-center justify-center text-[10px] text-orange-500 font-bold bg-[#FF5A1F]/10">
+                                ✓
+                            </span>
+                            <span className="font-medium">Estrategia</span>
+                        </div>
+                        
+                        <span className="text-zinc-700">/</span>
+                        
+                        {/* Paso 2: Página de Captación */}
+                        <div className="flex items-center gap-2 text-zinc-300">
+                            <span className="w-5 h-5 rounded-full border border-orange-500/50 flex items-center justify-center text-[10px] text-orange-500 font-bold bg-[#FF5A1F]/10">
+                                ✓
+                            </span>
+                            <span className="font-medium">Página de captación</span>
+                        </div>
+                        
+                        <span className="text-zinc-700">/</span>
+                        
+                        {/* Paso 3: Reels de Atracción */}
+                        <div className="flex items-center gap-2 text-white border-b-2 border-orange-500 pb-1.5 -mb-2">
+                            <span className="w-5 h-5 rounded-full bg-[#FF5A1F] flex items-center justify-center text-white text-[10px] font-black">
+                                3
+                            </span>
+                            <span className="font-black text-[#FF5A1F]">Reels de atracción</span>
+                        </div>
+                    </div>
+                    
+                    {/* Badge Sistema Inicial Completado */}
+                    <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] uppercase font-black tracking-widest px-3.5 py-1.5 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        ✓ Sistema inicial completado
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                    {/* Columna Izquierda: Uso y Beneficios Premium */}
+                    <div className="lg:col-span-12 xl:col-span-4 flex flex-col justify-between space-y-6">
+                        <div id="reels-quota-widget" className="bg-[#0b0b0c]/90 border border-zinc-805/80 rounded-3xl p-6 space-y-6 shadow-2xl relative overflow-hidden flex flex-col justify-between h-full">
+                            <div className="space-y-6">
+                                {/* Cabecera con pulsante verde estilo pulso */}
+                                <div className="flex items-start gap-4">
+                                    <div className="relative shrink-0">
+                                        <span className="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping"></span>
+                                        <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full w-12 h-12 flex items-center justify-center relative">
+                                            <CheckCircle className="w-6 h-6 text-emerald-400" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h2 className="text-2xl font-black text-white leading-none tracking-tight">
+                                            ¡Tus 3 reels <br /><span className="text-[#FF5A1F]">están listos!</span>
+                                        </h2>
+                                        <p className="text-zinc-500 text-[11px] font-light leading-tight">
+                                            Hemos preparado tres reels para atraer personas interesadas hacia tu página de captación.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Widget Consumo Radial */}
+                                <div className="pt-5 border-t border-zinc-900/60 space-y-4">
+                                    <div className="flex gap-4 items-center bg-zinc-950/45 p-4 rounded-2xl border border-zinc-900">
+                                        {/* Counter Radial */}
+                                        <div className="relative flex items-center justify-center shrink-0 w-16 h-16 rounded-full border-[5px] border-zinc-900">
+                                            <div className="absolute inset-0 rounded-full border-[5px] border-orange-500 border-t-transparent border-l-transparent transform rotate-45"></div>
+                                            <div className="text-center">
+                                                <div className="text-sm font-black text-white leading-none">3/3</div>
+                                                <div className="text-[9px] text-[#FF5A1F] leading-none mt-0.5 font-bold uppercase">reels</div>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <h4 className="text-xs font-extrabold text-white">Has utilizado tus 3 reels gratuitos</h4>
+                                            <p className="text-[10px] text-zinc-400 leading-normal font-light">
+                                                Ya completaste el contenido incluido en tu plan actual. Con Aprende Marketing Pro podrás seguir generando contenido nuevo sin detener tu ritmo de publicación.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Barra de progreso al 100% */}
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-[10px] uppercase font-black tracking-wider text-zinc-500">
+                                            <span>Consumo mensual</span>
+                                            <span className="text-orange-500 font-bold">3 de 3 reels</span>
+                                        </div>
+                                        <div className="w-full bg-zinc-900 h-2 rounded-full overflow-hidden">
+                                            <div className="h-full bg-gradient-to-r from-[#FF5A1F] to-orange-500 w-full rounded-full"></div>
+                                        </div>
+                                        <div className="bg-orange-500/10 border border-orange-500/20 text-[#FF5A1F] text-[10px] font-bold px-3 py-1.5 rounded-lg text-center select-none uppercase tracking-wide">
+                                            3 de 3 reels utilizados este mes
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Beneficios Premium list */}
+                                <div className="pt-5 border-t border-zinc-900/60 space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0 text-orange-400 text-sm">📅</span>
+                                        <span className="text-[11px] font-semibold text-zinc-350 leading-tight">Hasta 30 reels al mes</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0 text-orange-400 text-sm">💡</span>
+                                        <span className="text-[11px] font-semibold text-zinc-350 leading-tight">Nuevos hooks, ángulos y formatos</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0 text-orange-400 text-sm">🎬</span>
+                                        <span className="text-[11px] font-semibold text-zinc-350 leading-tight">Más contenido para Instagram Reels y TikTok</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Boton Desbloquear Premium */}
+                            <div className="pt-4">
+                                <button 
+                                    onClick={() => setShowUpgradeModal(true)}
+                                    className="w-full py-4 bg-[#FF5A1F] hover:bg-[#E54E15] text-white font-black text-xs rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-[#FF5A1F]/25 active:scale-98 cursor-pointer transform hover:-translate-y-0.5 uppercase tracking-widest"
+                                >
+                                    <span>👑 Desbloquear 30 reels al mes</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Columna Derecha (3 Tarjetas de Reels Listos) */}
+                    <div className="lg:col-span-12 xl:col-span-8 flex flex-col justify-between">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch h-full">
+                            {currentDisplayHooks.slice(0, 3).map((hook, idx) => {
+                                const hookTextStr = hook.hookText || hook.text || hook.title || hook.question || '';
+                                const downloadVideoUrl = hook.contentJson?.downloadUrl || hook.contentJson?.videoUrl || hook.downloadUrl || hook.videoUrl || '#';
+
+                                const formats = ["Oportunidad", "Problema y solución", "Educación"];
+                                const formattedDurations = ["0:35", "0:42", "0:38"];
+                                const objectives = ["Despertar interés", "Generar identificación", "Presentar la oportunidad"];
+                                const destValue = isManicurista ? "Clase gratuita de manicuría" : "Clase gratuita de microblading";
+
+                                return (
+                                    <div 
+                                        key={idx}
+                                        className="bg-[#0b0b0c]/95 border border-zinc-800/80 rounded-3xl overflow-hidden flex flex-col h-full shadow-lg group hover:border-[#FF5A1F]/40 hover:shadow-2xl hover:shadow-[#FF5A1F]/5 transition-all duration-300 relative"
+                                    >
+                                        {/* Mockup Header con visual oscuro y play button */}
+                                        <div className="relative aspect-[16/11] w-full overflow-hidden border-b border-zinc-850 bg-zinc-950 flex flex-col justify-between select-none">
+                                            {(() => {
+                                                const manicureImages = [
+                                                    "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=500", 
+                                                    "https://images.unsplash.com/photo-1632345031435-8797b2d58045?auto=format&fit=crop&q=80&w=500", 
+                                                    "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&q=80&w=500"
+                                                ];
+                                                const microbladingImages = [
+                                                    "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&q=80&w=500", 
+                                                    "https://images.unsplash.com/photo-1621241804687-57a9773245f9?auto=format&fit=crop&q=80&w=500", 
+                                                    "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&q=80&w=500"
+                                                ];
+                                                const imageUrl = isManicurista ? manicureImages[idx] : microbladingImages[idx];
+                                                return (
+                                                    <img 
+                                                        src={imageUrl} 
+                                                        alt={`Reel ${idx + 1}`} 
+                                                        className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none opacity-30 brightness-[0.25] blur-[0.5px] group-hover:scale-105 transition-transform duration-500"
+                                                        referrerPolicy="no-referrer"
+                                                    />
+                                                );
+                                            })()}
+                                            
+                                            {/* Overlays */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black via-zinc-950/90 to-zinc-950/90 mix-blend-multiply"></div>
+                                            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/95"></div>
+
+                                            {/* Badges superiores */}
+                                            <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-10">
+                                                <span className="bg-[#FF5A1F] text-white text-[9px] font-black px-2.5 py-1 rounded-md tracking-wider shadow-sm uppercase">
+                                                    REEL {idx + 1}
+                                                </span>
+                                                <span className="bg-black/80 backdrop-blur-md border border-white/10 text-orange-400 text-[9px] font-black px-2.5 py-1 rounded-md tracking-wider shadow-sm">
+                                                    {formats[idx]}
+                                                </span>
+                                            </div>
+
+                                            {/* Play button interactivo en hover */}
+                                            <div className="absolute inset-0 flex items-center justify-center z-10">
+                                                <button 
+                                                    onClick={() => setSelectedScript(hookTextStr)}
+                                                    className="w-12 h-12 bg-black/60 backdrop-blur-md border border-white/10 hover:bg-[#FF5A1F] hover:border-transparent hover:scale-110 active:scale-95 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-xl cursor-pointer"
+                                                >
+                                                    <Play className="w-5 h-5 fill-white text-white ml-0.5 shrink-0" />
+                                                </button>
+                                            </div>
+
+                                            {/* Duracion abajo en esquina */}
+                                            <span className="absolute bottom-3 right-3 bg-black/75 text-white/90 text-[10px] font-bold px-2 py-0.5 rounded-lg tracking-wide font-mono z-10 shadow border border-white/5 select-none">
+                                                {formattedDurations[idx]}
+                                            </span>
+                                        </div>
+
+                                        {/* Bottom details card info */}
+                                        <div className="p-5 flex-1 flex flex-col justify-between bg-zinc-950/30 gap-4">
+                                            <div className="space-y-3.5">
+                                                {/* Hook text container */}
+                                                <p className="text-white text-sm font-semibold leading-snug tracking-tight min-h-[50px] line-clamp-3">
+                                                    {highlightText(hookTextStr)}
+                                                </p>
+
+                                                {/* Ficha tecnica */}
+                                                <div className="space-y-2 pt-3.5 border-t border-zinc-900/65 text-[11px]">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-zinc-500 font-medium">Objetivo</span>
+                                                        <span className="text-zinc-300 font-bold text-right">{objectives[idx]}</span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-zinc-500 font-medium">Formato</span>
+                                                        <span className="text-zinc-300 font-bold text-right">{formats[idx]}</span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-zinc-500 font-medium">Destino</span>
+                                                        <span className="text-zinc-300 font-bold text-right truncate max-w-[150px]" title={destValue}>{destValue}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Action button rows */}
+                                            <div className="space-y-2 pt-3 border-t border-zinc-900/40">
+                                                <button 
+                                                    onClick={() => {
+                                                        const link = document.createElement("a");
+                                                        link.href = downloadVideoUrl;
+                                                        link.target = "_blank";
+                                                        link.click();
+                                                    }}
+                                                    className="w-full py-3 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all whitespace-nowrap active:scale-98 cursor-pointer shadow-sm shadow-[#FF5A1F]/10 uppercase tracking-wider"
+                                                >
+                                                    <Download className="w-3.5 h-3.5 shrink-0" />
+                                                    Descargar reel
+                                                </button>
+
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <button 
+                                                        onClick={() => setSelectedScript(hookTextStr)}
+                                                        className="w-full py-2.5 bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-805 text-zinc-300 text-[10.5px] font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                                                    >
+                                                        <Play className="w-3.5 h-3.5 shrink-0" />
+                                                        Ver reel
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setSelectedScript(hookTextStr)}
+                                                        className="w-full py-2.5 bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-805 text-zinc-300 text-[10.5px] font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                                                    >
+                                                        <FileText className="w-3.5 h-3.5 shrink-0" />
+                                                        Ver guion
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Caja Inferior de Sistema Web Configurado */}
+                <div id="setup-complete-status-footer" className="col-span-12 mt-8">
+                    <div className="bg-[#0b0b0c]/90 border border-zinc-800/85 rounded-[2.5rem] p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
+                        {/* Glow de fondo */}
+                        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none select-none"></div>
+
+                        {/* Lado Izquierdo: check verde y badges indicadoras */}
+                        <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
+                            <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/5">
+                                <CheckCircle className="w-8 h-8 text-emerald-500 fill-emerald-500/5" />
+                            </div>
+                            <div className="space-y-3.5 text-center md:text-left">
+                                <div className="space-y-1">
+                                    <h3 className="text-xl md:text-2xl font-black text-white leading-tight">
+                                        Tu sistema inicial ya quedó configurado
+                                    </h3>
+                                    <p className="text-zinc-400 text-xs md:text-sm leading-relaxed font-light">
+                                        Tus 3 reels, tu página de destino y los textos de publicación ya están preparados dentro de tu proyecto.
+                                    </p>
+                                </div>
+                                {/* Bullet indicator Tags */}
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 pt-0.5">
+                                    <div className="flex items-center gap-1.5 bg-zinc-900/70 border border-zinc-800/70 text-[10px] font-semibold text-zinc-300 px-3.5 py-1 rounded-full text-center">
+                                        <span className="w-3.5 h-3.5 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-400 text-[10px] font-extrabold select-none">✓</span>
+                                        <span>3 reels preparados</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 bg-zinc-900/70 border border-zinc-800/70 text-[10px] font-semibold text-zinc-300 px-3.5 py-1 rounded-full text-center">
+                                        <span className="w-3.5 h-3.5 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-400 text-[10px] font-extrabold select-none">✓</span>
+                                        <span>Página de destino vinculada</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 bg-zinc-900/70 border border-zinc-800/70 text-[10px] font-semibold text-zinc-300 px-3.5 py-1 rounded-full text-center">
+                                        <span className="w-3.5 h-3.5 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-400 text-[10px] font-extrabold select-none">✓</span>
+                                        <span>Guion y CTA incluidos</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Button Lado Derecho */}
+                        <div className="shrink-0 text-center space-y-2">
+                            <button 
+                                onClick={() => onNext()}
+                                className="px-8 py-5 bg-gradient-to-r from-[#FF5A1F] to-orange-500 hover:from-[#E54E15] hover:to-orange-600 text-white rounded-xl font-black text-sm tracking-wide transition-all shadow-xl shadow-orange-500/5 active:scale-98 cursor-pointer transform hover:-translate-y-0.5 flex items-center justify-center gap-2.5 relative group overflow-hidden uppercase"
+                            >
+                                <span>Finalizar configuración y ver mi proyecto</span>
+                                <Rocket className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </button>
+                            <p className="text-[10px] text-zinc-500 font-medium">
+                                Podrás descargar, revisar y gestionar todo desde tu panel del proyecto.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Secure iframe Custom script and copywriting Modal Overlay */}
+                {selectedScript && (
+                    <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="bg-[#0a0a0b] border border-zinc-800/80 rounded-3xl w-full max-w-2xl p-6 md:p-8 space-y-6 shadow-2xl relative"
+                        >
+                            <div className="flex items-center justify-between pb-3 border-b border-zinc-900">
+                                <h3 className="text-lg md:text-xl font-black text-white flex items-center gap-2">
+                                    <FileText className="w-5 h-5 text-[#FF5A1F]" />
+                                    Guion y Copywriting de tu Reel
+                                </h3>
+                                <button 
+                                    onClick={() => setSelectedScript(null)}
+                                    className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800/80 text-zinc-400 hover:text-white flex items-center justify-center transition-colors font-bold cursor-pointer"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            
+                            <div className="space-y-4">
+                                <div className="bg-zinc-950 p-5 rounded-2xl border border-zinc-900 text-zinc-100 text-sm md:text-base leading-relaxed font-sans min-h-[120px] whitespace-pre-wrap select-all">
+                                    {selectedScript}
+                                </div>
+                                <div className="space-y-2.5 bg-[#FF5A1F]/5 border border-[#FF5A1F]/15 p-4 rounded-xl">
+                                    <h4 className="text-[#FF5A1F] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                        <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                                        Estructura Psicológica del Reel
+                                    </h4>
+                                    <p className="text-zinc-400 text-xs leading-normal">
+                                        <strong>1. Gancho (0s - 5s):</strong> Empieza con el texto resaltado de arriba. Debe leerse con entonación curiosa y sin rodeos y que capte la atención.<br />
+                                        <strong>2. Desarrollo (5s - 25s):</strong> Explica el problema o el beneficio principal de forma directa y visual.<br />
+                                        <strong>3. Llamado a la Acción (25s - 35s):</strong> Invita a descargar o visitar la clase gratuita haciendo clic en el enlace del perfil.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-3 border-t border-zinc-900">
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(selectedScript);
+                                        alert("¡Guion copiado al portapapeles con éxito!");
+                                    }}
+                                    className="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800/80 text-white rounded-xl font-bold text-xs transition-colors cursor-pointer"
+                                >
+                                    Copiar texto
+                                </button>
+                                <button 
+                                    onClick={() => setSelectedScript(null)}
+                                    className="px-6 py-2.5 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-bold text-xs transition-colors cursor-pointer"
+                                >
+                                    Entendido
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+
+                <UpgradeModal 
+                    isOpen={showUpgradeModal} 
+                    onClose={() => setShowUpgradeModal(false)} 
+                    user={userData} 
+                    currentPlan={userData?.planLimits?.planName}
+                    projectId={projectId}
+                />
+            </motion.div>
+        );
+    }
 
     return (
         <motion.div 
@@ -1292,22 +1681,38 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                         className="bg-[#0b0b0c]/90 border border-zinc-800/80 rounded-2xl overflow-hidden flex flex-col h-full shadow-lg group hover:border-[#FF5A1F]/30 hover:shadow-2xl hover:shadow-[#FF5A1F]/5 transition-all duration-300 relative"
                                     >
                                         {/* Mockup Image Header with Overlay Text */}
-                                        <div className="relative aspect-[16/11] w-full overflow-hidden border-b border-zinc-800/85 bg-zinc-950 flex items-center justify-center">
-                                            <img 
-                                                src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=500" 
-                                                alt={`Reel ${idx + 1}`} 
-                                                className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none opacity-40 brightness-[0.3] group-hover:scale-105 transition-transform duration-500"
-                                                referrerPolicy="no-referrer"
-                                            />
-                                            {/* Dark overlay gradient */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black via-zinc-950/70 to-black/80"></div>
+                                        <div className="relative aspect-[16/12] w-full overflow-hidden border-b border-zinc-800/85 bg-zinc-950 flex flex-col justify-between">
+                                            {(() => {
+                                                const manicureImages = [
+                                                    "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=500", // gorgeous red nails close-up
+                                                    "https://images.unsplash.com/photo-1632345031435-8797b2d58045?auto=format&fit=crop&q=80&w=500", // manicure care close-up
+                                                    "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&q=80&w=500"  // luxury nails styling salon
+                                                ];
+                                                const microbladingImages = [
+                                                    "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&q=80&w=500", // eyebrow shaping/microblading
+                                                    "https://images.unsplash.com/photo-1621241804687-57a9773245f9?auto=format&fit=crop&q=80&w=500", // microblading precision tool
+                                                    "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&q=80&w=500"  // brows notebook training certification
+                                                ];
+                                                const imageUrl = isManicurista ? manicureImages[idx] : microbladingImages[idx];
+                                                return (
+                                                    <img 
+                                                        src={imageUrl} 
+                                                        alt={`Reel ${idx + 1}`} 
+                                                        className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none opacity-30 brightness-[0.25] blur-[1px] group-hover:scale-105 transition-transform duration-500"
+                                                        referrerPolicy="no-referrer"
+                                                    />
+                                                );
+                                            })()}
+                                            {/* Dark overlay gradients */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black via-zinc-950/90 to-zinc-950/90 mix-blend-multiply"></div>
+                                            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/95"></div>
                                             {/* Badge */}
                                             <span className="absolute top-3 left-3 bg-black/60 backdrop-blur-md border border-white/10 text-orange-500 text-[10px] font-black px-2.5 py-1 rounded-md tracking-wider z-10">
                                                 REEL {idx + 1}
                                             </span>
-                                            {/* Text overlay centered and large with drop-shadow */}
-                                            <div className="relative z-10 px-5 text-center flex items-center justify-center">
-                                                <p className="text-white text-base md:text-lg font-black leading-snug tracking-tight drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] filter transition-transform duration-300">
+                                            {/* Text overlay centered and large with drop-shadow with extra room */}
+                                            <div className="relative z-10 flex-1 flex items-center justify-center pt-16 pb-8 px-6 text-center">
+                                                <p className="text-white text-base md:text-lg font-black leading-snug tracking-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.95)] filter transition-transform duration-300">
                                                     {highlightText(hookTextStr)}
                                                 </p>
                                             </div>
