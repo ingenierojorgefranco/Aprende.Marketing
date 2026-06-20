@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink } from 'lucide-react';
+import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink, GraduationCap, Puzzle, Clock } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface StepProps {
@@ -929,8 +929,8 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                                 <span className="text-emerald-400">Captura de Clientes</span> ha sido <br />
                                 generada
                             </h2>
-                            <p className="text-zinc-400 text-xs md:text-sm leading-relaxed font-semibold">
-                                La primera versión está guardada como borrador dentro de tu proyecto.
+                            <p className="text-white font-light text-base md:text-lg md:leading-relaxed animate-fade-in-up">
+                                Tu página está lista y configurada para recibir visitas y capturar registros
                             </p>
                         </div>
 
@@ -979,21 +979,18 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                             {/* Estado */}
                             <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
                                 <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
-                                    <ShieldCheck className="w-4.5 h-4.5 text-[#FF5A1F]" />
+                                    <ShieldCheck className="w-4.5 h-4.5 text-emerald-500" />
                                     <span>Estado</span>
                                 </div>
-                                <span className="bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black px-2.5 py-0.5 rounded-lg uppercase tracking-wider">
-                                    Borrador
+                                <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-black px-2.5 py-0.5 rounded-lg uppercase tracking-wider">
+                                    Publicada
                                 </span>
                             </div>
                         </div>
 
                         <div className="space-y-3 mt-4">
-                            <p className="text-white font-light text-base md:text-lg md:leading-relaxed animate-fade-in-up" style={{ fontSize: '1rem' }}>
-                                Ahora prepararemos los 3 videos de atracción que utilizarás para llevar visitantes hacia tu página.
-                            </p>
                             <p className="text-white font-light text-base md:text-lg md:leading-relaxed animate-fade-in-up">
-                                Tu página está lista y configurada para recibir visitas y capturar registros
+                                Ahora prepararemos los 3 videos de atracción que utilizarás para llevar visitantes hacia tu página.
                             </p>
                         </div>
                     </div>
@@ -1018,7 +1015,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                 <div className="lg:col-span-7 flex flex-col justify-center">
                     <div className="flex flex-col h-full bg-[#080809]/40 border border-zinc-805 rounded-[2.5rem] p-5 md:p-6 shadow-3xl justify-center">
                         {/* Mockup de Navegador Web */}
-                        <div className="min-h-[240px] lg:min-h-[300px] max-h-[390px] bg-[#121214] border border-zinc-800 rounded-[1.75rem] overflow-hidden flex flex-col shadow-2xl relative w-full">
+                        <div className="min-h-[400px] lg:min-h-[520px] max-h-[620px] bg-[#121214] border border-zinc-800 rounded-[1.75rem] overflow-hidden flex flex-col shadow-2xl relative w-full">
                             {/* Barra de Direcciones estilo Chrome/Safari */}
                             <div className="bg-[#1c1c1f] px-4 py-3.5 flex items-center justify-between border-b border-zinc-900 select-none">
                                 <div className="flex items-center gap-4 flex-1">
@@ -1031,7 +1028,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                                     
                                     {/* Botones de navegación mockup */}
                                     <div className="hidden sm:flex items-center gap-2.5 text-zinc-650 shrink-0">
-                                        <ChevronRight className="w-4 h-4 rotate-180 hover:text-[#FF5A1F] cursor-pointer text-zinc-600 transition-colors" />
+                                        <ChevronRight className="w-4 h-4 rotate-180 hover:text-[#FF5A1F] cursor-pointer text-zinc-500 transition-colors" />
                                         <ChevronRight className="w-4 h-4 hover:text-[#FF5A1F] cursor-pointer text-zinc-500 transition-colors" />
                                         <RotateCw className="w-3.5 h-3.5 hover:text-[#FF5A1F] cursor-pointer text-zinc-500 transition-colors" />
                                     </div>
@@ -1046,8 +1043,8 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                                 </div>
 
                                 <div className="flex items-center gap-2 shrink-0">
-                                    <span className="bg-[#FFB800]/10 border border-[#FFB800]/20 text-[#FFB800] text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider shadow-inner font-mono">
-                                        BORRADOR
+                                    <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider shadow-inner font-mono">
+                                        PUBLICADA
                                     </span>
                                 </div>
                             </div>
@@ -1077,7 +1074,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                                 className="inline-flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800/80 text-[#FF5A1F] hover:text-white px-6 py-3 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all duration-200 group active:scale-95 cursor-pointer shadow-md"
                             >
                                 <Maximize2 className="w-4 h-4 group-hover:scale-110 transition-transform text-[#FF5A1F]" />
-                                <span>AMPLIAR VISTA PREVIA</span>
+                                <span>VER PÁGINA COMPLETA</span>
                             </button>
                         </div>
                     </div>
@@ -1121,14 +1118,14 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
     const isMicroblading = project?.name?.toLowerCase().includes('microblading') || project?.name?.toLowerCase().includes('ceja') || project?.name?.toLowerCase().includes('brow');
 
     const customizedLockedHooks = isManicurista ? [
-        { hookText: "¿Sabías que dominar la técnica de uñas rusas es el camino más rápido para pasar de cobrar $10 a $50 por servicio?" },
-        { hookText: "El error secreto de las manicuristas novatas que arruina el set en 3 días y ahuyenta a las mejores clientas." },
-        { hookText: "Cómo construir una agenda llena de clientas premium dispuestas a pagar tarifas de lujo por tus diseños avanzados." }
-    ] : isMicroblading ? [
-        { hookText: "¿Y si la clave para triplicar tus ingresos mensuales estuviera en dominar una sola técnica de microblading de cejas?" },
-        { hookText: "El secreto del diseño de miradas perfectas: El error que comete el 90% de las principiantes al trazar cejas." },
-        { hookText: "La estrategia exacta de las artistas de microblading top para atraer clientas de alto valor sin competir por precio." }
-    ] : defaultLockedHooks;
+        { hookText: "¿Sabías que una técnica de uñas rusas puede convertirse en una nueva habilidad profesional rentable?" },
+        { hookText: "El error secreto que muchas manicuristas principiantes cometen al aplicar gel." },
+        { hookText: "Lo que debes conocer antes de comenzar una formación premium en uñas." }
+    ] : [
+        { hookText: "¿Sabías que una técnica de cejas puede convertirse en una nueva habilidad profesional?" },
+        { hookText: "El error que muchas principiantes cometen al aprender microblading." },
+        { hookText: "Lo que debes conocer antes de comenzar una formación en microblading." }
+    ];
 
     const currentDisplayHooks = displayHooks && displayHooks.length > 0 
         ? displayHooks 
@@ -1143,10 +1140,11 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
             "tarifas de lujo", "microblading de cejas", "diseño de miradas perfectas",
             "error", "principiantes", "atraer clientas", "competir por precio",
             "clase gratuita", "nueva profesión", "desde cero", "sector de la belleza",
-            "salones de alta gama", "cobrar 5 veces más", "mito", "fórmulas tradicionales"
+            "salones de alta gama", "cobrar 5 veces más", "mito", "fórmulas tradicionales",
+            "nueva habilidad profesional?", "nueva habilidad profesional rentable?", "formación en microblading.", "formación premium en uñas.", "error secreto", "manicuristas principiantes"
         ];
         
-        const regex = new RegExp(`(${keywords.join("|")})`, "gi");
+        const regex = new RegExp(`(${keywords.map(kw => kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join("|")})`, "gi");
         const parts = text.split(regex);
         
         return parts.map((part, index) => {
@@ -1157,11 +1155,14 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                 <span key={index}>{part}</span>
             );
         });
-    };    return (
+    };
+
+    return (
         <motion.div 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             className="w-full max-w-[1400px] mx-auto p-2 md:p-6 lg:p-8 font-sans"
+            style={{ paddingTop: 0 }}
         >
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
                 {/* Columna Izquierda: Configuración y Control */}
@@ -1172,10 +1173,11 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                             <span className="text-[#FF5A1F] text-xs font-bold uppercase tracking-wider">
                                 Paso 3 de 4 · Reels de atracción
                             </span>
-                            <h1 className="text-3xl md:text-[2.5rem] font-extrabold text-white tracking-tight leading-tight">
-                                Preparemos tus primeros reels de atracción
+                            <h1 className="text-3xl md:text-[2.5rem] lg:text-[2.75rem] font-extrabold text-white tracking-tight leading-[1.1] mt-3">
+                                Preparemos tus <br />
+                                <span className="text-[#FF5A1F]">3 reels</span> de atracción
                             </h1>
-                            <p className="text-zinc-400 text-sm md:text-base leading-relaxed">
+                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up">
                                 Utilizaremos la estrategia de tu proyecto y tu página de captación para preparar contenido que dirija personas interesadas hacia tu clase gratuita.
                             </p>
                         </div>
@@ -1194,7 +1196,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                         <span>Producto</span>
                                     </div>
                                     <span className="text-white text-sm font-semibold truncate text-right max-w-[240px]">
-                                        {project?.name || "Curso Profesional de Microblading de Cejas"}
+                                        {project?.name || (isManicurista ? "Curso Profesional Certificado de Manicurista" : "Curso Profesional Certificado de Microblading de Cejas")}
                                     </span>
                                 </div>
 
@@ -1221,7 +1223,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                 </div>
 
                                 {/* Formato */}
-                                <div className="flex items-center justify-between py-3 flex-wrap sm:flex-nowrap gap-3">
+                                <div className="flex items-center justify-between py-3 flex-wrap sm:flex-nowrap gap-3 pb-2">
                                     <div className="flex items-center gap-3 text-zinc-400 text-sm">
                                         <Film className="w-4 h-4 text-[#FF5A1F]" />
                                         <span>Formato</span>
@@ -1230,27 +1232,6 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                         Videos sin mostrar el rostro
                                     </span>
                                 </div>
-                            </div>
-                        </div>
-
-                        {/* Sección Cada reel incluirá */}
-                        <div className="bg-[#0b0b0c]/40 border border-zinc-800/40 rounded-2xl p-5 space-y-3">
-                            <h4 className="text-white text-sm font-bold tracking-wide">
-                                Cada reel incluirá
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                                <span className="bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs px-3 py-1.5 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
-                                    ⚓ Hook
-                                </span>
-                                <span className="bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs px-3 py-1.5 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
-                                    📝 Guion
-                                </span>
-                                <span className="bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs px-3 py-1.5 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
-                                    🔤 Texto para publicar
-                                </span>
-                                <span className="bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs px-3 py-1.5 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
-                                    ⚡ CTA hacia tu página
-                                </span>
                             </div>
                         </div>
 
@@ -1264,116 +1245,132 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                     <div className="pt-6 border-t border-zinc-900 flex flex-col gap-4">
                         <button 
                             onClick={() => onNext()}
-                            className="px-6 py-4.5 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-extrabold text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2.5 w-full shadow-lg shadow-[#FF5A1F]/15 active:scale-98 transform hover:-translate-y-0.5"
+                            className="px-8 py-5 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-black text-sm tracking-widest uppercase transition-all duration-200 flex items-center justify-center gap-2.5 w-full shadow-lg shadow-[#FF5A1F]/15 active:scale-98 transform hover:-translate-y-0.5"
                         >
-                            <Flame className="w-4 h-4 shrink-0 animate-pulse" />
-                            {isUnlocked ? "Finalizar configuración del sistema" : "Preparar mis 3 reels"}
+                            <Sparkles className="w-4 h-4 shrink-0 animate-pulse fill-white" />
+                            {isUnlocked ? "FINALIZAR CONFIGURACIÓN DEL SISTEMA" : "PREPARAR MIS 3 REELS"}
                         </button>
-                        <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs font-medium">
-                            <Lock className="w-3.5 h-3.5" />
-                            <span>Podrás revisar los reels antes de utilizarlos en tu proyecto.</span>
-                        </div>
                     </div>
                 </div>
 
                 {/* Columna Derecha: Vista Previa de los 3 Reels */}
                 <div className="lg:col-span-12 xl:col-span-7 flex flex-col justify-between">
-                    <div className="flex flex-col h-full bg-[#080809]/40 border border-zinc-800/60 rounded-3xl p-5 md:p-6 shadow-3xl">
+                    <div className="flex flex-col bg-[#080809]/40 border border-zinc-800/60 rounded-3xl p-5 md:p-6 shadow-3xl">
                         {/* Indicador superior */}
-                        <div className="flex items-center justify-between mb-4">
-                            <span className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-widest select-none">
-                                Vista previa
-                            </span>
+                        <div className="flex items-start gap-3 mb-6">
+                            <span className="text-2xl mt-0.5 select-none text-[#FF5A1F]">🎬</span>
+                            <div>
+                                <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">
+                                    Vista previa de tus 3 reels
+                                </h3>
+                                <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{ paddingBottom: "1em" }}>
+                                    Estos son los enfoques que utilizaremos para preparar tus videos con los que atraerás audiencia cualificada.
+                                </p>
+                            </div>
                         </div>
 
                         {/* Grid de 3 Reels con diseño Vertical de Video */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 flex-1 items-stretch">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 items-start">
                             {currentDisplayHooks.slice(0, 3).map((hook, idx) => {
                                 const hookTextStr = hook.hookText || hook.text || hook.title || hook.question || '';
                                 const downloadVideoUrl = hook.contentJson?.downloadUrl || hook.contentJson?.videoUrl || hook.downloadUrl || hook.videoUrl;
                                 const hasDownloadUrl = downloadVideoUrl && downloadVideoUrl !== '#';
 
-                                // Custom format and times matching mockups
+                                // Custom format definitions matching Imagen 2
                                 const formats = ["Educativo", "Problema y solución", "Oportunidad"];
                                 const formattedDurations = ["35 s", "42 s", "38 s"];
+                                const targets = ["Despertar interés", "Generar identificación", "Presentar la oportunidad"];
+                                const descriptions = [
+                                    "Contenido para educar y despertar curiosidad sobre el potencial de la técnica.",
+                                    "Contenido que identifica un error común y presenta la solución adecuada.",
+                                    "Contenido que muestra los beneficios y lo que puedes lograr con la formación adecuada."
+                                ];
 
                                 return (
                                     <div 
                                         key={idx}
-                                        className="bg-[#121214] border border-zinc-800 rounded-2xl overflow-hidden flex flex-col h-full shadow-lg group hover:border-[#FF5A1F]/30 hover:shadow-2xl hover:shadow-[#FF5A1F]/5 transition-all duration-300"
+                                        className="bg-[#0b0b0c]/90 border border-zinc-800/80 rounded-2xl overflow-hidden flex flex-col h-full shadow-lg group hover:border-[#FF5A1F]/30 hover:shadow-2xl hover:shadow-[#FF5A1F]/5 transition-all duration-300 relative"
                                     >
-                                        {/* Mockup de Celular Vertical (Estructura de Video) */}
-                                        <div className="aspect-[9/13] w-full bg-gradient-to-b from-zinc-900 to-zinc-950 relative p-4 flex flex-col justify-between overflow-hidden border-b border-zinc-800/85">
-                                            {/* Top Bar de Video */}
-                                            <div className="flex items-center justify-between w-full relative z-10 select-none">
-                                                <span className="bg-black/60 backdrop-blur-md text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border border-white/5">
-                                                    {idx + 1}
-                                                </span>
-                                                <Clapperboard className="w-4 h-4 text-zinc-400" />
-                                            </div>
-
-                                            {/* Video Background Effect Overlay */}
-                                            <div className="absolute inset-0 bg-radial-gradient from-[#FF5A1F]/10 via-transparent to-transparent opacity-40 pointer-events-none group-hover:opacity-60 transition-opacity duration-300"></div>
-
-                                            {/* Hook Overlaid on Video Screen */}
-                                            <div className="relative z-10 flex-1 flex items-center justify-center text-center px-1 py-4">
-                                                <p className="text-white text-xs font-semibold tracking-tight leading-relaxed max-w-full text-center select-none">
+                                        {/* Mockup Image Header with Overlay Text */}
+                                        <div className="relative aspect-[16/11] w-full overflow-hidden border-b border-zinc-800/85 bg-zinc-950 flex items-center justify-center">
+                                            <img 
+                                                src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=500" 
+                                                alt={`Reel ${idx + 1}`} 
+                                                className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none opacity-40 brightness-[0.3] group-hover:scale-105 transition-transform duration-500"
+                                                referrerPolicy="no-referrer"
+                                            />
+                                            {/* Dark overlay gradient */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black via-zinc-950/70 to-black/80"></div>
+                                            {/* Badge */}
+                                            <span className="absolute top-3 left-3 bg-black/60 backdrop-blur-md border border-white/10 text-orange-500 text-[10px] font-black px-2.5 py-1 rounded-md tracking-wider z-10">
+                                                REEL {idx + 1}
+                                            </span>
+                                            {/* Text overlay centered and large with drop-shadow */}
+                                            <div className="relative z-10 px-5 text-center flex items-center justify-center">
+                                                <p className="text-white text-base md:text-lg font-black leading-snug tracking-tight drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] filter transition-transform duration-300">
                                                     {highlightText(hookTextStr)}
                                                 </p>
                                             </div>
-
-                                            {/* Gradient Shade on Bottom */}
-                                            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/80 to-transparent pointer-events-none"></div>
                                         </div>
 
-                                        {/* Info & Metadata Section under Screen */}
-                                        <div className="p-4 flex-1 flex flex-col justify-between bg-zinc-950/40 space-y-3">
-                                            <div className="space-y-2.5">
-                                                {/* Hook full info text */}
-                                                <div>
-                                                    <span className="text-[#FF5A1F] text-[10px] font-black uppercase tracking-widest block mb-1">
-                                                        Hook
-                                                    </span>
-                                                    <p className="text-zinc-400 text-xs leading-relaxed font-semibold line-clamp-3">
-                                                        {hookTextStr}
+                                        {/* Bottom Details Wrapper */}
+                                        <div className="p-4 flex-1 flex flex-col justify-between bg-zinc-950/20 space-y-4">
+                                            <div className="space-y-4">
+                                                {/* Category and description */}
+                                                <div className="space-y-1.5">
+                                                    <div className="flex items-center gap-1.5 text-orange-400 text-xs font-bold uppercase tracking-wider">
+                                                        {idx === 0 ? (
+                                                            <GraduationCap className="w-4 h-4 text-orange-500" />
+                                                        ) : idx === 1 ? (
+                                                            <Puzzle className="w-4 h-4 text-orange-500" />
+                                                        ) : (
+                                                            <Lightbulb className="w-4 h-4 text-orange-500" />
+                                                        )}
+                                                        <span>{formats[idx]}</span>
+                                                    </div>
+                                                    <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{
+                                                        fontSize: "1em",
+                                                        lineHeight: "1.4em",
+                                                        paddingTop: "1em",
+                                                        paddingBottom: "1em"
+                                                    }}>
+                                                        {descriptions[idx]}
                                                     </p>
                                                 </div>
 
-                                                {/* Formato info */}
-                                                <div className="flex items-center justify-between text-xs py-1 border-t border-zinc-900">
-                                                    <span className="text-[#888] font-medium">Formato</span>
-                                                    <span className="text-zinc-300 font-semibold">{formats[idx] || "Educativo"}</span>
+                                                {/* Duracion info */}
+                                                <div className="flex items-center justify-between text-[11px] py-1.5 border-t border-zinc-900/50">
+                                                    <div className="flex items-center gap-1.5 text-zinc-500 font-medium">
+                                                        <Clock className="w-3.5 h-3.5 text-zinc-650" />
+                                                        <span>Duración estimada:</span>
+                                                    </div>
+                                                    <span className="text-zinc-300 font-bold">{formattedDurations[idx]}</span>
                                                 </div>
 
-                                                {/* Duracion info */}
-                                                <div className="flex items-center justify-between text-xs py-1 border-t border-zinc-900">
-                                                    <span className="text-[#888] font-medium">Duración</span>
-                                                    <span className="text-zinc-300 font-semibold">{formattedDurations[idx] || "40 s"}</span>
+                                                {/* Objetivo info */}
+                                                <div className="flex items-center justify-between text-[11px] py-1.5 border-t border-zinc-900/50">
+                                                    <div className="flex items-center gap-1.5 text-zinc-500 font-medium">
+                                                        <Target className="w-3.5 h-3.5 text-zinc-650" />
+                                                        <span>Objetivo:</span>
+                                                    </div>
+                                                    <span className="text-zinc-300 font-semibold text-right">{targets[idx]}</span>
                                                 </div>
                                             </div>
 
                                             {/* Button to download/play */}
-                                            <div className="pt-2">
-                                                {hasDownloadUrl ? (
+                                            {hasDownloadUrl && (
+                                                <div className="pt-2 border-t border-zinc-900/50">
                                                     <a 
                                                         href={downloadVideoUrl} 
                                                         target="_blank" 
                                                         rel="noopener noreferrer"
-                                                        className="w-full py-2 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all whitespace-nowrap active:scale-98"
+                                                        className="w-full py-2.5 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all whitespace-nowrap active:scale-98"
                                                     >
                                                         <Play className="w-3.5 h-3.5 fill-white shrink-0" />
                                                         Ver y descargar video
                                                     </a>
-                                                ) : (
-                                                    <button 
-                                                        disabled
-                                                        className="w-full py-2 bg-zinc-900/40 text-zinc-650 border border-zinc-800/45 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed select-none transition-all"
-                                                    >
-                                                        <Play className="w-3.5 h-3.5 fill-zinc-650 shrink-0 opacity-40" />
-                                                        Video listo
-                                                    </button>
-                                                )}
-                                            </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 );
