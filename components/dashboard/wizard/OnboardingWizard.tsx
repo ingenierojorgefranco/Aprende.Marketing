@@ -4680,7 +4680,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             {/* 7. HOOKS REVEAL */}
             {revealedSections.includes("show_hooks") &&
               step !== "generating_hooks" && (
-                <div ref={hooksRef} className="w-full max-w-[1440px] mx-auto pt-24 pb-12 px-4 md:px-6 relative">
+                <div ref={hooksRef} className="w-full max-w-[1440px] mx-auto min-h-screen pt-24 pb-12 px-4 md:px-6 snap-start snap-always relative">
                   <HooksRevealStep
                     userData={user}
                     hooks={

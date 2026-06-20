@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye } from 'lucide-react';
+import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface StepProps {
@@ -924,9 +924,9 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                                 <CheckCircle className="w-8 h-8 text-white fill-emerald-500" />
                             </div>
                             
-                            <h2 className="text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3rem] font-black text-white leading-[1.05] tracking-tight mt-3">
+                            <h2 className="text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[4rem] font-black text-white leading-[1.05] tracking-tight mt-3">
                                 Tu página de <br />
-                                <span className="text-emerald-400">captación</span> ha sido <br />
+                                <span className="text-emerald-400">Captura de Clientes</span> ha sido <br />
                                 generada
                             </h2>
                             <p className="text-zinc-400 text-xs md:text-sm leading-relaxed font-semibold">
@@ -934,68 +934,67 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                             </p>
                         </div>
 
-                        {/* Sección "Resumen de tu página" */}
-                        <div className="space-y-2.5">
-                            <h3 className="text-white text-xs font-bold tracking-tight uppercase text-zinc-500">Resumen de tu página</h3>
-                            <div className="bg-[#0b0b0c]/85 border border-zinc-800/40 rounded-2xl overflow-hidden divide-y divide-zinc-800/30">
-                                {/* Proyecto */}
-                                <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
-                                    <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
-                                        <Package className="w-4.5 h-4.5 text-[#FF5A1F]" />
-                                        <span>Proyecto</span>
-                                    </div>
-                                    <span className="text-white text-xs font-extrabold truncate text-right">
-                                        {project?.name || "Curso Profesional Certificado de Microblading de Cejas"}
-                                    </span>
+                        <div className="bg-[#0b0b0c]/85 border border-zinc-800/40 rounded-2xl overflow-hidden divide-y divide-zinc-800/30">
+                            {/* Proyecto */}
+                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
+                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
+                                    <Package className="w-4.5 h-4.5 text-[#FF5A1F]" />
+                                    <span>Proyecto</span>
                                 </div>
+                                <span className="text-white text-xs font-extrabold truncate text-right">
+                                    {project?.name || "Curso Profesional Certificado de Microblading de Cejas"}
+                                </span>
+                            </div>
 
-                                {/* URL Temporal */}
-                                <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
-                                    <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
-                                        <Link className="w-4.5 h-4.5 text-[#FF5A1F]" />
-                                        <span>URL temporal</span>
-                                    </div>
-                                    <span className="text-zinc-400 text-xs font-mono truncate text-right font-semibold">
-                                        aprende.marketing/{subdomainPart || "microblading-demo"}
-                                    </span>
+                            {/* URL Temporal Interactiva */}
+                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
+                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold shrink-0">
+                                    <Link className="w-4.5 h-4.5 text-[#FF5A1F]" />
+                                    <span>URL temporal</span>
                                 </div>
+                                <div className="flex items-center gap-2 w-full sm:w-auto overflow-hidden justify-end">
+                                    <input
+                                        type="text"
+                                        readOnly
+                                        value={`aprende.marketing/${subdomainPart || "microblading-demo"}`}
+                                        onClick={(e) => {
+                                            e.currentTarget.select();
+                                            navigator.clipboard.writeText(`https://aprende.marketing/${subdomainPart || "microblading-demo"}`);
+                                        }}
+                                        className="bg-zinc-900/60 border border-zinc-800/60 text-zinc-400 text-xs font-mono px-3 py-1.5 rounded-lg w-full sm:w-56 cursor-pointer focus:outline-none focus:border-[#FF5A1F]/50 select-all font-semibold"
+                                        title="Haz clic para copiar automáticamente"
+                                    />
+                                    <a
+                                        href={`/admin/lp/${subdomainPart || "microblading-demo"}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-[#FF5A1F] hover:text-white p-2 rounded-lg transition-colors flex items-center justify-center shrink-0"
+                                        title="Ver página en nueva ventana"
+                                    >
+                                        <ExternalLink className="w-4 h-4" />
+                                    </a>
+                                </div>
+                            </div>
 
-                                {/* Formulario */}
-                                <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
-                                    <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
-                                        <FileText className="w-4.5 h-4.5 text-[#FF5A1F]" />
-                                        <span>Formulario</span>
-                                    </div>
-                                    <span className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">
-                                        <CheckCircle className="w-3.5 h-3.5" />
-                                        Configurado
-                                    </span>
+                            {/* Estado */}
+                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
+                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
+                                    <ShieldCheck className="w-4.5 h-4.5 text-[#FF5A1F]" />
+                                    <span>Estado</span>
                                 </div>
-
-                                {/* Estado */}
-                                <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
-                                    <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
-                                        <ShieldCheck className="w-4.5 h-4.5 text-[#FF5A1F]" />
-                                        <span>Estado</span>
-                                    </div>
-                                    <span className="bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black px-2.5 py-0.5 rounded-lg uppercase tracking-wider">
-                                        Borrador
-                                    </span>
-                                </div>
+                                <span className="bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black px-2.5 py-0.5 rounded-lg uppercase tracking-wider">
+                                    Borrador
+                                </span>
                             </div>
                         </div>
 
-                        {/* Nueva Tarjeta "Siguiente paso del sistema" */}
-                        <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/10 rounded-2xl p-4 flex gap-4 items-center">
-                            <div className="w-12 h-12 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#FF5A1F]/20">
-                                <Rocket className="w-5 h-5 text-white" />
-                            </div>
-                            <div className="space-y-1">
-                                <h4 className="text-white text-sm font-bold tracking-tight">Siguiente paso del sistema</h4>
-                                <p className="text-zinc-400 text-xs font-semibold leading-relaxed">
-                                    Ahora prepararemos los 3 reels de atracción que utilizarás para llevar visitantes hacia tu página.
-                                </p>
-                            </div>
+                        <div className="space-y-3 mt-4">
+                            <p className="text-white font-light text-base md:text-lg md:leading-relaxed animate-fade-in-up" style={{ fontSize: '1rem' }}>
+                                Ahora prepararemos los 3 videos de atracción que utilizarás para llevar visitantes hacia tu página.
+                            </p>
+                            <p className="text-white font-light text-base md:text-lg md:leading-relaxed animate-fade-in-up">
+                                Tu página está lista y configurada para recibir visitas y capturar registros
+                            </p>
                         </div>
                     </div>
 
@@ -1003,10 +1002,10 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                     <div className="pt-6 border-t border-zinc-900 flex flex-col gap-4">
                         <button 
                             onClick={() => onNext()}
-                            className="w-full px-6 py-4 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-black text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-[#FF5A1F]/15 active:scale-98 cursor-pointer"
+                            className="w-full px-6 py-5 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-black text-base md:text-lg uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-[#FF5A1F]/15 active:scale-98 cursor-pointer"
                         >
-                            <span>Continuar: preparar mis 3 reels</span>
-                            <Play className="w-3.5 h-3.5 fill-current shrink-0" />
+                            <span>CONTINUAR: PREPARAR MIS 3 REELS</span>
+                            <Play className="w-4 h-4 fill-current shrink-0" />
                         </button>
                         <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs font-bold">
                             <Lock className="w-3.5 h-3.5" />
@@ -1016,10 +1015,10 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                 </div>
 
                 {/* Columna Derecha: Vista Previa en Vivo Interactiva */}
-                <div className="lg:col-span-7 flex flex-col justify-between">
-                    <div className="flex flex-col h-full bg-[#080809]/40 border border-zinc-805 rounded-[2.5rem] p-5 md:p-6 shadow-3xl">
+                <div className="lg:col-span-7 flex flex-col justify-center">
+                    <div className="flex flex-col h-full bg-[#080809]/40 border border-zinc-805 rounded-[2.5rem] p-5 md:p-6 shadow-3xl justify-center">
                         {/* Mockup de Navegador Web */}
-                        <div className="flex-1 min-h-[280px] lg:min-h-[360px] bg-[#121214] border border-zinc-800 rounded-[1.75rem] overflow-hidden flex flex-col shadow-2xl relative">
+                        <div className="min-h-[240px] lg:min-h-[300px] max-h-[390px] bg-[#121214] border border-zinc-800 rounded-[1.75rem] overflow-hidden flex flex-col shadow-2xl relative w-full">
                             {/* Barra de Direcciones estilo Chrome/Safari */}
                             <div className="bg-[#1c1c1f] px-4 py-3.5 flex items-center justify-between border-b border-zinc-900 select-none">
                                 <div className="flex items-center gap-4 flex-1">
@@ -1072,13 +1071,13 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
                         </div>
 
                         {/* Enlace para Ampliar */}
-                        <div className="flex justify-end mt-4">
+                        <div className="flex justify-center mt-6">
                             <button 
                                 onClick={onView}
-                                className="inline-flex items-center gap-2 text-[#FF5A1F] hover:text-[#E54E15] text-xs md:text-sm font-extrabold transition-all duration-200 group active:scale-95 cursor-pointer"
+                                className="inline-flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800/80 text-[#FF5A1F] hover:text-white px-6 py-3 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all duration-200 group active:scale-95 cursor-pointer shadow-md"
                             >
-                                <Maximize2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                <span>Ampliar vista previa</span>
+                                <Maximize2 className="w-4 h-4 group-hover:scale-110 transition-transform text-[#FF5A1F]" />
+                                <span>AMPLIAR VISTA PREVIA</span>
                             </button>
                         </div>
                     </div>
