@@ -1080,7 +1080,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onVi
 };
 
 // 6. REVELACIÓN DE HOOKS
-export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: boolean, projectId?: string, project?: any, hooksRef?: React.RefObject<HTMLDivElement | null> }> = ({ hooks, onNext, isUnlocked, projectId, project, userData, hooksRef }) => {
+export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: boolean, projectId?: string, project?: any, hooksRef?: React.RefObject<HTMLDivElement | null>, onOpenHookDetails?: (hook: any) => void }> = ({ hooks, onNext, isUnlocked, projectId, project, userData, hooksRef, onOpenHookDetails }) => {
     // Si ya están desbloqueados, usamos los que vienen. Si no, mostramos los 3 primeros como preview.
     const displayHooks = isUnlocked ? hooks : hooks.slice(0, 3);
     const hooksGridRef = React.useRef<HTMLDivElement>(null);
@@ -1164,7 +1164,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                 <div className="space-y-6">
 
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 lg:items-center items-start">
                         {/* Columna Izquierda: Consumo de Reels */}
                         <div className="lg:col-span-12 xl:col-span-4 flex flex-col space-y-6">
                             <div className="space-y-4">
@@ -1295,8 +1295,8 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                                 </span>
                                             </div>
 
-                                            {/* Video Cover Block */}
-                                            <div className="relative aspect-[16/10] w-full mt-3 rounded-xl overflow-hidden border border-zinc-800/60 bg-zinc-950 flex items-center justify-center">
+                                            {/* Video Cover Block & Título Superpuesto */}
+                                            <div className="relative aspect-[16/14.5] w-full mt-3 rounded-xl overflow-hidden border border-zinc-800/60 bg-zinc-950 flex flex-col justify-end p-4">
                                                 {(() => {
                                                     const manicureImages = [
                                                         "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=500", // gorgeous red nails close-up
@@ -1313,27 +1313,38 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                                         <img 
                                                             src={imageUrl} 
                                                             alt={`Reel ${idx + 1}`} 
-                                                            className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none opacity-100 brightness-[0.85] group-hover:scale-105 transition-transform duration-500"
+                                                            className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none opacity-40 brightness-[0.4] group-hover:scale-105 transition-transform duration-500"
                                                             referrerPolicy="no-referrer"
                                                         />
                                                     );
                                                 })()}
+                                                
+                                                {/* Gradiente degradado elegante que oscurece el fondo de abajo hacia arriba */}
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-transparent z-0 pointer-events-none" />
+                                                
                                                 {/* Central play button */}
-                                                <div className="relative z-10 w-11 h-11 rounded-full bg-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                                                <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
                                                     <Play className="w-4 h-4 text-black fill-black ml-0.5" />
                                                 </div>
                                                 
                                                 {/* Duration badge */}
-                                                <span className="absolute bottom-2.5 right-2.5 bg-black/70 backdrop-blur-md text-white text-[9px] font-bold px-1.5 py-0.5 rounded border border-white/5">
+                                                <span className="absolute bottom-2.5 right-2.5 bg-black/70 backdrop-blur-md text-white text-[9px] font-bold px-1.5 py-0.5 rounded border border-white/5 z-10">
                                                     {formattedDurations[idx]}
                                                 </span>
-                                            </div>
 
-                                            {/* Título del Hook */}
-                                            <div className="mt-4 flex-1">
-                                                <p className="text-white text-[15px] font-bold leading-snug tracking-tight text-left">
-                                                    {highlightText(hookTextStr)}
-                                                </p>
+                                                {/* Título en la parte inferior de la imagen sobre el degradado */}
+                                                <div className="relative z-10 w-full">
+                                                    <p 
+                                                        className="text-white text-[15px] font-black leading-snug tracking-tight text-center drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] animate-fade-in-up" 
+                                                        style={{
+                                                            fontSize: "1.1em",
+                                                            textAlign: "center",
+                                                            lineHeight: "1.3em"
+                                                        }}
+                                                    >
+                                                        {highlightText(hookTextStr)}
+                                                    </p>
+                                                </div>
                                             </div>
 
                                             {/* Fila de Propiedades con Labels Naranja y Sin Divisiones en Fila */}
@@ -1358,7 +1369,14 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                                     Descargar reel
                                                 </a>
                                                 <button 
-                                                    onClick={() => {}} 
+                                                    onClick={() => {
+                                                        const hookWithId = {
+                                                            ...hook,
+                                                            uniqueId: "hook-" + idx,
+                                                            hookText: hookTextStr
+                                                        };
+                                                        onOpenHookDetails?.(hookWithId);
+                                                    }} 
                                                     className="w-full py-2.5 border border-zinc-800 hover:border-zinc-700 bg-zinc-900/40 hover:bg-zinc-900 text-zinc-300 rounded-xl font-bold text-[10px] flex items-center justify-center gap-1.5 transition-all active:scale-98 text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up"
                                                     style={{
                                                         fontSize: "0.90em"
@@ -1385,16 +1403,15 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                     </div>
                                     <div>
                                         <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">Tu sistema inicial está listo</h3>
-                                        <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{
-                                            fontSize: "1em",
-                                            paddingTop: "1em"
+                                        <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-1.5 animate-fade-in-up" style={{
+                                            fontSize: "1em"
                                         }}>Tus 3 reels, tu página de captación y los textos para publicar ya están guardados dentro de tu proyecto.</p>
 
                                     </div>
                                 </div>
 
                                 {/* Botón de Acción Final */}
-                                <div className="flex flex-col items-center md:items-end w-full md:w-auto shrink-0">
+                                <div className="flex flex-col items-center w-full md:w-auto shrink-0">
                                     <button 
                                         onClick={() => onNext()}
                                         className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-orange-500 to-[#FF5A1F] hover:opacity-95 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 shadow-lg shadow-[#FF5A1F]/10 transition-all uppercase tracking-wider whitespace-nowrap active:scale-98"
@@ -1414,7 +1431,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                 /* --- ESTADO PENDIENTE / PREVIEW (ISUNLOCKED === FALSE - VISTA EN DESARROLLO) --- */
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
                     {/* Columna Izquierda: Configuración y Control */}
-                    <div className="lg:col-span-12 xl:col-span-5 flex flex-col justify-between space-y-6">
+                    <div className="lg:col-span-12 xl:col-span-5 flex flex-col justify-start space-y-6">
                         <div className="space-y-6">
                             {/* Identificador de paso */}
                             <div className="space-y-2">
@@ -1484,7 +1501,9 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                             </div>
 
                             {/* Faja de Plan */}
-                            <div className="bg-orange-950/20 border border-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-3 rounded-full flex items-center gap-2 justify-center">
+                            <div className="bg-orange-950/20 border border-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-3 rounded-full flex items-center gap-2 justify-center text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{
+                                fontSize: "1.1em"
+                            }}>
                                 <span>🎁 Plan gratuito · 3 reels disponibles</span>
                             </div>
                         </div>
@@ -1511,7 +1530,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                     <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">
                                         Vista previa de tus 3 reels
                                     </h3>
-                                    <p className="text-zinc-400 text-sm mt-1 max-w-2xl leading-relaxed font-light">
+                                    <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up mt-4 mb-4">
                                         Estos son los enfoques que utilizaremos para preparar tus videos con los que atraerás audiencia cualificada.
                                     </p>
                                 </div>
@@ -1533,68 +1552,80 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                     return (
                                         <div 
                                             key={idx}
-                                            className="bg-[#0b0b0c]/90 border border-zinc-850/80 rounded-2xl overflow-hidden flex flex-col h-full shadow-lg group hover:border-[#FF5A1F]/30 hover:shadow-2xl hover:shadow-[#FF5A1F]/5 transition-all duration-300 relative"
+                                            className="bg-[#0b0b0c]/90 border border-zinc-805/80 rounded-2xl p-4 overflow-hidden flex flex-col h-full shadow-lg group hover:border-[#FF5A1F]/30 hover:shadow-2xl hover:shadow-[#FF5A1F]/5 transition-all duration-300 relative"
                                         >
-                                            {/* Mockup Image Header with Overlay Text */}
-                                            <div className="relative aspect-[16/12] w-full overflow-hidden border-b border-zinc-800/85 bg-zinc-950 flex flex-col justify-between">
+                                            {/* Tarjeta Cabecera */}
+                                            <div className="flex items-center justify-between pb-3 border-b border-zinc-800/55">
+                                                <span className="bg-[#FF5A1F]/10 border border-[#FF5A1F]/25 text-[#FF5A1F] text-[10px] font-black px-2.5 py-1 rounded-md tracking-wider">
+                                                    REEL {idx + 1}
+                                                </span>
+                                            </div>
+
+                                            {/* Video Cover Block & Título Superpuesto */}
+                                            <div className="relative aspect-[16/14.5] w-full mt-3 rounded-xl overflow-hidden border border-zinc-800/60 bg-zinc-950 flex flex-col justify-end p-4">
                                                 {(() => {
                                                     const manicureImages = [
                                                         "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=500", // gorgeous red nails close-up
-                                                        "https://images.unsplash.com/photo-1632345031435-8797b2d58045?auto=format&fit=crop&q=80&w=500", // manicure care close-up
-                                                        "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&q=80&w=500"  // luxury nails styling salon
+                                                        "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=500", 
+                                                        "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=500"
                                                     ];
                                                     const microbladingImages = [
                                                         "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&q=80&w=500", // eyebrow shaping/microblading
-                                                        "https://images.unsplash.com/photo-1621241804687-57a9773245f9?auto=format&fit=crop&q=80&w=500", // microblading precision tool
-                                                        "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&q=80&w=500"  // brows notebook training certification
+                                                        "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&q=80&w=500",
+                                                        "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&q=80&w=500"
                                                     ];
                                                     const imageUrl = isManicurista ? manicureImages[idx] : microbladingImages[idx];
                                                     return (
                                                         <img 
                                                             src={imageUrl} 
                                                             alt={`Reel ${idx + 1}`} 
-                                                            className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none opacity-30 brightness-[0.25] blur-[1px] group-hover:scale-105 transition-transform duration-500"
+                                                            className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none opacity-40 brightness-[0.4] group-hover:scale-105 transition-transform duration-500"
                                                             referrerPolicy="no-referrer"
                                                         />
                                                     );
                                                 })()}
-                                                {/* Dark overlay gradients */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-zinc-950/90 to-zinc-950/90 mix-blend-multiply"></div>
-                                                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/95"></div>
-                                                {/* Badge */}
-                                                <span className="absolute top-3 left-3 bg-black/60 backdrop-blur-md border border-white/10 text-orange-500 text-[10px] font-black px-2.5 py-1 rounded-md tracking-wider z-10">
-                                                    REEL {idx + 1}
-                                                </span>
-                                                {/* Text overlay centered and large with drop-shadow with extra room */}
-                                                <div className="relative z-10 flex-1 flex items-center justify-center pt-16 pb-8 px-6 text-center">
-                                                    <p className="text-white text-base md:text-lg font-black leading-snug tracking-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.95)] filter transition-transform duration-300">
+                                                
+                                                {/* Gradiente degradado elegante que oscurece el fondo de abajo hacia arriba */}
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-transparent z-0 pointer-events-none" />
+                                                
+                                                {/* Título en la parte inferior de la imagen sobre el degradado */}
+                                                <div className="relative z-10 w-full">
+                                                    <p 
+                                                        className="text-white text-[15px] font-black leading-snug tracking-tight text-center drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] animate-fade-in-up" 
+                                                        style={{
+                                                            fontSize: "1.2em",
+                                                            textAlign: "center",
+                                                            lineHeight: "1.3em"
+                                                        }}
+                                                    >
                                                         {highlightText(hookTextStr)}
                                                     </p>
                                                 </div>
                                             </div>
 
-                                            {/* Bottom Details Wrapper */}
-                                            <div className="p-4 flex-1 flex flex-col justify-between bg-zinc-950/20 space-y-4">
-                                                <div className="space-y-4">
-                                                    {/* Category and description */}
-                                                    <div className="space-y-1.5 text-left">
-                                                        <div className="flex items-center gap-1.5 text-orange-400 text-xs font-bold uppercase tracking-wider">
-                                                            {idx === 0 ? (
-                                                                <GraduationCap className="w-4 h-4 text-orange-500" />
-                                                            ) : idx === 1 ? (
-                                                                <Puzzle className="w-4 h-4 text-orange-500" />
-                                                            ) : (
-                                                                <Lightbulb className="w-4 h-4 text-orange-500" />
-                                                            )}
-                                                            <span>{formats[idx]}</span>
-                                                        </div>
-                                                        <p className="text-zinc-400 text-xs leading-relaxed font-light">
-                                                            {descriptions[idx]}
-                                                        </p>
+                                            {/* Fila de Propiedades Detallada Premium */}
+                                            <div className="mt-4 pt-4 border-t border-zinc-800/40 space-y-3.5 text-left flex-1 flex flex-col justify-between">
+                                                <div className="space-y-3">
+                                                    {/* Categoría / Formato con icono correspondiente */}
+                                                    <div className="flex items-center gap-1.5 text-orange-400 text-xs font-bold uppercase tracking-wider">
+                                                        {idx === 0 ? (
+                                                            <GraduationCap className="w-4 h-4 text-orange-500" />
+                                                        ) : idx === 1 ? (
+                                                            <Puzzle className="w-4 h-4 text-orange-500" />
+                                                        ) : (
+                                                            <Lightbulb className="w-4 h-4 text-orange-500" />
+                                                        )}
+                                                        <span>{formats[idx]}</span>
                                                     </div>
+                                                    {/* Descripción detallada */}
+                                                    <p className="text-zinc-400 text-xs leading-relaxed font-light">
+                                                        {descriptions[idx]}
+                                                    </p>
+                                                </div>
 
-                                                    {/* Duracion info */}
-                                                    <div className="flex items-center justify-between text-[11px] py-1.5 border-t border-zinc-900/50">
+                                                <div className="space-y-2 mt-2">
+                                                    {/* Fila de Duración */}
+                                                    <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-zinc-900/50">
                                                         <div className="flex items-center gap-1.5 text-zinc-500 font-medium">
                                                             <Clock className="w-3.5 h-3.5 text-zinc-650" />
                                                             <span>Duración estimada:</span>
@@ -1602,8 +1633,8 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                                         <span className="text-zinc-300 font-bold">{formattedDurations[idx]}</span>
                                                     </div>
 
-                                                    {/* Objetivo info */}
-                                                    <div className="flex items-center justify-between text-[11px] py-1.5 border-t border-zinc-900/50">
+                                                    {/* Fila de Objetivo */}
+                                                    <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-zinc-900/50">
                                                         <div className="flex items-center gap-1.5 text-zinc-500 font-medium">
                                                             <Target className="w-3.5 h-3.5 text-zinc-650" />
                                                             <span>Objetivo:</span>
@@ -1612,6 +1643,29 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            {/* Botones de Acción */}
+                                            {isUnlocked && (
+                                                <div className="mt-5 space-y-2">
+                                                    <button 
+                                                        onClick={() => onNext()}
+                                                        className="w-full py-3 bg-zinc-950 border border-[#FF5A1F] hover:bg-zinc-900 text-white rounded-xl font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-98 shadow-md"
+                                                    >
+                                                        <Download className="w-3.5 h-3.5 text-white" />
+                                                        Descargar reel
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => onNext()} 
+                                                        className="w-full py-2.5 border border-zinc-800 hover:border-zinc-700 bg-zinc-900/40 hover:bg-zinc-900 text-zinc-300 rounded-xl font-bold text-[10px] flex items-center justify-center gap-1.5 transition-all active:scale-98 text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up"
+                                                        style={{
+                                                            fontSize: "0.90em"
+                                                        }}
+                                                     >
+                                                         <FileText className="w-3.5 h-3.5 text-orange-500" />
+                                                         <span>Ver guion y texto</span>
+                                                     </button>
+                                                 </div>
+                                            )}
                                         </div>
                                     );
                                 })}

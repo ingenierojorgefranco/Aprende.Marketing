@@ -42,6 +42,10 @@ import {
   Brain,
   Folder,
   Info,
+  Bell,
+  Pencil,
+  RotateCcw,
+  ArrowUpRight,
 } from "lucide-react";
 import { generateLandingPageContent } from "../../../services/geminiService";
 import { UpgradeModal } from "../UpgradeModal";
@@ -57,6 +61,7 @@ import {
   HooksRevealStep,
   SuccessStep,
 } from "./WizardSteps";
+import { Image1Dashboard } from "./Image1Dashboard";
 
 const UserProfileModal = React.lazy(() => import("../UserProfileModal"));
 
@@ -286,6 +291,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
   const [activeHookTab, setActiveHookTab] = useState<string>("Gancho");
   const [hookSearchSearchText, setHookSearchSearchText] = useState<string>("");
+  const [activeBlogTab, setActiveBlogTab] = useState<string>("Estructura SEO");
 
   // Lifted helper variables for grid cards clicks
   const isManicurista = !!(
@@ -338,6 +344,158 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           }
         ];
 
+  const unifiedBlogsList = [
+    {
+      id: "blog-1",
+      title: "Guía Definitiva de Autocuidado Diario: 7 Hábitos para Lucir una Piel Radiante y Saludable",
+      introduction: "El verdadero secreto de una piel luminosa no reside en milagros de un solo día, sino en el poder de la consistencia. En esta guía completa de autocuidado, te enseñamos los pilares fundamentales para nutrir, proteger y revitalizar tu piel de forma natural y duradera.",
+      isLocked: false,
+      seoStructure: {
+        h1: "Guía Definitiva de Autocuidado Diario: Cómo lograr una piel radiante desde casa",
+        headings: [
+          { type: "H2", text: "La importancia de una rutina diaria adaptada a tu tipo de piel" },
+          { type: "H2", text: "Los 3 pasos esenciales: Limpieza profunda, hidratación y protección solar" },
+          { type: "H3", text: "Cómo elegir el limpiador facial adecuado según tu cutis" },
+          { type: "H3", text: "El rol del protector solar en la prevención del envejecimiento prematuro" },
+          { type: "H3", text: "Hábitos saludables de hidratación y nutrición celular" }
+        ],
+        keywords: "autocuidado de la piel, rutina de skincare diaria, piel radiante paso a paso, hábitos de belleza saludables",
+        cta: "Descubre el kit ideal para tu tipo de piel. Regístrate gratis y obtén una asesoría personalizada hoy mismo."
+      },
+      enfoqueEstrategico: "Educación inicial para el futuro artista y fomento de hábitos diarios para lucir una piel radiante.",
+      intencionBusqueda: "Aspiracional, preventivo, informativo en fase inicial del embudo.",
+      keywordSeo: "autocuidado de la piel, rutina de skincare diaria, piel radiante paso a paso",
+      volumenBusqueda: "1.2K - 3.4K",
+      enfoque: {
+        objetivoPsicologico: "Derribar la creencia de que el cuidado de la piel requiere tratamientos costosos y complejos, demostrando que hábitos diarios simples logran resultados profesionales.",
+        posicionamientoMarca: "Autoridad cercana y experta que simplifica el cuidado facial mediante conocimiento científico accesible.",
+        metasAnaliticas: "Incrementar el tiempo de permanencia en página (> 3 minutos) y derivar clic al test gratuito de diagnóstico facial."
+      },
+      intencion: {
+        puntoDolor: "Frustración por tener la piel apagada, deshidratada o con imperfecciones persistentes a pesar de usar múltiples productos al azar.",
+        momentoConsulta: "Búsquedas nocturnas o matutinas del tipo 'cómo mejorar la piel cansada' o 'rutina básica de autocuidado'.",
+        disparadorCompra: "Visualizar un plan paso a paso claro y recibir una recomendación de productos personalizada sin presión de venta inmediata."
+      },
+      contenidoSugerido: {
+        introduccion: "Comienza despertando empatía sobre el cansancio general y cómo se refleja en el rostro, seguido de la promesa de revitalización.",
+        desarrollo: "Estructura el contenido en los 3 pasos esenciales (Limpiar, Hidratar, Proteger). Aporta un consejo práctico para identificar el tipo de cutis en 10 minutos.",
+        cta: "Llamada a la acción orientada a resolver el diagnóstico personalizado de forma gratuita mediante el botón destacado."
+      },
+      keywordsDetail: [
+        { word: "autocuidado de la piel", volume: "1,500/mes", difficulty: "Fácil" },
+        { word: "rutina de skincare diaria", volume: "850/mes", difficulty: "Media" },
+        { word: "piel radiante paso a paso", volume: "520/mes", difficulty: "Fácil" },
+        { word: "hábitos de belleza", volume: "1,200/mes", difficulty: "Baja" }
+      ]
+    },
+    {
+      id: "blog-2",
+      title: "Los 5 Errores Comunes de Skincare que están Dañando tu Barrera Cutánea Sin que lo Sepas",
+      introduction: "A veces, el exceso de cuidado puede resultar contraproducente o irritante. Te revelamos cuáles son los errores más comunes al combinar activos y aplicar tratamientos que podrían estar afectando tu dermis de forma invisible.",
+      isLocked: false,
+      seoStructure: {
+        h1: "Los fallos típicos en tu rutina de belleza que debes corregir de inmediato",
+        headings: [
+          { type: "H2", text: "Qué es la barrera cutánea y por qué es vital mantenerla sana" },
+          { type: "H2", text: "Los errores más frecuentes en la exfoliación y lavado excesivo" },
+          { type: "H3", text: "Mezclas peligrosas de ácidos y activos incompatibles (ej. retinol y vitamina C)" },
+          { type: "H3", text: "Usar productos inadecuados para tu fototipo de piel" },
+          { type: "H3", text: "Cómo restaurar tu barrera protectora en sencillos pasos" }
+        ],
+        keywords: "errores de skincare, restaurar barrera cutánea, exfoliación segura, combinación de retinol y vitamina c",
+        cta: "Aprende a cuidar tu piel como una profesional. Únete a nuestro taller online gratuito haciendo clic aquí."
+      },
+      enfoqueEstrategico: "Identificación de malos hábitos cosméticos y llamado a la acción preventivo.",
+      intencionBusqueda: "Correctiva, de emergencia ante irritaciones, dudas sobre mezcla de activos.",
+      keywordSeo: "errores de skincare, restaurar barrera cutánea, exfoliación segura",
+      volumenBusqueda: "900 - 2.5K",
+      enfoque: {
+        objetivoPsicologico: "Generar consciencia y alertar amigablemente sobre el peligro de la sobre-exfoliación o el uso impulsivo de activos de tendencia.",
+        posicionamientoMarca: "El 'salvavidas' clínico que diagnostica con precisión y ofrece soluciones basadas en la salud dermatológica.",
+        metasAnaliticas: "Generar registros para el boletín de sugerencias semanales y derivación a una consulta express."
+      },
+      intencion: {
+        puntoDolor: "Ardor, enrojecimiento, brotes inesperados o descamación tras haber comprado y mezclado múltiples serums de ácido hialurónico, retinol o vitamina C.",
+        momentoConsulta: "Consultas alarmadas como 'por qué me arde la cara después del serum' o 'retinol irrita qué hacer'.",
+        disparadorCompra: "La necesidad de una rutina minimalista de rescate (Clean & Safe) respaldada por un profesional."
+      },
+      contenidoSugerido: {
+        introduccion: "Inicia con una pregunta directa sobre la frustración de gastar una fortuna en productos solo para ver la piel más sensible.",
+        desarrollo: "Enumera los 5 errores detallados con su base fisiológica explicada de forma simple, enfatizando la incompatibilidad de mezclar retinol con exfoliantes mecánicos.",
+        cta: "Invitación interactiva a descargar la guía de compatibilidad de activos cosméticos."
+      },
+      keywordsDetail: [
+        { word: "errores de skincare", volume: "1,100/mes", difficulty: "Media" },
+        { word: "restaurar barrera cutánea", volume: "950/mes", difficulty: "Fácil" },
+        { word: "exfoliación segura", volume: "400/mes", difficulty: "Fácil" }
+      ]
+    },
+    {
+      id: "blog-3",
+      title: "Secretos de Cabina: Cómo Elegir el Tratamiento Facial Perfecto Según tu Tipo de Piel",
+      introduction: "Entrar a un centro de estética puede ser abrumador frente a una carta de servicios tan variada. Aprende a descifrar las verdaderas necesidades de tu rostro y a elegir el procedimiento profesional óptimo para ti.",
+      isLocked: false,
+      seoStructure: {
+        h1: "Cómo seleccionar el tratamiento de cabina ideal para tu rostro",
+        headings: [
+          { type: "H2", text: "Diferencia entre limpieza facial profunda, hidratación y revitalización médica" },
+          { type: "H2", text: "El diagnóstico estético personalizado como punto de partida clave" },
+          { type: "H3", text: "Tratamientos ideales para pieles grasas o con tendencia acnéica" },
+          { type: "H3", text: "La revolución del rejuvenecimiento y nutrición para pieles maduras" },
+          { type: "H3", text: "Qué esperar durante y después de tu procedimiento profesional" }
+        ],
+        keywords: "tratamiento facial profesional, limpieza de cutis estética, elegir spa facial, rejuvenecimiento cabina",
+        cta: "Agenda hoy mismo tu cita de valoración sin costo y descubre el tratamiento ideal para tu piel."
+      },
+      enfoqueEstrategico: "Puente entre el autocuidado en casa y la necesidad de procedimientos de cabina profesionales.",
+      intencionBusqueda: "Consideración de servicios locales, preparación previa a un evento especial.",
+      keywordSeo: "tratamiento facial profesional, limpieza de cutis estética, elegir spa facial",
+      volumenBusqueda: "1.5K - 4.1K",
+      enfoque: {
+        objetivoPsicologico: "Inspirar confianza en la experiencia del profesional de cabina, demostrando que los resultados óptimos combinan el cuidado en casa con aparatología estética.",
+        posicionamientoMarca: "Salón o Clínica Boutique de alta gama con enfoque holístico y personalización médica.",
+        metasAnaliticas: "Conversión de reservas de citas diagnósticas integradas en la página."
+      },
+      intencion: {
+        puntoDolor: "Duda sobre qué procedimiento solicitar, miedo a efectos secundarios o a gastar en un tratamiento ineficiente para su caso.",
+        momentoConsulta: "Consultas como 'mejor tratamiento para manchas' o 'limpieza profunda de cutis cerca de mí'.",
+        disparadorCompra: "Un proceso claro de diagnóstico personalizado previo al tratamiento y seguridad en la asepsia profesional."
+      },
+      contenidoSugerido: {
+        introduccion: "Abre el telón del mundo estético explicando los mitos de los tratamientos express sin personalización previa.",
+        desarrollo: "Detalla con precisión el paso a paso de lo que ocurre dentro de una cabina profesional y la diferencia de tecnología entre la higiene facial regular y una sesión hidro-facial.",
+        cta: "Enlace directo para reservar la consulta express de diagnóstico facial sin costo."
+      },
+      keywordsDetail: [
+        { word: "tratamiento facial profesional", volume: "1,600/mes", difficulty: "Media" },
+        { word: "limpieza de cutis estética", volume: "1,200/mes", difficulty: "Alta" },
+        { word: "rejuvenecimiento cabina", volume: "450/mes", difficulty: "Baja" }
+      ]
+    },
+    {
+      id: "blog-4",
+      title: "Tendencias de Skincare 2026: Activos Revolucionarios para Rejuvenecimiento",
+      introduction: "Descubre los nuevos bio-péptidos, exosomas y factores de crecimiento celular que están redefiniendo el antienvejecimiento sin recurrir a inyecciones. Mantente a la vanguardia de las novedades científicas.",
+      isLocked: true,
+      seoStructure: null,
+      enfoqueEstrategico: "Novedades científicas de vanguardia.",
+      intencionBusqueda: "Compradores avanzados, educados y de alto ticket.",
+      keywordSeo: "exosomas skincare, biopéptidos antienvejecimiento, tendencias belleza 2026",
+      volumenBusqueda: "2.3K - 5.8K"
+    },
+    {
+      id: "blog-5",
+      title: "Cómo Monetizar tu Pasión por la Estética Convirtiéndote en Marca Personal",
+      introduction: "La clave del éxito para esteticistas independientes de hoy consiste en construir una marca digital influyente. Aprende a construir una comunidad activa e impulsar tus consultas online.",
+      isLocked: true,
+      seoStructure: null,
+      enfoqueEstrategico: "Estrategia de negocio y posicionamiento digital de marca.",
+      intencionBusqueda: "Profesionales, emprendedores de belleza independientes.",
+      keywordSeo: "negocio estética rentable, marca personal esteticista, cursos online belleza",
+      volumenBusqueda: "3.5K - 8.2K"
+    }
+  ];
+
   const topLibraryContentList = unlockedArticles.length > 0
     ? unlockedArticles
     : (strategyData?.modules?.content || strategyData?.content || []);
@@ -352,17 +510,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         keywordSeo: item.keyword || item.psychologicalStrategy?.keyword || "negocio, servicios",
         volumenBusqueda: item.searchVolume || item.search_volume || "100 - 1K"
       }))
-    : [
-        {
-          id: 0,
-          title: "El Secreto Oculto Detrás de los Servicios de Alta Gama que Nadie Te Cuenta",
-          introduction: "Un análisis profundo de la psicología de consumo.",
-          enfoqueEstrategico: "Despertar la curiosidad sobre tarifas premium.",
-          intencionBusqueda: "Aspiracional",
-          keywordSeo: "servicios premium",
-          volumenBusqueda: "1K - 10K"
-        }
-      ];
+    : unifiedBlogsList.slice(0, 3);
 
   const topEmailsToRender = (strategyData?.modules?.emails || []).length > 0
     ? strategyData.modules.emails
@@ -971,51 +1119,88 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       <header
         className={`fixed top-0 left-0 right-0 h-20 flex items-center justify-between px-6 md:px-12 z-50 transition-all duration-300 ${
           step === "success"
-            ? "bg-[#0B0B0B]/95 backdrop-blur-md border-b border-white/5 shadow-2xl"
+            ? "bg-[#0b0b0e]/95 backdrop-blur-md border-b border-white/[0.04] shadow-2xl"
             : "bg-transparent"
         }`}
       >
-        {/* Logo a la izquierda */}
-        <div className="flex items-center gap-3">
-          <div className="bg-[#FF5A1F] rounded-lg flex items-center justify-center font-black text-white text-[11px] shadow-lg shadow-[#FF5A1F]/20 px-2 py-1 select-none">
-            A.MKT
-          </div>
-          <h2 className="text-lg font-bold text-white tracking-tight">
-            Aprende.<span className="text-[#FF5A1F]">Marketing</span>
-          </h2>
-        </div>
+        {step === "success" ? (
+          <>
+            {/* Cabecera Premium en viewport principal */}
+            <div className="flex items-center gap-3">
+              <div className="bg-[#FF5A1F] h-9 w-[38px] rounded-lg flex items-center justify-center font-black text-white text-sm shadow-md shadow-[#FF5A1F]/20 select-none">
+                AM
+              </div>
+              <span className="text-lg font-black tracking-tight text-white">
+                Aprende.<span className="text-[#FF5A1F]">Marketing</span>
+              </span>
+            </div>
 
-        {/* Perfil del Usuario en Cabecera (sin fondo, flotando) */}
-        <div className="flex items-center gap-3 sm:gap-4 z-10 font-sans">
-          <div
-            className="flex items-center gap-2 sm:gap-3 pl-2 pr-1 py-1.5 rounded-full select-none"
-          >
-            <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center font-bold overflow-hidden shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
-              {user.avatarUrl ? (
-                <img
-                  src={user.avatarUrl}
-                  alt={user.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                user.name.charAt(0).toUpperCase()
+            <div className="flex items-center gap-4">
+              {/* Notificaciones */}
+              <button className="relative w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center hover:bg-white/[0.08] transition-all group">
+                <Bell className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" />
+                <span className="absolute -top-1.5 -right-1.5 bg-[#FF5A1F] text-white text-[10px] font-black h-5 w-5 rounded-full flex items-center justify-center border-2 border-[#0B0B0E]">
+                  3
+                </span>
+              </button>
+
+              {/* Menú de cuenta */}
+              <div className="flex items-center gap-3 bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.05] rounded-full py-1.5 pl-2 pr-4 transition-all cursor-pointer">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-600 to-[#FF5A1F] text-white font-black text-sm flex items-center justify-center shadow-md">
+                  B
+                </div>
+                <div className="flex items-center gap-1.5 font-sans">
+                  <span className="text-xs font-bold text-zinc-300">Mi cuenta</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-zinc-500" />
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Logo a la izquierda */}
+            <div className="flex items-center gap-3">
+              <div className="bg-[#FF5A1F] rounded-lg flex items-center justify-center font-black text-white text-[11px] shadow-lg shadow-[#FF5A1F]/20 px-2 py-1 select-none">
+                AM
+              </div>
+              <h2 className="text-lg font-bold text-white tracking-tight">
+                Aprende.<span className="text-[#FF5A1F]">Marketing</span>
+              </h2>
+            </div>
+
+            {/* Perfil del Usuario en Cabecera (sin fondo, flotando) */}
+            <div className="flex items-center gap-3 sm:gap-4 z-10 font-sans">
+              <div
+                className="flex items-center gap-2 sm:gap-3 pl-2 pr-1 py-1.5 rounded-full select-none"
+              >
+                <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center font-bold overflow-hidden shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
+                  {user.avatarUrl ? (
+                    <img
+                      src={user.avatarUrl}
+                      alt={user.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    user.name.charAt(0).toUpperCase()
+                  )}
+                </div>
+                <span className="text-sm font-bold text-[#B0B0B0] hidden sm:inline-flex">
+                  {user.name}
+                </span>
+              </div>
+
+              {onLogout && (
+                <button
+                  onClick={onLogout}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-[#B0B0B0] hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Salir</span>
+                </button>
               )}
             </div>
-            <span className="text-sm font-bold text-[#B0B0B0] hidden sm:inline-flex">
-              {user.name}
-            </span>
-          </div>
-
-          {onLogout && (
-            <button
-              onClick={onLogout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-[#B0B0B0] hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Salir</span>
-            </button>
-          )}
-        </div>
+          </>
+        )}
       </header>
 
       {/* Background Decorations - Fixed to viewport to cover everything consistently */}
@@ -1151,7 +1336,37 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             </div>
           </div>
         ) : step === "success" ? (
-          <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 min-h-screen flex flex-col justify-center pt-36 md:pt-40 pb-16 relative z-10 font-sans">
+          <div className="w-full min-h-screen flex flex-col justify-center pt-28 md:pt-30 pb-16 relative z-10 font-sans">
+
+            {/* COMPONENTE IMAGE1DASHBOARD AL COMIENZO (ALTA FIDELIDAD CON LA IMAGEN 1) */}
+            <div className="w-full max-w-[1840px] mx-auto px-4 md:px-6 lg:px-8 mb-16 z-30 relative">
+              <Image1Dashboard 
+                projectName="Curso Profesional de Microblading de Cejas"
+                onUpgradeClick={() => setShowUpgradeModal(true)}
+                hideHeader={true}
+                onNavigateToSection={(sectionKey) => {
+                  if (sectionKey === "strategy") {
+                    setIsEstrategiaDrawerOpen(true);
+                  } else if (sectionKey === "landing") {
+                    setActiveDetailsDrawer("landing");
+                  } else if (sectionKey === "reels") {
+                    setSelectedHookForDrawer(null);
+                    setActiveDetailsDrawer("hooks");
+                  } else if (sectionKey === "blog") {
+                    setSelectedBlogForDrawer(topBlogsToRender[0]);
+                    setActiveDetailsDrawer("blog");
+                  } else if (sectionKey === "email") {
+                    setSelectedEmailForDrawer(topEmailsToRender[0]);
+                    setActiveDetailsDrawer("email");
+                  } else if (sectionKey === "avatar") {
+                    setActiveDetailsDrawer("avatar");
+                  }
+                }}
+              />
+            </div>
+
+            {/* Rest of the legacy success contents restricted to max-w-[1400px] */}
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-6 flex flex-col justify-center relative z-10">
 
             {/* Ambient Background Glows & Organic Design Patterns */}
             <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
@@ -1164,925 +1379,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(#FF5A1F 1px, transparent 0)", backgroundSize: "32px 32px" }}></div>
               <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: "repeating-radial-gradient(circle at 50% 30%, #FF5A1F 0px, transparent 100px, transparent 200px)" }}></div>
             </div>
-
-            {/* NUEVA SECCIÓN: CABECERA E INTEGRACIÓN CON ALINEACIÓN LATERAL (MÁQUINA DE VENTAS LISTA) */}
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8 text-left z-10 relative">
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <h1 className="text-white text-3xl md:text-4.5xl font-extrabold tracking-tight flex items-center gap-2">
-                    ¡Tu Máquina de Ventas está lista! <span className="text-2xl md:text-3.5xl">🎉</span>
-                  </h1>
-                  <p className="text-zinc-400 text-sm md:text-base max-w-2xl font-medium leading-relaxed">
-                    Hemos creado tu sistema personalizado con IA basado en tus respuestas. <br className="hidden md:inline" />
-                    Todo está preparado, solo falta activarlo para empezar a recibir clientes.
-                  </p>
-                </div>
-                
-                {/* Nuevo Bloque de Estatus de la Imagen 2 */}
-                <div className="flex items-start gap-4 bg-[#FF5A1F]/5 border border-[#FF5A1F]/15 rounded-3xl p-5 max-w-3xl shadow-lg shadow-black/20">
-                  <div className="w-11 h-11 rounded-2xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5 shadow-md">
-                    <Sparkles className="w-5.5 h-5.5 animate-pulse" />
-                  </div>
-                  <div className="space-y-1.5 text-left">
-                    <h3 className="text-white text-base md:text-lg font-extrabold tracking-tight">Tu primer proyecto está publicado</h3>
-                    <p className="text-zinc-400 text-xs sm:text-sm font-semibold leading-relaxed">
-                      Ya tienes una estrategia inicial, una página activa y 3 reels preparados para comenzar a atraer visitas.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  if (isStandaloneDashboard) {
-                    navigate("/dashboard");
-                  } else {
-                    onComplete();
-                  }
-                }}
-                className="bg-[#0b0b0e]/80 text-[#ccc2bc] hover:text-white border border-white/5 hover:border-white/10 font-bold text-xs py-2.5 px-4 rounded-xl transition-all duration-300 cursor-pointer shrink-0 self-start md:self-auto flex items-center gap-2 mt-2"
-              >
-                <ArrowLeft className="w-4 h-4" /> Volver al listado
-              </button>
-            </div>
-
-            {/* GRID PRINCIPAL DE SISTEMA LISTO - DE DOS COLUMNAS */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch relative overflow-hidden mb-8 font-sans bg-transparent z-10 text-left"
-            >
-              {/* COLUMNA IZQUIERDA: Tarjeta Principal del Producto + Métricas + Acceso Rápido (lg:col-span-8) */}
-              <div className="lg:col-span-8 flex flex-col gap-6">
-                
-                {/* Tarjeta Principal del Producto */}
-                <div className="bg-[#070709] border border-white/[0.04] p-6 md:p-8 rounded-[2rem] shadow-[0_0_50px_rgba(255,90,31,0.015)] relative overflow-hidden backdrop-blur-xl flex flex-col justify-between min-h-[500px]">
-                  <div className="absolute top-0 left-0 w-80 h-80 bg-[#FF5A1F]/3 blur-[120px] rounded-full pointer-events-none"></div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch relative z-10 w-full mb-6">
-                    {/* Banner Vertical Premium del Producto */}
-                    <div className="md:col-span-4 min-h-[300px] md:min-h-auto flex">
-                      <div className="relative w-full h-full rounded-[1.5rem] overflow-hidden border border-[#FF561E]/20 shadow-[0_0_25px_rgba(255,90,31,0.12)] bg-[#111113] group flex flex-col justify-between p-5">
-                        <img 
-                          src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500&auto=format&fit=crop&q=80" 
-                          alt="Microblading Cover" 
-                          className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-700"
-                          referrerPolicy="no-referrer"
-                        />
-                        {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-black/40 to-transparent z-10 pointer-events-none"></div>
-                        <div className="absolute inset-0 bg-black/10 z-0 pointer-events-none"></div>
-
-                        {/* Top floating badge */}
-                        <div className="bg-[#FF5A1F] px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5 shadow-md shrink-0 w-fit relative z-20">
-                          <span className="text-white text-[9px] font-black uppercase tracking-wider">
-                            PRODUCTO SELECCIONADO
-                          </span>
-                        </div>
-                        
-                        {/* Textos superpuestos en la zona inferior */}
-                        <div className="text-left mt-auto relative z-20">
-                          <span className="text-stone-300 text-[9px] font-bold tracking-widest block uppercase">
-                            CURSO PROFESIONAL DE
-                          </span>
-                          <span className="text-[#FF5A1F] text-xl font-black tracking-normal uppercase block mt-1 leading-tight">
-                            MICROBLADING
-                          </span>
-                          <span className="text-white text-base font-black tracking-normal uppercase block mt-0.5">
-                            DE CEJAS
-                          </span>
-
-                          {/* Corona + ALTA DEMANDA */}
-                          <div className="flex items-center gap-1.5 border-t border-white/10 pt-3 mt-3">
-                            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-                            <span className="text-[9px] text-[#22C55E] font-black tracking-widest uppercase">
-                              ALTA DEMANDA
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Contenido derecho del producto seleccionado */}
-                    <div className="md:col-span-8 flex flex-col justify-between py-1 text-left space-y-6">
-                      <div className="space-y-4">
-                        {/* Título principal con la etiqueta brillante de publicado */}
-                        <div className="flex flex-wrap items-center gap-3">
-                          <h1 className="text-white text-2xl sm:text-3.5xl font-extrabold tracking-tight leading-snug">
-                            Curso Profesional de Microblading de Cejas
-                          </h1>
-                          <span className="inline-flex items-center gap-1.5 bg-[#10B981]/15 border border-[#10B981]/30 text-[#10B981] font-bold text-xs px-3.5 py-1.5 rounded-full shadow-sm select-none">
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-pulse"></span>
-                            ● Publicado
-                          </span>
-                        </div>
-
-                        {/* Texto explicativo */}
-                        <p className="text-zinc-400 text-sm md:text-[15px] leading-relaxed max-w-xl font-medium">
-                          Has elegido este producto en el wizard y hemos creado todo tu sistema para que empieces a venderlo con éxito.
-                        </p>
-                      </div>
-
-                      {/* Tabla de Características Comerciales (Imagen 2 style) */}
-                      <div className="bg-[#0b0b0e]/90 border border-zinc-900 rounded-2xl p-5 w-full">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-zinc-800/40">
-                          {/* Categoría */}
-                          <div className="flex flex-col text-left space-y-1">
-                            <span className="text-zinc-500 font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5 select-none">
-                              <Crown className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                              Categoría
-                            </span>
-                            <span className="text-white font-extrabold text-xs sm:text-sm truncate">
-                              Belleza y Estética
-                            </span>
-                          </div>
-
-                          {/* Comisión de referencia */}
-                          <div className="flex flex-col text-left space-y-1 pt-3 md:pt-0 md:pl-4">
-                            <span className="text-zinc-500 font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5 select-none">
-                              <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                              Comisión ref.
-                            </span>
-                            <span className="text-emerald-400 font-black text-xs sm:text-sm leading-tight block">
-                              USD 116 / $420
-                            </span>
-                          </div>
-
-                          {/* Estado del proyecto */}
-                          <div className="flex flex-col text-left space-y-1 pt-3 md:pt-0 md:pl-4">
-                            <span className="text-zinc-500 font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5 select-none">
-                              <Check className="w-3.5 h-3.5 text-[#FF5A1F] shrink-0" />
-                              Estado proyecto
-                            </span>
-                            <span className="text-white font-extrabold text-xs sm:text-sm">
-                              Activo
-                            </span>
-                          </div>
-
-                          {/* Publicado el */}
-                          <div className="flex flex-col text-left space-y-1 pt-3 md:pt-0 md:pl-4">
-                            <span className="text-zinc-500 font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5 select-none">
-                              <Calendar className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                              Publicado el
-                            </span>
-                            <span className="text-zinc-300 font-extrabold text-xs sm:text-sm">
-                              15 may 2025
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Aviso oficial al pie */}
-                      <div className="flex items-center gap-2 text-zinc-500 text-xs font-semibold select-none">
-                        <Info className="w-4 h-4 text-zinc-500" />
-                        <span>Datos comerciales sujetos a cambios del productor.</span>
-                      </div>
-
-                      {/* Tres Sub-Tarjeta Informaciones a lo Ancho */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full pt-1">
-                        {/* Item 1 */}
-                        <div className="bg-[#040406]/20 border border-white/[0.02] p-3 rounded-2xl flex items-start gap-2.5 text-left">
-                          <div className="w-7 h-7 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
-                            <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-white font-bold text-xs">Producto validado</span>
-                            <span className="text-zinc-500 text-[10px] font-medium leading-snug mt-0.5">Alta calidad y excelente demanda en el mercado</span>
-                          </div>
-                        </div>
-
-                        {/* Item 2 */}
-                        <div className="bg-[#040406]/20 border border-white/[0.02] p-3 rounded-2xl flex items-start gap-2.5 text-left">
-                          <div className="w-7 h-7 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
-                            <Users className="w-3.5 h-3.5" />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-white font-bold text-xs">Alta demanda</span>
-                            <span className="text-zinc-500 text-[10px] font-medium leading-snug mt-0.5">Miles de búsquedas mensuales</span>
-                          </div>
-                        </div>
-
-                        {/* Item 3 */}
-                        <div className="bg-[#040406]/20 border border-white/[0.02] p-3 rounded-2xl flex items-start gap-2.5 text-left">
-                          <div className="w-7 h-7 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shrink-0 mt-0.5">
-                            <Zap className="w-3.5 h-3.5 text-purple-400" />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-white font-bold text-xs">Sistema listo</span>
-                            <span className="text-zinc-500 text-[10px] font-medium leading-snug mt-0.5">Todo generado y optimizado para vender</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Fila Inferior (Barra de Elementos Generados) - Ancho completo con gradiente violeta sutil */}
-                  <div className="bg-[#0f0e13]/55 border border-purple-500/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 w-full mt-auto relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-2xl rounded-full pointer-events-none"></div>
-                    
-                    <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto">
-                      <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
-                        <FileText className="w-5 h-5" />
-                      </div>
-                      <div className="flex flex-col text-left">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-white text-2xl font-black">127</span>
-                          <span className="text-purple-400 text-xs font-bold uppercase tracking-wider">elementos generados</span>
-                        </div>
-                        <span className="text-zinc-400 text-[9px] uppercase font-bold tracking-widest leading-none mt-0.5">para tu negocio</span>
-                      </div>
-                    </div>
-                    
-                    <p className="text-zinc-300 text-xs font-medium max-w-sm text-left leading-normal sm:mx-4 flex-1">
-                      Todo lo que necesitas para captar, convertir y vender de forma automática.
-                    </p>
-                    
-                    <button
-                      onClick={() => {
-                        document.getElementById("success-estrategia-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
-                      }}
-                      className="sm:ml-auto bg-[#FF5A1F]/10 hover:bg-[#FF5A1F]/20 text-white border border-[#FF5A1F]/30 hover:border-[#FF5A1F]/50 font-bold text-xs py-2 px-4 rounded-xl transition-all duration-300 flex items-center gap-1 cursor-pointer shrink-0"
-                    >
-                      Ver guía rápida <ChevronRight className="w-3.5 h-3.5 text-[#FF5A1F]" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* NUEVA SECCIÓN: Resumen de rendimiento (Sección de métricas con ondas de gráfico) */}
-                <div className="bg-[#070709] border border-white/[0.04] p-6 md:p-8 rounded-[2rem] shadow-[0_0_50px_rgba(255,90,31,0.015)] relative overflow-hidden backdrop-blur-xl flex flex-col text-left space-y-6">
-                  <div className="space-y-1">
-                    <h2 className="text-white text-lg font-extrabold tracking-tight">Resumen de rendimiento</h2>
-                    <p className="text-zinc-500 text-xs font-semibold">Métricas de conversión y visitas generadas para tu negocio en tiempo real</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-                    {/* Visitas a la página */}
-                    <div className="bg-[#0b0b0e] border border-zinc-900/60 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-[#FF5A1F]/30 transition-all duration-300 min-h-[145px]">
-                      {/* Wave graph in background */}
-                      <div className="absolute inset-x-0 bottom-0 h-10 opacity-15 pointer-events-none">
-                        <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="w-full h-full">
-                          <path d="M0,25 Q15,10 30,22 T60,8 T90,18 T100,6 L100,30 L0,30 Z" fill="url(#orange-grad-gp1)" stroke="#FF5A1F" strokeWidth="1.5" />
-                          <defs>
-                            <linearGradient id="orange-grad-gp1" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#FF5A1F" stopOpacity="0.8" />
-                              <stop offset="100%" stopColor="#FF5A1F" stopOpacity="0" />
-                            </linearGradient>
-                          </defs>
-                        </svg>
-                      </div>
-                      <div className="space-y-1.5 relative z-10 text-left">
-                        <span className="text-zinc-500 font-bold text-[10px] md:text-xs uppercase tracking-wider block">Visitas a la página</span>
-                        <span className="text-white text-2xl md:text-3xl font-black block">487</span>
-                      </div>
-                      <span className="text-emerald-400 font-extrabold text-[10px] inline-flex items-center gap-1 relative z-10 self-start bg-emerald-500/5 border border-emerald-500/20 px-2 py-0.5 rounded-full mt-2">
-                        ↑ 18%
-                      </span>
-                    </div>
-
-                    {/* Registros (leads) */}
-                    <div className="bg-[#0b0b0e] border border-zinc-900/60 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-[#FF5A1F]/30 transition-all duration-300 min-h-[145px]">
-                      <div className="absolute inset-x-0 bottom-0 h-10 opacity-15 pointer-events-none">
-                        <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="w-full h-full">
-                          <path d="M0,28 Q20,8 40,24 T70,12 T100,16 L100,30 L0,30 Z" fill="url(#orange-grad-gp2)" stroke="#FF5A1F" strokeWidth="1.5" />
-                          <defs>
-                            <linearGradient id="orange-grad-gp2" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#FF5A1F" stopOpacity="0.8" />
-                              <stop offset="100%" stopColor="#FF5A1F" stopOpacity="0" />
-                            </linearGradient>
-                          </defs>
-                        </svg>
-                      </div>
-                      <div className="space-y-1.5 relative z-10 text-left">
-                        <span className="text-zinc-500 font-bold text-[10px] md:text-xs uppercase tracking-wider block">Registros (leads)</span>
-                        <span className="text-white text-2xl md:text-3xl font-black block">12</span>
-                      </div>
-                      <span className="text-emerald-400 font-extrabold text-[10px] inline-flex items-center gap-1 relative z-10 self-start bg-emerald-500/5 border border-emerald-500/20 px-2 py-0.5 rounded-full mt-2">
-                        ↑ 9%
-                      </span>
-                    </div>
-
-                    {/* Tasa de conversión */}
-                    <div className="bg-[#0b0b0e] border border-zinc-900/60 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-[#FF5A1F]/30 transition-all duration-300 min-h-[145px]">
-                      <div className="absolute inset-x-0 bottom-0 h-10 opacity-15 pointer-events-none">
-                        <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="w-full h-full">
-                          <path d="M0,20 Q18,24 35,14 T72,22 T100,10 L100,30 L0,30 Z" fill="url(#orange-grad-gp3)" stroke="#FF5A1F" strokeWidth="1.5" />
-                          <defs>
-                            <linearGradient id="orange-grad-gp3" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#FF5A1F" stopOpacity="0.8" />
-                              <stop offset="100%" stopColor="#FF5A1F" stopOpacity="0" />
-                            </linearGradient>
-                          </defs>
-                        </svg>
-                      </div>
-                      <div className="space-y-1.5 relative z-10 text-left">
-                        <span className="text-zinc-500 font-bold text-[10px] md:text-xs uppercase tracking-wider block">Tasa de conversión</span>
-                        <span className="text-white text-2xl md:text-3xl font-black block">2,46%</span>
-                      </div>
-                      <span className="text-emerald-400 font-extrabold text-[10px] inline-flex items-center gap-1 relative z-10 self-start bg-emerald-500/5 border border-emerald-500/20 px-2 py-0.5 rounded-full mt-2">
-                        ↑ 0,8%
-                      </span>
-                    </div>
-
-                    {/* Comisión estimada */}
-                    <div className="bg-[#0b0b0e] border border-zinc-900/60 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-[#FF5A1F]/30 transition-all duration-300 min-h-[145px]">
-                      <div className="absolute inset-x-0 bottom-0 h-10 opacity-15 pointer-events-none">
-                        <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="w-full h-full">
-                          <path d="M0,15 Q25,28 50,12 T82,6 T100,22 L100,30 L0,30 Z" fill="url(#orange-grad-gp4)" stroke="#FF5A1F" strokeWidth="1.5" />
-                          <defs>
-                            <linearGradient id="orange-grad-gp4" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#FF5A1F" stopOpacity="0.8" />
-                              <stop offset="100%" stopColor="#FF5A1F" stopOpacity="0" />
-                            </linearGradient>
-                          </defs>
-                        </svg>
-                      </div>
-                      <div className="space-y-1.5 relative z-10 text-left">
-                        <span className="text-zinc-500 font-bold text-[10px] md:text-xs uppercase tracking-wider block">Comisión estimada</span>
-                        <span className="text-white text-xl md:text-2xl lg:text-3xl font-black block">USD 1,392</span>
-                      </div>
-                      <span className="text-emerald-400 font-extrabold text-[10px] inline-flex items-center gap-1 relative z-10 self-start bg-emerald-500/5 border border-emerald-500/20 px-2 py-0.5 rounded-full mt-2">
-                        ↑ 12%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* NUEVA SECCIÓN: Acceso rápido */}
-                <div className="bg-[#070709] border border-white/[0.04] p-6 md:p-8 rounded-[2rem] shadow-[0_0_50px_rgba(255,90,31,0.015)] relative overflow-hidden backdrop-blur-xl flex flex-col text-left space-y-6">
-                  <div className="space-y-1">
-                    <h2 className="text-white text-lg font-extrabold tracking-tight">Acceso rápido</h2>
-                    <p className="text-zinc-500 text-xs font-semibold">Navega libremente y previsualiza los diferentes módulos listos de tu sistema</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 w-full">
-                    {/* Estrategia */}
-                    <button
-                      onClick={() => setIsEstrategiaDrawerOpen(true)}
-                      className="bg-[#0b0b0e] border border-zinc-900 hover:border-[#FF5A1F]/40 p-4.5 rounded-2xl flex flex-col text-left space-y-2.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer group"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/25 flex items-center justify-center text-[#FF5A1F] transition-all group-hover:bg-[#FF5A1F]/20">
-                        <Target className="w-5 h-5" />
-                      </div>
-                      <div className="space-y-1 text-left">
-                        <span className="text-zinc-500 font-bold text-[9px] uppercase tracking-wider block leading-none">Estrategia</span>
-                        <span className="text-white text-xs sm:text-xs md:text-sm font-extrabold group-hover:text-[#FF5A1F] transition-colors flex items-center gap-0.5 mt-1">
-                          Ver estrategia <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                        </span>
-                      </div>
-                    </button>
-
-                    {/* Página de captación */}
-                    <button
-                      onClick={() => setActiveDetailsDrawer("landing")}
-                      className="bg-[#0b0b0e] border border-zinc-900 hover:border-blue-500/40 p-4.5 rounded-2xl flex flex-col text-left space-y-2.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer group"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-blue-400 transition-all group-hover:bg-blue-500/20">
-                        <Globe className="w-5 h-5" />
-                      </div>
-                      <div className="space-y-1 text-left">
-                        <span className="text-zinc-500 font-bold text-[9px] uppercase tracking-wider block leading-none">Página de captación</span>
-                        <span className="text-white text-xs sm:text-xs md:text-sm font-extrabold group-hover:text-blue-400 transition-colors flex items-center gap-0.5 mt-1">
-                          Ver página <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                        </span>
-                      </div>
-                    </button>
-
-                    {/* Reels de atracción */}
-                    <button
-                      onClick={() => {
-                        setSelectedHookForDrawer(null);
-                        setActiveDetailsDrawer("hooks");
-                      }}
-                      className="bg-[#0b0b0e] border border-zinc-900 hover:border-purple-500/40 p-4.5 rounded-2xl flex flex-col text-left space-y-2.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer group"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center text-purple-400 transition-all group-hover:bg-purple-500/20">
-                        <Video className="w-5 h-5" />
-                      </div>
-                      <div className="space-y-1 text-left">
-                        <span className="text-zinc-500 font-bold text-[9px] uppercase tracking-wider block leading-none">Reels de atracción</span>
-                        <span className="text-white text-xs sm:text-xs md:text-sm font-extrabold group-hover:text-purple-400 transition-colors flex items-center gap-0.5 mt-1">
-                          Ver 3 reels listos <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                        </span>
-                      </div>
-                    </button>
-
-                    {/* Blog */}
-                    <button
-                      onClick={() => {
-                        setSelectedBlogForDrawer(topBlogsToRender[0]);
-                        setActiveDetailsDrawer("blog");
-                      }}
-                      className="bg-[#0b0b0e] border border-zinc-900 hover:border-emerald-500/40 p-4.5 rounded-2xl flex flex-col text-left space-y-2.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer group"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 transition-all group-hover:bg-emerald-500/20">
-                        <FileText className="w-5 h-5" />
-                      </div>
-                      <div className="space-y-1 text-left">
-                        <span className="text-zinc-500 font-bold text-[9px] uppercase tracking-wider block leading-none">Blog</span>
-                        <span className="text-white text-xs sm:text-xs md:text-sm font-extrabold group-hover:text-emerald-400 transition-colors flex items-center gap-0.5 mt-1">
-                          1 artículo <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                        </span>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* COLUMNA DERECHA: Progreso del Sistema completo y Suscripciones (lg:col-span-4) */}
-              <div className="lg:col-span-4 flex flex-col gap-6 text-left">
-                
-                {/* 1. Progreso de tu sistema */}
-                <div className="bg-[#070709] border border-white/[0.04] p-6 rounded-[2rem] shadow-[0_0_50px_rgba(255,90,31,0.015)] relative overflow-hidden backdrop-blur-xl flex flex-col">
-                  <div className="absolute top-0 right-0 w-80 h-80 bg-[#FF5A1F]/3 blur-[120px] rounded-full pointer-events-none"></div>
-
-                  <div className="space-y-5 relative z-10 w-full flex-1 flex flex-col justify-between">
-                    {/* Header */}
-                    <h3 className="text-white text-lg font-bold text-left tracking-tight border-b border-white/[0.03] pb-3 select-none">
-                      Progreso de tu sistema
-                    </h3>
-
-                    {/* Círculo Gráfico Completo */}
-                    <div className="flex flex-col items-center justify-center py-2">
-                      <div className="relative flex items-center justify-center">
-                        <svg className="w-[140px] h-[140px] transform -rotate-90">
-                          {/* Círculo de fondo oscuro */}
-                          <circle
-                            cx="70"
-                            cy="70"
-                            r="55"
-                            className="stroke-[#1C1C1E]"
-                            strokeWidth="8"
-                            fill="transparent"
-                          />
-                          {/* Círculo de progreso animado al 85% */}
-                          <motion.circle
-                            cx="70"
-                            cy="70"
-                            r="55"
-                            className="stroke-[#FF5A1F]"
-                            strokeWidth="10"
-                            fill="transparent"
-                            strokeDasharray="345.6" /* 2 * PI * r (55) ≈ 345.6 */
-                            initial={{ strokeDashoffset: 345.6 }}
-                            animate={{ 
-                              strokeDashoffset: 345.6 * (1 - 0.85)
-                            }}
-                            transition={{ 
-                              strokeDashoffset: { duration: 1.5, ease: "easeOut", delay: 0.2 }
-                            }}
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                        {/* Textos centrales */}
-                        <div className="absolute flex flex-col items-center justify-center">
-                          <span className="text-4xl font-black text-white tracking-tighter leading-none mt-1">85%</span>
-                          <span className="text-[8px] tracking-[0.2em] text-zinc-400 font-extrabold mt-1.5 uppercase">COMPLETADO</span>
-                        </div>
-                      </div>
-                      <span className="text-zinc-400 font-bold text-xs text-center max-w-[220px] mt-4 leading-normal select-none">
-                        Solo faltan 3 elementos para activar el sistema completo.
-                      </span>
-                    </div>
-
-                    {/* Listado de Bloqueados PRO */}
-                    <div className="bg-[#040406]/60 border border-white/[0.04] rounded-2xl p-4 flex flex-col gap-3">
-                      {/* WhatsApp */}
-                      <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.03]">
-                        <div className="flex items-center gap-2.5">
-                          <Lock className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-                          <span className="text-xs font-bold text-zinc-300">WhatsApp Automatizado</span>
-                        </div>
-                        <span className="px-2 py-0.5 border border-[#FF5A1F]/30 rounded text-[9px] font-black text-[#FF5A1F] tracking-wide bg-[#FF5A1F]/5 shrink-0 select-none">PRO</span>
-                      </div>
-
-                      {/* Automatizaciones */}
-                      <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.03]">
-                        <div className="flex items-center gap-2.5">
-                          <Lock className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-                          <span className="text-xs font-bold text-zinc-300">Automatizaciones Avanzadas</span>
-                        </div>
-                        <span className="px-2 py-0.5 border border-[#FF5A1F]/30 rounded text-[9px] font-black text-[#FF5A1F] tracking-wide bg-[#FF5A1F]/5 shrink-0 select-none">PRO</span>
-                      </div>
-
-                      {/* Artículos */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <Lock className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-                          <span className="text-xs font-bold text-zinc-300">15 Artículos SEO adicionales</span>
-                        </div>
-                        <span className="px-2 py-0.5 border border-[#FF5A1F]/30 rounded text-[9px] font-black text-[#FF5A1F] tracking-wide bg-[#FF5A1F]/5 shrink-0 select-none">PRO</span>
-                      </div>
-                    </div>
-
-                    {/* Botón CTA Ver Plan PRO */}
-                    <div className="flex flex-col space-y-1">
-                      <button
-                        onClick={() => setShowUpgradeModal(true)}
-                        className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-xl shadow-indigo-600/10 hover:shadow-indigo-600/25 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <Crown className="w-4 h-4 stroke-[2.5]" />
-                        Ver plan PRO
-                      </button>
-                      <span className="text-[10px] text-zinc-500 font-semibold text-center block leading-none select-none">
-                        y desbloquea todo el potencial
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 2. Tarjeta del Plan Gratuito (Imagen 2 style) */}
-                <div className="bg-[#070709] border border-white/[0.04] p-5.5 rounded-[2rem] shadow-[0_0_50px_rgba(255,90,31,0.015)] relative overflow-hidden backdrop-blur-xl flex flex-col space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-zinc-500 font-bold text-xs flex items-center gap-1.5 uppercase tracking-widest select-none">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      Plan gratuito activo
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 bg-[#040406]/60 border border-zinc-900 rounded-xl p-3 text-center">
-                    <div className="flex flex-col">
-                      <span className="text-white font-extrabold text-xs sm:text-sm">1</span>
-                      <span className="text-zinc-500 text-[8px] font-semibold mt-0.5">Proyecto activo</span>
-                    </div>
-                    <div className="flex flex-col border-x border-zinc-900">
-                      <span className="text-[#FF5A1F] font-extrabold text-xs sm:text-sm">3/3</span>
-                      <span className="text-zinc-500 text-[8px] font-semibold mt-0.5">Reels utilizados</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-white font-extrabold text-xs sm:text-sm">1/1</span>
-                      <span className="text-zinc-500 text-[8px] font-semibold mt-0.5">Artículo mes</span>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => setShowUpgradeModal(true)}
-                    className="w-full py-3 bg-[#FF5A1F] hover:bg-[#E54E15] text-white font-[#FF5A1F] font-black text-xs uppercase tracking-wider rounded-xl transition-all duration-300 shadow-md cursor-pointer select-none"
-                  >
-                    Mejorar a Pro
-                  </button>
-                </div>
-
-                {/* 3. Tarjeta Lleva tu proyecto al siguiente nivel (Imagen 2 style) */}
-                <div className="bg-[#070709] border border-white/[0.04] p-6 rounded-[2rem] shadow-[0_0_50px_rgba(255,90,31,0.015)] relative overflow-hidden backdrop-blur-xl flex flex-col space-y-4">
-                  <div className="space-y-1">
-                    <h4 className="text-white text-base font-extrabold tracking-tight">Lleva tu proyecto al siguiente nivel</h4>
-                    <p className="text-zinc-500 text-xs font-semibold leading-relaxed">
-                      Automatiza el seguimiento, crea más contenido y escala tu estrategia para generar más ventas.
-                    </p>
-                  </div>
-
-                  {/* Lista de ventajas con iconos de check naranja */}
-                  <div className="space-y-2.5 pt-1">
-                    {[
-                      "Email marketing automatizado",
-                      "Secuencias de WhatsApp",
-                      "Hasta 30 reels al mes",
-                      "Hasta 15 artículos al mes",
-                      "Hasta 3 proyectos activos",
-                      "Automatizaciones avanzadas"
-                    ].map((feature, fIdx) => (
-                      <div key={fIdx} className="flex items-center gap-3">
-                        <div className="w-5 h-5 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] shrink-0">
-                          <Check className="w-3 h-3 stroke-[2.5]" />
-                        </div>
-                        <span className="text-zinc-300 text-xs font-bold">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={() => setShowUpgradeModal(true)}
-                    className="w-full py-3.5 bg-[#FF5A1F] hover:bg-[#E54E15] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all duration-300 shadow-md shadow-[#FF5A1F]/15 active:scale-98 relative overflow-hidden flex items-center justify-center gap-2 mt-2 cursor-pointer"
-                  >
-                    <span>Mejorar a Pro — $39 USD/mes</span>
-                  </button>
-                  <p className="text-[10px] text-zinc-500 font-semibold text-center select-none">
-                    Cancela cuando quieras. Sin compromiso de permanencia.
-                  </p>
-                </div>
-
-                {/* 4. Tarjeta Siguiente paso recomendado */}
-                <div className="bg-[#10B981]/5 border border-[#10B981]/20 p-5.5 rounded-[2rem] shadow-[0_0_50px_rgba(16,185,129,0.015)] relative overflow-hidden flex flex-col space-y-4 text-left">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-[#10B981]/15 border border-[#10B981]/25 flex items-center justify-center text-[#10B981]">
-                      <Mail className="w-4.5 h-4.5" />
-                    </div>
-                    <div className="flex flex-col text-left">
-                      <span className="text-[#10B981] text-[9px] uppercase font-black tracking-widest block leading-none">Siguiente paso recomendado</span>
-                      <span className="text-white text-xs font-bold mt-1 block">Seguimiento automático</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <h5 className="text-zinc-200 text-xs font-extrabold">Activar el seguimiento automático</h5>
-                    <p className="text-zinc-400 text-[11px] font-medium leading-relaxed">
-                      Conecta tu página con una secuencia de correos para convertir tus registros en clientes de forma automática.
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => setShowUpgradeModal(true)}
-                    className="w-full py-2.5 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/15"
-                  >
-                    <span>Activar email marketing</span>
-                    <span className="bg-black/20 text-white font-black text-[8px] px-1.5 py-0.5 rounded leading-none">PRO</span>
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* NUEVA SECCIÓN: Esto hemos generado para ti (Diseño Elegante de 6 Tarjetas) */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="w-full bg-transparent p-0 relative overflow-hidden mb-12 font-sans text-left"
-            >
-              <div className="absolute top-0 right-0 w-96 h-96 bg-[#FF5A1F]/3 blur-3xl rounded-full pointer-events-none"></div>
-              
-              {/* Cabecera del Nuevo Bloque */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-8 border-b border-white/[0.04] gap-4">
-                <div className="space-y-1.5 text-left">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-[#FF5A1F] animate-pulse shrink-0" />
-                    <h2 className="text-white text-xl md:text-2xl font-extrabold tracking-tight font-sans">
-                      Esto hemos <span className="text-[#FF5D1E]">generado</span> para ti
-                    </h2>
-                  </div>
-                  <p className="text-zinc-400 text-xs sm:text-sm font-medium block">
-                    Previsualiza cada parte de tu sistema. Haz clic en cualquier tarjeta para ver el contenido completo.
-                  </p>
-                </div>
-              </div>
-
-              {/* Grid de las 6 Tarjetas (Ancho Completo, 3 Columnas) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full text-left">
-                
-                {/* TARJETA 1: Estrategia de Ventas */}
-                <div 
-                  onClick={() => {
-                    setIsEstrategiaDrawerOpen(true);
-                  }}
-                  className="bg-[#0b0b0e] border border-white/[0.04] hover:border-[#FF5D1E]/40 rounded-3xl p-6 md:p-7 flex flex-col justify-between min-h-[320px] relative group transition-all duration-300 hover:scale-[1.02] active:scale-[0.99] cursor-pointer select-none shadow-[0_10px_30px_rgba(0,0,0,0.55)] md:hover:shadow-[0_0_30px_rgba(255,93,30,0.06)]"
-                >
-                  <div className="space-y-4">
-                    {/* Header */}
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-2xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/25 flex items-center justify-center text-[#FF5D1E] shrink-0 shadow-lg shadow-[#FF5A1F]/5 group-hover:bg-[#FF5A1F]/20 group-hover:border-[#FF5A1F]/40 transition-all duration-300">
-                        <Target className="w-5.5 h-5.5" />
-                      </div>
-                      <div className="flex flex-col text-left">
-                        <h3 className="text-white text-base md:text-[17px] font-extrabold tracking-tight leading-none">Estrategia de Ventas</h3>
-                        <span className="text-[#FF5D1E] text-[10px] uppercase font-black tracking-wider mt-1.5 leading-none select-none">
-                          PLAN DE ATRACCIÓN
-                        </span>
-                      </div>
-                    </div>
-                    {/* Desc */}
-                    <p className="text-[#f3efec] text-xs sm:text-[13px] leading-relaxed text-left font-medium min-h-[72px] mt-2">
-                      La hoja de ruta maestra para escalar tu facturación. Diseñada con ingeniería persuasiva y psicología de consumo para posicionarte como líder indiscutible en el nicho de belleza.
-                    </p>
-                  </div>
-                  {/* Footer */}
-                  <div className="flex items-center justify-between mt-6 pt-5 border-t border-white/[0.04]">
-                    <div className="flex items-center gap-2 text-white">
-                      <FileText className="w-[18px] h-[18px] text-white shrink-0" />
-                      <span className="text-white text-xs sm:text-[13px] font-medium tracking-tight select-none">
-                        8 componentes creados
-                      </span>
-                    </div>
-                    <div className="bg-[#FF5D1E] hover:bg-[#FF6E33] text-white text-xs sm:text-sm font-extrabold py-2 md:py-2.5 px-5 md:px-6 rounded-full transition-all duration-300 shadow-md flex items-center gap-1.5 hover:shadow-[#FF5D1E]/25 select-none">
-                      Explorar <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* TARJETA 2: Pagina Web de Captura */}
-                <div 
-                  onClick={() => {
-                    setActiveDetailsDrawer("landing");
-                  }}
-                  className="bg-[#0b0b0e] border border-white/[0.04] hover:border-[#0C62E6]/40 rounded-3xl p-6 md:p-7 flex flex-col justify-between min-h-[320px] relative group transition-all duration-300 hover:scale-[1.02] active:scale-[0.99] cursor-pointer select-none shadow-[0_10px_30px_rgba(0,0,0,0.55)] md:hover:shadow-[0_0_30px_rgba(12,98,230,0.06)]"
-                >
-                  <div className="space-y-4">
-                    {/* Header */}
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-2xl bg-[#0C62E6]/10 border border-[#0C62E6]/25 flex items-center justify-center text-[#0c62e6] shrink-0 shadow-lg shadow-[#0c62e6]/5 group-hover:bg-[#0C62E6]/20 group-hover:border-[#0C62E6]/40 transition-all duration-300">
-                        <Globe className="w-5.5 h-5.5" />
-                      </div>
-                      <div className="flex flex-col text-left">
-                        <h3 className="text-white text-base md:text-[17px] font-extrabold tracking-tight leading-none">Pagina Web de Captura</h3>
-                        <span className="text-[#0C62E6] text-[10px] uppercase font-black tracking-wider mt-1.5 leading-none select-none">
-                          GENERADOR DE PROSPECTOS
-                        </span>
-                      </div>
-                    </div>
-                    {/* Desc */}
-                    <p className="text-[#f3efec] text-xs sm:text-[13px] leading-relaxed text-left font-medium min-h-[72px] mt-2">
-                      Tu máquina digital de captación 24/7. Diseños ultra-veloces optimizados para dispositivos móviles que convierten visitas frígidas en registros de alta calidad de forma instantánea.
-                    </p>
-                  </div>
-                  {/* Footer */}
-                  <div className="flex items-center justify-between mt-6 pt-5 border-t border-white/[0.04]">
-                    <div className="flex items-center gap-2 text-white">
-                      <FileText className="w-[18px] h-[18px] text-white shrink-0" />
-                      <span className="text-white text-xs sm:text-[13px] font-medium tracking-tight select-none">
-                        2 páginas optimizadas
-                      </span>
-                    </div>
-                    <div className="bg-[#0C62E6] hover:bg-[#2075F3] text-white text-xs sm:text-sm font-extrabold py-2 md:py-2.5 px-5 md:px-6 rounded-full transition-all duration-300 shadow-md flex items-center gap-1.5 hover:shadow-[#0C62E6]/25 select-none">
-                      Explorar <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* TARJETA 3: Video Hooks de Atraccion */}
-                <div 
-                  onClick={() => {
-                    setSelectedHookForDrawer(null);
-                    setActiveDetailsDrawer("hooks");
-                  }}
-                  className="bg-[#0b0b0e] border border-white/[0.04] hover:border-[#FF5D1E]/40 rounded-3xl p-6 md:p-7 flex flex-col justify-between min-h-[320px] relative group transition-all duration-300 hover:scale-[1.02] active:scale-[0.99] cursor-pointer select-none shadow-[0_10px_30px_rgba(0,0,0,0.55)] md:hover:shadow-[0_0_30px_rgba(255,93,30,0.06)]"
-                >
-                  <div className="space-y-4">
-                    {/* Header */}
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-2xl bg-[#FF5D1E]/10 border border-[#FF5D1E]/25 flex items-center justify-center text-[#FF5D1E] shrink-0 shadow-lg shadow-[#FF5D1E]/5 group-hover:bg-[#FF5D1E]/20 group-hover:border-[#FF5D1E]/40 transition-all duration-300">
-                        <Video className="w-5.5 h-5.5" />
-                      </div>
-                      <div className="flex flex-col text-left">
-                        <h3 className="text-white text-base md:text-[17px] font-extrabold tracking-tight leading-none">Video Hooks de Atraccion</h3>
-                        <span className="text-[#FF5D1E] text-[10px] uppercase font-black tracking-wider mt-1.5 leading-none select-none">
-                          GUIONES DE ALTO IMPACTO
-                        </span>
-                      </div>
-                    </div>
-                    {/* Desc */}
-                    <p className="text-[#f3efec] text-xs sm:text-[13px] leading-relaxed text-left font-medium min-h-[72px] mt-2">
-                      Secuestra la atención en los primeros 3 segundos. Guiones magnéticos estructurados bajo la psicología de retención para disparar el algoritmo de Reels y TikTok.
-                    </p>
-                  </div>
-                  {/* Footer */}
-                  <div className="flex items-center justify-between mt-6 pt-5 border-t border-white/[0.04]">
-                    <div className="flex items-center gap-2 text-white">
-                      <PlayCircle className="w-[18px] h-[18px] text-white shrink-0" />
-                      <span className="text-white text-xs sm:text-[13px] font-medium tracking-tight select-none">
-                        20 ganchos persuasivos
-                      </span>
-                    </div>
-                    <div className="bg-[#FF5D1E] hover:bg-[#FF6E33] text-white text-xs sm:text-sm font-extrabold py-2 md:py-2.5 px-5 md:px-6 rounded-full transition-all duration-300 shadow-md flex items-center gap-1.5 hover:shadow-[#FF5D1E]/25 select-none">
-                      Explorar <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* TARJETA 4: Artículos de Blog (SEO) */}
-                <div 
-                  onClick={() => {
-                    setSelectedBlogForDrawer(topBlogsToRender[0]);
-                    setActiveDetailsDrawer("blog");
-                  }}
-                  className="bg-[#0b0b0e] border border-white/[0.04] hover:border-[#8B5CF6]/40 rounded-3xl p-6 md:p-7 flex flex-col justify-between min-h-[320px] relative group transition-all duration-300 hover:scale-[1.02] active:scale-[0.99] cursor-pointer select-none shadow-[0_10px_30px_rgba(0,0,0,0.55)] md:hover:shadow-[0_0_30px_rgba(139,92,246,0.06)]"
-                >
-                  <div className="space-y-4">
-                    {/* Header */}
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-2xl bg-[#5D32A1]/10 border border-[#5D32A1]/25 flex items-center justify-center text-[#8d54f7] shrink-0 shadow-lg shadow-[#5D32A1]/5 group-hover:bg-[#5D32A1]/20 group-hover:border-[#5D32A1]/40 transition-all duration-300">
-                        <FileText className="w-5.5 h-5.5" />
-                      </div>
-                      <div className="flex flex-col text-left">
-                        <h3 className="text-white text-base md:text-[17px] font-extrabold tracking-tight leading-none">Artículos de Blog (SEO)</h3>
-                        <span className="text-[#8B5CF6] text-[10px] uppercase font-black tracking-wider mt-1.5 leading-none select-none">
-                          TRÁFICO ORGÁNICO CONSTANTE
-                        </span>
-                      </div>
-                    </div>
-                    {/* Desc */}
-                    <p className="text-[#f3efec] text-xs sm:text-[13px] leading-relaxed text-left font-medium min-h-[72px] mt-2">
-                      Domina los motores de búsqueda de forma gratuita. Contenido editorial optimizado para responder con precisión milimétrica a la intención de compra real de tu audiencia.
-                    </p>
-                  </div>
-                  {/* Footer */}
-                  <div className="flex items-center justify-between mt-6 pt-5 border-t border-white/[0.04]">
-                    <div className="flex items-center gap-2 text-white">
-                      <FileText className="w-[18px] h-[18px] text-white shrink-0" />
-                      <span className="text-white text-xs sm:text-[13px] font-medium tracking-tight select-none">
-                        12 artículos de blog
-                      </span>
-                    </div>
-                    <div className="bg-[#5D32A1] hover:bg-[#7241C2] text-white text-xs sm:text-sm font-extrabold py-2 md:py-2.5 px-5 md:px-6 rounded-full transition-all duration-300 shadow-md flex items-center gap-1.5 hover:shadow-[#5D32A1]/25 select-none">
-                      Explorar <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* TARJETA 5: Email Marketing Automatizado */}
-                <div 
-                  onClick={() => {
-                    setSelectedEmailForDrawer(topEmailsToRender[0]);
-                    setActiveDetailsDrawer("email");
-                  }}
-                  className="bg-[#0b0b0e] border border-white/[0.04] hover:border-[#F59E0B]/40 rounded-3xl p-6 md:p-7 flex flex-col justify-between min-h-[320px] relative group transition-all duration-300 hover:scale-[1.02] active:scale-[0.99] cursor-pointer select-none shadow-[0_10px_30px_rgba(0,0,0,0.55)] md:hover:shadow-[0_0_30px_rgba(245,158,11,0.06)]"
-                >
-                  <div className="space-y-4">
-                    {/* Header */}
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-2xl bg-[#C68307]/10 border border-[#C68307]/25 flex items-center justify-center text-[#ffad16] shrink-0 shadow-lg shadow-[#C68307]/5 group-hover:bg-[#C68307]/20 group-hover:border-[#C68307]/40 transition-all duration-300">
-                        <Mail className="w-5.5 h-5.5" />
-                      </div>
-                      <div className="flex flex-col text-left">
-                        <h3 className="text-white text-base md:text-[17px] font-extrabold tracking-tight leading-none">Email Marketing Automatizado</h3>
-                        <span className="text-[#F59E0B] text-[10px] uppercase font-black tracking-wider mt-1.5 leading-none select-none">
-                          NUTRICIÓN Y AUTOMATIZACIÓN
-                        </span>
-                      </div>
-                    </div>
-                    {/* Desc */}
-                    <p className="text-[#f3efec] text-xs sm:text-[13px] leading-relaxed text-left font-medium min-h-[72px] mt-2">
-                      Automatiza tu confianza y multiplica tus ventas de forma pasiva. Flujos inteligentes con storytelling cautivador que derrumban objeciones de costo.
-                    </p>
-                  </div>
-                  {/* Footer */}
-                  <div className="flex items-center justify-between mt-6 pt-5 border-t border-white/[0.04]">
-                    <div className="flex items-center gap-2 text-white">
-                      <Mail className="w-[18px] h-[18px] text-white shrink-0" />
-                      <span className="text-white text-xs sm:text-[13px] font-medium tracking-tight select-none">
-                        3 emails de secuencia
-                      </span>
-                    </div>
-                    <div className="bg-[#C68307] hover:bg-[#E39812] text-white text-xs sm:text-sm font-extrabold py-2 md:py-2.5 px-5 md:px-6 rounded-full transition-all duration-300 shadow-md flex items-center gap-1.5 hover:shadow-[#C68307]/25 select-none">
-                      Explorar <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* TARJETA 6: Secuencias de WhatsApp */}
-                <div 
-                  onClick={() => {
-                    setActiveDetailsDrawer("avatar");
-                  }}
-                  className="bg-[#0b0b0e] border border-white/[0.04] hover:border-[#03B86F]/40 rounded-3xl p-6 md:p-7 flex flex-col justify-between min-h-[320px] relative group transition-all duration-300 hover:scale-[1.02] active:scale-[0.99] cursor-pointer select-none shadow-[0_10px_30px_rgba(0,0,0,0.55)] md:hover:shadow-[0_0_30px_rgba(3,184,111,0.06)]"
-                >
-                  <div className="space-y-4">
-                    {/* Header */}
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-2xl bg-[#039E5F]/10 border border-[#039E5F]/25 flex items-center justify-center text-[#03b86f] shrink-0 shadow-lg shadow-[#039E5F]/5 group-hover:bg-[#039E5F]/20 group-hover:border-[#039E5F]/40 transition-all duration-300">
-                        <Users className="w-5.5 h-5.5" />
-                      </div>
-                      <div className="flex flex-col text-left">
-                        <h3 className="text-white text-base md:text-[17px] font-extrabold tracking-tight leading-none">Secuencias de WhatsApp</h3>
-                        <span className="text-[#34D399] text-[10px] uppercase font-black tracking-wider mt-1.5 leading-none select-none">
-                          AVATAR PSICOGRÁFICO
-                        </span>
-                      </div>
-                    </div>
-                    {/* Desc */}
-                    <p className="text-[#f3efec] text-xs sm:text-[13px] leading-relaxed text-left font-medium min-h-[72px] mt-2">
-                      El mapa de empatía psicográfico definitivo de tu prospecto ideal. Identifica sus anhelos más profundos, miedos y frenos secretos para comunicar con precisión quirúrgica.
-                    </p>
-                  </div>
-                  {/* Footer */}
-                  <div className="flex items-center justify-between mt-6 pt-5 border-t border-white/[0.04]">
-                    <div className="flex items-center gap-2 text-white">
-                      <Users className="w-[18px] h-[18px] text-white shrink-0" />
-                      <span className="text-white text-xs sm:text-[13px] font-medium tracking-tight select-none">
-                        1 perfil psicográfico
-                      </span>
-                    </div>
-                    <div className="bg-[#039E5F] hover:bg-[#04BE73] text-white text-xs sm:text-sm font-extrabold py-2 md:py-2.5 px-5 md:px-6 rounded-full transition-all duration-300 shadow-md flex items-center gap-1.5 hover:shadow-[#039E5F]/25 select-none">
-                      Explorar <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Pie de Sección de Acción Directa */}
-              <div className="bg-[#0b0b0e] border border-white/[0.04] p-5 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-5 w-full mt-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-                <div className="flex items-center gap-4 w-full sm:w-auto">
-                  <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-[#FFAD16] shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
-                    <Lightbulb className="w-6 h-6 animate-pulse" />
-                  </div>
-                  <div className="flex flex-col text-left">
-                    <h4 className="text-white font-extrabold text-base sm:text-lg leading-snug">
-                      Todo listo para impulsar tu negocio
-                    </h4>
-                    <p className="text-zinc-500 text-xs sm:text-sm mt-0.5 font-medium leading-relaxed">
-                      Contenido creado, optimizado y estructurado para que obtengas resultados.
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    document.getElementById("success-estrategia-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
-                  }}
-                  className="border border-[#FF5A1F]/30 hover:border-[#FF5A1F]/60 bg-transparent hover:bg-[#FF5A1F]/5 text-white text-xs sm:text-sm font-bold py-2.5 px-6 rounded-full transition-all duration-300 w-full sm:w-auto shrink-0 flex items-center justify-center gap-2 cursor-pointer shadow-md select-none"
-                >
-                  Ver guía rápida <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
-                </button>
-              </div>
-            </motion.div>
 
             {/* NUEVA SECCIÓN DE BENEFICIOS PRO - DISEÑO EXACTO A LA IMAGEN */}
             <motion.div
@@ -2457,352 +1753,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               </div>
             </motion.div>
 
-            {/* Big Layout (Bento Grid) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full mb-12">
-              {/* Columna Izquierda (El Proyecto) - 60% Width */}
-              <div className="lg:col-span-7 flex">
-                {/* Project Progress Bento */}
-                <div className="bg-[#111] border border-white/5 rounded-[2.5rem] p-6 md:p-8 flex flex-col justify-start space-y-6 shadow-2xl relative overflow-hidden flex-1 w-full">
-                  <div className="absolute top-0 left-0 w-32 h-32 bg-[#FF5A1F]/5 blur-3xl rounded-full"></div>
-
-                  {/* Bento Header */}
-                  <div className="mb-2 relative z-10 text-center w-full">
-                    <div className="flex flex-col items-center justify-center gap-4">
-                      <div className="w-full flex flex-col items-center justify-center py-4">
-                        {/* Centered Project Name styled with attractive custom shapes, glowing backgrounds */}
-                        <div className="relative inline-flex items-center z-10 mb-6">
-                          <div className="absolute -inset-1.5 bg-gradient-to-r from-[#FFBF00] to-[#FF5A1F] rounded-2xl blur-md opacity-25 animate-pulse"></div>
-                          <div className="relative bg-[#141415] border border-white/10 rounded-2xl px-6 py-3 shadow-inner font-sans text-center">
-                            <h2 className="text-xl md:text-2xl font-black text-[#FFBF00] tracking-wider uppercase">
-                              {activeProjectName}
-                            </h2>
-                          </div>
-                        </div>
-
-                        {/* Onboarding welcome message styled with elegant top-padding without lines */}
-                        <div className="pt-6 w-full relative">
-                          <p className="text-base md:text-lg lg:text-xl text-center text-white/95 font-normal leading-relaxed w-full max-w-2xl mx-auto px-6 py-2 tracking-wide font-sans relative z-10">
-                            Tienes delante el negocio digital que otros tardan
-                            meses en configurar. Tienes los guiones, tienes la
-                            web y tienes la estrategia. Revisa tu material,
-                            activa tu cuenta y dale al botón de encendido para
-                            empezar a facturar.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bento Body Container */}
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
-                    {/* Mobile iPhone Mockup Preview */}
-                    <div className="md:col-span-5 flex justify-center">
-                      <div className="relative w-48 h-[340px] bg-[#000] rounded-[2.2rem] border-[5px] border-zinc-800 shadow-2xl p-2.5 flex flex-col justify-between overflow-hidden cursor-pointer group hover:border-[#FFBF00]/40 transition-all duration-300">
-                        {/* Camera notch / dynamic island */}
-                        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-14 h-3.5 bg-black rounded-full z-20 flex items-center justify-center">
-                          <span className="w-1.5 h-1.5 bg-zinc-900 rounded-full absolute left-3"></span>
-                          <span className="w-1 h-1 bg-zinc-900 rounded-full absolute right-4"></span>
-                        </div>
-
-                        {/* Signal bar mockups */}
-                        <div className="flex justify-between text-[7px] text-gray-500 font-bold px-3 pt-0.5 z-10 font-mono">
-                          <span>9:41</span>
-                          <div className="flex items-center gap-1">
-                            <span>📶</span>
-                            <span>🔋</span>
-                          </div>
-                        </div>
-
-                        {/* Inner Screen */}
-                        <div className="relative h-full w-full rounded-[1.4rem] bg-[#0E0E0F] overflow-hidden flex flex-col mt-0.5 border border-white/5">
-                          {/* Mock Browser URL tag */}
-                          <div className="w-[90%] mx-auto mt-2 py-0.5 px-2 bg-white/5 rounded-md border border-white/5 text-[6px] text-zinc-500 font-mono flex items-center justify-between">
-                            <span className="truncate">
-                              🔒 mkt.
-                              {activeProjectName
-                                .toLowerCase()
-                                .replace(/\s+/g, "")}
-                              .com
-                            </span>
-                            <span>↻</span>
-                          </div>
-
-                          {/* Dynamic Template Content */}
-                          <div className="flex-1 flex flex-col p-2.5 space-y-2 mt-1 select-none text-left">
-                            {activeProjectImage ? (
-                              <div className="w-full h-24 rounded-lg overflow-hidden border border-white/5 relative bg-zinc-900">
-                                <img
-                                  src={activeProjectImage}
-                                  alt={activeProjectName}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                  referrerPolicy="no-referrer"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                              </div>
-                            ) : (
-                              <div className="w-full h-24 rounded-lg bg-gradient-to-tr from-[#111] to-[#FF5A1F]/20 border border-white/5 flex items-center justify-center">
-                                <Target className="w-6 h-6 text-[#FF5A1F] opacity-40" />
-                              </div>
-                            )}
-
-                            <div className="space-y-1">
-                              <span className="px-1.5 py-0.5 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[5px] font-black uppercase text-[#FF5A1F] rounded">
-                                {activeProjectNiche}
-                              </span>
-                              <h3 className="text-[9px] font-black text-white leading-tight uppercase tracking-tight block truncate mt-1">
-                                {activeProjectName}
-                              </h3>
-                              <p className="text-[6px] text-zinc-400 font-medium leading-snug">
-                                La estructura psicológica de alta conversión
-                                está lista. Generando ingresos pasivos...
-                              </p>
-                            </div>
-
-                            {/* Simulated Landing elements */}
-                            <div className="space-y-1 mt-auto pt-2">
-                              <div className="h-1 bg-white/5 rounded-full w-[80%]"></div>
-                              <div className="h-1 bg-white/5 rounded-full w-[60%]"></div>
-                              <div className="w-full py-1 bg-gradient-to-r from-[#FF5A1F] to-[#E04812] rounded text-white font-black text-[5px] text-center uppercase tracking-wider shadow-sm">
-                                ¡EMPEZAR AHORA!
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Status Checklist right side */}
-                    <div
-                      id="status-checklist-container"
-                      className="md:col-span-7 space-y-4 px-2"
-                    >
-                      {/* Check 1 */}
-                      <div className="flex items-start gap-3">
-                        <div className="w-5 h-5 rounded bg-[#22C55E] flex items-center justify-center text-white shrink-0 mt-0.5">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="w-4 h-4"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                        <p className="text-base md:text-lg text-left text-white leading-relaxed font-normal font-sans tracking-wide">
-                          <strong className="font-bold text-white font-sans">
-                            Análisis de Cliente Ideal (Avatar):
-                          </strong>{" "}
-                          <span className="font-normal text-zinc-300">
-                            ¡Generado con precisión!
-                          </span>
-                        </p>
-                      </div>
-
-                      {/* Check 2 */}
-                      <div className="flex items-start gap-3">
-                        <div className="w-5 h-5 rounded bg-[#22C55E] flex items-center justify-center text-white shrink-0 mt-0.5">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="w-4 h-4"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                        <p className="text-base md:text-lg text-left text-white leading-relaxed font-normal font-sans tracking-wide">
-                          <strong className="font-bold text-white font-sans">
-                            Guiones de Venta (Reels, TikTok, Shorts):
-                          </strong>{" "}
-                          <span className="font-normal text-zinc-300">
-                            ¡Listos para grabar!
-                          </span>
-                        </p>
-                      </div>
-
-                      {/* Check 3 */}
-                      <div className="flex items-start gap-3">
-                        <div className="w-5 h-5 rounded bg-[#22C55E] flex items-center justify-center text-white shrink-0 mt-0.5">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="w-4 h-4"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                        <p className="text-base md:text-lg text-left text-white leading-relaxed font-normal font-sans tracking-wide">
-                          <strong className="font-bold text-white font-sans">
-                            Estructura de Página de Captura:
-                          </strong>{" "}
-                          <span className="font-normal text-zinc-300">
-                            ¡Diseñada y optimizada!
-                          </span>
-                        </p>
-                      </div>
-
-                      {/* Warning Lock 1 */}
-                      <div className="flex items-start gap-3">
-                        <div className="w-5 h-5 rounded-full border border-[#FFBF00]/30 bg-[#FFBF00]/10 flex items-center justify-center text-[#FFBF00] shrink-0 mt-0.5">
-                          <Lock className="w-3 h-3 text-[#FFBF00]" />
-                        </div>
-                        <p className="text-base md:text-lg text-left text-white leading-relaxed font-normal font-sans tracking-wide">
-                          <strong className="font-bold text-white font-sans">
-                            Conexión de Dominio Personalizado:
-                          </strong>{" "}
-                          <span className="font-normal text-zinc-400">
-                            Pendiente 👑
-                          </span>
-                        </p>
-                      </div>
-
-                      {/* Warning Lock 2 */}
-                      <div className="flex items-start gap-3">
-                        <div className="w-5 h-5 rounded-full border border-[#FFBF00]/30 bg-[#FFBF00]/10 flex items-center justify-center text-[#FFBF00] shrink-0 mt-0.5">
-                          <Lock className="w-3 h-3 text-[#FFBF00]" />
-                        </div>
-                        <p className="text-base md:text-lg text-left text-white leading-relaxed font-normal font-sans tracking-wide">
-                          <strong className="font-bold text-white font-sans">
-                            Activación de Embudos Automatizados:
-                          </strong>{" "}
-                          <span className="font-normal text-zinc-400">
-                            Pausado 👑
-                          </span>
-                        </p>
-                      </div>
-
-                      {/* Warning Lock 3 */}
-                      <div className="flex items-start gap-3">
-                        <div className="w-5 h-5 rounded-full border border-[#FFBF00]/30 bg-[#FFBF00]/10 flex items-center justify-center text-[#FFBF00] shrink-0 mt-0.5">
-                          <Lock className="w-3 h-3 text-[#FFBF00]" />
-                        </div>
-                        <p className="text-base md:text-lg text-left text-white leading-relaxed font-normal font-sans tracking-wide">
-                          <strong className="font-bold text-white font-sans">
-                            Publicación en Hotmart:
-                          </strong>{" "}
-                          <span className="font-normal text-zinc-400">
-                            Bloqueado 👑
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Columna Derecha (Desbloquea tu Máquina de Ventas - Premium Glowing Plan) - 40% Width */}
-              <div className="lg:col-span-5 flex">
-                <div className="bg-[#111] border-2 border-[#FFBF00]/30 rounded-[2.5rem] p-7 flex flex-col justify-between shadow-2xl relative overflow-hidden font-sans w-full shadow-[0_0_25px_rgba(255,191,0,0.06)]">
-                  {/* Ambient Glow */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFBF00]/5 blur-3xl rounded-full"></div>
-
-                  <div className="space-y-6">
-                    {/* Main Heading Text */}
-                    <div className="text-center space-y-3 relative z-10 w-full px-2">
-                       <h4 className="text-lg md:text-xl font-black text-[#FFBF00] tracking-normal leading-tight font-sans text-center">
-                        EL 85% TE TRAERÁ NUEVAS VISITAS. PERO SOLO EL 100% TE CERRARÁ VENTAS.
-                      </h4>
-                    </div>
-
-                    {/* List of benefits PRO PLAN */}
-                    <div className="space-y-4 relative z-10 text-left font-sans w-full px-2">
-                      <div className="space-y-4">
-                        {/* Benefit 1 */}
-                        <div className="flex items-start gap-2">
-                          <p className="text-base md:text-lg text-left text-white font-sans leading-relaxed">
-                            <span className="font-bold text-white font-sans">
-                              👑 3 Espacios de Negocio Activos:
-                            </span>{" "}
-                            <span className="text-white">
-                              Lanza y mantén hasta 3 proyectos diferentes facturando al mismo tiempo por una única cuota. Si un nicho no funciona, borras el proyecto y ocupas ese slot con uno nuevo sin pagar de más.
-                            </span>
-                          </p>
-                        </div>
-
-                        {/* Benefit 2 */}
-                        <div className="flex items-start gap-2">
-                          <p className="text-base md:text-lg text-left text-white font-sans leading-relaxed">
-                            <span className="font-bold text-white font-sans">
-                              👑 Contenido en Piloto Automático:
-                            </span>{" "}
-                            <span className="text-white">
-                              90 guiones virales y secuencias de email persuasivas para que no vuelvas a quedarte en blanco frente a la pantalla.
-                            </span>
-                          </p>
-                        </div>
-
-                        {/* Benefit 4 */}
-                        <div className="flex items-start gap-2">
-                          <p className="text-base md:text-lg text-left text-white font-sans leading-relaxed">
-                            <span className="font-bold text-white font-sans">
-                              👑 Soporte Directo de Cierre:
-                            </span>{" "}
-                            <span className="text-white">
-                              No estás solo. Acceso a expertos por WhatsApp para lograr grandes resultados con tus embudos y escalar tus ingresos rápido.
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Pricing callout and Action Button at bottom */}
-                    <div className="space-y-4 pt-4 relative z-10 text-center">
-                      <div className="flex flex-col items-center justify-center space-y-3 pb-1">
-                        {/* Orange highlighted line On Top - with margin bottom to add padding/spacing */}
-                        <div className="w-11/12 h-[2px] bg-gradient-to-r from-transparent via-[#FF5A1F] to-transparent rounded-full shadow-[0_0_8px_rgba(255,90,31,0.6)] opacity-90 mb-4"></div>
-                        <p
-                          className="text-white font-black uppercase tracking-wider text-center"
-                          style={{ fontSize: "1.2rem", lineHeight: "1.75rem" }}
-                        >
-                          VALOR TOTAL ESTIMADO DE LOS BENEFICIOS PRO:{" "}
-                          <span className="text-[#FFBF00]">+$1,497</span>
-                        </p>
-                      </div>
-
-                      <p className="text-white text-base md:text-lg font-normal tracking-wide text-center leading-relaxed">
-                        Actualiza al Plan PRO por solo{" "}
-                        <span className="text-[#FFBF00] font-black">
-                          $39/mes
-                        </span>
-                      </p>
-
-                      {/* Main Premium Red/Orange Button formatted and styled as the hand pointing button in screen */}
-                      <button
-                        onClick={() => setShowUpgradeModal(true)}
-                        className="w-full py-4 bg-gradient-to-r from-[#FF5A1F] to-[#E04812] hover:from-[#ff6d3c] hover:to-[#f0531c] text-white font-black text-xs sm:text-sm uppercase tracking-wide rounded-2xl shadow-[0_0_20px_rgba(255,90,31,0.22)] hover:shadow-[0_0_30px_rgba(255,90,31,0.42)] transition-all duration-300 flex items-center justify-center gap-2 transform hover:-translate-y-0.5 font-sans active:translate-y-0 text-center"
-                        style={{ marginTop: "2em", marginBottom: "2em" }}
-                      >
-                        <span>COMIENZA A VENDER EN AUTOMÁTICO</span>
-                      </button>
-
-                      <div className="flex flex-col items-center justify-center gap-1.5 pt-1">
-                        <p className="text-base md:text-lg text-white font-black flex items-center justify-center gap-2 font-sans tracking-wide leading-relaxed">
-                          <ShieldCheck className="w-5 h-5 text-red-500 shrink-0" />{" "}
-                          14 Días de Garantía de Reembolso Total
-                        </p>
-                        <p className="text-sm md:text-base text-white font-normal tracking-normal text-center leading-relaxed">
-                          Suscripción mensual, cancela cuando quieras.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Section Title for modules */}
             <div className="text-left mb-6 pl-2">
               <h4 className="text-xs font-black text-gray-400 uppercase tracking-[0.25em]">
@@ -2812,438 +1762,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
             {/* List of 6 Operation Modules in a robust full-width stack layout */}
             <div className="flex flex-col gap-6 w-full mb-16">
-              {/* Card 1: Estrategia de Ventas Completada */}
-              <div id="success-estrategia-card" className="bg-[#111] border border-[#FFBF00]/20 rounded-[2.5rem] p-6 md:p-8 flex flex-col lg:flex-row items-stretch hover:border-[#FF5A1F]/30 transition-all text-left relative overflow-hidden gap-8 lg:gap-11 w-full">
-                <div className="absolute top-0 left-0 w-32 h-32 bg-[#FFBF00]/5 blur-3xl rounded-full"></div>
 
-                {/* Left Column: The Context and the Value */}
-                <div className="space-y-6 relative z-10 w-full lg:w-5/12 flex flex-col justify-start">
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-3">
-                      <div>
-                        <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight mt-1">
-                          Estrategia de Ventas
-                        </h3>
-                      </div>
-                      <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/25 rounded-full text-[10px] font-black text-emerald-400 uppercase tracking-wider select-none leading-none flex items-center gap-1">
-                        ✔ Completado y Activo
-                      </span>
-                    </div>
 
-                    <p className="text-base md:text-lg text-left text-white leading-relaxed font-normal font-sans pt-1 tracking-wide">
-                      ¡He diseñado la mejor estrategia de ventas con la que
-                      conseguirás altos ingresos recomendando el{" "}
-                      <strong className="font-extrabold text-[#FFBF00] font-sans">
-                        "{activeProjectName}"
-                      </strong>
-                      .<br />
-                      <br />
-                      Con la estrategia que he diseñado podrás:
-                    </p>
-                  </div>
 
-                  {/* Bullets explaining why this is vital for the digital business */}
-                  <div className="space-y-3 pt-2">
-                    <div className="flex items-start gap-2.5">
-                      <span className="text-sm md:text-base mt-0.5">🎯</span>
-                      <p className="text-base md:text-lg text-left text-white leading-relaxed font-sans font-normal tracking-wide">
-                        <strong className="font-extrabold text-white font-sans">
-                          Conectar con tu cliente ideal:
-                        </strong>{" "}
-                        <span className="text-white">
-                          Entendiendo sus miedos más profundos para vender sin
-                          fricción.
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <span className="text-sm md:text-base mt-0.5">⚡</span>
-                      <p className="text-base md:text-lg text-left text-white leading-relaxed font-sans font-normal tracking-wide">
-                        <strong className="font-extrabold text-white font-sans">
-                          Derribar objeciones automáticamente:
-                        </strong>{" "}
-                        <span className="text-white">
-                          Usando historias y testimonios en el momento exacto.
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <span className="text-sm md:text-base mt-0.5">💎</span>
-                      <p className="text-base md:text-lg text-left text-white leading-relaxed font-sans font-normal tracking-wide">
-                        <strong className="font-extrabold text-white font-sans">
-                          Crear una oferta magnética:
-                        </strong>{" "}
-                        <span className="text-white">
-                          Aplicando gatillos mentales que generan urgencia real
-                          por comprar.
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Column: Resource Cards (Individual buttons) */}
-                <div className="relative z-10 w-full lg:w-7/12 flex flex-col gap-3 justify-center animate-fade-in">
-                  {/* Resource 1 */}
-                  <div
-                    onClick={() => {
-                      setActiveDetailsDrawer("avatar");
-                    }}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#14141a] hover:bg-[#181822] border border-white/5 hover:border-[#FF5A1F]/30 rounded-2xl gap-4 transition-all duration-300 group cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)] hover:shadow-[0_4px_20px_rgba(255,90,31,0.08)]"
-                  >
-                    <div className="flex items-start gap-3 flex-1">
-                      <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                          className="w-3.5 h-3.5"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                      <p className="text-base md:text-lg text-left text-white leading-relaxed font-normal font-sans tracking-wide">
-                        <strong className="font-extrabold text-white font-sans">
-                          Avatares Psicológicos:
-                        </strong>{" "}
-                        <span className="text-white">
-                          Tu comprador ideal totalmente perfilado con sus
-                          dolores y motivaciones de compra.
-                        </span>
-                      </p>
-                    </div>
-                    <div className="shrink-0">
-                      <div className="w-full sm:w-auto px-4 py-2 bg-transparent border border-[#FF5A1F]/40 group-hover:border-[#FF5A1F] text-white group-hover:text-[#FF5A1F] text-[11px] font-extrabold uppercase tracking-wider rounded-xl transition-all text-center flex items-center justify-center gap-1 shadow-sm font-sans">
-                        Ver Detalles
-                        <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Resource 2 */}
-                  <div
-                    onClick={() => {
-                      setActiveDetailsDrawer("testimonials");
-                    }}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#14141a] hover:bg-[#181822] border border-white/5 hover:border-[#FF5A1F]/30 rounded-2xl gap-4 transition-all duration-300 group cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)] hover:shadow-[0_4px_20px_rgba(255,90,31,0.08)]"
-                  >
-                    <div className="flex items-start gap-3 flex-1">
-                      <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                          className="w-3.5 h-3.5"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                      <p className="text-base md:text-lg text-left text-white leading-relaxed font-normal font-sans tracking-wide">
-                        <strong className="font-extrabold text-white font-sans">
-                          Testimonios Persuasivos:
-                        </strong>{" "}
-                        <span className="text-white">
-                          Historias y transformaciones humanas que derriban
-                          dudas.
-                        </span>
-                      </p>
-                    </div>
-                    <div className="shrink-0">
-                      <div className="w-full sm:w-auto px-4 py-2 bg-transparent border border-[#FF5A1F]/40 group-hover:border-[#FF5A1F] text-white group-hover:text-[#FF5A1F] text-[11px] font-extrabold uppercase tracking-wider rounded-xl transition-all text-center flex items-center justify-center gap-1 shadow-sm font-sans">
-                        Ver Detalles
-                        <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Resource 3 */}
-                  <div
-                    onClick={() => {
-                      setActiveDetailsDrawer("objections");
-                    }}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#14141a] hover:bg-[#181822] border border-white/5 hover:border-[#FF5A1F]/30 rounded-2xl gap-4 transition-all duration-300 group cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)] hover:shadow-[0_4px_20px_rgba(255,90,31,0.08)]"
-                  >
-                    <div className="flex items-start gap-3 flex-1">
-                      <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                          className="w-3.5 h-3.5"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                      <p className="text-base md:text-lg text-left text-white leading-relaxed font-normal font-sans tracking-wide">
-                        <strong className="font-extrabold text-white font-sans">
-                          Dolores y Objeciones:
-                        </strong>{" "}
-                        <span className="text-white">
-                          Los miedos de tu avatar mapeados para ser
-                          neutralizados.
-                        </span>
-                      </p>
-                    </div>
-                    <div className="shrink-0">
-                      <div className="w-full sm:w-auto px-4 py-2 bg-transparent border border-[#FF5A1F]/40 group-hover:border-[#FF5A1F] text-white group-hover:text-[#FF5A1F] text-[11px] font-extrabold uppercase tracking-wider rounded-xl transition-all text-center flex items-center justify-center gap-1 shadow-sm font-sans">
-                        Ver Detalles
-                        <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Resource 4 */}
-                  <div
-                    onClick={() => {
-                      setActiveDetailsDrawer("benefits");
-                    }}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#14141a] hover:bg-[#181822] border border-white/5 hover:border-[#FF5A1F]/30 rounded-2xl gap-4 transition-all duration-300 group cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)] hover:shadow-[0_4px_20px_rgba(255,90,31,0.08)]"
-                  >
-                    <div className="flex items-start gap-3 flex-1">
-                      <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                          className="w-3.5 h-3.5"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                      <p className="text-base md:text-lg text-left text-white leading-relaxed font-normal font-sans tracking-wide">
-                        <strong className="font-extrabold text-white font-sans">
-                          Beneficios Magnéticos:
-                        </strong>{" "}
-                        <span className="text-white">
-                          La oferta irresistible redactada con gatillos
-                          psicológicos de conversión.
-                        </span>
-                      </p>
-                    </div>
-                    <div className="shrink-0">
-                      <div className="w-full sm:w-auto px-4 py-2 bg-transparent border border-[#FF5A1F]/40 group-hover:border-[#FF5A1F] text-white group-hover:text-[#FF5A1F] text-[11px] font-extrabold uppercase tracking-wider rounded-xl transition-all text-center flex items-center justify-center gap-1 shadow-sm font-sans">
-                        Ver Detalles
-                        <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 2: Landing Page Oficial */}
-              <div id="success-pagina-captura-card" className="bg-[#111] border border-white/5 rounded-[2.5rem] p-6 md:p-8 flex flex-col lg:flex-row items-stretch hover:border-[#FF5A1F]/30 transition-all text-left relative overflow-hidden gap-8 lg:gap-11 w-full">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF5A1F]/5 blur-3xl rounded-full"></div>
-
-                {/* Left Column: The Context and the Value */}
-                <div className="space-y-6 relative z-10 w-full lg:w-5/12 flex flex-col justify-start">
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-3">
-                      <div>
-                        <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">
-                          Página Web de Captura
-                        </h3>
-                      </div>
-                      <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/25 rounded-full text-[10px] font-black text-emerald-400 uppercase tracking-wider select-none leading-none flex items-center gap-1">
-                        ✔ Completado y Activo
-                      </span>
-                    </div>
-
-                    <p className="text-base md:text-lg text-left text-white leading-relaxed font-sans font-normal tracking-wide pt-1">
-                      He creado para ti una página web que no solo se ve
-                      increíble, sino que está diseñada estratégicamente para
-                      ayudarte a conseguir clientes reales. Con tu página de
-                      Captura podrás:
-                    </p>
-                  </div>
-
-                  {/* Bullets explaining benefits */}
-                  <div className="space-y-3 pt-2">
-                    <div className="flex items-start gap-2.5">
-                      <span className="text-sm md:text-base mt-0.5">🎯</span>
-                      <p className="text-base md:text-lg text-left text-white leading-relaxed font-sans font-normal tracking-wide">
-                        <strong className="font-extrabold text-white font-sans">
-                          Conseguir Contactos:
-                        </strong>{" "}
-                        <span className="text-white">
-                          Guarda automáticamente los datos (como el email o
-                          WhatsApp) de las personas interesadas.
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <span className="text-sm md:text-base mt-0.5">⚡</span>
-                      <p className="text-base md:text-lg text-left text-white leading-relaxed font-sans font-normal tracking-wide">
-                        <strong className="font-extrabold text-white font-sans">
-                          Generar Confianza Inmediata:
-                        </strong>{" "}
-                        <span className="text-white">
-                          Un diseño profesional que hace que tu negocio destaque
-                          desde el primer segundo.
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <span className="text-sm md:text-base mt-0.5">💎</span>
-                      <p className="text-base md:text-lg text-left text-white leading-relaxed font-sans font-normal tracking-wide">
-                        <strong className="font-extrabold text-white font-sans">
-                          Tecnología Inteligente (Pixel):
-                        </strong>{" "}
-                        <span className="text-white">
-                          Tu página lista para conectar con anuncios de Facebook
-                          e Instagram.
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Column: Resource Cards & Links */}
-                <div className="relative z-10 w-full lg:w-7/12 flex flex-col gap-3 justify-center animate-fade-in">
-                  {/* Resource 1: Capture page */}
-                  <a
-                    href={getPageUrl()}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#14141a] hover:bg-[#181822] border border-white/5 hover:border-[#FF5A1F]/30 rounded-2xl gap-4 transition-all duration-300 group cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)] hover:shadow-[0_4px_20px_rgba(255,90,31,0.08)]"
-                  >
-                    <div className="flex items-start gap-4 flex-1">
-                      <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 shrink-0 mt-0.5">
-                        <Globe className="w-5 h-5 text-[#FF5A1F]" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm md:text-base font-extrabold text-white group-hover:text-[#FF5A1F] transition-colors text-left">
-                          Página web con la que atraerás clientes
-                        </h4>
-                        <p className="text-base md:text-lg text-white mt-1 text-left leading-relaxed font-sans font-normal tracking-wide">
-                          Haz clic para ver la página web profesional que he
-                          creado para ti y con la que promoverás tu negocio
-                          digital.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="shrink-0">
-                      <div className="px-4 py-2 bg-transparent border border-[#FF5A1F]/40 group-hover:border-[#FF5A1F] text-white group-hover:text-[#FF5A1F] text-[11px] font-extrabold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1">
-                        Ir al Sitio Web
-                        <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                      </div>
-                    </div>
-                  </a>
-
-                  {/* Resource 2: Thank you page */}
-                  <a
-                    href={
-                      getPageUrl() + (createdPageSubdomain ? "/gracias" : "")
-                    }
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#14141a] hover:bg-[#181822] border border-white/5 hover:border-[#FF5A1F]/30 rounded-2xl gap-4 transition-all duration-300 group cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)] hover:shadow-[0_4px_20px_rgba(255,90,31,0.08)]"
-                  >
-                    <div className="flex items-start gap-4 flex-1">
-                      <div className="w-10 h-10 rounded-xl bg-[#FFBF00]/10 border border-[#FFBF00]/20 flex items-center justify-center text-[#FFBF00] shrink-0 mt-0.5">
-                        <CheckCircle className="w-5 h-5 text-[#FFBF00]" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm md:text-base font-extrabold text-white group-hover:text-[#FFBF00] transition-colors text-left">
-                          Página de Agradecimiento
-                        </h4>
-                        <p className="text-base md:text-lg text-white mt-1 text-left leading-relaxed font-sans font-normal tracking-wide">
-                          Haz clic para ver la página de agradecimiento donde
-                          serán dirigidos tus visitantes interesados al
-                          registrarse.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="shrink-0">
-                      <div className="px-4 py-2 bg-transparent border border-[#FF5A1F]/40 group-hover:border-[#FF5A1F] text-white group-hover:text-[#FF5A1F] text-[11px] font-extrabold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1">
-                        Ver Gracias
-                        <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                      </div>
-                    </div>
-                  </a>
-
-                  {/* Direct Enlace URL */}
-                  <div className="bg-black/45 border border-white/5 rounded-2xl p-4 flex flex-col gap-1.5 text-xs">
-                    <span className="text-xs md:text-sm uppercase font-black tracking-wider text-white">
-                      Enlace Web Directo (URL Temporal):
-                    </span>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-                      <a
-                        href={getPageUrl()}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-[#FFBF00] font-mono font-medium hover:text-white transition-colors truncate underline block text-center flex-1 text-base md:text-lg"
-                      >
-                        {getPageUrl()}
-                      </a>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(getPageUrl());
-                          setCopiedUrl(true);
-                          setTimeout(() => setCopiedUrl(false), 2000);
-                        }}
-                        className="shrink-0 px-3 py-1.5 bg-[#FF5A1F]/10 hover:bg-[#FF5A1F]/20 border border-[#FF5A1F]/30 text-white rounded-xl text-[11px] font-bold uppercase transition-all flex items-center justify-center gap-1.5 active:scale-95"
-                      >
-                        {copiedUrl ? (
-                          <>
-                            <Check className="w-3.5 h-3.5 text-emerald-400" />
-                            <span className="text-emerald-400 font-extrabold">
-                              ¡Copiado!
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3.5 h-3.5 text-zinc-400" />
-                            <span>Copiar URL</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Upgrade Opportunities Info Block */}
-                  <div className="mt-4 bg-gradient-to-br from-[#FFBF00]/10 via-[#FF5A1F]/5 to-transparent border border-[#FFBF00]/20 rounded-2xl flex flex-col text-left overflow-hidden">
-                    <div className="p-6 pb-4 space-y-3">
-                      <h4 className="text-lg md:text-xl font-black text-white uppercase tracking-wide font-sans leading-tight">
-                        MULTIPLICA TUS VENTAS UN{" "}
-                        <span className="text-[#FF5A1F] drop-shadow-[0_0_8px_rgba(255,90,31,0.4)]">
-                          70%
-                        </span>{" "}
-                        USANDO UN ENLACE QUE INSPIRE CONFIANZA.
-                      </h4>
-                      <p className="text-sm md:text-base text-zinc-300 font-sans leading-relaxed font-normal tracking-wide">
-                        Es simple: los enlaces feos espantan a los compradores.
-                        Activa el plan PRO, ponle un nombre real a tu negocio (
-                        <strong className="text-white">www.tu-marca.com</strong>
-                        ) y quítales la excusa para no comprarte.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setShowUpgradeModal(true)}
-                      className="w-full py-4 bg-gradient-to-r from-[#FF5A1F] to-[#E04812] hover:from-[#ff6d3c] hover:to-[#f0531c] text-white font-black uppercase text-xs md:text-sm tracking-widest transition-all flex items-center justify-center gap-2 active:scale-[0.99] border-t border-[#FF5A1F]/20 rounded-b-2xl shadow-[0_4px_20px_rgba(255,90,31,0.22)] shrink-0"
-                    >
-                      <Crown className="w-4 h-4 text-white shrink-0" />
-                      SÍ, QUIERO UN DOMINIO PROFESIONAL
-                    </button>
-                  </div>
-                </div>
-              </div>
               {(() => {
+                return null;
                 const isManicurista =
                   selectedProject?.name
                     ?.toLowerCase()
@@ -4340,6 +2863,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                 Entrar al administrador completo de mi sistema
               </p>
             </div>
+            </div>
           </div>
         ) : (
           <div className="flex flex-col">
@@ -4680,7 +3204,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             {/* 7. HOOKS REVEAL */}
             {revealedSections.includes("show_hooks") &&
               step !== "generating_hooks" && (
-                <div ref={hooksRef} className="w-full max-w-[1440px] mx-auto min-h-screen pt-24 pb-12 px-4 md:px-6 snap-start snap-always relative">
+                <div ref={hooksRef} className="w-full max-w-[1440px] mx-auto min-h-screen flex flex-col justify-center py-20 px-4 md:px-6 snap-start snap-always relative">
                   <HooksRevealStep
                     userData={user}
                     hooks={
@@ -4701,6 +3225,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       }
                     }}
                     hooksRef={hooksRef}
+                    onOpenHookDetails={(hook) => {
+                      setSelectedHookForDrawer(hook);
+                      setActiveDetailsDrawer("hooks");
+                    }}
                   />
                 </div>
               )}
@@ -4758,11 +3286,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 220 }}
               className={`relative w-full h-full bg-[#0a0a0e] border-l border-white/5 shadow-[-10px_0_40px_rgba(0,0,0,0.8)] flex flex-col z-10 overflow-hidden text-left transition-all duration-300 ${
-                (activeDetailsDrawer === "hooks" || activeDetailsDrawer === "landing") ? "max-w-5xl md:max-w-6xl xl:max-w-[85vw]" : "max-w-2xl md:max-w-4xl xl:max-w-5xl"
+                (activeDetailsDrawer === "hooks" || activeDetailsDrawer === "landing" || activeDetailsDrawer === "blog") ? "max-w-5xl md:max-w-6xl xl:max-w-[85vw]" : "max-w-2xl md:max-w-4xl xl:max-w-5xl"
               }`}
             >
               {/* Drawer Header */}
-              {activeDetailsDrawer !== "hooks" && (
+              {activeDetailsDrawer !== "hooks" && activeDetailsDrawer !== "blog" && (
                 activeDetailsDrawer === "landing" ? (
                   <div className="p-6 border-b border-white/5 bg-[#14141c]/80 backdrop-blur-md space-y-4">
                     {/* Top Row: Back button and Close button */}
@@ -4827,8 +3355,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                           "Neutralizar dolores y objeciones"}
                         {activeDetailsDrawer === "benefits" &&
                           "Crear una oferta magnética"}
-                        {activeDetailsDrawer === "blog" &&
-                          "Posicionamiento y Tráfico Orgánico"}
                         {activeDetailsDrawer === "email" &&
                           "Ventas sin presión técnica en piloto automático"}
                         {activeDetailsDrawer === "whatsapp" &&
@@ -4843,8 +3369,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                           "Dolores y Objeciones"}
                         {activeDetailsDrawer === "benefits" &&
                           "Beneficios Magnéticos"}
-                        {activeDetailsDrawer === "blog" &&
-                          "Estructura de Artículo de Blog SEO"}
                         {activeDetailsDrawer === "email" &&
                           "Secuencia Inteligente de Email"}
                         {activeDetailsDrawer === "whatsapp" &&
@@ -4862,7 +3386,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               )}
 
               {/* Drawer Content Area with independent scroll */}
-              <div className={`flex-1 overflow-y-auto ${activeDetailsDrawer === "hooks" ? "p-0" : "p-6 md:p-8 space-y-8"}`}>
+              <div className={`flex-1 overflow-y-auto ${(activeDetailsDrawer === "hooks" || activeDetailsDrawer === "blog") ? "p-0" : "p-6 md:p-8 space-y-8"}`}>
                 {activeDetailsDrawer === "landing" && (
                   <div className="space-y-8 font-sans text-left">
                     {/* Alerta Premium Rocket Card */}
@@ -6507,96 +5031,322 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     );
                   })()}
 
-                {activeDetailsDrawer === "blog" &&
-                  selectedBlogForDrawer &&
-                  (() => {
-                    const blog = selectedBlogForDrawer;
-                    const bTitle = blog.title;
-                    
-                    const enfoque = blog.enfoqueEstrategico || "Enfoque y posicionamiento estratégico para captar tráfico altamente cualificado.";
-                    const intencion = blog.intencionBusqueda || "Gancho psicológico y derivación hacia la compra del producto.";
-                    const keyword = blog.keywordSeo || "negocio, servicios, captacion de clientes";
-                    const volumen = blog.volumenBusqueda || "500 - 1K";
+                {activeDetailsDrawer === "blog" && (() => {
+                  const currentBlogRaw = selectedBlogForDrawer || unifiedBlogsList[0];
+                  // Find corresponding high fidelity blog structure for dynamic/unification mapping
+                  const matchedDetailedBlog = unifiedBlogsList.find(b => b.title === currentBlogRaw.title || b.id === currentBlogRaw.id) || unifiedBlogsList[0];
+                  const currentBlog = {
+                    ...matchedDetailedBlog,
+                    title: currentBlogRaw.title || matchedDetailedBlog.title,
+                    introduction: currentBlogRaw.introduction || matchedDetailedBlog.introduction
+                  };
 
-                    const keywordsList = keyword
-                      .split(",")
-                      .map((k: string) => k.trim())
-                      .filter(Boolean);
-
-                    return (
-                      <div className="space-y-8 font-sans text-left">
-                        <p className="text-white text-sm md:text-base font-normal leading-relaxed tracking-wide opacity-80">
-                          Esta es la estructura estratégica de posicionamiento para tu Artículo de
-                          Blog SEO optimizado. Diseñado para atraer prospectos calificados y derivar tráfico orgánico de alto valor.
-                        </p>
-
-                        {/* Título */}
-                        <div className="p-6 bg-gradient-to-r from-[#FFBF00]/10 via-[#FFBF00]/5 to-transparent border border-[#FFBF00]/20 rounded-3xl relative overflow-hidden space-y-2">
-                          <div className="absolute top-0 right-0 w-24 h-24 bg-[#FFBF00]/5 blur-3xl rounded-full"></div>
-                          <span className="text-[10px] font-black uppercase text-[#FFBF00] tracking-widest block">
-                            Título del Artículo de Blog
-                          </span>
-                          <p className="text-xl md:text-2xl font-black text-white leading-relaxed font-sans">
-                            {bTitle}
+                  return (
+                    <div className="flex flex-col lg:flex-row h-full min-h-[85vh] bg-[#07070a] text-white">
+                      {/* COLUMNA IZQUIERDA: Lista de Artículos */}
+                      <div className="w-full lg:w-5/12 border-r border-white/5 bg-[#0b0b0f] flex flex-col justify-between shrink-0">
+                        {/* Cabecera de la Columna Izquierda */}
+                        <div className="p-6 border-b border-white/5">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl">
+                              <BookOpen className="w-5 h-5" />
+                            </div>
+                            <div className="text-left">
+                              <span className="text-[10px] font-black uppercase text-[#FFBF00] tracking-widest block leading-none mb-1">
+                                Canales Orgánicos
+                              </span>
+                              <h2 className="text-lg font-black uppercase tracking-tight text-white leading-tight">
+                                Artículos de Blog SEO
+                              </h2>
+                            </div>
+                          </div>
+                          <p className="text-xs text-zinc-400 leading-relaxed text-left">
+                            Estructura de contenidos optimizada para capturar búsquedas de alta intención de compra desde Google.
                           </p>
                         </div>
 
-                        {/* Enfoque Estratégico */}
-                        <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl space-y-1.5 hover:border-[#FFBF00]/20 transition-all duration-300">
-                          <span className="text-[10px] font-black uppercase text-amber-400 tracking-widest block font-sans">
-                            Enfoque Estratégico
-                          </span>
-                          <p className="text-sm md:text-base text-zinc-100 leading-relaxed font-normal">
-                            {enfoque}
-                          </p>
+                        {/* Listado de Tarjetas */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
+                          {unifiedBlogsList.map((item, index) => {
+                            const isSelected = currentBlog.id === item.id;
+                            return (
+                              <button
+                                key={item.id}
+                                onClick={() => {
+                                  setSelectedBlogForDrawer(item);
+                                }}
+                                className={`w-full text-left p-4 rounded-2xl border transition-all duration-300 relative overflow-hidden flex items-start gap-4 ${
+                                  isSelected
+                                    ? "bg-gradient-to-r from-amber-500/10 to-amber-500/2 border-amber-400/40 shadow-[0_4px_20px_rgba(255,191,0,0.06)]"
+                                    : "bg-white/[0.01] border-white/5 hover:border-white/10 hover:bg-white/[0.03]"
+                                }`}
+                              >
+                                {/* Hoja de calendario/publicación en blanco y oro o gris */}
+                                <div className={`shrink-0 w-11 h-12 rounded-xl flex flex-col overflow-hidden border text-center ${
+                                  item.isLocked
+                                    ? "bg-[#201d12]/60 border-amber-500/20 text-amber-500/80"
+                                    : isSelected
+                                      ? "bg-[#fffbeb] border-amber-400 text-amber-950 font-bold"
+                                      : "bg-zinc-900 border-white/10 text-white"
+                                }`}>
+                                  <div className={`text-[8px] py-0.5 tracking-wider uppercase font-black ${
+                                    item.isLocked
+                                      ? "bg-[#332c12] text-amber-400"
+                                      : isSelected
+                                        ? "bg-[#FFBF00] text-amber-950"
+                                        : "bg-zinc-800 text-zinc-400"
+                                  }`}>
+                                    POST
+                                  </div>
+                                  <div className="flex-1 flex items-center justify-center text-xs font-extrabold font-mono leading-none">
+                                    0{index + 1}
+                                  </div>
+                                </div>
+
+                                {/* Contenido */}
+                                <div className="flex-1 min-w-0 space-y-1.5">
+                                  <h4 className={`text-xs sm:text-sm font-bold line-clamp-2 leading-tight text-left ${
+                                    isSelected ? "text-amber-400" : "text-zinc-300"
+                                  }`}>
+                                    {item.title}
+                                  </h4>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    {item.isLocked ? (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-500/30 text-[8px] font-extrabold text-amber-300 uppercase tracking-wider">
+                                        <Lock className="w-2.5 h-2.5" /> PREMIUM PRO
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider">
+                                        Active
+                                      </span>
+                                    )}
+                                    <span className="text-[9px] font-semibold text-zinc-500 font-mono">
+                                      Vol: {item.volumenBusqueda}
+                                    </span>
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
                         </div>
 
-                        {/* Intención de Búsqueda */}
-                        <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl space-y-1.5 hover:border-[#FFBF00]/20 transition-all duration-300">
-                          <span className="text-[10px] font-black uppercase text-emerald-400 tracking-widest block font-sans">
-                            Intención de Búsqueda / Compra
-                          </span>
-                          <p className="text-sm md:text-base text-zinc-100 leading-relaxed font-normal">
-                            {intencion}
-                          </p>
+                        {/* Botón ver 12 artículos restantes */}
+                        <div className="p-4 border-t border-white/5 bg-zinc-950/60">
+                          <button
+                            onClick={() => setShowUpgradeModal(true)}
+                            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#FFBF00] to-amber-500 text-amber-950 font-black text-xs uppercase tracking-wider hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(255,191,0,0.2)]"
+                          >
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>Ver 12 artículos restantes</span>
+                          </button>
                         </div>
+                      </div>
 
-                        {/* Keyword SEO & Volumen de Búsqueda (Grid Layout) */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 leading-normal">
-                          {/* Keyword SEO Column */}
-                          <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-[#FFBF00]/20 transition-all duration-300">
-                            <span className="text-[10px] font-black uppercase text-indigo-400 tracking-widest block mb-3 font-sans">
-                              Keyword SEO
-                            </span>
-                            <div className="flex flex-wrap gap-1.5">
-                              {keywordsList.map((tag: string, index: number) => (
-                                <span
-                                  key={index}
-                                  className="px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 rounded-lg text-xs font-bold font-mono"
-                                >
-                                  🔑 {tag}
-                                </span>
+                      {/* COLUMNA DERECHA: Ficha Técnica Detallada (Imagen 2 premium design replica) */}
+                      <div className="w-full lg:w-7/12 flex flex-col bg-[#0a0a0f] relative overflow-hidden min-h-[500px]">
+                        {currentBlog.isLocked && (
+                          /* Pantalla superpuesta translúcida de vidrio esmerilado con candado de seguridad */
+                          <div className="absolute inset-0 bg-[#07070a]/90 backdrop-blur-md z-20 flex flex-col items-center justify-center p-8 text-center space-y-6">
+                            <div className="relative">
+                              <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 blur-md opacity-30 animate-pulse"></div>
+                              <div className="relative p-5 bg-gradient-to-b from-[#251e11] to-[#120f09] border border-amber-500/30 rounded-full text-amber-400">
+                                <Lock className="w-10 h-10" />
+                              </div>
+                            </div>
+                            <div className="max-w-md space-y-2">
+                              <h3 className="text-xl font-black uppercase text-white tracking-tight">
+                                Contenido Exclusivo PRO
+                              </h3>
+                              <p className="text-zinc-400 text-sm leading-relaxed">
+                                Este título estratégico requiere la versión de alta densidad. Desbloquea más palabras clave, intenciones de compra avanzadas y el plan editorial infinito para posicionar tu marca en la cima de Google.
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => setShowUpgradeModal(true)}
+                              className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#FFBF00] to-amber-500 text-amber-950 font-black text-xs uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(255,191,0,0.25)] flex items-center gap-2"
+                            >
+                              <Sparkles className="w-4 h-4" />
+                              <span>Activar Plan Pro</span>
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Contenedor principal scrollable */}
+                        <div className="flex-1 p-6 md:p-8 space-y-6 overflow-y-auto max-h-[85vh] scrollbar-thin">
+                          
+                          {/* 1. Tarjeta Principal con borde sutil de color naranja/ámbar */}
+                          <div className="p-6 md:p-8 bg-zinc-900/20 border border-amber-500/15 rounded-3xl space-y-6 text-left relative overflow-hidden">
+                            {/* Brillo decorativo */}
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFBF00]/5 blur-3xl rounded-full pointer-events-none"></div>
+
+                            {/* Badge: "★ TU ARTÍCULO RECOMENDADO" */}
+                            <div className="flex items-center gap-2 text-[#ff5a1f] font-black text-xs uppercase tracking-wider">
+                              <span className="text-sm">★</span>
+                              <span>Tu artículo recomendado</span>
+                            </div>
+
+                            {/* Título de la tarjeta y su respectiva descripción */}
+                            <div className="space-y-3">
+                              <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight leading-snug">
+                                {currentBlog.title}
+                              </h3>
+                              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-normal">
+                                {currentBlog.introduction || "Este artículo está pensado para atraer personas interesadas en resolver sus dudas fundamentales y dirigirlas hacia tu oferta principal."}
+                              </p>
+                            </div>
+
+                            {/* Rejilla de metadatos (4 micro-paneles en Grid) */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                              {/* Palabra clave */}
+                              <div className="p-3.5 bg-zinc-950/40 border border-white/5 rounded-xl flex items-center gap-3">
+                                <Search className="w-4 h-4 text-zinc-500 shrink-0" />
+                                <p className="text-xs text-zinc-400 font-medium">
+                                  <span className="font-extrabold text-zinc-500">Palabra clave:</span> {currentBlog.keywordSeo?.split(",")[0] || "autocuidado de la piel"}
+                                </p>
+                              </div>
+
+                              {/* Destino del CTA */}
+                              <div className="p-3.5 bg-zinc-950/40 border border-white/5 rounded-xl flex items-center gap-3">
+                                <ArrowUpRight className="w-4 h-4 text-zinc-500 shrink-0" />
+                                <p className="text-xs text-zinc-400 font-medium">
+                                  <span className="font-extrabold text-zinc-500">Destino del CTA:</span> clase gratuita
+                                </p>
+                              </div>
+
+                              {/* Objetivo */}
+                              <div className="p-3.5 bg-zinc-950/40 border border-white/5 rounded-xl flex items-center gap-3">
+                                <Target className="w-4 h-4 text-zinc-500 shrink-0" />
+                                <p className="text-xs text-zinc-400 font-medium">
+                                  <span className="font-extrabold text-zinc-500">Objetivo:</span> atraer tráfico orgánico
+                                </p>
+                              </div>
+
+                              {/* Extensión estimada */}
+                              <div className="p-3.5 bg-zinc-950/40 border border-white/5 rounded-xl flex items-center gap-3">
+                                <FileText className="w-4 h-4 text-zinc-500 shrink-0" />
+                                <p className="text-xs text-zinc-400 font-medium">
+                                  <span className="font-extrabold text-zinc-500">Extensión estimada:</span> 1.200–1.200 palabras
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Badge: Pendiente de creación */}
+                            <div className="pt-1 flex text-left">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl border border-amber-500/20 bg-amber-500/5 text-[#ff5a1f] text-xs font-black uppercase tracking-wider">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                Pendiente de creación
+                              </span>
+                            </div>
+
+                            {/* Botones de Acción Inmediata */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-1 pt-1">
+                              {/* Botón primario: Crear mi artículo mensual */}
+                              <button
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="w-full py-3.5 px-5 rounded-2xl bg-[#ff5a1f] hover:bg-[#ff5a1f]/90 text-white font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(255,90,31,0.2)] active:scale-[0.99]"
+                              >
+                                <Pencil className="w-4 h-4" />
+                                <span>Crear mi artículo mensual</span>
+                              </button>
+
+                              {/* Botón secundario: Cambiar tema sugerido */}
+                              <button
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="w-full py-3.5 px-5 rounded-2xl bg-transparent border border-white/10 hover:border-white/20 hover:bg-white/[0.02] text-zinc-300 font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 active:scale-[0.99]"
+                              >
+                                <RotateCcw className="w-4 h-4" />
+                                <span>Cambiar tema sugerido</span>
+                              </button>
+                            </div>
+
+                          </div>
+
+                          {/* 2. Bloque: El artículo incluirá */}
+                          <div className="p-6 bg-[#0c0c11] border border-white/5 rounded-3xl space-y-4 text-left">
+                            <h4 className="text-xs font-black uppercase text-zinc-400 tracking-wider">
+                              El artículo incluirá
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3.5 gap-x-6">
+                              {[
+                                "Título optimizado",
+                                "Llamada a la acción hacia tu página",
+                                "Estructura con subtítulos",
+                                "Metatítulo y descripción SEO",
+                                "Contenido adaptado al producto"
+                              ].map((item, index) => (
+                                <div key={index} className="flex items-center gap-3">
+                                  <div className="p-1 bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20 shrink-0">
+                                    <Check className="w-3 h-3" />
+                                  </div>
+                                  <span className="text-xs font-extrabold text-zinc-300">
+                                    {item}
+                                  </span>
+                                </div>
                               ))}
                             </div>
                           </div>
 
-                          {/* Volumen de Búsqueda Column */}
-                          <div className="p-5 bg-[#111116] border border-white/5 rounded-2xl hover:border-[#FFBF00]/20 transition-all duration-300">
-                            <span className="text-[10px] font-black uppercase text-pink-400 tracking-widest block mb-2 font-sans">
-                              Volumen de Búsqueda
-                            </span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-2xl">📈</span>
-                              <p className="text-lg font-black text-white font-mono tracking-tight leading-none">
-                                {volumen}
-                              </p>
+                          {/* 3. Banner Premium de Conversión (Alineación PRO) */}
+                          <div className="p-6 bg-gradient-to-br from-[#241a0b] to-[#110e05] border border-amber-500/20 rounded-3xl space-y-5 text-left relative overflow-hidden">
+                            {/* Corona flotante de fondo */}
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 blur-2xl rounded-full pointer-events-none"></div>
+
+                            <div className="flex items-start gap-4">
+                              <div className="p-3 bg-amber-500/10 border border-amber-500/25 text-[#FFBF00] rounded-2xl shrink-0">
+                                <Crown className="w-6 h-6" />
+                              </div>
+                              <div className="space-y-1">
+                                <h4 className="text-sm font-black text-white uppercase tracking-wider">
+                                  Publica contenido con mayor frecuencia
+                                </h4>
+                                <p className="text-xs text-zinc-400 leading-relaxed font-normal">
+                                  Con Aprende Marketing Pro podrás preparar hasta 15 artículos mensuales para tus proyectos.
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Puntos clave con checks naranja */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-1">
+                              {[
+                                "Hasta 15 artículos al mes",
+                                "CTA vinculado con tu página de captación",
+                                "Contenido asociado a cada proyecto",
+                                "Publicación dentro del blog generado"
+                              ].map((bullet, idx) => (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <span className="text-amber-500 text-xs shrink-0">🔸</span>
+                                  <span className="text-xs font-extrabold text-zinc-300">
+                                    {bullet}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Botón: Conocer las ventajas de Pro */}
+                            <div className="pt-2">
+                              <button
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#FFBF00] to-amber-500 text-amber-950 font-black text-xs uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(255,191,0,0.2)]"
+                              >
+                                <Crown className="w-3.5 h-3.5" />
+                                <span>Conocer las ventajas de Pro</span>
+                              </button>
                             </div>
                           </div>
-                        </div>
 
+                          {/* 4. Pie de Ficha con icono informativo */}
+                          <div className="flex items-start gap-2 text-zinc-500 pl-1">
+                            <Info className="w-4 h-4 shrink-0 mt-0.5 text-zinc-600" />
+                            <p className="text-[11px] font-medium leading-relaxed">
+                              Tu artículo quedará guardado como borrador para que puedas revisarlo antes de publicarlo.
+                            </p>
+                          </div>
+
+                        </div>
                       </div>
-                    );
-                  })()}
+                    </div>
+                  );
+                })()}
 
                 {activeDetailsDrawer === "email" &&
                   selectedEmailForDrawer &&

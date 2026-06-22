@@ -112,44 +112,45 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#050505] overflow-y-auto custom-scrollbar flex">
+    <div className="fixed inset-0 z-[120] flex justify-end overflow-hidden" id="upgrade-modal-backdrop">
+      {/* Semi-transparent dark overlay backdrop that closes the modal on click */}
+      <div 
+        className="absolute inset-0 bg-black/75 backdrop-blur-sm cursor-pointer"
+        onClick={onClose}
+        id="upgrade-modal-overlay"
+      />
+
+      {/* Main Slide-over Panel pulling from the right */}
       <motion.div
-        initial={{ x: '-100%', opacity: 0 }}
+        initial={{ x: '100%', opacity: 0.8 }}
         animate={{ x: 0, opacity: 1 }}
-        exit={{ x: '-100%', opacity: 0 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 120 }}
-        className="w-full min-h-screen bg-[#050505] text-white flex flex-col"
+        exit={{ x: '100%', opacity: 0.8 }}
+        transition={{ type: 'spring', damping: 30, stiffness: 180 }}
+        className="relative w-full max-w-[95vw] md:max-w-[85vw] lg:max-w-[75vw] xl:max-w-[65vw] h-full bg-[#050505] text-white flex flex-col border-l border-white/5 overflow-y-auto custom-scrollbar z-10 shadow-2xl"
+        id="upgrade-modal-panel"
       >
         {/* Sticky Header styled after Image 2 */}
-        <header className="bg-[#0b0b0d]/90 backdrop-blur-md border-b border-white/5 sticky top-0 z-[110] w-full">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 h-18 flex items-center justify-between gap-4">
-            {/* Branding Logo */}
-            <div className="flex items-center gap-2.5">
-              <span className="bg-[#FF5A1F] text-white text-[11px] font-black px-2 py-0.5 rounded-lg tracking-tight font-mono shadow-md">A.MKT</span>
-              <span className="text-base md:text-lg font-bold text-white tracking-tight">
-                Aprende.<span className="text-[#FF5A1F]">Marketing</span>
-              </span>
-            </div>
-
-            {/* Back Arrow button */}
+        <header className="bg-[#0b0b0d]/95 backdrop-blur-md border-b border-white/5 sticky top-0 z-[110] w-full py-4 px-6 md:px-8">
+          <div className="flex items-center justify-between gap-4">
+            {/* Minimal Back Button */}
             <button 
               onClick={onClose} 
-              className="text-gray-400 hover:text-white text-sm flex items-center gap-2 font-bold transition-all py-2.5 px-4 rounded-xl hover:bg-white/5 active:scale-95 group"
+              className="text-gray-400 hover:text-white text-xs md:text-sm flex items-center gap-2 font-bold transition-all py-2.5 px-4 bg-zinc-900 border border-zinc-850 rounded-xl hover:bg-zinc-800 hover:border-zinc-700 active:scale-95 group shadow-sm"
+              id="back-to-project-btn"
             >
               <ArrowLeft className="w-4 h-4 text-[#FF5A1F] transition-transform group-hover:-translate-x-1" />
               <span>Volver a mi proyecto</span>
             </button>
 
-            {/* Account Icon dropdown mockup */}
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#FF5A1F] to-amber-600 text-white flex items-center justify-center text-sm font-black shadow-lg shadow-[#FF5A1F]/15">
-                {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'B'}
-              </div>
-              <span className="text-sm font-semibold text-gray-300 hidden sm:flex items-center gap-1">
-                {user?.name || 'Mi cuenta'}
-                <ChevronDown className="w-4 h-4 text-gray-500" />
-              </span>
-            </div>
+            {/* Circular Close Button (X) */}
+            <button 
+              onClick={onClose}
+              className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-850 hover:border-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition-all shadow-md hover:bg-zinc-850 hover:scale-105 active:scale-95"
+              title="Cerrar ventana"
+              id="close-upgrade-panel-btn"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </header>
 
