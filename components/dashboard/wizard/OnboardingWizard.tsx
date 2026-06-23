@@ -519,13 +519,51 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           title: "Email 1: Bienvenida e Historia de Conexión Emocional",
           introduction: "Consigue la primera impresión perfecta de forma automática y asienta tu autoridad desde el primer segundo. Rompe el hielo compartiendo tu misión de manera cercana y empática con tus nuevos suscriptores.",
           structure: {
-            subject: "Bienvenido a bordo (y una confesión sincera...)",
-            focus: "Establecer empatía instantánea presentando el propósito real detrás del proyecto.",
+            subject: "¡Bienvenida a [Nombre/Marca]! Consigue una piel luminosa sin milagros de un día",
+            focus: "Establecer autoridad, empatía, misión de marca y entregar incentivo de bienvenida.",
             sections: [
-              { type: "Asunto Principal", text: "Bienvenido a bordo (y una confesión sincera...)" }
+              { type: "Asunto Principal", text: "¡Bienvenida a [Nombre/Marca]! Consigue una piel luminosa sin milagros de un día" },
+              { type: "Gancho Inicial", text: "La mayoría de productos prometen milagros en 24 horas. La realidad es muy distinta (y dolorosa)." },
+              { type: "Historia de Dolor", text: "Yo también pasé años batallando con brotes y resequedad, gastando una fortuna en tónicos inútiles." },
+              { type: "El Descubrimiento", text: "Hasta que comprendí que una barrera cutánea sana vale más que cualquier activo químico abrasivo." },
+              { type: "CTA Suave", text: "Para ayudarte a empezar bien, te he preparado una mini-guía secreta. Haz clic aquí para verla." }
             ],
-            tips: "No trates de vender nada en este primer contacto...",
-            cta: "Haz clic aquí para leer nuestra carta de bienvenida sin costo."
+            tips: "Mantén un tono de tú a tú, sincero y honesto, alejado de la típica prosa corporativa fría.",
+            cta: "Descarga tu regalo de bienvenida exclusivo en formato PDF aquí."
+          }
+        },
+        {
+          title: "Email 2: El Secreto Técnico de Skincare Educativo",
+          introduction: "Demuestra tu experiencia clínica de forma didáctica. Desmonta mitos típicos de la industria y entrega valor puro para que tus suscriptores te reconozcan como la única autoridad en quien confiar.",
+          structure: {
+            subject: "Los 2 ingredientes que NUNCA debes mezclar (y los 3 que salvan tu piel)",
+            focus: "Aportar valor educativo masivo, posicionarte como experto técnico y derribar mitos comunes.",
+            sections: [
+              { type: "Asunto Principal", text: "Los 2 ingredientes que NUNCA debes mezclar (y los 3 que salvan tu piel)" },
+              { type: "Gancho Inicial", text: "Ojo: mezclar retinol y vitamina C en la misma aplicación puede destruir tu barrera protectora." },
+              { type: "La Explicación", text: "El pH de la vitamina C es muy ácido (3.5), mientras que el retinol requiere de un pH más neutro (5.5). Se anulan entre si." },
+              { type: "La Solución Perfecta", text: "Usa vitamina C por la mañana para proteger del sol, y retinol por la noche para regenerar las células." },
+              { type: "CTA de Autoridad", text: "¿Quieres saber cuál es la rutina exacta libre de incompatibilidades para ti? Pulsa aquí abajo." }
+            ],
+            tips: "La educación genera reciprocidad. No intentes vender de forma agresiva en este correo.",
+            cta: "Consulta nuestra tabla interactiva de compatibilidad de activos sin costo aquí."
+          }
+        },
+        {
+          title: "Email 3: La Transición a la Oferta Irresistible",
+          introduction: "Presenta tu solución principal de manera natural. Conecta el problema educativo tratado en los emails de valor con tu producto o servicio para cosechar ventas orgánicas sin presión agresiva.",
+          structure: {
+            subject: "Tu piel se merece esto (Regalo interior de bienvenida incluido)",
+            focus: "Transición lógica del valor del email anterior hacia la oferta exclusiva del kit de tratamiento personalizado.",
+            sections: [
+              { type: "Asunto Principal", text: "Tu piel se merece esto (Regalo interior de bienvenida incluido)" },
+              { type: "Gancho Inicial", text: "Después de ver lo que destruye tu piel, hablemos de lo que verdaderamente la reconstruye y protege." },
+              { type: "Atribución", text: "Hemos diseñado una solución integral que equilibra el pH e hidrata de forma transdérmica." },
+              { type: "Oferta Beneficiosa", text: "Solo por ser parte de esta newsletter, tienes acceso prioritario con un 15% de descuento especial." },
+              { type: "Garantía", text: "Nuestra garantía te protege: si en 14 días no notas más luz, te devolvemos tu dinero de inmediato." }
+            ],
+            tips: "Incluye testimonios breves o una prueba de garantía blindada para disipar el miedo al riesgo del cliente.",
+            cta: "Haz clic aquí para reclamar tu Kit Personalizado con un 15% de Descuento de Bienvenida."
           }
         }
       ];
@@ -1356,10 +1394,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     setSelectedBlogForDrawer(null);
                     setActiveDetailsDrawer("blog");
                   } else if (sectionKey === "email") {
-                    setSelectedEmailForDrawer(topEmailsToRender[0]);
+                    setSelectedEmailForDrawer(null);
                     setActiveDetailsDrawer("email");
                   } else if (sectionKey === "avatar") {
-                    setActiveDetailsDrawer("avatar");
+                    setSelectedWhatsappForDrawer(null);
+                    setActiveDetailsDrawer("whatsapp");
                   }
                 }}
               />
@@ -3289,11 +3328,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               className={`relative w-full h-full bg-[#0a0a0e] border-l border-white/5 shadow-[-10px_0_40px_rgba(0,0,0,0.8)] flex flex-col z-10 overflow-hidden text-left transition-all duration-500 ease-in-out ${
                 activeDetailsDrawer === "blog"
                   ? (selectedBlogForDrawer === null ? "max-w-2xl" : "max-w-2xl md:max-w-4xl xl:max-w-5xl")
+                  : activeDetailsDrawer === "email"
+                  ? (selectedEmailForDrawer === null ? "max-w-2xl" : "max-w-2xl md:max-w-4xl xl:max-w-5xl")
+                  : activeDetailsDrawer === "whatsapp"
+                  ? (selectedWhatsappForDrawer === null ? "max-w-2xl" : "max-w-2xl md:max-w-4xl xl:max-w-5xl")
                   : (activeDetailsDrawer === "hooks" || activeDetailsDrawer === "landing") ? "max-w-5xl md:max-w-6xl xl:max-w-[85vw]" : "max-w-2xl md:max-w-4xl xl:max-w-5xl"
               }`}
             >
               {/* Drawer Header */}
-              {activeDetailsDrawer !== "hooks" && activeDetailsDrawer !== "blog" && (
+              {activeDetailsDrawer !== "hooks" && activeDetailsDrawer !== "blog" && activeDetailsDrawer !== "email" && activeDetailsDrawer !== "whatsapp" && (
                 activeDetailsDrawer === "landing" ? (
                   <div className="p-6 border-b border-white/5 bg-[#14141c]/80 backdrop-blur-md space-y-4">
                     {/* Top Row: Back button and Close button */}
@@ -3358,10 +3401,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                           "Neutralizar dolores y objeciones"}
                         {activeDetailsDrawer === "benefits" &&
                           "Crear una oferta magnética"}
-                        {activeDetailsDrawer === "email" &&
-                          "Ventas sin presión técnica en piloto automático"}
-                        {activeDetailsDrawer === "whatsapp" &&
-                          "Conversión relámpago en canales de chat"}
                       </span>
                       <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">
                         {activeDetailsDrawer === "avatar" &&
@@ -3372,10 +3411,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                           "Dolores y Objeciones"}
                         {activeDetailsDrawer === "benefits" &&
                           "Beneficios Magnéticos"}
-                        {activeDetailsDrawer === "email" &&
-                          "Secuencia Inteligente de Email"}
-                        {activeDetailsDrawer === "whatsapp" &&
-                          "Secuencia de Lanzamientos WhatsApp"}
                       </h3>
                     </div>
                     <button
@@ -3389,7 +3424,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               )}
 
               {/* Drawer Content Area with independent scroll */}
-              <div className={`flex-1 overflow-y-auto ${(activeDetailsDrawer === "hooks" || activeDetailsDrawer === "blog") ? "p-0" : "p-6 md:p-8 space-y-8"}`}>
+              <div className={`flex-1 overflow-y-auto ${(activeDetailsDrawer === "hooks" || activeDetailsDrawer === "blog" || activeDetailsDrawer === "email" || activeDetailsDrawer === "whatsapp") ? "p-0" : "p-6 md:p-8 space-y-8"}`}>
                 {activeDetailsDrawer === "landing" && (
                   <div className="space-y-8 font-sans text-left">
                     {/* Alerta Premium Rocket Card */}
@@ -5495,177 +5530,625 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   );
                 })()}
 
-                {activeDetailsDrawer === "email" &&
-                  selectedEmailForDrawer &&
-                  (() => {
-                    const email = selectedEmailForDrawer;
-                    const struct = email.structure || {};
-                    const sections = struct.sections || [];
+                {activeDetailsDrawer === "email" && (() => {
+                  const emails = topEmailsToRender;
+                  
+                  if (selectedEmailForDrawer === null) {
+                    // Vista 1: Lista Simple (Compacta, max-w-2xl)
                     return (
-                      <div className="space-y-8 font-sans text-left">
-                        <p className="text-white text-base md:text-lg font-normal leading-relaxed tracking-wide">
-                          Esta es la estructura persuasiva de tu correo de nutrición automatizado. Copia y pégala en tu autorespondedor favorito para empezar a calentar y cualificar a tus suscriptores en piloto automático.
-                        </p>
-
-                        {/* Asunto principal */}
-                        <div className="p-6 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent border border-blue-500/20 rounded-3xl relative overflow-hidden space-y-3">
-                          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 blur-3xl rounded-full"></div>
-                          <span className="text-[10px] font-black uppercase text-blue-400 tracking-widest block font-sans">
-                            Línea de Asunto Recomendada
-                          </span>
-                          <p className="text-xl md:text-2xl font-black text-white leading-relaxed font-sans">
-                            "{struct.subject}"
-                          </p>
+                      <div className="flex flex-col h-full bg-[#0a0a0e] font-sans text-left">
+                        {/* Custom Header for List View */}
+                        <div className="p-6 border-b border-white/5 bg-[#14141c]/80 backdrop-blur-md flex items-center justify-between">
+                          <div className="text-left">
+                            <span className="text-xs font-black uppercase text-[#3b82f6] tracking-widest block mb-1">
+                              CANALES ORGÁNICOS
+                            </span>
+                            <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">
+                              EMAIL MARKETING AUTOMATIZADO
+                            </h3>
+                          </div>
+                          <button
+                            onClick={() => setActiveDetailsDrawer(null)}
+                            className="p-2.5 rounded-full bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none shrink-0"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
                         </div>
 
-                        {/* Enfoque */}
-                        <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                          <span className="text-[10px] font-black uppercase text-blue-400 tracking-widest block mb-2 font-sans">
-                            Objetivo Analítico y Psicológico
-                          </span>
-                          <p className="text-base md:text-lg text-zinc-300 leading-relaxed font-normal">
-                            {struct.focus}
+                        {/* Content Area with independent scroll */}
+                        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8">
+                          <p className="text-zinc-400 text-sm leading-relaxed">
+                            Estructura de contenidos optimizada para captar, nutrir la confianza del cliente y cerrar ventas en piloto automático.
                           </p>
-                        </div>
 
-                        {/* Secuenciación */}
-                        <div className="space-y-3">
-                          <span className="text-xs font-black uppercase text-emerald-400 tracking-widest block font-sans">
-                            Estructura y Copia Paso a Paso
-                          </span>
-                          <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-2xl relative space-y-4">
-                            {sections.map((sec: any, idx: number) => (
-                              <div
-                                key={idx}
-                                className="pl-0 border-b border-white/5 pb-4 last:border-0 last:pb-0 space-y-1"
+                          {/* Haz Clic Banner */}
+                          <div className="flex items-center gap-2 text-xs font-extrabold text-[#3b82f6] uppercase tracking-wider">
+                            <span>👇</span>
+                            <span>HAZ CLIC PARA VER TODOS LOS DETALLES DE TU EMAIL MARKETING</span>
+                          </div>
+
+                          {/* List of 3 emails structured exactly like Image 3 */}
+                          <div className="flex flex-col gap-4">
+                            {emails.map((email: any, eIdx: number) => (
+                              <button
+                                key={eIdx}
+                                onClick={() => setSelectedEmailForDrawer(email)}
+                                className="w-full text-left p-4 rounded-2xl border bg-[#14141a] hover:bg-[#181822] border-white/5 hover:border-blue-500/30 transition-all duration-300 relative overflow-hidden flex items-center gap-4 group active:scale-[0.99] shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)] hover:shadow-[0_4px_20px_rgba(59,130,246,0.08)]"
                               >
-                                <span className="text-[9px] font-black px-1.5 py-0.5 rounded leading-none font-sans bg-blue-500/15 text-blue-400 border border-blue-500/30 inline-block">
-                                  {sec.type.toUpperCase()}
-                                </span>
-                                <p className="text-sm md:text-base font-sans text-white font-normal leading-relaxed">
-                                  {sec.text}
-                                </p>
-                              </div>
+                                {/* Envelope/Card indicator like Image 3 */}
+                                <div className="w-12 h-12 rounded-xl bg-white border border-white/10 flex flex-col overflow-hidden shrink-0 shadow-md">
+                                  <div className="bg-[#3b82f6] text-[8px] font-black text-center text-white py-0.5 uppercase tracking-wider font-sans leading-none select-none">
+                                    EMAIL
+                                  </div>
+                                  <div className="flex-1 flex items-center justify-center bg-white text-zinc-950 font-black text-base leading-none font-sans select-none">
+                                    {eIdx + 1}
+                                  </div>
+                                </div>
+
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-[#3b82f6] transition-colors font-sans line-clamp-2 leading-snug text-left">
+                                    {email.title}
+                                  </h4>
+                                </div>
+                              </button>
                             ))}
                           </div>
+
+                          {/* Upgrade / Unlocked Advance sequences */}
+                          <div className="mt-8 bg-gradient-to-br from-[#3b82f6]/10 via-[#FF5A1F]/5 to-transparent border border-[#3b82f6]/20 rounded-2xl flex flex-col text-left overflow-hidden w-full">
+                            <div className="p-6 space-y-4">
+                              <div className="flex items-center gap-2">
+                                <span className="p-1 px-2 text-[10px] font-black uppercase text-[#FFBF00] bg-[#FFBF00]/10 border border-[#FFBF00]/20 rounded-md">
+                                  SISTEMA COMPLETO PRO
+                                </span>
+                              </div>
+                              <h4 className="text-base sm:text-lg font-black text-white uppercase tracking-wide leading-tight">
+                                Secuencia de Conversión Avanzada
+                              </h4>
+                              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-normal">
+                                Lleva tus ventas al límite en piloto automático. El plan PRO incluye la generación inteligente de 14 correos estratégicos especializados, recordatorios automáticos de carritos abandonados y gatillos de escasez listos para explotar conversiones.
+                              </p>
+                              <button
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="w-full sm:w-auto px-6 py-3 bg-[#3b82f6] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-blue-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/10 active:scale-95"
+                              >
+                                <Crown className="w-4 h-4 text-white shrink-0 animate-bounce" />
+                                DESBLOQUEAR SECUENCIAS PLAN PRO
+                              </button>
+                            </div>
+                          </div>
                         </div>
-
-                        {/* Tips */}
-                        {struct.tips && (
-                          <div className="space-y-3">
-                            <span className="text-xs font-black uppercase text-[#FFBF00] tracking-widest block font-sans">
-                              Instrucciones de Redacción (Copywriting)
-                            </span>
-                            <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-2xl relative">
-                              <p className="text-base md:text-lg text-zinc-200 font-sans leading-relaxed font-normal">
-                                {struct.tips}
-                              </p>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* CTA */}
-                        {struct.cta && (
-                          <div className="space-y-3">
-                            <span className="text-xs font-black uppercase text-[#FF5A1F] tracking-widest block font-sans">
-                              Llamada a la Acción (CTA)
-                            </span>
-                            <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-2xl relative">
-                              <p className="text-base md:text-lg text-zinc-200 font-sans leading-relaxed font-normal">
-                                {struct.cta}
-                              </p>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     );
-                  })()}
+                  }
 
-                {activeDetailsDrawer === "whatsapp" &&
-                  selectedWhatsappForDrawer &&
-                  (() => {
-                    const wa = selectedWhatsappForDrawer;
-                    const struct = wa.structure || {};
-                    const sections = struct.sections || [];
-                    return (
-                      <div className="space-y-8 font-sans text-left">
-                        <p className="text-white text-base md:text-lg font-normal leading-relaxed tracking-wide">
-                          Esta es la estructura y guiones de tu mensaje estratégico de WhatsApp. Utilízalos en tus grupos VIP, listas de difusión o chats directos para cerrar ventas con alta efectividad.
-                        </p>
+                  // Vista 2: Vista Dividida (Split View: max-w-5xl)
+                  const selectedEmail = selectedEmailForDrawer;
+                  const struct = selectedEmail.structure || {};
+                  const sections = struct.sections || [];
+                  
+                  return (
+                    <div className="flex flex-col h-full bg-[#0a0a0e] font-sans text-left">
+                      {/* Split View Custom Header */}
+                      <div className="p-6 border-b border-white/5 bg-[#14141c]/80 backdrop-blur-md flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => setSelectedEmailForDrawer(null)}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-zinc-300 hover:text-white transition-all duration-300"
+                          >
+                            <ArrowLeft className="w-3.5 h-3.5" />
+                            <span>Volver al listado</span>
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => setActiveDetailsDrawer(null)}
+                          className="p-2 ml-auto rounded-full bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none shrink-0"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
 
-                        {/* Título de Campaña */}
-                        <div className="p-6 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-500/20 rounded-3xl relative overflow-hidden space-y-3">
-                          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-3xl rounded-full"></div>
-                          <span className="text-[10px] font-black uppercase text-emerald-400 tracking-widest block font-sans">
-                            Fase de Lanzamiento
-                          </span>
-                          <p className="text-xl md:text-2xl font-black text-white leading-relaxed font-sans">
-                            {struct.title}
-                          </p>
+                      {/* Main Split Body Layout */}
+                      <div className="flex flex-1 flex-col lg:flex-row overflow-hidden">
+                        {/* Left List navigation Column (lg:w-4/12) */}
+                        <div className="w-full lg:w-4/12 border-b lg:border-b-0 lg:border-r border-white/5 p-4 lg:p-6 bg-[#0a0a0e] overflow-y-auto space-y-4">
+                          <h5 className="text-zinc-500 text-[10px] uppercase font-black tracking-widest px-2">
+                            Módulos de la Secuencia
+                          </h5>
+                          <div className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 scrollbar-none">
+                            {emails.map((email: any, eIdx: number) => {
+                              const isSelected = selectedEmail.title === email.title;
+                              return (
+                                <button
+                                  key={eIdx}
+                                  onClick={() => setSelectedEmailForDrawer(email)}
+                                  className={`flex items-center gap-3 p-3.5 rounded-xl transition-all duration-300 text-left cursor-pointer grow shrink-0 lg:shrink-1 min-w-[200px] lg:min-w-0 ${
+                                    isSelected
+                                      ? "bg-[#14141c] border border-blue-500/30 shadow-[0_4px_12px_rgba(59,130,246,0.1)] text-white"
+                                      : "bg-transparent border border-transparent hover:bg-white/[0.02] text-zinc-400 hover:text-zinc-200"
+                                  }`}
+                                >
+                                  {/* Envelope Icon with index */}
+                                  <div className={`w-8 h-8 rounded-lg flex flex-col overflow-hidden shrink-0 border ${
+                                    isSelected ? "bg-white border-blue-500/20" : "bg-white/90 border-transparent opacity-80"
+                                  }`}>
+                                    <div className="bg-[#3b82f6] text-[6px] font-black text-center text-white py-0.5 uppercase tracking-wider leading-none">
+                                      EM
+                                    </div>
+                                    <div className="flex-grow flex items-center justify-center text-zinc-950 font-black text-xs leading-none">
+                                      {eIdx + 1}
+                                    </div>
+                                  </div>
+                                  <div className="truncate flex-1">
+                                    <p className="text-xs font-bold leading-normal truncate">
+                                      {email.title}
+                                    </p>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
 
-                        {/* Enfoque */}
-                        <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                          <span className="text-[10px] font-black uppercase text-emerald-400 tracking-widest block mb-2 font-sans">
-                            Objetivo de Conversión
-                          </span>
-                          <p className="text-base md:text-lg text-zinc-300 leading-relaxed font-normal">
-                            {struct.focus}
-                          </p>
-                        </div>
+                        {/* Right Detail sheet Column (lg:w-8/12) */}
+                        <div className="flex-1 p-6 md:p-8 overflow-y-auto space-y-8 bg-[#0a0a0f]">
+                          {/* Top indicator */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-black uppercase text-[#3b82f6] tracking-widest block font-sans">
+                              Ventas en piloto automático
+                            </span>
+                          </div>
 
-                        {/* Copia */}
-                        <div className="space-y-3">
-                          <span className="text-xs font-black uppercase text-emerald-400 tracking-widest block font-sans">
-                            Estructura y Contenido del Mensaje
-                          </span>
-                          <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-2xl relative space-y-4">
-                            {sections.map((sec: any, idx: number) => (
-                              <div
-                                key={idx}
-                                className="pl-0 border-b border-white/5 pb-4 last:border-0 last:pb-0 space-y-1"
+                          <h3 className="text-xl md:text-2xl font-black text-white tracking-tight leading-snug">
+                            {selectedEmail.title}
+                          </h3>
+
+                          <p className="text-zinc-400 text-sm leading-relaxed max-w-3xl">
+                            {selectedEmail.introduction}
+                          </p>
+
+                          {/* Linea de asunto copyable */}
+                          <div className="p-6 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent border border-blue-500/20 rounded-3xl relative overflow-hidden space-y-3">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 blur-3xl rounded-full"></div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-black uppercase text-blue-400 tracking-widest block font-sans">
+                                Línea de Asunto Recomendada
+                              </span>
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(struct.subject || "");
+                                  setCopiedUrl(true);
+                                  setTimeout(() => setCopiedUrl(false), 2000);
+                                }}
+                                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 text-[10px] font-bold text-zinc-300 hover:text-white transition-all"
                               >
-                                <span className="text-[9px] font-black px-1.5 py-0.5 rounded leading-none font-sans bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 inline-block">
-                                  {sec.type.toUpperCase()}
-                                </span>
-                                <p className="text-sm md:text-base font-sans text-white font-normal leading-relaxed">
-                                  {sec.text}
+                                {copiedUrl ? (
+                                  <>
+                                    <Check className="w-3 h-3 text-emerald-400" />
+                                    <span className="text-emerald-400">¡Copiado!</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="w-3 h-3" />
+                                    <span>Copiar</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                            <p className="text-base sm:text-lg md:text-xl font-bold text-white leading-relaxed font-sans">
+                              "{struct.subject}"
+                            </p>
+                          </div>
+
+                          {/* Objetivo Analítico */}
+                          <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                            <span className="text-[10px] font-black uppercase text-blue-400 tracking-widest block mb-2 font-sans">
+                              Objetivo Analítico y Psicológico
+                            </span>
+                            <p className="text-sm sm:text-base text-zinc-300 leading-relaxed font-normal">
+                              {struct.focus}
+                            </p>
+                          </div>
+
+                          {/* Paso a paso */}
+                          <div className="space-y-3">
+                            <span className="text-xs font-black uppercase text-emerald-400 tracking-widest block font-sans">
+                              Estructura y Copia Paso a Paso
+                            </span>
+                            <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-2xl relative space-y-5">
+                              {sections.map((sec: any, idx: number) => (
+                                <div
+                                  key={idx}
+                                  className="pl-0 border-b border-white/5 pb-4 last:border-0 last:pb-0 space-y-2 text-left"
+                                >
+                                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded leading-none font-sans bg-blue-500/15 text-blue-400 border border-blue-500/30 inline-block uppercase">
+                                    {sec.type}
+                                  </span>
+                                  <p className="text-sm md:text-base font-sans text-white font-normal leading-relaxed">
+                                    {sec.text}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Tips de copywriting */}
+                          {struct.tips && (
+                            <div className="space-y-3">
+                              <span className="text-xs font-black uppercase text-[#FFBF00] tracking-widest block font-sans flex items-center gap-1.5">
+                                <PenTool className="w-3.5 h-3.5 text-[#FFBF00]" />
+                                Instrucciones de Redacción (Copywriting)
+                              </span>
+                              <div className="p-6 bg-[#0c0c10] border border-[#FFBF00]/10 rounded-2xl relative">
+                                <p className="text-sm sm:text-base text-zinc-300 font-sans leading-relaxed font-normal">
+                                  {struct.tips}
                                 </p>
                               </div>
+                            </div>
+                          )}
+
+                          {/* CTA Recomendado */}
+                          {struct.cta && (
+                            <div className="space-y-3 pb-4">
+                              <span className="text-xs font-black uppercase text-[#FF5A1F] tracking-widest block font-sans">
+                                Llamada a la Acción (CTA)
+                              </span>
+                              <div className="p-6 bg-[#0c0c10] border border-[#FF5A1F]/10 rounded-2xl relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                <div className="space-y-1">
+                                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Texto de botón sugerido</p>
+                                  <p className="text-sm sm:text-base text-zinc-200 font-sans leading-relaxed font-normal">
+                                    {struct.cta}
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(struct.cta || "");
+                                    setCopiedUrl(true);
+                                    setTimeout(() => setCopiedUrl(false), 2000);
+                                  }}
+                                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-white transition-all flex items-center gap-1 shrink-0"
+                                >
+                                  <Copy className="w-3.5 h-3.5" />
+                                  <span>{copiedUrl ? "¡Copiado!" : "Copiar CTA"}</span>
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {activeDetailsDrawer === "whatsapp" && (() => {
+                  const defaultWhatsappList = [
+                    {
+                      title: "Mensaje 1 (48h Antes) - El Disparador de Calentamiento",
+                      introduction: "Genera expectación extrema en tus prospectos de WhatsApp. Envía este mensaje estratégico 48 horas antes del lanzamiento para crear intriga, anticipar los beneficios de la oferta y encender las alarmas de deseo.",
+                      structure: {
+                        title: "Mensaje 1: Calentamiento & Intriga (48 Horas Antes)",
+                        focus: "Despertar curiosidad, presentar la gran revelación por venir y preparar el terreno del lanzamiento.",
+                        sections: [
+                          { type: "Gancho Principal", text: "🚨 ALERTA SKINCARE: Solo unas pocas personas saben cómo rejuvenecer la piel un 40% más rápido en casa. Y no tiene nada que ver con cremas milagrosas. En 48 horas cambiaremos el juego." },
+                          { type: "El Problema de Fondo", text: "El mercado está lleno de remedios de botica que obstruyen tus poros. Hemos estado investigando en secreto con expertos de laboratorio..." },
+                          { type: "Anticipación", text: "Estamos ultimando los detalles del Kit Revelación Definitivo. Las plazas del grupo selecto tendrán un beneficio gigante." },
+                          { type: "Llamado a la Acción", text: "Mantén las notificaciones del grupo activadas. Pasado mañana abriremos el acceso prioritario al grupo VIP. No querrás perderte esto. 👇" }
+                        ],
+                        tips: "Utiliza emojis de forma estratégica para dinamizar la lectura, pero sin abusar de ellos para mantener la seriedad y elegancia.",
+                        cta: "Asegúrate de tener este grupo activo para ser el primero en enterarte."
+                      }
+                    },
+                    {
+                      title: "Mensaje 2 (Día 1) - Apertura Oficial & Bonos VIP",
+                      introduction: "El momento de la venta masiva. Presenta tu oferta irresistible e incentiva la acción inmediata de tus contactos apelando al sesgo de gratificación veloz y limitación severa de las piezas con bonos exclusivos.",
+                      structure: {
+                        title: "Mensaje 2: Apertura de Puertas / Lanzamiento Oficial (Día 1)",
+                        focus: "Lanzar oficialmente el Kit, detallar el beneficio único, los bonos rápidos y habilitar el botón de pago.",
+                        sections: [
+                          { type: "Gran Titular", text: "💥 ¡OFICIALMENTE ABIERTO! Consigue el Kit de Reconstrucción de la Barrera Cutánea hoy." },
+                          { type: "Qué incluye", text: "✔ Jabón Balanceador + ✔ Regenerador Transdérmico + ✔ Protector Mineral No Comedogénico + ✔ Regalo Sorpresa VIP" },
+                          { type: "Bono de Velocidad", text: "🎁 REGALO EXTRA: A las primeras 15 personas que ordenen ahora les incluiremos una crema de contorno de ojos gratuita." },
+                          { type: "Garantía", text: "Garantía clínica de 14 días. O de vuelta cada centavo de tu inversión." }
+                        ],
+                        tips: "El enlace de pago/reserva debe quedar extremadamente visible y fácil de copiar para acelerar la conversión móvil.",
+                        cta: "👉 HAZ CLIC AQUÍ PARA COMPRAR TU KIT AHORA MISMO CON EL BONO VIP"
+                      }
+                    },
+                    {
+                      title: "Mensaje 3 (Día de Cierre) - Urgencia y FOMO de Últimas Horas",
+                      introduction: "Activa el sesgo psicológico de aversión a la pérdida (FOMO). Informa del término del descuento inicial, la retirada del bono VIP gratuito y el cierre definitivo de puertas del carrito para captar de inmediato a los rezagados.",
+                      structure: {
+                        title: "Mensaje 3: Cierre de Carrito & Última Oportunidad",
+                        focus: "Consolidar las ventas restantes utilizando la urgencia real del incremento de precio o de la pérdida de los bonos.",
+                        sections: [
+                          { type: "Urgencia Máxima", text: "⏳ ÚLTIMAS HORAS DISPONIBLES. En muy poco tiempo los bonos gratuitos y el 15% de descuento se desvanecerán para siempre." },
+                          { type: "Recordatorio de Valor", text: "Tu piel merece lucir luminosa el resto del año. No dejes para mañana el cuidado que debiste iniciar hoy." },
+                          { type: "Aviso de Retirada", text: "A medianoche cerramos oficialmente las órdenes de este lote especial. Los precios normales volverán a aplicarse." },
+                          { type: "Llamado al Enlace", text: "Aún queda un pequeño cupo con el bono de contorno de ojos activo. Consigue el tuyo antes de que sea tarde. 👇" }
+                        ],
+                        tips: "La urgencia debe ser 100% honesta para mantener credibilidad duradera en el canal de comunicación.",
+                        cta: "🚨 ÚLTIMA OPORTUNIDAD: TOCA AQUÍ PARA ADQUIRIR TU KIT ANTES DE LAS 23:59"
+                      }
+                    }
+                  ];
+
+                  if (selectedWhatsappForDrawer === null) {
+                    // Vista 1: Lista Simple (Compacta, max-w-2xl)
+                    return (
+                      <div className="flex flex-col h-full bg-[#0a0a0e] font-sans text-left">
+                        {/* Custom Header for List View */}
+                        <div className="p-6 border-b border-white/5 bg-[#14141c]/80 backdrop-blur-md flex items-center justify-between">
+                          <div className="text-left">
+                            <span className="text-xs font-black uppercase text-[#10B981] tracking-widest block mb-1">
+                              CANALES ORGÁNICOS
+                            </span>
+                            <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">
+                              SECUENCIAS DE WHATSAPP
+                            </h3>
+                          </div>
+                          <button
+                            onClick={() => setActiveDetailsDrawer(null)}
+                            className="p-2.5 rounded-full bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none shrink-0"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+
+                        {/* Content Area with independent scroll */}
+                        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8">
+                          <p className="text-zinc-300 text-sm md:text-base leading-relaxed">
+                            Estructura de guiones persuasivos y respuestas interactivas optimizadas para calentar prospectos, responder objeciones en vivo y cerrar ventas masivas en tus grupos de chat en tiempo récord.
+                          </p>
+
+                          {/* Haz Clic Banner */}
+                          <div className="flex items-center gap-2 text-xs font-extrabold text-[#10B981] uppercase tracking-wider">
+                            <span>👇</span>
+                            <span>HAZ CLIC PARA VER TODOS LOS DETALLES DE TU SECUENCIA DE WHATSAPP</span>
+                          </div>
+
+                          {/* List of 3 WhatsApp items structured elegantly */}
+                          <div className="flex flex-col gap-4">
+                            {defaultWhatsappList.map((wa: any, wIdx: number) => (
+                              <button
+                                key={wIdx}
+                                onClick={() => setSelectedWhatsappForDrawer(wa)}
+                                className="w-full text-left p-4 rounded-2xl border bg-[#14141a] hover:bg-[#181822] border-white/5 hover:border-emerald-500/30 transition-all duration-300 relative overflow-hidden flex items-center gap-4 group active:scale-[0.99] shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)] hover:shadow-[0_4px_20px_rgba(16,185,129,0.08)]"
+                              >
+                                {/* Icon/Card indicator style */}
+                                <div className="w-12 h-12 rounded-xl bg-white border border-white/10 flex flex-col overflow-hidden shrink-0 shadow-md">
+                                  <div className="bg-[#10B981] text-[8px] font-black text-center text-white py-0.5 uppercase tracking-wider font-sans leading-none select-none">
+                                    CHAT
+                                  </div>
+                                  <div className="flex-1 flex items-center justify-center bg-white text-zinc-950 font-black text-base leading-none font-sans select-none animate-none">
+                                    {wIdx + 1}
+                                  </div>
+                                </div>
+
+                                <div className="flex-grow min-w-0">
+                                  <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-[#10B981] transition-colors font-sans line-clamp-2 leading-snug text-left">
+                                    {wa.title}
+                                  </h4>
+                                </div>
+                              </button>
                             ))}
+                          </div>
+
+                          {/* Upgrade / Unlocked Advance sequences */}
+                          <div className="mt-8 bg-gradient-to-br from-[#10B981]/10 via-[#FF5A1F]/5 to-transparent border border-[#10B981]/20 rounded-2xl flex flex-col text-left overflow-hidden w-full animate-fade-in">
+                            <div className="p-6 space-y-4">
+                              <div className="flex items-center gap-2">
+                                <span className="p-1 px-2 text-[10px] font-black uppercase text-[#FFBF00] bg-[#FFBF00]/10 border border-[#FFBF00]/20 rounded-md">
+                                  LANZAMIENTOS RÁPIDOS PRO
+                                </span>
+                              </div>
+                              <h4 className="text-base sm:text-lg font-black text-white uppercase tracking-wide leading-tight font-sans">
+                                Secuencia de Ventas Conversacionales Avanzadas
+                              </h4>
+                              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-normal">
+                                Lleva la persuasión instantánea al siguiente nivel. El plan PRO incluye guiones detallados para remarketing en vivo, estructuras de mensajes interactivos con bots automatizados y flujos urgentes listos para explotar las ventas de tus listas de chat.
+                              </p>
+                              <button
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="w-full sm:w-auto px-6 py-3 bg-[#10B981] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-emerald-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/10 active:scale-95"
+                              >
+                                <Crown className="w-4 h-4 text-white shrink-0 animate-bounce" />
+                                DESBLOQUEAR GUIONES PLAN PRO
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Vista 2: Vista Dividida (Split View: max-w-5xl)
+                  const selectedWa = selectedWhatsappForDrawer;
+                  const struct = selectedWa.structure || {};
+                  const sections = struct.sections || [];
+
+                  return (
+                    <div className="flex flex-col h-full bg-[#0a0a0e] font-sans text-left">
+                      {/* Split View Custom Header */}
+                      <div className="p-6 border-b border-white/5 bg-[#14141c]/80 backdrop-blur-md flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => setSelectedWhatsappForDrawer(null)}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-zinc-300 hover:text-white transition-all duration-300"
+                          >
+                            <ArrowLeft className="w-3.5 h-3.5" />
+                            <span>Volver al listado</span>
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => setActiveDetailsDrawer(null)}
+                          className="p-2 ml-auto rounded-full bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none shrink-0"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      {/* Main Split Body Layout */}
+                      <div className="flex flex-1 flex-col lg:flex-row overflow-hidden animate-fade-in">
+                        {/* Left List navigation Column (lg:w-4/12) */}
+                        <div className="w-full lg:w-4/12 border-b lg:border-b-0 lg:border-r border-white/5 p-4 lg:p-6 bg-[#0a0a0e] overflow-y-auto space-y-4">
+                          <h5 className="text-zinc-500 text-[10px] uppercase font-black tracking-widest px-2">
+                            Mensajes en la Secuencia
+                          </h5>
+                          <div className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 scrollbar-none">
+                            {defaultWhatsappList.map((wa: any, wIdx: number) => {
+                              const isSelected = selectedWa.title === wa.title;
+                              return (
+                                <button
+                                  key={wIdx}
+                                  onClick={() => setSelectedWhatsappForDrawer(wa)}
+                                  className={`flex items-center gap-3 p-3.5 rounded-xl transition-all duration-300 text-left cursor-pointer grow shrink-0 lg:shrink-1 min-w-[200px] lg:min-w-0 ${
+                                    isSelected
+                                      ? "bg-[#14141c] border border-emerald-500/30 shadow-[0_4px_12px_rgba(16,185,129,0.1)] text-white"
+                                      : "bg-transparent border border-transparent hover:bg-white/[0.02] text-zinc-400 hover:text-zinc-200"
+                                  }`}
+                                >
+                                  {/* Chat Icon with index */}
+                                  <div className={`w-8 h-8 rounded-lg flex flex-col overflow-hidden shrink-0 border ${
+                                    isSelected ? "bg-white border-emerald-500/20" : "bg-white/90 border-transparent opacity-80"
+                                  }`}>
+                                    <div className="bg-[#10B981] text-[6px] font-black text-center text-white py-0.5 uppercase tracking-wider leading-none">
+                                      WA
+                                    </div>
+                                    <div className="flex-grow flex items-center justify-center text-zinc-950 font-black text-xs leading-none">
+                                      {wIdx + 1}
+                                    </div>
+                                  </div>
+                                  <div className="truncate flex-1">
+                                    <p className="text-xs font-bold leading-normal truncate font-sans">
+                                      {wa.title}
+                                    </p>
+                                  </div>
+                                </button>
+                              );
+                            })}
                           </div>
                         </div>
 
-                        {/* Tips */}
-                        {struct.tips && (
-                          <div className="space-y-3">
-                            <span className="text-xs font-black uppercase text-[#FFBF00] tracking-widest block font-sans">
-                              Buenas Prácticas
+                        {/* Right Detail sheet Column (lg:w-8/12) */}
+                        <div className="flex-1 p-6 md:p-8 overflow-y-auto space-y-8 bg-[#0a0a0f]">
+                          {/* Top indicator */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-black uppercase text-[#10B981] tracking-widest block font-sans">
+                              Lanzamientos de Alta Conversión
                             </span>
-                            <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-2xl relative">
-                              <p className="text-base md:text-lg text-zinc-200 font-sans leading-relaxed font-normal">
-                                {struct.tips}
-                              </p>
-                            </div>
                           </div>
-                        )}
 
-                        {/* CTA */}
-                        {struct.cta && (
-                          <div className="space-y-3">
-                            <span className="text-xs font-black uppercase text-[#FF5A1F] tracking-widest block font-sans">
-                              Llamada a la Acción Recomendada (CTA)
+                          <h3 className="text-xl md:text-2xl font-black text-white tracking-tight leading-snug font-sans">
+                            {selectedWa.title}
+                          </h3>
+
+                          <p className="text-zinc-405 text-sm sm:text-base leading-relaxed max-w-3xl">
+                            {selectedWa.introduction}
+                          </p>
+
+                          {/* Mensaje principal interactivo imitando burbuja de chat de WhatsApp */}
+                          <div className="p-6 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-500/20 rounded-3xl relative overflow-hidden space-y-3 shadow-lg">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-3xl rounded-full"></div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-black uppercase text-emerald-400 tracking-widest block font-sans">
+                                Fase del Lanzamiento
+                              </span>
+                            </div>
+                            <p className="text-base sm:text-lg md:text-xl font-bold text-white leading-relaxed font-sans">
+                              {struct.title}
+                            </p>
+                          </div>
+
+                          {/* Enfoque / Objetivo analítico de ventas */}
+                          <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl text-left">
+                            <span className="text-[10px] font-black uppercase text-emerald-400 tracking-widest block mb-2 font-sans">
+                              Objetivo Analítico y Psicológico
                             </span>
-                            <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-2xl relative">
-                              <p className="text-base md:text-lg text-emerald-400 font-sans leading-relaxed font-normal font-mono">
-                                {struct.cta}
-                              </p>
+                            <p className="text-sm sm:text-base text-zinc-300 leading-relaxed font-normal">
+                              {struct.focus}
+                            </p>
+                          </div>
+
+                          {/* Paso a paso imitando globos de chat paso a paso */}
+                          <div className="space-y-4">
+                            <span className="text-xs font-black uppercase text-emerald-400 tracking-widest block font-sans">
+                              Estructura & Guiones Conversacionales
+                            </span>
+                            <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-2xl relative space-y-6">
+                              {sections.map((sec: any, idx: number) => (
+                                <div
+                                  key={idx}
+                                  className="pl-0 border-b border-white/5 pb-5 last:border-0 last:pb-0 space-y-2 text-left"
+                                >
+                                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded leading-none font-sans bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 inline-block uppercase">
+                                    {sec.type}
+                                  </span>
+                                  
+                                  {/* Balloon-like message box */}
+                                  <div className="relative rounded-2xl rounded-tl-none bg-[#112d1f]/40 border border-emerald-500/10 p-4.5 text-zinc-100 max-w-2xl font-sans text-sm sm:text-base leading-relaxed">
+                                    {sec.text}
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           </div>
-                        )}
+
+                          {/* Consejos de Redacción */}
+                          {struct.tips && (
+                            <div className="space-y-3">
+                              <span className="text-xs font-black uppercase text-[#FFBF00] tracking-widest block font-sans flex items-center gap-1.5">
+                                <PenTool className="w-3.5 h-3.5 text-[#FFBF00]" />
+                                Instrucciones de Redacción (Copywriting)
+                              </span>
+                              <div className="p-6 bg-[#0c0c10] border border-[#FFBF00]/10 rounded-2xl relative">
+                                <p className="text-sm sm:text-base text-zinc-300 font-sans leading-relaxed font-normal">
+                                  {struct.tips}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* CTA Recomendado con copiador interactivo */}
+                          {struct.cta && (
+                            <div className="space-y-3 pb-4">
+                              <span className="text-xs font-black uppercase text-emerald-405 tracking-widest block font-sans">
+                                Enlace / LLamada a la Acción (CTA)
+                              </span>
+                              <div className="p-6 bg-[#0c0c10] border border-[#10B981]/15 rounded-2xl relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                <div className="space-y-1">
+                                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Enlace sugerido de chat</p>
+                                  <p className="text-sm sm:text-base text-zinc-200 font-sans leading-relaxed font-normal">
+                                    {struct.cta}
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(struct.cta || "");
+                                    setCopiedUrl(true);
+                                    setTimeout(() => setCopiedUrl(false), 2000);
+                                  }}
+                                  className="px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-xl text-xs font-bold text-white transition-all flex items-center gap-1 shrink-0"
+                                >
+                                  {copiedUrl ? (
+                                    <>
+                                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                      <span className="text-emerald-400 font-bold">¡Copiado!</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3.5 h-3.5 text-emerald-400" />
+                                      <span className="text-emerald-400 font-bold">Copiar CTA</span>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    );
-                  })()}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Drawer Footer */}
