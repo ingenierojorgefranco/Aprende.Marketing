@@ -1353,7 +1353,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     setSelectedHookForDrawer(null);
                     setActiveDetailsDrawer("hooks");
                   } else if (sectionKey === "blog") {
-                    setSelectedBlogForDrawer(topBlogsToRender[0]);
+                    setSelectedBlogForDrawer(null);
                     setActiveDetailsDrawer("blog");
                   } else if (sectionKey === "email") {
                     setSelectedEmailForDrawer(topEmailsToRender[0]);
@@ -2378,7 +2378,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 <div className="flex-1 min-w-0">
                                   <h4
                                     onClick={() => {
-                                      setSelectedBlogForDrawer(blog);
+                                      setSelectedBlogForDrawer(null);
                                       setActiveDetailsDrawer("blog");
                                     }}
                                     className="text-base md:text-lg font-normal text-white group-hover:text-[#FFBF00] transition-colors text-left font-sans line-clamp-3 leading-relaxed mt-0.5 cursor-pointer hover:underline"
@@ -2390,7 +2390,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                               <div className="shrink-0 font-sans">
                                 <button
                                   onClick={() => {
-                                    setSelectedBlogForDrawer(blog);
+                                    setSelectedBlogForDrawer(null);
                                     setActiveDetailsDrawer("blog");
                                   }}
                                   className="px-4 py-2 bg-transparent border border-[#FFBF00]/40 group-hover:border-[#FFBF00] text-white group-hover:text-zinc-950 group-hover:bg-[#FFBF00] text-[11px] font-extrabold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1 font-sans active:scale-95"
@@ -3281,12 +3281,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
             {/* Slide-over panel */}
             <motion.div
+              layout="position"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 220 }}
-              className={`relative w-full h-full bg-[#0a0a0e] border-l border-white/5 shadow-[-10px_0_40px_rgba(0,0,0,0.8)] flex flex-col z-10 overflow-hidden text-left transition-all duration-300 ${
-                (activeDetailsDrawer === "hooks" || activeDetailsDrawer === "landing" || activeDetailsDrawer === "blog") ? "max-w-5xl md:max-w-6xl xl:max-w-[85vw]" : "max-w-2xl md:max-w-4xl xl:max-w-5xl"
+              className={`relative w-full h-full bg-[#0a0a0e] border-l border-white/5 shadow-[-10px_0_40px_rgba(0,0,0,0.8)] flex flex-col z-10 overflow-hidden text-left transition-all duration-500 ease-in-out ${
+                activeDetailsDrawer === "blog"
+                  ? (selectedBlogForDrawer === null ? "max-w-2xl" : "max-w-2xl md:max-w-4xl xl:max-w-5xl")
+                  : (activeDetailsDrawer === "hooks" || activeDetailsDrawer === "landing") ? "max-w-5xl md:max-w-6xl xl:max-w-[85vw]" : "max-w-2xl md:max-w-4xl xl:max-w-5xl"
               }`}
             >
               {/* Drawer Header */}
@@ -5032,19 +5035,151 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   })()}
 
                 {activeDetailsDrawer === "blog" && (() => {
-                  const currentBlogRaw = selectedBlogForDrawer || unifiedBlogsList[0];
+                  // Acción B: Extracción de Artículos Reales de la Base de Datos
+                  const dbBlogSource = unlockedArticles.length > 0
+                    ? unlockedArticles
+                    : (strategyData?.modules?.content || strategyData?.content || []);
+
+                  const activeBlogsList = dbBlogSource.length > 0
+                    ? dbBlogSource.map((item: any, idx: number) => {
+                        const headingsRaw = item.headings || item.seoStructure?.headings || item.seo?.headings || [];
+                        const seoKeywords = item.keyword || item.seoStructure?.keywords || item.keywordSeo || item.psychologicalStrategy?.keyword || "autocuidado de la piel, rutina de skincare diaria";
+                        return {
+                          id: item.id || item.jsonIndex || `real-blog-${idx}`,
+                          title: item.title,
+                          introduction: item.introduction || item.description || item.objective || item.strategy || "Artículo estratégico diseñado para captar tráfico altamente cualificado y derivarlo a la compra del producto.",
+                          enfoqueEstrategico: item.objective || item.psychologicalStrategy?.focus || item.psychologicalStrategy?.objective || "Enfoque y posicionamiento estratégico para captar clientes.",
+                          intencionBusqueda: item.strategy || item.psychologicalStrategy?.target || item.psychologicalStrategy?.intent || "Intención de búsqueda de los clientes.",
+                          keywordSeo: seoKeywords,
+                          volumenBusqueda: item.searchVolume || item.search_volume || item.psychologicalStrategy?.searchVolume || "100 - 1K",
+                          isLocked: item.isLocked !== undefined ? item.isLocked : (idx >= 3),
+                          seoStructure: {
+                            h1: item.title,
+                            headings: headingsRaw.length > 0 ? headingsRaw : [
+                              { type: "H2", text: item.objective || "Enfoque estratégico para captar leads" },
+                              { type: "H2", text: "Puntos clave y valor de propuesta" },
+                              { type: "H3", text: item.strategy || "Detalle táctico y derivación comercial" }
+                            ],
+                            keywords: seoKeywords,
+                            cta: item.cta || "Reserva tu cita hoy mismo y agenda tu asesoría gratuita."
+                          }
+                        };
+                      })
+                    : unifiedBlogsList; // Fallback to unified static list of 5 articles
+
+                  const currentBlogRaw = selectedBlogForDrawer || activeBlogsList[0];
                   // Find corresponding high fidelity blog structure for dynamic/unification mapping
-                  const matchedDetailedBlog = unifiedBlogsList.find(b => b.title === currentBlogRaw.title || b.id === currentBlogRaw.id) || unifiedBlogsList[0];
+                  const matchedDetailedBlog = activeBlogsList.find((b: any) => b.title === currentBlogRaw.title || b.id === currentBlogRaw.id) || activeBlogsList[0];
                   const currentBlog = {
                     ...matchedDetailedBlog,
                     title: currentBlogRaw.title || matchedDetailedBlog.title,
                     introduction: currentBlogRaw.introduction || matchedDetailedBlog.introduction
                   };
 
+                  // If selectedBlogForDrawer is null, we are in the LIST ONLY / FULL WIDTH BENTO GRID MODE.
+                  // Otherwise, selectedBlogForDrawer is not null, so we are in the SPLIT DETAILS VIEW.
+                  if (selectedBlogForDrawer === null) {
+                    return (
+                      <div className="flex flex-col h-full min-h-[85vh] bg-[#07070a] text-white overflow-hidden font-sans">
+                        {/* Cabecera general */}
+                        <div className="p-6 md:p-8 border-b border-white/5 bg-[#0b0b0f] flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            {/* Icono del libro dorado */}
+                            <div className="w-12 h-12 flex items-center justify-center bg-amber-500/10 border border-amber-500/20 text-[#FFBF00] rounded-xl shrink-0">
+                              <BookOpen className="w-6 h-6" />
+                            </div>
+                            <div className="text-left font-sans">
+                              <span className="text-[10px] font-black uppercase text-[#FFBF00] tracking-widest block leading-none mb-1">
+                                Canales Orgánicos
+                              </span>
+                              <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight text-white leading-tight">
+                                Artículos de Blog SEO
+                              </h2>
+                            </div>
+                          </div>
+                          
+                          {/* Close button (X) */}
+                          <button
+                            onClick={() => setActiveDetailsDrawer(null)}
+                            className="p-2.5 rounded-full bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none shrink-0"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+
+                        {/* Contenedor principal scrollable para el listado centrado */}
+                        <div className="flex-1 overflow-y-auto p-6 md:p-8 pb-12 scrollbar-thin">
+                          <div className="max-w-2xl mx-auto w-full space-y-6">
+                            
+                            {/* Subtítulo descriptivo */}
+                            <div className="text-left">
+                              <p className="text-sm text-zinc-400 leading-relaxed">
+                                Estructura de contenidos optimizada para capturar búsquedas de alta intención de compra desde Google.
+                              </p>
+                            </div>
+
+                            {/* Listado Vertical de Artículos */}
+                            <div className="space-y-3">
+                              {activeBlogsList.map((item: any, index: number) => {
+                                return (
+                                  <button
+                                    key={item.id}
+                                    onClick={() => {
+                                      setSelectedBlogForDrawer(item);
+                                    }}
+                                    className="w-full text-left p-4 rounded-2xl border bg-[#0b0b0f] hover:bg-[#111117] border-white/5 hover:border-amber-400/30 transition-all duration-300 relative overflow-hidden flex items-start gap-4 group active:scale-[0.99]"
+                                  >
+                                    {/* Indicador POST */}
+                                    <div className={`shrink-0 w-11 h-12 rounded-xl flex flex-col overflow-hidden border text-center bg-zinc-900 border-white/10 text-white`}>
+                                      <div className="text-[8px] py-0.5 tracking-wider uppercase font-black bg-zinc-800 text-zinc-400">
+                                        POST
+                                      </div>
+                                      <div className="flex-1 flex items-center justify-center text-xs font-extrabold font-mono leading-none">
+                                        0{index + 1}
+                                      </div>
+                                    </div>
+
+                                    {/* Detalle del artículo */}
+                                    <div className="flex-1 min-w-0 space-y-1.5 self-center">
+                                      <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug text-left">
+                                        {item.title}
+                                      </h4>
+                                      
+                                      {/* Mostrar PREMIUM PRO si está bloqueado */}
+                                      {item.isLocked && (
+                                        <div className="flex items-center gap-2">
+                                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-500/30 text-[8px] font-extrabold text-[#FFBF00] uppercase tracking-wider">
+                                            <Lock className="w-2.5 h-2.5" /> PREMIUM PRO
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            {/* Botón de pie de lista de ancho completo */}
+                            <div className="pt-4">
+                              <button
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="w-full py-4 px-6 rounded-xl bg-[#FFBF00] hover:bg-amber-500 text-zinc-950 font-black text-xs uppercase tracking-widest hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(255,191,0,0.2)] font-sans"
+                              >
+                                <Sparkles className="w-4 h-4 text-zinc-950" />
+                                <span>VER 12 ARTÍCULOS RESTANTES</span>
+                              </button>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <div className="flex flex-col lg:flex-row h-full min-h-[85vh] bg-[#07070a] text-white">
                       {/* COLUMNA IZQUIERDA: Lista de Artículos */}
-                      <div className="w-full lg:w-5/12 border-r border-white/5 bg-[#0b0b0f] flex flex-col justify-between shrink-0">
+                      <div className="w-full lg:w-4/12 border-r border-white/5 bg-[#0b0b0f] flex flex-col justify-between shrink-0">
                         {/* Cabecera de la Columna Izquierda */}
                         <div className="p-6 border-b border-white/5">
                           <div className="flex items-center gap-3 mb-4">
@@ -5067,7 +5202,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
                         {/* Listado de Tarjetas */}
                         <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
-                          {unifiedBlogsList.map((item, index) => {
+                          {activeBlogsList.map((item: any, index: number) => {
                             const isSelected = currentBlog.id === item.id;
                             return (
                               <button
@@ -5110,20 +5245,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                   }`}>
                                     {item.title}
                                   </h4>
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    {item.isLocked ? (
+                                  {item.isLocked && (
+                                    <div className="flex flex-wrap items-center gap-2">
                                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-500/30 text-[8px] font-extrabold text-amber-300 uppercase tracking-wider">
                                         <Lock className="w-2.5 h-2.5" /> PREMIUM PRO
                                       </span>
-                                    ) : (
-                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider">
-                                        Active
-                                      </span>
-                                    )}
-                                    <span className="text-[9px] font-semibold text-zinc-500 font-mono">
-                                      Vol: {item.volumenBusqueda}
-                                    </span>
-                                  </div>
+                                    </div>
+                                  )}
                                 </div>
                               </button>
                             );
@@ -5143,7 +5271,26 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       </div>
 
                       {/* COLUMNA DERECHA: Ficha Técnica Detallada (Imagen 2 premium design replica) */}
-                      <div className="w-full lg:w-7/12 flex flex-col bg-[#0a0a0f] relative overflow-hidden min-h-[500px]">
+                      <div className="w-full lg:w-8/12 flex flex-col bg-[#0a0a0f] relative overflow-hidden min-h-[500px]">
+                        
+                        {/* Botón de volver al listado */}
+                        <div className="p-6 pb-0 flex items-center justify-between border-b border-white/5 bg-zinc-950/20 z-10 backdrop-blur-md">
+                          <button
+                            onClick={() => setSelectedBlogForDrawer(null)}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-zinc-300 hover:text-white transition-all duration-300"
+                          >
+                            <ArrowLeft className="w-3.5 h-3.5" />
+                            <span>Volver al listado</span>
+                          </button>
+
+                          {/* Close button (X) */}
+                          <button
+                            onClick={() => setActiveDetailsDrawer(null)}
+                            className="p-2 rounded-full bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none shrink-0"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
                         {currentBlog.isLocked && (
                           /* Pantalla superpuesta translúcida de vidrio esmerilado con candado de seguridad */
                           <div className="absolute inset-0 bg-[#07070a]/90 backdrop-blur-md z-20 flex flex-col items-center justify-center p-8 text-center space-y-6">
