@@ -32,11 +32,19 @@ import {
   Folder,
   Gift,
   Star,
-  Lock
+  Lock,
+  X
 } from "lucide-react";
 
 interface Image1DashboardProps {
   projectName?: string;
+  projectNiche?: string;
+  projectPrice?: number;
+  projectCommission?: number;
+  projectUrl?: string;
+  projectPublishedAt?: string | Date;
+  projectVisits?: number;
+  projectConversions?: number;
   onNavigateToSection?: (section: string) => void;
   onUpgradeClick?: () => void;
   hideHeader?: boolean;
@@ -44,11 +52,50 @@ interface Image1DashboardProps {
 
 export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
   projectName = "Curso Profesional de Microblading de Cejas",
+  projectNiche = "Belleza y estética",
+  projectPrice = 200,
+  projectCommission = 58,
+  projectUrl = "https://microblading.aprende.marketing",
+  projectPublishedAt = "2026-06-22",
+  projectVisits = 487,
+  projectConversions = 12,
   onNavigateToSection,
   onUpgradeClick,
   hideHeader = false,
 }) => {
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [showPublishModal, setShowPublishModal] = useState(false);
+
+  const formatSpanishDate = (dateVal?: string | Date) => {
+    if (!dateVal) return "22 de junio de 2026";
+    try {
+      const d = typeof dateVal === 'string' ? new Date(dateVal) : dateVal;
+      if (isNaN(d.getTime())) return "22 de junio de 2026";
+      const day = d.getDate();
+      const months = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+      ];
+      const month = months[d.getMonth()];
+      const year = d.getFullYear();
+      return `${day} de ${month} de ${year}`;
+    } catch (e) {
+      return "22 de junio de 2026";
+    }
+  };
+
+  const getEarnings = (price: number, commission: number) => {
+    if (!commission) return 0;
+    const rate = (commission > 0 && commission < 1) ? commission : commission / 100;
+    return Math.round(price * rate);
+  };
+
+  const displayDate = formatSpanishDate(projectPublishedAt);
+  const calculatedEarnings = getEarnings(projectPrice, projectCommission);
+  const displayCommission = projectCommission > 0 && projectCommission < 1 ? Math.round(projectCommission * 100) : projectCommission;
+
+  const conversionRateNum = projectVisits && projectVisits > 0 ? (projectConversions / projectVisits) * 100 : 0;
+  const conversionRateStr = conversionRateNum === 0 ? "0,00%" : conversionRateNum.toFixed(2).replace('.', ',') + "%";
 
   const handleCopyLink = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -135,27 +182,6 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                 </nav>
               </div>
 
-              {/* Grupo RECURSOS */}
-              <div className="space-y-3">
-                <span className="text-[10px] font-bold text-zinc-500 tracking-widest uppercase px-4 block">
-                  RECURSOS
-                </span>
-                <nav className="space-y-2">
-                  {[
-                    { name: "Blog y artículos", icon: FileText, key: "blog" },
-                    { name: "Plantillas y guías", icon: Layers, key: "templates" },
-                  ].map((item) => (
-                    <button
-                      key={item.name}
-                      className="w-full hover:bg-white/[0.02] text-zinc-300 hover:text-white h-12 px-4 rounded-[14px] flex items-center gap-3 text-[14px] font-medium text-left transition-all group"
-                    >
-                      <item.icon className="w-5 h-5 text-zinc-400 group-hover:text-[#FF5A1F] transition-colors shrink-0" />
-                      <span>{item.name}</span>
-                    </button>
-                  ))}
-                </nav>
-              </div>
-
             </div>
 
             {/* Caja Inferior de Ayuda */}
@@ -186,67 +212,19 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
               <div>
                 <span className="inline-flex bg-[#102A1E] text-[#10B981] border border-[#10B981]/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider items-center gap-1.5 shrink-0 shadow-sm mb-3">
                   <span className="w-1.5 h-1.5 bg-[#10B981] rounded-full animate-pulse"></span>
-                  Proyecto activo
+                  Tu página está publicada y tus tres reels están listos para comenzar a atraer visitas.
                 </span>
                 <h1 className="text-white font-bold text-[48px] leading-[52px] tracking-[-0.02em]">
                   {projectName}
                 </h1>
               </div>
-              <p className="text-white/90 font-medium text-[18px] leading-7 max-w-[720px]">
-                Tu página está publicada y tus tres reels están listos para comenzar a atraer visitas.
+              <p className="text-zinc-400 text-sm md:text-base font-semibold tracking-wide">
+                {projectNiche} · Producto activo · Publicado el {displayDate}
               </p>
             </div>
 
             {/* Contenedor de Métricas en Línea y Página Publicada (Espaciado y alineación premium) */}
             <div className="space-y-5">
-              
-              {/* Bloque de 3 Tarjetas de Información del Producto */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {/* Tarjeta 1 - Categoría (Violeta) */}
-                <div className="flex items-center gap-5 p-6 rounded-[20px] border border-violet-500/[0.12] bg-[#150F1E]/20 hover:bg-[#150F1E]/35 transition-all group min-h-[96px]">
-                  <div className="w-12 h-12 rounded-[14px] border border-violet-500/20 bg-violet-950/20 flex items-center justify-center text-violet-400 shrink-0 group-hover:scale-105 transition-transform">
-                    <Layers className="w-5 h-5" />
-                  </div>
-                  <div className="text-left py-0.5">
-                    <span className="text-violet-400 text-[11px] font-bold tracking-wider uppercase block">
-                      Categoría
-                    </span>
-                    <span className="text-white text-[18px] font-bold block leading-tight mt-1">
-                      Belleza y Estética
-                    </span>
-                  </div>
-                </div>
-
-                {/* Tarjeta 2 - Estado (Esmeralda) */}
-                <div className="flex items-center gap-5 p-6 rounded-[20px] border border-emerald-500/[0.12] bg-[#0C1713]/20 hover:bg-[#0C1713]/35 transition-all group min-h-[96px]">
-                  <div className="w-12 h-12 rounded-[14px] border border-emerald-500/20 bg-emerald-950/20 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
-                    <CheckCircle2 className="w-5 h-5" />
-                  </div>
-                  <div className="text-left py-0.5">
-                    <span className="text-emerald-400 text-[11px] font-bold tracking-wider uppercase block">
-                      Estado del Producto
-                    </span>
-                    <span className="text-white text-[18px] font-bold block leading-tight mt-1">
-                      Activo
-                    </span>
-                  </div>
-                </div>
-
-                {/* Tarjeta 3 - Fecha de Publicación (Amber) */}
-                <div className="flex items-center gap-5 p-6 rounded-[20px] border border-amber-500/[0.12] bg-[#1C1710]/20 hover:bg-[#1C1710]/35 transition-all group min-h-[96px]">
-                  <div className="w-12 h-12 rounded-[14px] border border-amber-500/20 bg-amber-950/20 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-105 transition-transform">
-                    <Calendar className="w-5 h-5" />
-                  </div>
-                  <div className="text-left py-0.5">
-                    <span className="text-amber-400 text-[11px] font-bold tracking-wider uppercase block">
-                      Fecha de publicación
-                    </span>
-                    <span className="text-white text-[18px] font-bold block leading-tight mt-1">
-                      22 de Junio, 2026
-                    </span>
-                  </div>
-                </div>
-              </div>
 
               {/* Bloque de 3 Métricas en Fila Horizontal */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -260,7 +238,7 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                       Precio del producto
                     </span>
                     <span className="text-white text-[20px] font-bold block leading-tight mt-1">
-                      USD 200
+                      USD {projectPrice}
                     </span>
                   </div>
                 </div>
@@ -275,7 +253,7 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                       Comisión que obtendrás
                     </span>
                     <span className="text-white text-[20px] font-bold block leading-tight mt-1">
-                      58 %
+                      {displayCommission} %
                     </span>
                   </div>
                 </div>
@@ -290,64 +268,96 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                       Tu ganancia por venta
                     </span>
                     <span className="text-white text-[20px] font-bold block leading-tight mt-1">
-                      USD 116
+                      USD {calculatedEarnings}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Tarjeta de Página Publicada (Ancho Completo y diseño fluido premium con altura y campo de texto) */}
-              <div className="bg-[#0F1117]/30 border border-white/[0.04] p-7 md:p-8 rounded-[24px] flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:bg-[#0F1117]/50 transition-colors relative group w-full">
+              {/* Tarjeta de Página Publicada (Rediseñada estilo Imagen 3 con campo seleccionable y botón de copiar) */}
+              <div className="bg-[#090B11] border border-[#10B981]/15 hover:border-[#10B981]/25 rounded-[20px] shadow-md p-6 flex flex-col gap-4 transition-all relative group w-full text-left">
                 
-                {/* Lado izquierdo: Icono de Globo + Título y Estado "En línea" */}
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="w-12 h-12 rounded-xl bg-[#FF5A1F]/5 border border-[#FF5A1F]/10 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                {/* Fila superior: Icono de Globo + Título y Estado "Publicada" */}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/5 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
                     <Globe className="w-5.5 h-5.5" />
                   </div>
-                  <div className="text-left space-y-1.5">
-                    <span className="text-zinc-400 font-bold text-[11px] uppercase tracking-[0.06em] block">
-                      Página publicada
+                  <div className="flex items-center gap-2">
+                    <span className="text-white/60 font-black text-[11px] tracking-wider uppercase block" style={{
+                      fontSize: "1em",
+                      color: "white",
+                      paddingTop: "1em",
+                      paddingBottom: "1em",
+                    }}>
+                      Página web de captura
                     </span>
-                    <span className="inline-flex bg-[#102A1E]/80 text-[#10B981] px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider items-center gap-1.5 border border-[#10B981]/10">
-                      <span className="w-1.5 h-1.5 bg-[#10B981] rounded-full animate-pulse"></span>
-                      En línea
+                    <span className="inline-flex bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider items-center gap-1">
+                      <span className="w-1 h-1 bg-emerald-400 rounded-full animate-pulse"></span>
+                      Publicada
                     </span>
                   </div>
                 </div>
 
-                {/* Centro: El Campo de texto estilo Input de alta fidelidad, interactivo */}
-                <div className="flex-1 max-w-xl w-full">
-                  <div className="relative">
+                {/* Fila del medio: Input de URL a lo ancho + Botones alineados de la misma altura */}
+                <div className="flex flex-col lg:flex-row lg:items-center gap-4 w-full">
+                  {/* Campo de URL seleccionable con botón de copiar (Ocupa todo el espacio hasta los botones) */}
+                  <div className="relative flex items-center flex-1 bg-[#0C0E14] border border-[#10B981]/15 hover:border-[#10B981]/30 focus-within:border-[#10B981]/50 rounded-xl px-4 h-11 transition-all">
                     <input
                       type="text"
                       readOnly
-                      value="https://microblading.aprende.marketing"
+                      value={projectUrl}
                       onClick={(e) => (e.target as HTMLInputElement).select()}
-                      className="w-full bg-[#08090C] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#FF5A1F]/30 focus:outline-none rounded-xl px-4 py-3 font-mono text-[14px] text-zinc-300 cursor-text select-all transition-colors shadow-inner"
+                      className="w-full bg-transparent text-white focus:outline-none font-mono text-sm cursor-text select-all pr-12"
                     />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopyLink(projectUrl, "url");
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] active:scale-[0.97] transition-all flex items-center justify-center gap-1 border border-white/5"
+                      title="Copiar URL"
+                    >
+                      {copiedText === "url" ? (
+                        <span className="text-emerald-400 text-[10px] font-black tracking-wider uppercase flex items-center gap-1">
+                          <span>✓ Copiado</span>
+                        </span>
+                      ) : (
+                        <Copy className="w-3.5 h-3.5 text-zinc-400 hover:text-white transition-colors" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Botonera con Ver Detalles y Abrir (Alineados exactamente a la par y con altura h-11) */}
+                  <div className="flex items-center gap-3 shrink-0">
+                    <button
+                      onClick={() => onNavigateToSection?.("landing")}
+                      className="bg-[#12141A]/60 hover:bg-[#12141A]/90 border border-white/5 h-11 px-5 rounded-[12px] text-zinc-300 hover:text-white font-bold text-xs flex items-center gap-2 transition-all cursor-pointer"
+                    >
+                      <Eye className="w-4 h-4" />
+                      <span>Ver detalles</span>
+                    </button>
+
+                    <a
+                      href={projectUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-transparent hover:bg-emerald-500/5 border border-emerald-500/20 h-11 px-5 rounded-[12px] text-emerald-400 hover:text-emerald-300 font-bold text-xs flex items-center gap-2 transition-all"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      <span>Abrir página</span>
+                    </a>
                   </div>
                 </div>
-                
-                {/* Lado derecho: Botonera con Ver Detalles y Abrir */}
-                <div className="flex items-center gap-3 shrink-0">
-                  <button
-                    onClick={() => onNavigateToSection?.("landing")}
-                    className="bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 hover:border-zinc-700 h-11 px-4 rounded-[12px] text-zinc-300 hover:text-white font-medium text-xs flex items-center gap-2 transition-all cursor-pointer"
-                  >
-                    <Eye className="w-4 h-4 text-zinc-400" />
-                    <span>Ver detalles</span>
-                  </button>
 
-                  <a
-                    href="https://microblading.aprende.marketing"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 hover:border-zinc-700 h-11 px-4 rounded-[12px] text-zinc-300 hover:text-white font-medium text-xs flex items-center gap-2 transition-all"
-                  >
-                    <ExternalLink className="w-4 h-4 text-zinc-400" />
-                    <span>Abrir</span>
-                  </a>
-                </div>
+                {/* Fila inferior: Descripción */}
+                <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{
+                  fontSize: "1em",
+                  lineHeight: "1em",
+                  paddingTop: "1em",
+                  paddingBottom: "0.3em",
+                }}>
+                  Tu Página Web esta lista para recibir visitas y registrar nuevos contactos.
+                </p>
               </div>
 
             </div>
@@ -358,51 +368,40 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
               {/* Tarjeta Siguiente paso recomendado (65% del ancho) */}
               <div 
                 onClick={() => onNavigateToSection?.('reels')} 
-                className="xl:col-span-8 bg-[#0F1117] border border-white/[0.04] hover:border-[#FF561E]/30 rounded-[24px] p-7 relative overflow-hidden flex flex-col md:flex-row gap-6 justify-between items-stretch shadow-lg shadow-black/15 min-h-[300px] cursor-pointer hover:shadow-xl hover:shadow-[#FF5A1F]/5 transition-all group/card"
+                className="xl:col-span-8 bg-[#0F1117] border border-white/[0.04] hover:border-[#FF561E]/30 rounded-[24px] p-7 relative overflow-hidden flex flex-col md:flex-row gap-6 justify-between items-stretch shadow-lg shadow-black/15 cursor-pointer hover:shadow-xl hover:shadow-[#FF5A1F]/5 transition-all group/card"
               >
                 <div className="absolute top-0 left-0 w-44 h-44 bg-[#FF561E]/3 blur-2xl rounded-full"></div>
                 
-                <div className="flex-1 flex flex-col justify-between space-y-6">
-                  <div className="space-y-3">
+                <div className="flex-1 flex flex-col space-y-4">
+                  <div className="space-y-1.5">
                     <span className="text-orange-500 font-bold text-[13px] uppercase tracking-[0.04em] block">
                       Siguiente paso recomendado
                     </span>
-                    <h2 className="text-white font-extrabold text-[34px] leading-[40px] tracking-tight group-hover/card:text-[#FF5A1F] transition-colors">
+                    <h2 className="text-white font-extrabold text-[28px] leading-[34px] tracking-tight group-hover/card:text-[#FF5A1F] transition-colors">
                       Publica tu primer reel
                     </h2>
                     <p 
-                      style={{ fontSize: "1em" }}
-                      className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up max-w-[500px]"
+                      style={{ fontSize: "1.02em", lineHeight: "1.4" }}
+                      className="text-white/90 font-light text-[14px] md:text-[15px] leading-relaxed animate-fade-in-up max-w-[500px]"
                     >
-                      Descarga tu primer reel y compártelo junto con el enlace de tu página para empezar a atraer tus primeros registros.
+                      Hemos generado 3 videos cortos de menos de 1 minuto (reels) los cuales podrás publicar en tus principales redes sociales para dirigir tus primeros visitantes a tu página de captura y empezar a conseguir prospectos.
                     </p>
                   </div>
 
-                  <div className="space-y-5 pt-2">
-                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+                  <div className="space-y-2.5">
+                    <div className="flex flex-col gap-2.5 w-full">
                       <button 
                         onClick={(e) => { e.stopPropagation(); onNavigateToSection?.('reels'); }} 
-                        className="w-full sm:w-auto h-[52px] rounded-[14px] bg-[#FF5A1F] px-6 text-white font-bold text-[14px] flex items-center justify-center gap-2 hover:bg-[#E04E1A] transition-all cursor-pointer shadow-[0_4px_20px_rgba(255,90,31,0.25)] hover:shadow-[0_6px_24px_rgba(255,90,31,0.35)] shrink-0"
+                        className="w-full h-[40px] rounded-xl bg-[#FF5A1F] px-5 text-white font-bold text-xs md:text-sm flex items-center justify-center gap-2 hover:bg-[#E04E1A] transition-all cursor-pointer shadow-[0_4px_15px_rgba(255,90,31,0.2)] hover:shadow-[0_6px_20px_rgba(255,90,31,0.3)] active:scale-[0.98] shrink-0"
                       >
-                        <Download className="w-4.5 h-4.5" />
-                        <span>Ver y descargar mi primer reel</span>
-                      </button>
-
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); onNavigateToSection?.('reels'); }} 
-                        className="w-full sm:w-auto h-[52px] rounded-[14px] bg-[#111217] hover:bg-[#161720] border border-white/[0.08] hover:border-white/20 px-6 text-zinc-300 hover:text-white font-bold text-[14px] flex items-center justify-center gap-2 transition-all cursor-pointer shrink-0"
-                      >
-                        <Play className="w-4.5 h-4.5 text-zinc-400 group-hover:text-white" />
-                        <span>Ver mis 3 reels</span>
+                        <Download className="w-4 h-4" />
+                        <span>Ver y Descargar mi primer Reel</span>
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-2 text-zinc-505 text-xs font-semibold select-none">
-                      <Star className="w-4 h-4 text-zinc-500 shrink-0" />
-                      <span 
-                        style={{ fontSize: "1em" }}
-                        className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up"
-                      >
+                    <div className="flex items-center gap-2 text-zinc-500 text-xs font-semibold select-none">
+                      <Star className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                      <span className="text-zinc-400 font-medium text-[11px]">
                         Ya tienes otros 2 reels listos dentro de tu proyecto.
                       </span>
                     </div>
@@ -410,7 +409,7 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                 </div>
 
                 {/* Miniatura de Video a la derecha de la tarjeta (Aspecto vertical 9:16 expandido) */}
-                <div className="w-full md:w-[180px] h-[280px] md:h-auto shrink-0 rounded-[20px] overflow-hidden relative group border border-white/[0.04] aspect-[9/16] flex items-center justify-center bg-[#181820] select-none">
+                <div className="w-full md:w-[140px] h-[248px] shrink-0 rounded-[20px] overflow-hidden relative group border border-white/[0.04] flex items-center justify-center bg-[#181820] select-none">
                   <img
                     src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=350&auto=format&fit=crop&q=80"
                     alt="Video preview"
@@ -432,7 +431,7 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
               </div>
 
               {/* Tarjeta Derecha: Tu sistema inicial está listo (35% del ancho) con sección PRO y candados */}
-              <div className="xl:col-span-4 bg-[#0F1117] border border-white/[0.04] rounded-[24px] p-6 text-left flex flex-col justify-between items-stretch min-h-[300px]">
+              <div className="xl:col-span-4 bg-[#0F1117] border border-white/[0.04] rounded-[24px] p-6 text-left flex flex-col justify-center items-stretch">
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <h3 className="text-white text-[18px] font-extrabold tracking-tight">
@@ -496,49 +495,6 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                       3 de 3 elementos completados
                     </span>
                   </div>
-
-                  {/* Divisor visual limpio */}
-                  <div className="border-t border-white/[0.06] my-4" />
-
-                  {/* Nueva Sección de Candados: Desbloquea con Pro */}
-                  <div className="space-y-3.5">
-                    <div className="flex items-center gap-2 text-[#FF5A1F]">
-                      <Lock className="w-4 h-4 shrink-0" />
-                      <span className="font-extrabold text-[15px] tracking-tight">
-                        Actualiza a PRO y Recibe
-                      </span>
-                    </div>
-
-                    <ul className="grid grid-cols-1 gap-3">
-                      {[
-                        "Email marketing automatizado",
-                        "Secuencias de WhatsApp",
-                        "Hasta 30 reels al mes",
-                        "Hasta 15 artículos de blog",
-                      ].map((item, idx) => (
-                        <li key={idx} className="flex items-center gap-3 text-zinc-400">
-                          <Lock className="w-3.5 h-3.5 text-[#FF5A1F]/70 shrink-0" />
-                          <span 
-                            style={{ fontSize: "1em" }}
-                            className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up"
-                          >
-                            {item}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Botón CTA Actualizar a Pro */}
-                <div className="pt-5">
-                  <button
-                    onClick={onUpgradeClick}
-                    className="w-full h-[46px] rounded-xl bg-transparent hover:bg-[#FF5A1F]/5 border border-[#FF5A1F] text-[#FF5A1F] font-bold text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-[#FF5A1F]/5"
-                  >
-                    <Crown className="w-4 h-4 text-[#FF5A1F] fill-[#FF5A1F]/10" />
-                    <span>Actualizar a Pro</span>
-                  </button>
                 </div>
               </div>
 
@@ -564,9 +520,9 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
               {/* Grilla estadística unificada (3 elegantes columnas) */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {[
-                  { label: "Visitas a la página", val: "487", change: "↑ 18%", icon: Eye },
-                  { label: "Registros (Leads)", val: "12", change: "↑ 9%", icon: Users },
-                  { label: "Tasa de conversión", val: "2,46%", change: "↑ 0,8%", icon: Percent },
+                  { label: "Visitas a la página", val: String(projectVisits), change: "↑ 18%", icon: Eye },
+                  { label: "Registros (Leads)", val: String(projectConversions), change: "↑ 9%", icon: Users },
+                  { label: "Tasa de conversión", val: conversionRateStr, change: "↑ 0,8%", icon: Percent },
                 ].map((stat, idx) => (
                   <div key={idx} className="bg-[#13131a]/60 border border-white/[0.04] p-6 h-[142px] rounded-[20px] flex flex-col justify-between hover:bg-[#151522] transition-all relative overflow-hidden group">
                     {/* El degradado sutil de fondo inferior (onda suave naranja/rojo) */}
@@ -590,6 +546,146 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                         {stat.change}
                       </span>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sección: Esto hemos generado para ti (Colocado dentro de main para consistencia de ancho) */}
+            <div className="space-y-6 pt-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-orange-500 text-lg">✦</span>
+                  <h3 className="text-white font-bold text-[22px] leading-[28px] tracking-tight">
+                    Esto hemos <span className="text-orange-500">generado</span> para ti
+                  </h3>
+                </div>
+                <p 
+                  style={{ fontSize: "1em" }}
+                  className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up"
+                >
+                  Previsualiza cada parte de tu sistema. Haz clic en cualquier tarjeta para ver el contenido completo.
+                </p>
+              </div>
+
+              {/* Cuadrícula bento de 6 tarjetas de alta fidelidad */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {[
+                  {
+                    title: "Estrategia de Ventas",
+                    badge: "PLAN DE ATRACCIÓN",
+                    badgeColor: "text-orange-500/90 bg-orange-500/5 border-orange-500/10",
+                    desc: "Tu plan de ruta estratégico para posicionar tu marca en el mercado y escalar tus ventas de forma óptima.",
+                    info: "8 componentes creados",
+                    infoIcon: Target,
+                    btnText: "Explorar",
+                    btnColor: "bg-[#FF5A1F] hover:bg-orange-600 shadow-[0_4px_12px_rgba(255,90,31,0.15)]",
+                    key: "strategy",
+                  },
+                  {
+                    title: "Pagina Web de Captura",
+                    badge: "GENERADOR DE PROSPECTOS",
+                    badgeColor: "text-blue-400 bg-blue-500/5 border-blue-500/10",
+                    desc: "Embudo de captación optimizado para dispositivos móviles que convierte visitas en registros en segundos.",
+                    info: "2 páginas optimizadas",
+                    infoIcon: Globe,
+                    btnText: "Explorar",
+                    btnColor: "bg-[#1E5AF3] hover:bg-blue-600 shadow-[0_4px_12px_rgba(30,90,243,0.15)]",
+                    key: "landing",
+                  },
+                  {
+                    title: "Video Hooks de Atraccion",
+                    badge: "GUIONES DE ALTO IMPACTO",
+                    badgeColor: "text-orange-400 bg-orange-500/5 border-orange-500/10",
+                    desc: "Estructuras magnéticas y guiones persuasivos diseñados para atrapar la atención en los primeros 3 segundos.",
+                    info: "20 ganchos persuasivos",
+                    infoIcon: Play,
+                    btnText: "Explorar",
+                    btnColor: "bg-[#FF5A1F] hover:bg-orange-600 shadow-[0_4px_12px_rgba(255,90,31,0.15)]",
+                    key: "reels",
+                  },
+                  {
+                    title: "Artículos de Blog (SEO)",
+                    badge: "TRÁFICO ORGÁNICO CONSTANTE",
+                    badgeColor: "text-purple-400 bg-purple-500/5 border-purple-500/10",
+                    desc: "Contenido de alto valor optimizado para dominar los buscadores y captar la demanda real de tu audiencia.",
+                    info: "12 artículos de blog",
+                    infoIcon: FileText,
+                    btnText: "Explorar",
+                    btnColor: "bg-[#7C3AED] hover:bg-purple-600 shadow-[0_4px_12px_rgba(124,58,237,0.15)]",
+                    key: "blog",
+                  },
+                  {
+                    title: "Email Marketing Automatizado",
+                    badge: "NUTRICIÓN Y AUTOMATIZACIÓN",
+                    badgeColor: "text-amber-400 bg-amber-500/5 border-amber-500/10",
+                    desc: "Flujos de correo estratégico que nutren la confianza del cliente y cierran ventas en piloto automático.",
+                    info: "3 emails de secuencia",
+                    infoIcon: Mail,
+                    btnText: "Explorar",
+                    btnColor: "bg-[#D97706] hover:bg-amber-650 shadow-[0_4px_12px_rgba(217,119,6,0.15)]",
+                    key: "email",
+                  },
+                  {
+                    title: "Secuencias de WhatsApp",
+                    badge: "MENSAJERÍA CONVERSACIONAL",
+                    badgeColor: "text-emerald-400 bg-emerald-500/5 border-emerald-500/10",
+                    desc: "Secuencia automatizada de respuestas interactivas y guiones persuasivos en tus canales de chat para resolver objeciones y cerrar ventas.",
+                    info: "1 secuencia estructurada",
+                    infoIcon: MessageSquare,
+                    btnText: "Explorar",
+                    btnColor: "bg-[#10B981] hover:bg-emerald-600 shadow-[0_4px_12px_rgba(16,185,129,0.15)]",
+                    key: "avatar",
+                  },
+                ].map((card, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => onNavigateToSection?.(card.key)}
+                    className="bg-[#0F1117] border border-white/[0.04] p-6 rounded-[24px] flex flex-col justify-between hover:bg-[#13151D] hover:border-white/[0.08] transition-all cursor-pointer group hover:-translate-y-1 relative overflow-hidden"
+                  >
+                    {/* Watermark / Icono de background gigante */}
+                    <div className="absolute -bottom-6 -right-6 text-white/[0.02] group-hover:text-white/[0.04]/70 group-hover:scale-110 transition-all duration-500 pointer-events-none z-0">
+                      <card.infoIcon className="w-32 h-32" />
+                    </div>
+
+                    <div className="space-y-4 relative z-10">
+                      {/* Cabecera de la tarjeta: Icono estilizado circular de color sutil + Textos */}
+                      <div className="flex items-start gap-4">
+                        <div className="w-11 h-11 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-center text-zinc-450 group-hover:scale-105 transition-transform shrink-0">
+                          <card.infoIcon className="w-5 h-5 text-zinc-350" />
+                        </div>
+                        <div className="space-y-1 text-left">
+                          <h4 className="text-white text-[15px] font-bold tracking-tight">
+                            {card.title}
+                          </h4>
+                          <span className={`inline-block text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-md border ${card.badgeColor}`}>
+                            {card.badge}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Descripción */}
+                      <p 
+                        style={{ fontSize: "1em", lineHeight: "1.5em" }}
+                        className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up text-left min-h-[44px]"
+                      >
+                        {card.desc}
+                      </p>
+                    </div>
+
+                    {/* Fila inferior de estado + Botón Explorar */}
+                    <div className="flex items-center justify-between pt-5 mt-4 border-t border-white/[0.04] w-full relative z-10">
+                      <div className="flex items-center gap-1.5 text-zinc-550 font-semibold text-[12px]">
+                        <card.infoIcon className="w-4 h-4 text-zinc-500" />
+                        <span>{card.info}</span>
+                      </div>
+                      
+                      <button className={`h-9 px-4 rounded-full text-white font-bold text-xs flex items-center gap-1.5 transition-all ${card.btnColor}`}>
+                        <span>{card.btnText}</span>
+                        <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                      </button>
+                    </div>
+
                   </div>
                 ))}
               </div>
@@ -745,147 +841,133 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
 
         </div>
 
-        {/* Sección: Esto hemos generado para ti (Diseño alineado a max-w-1400px de alta fidelidad) */}
-        <div className="max-w-[1400px] mx-auto w-full mt-12 md:mt-16 space-y-6 text-left px-4 md:px-0">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className="text-orange-500 text-lg">✦</span>
-              <h3 className="text-white font-bold text-[22px] leading-[28px] tracking-tight">
-                Esto hemos <span className="text-orange-500">generado</span> para ti
-              </h3>
-            </div>
-            <p 
-              style={{ fontSize: "1em" }}
-              className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up"
-            >
-              Previsualiza cada parte de tu sistema. Haz clic en cualquier tarjeta para ver el contenido completo.
-            </p>
-          </div>
+      </div>
 
-          {/* Cuadrícula bento de 6 tarjetas de alta fidelidad, idénticas a la Imagen 3 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[
-              {
-                title: "Estrategia de Ventas",
-                badge: "PLAN DE ATRACCIÓN",
-                badgeColor: "text-orange-500/90 bg-orange-500/5 border-orange-500/10",
-                desc: "Tu plan de ruta estratégico para posicionar tu marca en el mercado y escalar tus ventas de forma óptima.",
-                info: "8 componentes creados",
-                infoIcon: Target,
-                btnText: "Explorar",
-                btnColor: "bg-[#FF5A1F] hover:bg-orange-600 shadow-[0_4px_12px_rgba(255,90,31,0.15)]",
-                key: "strategy",
-              },
-              {
-                title: "Pagina Web de Captura",
-                badge: "GENERADOR DE PROSPECTOS",
-                badgeColor: "text-blue-400 bg-blue-500/5 border-blue-500/10",
-                desc: "Embudo de captación optimizado para dispositivos móviles que convierte visitas en registros en segundos.",
-                info: "2 páginas optimizadas",
-                infoIcon: Globe,
-                btnText: "Explorar",
-                btnColor: "bg-[#1E5AF3] hover:bg-blue-600 shadow-[0_4px_12px_rgba(30,90,243,0.15)]",
-                key: "landing",
-              },
-              {
-                title: "Video Hooks de Atraccion",
-                badge: "GUIONES DE ALTO IMPACTO",
-                badgeColor: "text-orange-400 bg-orange-500/5 border-orange-500/10",
-                desc: "Estructuras magnéticas y guiones persuasivos diseñados para atrapar la atención en los primeros 3 segundos.",
-                info: "20 ganchos persuasivos",
-                infoIcon: Play,
-                btnText: "Explorar",
-                btnColor: "bg-[#FF5A1F] hover:bg-orange-600 shadow-[0_4px_12px_rgba(255,90,31,0.15)]",
-                key: "reels",
-              },
-              {
-                title: "Artículos de Blog (SEO)",
-                badge: "TRÁFICO ORGÁNICO CONSTANTE",
-                badgeColor: "text-purple-400 bg-purple-500/5 border-purple-500/10",
-                desc: "Contenido de alto valor optimizado para dominar los buscadores y captar la demanda real de tu audiencia.",
-                info: "12 artículos de blog",
-                infoIcon: FileText,
-                btnText: "Explorar",
-                btnColor: "bg-[#7C3AED] hover:bg-purple-600 shadow-[0_4px_12px_rgba(124,58,237,0.15)]",
-                key: "blog",
-              },
-              {
-                title: "Email Marketing Automatizado",
-                badge: "NUTRICIÓN Y AUTOMATIZACIÓN",
-                badgeColor: "text-amber-400 bg-amber-500/5 border-amber-500/10",
-                desc: "Flujos de correo estratégico que nutren la confianza del cliente y cierran ventas en piloto automático.",
-                info: "3 emails de secuencia",
-                infoIcon: Mail,
-                btnText: "Explorar",
-                btnColor: "bg-[#D97706] hover:bg-amber-650 shadow-[0_4px_12px_rgba(217,119,6,0.15)]",
-                key: "email",
-              },
-              {
-                title: "Secuencias de WhatsApp",
-                badge: "MENSAJERÍA CONVERSACIONAL",
-                badgeColor: "text-emerald-400 bg-emerald-500/5 border-emerald-500/10",
-                desc: "Secuencia automatizada de respuestas interactivas y guiones persuasivos en tus canales de chat para resolver objeciones y cerrar ventas.",
-                info: "1 secuencia estructurada",
-                infoIcon: MessageSquare,
-                btnText: "Explorar",
-                btnColor: "bg-[#10B981] hover:bg-emerald-600 shadow-[0_4px_12px_rgba(16,185,129,0.15)]",
-                key: "avatar",
-              },
-            ].map((card, idx) => (
-              <div
-                key={idx}
-                onClick={() => onNavigateToSection?.(card.key)}
-                className="bg-[#0F1117] border border-white/[0.04] p-6 rounded-[24px] flex flex-col justify-between hover:bg-[#13151D] hover:border-white/[0.08] transition-all cursor-pointer group hover:-translate-y-1 relative overflow-hidden"
-              >
-                {/* Watermark / Icono de background gigante */}
-                <div className="absolute -bottom-6 -right-6 text-white/[0.02] group-hover:text-white/[0.04]/70 group-hover:scale-110 transition-all duration-500 pointer-events-none z-0">
-                  <card.infoIcon className="w-32 h-32" />
-                </div>
-
-                <div className="space-y-4 relative z-10">
-                  {/* Cabecera de la tarjeta: Icono estilizado circular de color sutil + Textos */}
-                  <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-center text-zinc-450 group-hover:scale-105 transition-transform shrink-0">
-                      <card.infoIcon className="w-5 h-5 text-zinc-350" />
-                    </div>
-                    <div className="space-y-1 text-left">
-                      <h4 className="text-white text-[15px] font-bold tracking-tight">
-                        {card.title}
-                      </h4>
-                      <span className={`inline-block text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-md border ${card.badgeColor}`}>
-                        {card.badge}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Descripción */}
-                  <p 
-                    style={{ fontSize: "1em", lineHeight: "1.5em" }}
-                    className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up text-left min-h-[44px]"
-                  >
-                    {card.desc}
-                  </p>
-                </div>
-
-                {/* Fila inferior de estado + Botón Explorar */}
-                <div className="flex items-center justify-between pt-5 mt-4 border-t border-white/[0.04] w-full relative z-10">
-                  <div className="flex items-center gap-1.5 text-zinc-550 font-semibold text-[12px]">
-                    <card.infoIcon className="w-4 h-4 text-zinc-500" />
-                    <span>{card.info}</span>
-                  </div>
-                  
-                  <button className={`h-9 px-4 rounded-full text-white font-bold text-xs flex items-center gap-1.5 transition-all ${card.btnColor}`}>
-                    <span>{card.btnText}</span>
-                    <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                  </button>
-                </div>
-
+      {/* Modal interactiva de Video y Guía: ¿Cómo Publicar? */}
+      {showPublishModal && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md transition-all duration-300"
+          onClick={() => setShowPublishModal(false)}
+        >
+          <div 
+            className="bg-[#0f111a] border border-white/10 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl shadow-black relative flex flex-col max-h-[90vh] animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header / Botón Cerrar */}
+            <div className="flex items-center justify-between p-5 border-b border-white/5 bg-[#141622]">
+              <div className="flex items-center gap-2">
+                <Play className="w-5 h-5 text-orange-500 fill-orange-500" />
+                <h3 className="text-white text-lg font-extrabold tracking-tight">
+                  Guía de Publicación de Reels
+                </h3>
               </div>
-            ))}
+              <button
+                onClick={() => setShowPublishModal(false)}
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-colors border border-white/5 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="p-6 md:p-8 overflow-y-auto space-y-6 text-left">
+              
+              {/* Reproductor de Video Simulado */}
+              <div className="w-full aspect-video rounded-2xl bg-[#1a1c29] border border-white/5 relative overflow-hidden flex items-center justify-center group shadow-inner">
+                <img
+                  src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&auto=format&fit=crop&q=80"
+                  alt="Tutorial de Publicación"
+                  className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-102 transition-transform duration-700"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                
+                {/* Botón de Play Central Gigante Simulado */}
+                <div className="relative z-10 flex flex-col items-center gap-3">
+                  <div className="w-16 h-16 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-2xl shadow-[#FF5A1F]/30 border border-white/20 group-hover:scale-110 group-hover:bg-[#ff6d3c] transition-all duration-300">
+                    <Play className="w-6 h-6 fill-current ml-1" />
+                  </div>
+                  <span className="text-white text-xs font-black uppercase tracking-widest bg-black/60 px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-sm select-none">
+                    Ver Video Tutorial (2 min)
+                  </span>
+                </div>
+
+                {/* Progress bar and controls bar below */}
+                <div className="absolute bottom-0 inset-x-0 p-3 flex items-center gap-3 text-[10px] text-zinc-400 font-mono z-10 bg-black/40 backdrop-blur-xs">
+                  <Play className="w-3.5 h-3.5 text-orange-500 fill-orange-500 shrink-0" />
+                  <div className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
+                    <div className="w-1/3 h-full bg-[#FF5A1F]"></div>
+                  </div>
+                  <span>02:15</span>
+                </div>
+              </div>
+
+              {/* Guía Rápida Paso a Paso */}
+              <div className="space-y-4">
+                <h4 className="text-white font-extrabold text-base uppercase tracking-wider border-b border-white/5 pb-2 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-orange-500" />
+                  Paso a Paso para Publicar con Éxito
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 space-y-2">
+                    <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 font-black text-sm">
+                      1
+                    </div>
+                    <h5 className="text-white font-bold text-sm">Descarga el Reel</h5>
+                    <p className="text-zinc-400 text-xs font-light leading-relaxed">
+                      Navega a la sección de Reels, elige el video generado y descárgalo a tu celular o computadora.
+                    </p>
+                  </div>
+
+                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 space-y-2">
+                    <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 font-black text-sm">
+                      2
+                    </div>
+                    <h5 className="text-white font-bold text-sm">Pon tu Link en la Bio</h5>
+                    <p className="text-zinc-400 text-xs font-light leading-relaxed">
+                      Copia el enlace de tu página publicada y colócalo de forma visible en la biografía de Instagram, TikTok o Facebook.
+                    </p>
+                  </div>
+
+                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 space-y-2">
+                    <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 font-black text-sm">
+                      3
+                    </div>
+                    <h5 className="text-white font-bold text-sm">Publica y Llama al Clic</h5>
+                    <p className="text-zinc-400 text-xs font-light leading-relaxed">
+                      Sube el video como Reel con música en tendencia y escribe un copy que invite a la gente a hacer clic en el enlace de tu Bio.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tips de Rendimiento */}
+              <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/15 rounded-2xl p-4.5 space-y-2">
+                <h5 className="text-orange-400 font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5">
+                  💡 Consejos Pro para tener más alcance:
+                </h5>
+                <ul className="list-disc pl-4 text-zinc-300 text-xs space-y-1.5 font-light leading-relaxed">
+                  <li><strong>Primeros 3 segundos:</strong> Es el momento crítico. La portada de tu Reel debe enganchar de inmediato.</li>
+                  <li><strong>Consistencia:</strong> Publica tus 3 reels con una diferencia de 24 a 48 horas entre cada uno para mantener el algoritmo activo.</li>
+                  <li><strong>Música en tendencia:</strong> Al subir el reel en Instagram o TikTok, selecciona un audio que tenga el ícono de la flecha hacia arriba (tendencia).</li>
+                </ul>
+              </div>
+
+            </div>
+
+            {/* Footer */}
+            <div className="p-5 border-t border-white/5 bg-[#141622] flex justify-end">
+              <button
+                onClick={() => setShowPublishModal(false)}
+                className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all cursor-pointer"
+              >
+                Cerrar Guía
+              </button>
+            </div>
           </div>
         </div>
-
-      </div>
+      )}
     </div>
   );
 };
