@@ -26,12 +26,19 @@ import {
   X,
   Copy,
   ArrowLeft,
+  ArrowRight,
   Check,
   Calendar,
   Plus,
   ChevronDown,
   Search,
   BookOpen,
+  Gift,
+  Download,
+  Book,
+  Heart,
+  Film,
+  Compass,
   PenTool,
   Lightbulb,
   Sparkles,
@@ -2253,7 +2260,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   ? (selectedEmailForDrawer === null ? "max-w-2xl" : "max-w-2xl md:max-w-4xl xl:max-w-5xl")
                   : activeDetailsDrawer === "whatsapp"
                   ? (selectedWhatsappForDrawer === null ? "max-w-2xl" : "max-w-2xl md:max-w-4xl xl:max-w-5xl")
-                  : (activeDetailsDrawer === "hooks" || activeDetailsDrawer === "landing") ? "max-w-5xl md:max-w-6xl xl:max-w-[85vw]" : "max-w-2xl md:max-w-4xl xl:max-w-5xl"
+                  : activeDetailsDrawer === "hooks"
+                  ? (selectedHookForDrawer === null ? "max-w-2xl" : "max-w-5xl md:max-w-6xl xl:max-w-[85vw]")
+                  : activeDetailsDrawer === "landing"
+                  ? "max-w-5xl md:max-w-6xl xl:max-w-[85vw]"
+                  : "max-w-2xl md:max-w-4xl xl:max-w-5xl"
               }`}
             >
               {/* Drawer Header */}
@@ -2273,50 +2284,50 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       </div>
 
                       {/* Right: Stats Badges (4 elements) */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full xl:w-auto">
                         {/* Badge 1: Páginas publicadas */}
-                        <div className="flex items-center gap-3 bg-white/[0.02] border border-white/5 px-4 py-2.5 rounded-xl">
-                          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                            <FileText className="w-4 h-4" />
+                        <div className="flex items-center gap-3.5 bg-emerald-500/5 border border-emerald-500/20 px-5 py-3 rounded-xl hover:bg-emerald-500/10 transition-colors duration-200">
+                          <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                            <FileText className="w-5 h-5" />
                           </div>
                           <div className="text-left min-w-0">
-                            <div className="text-sm font-black text-white leading-tight">2</div>
-                            <div className="text-[10px] text-white/70 font-light tracking-wide truncate leading-tight">páginas publicadas</div>
+                            <div className="text-[15px] font-black text-emerald-300 leading-tight">2</div>
+                            <div className="text-[11px] text-emerald-400/90 font-medium tracking-wide leading-tight whitespace-normal">páginas publicadas</div>
                           </div>
                         </div>
 
                         {/* Badge 2: Formulario configurado */}
-                        <div className="flex items-center gap-3 bg-white/[0.02] border border-white/5 px-4 py-2.5 rounded-xl">
-                          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                            <CheckCircle className="w-4 h-4" />
+                        <div className="flex items-center gap-3.5 bg-blue-500/5 border border-blue-500/20 px-5 py-3 rounded-xl hover:bg-blue-500/10 transition-colors duration-200">
+                          <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+                            <CheckCircle className="w-5 h-5" />
                           </div>
                           <div className="text-left min-w-0">
-                            <div className="text-sm font-black text-white leading-tight">Formulario</div>
-                            <div className="text-[10px] text-white/70 font-light tracking-wide truncate leading-tight">configurado</div>
+                            <div className="text-[15px] font-black text-blue-300 leading-tight">Formulario</div>
+                            <div className="text-[11px] text-blue-400/90 font-medium tracking-wide leading-tight whitespace-normal">configurado</div>
                           </div>
                         </div>
 
                         {/* Badge 3: URL Activa */}
-                        <div className="flex items-center gap-3 bg-white/[0.02] border border-white/5 px-4 py-2.5 rounded-xl">
-                          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                            <Globe className="w-4 h-4" />
+                        <div className="flex items-center gap-3.5 bg-purple-500/5 border border-purple-500/20 px-5 py-3 rounded-xl hover:bg-purple-500/10 transition-colors duration-200">
+                          <div className="w-9 h-9 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+                            <Globe className="w-5 h-5" />
                           </div>
                           <div className="text-left min-w-0">
-                            <div className="text-sm font-black text-white leading-tight">URL</div>
-                            <div className="text-[10px] text-white/70 font-light tracking-wide truncate leading-tight">activa</div>
+                            <div className="text-[15px] font-black text-purple-300 leading-tight">URL</div>
+                            <div className="text-[11px] text-purple-400/90 font-medium tracking-wide leading-tight whitespace-normal">activa</div>
                           </div>
                         </div>
 
                         {/* Badge 4: Registros */}
-                        <div className="flex items-center gap-3 bg-white/[0.02] border border-white/5 px-4 py-2.5 rounded-xl">
-                          <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 shrink-0">
-                            <Users className="w-4 h-4" />
+                        <div className="flex items-center gap-3.5 bg-orange-500/5 border border-orange-500/20 px-5 py-3 rounded-xl hover:bg-orange-500/10 transition-colors duration-200">
+                          <div className="w-9 h-9 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+                            <Users className="w-5 h-5" />
                           </div>
                           <div className="text-left min-w-0">
-                            <div className="text-sm font-black text-white leading-tight">
+                            <div className="text-[15px] font-black text-orange-300 leading-tight">
                               {activePage?.conversions ?? 0}
                             </div>
-                            <div className="text-[10px] text-white/70 font-light tracking-wide truncate leading-tight">registros</div>
+                            <div className="text-[11px] text-orange-400/90 font-medium tracking-wide leading-tight whitespace-normal">registros</div>
                           </div>
                         </div>
                       </div>
@@ -2348,7 +2359,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     </div>
                     <button
                       onClick={() => setActiveDetailsDrawer(null)}
-                      className="p-2.5 rounded-full bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none shrink-0"
+                      className="p-2.5 rounded-full bg-[#FF5D1E]/10 text-[#FF5D1E] hover:bg-[#FF5D1E]/20 transition-colors focus:outline-none shrink-0 cursor-pointer border border-[#FF5D1E]/20 shadow-[0_0_15px_rgba(255,93,30,0.15)]"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -2488,58 +2499,67 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
                         {/* URL address row with copy and open actions */}
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                          <div className="bg-[#12131a] border border-white/5 px-3 py-2 rounded-xl flex items-center gap-2 flex-1 min-w-0 font-mono text-xs text-zinc-400 justify-between">
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <Globe className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-                              <span className="truncate">
-                                {selectedLandingPageTab === "captacion" 
-                                  ? (createdPageSubdomain || "microblading.aprende.marketing")
-                                  : (createdPageSubdomain ? `${createdPageSubdomain}/gracias` : "microblading.aprende.marketing/gracias")}
-                              </span>
-                            </div>
-                            <button
-                              onClick={() => {
-                                const urlToCopy = selectedLandingPageTab === "captacion"
-                                  ? getPageUrl()
-                                  : getPageUrl() + (createdPageSubdomain ? "/gracias" : "");
-                                navigator.clipboard.writeText(urlToCopy);
-                                setCopiedUrl(true);
-                                setTimeout(() => setCopiedUrl(false), 2000);
-                              }}
-                              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-all duration-200 active:scale-95 shrink-0 cursor-pointer"
-                              title="Copiar enlace"
-                            >
-                              {copiedUrl ? (
-                                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                              ) : (
-                                <Copy className="w-3.5 h-3.5" />
-                              )}
-                            </button>
-                          </div>
+                          {(() => {
+                            const subdomainPart = createdPageSubdomain ? createdPageSubdomain.split(".")[0] : "microblading-demo";
+                            const displayedUrl = selectedLandingPageTab === "captacion"
+                              ? `aprende.marketing/admin/lp/${subdomainPart}`
+                              : `aprende.marketing/admin/lp/${subdomainPart}/gracias`;
+                            const absoluteUrl = selectedLandingPageTab === "captacion"
+                              ? `https://aprende.marketing/admin/lp/${subdomainPart}`
+                              : `https://aprende.marketing/admin/lp/${subdomainPart}/gracias`;
+                            
+                            return (
+                              <>
+                                <div className="bg-[#12131a] border border-white/5 px-3 py-2 rounded-xl flex items-center gap-2 flex-1 min-w-0 font-mono text-xs text-zinc-400 justify-between">
+                                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                                    <Globe className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                                    <span className="truncate">
+                                      {displayedUrl}
+                                    </span>
+                                  </div>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(absoluteUrl);
+                                      setCopiedUrl(true);
+                                      setTimeout(() => setCopiedUrl(false), 2000);
+                                    }}
+                                    className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-all duration-200 active:scale-95 shrink-0 cursor-pointer"
+                                    title="Copiar enlace"
+                                  >
+                                    {copiedUrl ? (
+                                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                    ) : (
+                                      <Copy className="w-3.5 h-3.5" />
+                                    )}
+                                  </button>
+                                </div>
 
-                          <div className="flex items-center gap-2 shrink-0">
-                            {/* Abrir página */}
-                            <a
-                              href={selectedLandingPageTab === "captacion" ? getPageUrl() : getPageUrl() + (createdPageSubdomain ? "/gracias" : "")}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="px-4 py-2.5 rounded-xl bg-[#FF5A1F] hover:bg-[#FF5A1F]/90 text-white text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-1.5 shadow-lg active:scale-95"
-                            >
-                              <span>Abrir página</span>
-                              <ArrowUpRight className="w-3.5 h-3.5" />
-                            </a>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  {/* Abrir página */}
+                                  <a
+                                    href={absoluteUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="px-4 py-2.5 rounded-xl bg-[#FF5A1F] hover:bg-[#FF5A1F]/90 text-white text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-1.5 shadow-lg active:scale-95"
+                                  >
+                                    <span>Abrir página</span>
+                                    <ArrowUpRight className="w-3.5 h-3.5" />
+                                  </a>
 
-                            {/* Editar página */}
-                            <a
-                              href={window.location.hash.startsWith('#/') ? `#/dashboard/editor/${activePage?.id}` : `/dashboard/editor/${activePage?.id}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-zinc-300 text-xs font-bold uppercase transition-all duration-300 items-center gap-1.5 active:scale-95"
-                            >
-                              <Pencil className="w-3.5 h-3.5 text-zinc-400" />
-                              <span>Editar página</span>
-                            </a>
-                          </div>
+                                  {/* Editar página */}
+                                  <a
+                                    href={window.location.hash.startsWith('#/') ? `#/dashboard/editor/${activePage?.id}` : `/dashboard/editor/${activePage?.id}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-zinc-300 text-xs font-bold uppercase transition-all duration-300 items-center gap-1.5 active:scale-95"
+                                  >
+                                    <Pencil className="w-3.5 h-3.5 text-zinc-400" />
+                                    <span>Editar página</span>
+                                  </a>
+                                </div>
+                              </>
+                            );
+                          })()}
                         </div>
 
                         {/* Grid container with Iframe and right-side cards */}
@@ -2556,9 +2576,12 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                               
                               {/* Address bar mockup */}
                               <div className="bg-zinc-950/80 text-[10px] text-zinc-400 px-3 py-1 rounded-md mx-auto w-64 md:w-80 truncate text-center font-mono">
-                                {selectedLandingPageTab === "captacion"
-                                  ? (createdPageSubdomain || "microblading.aprende.marketing")
-                                  : (createdPageSubdomain ? `${createdPageSubdomain}/gracias` : "microblading.aprende.marketing/gracias")}
+                                {(() => {
+                                  const subdomainPart = createdPageSubdomain ? createdPageSubdomain.split(".")[0] : "microblading-demo";
+                                  return selectedLandingPageTab === "captacion"
+                                    ? `aprende.marketing/admin/lp/${subdomainPart}`
+                                    : `aprende.marketing/admin/lp/${subdomainPart}/gracias`;
+                                })()}
                               </div>
                             </div>
 
@@ -2578,26 +2601,26 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                             {/* Card 2: Rendimiento */}
                             <div className="p-5 bg-gradient-to-b from-[#111116] to-[#08080c] border border-white/5 rounded-2xl text-left space-y-4 flex-1 flex flex-col justify-between min-h-[210px]">
                               <div className="space-y-4">
-                                <h5 className="text-[11px] font-black uppercase text-zinc-400 tracking-wider">
-                                  Rendimiento
+                                <h5 className="text-[12px] font-black uppercase text-zinc-400 tracking-widest">
+                                  RENDIMIENTO
                                 </h5>
 
-                                <div className="grid grid-cols-3 gap-2">
-                                  <div className="bg-black/40 border border-white/[0.03] p-2 rounded-xl text-center">
-                                    <div className="text-[10px] text-zinc-500 uppercase font-black leading-none">Visitas</div>
-                                    <div className="text-sm font-black text-white mt-1.5 leading-none">
+                                <div className="grid grid-cols-3 gap-3">
+                                  <div className="bg-black/50 border border-white/[0.05] p-4 rounded-xl text-center flex flex-col justify-between">
+                                    <div className="text-[10px] text-zinc-400 uppercase font-black tracking-widest leading-none">VISITAS</div>
+                                    <div className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white mt-2.5 leading-none">
                                       {selectedLandingPageTab === "captacion" ? (activePage?.visits ?? 487) : Math.round((activePage?.visits ?? 487) * 0.12)}
                                     </div>
                                   </div>
-                                  <div className="bg-black/40 border border-white/[0.03] p-2 rounded-xl text-center">
-                                    <div className="text-[10px] text-zinc-500 uppercase font-black leading-none">Registros</div>
-                                    <div className="text-sm font-black text-white mt-1.5 leading-none">
+                                  <div className="bg-black/50 border border-white/[0.05] p-4 rounded-xl text-center flex flex-col justify-between">
+                                    <div className="text-[10px] text-zinc-400 uppercase font-black tracking-widest leading-none">REGISTROS</div>
+                                    <div className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white mt-2.5 leading-none">
                                       {selectedLandingPageTab === "captacion" ? (activePage?.conversions ?? 12) : 0}
                                     </div>
                                   </div>
-                                  <div className="bg-black/40 border border-white/[0.03] p-2 rounded-xl text-center">
-                                    <div className="text-[10px] text-zinc-500 uppercase font-black leading-none">Conversión</div>
-                                    <div className="text-sm font-black text-white mt-1.5 leading-none">
+                                  <div className="bg-black/50 border border-white/[0.05] p-4 rounded-xl text-center flex flex-col justify-between">
+                                    <div className="text-[10px] text-zinc-400 uppercase font-black tracking-widest leading-none">CONVERSIÓN</div>
+                                    <div className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white mt-2.5 leading-none">
                                       {selectedLandingPageTab === "captacion" 
                                         ? (((activePage?.conversions ?? 12) / (activePage?.visits ?? 487)) * 100).toFixed(2).replace('.', ',') + "%"
                                         : "100%"
@@ -3143,771 +3166,497 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
                 {activeDetailsDrawer === "hooks" &&
                   (() => {
-                    const displayHooks =
-                      unlockedHooks.length > 0
-                        ? unlockedHooks
-                        : strategyData?.modules?.hooks || [];
-                    const initialHooks =
-                      displayHooks.length >= 3
-                        ? displayHooks
-                        : topDefaultHooksList;
+                    const exactDefaultHooks = [
+                      {
+                        title: "¿Te gustaría aprender una técnica de belleza que puedes comenzar desde cero?",
+                        category: "🔑 Oportunidad",
+                        categoryLabel: "Oportunidad",
+                        psychologicalStrategy: "Este hook despierta curiosidad al ofrecer una oportunidad clara y alcanzable. Habla directamente al deseo de aprender y mejorar, lo que genera una conexión inmediata con principiantes y personas en búsqueda de algo nuevo. Ideal para atraer miradas en los primeros segundos.",
+                        contentJson: {
+                          script: "Saca más citas al día sin terminar con dolor de espalda. La nivelación perfecta se logra con gravedad...\nEvita el limado excesivo y asegura sets de uña resistentes por más de 4 semanas.\n\nEscribe GEL en comentarios y te paso el link de registro gratuito a la masterclass de hoy.\n",
+                          ads: "🚀 Graba videos de impacto con el celular que ya tienes. Te revelo la iluminación dorada estética gratuita hoy. 👇\n\n🔗 [LINK DE TU LANDING]",
+                          thumbs: ["https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=600&auto=format&fit=crop"]
+                        }
+                      },
+                      {
+                        title: "¿Cansada de invertir en cursos que no te enseñan lo que realmente necesitas?",
+                        category: "⚠️ Problema",
+                        categoryLabel: "Problema",
+                        psychologicalStrategy: "Este hook conecta directamente con la frustración común de perder tiempo y dinero en capacitaciones incompletas. Al validar este dolor, posiciona tu método como la solución definitiva y honesta que estaban buscando.",
+                        contentJson: {
+                          script: "¿Cansada de invertir en cursos que no te enseñan lo que realmente necesitas?\nDescubre la metodología práctica sin rodeos que te dará resultados reales desde el primer día.",
+                          ads: "💅 ¿Sigues limando por horas hasta que te duelen las manos? Te enseño el truco magnético del gel autonivelante. 👇\n\n🔗 [LINK DE TU LANDING]",
+                          thumbs: ["https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=600&auto=format&fit=crop"]
+                        }
+                      },
+                      {
+                        title: "La técnica de microblading puede transformar tu futuro profesional.",
+                        category: "🎓 Educación",
+                        categoryLabel: "Educación",
+                        psychologicalStrategy: "Este hook de carácter educativo e inspiracional muestra el potencial de crecimiento a largo plazo. Inspira confianza y abre la puerta a la autorrealización profesional en el sector estético.",
+                        contentJson: {
+                          script: "La técnica de microblading puede transformar tu futuro profesional.\nAprende de manera estructurada y con acompañamiento constante el arte que está revolucionando la estética.",
+                          ads: "💼 Deja de atender a pérdida en tu sala. Te muestro el plano de escalamiento para estudios de cejas. Cupos limitados. 👇\n\n🔗 [LINK DE TU LANDING]",
+                          thumbs: ["https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600&auto=format&fit=crop"]
+                        }
+                      },
+                      {
+                        title: "Descubre el secreto que usan las expertas para lograr resultados naturales y duraderos.",
+                        category: "🔑 Oportunidad",
+                        categoryLabel: "Oportunidad",
+                        isLocked: true,
+                        psychologicalStrategy: "Este gancho de alta conversión está bloqueado.",
+                        contentJson: { script: "", ads: "", thumbs: [] }
+                      },
+                      {
+                        title: "3 errores que te están costando tiempo y dinero en tu negocio de belleza.",
+                        category: "⚠️ Problema",
+                        categoryLabel: "Problema",
+                        isLocked: true,
+                        psychologicalStrategy: "Este gancho de alta conversión está bloqueado.",
+                        contentJson: { script: "", ads: "", thumbs: [] }
+                      }
+                    ];
 
-                    // Amplify hooks list to have exactly 5 or more hooks, ensuring a rich layout
-                    const amplifiedHooksList = initialHooks.map((h: any, idx: number) => ({
-                      ...h,
-                      uniqueId: `hook-${idx}`
-                    }));
-                    const defaultAdditions = isManicurista
-                      ? [
-                          {
-                            title: "La técnica de nivelación con gel de construcción que reduce tu tiempo de limado a la mitad sin perder resistencia.",
-                            psychologicalStrategy: "Apela al deseo de eficiencia laboral, reducción del cansancio físico de la manicurista y mejora de la durabilidad.",
-                            contentJson: {
-                              script: "Saca más citas al día sin terminar con dolor de espalda. La nivelación perfecta se logra con gravedad...\nEvita el limado excesivo y asegura sets de uña resistentes por más de 4 semanas.\n\nEscribe GEL en comentarios y te paso el link de registro gratuito a la masterclass de hoy.\n",
-                              ads: "💅 ¿Sigues limando por horas hasta que te duelen las manos? Te enseño el truco magnético del gel autonivelante. 👇\n\n🔗 [LINK DE TU LANDING]",
-                              thumbs: ["Nivelación en un Paso 💅", "Adiós al Limado Eterno ⏳", "Estructura Fina y Fuerte 💪"]
-                            }
+                    const defaultHooksSource = unlockedHooks.length > 0 ? unlockedHooks : (strategyData?.modules?.hooks || []);
+                    const amplifiedHooksList = exactDefaultHooks.map((h: any, idx: number) => {
+                      const realHook = defaultHooksSource[idx];
+                      if (realHook && idx < 3) {
+                        return {
+                          ...h,
+                          title: realHook.title || h.title,
+                          psychologicalStrategy: realHook.psychologicalStrategy || h.psychologicalStrategy,
+                          contentJson: {
+                            ...h.contentJson,
+                            ...(realHook.contentJson || {})
                           },
-                          {
-                            title: "Uñas Esculpidas Modernas: El paso a paso para pasar de principiante a artista cotizada en menos de 30 días.",
-                            psychologicalStrategy: "Propone un camino claro de auto-superación y escalabilidad técnica para captar clientes que aprecian el valor artístico.",
-                            contentJson: {
-                              script: "El secreto de la simetría perfecta no es el talento, es la fórmula de proporciones geométricas.\nAprende a modelar moldes perfectos en tiempo récord.\n\nToca el link para reclamar tu mentoría gratuita de hoy misma.\n",
-                              ads: "🚀 De aficionada a artista de uñas de élite. Accede hoy al taller interactivo de esculpido profesional gratis. 👇\n\n🔗 [LINK DE TU LANDING]",
-                              thumbs: ["Uñas Esculpidas Pro 💎", "Ruta de 30 Días 📈", "Sé una manicurista Top 👑"]
-                            }
-                          }
-                        ]
-                      : isMicroblading
-                        ? [
-                            {
-                              title: "El secreto para retener el pigmento en pieles grasas hasta por 18 meses sin retoques constantes.",
-                              psychologicalStrategy: "Neutraliza la objeción técnica más común en microblading (durabilidad en piel grasa) demostrando autoridad clínica.",
-                              contentJson: {
-                                script: "Si tus clientas con piel grasa pierden el color a los 3 meses, estás cometiendo este error crucial en la profundidad.\nNo presiones de más, regula de acuerdo con la agudeza epidérmica.\n\nEscribe TRAZO en comentarios para ver la clase práctica en alta definición hoy mismo.\n",
-                                ads: "🤫 Retención perfecta de pigmento en pieles grasas. Te revelo el secreto de ángulo y profundidad sin costo. 👇\n\n🔗 [LINK DE TU LANDING]",
-                                thumbs: ["Retención de 18 Meses ⏳", "Piel Grasa Sin Problemas 🌟", "Ciencia del Pigmento 🔬"]
-                              }
-                            },
-                            {
-                              title: "De la camilla casera al Studio de Cejas: Cómo escalar tu negocio estético sin requerir grandes inversiones iniciales.",
-                              psychologicalStrategy: "Impulsa el escalamiento, la mentalidad empresarial y la transición a un espacio profesional seguro y rentable.",
-                              contentJson: {
-                                script: "Montar un estudio de cejas de alto ticket no requiere miles de dólares, lo que requiere es posicionamiento.\nAtiende clientes selectivos en lugar de regalar promociones baratas.\n\nToca el enlace destacado para conocer la hoja de ruta gratuita.\n",
-                                ads: "💼 Deja de atender a pérdida en tu sala. Te muestro el plano de escalamiento para estudios de cejas. Cupos limitados. 👇\n\n🔗 [LINK DE TU LANDING]",
-                                thumbs: ["Escala tu Studio de Cejas 🏢", "De Camilla a Negocio 📈", "Atrae Clientes VIP Hoy 💰"]
-                              }
-                            }
-                          ]
-                        : [
-                            {
-                              title: "El método de diagnóstico personalizado de piel que incrementa un 40% la venta de productos adicionales.",
-                              psychologicalStrategy: "Combina autoridad clínica con incremento del margen de facturación secundaria en el consultorio estético.",
-                              contentJson: {
-                                script: "No vendas cremas, vende tratamientos basados en la lectura dactilar de lípidos epidérmicos.\nUna vez que demuestres el estado clínico del rostro, la conversión de productos es automática.\n\nÚnete a nuestra masterclass gratis tocando el enlace de la bío hoy.\n",
-                                ads: "💅 ¿Quieres incrementar tu ticket promedio sin esfuerzo? Implementa el diagnóstico dactilar. Te enseño cómo gratis. 👇\n\n🔗 [LINK DE TU LANDING]",
-                                thumbs: ["Diagnóstico que Vende 🔬", "Aumenta 40% Tu Facturación 📈", "Consultoría Inteligente 💡"]
-                              }
-                            },
-                            {
-                              title: "Belleza y Redes Sociales: Cómo crear videos magnéticos con tu celular que llenen tu agenda de consultorio.",
-                              psychologicalStrategy: "Elimina la barrera técnica de cámaras costosas enseñando producción ágil con teléfono móvil enfocado en el cliente ideal.",
-                              contentJson: {
-                                script: "No necesitas una cámara de cine para grabar videos virales de belleza, necesitas iluminación lateral y claridad.\nHabla de lo que tu cliente siente en el espejo y no de tecnicismos complejos.\n\nEscribe VIDEO para enviarte el tutorial directo gratis hoy.\n",
-                                ads: "🚀 Graba videos de impacto con el celular que ya tienes. Te revelo la iluminación dorada estética gratuita hoy. 👇\n\n🔗 [LINK DE TU LANDING]",
-                                thumbs: ["Videos Virales con Celular 📱", "Iluminación Dorada 💡", "Agenda Llena Hoy 📅"]
-                              }
-                            }
-                          ];
-
-                    // Ensure we have at least 5 items
-                    let addIdx = amplifiedHooksList.length;
-                    while (amplifiedHooksList.length < 5) {
-                      const nextAddition = defaultAdditions[amplifiedHooksList.length % defaultAdditions.length];
-                      amplifiedHooksList.push({
-                        ...nextAddition,
-                        uniqueId: `hook-${addIdx++}`
-                      });
-                    }
-
-                    // Apply search filter
-                    const filteredHooks = amplifiedHooksList.filter((h: any) => {
-                      const titleText = (h.title || h.hookText || h.text || h.question || "").toLowerCase();
-                      return titleText.includes(hookSearchSearchText.toLowerCase());
+                          uniqueId: `hook-${idx}`
+                        };
+                      }
+                      return {
+                        ...h,
+                        uniqueId: `hook-${idx}`
+                      };
                     });
 
-                    // Select active hook
-                    const activeHook = selectedHookForDrawer || filteredHooks[0] || amplifiedHooksList[0];
+                    // Select active hook (null by default if none selected)
+                    const activeHook = selectedHookForDrawer;
+                    const activeHookIdx = activeHook ? amplifiedHooksList.findIndex((h: any) => h.uniqueId === activeHook?.uniqueId) : -1;
+                    const isActiveHookLocked = activeHook ? (activeHookIdx >= 3) : false;
 
-                    if (!activeHook) return null;
-
-                    const activeHookIdx = amplifiedHooksList.findIndex((h: any) => h.uniqueId === activeHook?.uniqueId);
-                    const isActiveHookLocked = activeHookIdx >= 3;
-
-                    const hTitle =
-                      activeHook.title ||
-                      activeHook.hookText ||
-                      activeHook.text ||
-                      activeHook.question ||
-                      "Video Hook";
-                    const hStrategy =
-                      activeHook.psychologicalStrategy ||
-                      activeHook.strategy ||
-                      "Estrategia de persuasión enfocada en enganchar al avatar en los primeros 3 segundos.";
-                    const cJson = activeHook.contentJson || {};
+                    const hTitle = activeHook ? (activeHook.title || "Video Hook") : "";
+                    const hStrategy = activeHook ? (activeHook.psychologicalStrategy || "Estrategia de persuasión enfocada en enganchar al avatar en los primeros 3 segundos.") : "";
+                    const cJson = activeHook ? (activeHook.contentJson || {}) : {};
                     const scriptText = cJson.script || "";
                     const adsText = cJson.ads || "";
-                    const thumbsList = cJson.thumbs || [];
+                    const activeCategoryLabel = activeHookIdx === 0 ? "OPORTUNIDAD" : activeHookIdx === 1 ? "PROBLEMA" : activeHookIdx === 2 ? "EDUCACIÓN" : activeHookIdx >= 3 ? "PREMIUM" : "";
 
                     return (
-                      <div className="flex flex-col lg:flex-row h-full min-h-[85vh] text-left relative overflow-hidden bg-[#040406] divide-y lg:divide-y-0 lg:divide-x divide-white/[0.04] animate-fade-in font-sans">
-                        {/* COLUMNA IZQUIERDA (Lista de Ganchos) */}
-                        <div className="w-full lg:w-[32%] flex flex-col justify-between bg-[#07070a] relative overflow-hidden shrink-0">
-                          <div>
-                            {/* Left Column Header Info */}
-                            <div className="p-6 pb-4 space-y-4 border-b border-white/[0.04]">
-                              {/* Section Title premium */}
-                              <div className="flex items-start gap-3 mt-2">
-                                <div className="w-9 h-9 rounded-xl bg-[#FF5D1E]/10 border border-[#FF5D1E]/20 flex items-center justify-center text-[#FF5D1E] shrink-0">
-                                  <svg className="w-4 h-4 fill-current stroke-none" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z" />
-                                  </svg>
-                                </div>
-                                <div className="space-y-1">
-                                  <h3 className="text-base md:text-lg font-black text-white uppercase tracking-tight">
-                                    Ganchos de Atracción
-                                  </h3>
-                                  <p className="text-white font-light text-xs sm:text-sm leading-relaxed mt-1 animate-fade-in-up">
-                                    Diseñados para captar la atención en los primeros 3 segundos y aumentar el alcance orgánico en Reels y TikTok.
-                                  </p>
-                                </div>
-                              </div>
+                      <div className="flex flex-col h-full min-h-[85vh] text-left relative overflow-hidden bg-[#040406] animate-fade-in font-sans">
+                        {/* CABECERA HORIZONTAL DE ANCHO COMPLETO */}
+                        <div className="p-6 pb-5 border-b border-white/[0.04] bg-[#0e0e14]/80 backdrop-blur-md flex items-center justify-between">
+                          <div className="flex items-center gap-4 text-left">
+                            <div className="w-11 h-11 rounded-full bg-gradient-to-r from-orange-500 to-rose-600 flex items-center justify-center text-white shrink-0 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
+                              <svg className="w-5 h-5 fill-current stroke-none pl-0.5" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
                             </div>
-
-                            {/* Controls and Stats under Header */}
-                            <div className="p-6 pb-4">
-                              {/* Header Label and counter */}
-                              <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-black text-white uppercase tracking-wider">
-                                  Lista de hooks generados
-                                </span>
-                                <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-extrabold text-emerald-400">
-                                  3/30 Hooks Generados
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Scrollable list of hook cards */}
-                            <div className="p-6 pt-0 space-y-2.5 max-h-[460px] overflow-y-auto custom-scrollbar">
-                              {amplifiedHooksList.length > 0 ? (
-                                amplifiedHooksList.map((hItem: any, hIdx: number) => {
-                                  const isSelected = hItem.uniqueId === activeHook?.uniqueId;
-                                  const hookTitleStr = hItem.title || hItem.hookText || hItem.text || hItem.question || `Video Hook #${hIdx + 1}`;
-                                  
-                                  const hIdxActive = hIdx < 3;
-                                  const cardStyle = hIdxActive
-                                    ? (isSelected
-                                        ? "bg-[#0d2216]/90 border-emerald-500 shadow-[inset_0_1px_1px_rgba(255,255,255,0.03),0_0_15px_rgba(16,185,129,0.25)] hover:border-emerald-400"
-                                        : "bg-emerald-500/[0.02] border-emerald-500/10 hover:bg-emerald-500/5 hover:border-emerald-500/20")
-                                    : (isSelected
-                                        ? "bg-[#241b0a] border-amber-500 shadow-[inset_0_1px_1px_rgba(255,255,255,0.03),0_0_15px_rgba(245,158,11,0.25)] hover:border-amber-400"
-                                        : "bg-amber-500/[0.01] border-amber-500/10 hover:bg-amber-500/[0.03] hover:border-amber-500/20");
-
-                                  return (
-                                    <div
-                                      key={hIdx}
-                                      onClick={() => {
-                                        setSelectedHookForDrawer(hItem);
-                                        setActiveHookTab("Gancho");
-                                      }}
-                                      className={`w-full p-4 rounded-2xl border text-left cursor-pointer transition-all duration-300 relative group flex gap-3.5 ${cardStyle}`}
-                                    >
-                                      {/* Clean White Desk Calendar Sheet */}
-                                      <div className="w-11 h-11 rounded-lg bg-white border border-white/10 flex flex-col overflow-hidden shrink-0 shadow-md">
-                                        <div className={`${hIdxActive ? "bg-emerald-500" : "bg-amber-500"} text-[8px] font-black text-center text-white py-0.5 leading-none uppercase tracking-wider font-sans select-none`}>
-                                          DÍA
-                                        </div>
-                                        <div className="flex-1 flex items-center justify-center bg-white text-zinc-950 font-black text-xs leading-none font-sans select-none">
-                                          {hIdx + 1}
-                                        </div>
-                                      </div>
-
-                                      {/* Text block */}
-                                      <div className="flex-1 min-w-0 space-y-1.5">
-                                        <h4 className={`text-xs md:text-sm leading-snug transition-colors duration-200 break-words whitespace-normal line-clamp-none ${
-                                          isSelected ? "text-white font-extrabold" : "text-zinc-300 font-normal group-hover:text-white"
-                                        }`}>
-                                          {hookTitleStr}
-                                        </h4>
-                                        <div className="flex items-center gap-2">
-                                          {hIdxActive ? (
-                                            <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[8px] font-extrabold text-emerald-400 tracking-wider uppercase select-none">
-                                              ACTIVO
-                                            </span>
-                                          ) : (
-                                            <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-[8px] font-extrabold text-amber-500 tracking-wider uppercase select-none">
-                                              BLOQUEADO
-                                            </span>
-                                          )}
-                                        </div>
-                                      </div>
-
-                                      {/* Chevron right */}
-                                      <ChevronRight className={`w-4 h-4 my-auto shrink-0 transition-all ${
-                                        isSelected 
-                                          ? (hIdxActive ? "text-emerald-400 translate-x-0.5" : "text-amber-400 translate-x-0.5") 
-                                          : (hIdxActive ? "text-zinc-500 group-hover:text-emerald-400" : "text-zinc-500 group-hover:text-amber-500")
-                                      }`} />
-                                    </div>
-                                  );
-                                })
-                              ) : (
-                                <p className="text-xs text-zinc-500 text-center py-6">No se encontraron hooks...</p>
-                              )}
+                            <div className="space-y-1 text-left">
+                              <h3 className="text-xl md:text-2xl font-extrabold text-white tracking-tight leading-none">
+                                Hooks de atracción
+                              </h3>
+                              <p className="text-zinc-400 font-normal text-xs md:text-sm leading-relaxed max-w-xl">
+                                Hooks y videos preparados para captar atención durante los primeros segundos y dirigir personas hacia tu página.
+                              </p>
                             </div>
                           </div>
-
-                          {/* Truncated bottom row "Ver 15 remaining" */}
-                          <div className="p-6 pt-2 border-t border-white/[0.04] bg-[#09090c]/40">
-                            <div className="p-4 bg-gradient-to-r from-red-500/5 to-transparent border border-red-500/10 rounded-2xl flex items-center justify-between opacity-80 hover:opacity-100 transition-opacity">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-red-400/10 flex items-center justify-center text-red-400 shrink-0">
-                                  <Lock className="w-4 h-4" />
-                                </div>
-                                <div className="text-left">
-                                  <h5 className="text-xs font-black text-white uppercase tracking-wider">
-                                    Ver 15 hooks restantes
-                                  </h5>
-                                  <p className="text-white font-light text-xs sm:text-sm mt-0.5 leading-snug animate-fade-in-up">
-                                    Desbloquea todos los ganchos generados este mes.
-                                  </p>
-                                </div>
-                              </div>
-                              <ChevronRight className="w-4 h-4 text-zinc-500" />
-                            </div>
-                          </div>
+                          
+                          {/* Unified Premium Close Button (X) */}
+                          <button
+                            onClick={() => {
+                              if (activeHook) {
+                                setSelectedHookForDrawer(null); // Return to list view
+                              } else {
+                                setActiveDetailsDrawer(null); // Close entire drawer
+                              }
+                            }}
+                            className="p-2 rounded-full border border-white/10 text-zinc-400 hover:text-white hover:bg-white/5 transition-all shrink-0 cursor-pointer"
+                            title="Cerrar panel"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
                         </div>
 
-                        {/* COLUMNA DERECHA (Pestañas de control y Ficha Técnica Detallada) */}
-                        <div className="flex-1 flex flex-col justify-between overflow-y-auto">
-                          <div>
-                            {/* Floating Top Stats Widgets */}
-                            <div className="flex items-center justify-between gap-4 p-6 border-b border-white/[0.04] bg-[#0c0c10]/30 backdrop-blur-md flex-wrap">
-                              {/* Unified Premium Subscription Widget - Aligned right */}
-                              <div className="flex items-center gap-5 bg-gradient-to-r from-amber-500/5 to-[#FF5D1E]/5 border border-white/10 rounded-2xl py-2 px-5 shadow-[0_4px_30px_rgba(255,93,30,0.05)] backdrop-blur-sm ml-auto">
-                                <div className="flex items-center gap-3">
-                                  {/* Gold/Orange Glowing Crown */}
-                                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-600/20 border border-amber-500/30 flex items-center justify-center text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.25)] select-none">
-                                    <Crown className="w-4.5 h-4.5 active:scale-95" />
-                                  </div>
-                                  <div className="text-left">
-                                    <h4 className="text-xs font-bold text-white tracking-wide leading-none">
-                                      Estás usando el Plan <span className="text-amber-400 font-extrabold uppercase">GRATIS</span>
-                                    </h4>
-                                    <p className="text-white font-light text-xs sm:text-sm mt-1 leading-none animate-fade-in-up">
-                                      Tienes acceso a <span className="text-white font-medium">3 de 30 hooks mensuales</span>
-                                    </p>
-                                  </div>
+                        {/* CONTENEDOR DE DOS COLUMNAS */}
+                        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden divide-y lg:divide-y-0 lg:divide-x divide-white/[0.04]">
+                          {/* COLUMNA IZQUIERDA (Lista de Ganchos) */}
+                          <div className={`w-full ${activeHook ? "lg:w-[35%]" : ""} flex flex-col justify-between bg-[#07070a] relative overflow-hidden shrink-0`}>
+                            <div className="flex-1 flex flex-col overflow-hidden">
+                              {/* Plan free indicator with Gift Icon */}
+                              <div className="p-6 pb-3 border-b border-white/[0.02]">
+                                <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs md:text-sm uppercase tracking-wider select-none">
+                                  <Gift className="w-4 h-4 text-emerald-400 shrink-0" />
+                                  <span>Plan gratuito · 3 de 3 hooks disponibles</span>
                                 </div>
-                                <button
-                                  onClick={() => setShowUpgradeModal(true)}
-                                  className="px-4 py-1.5 border border-[#FF5D1E] text-[#FF5D1E] hover:bg-[#FF5D1E]/10 rounded-full text-[11px] font-bold tracking-wide transition-all duration-300 shadow-[0_0_10px_rgba(255,93,30,0.05)] active:scale-95 cursor-pointer"
-                                >
-                                  Ver planes
-                                </button>
                               </div>
-                            </div>
 
-                            {/* Hook Title Card Container */}
-                            <div className="p-6 md:p-8 pb-3">
-                              <div className="p-6 md:p-8 bg-[#14141c]/50 border border-white/5 rounded-[2.5rem] relative overflow-hidden space-y-4">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF5D1E]/5 blur-3xl rounded-full"></div>
-                                <div className="flex items-center justify-between gap-4">
-                                  <span className="text-[9px] font-black uppercase text-[#FF5A1F] tracking-widest bg-[#FF5A1F]/10 px-2 py-0.5 rounded select-none">
-                                    HOOK SELECCIONADO
-                                  </span>
-                                  <button
-                                    onClick={() => {
-                                      navigator.clipboard.writeText(hTitle);
-                                      alert("¡Hook copiado al portapapeles!");
-                                    }}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-[10px] font-black text-zinc-300 hover:text-white tracking-wide uppercase transition-colors cursor-pointer select-none"
-                                  >
-                                    <Copy className="w-3.5 h-3.5 text-zinc-400" /> Copiar hook
-                                  </button>
-                                </div>
-                                <h2 className="text-lg md:text-xl xl:text-2xl font-black text-white tracking-tight leading-snug font-sans">
-                                  ¿{hTitle.replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?
-                                </h2>
-                              </div>
-                            </div>
+                              {/* Scrollable list of hook cards */}
+                              <div className="p-6 space-y-3 overflow-y-auto custom-scrollbar flex-1 max-h-[calc(100vh-280px)]">
+                                {amplifiedHooksList.length > 0 ? (
+                                  <>
+                                    {amplifiedHooksList.map((hItem: any, hIdx: number) => {
+                                      const isSelected = hItem.uniqueId === activeHook?.uniqueId;
+                                      const hookTitleStr = hItem.title || `Video Hook #${hIdx + 1}`;
+                                      const hIdxActive = hIdx < 3;
+                                      
+                                      const cardStyle = hIdxActive
+                                        ? (isSelected
+                                            ? "bg-[#0c0c11] border-emerald-500/80 shadow-[0_0_15px_rgba(16,185,129,0.15)] hover:border-emerald-400"
+                                            : "bg-[#0e0e14]/50 border-white/[0.03] hover:bg-[#0e0e14]/90 hover:border-white/10")
+                                        : (isSelected
+                                            ? "bg-[#0c0c11] border-amber-500/60 shadow-[0_0_15px_rgba(245,158,11,0.15)]"
+                                            : "bg-[#0e0e14]/20 border-white/[0.02] hover:bg-[#0e0e14]/40");
 
-                            {/* Horizontal Tabs Row */}
-                            {!isActiveHookLocked && (
-                              <div className="px-6 md:px-8">
-                                <div className="flex items-center gap-1 overflow-x-auto pb-1.5 border-b border-white/[0.04] custom-scrollbar">
-                                  {["Gancho", "Psicología", "Guión de Video", "Copy para Anuncio", "CTA Sugerido", "Variaciones"].map((tab) => {
-                                    const isActive = activeHookTab === tab;
-                                    return (
+                                      return (
+                                        <div
+                                          key={hIdx}
+                                          onClick={() => {
+                                            setSelectedHookForDrawer(hItem);
+                                            setActiveHookTab("Gancho");
+                                          }}
+                                          className={`w-full p-4 rounded-2xl border text-left cursor-pointer transition-all duration-300 relative group flex flex-col gap-2.5 ${cardStyle}`}
+                                        >
+                                          {/* Top Category Label */}
+                                          <div className="flex items-center justify-between">
+                                            <span className="text-[10px] md:text-xs font-semibold text-[#E4B34F] uppercase tracking-wider">
+                                              {hIdx === 0 ? "🔑 Oportunidad" : hIdx === 1 ? "⚠️ Problema" : hIdx === 2 ? "🎓 Educación" : "🔒 Premium"}
+                                            </span>
+                                          </div>
+
+                                          <div className="flex gap-3.5 items-start">
+                                            {/* Left Badge: HOOK X vs PRO */}
+                                            {hIdxActive ? (
+                                              <div className="px-2 py-1 rounded bg-emerald-600 text-white font-black text-[10px] tracking-wider uppercase shrink-0 leading-none">
+                                                HOOK {hIdx + 1}
+                                              </div>
+                                            ) : (
+                                              <div className="px-2 py-1 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold text-[10px] tracking-wider uppercase shrink-0 leading-none">
+                                                PRO
+                                              </div>
+                                            )}
+
+                                            {/* Text block */}
+                                            <div className="flex-1 min-w-0">
+                                              <h4 className={`text-xs sm:text-sm font-bold leading-tight text-left transition-colors duration-200 break-words whitespace-normal line-clamp-3 ${
+                                                isSelected ? "text-white" : "text-zinc-300 group-hover:text-white"
+                                              }`}>
+                                                {hookTitleStr}
+                                              </h4>
+                                              
+                                              {hIdxActive && (
+                                                <div className="flex items-center gap-2 mt-2">
+                                                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-bold text-emerald-400 tracking-wider uppercase">
+                                                    Disponible
+                                                  </span>
+                                                </div>
+                                              )}
+                                            </div>
+
+                                            {/* Locked vs Active Icon */}
+                                            {hIdxActive ? (
+                                              <ChevronRight className={`w-4 h-4 my-auto shrink-0 transition-all ${
+                                                isSelected ? "text-emerald-400 translate-x-0.5" : "text-zinc-500 group-hover:text-emerald-400"
+                                              }`} />
+                                            ) : (
+                                              <Lock className="w-4 h-4 my-auto shrink-0 text-zinc-500" />
+                                            )}
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+
+                                    {/* Bottom CTA Banner (Tarjeta planes Pro) */}
+                                    <div 
+                                      onClick={() => setShowUpgradeModal(true)}
+                                      className="p-5 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent backdrop-blur-sm shadow-[0_4px_30px_rgba(245,158,11,0.05)] relative overflow-hidden flex flex-col sm:flex-row gap-4 items-center justify-between cursor-pointer group hover:border-amber-400/40 transition-all mt-4"
+                                    >
+                                      <div className="flex items-start gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                                          <Crown className="w-4 h-4" />
+                                        </div>
+                                        <div className="space-y-1 text-left">
+                                          <h5 className="text-xs sm:text-sm font-extrabold text-white leading-tight">
+                                            Desbloquea hasta 30 hooks al mes
+                                          </h5>
+                                          <p className="text-zinc-400 font-normal text-xs leading-relaxed max-w-sm">
+                                            Accede a más hooks listos para usar, nuevos ejemplos cada semana y funciones exclusivas.
+                                          </p>
+                                        </div>
+                                      </div>
                                       <button
-                                        key={tab}
-                                        onClick={() => setActiveHookTab(tab)}
-                                        className={`px-3.5 py-2 text-xs font-bold whitespace-nowrap rounded-xl transition-all cursor-pointer ${
-                                          isActive
-                                            ? "bg-[#FF5D1E] text-white shadow-md shadow-[#FF5D1E]/20"
-                                            : "bg-transparent text-zinc-400 hover:bg-white/[0.03] hover:text-white"
-                                        }`}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setShowUpgradeModal(true);
+                                        }}
+                                        className="py-1.5 px-3.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-amber-950 font-black text-[11px] uppercase tracking-wider transition-all shadow-[0_4px_10px_rgba(245,158,11,0.2)] shrink-0 cursor-pointer"
                                       >
-                                        {tab}
+                                        Ver planes Pro
                                       </button>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Active Tab Content renders */}
-                            {isActiveHookLocked ? (
-                              <div className="p-6 md:p-8 pt-5 text-center relative min-h-[380px] flex flex-col items-center justify-center rounded-3xl overflow-hidden border border-amber-500/25 bg-gradient-to-b from-[#16130c] via-[#0a0805] to-[#040402] mx-6 md:mx-8 mb-6 md:mb-8 mt-2 md:mt-3 shadow-[0_12px_45px_rgba(245,158,11,0.14)] hover:scale-[1.02] transition-all duration-300">
-                                {/* Backlit Aura */}
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-gradient-to-b from-amber-500/15 to-transparent blur-2xl rounded-full pointer-events-none" />
-
-                                {/* Blurred background content to trigger desire */}
-                                <div className="absolute inset-0 filter blur-[6px] opacity-10 pointer-events-none select-none p-6 md:p-8 space-y-6">
-                                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                                    <div className="md:col-span-8 p-6 bg-white/[0.01] border border-white/5 rounded-3xl space-y-4 text-left">
-                                      <div className="flex items-center gap-2.5">
-                                        <div className="w-4 h-4 bg-white/20 rounded-full" />
-                                        <div className="h-3 bg-white/20 rounded w-24" />
-                                      </div>
-                                      <div className="flex flex-col sm:flex-row gap-5 items-stretch">
-                                        <div className="w-[124px] h-[164px] rounded-2xl bg-zinc-900 border border-white/10 shrink-0" />
-                                        <div className="flex-1 space-y-2 py-1">
-                                          <div className="h-3 bg-white/20 rounded w-1/3" />
-                                          <div className="h-3.5 bg-white/20 rounded w-full" />
-                                          <div className="h-3 bg-white/10 rounded w-2/3" />
-                                        </div>
-                                      </div>
                                     </div>
-                                    <div className="md:col-span-4 p-6 bg-[#111116]/80 border border-white/5 rounded-3xl space-y-4 flex flex-col justify-center text-left">
-                                      <div className="h-3 bg-white/20 rounded w-2/3" />
-                                      <div className="space-y-2">
-                                        <div className="h-3.5 bg-white/20 rounded w-16" />
-                                        <div className="h-3 bg-white/10 rounded w-24" />
-                                      </div>
-                                    </div>
-                                  </div>
-                                  {/* Second row of dummy blurred blocks */}
-                                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                                    <div className="md:col-span-8 p-6 bg-white/[0.01] border border-white/5 rounded-3xl space-y-3 text-left">
-                                      <div className="h-4 bg-white/20 rounded w-1/3" />
-                                      <div className="h-3 bg-white/10 rounded w-full" />
-                                      <div className="h-3 bg-white/10 rounded w-5/6" />
-                                    </div>
-                                    <div className="md:col-span-4 p-6 bg-[#111116]/80 border border-white/5 rounded-3xl space-y-3 text-left">
-                                      <div className="h-4 bg-white/20 rounded w-1/2" />
-                                      <div className="h-3 bg-white/10 rounded w-full" />
-                                    </div>
-                                  </div>
-                                </div>
- 
-                                {/* Glowing content overlay */}
-                                <div className="relative z-10 max-w-md mx-auto space-y-6 flex flex-col items-center">
-                                  {/* Gold Lock Icon badge - Double border deluxe design */}
-                                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 p-0.5 shadow-[0_0_30px_rgba(245,158,11,0.3)] animate-pulse">
-                                    <div className="w-full h-full rounded-[14px] bg-zinc-950 flex items-center justify-center text-amber-400">
-                                      <Lock className="w-6 h-6" />
-                                    </div>
-                                  </div>
- 
-                                  <div className="space-y-2.5 px-4">
-                                    <h3 className="text-lg md:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 tracking-tight uppercase font-sans">
-                                      Contenido Exclusivo Pro
-                                    </h3>
-                                    <p className="text-sm sm:text-base text-white font-medium leading-relaxed max-w-md">
-                                      Este video hook de alta conversión, sus estrategias psicológicas, guión listo para grabar y copies de publicidad están reservados para miembros premium.
-                                    </p>
-                                  </div>
- 
-                                  {/* Sparkly Yellow CTA Button */}
-                                  <button
-                                    onClick={() => {
-                                      setShowUpgradeModal(true);
-                                    }}
-                                    className="px-6 py-3.5 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-300 hover:from-amber-300 hover:to-yellow-400 text-black font-black text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-yellow-500/40 hover:scale-[1.02] transform active:scale-95 transition-all duration-300 cursor-pointer inline-flex items-center gap-2 border border-yellow-300/30 font-sans"
-                                  >
-                                    <span>Actualiza a pro para desbloquear 27 videos este mes</span>
-                                    <svg className="w-4 h-4 fill-black" viewBox="0 0 24 24">
-                                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                    </svg>
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <>
-                                {activeHookTab === "Gancho" && (
-                              <div className="p-6 md:p-8 pt-5 space-y-6">
-                                {/* Section: Ejemplo en Contexto & Resultados Esperados */}
-                                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                                  {/* Mock Video Player */}
-                                  <div className="md:col-span-8 p-6 bg-white/[0.01] border border-white/5 rounded-3xl space-y-4">
-                                    <div className="flex items-center gap-2.5">
-                                      <PlayCircle className="w-4 h-4 text-rose-500" />
-                                      <h4 className="text-xs font-black text-white uppercase tracking-wider">
-                                        Ejemplo en contexto
-                                      </h4>
-                                    </div>
-                                    
-                                    <div className="flex flex-col sm:flex-row gap-5 items-stretch">
-                                      {/* Simulated Video Thumbnail */}
-                                      <div className="w-[124px] h-[164px] rounded-2xl bg-zinc-900 border border-white/10 relative overflow-hidden group shrink-0 shadow-lg select-none">
-                                        <img
-                                          src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=300&fit=crop"
-                                          alt="Video representation model"
-                                          className="w-full h-full object-cover opacity-80"
-                                          referrerPolicy="no-referrer"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                          <div className="w-10 h-10 rounded-full bg-[#FF5D1E]/90 flex items-center justify-center text-white shadow-md active:scale-95 transition-transform cursor-pointer">
-                                            <svg className="w-5 h-5 fill-white stroke-none ml-0.5" viewBox="0 0 24 24">
-                                              <path d="M8 5v14l11-7z" />
-                                            </svg>
-                                          </div>
-                                        </div>
-                                        <span className="absolute bottom-2 right-2 px-1.5 py-0.5 text-[8px] font-bold text-white bg-black/70 rounded">
-                                          00:28
-                                        </span>
-                                      </div>
-
-                                      {/* Script Timeline lines */}
-                                      <div className="flex-1 text-left space-y-2 text-xs text-zinc-300 flex flex-col justify-center">
-                                        <p className="text-xs font-bold text-white/60 uppercase tracking-widest leading-none animate-fade-in-up">(Primeros 3 segundos del video)</p>
-                                        <p className="italic text-white font-light text-sm sm:text-base md:text-lg leading-relaxed pl-2.5 border-l-2 border-[#FF5D1E] py-1.5 animate-fade-in-up">
-                                          "¿{hTitle.replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?"
-                                        </p>
-                                        <p className="text-xs font-bold text-[#FF5D1E]/80 uppercase tracking-widest mt-1.5 leading-none animate-fade-in-up">(Continúa con el contenido de valor...)</p>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Stats esperado right side */}
-                                  <div className="md:col-span-4 p-6 bg-[#111116]/80 border border-white/5 rounded-3xl space-y-4 flex flex-col justify-center">
-                                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-wider block mb-2 text-left">
-                                      Resultados Esperados
-                                    </h4>
-                                    <div className="space-y-4">
-                                      {[
-                                        { val: "+38%", l: "Más retención promedio" },
-                                        { val: "+52%", l: "Más interacción activa" },
-                                        { val: "+29%", l: "Más clics de enlace" }
-                                      ].map((stat, sIdx) => (
-                                        <div key={sIdx} className="text-left border-l border-emerald-500/30 pl-2.5 py-0.5">
-                                          <h5 className="text-base font-black text-emerald-400 leading-none">{stat.val}</h5>
-                                          <p className="text-white font-light text-xs sm:text-sm mt-1 leading-snug animate-fade-in-up">{stat.l}</p>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                                  {/* Por qué funciona */}
-                                  <div className="md:col-span-8 p-6 bg-white/[0.01] border border-white/5 rounded-3xl space-y-4">
-                                    <div className="flex items-center gap-2.5">
-                                      <div className="w-8 h-8 rounded-lg bg-[#FF5D1E]/10 flex items-center justify-center text-[#FF5D1E]">
-                                        <Lightbulb className="w-4 h-4" />
-                                      </div>
-                                      <h4 className="text-xs md:text-sm font-black text-white uppercase tracking-wider">
-                                        Por qué este gancho funciona
-                                      </h4>
-                                    </div>
-                                    <p className="text-white font-light text-sm sm:text-base leading-relaxed animate-fade-in-up">
-                                      Este gancho combina curiosidad + deseo + oportunidad para secuestrar el foco de atención del visitante de forma instantánea.
-                                    </p>
-                                    <ul className="space-y-3 pt-1">
-                                      <li className="flex items-start gap-2.5 text-white font-light text-sm sm:text-base leading-relaxed animate-fade-in-up">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF5D1E] shrink-0 mt-1.5" />
-                                        <span>
-                                          <strong className="text-white font-bold">Curiosidad:</strong> Plantea una pregunta intrigante que reta creencias directas y desafía al lector a buscar la respuesta.
-                                        </span>
-                                      </li>
-                                      <li className="flex items-start gap-2.5 text-white font-light text-sm sm:text-base leading-relaxed animate-fade-in-up">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF5D1E] shrink-0 mt-1.5" />
-                                        <span>
-                                          <strong className="text-white font-bold">Deseo:</strong> Apela a un incremento exponencial de ingresos o estabilidad financiera, lo cual es altamente aspiracional.
-                                        </span>
-                                      </li>
-                                      <li className="flex items-start gap-2.5 text-white font-light text-sm sm:text-base leading-relaxed animate-fade-in-up">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF5D1E] shrink-0 mt-1.5" />
-                                        <span>
-                                          <strong className="text-white font-bold">Oportunidad:</strong> Introduce el concepto de que dominar una sola destreza basta para lograrlo, lo que hace el camino simple y motivador.
-                                        </span>
-                                      </li>
-                                    </ul>
-                                  </div>
-
-                                  {/* Disparadores psicológicos card */}
-                                  <div className="md:col-span-4 p-6 bg-[#111116]/80 border border-white/5 rounded-3xl space-y-4 flex flex-col justify-between">
-                                    <div>
-                                      <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-wider block mb-4">
-                                        Disparadores Psicológicos
-                                      </h4>
-                                      <div className="space-y-3.5">
-                                        {[
-                                          { label: "Curiosidad", desc: "Altamente estimula la intriga" },
-                                          { label: "Ambición", desc: "Despierta metas financieras" },
-                                          { label: "Oportunidad", desc: "Ruta de aprendizaje simple" }
-                                        ].map((d, i) => (
-                                          <div key={i} className="flex items-center justify-between gap-1">
-                                            <div className="text-left">
-                                              <p className="text-xs font-black text-white leading-none">{d.label}</p>
-                                              <p className="text-zinc-300 font-light text-xs sm:text-sm mt-1 animate-fade-in-up">{d.desc}</p>
-                                            </div>
-                                            {/* Green check circle */}
-                                            <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                                              <Check className="w-3.5 h-3.5" />
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Section: Cuándo y Dónde Usarlo & Ideal Para */}
-                                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                                  {/* Cuándo usar */}
-                                  <div className="md:col-span-8 p-6 bg-white/[0.01] border border-white/5 rounded-3xl space-y-3">
-                                    <div className="flex items-center gap-2.5">
-                                      <Calendar className="w-4 h-4 text-indigo-400" />
-                                      <h4 className="text-xs font-black text-white uppercase tracking-wider">
-                                        Cuándo y dónde usarlo
-                                      </h4>
-                                    </div>
-                                    <p className="text-white font-light text-sm sm:text-base leading-relaxed pt-1 animate-fade-in-up">
-                                      Úsalo estrictamente en los primeros <strong className="text-white font-extrabold">3 segundos</strong> de tus videos cortos y anuncios de conversión directa. Formatos ideales: Reels, TikTok, Shorts, Stories y campaigns de pauta publicitaria.
-                                    </p>
-                                  </div>
-
-                                  {/* Ideal para */}
-                                  <div className="md:col-span-4 p-6 bg-[#111116]/80 border border-white/5 rounded-3xl space-y-3 flex flex-col justify-start">
-                                    <h4 className="text-xs font-black text-zinc-400 uppercase tracking-wider block">
-                                      Ideal para
-                                    </h4>
-                                    <div className="flex flex-wrap gap-2 pt-2">
-                                      {["Nuevos seguidores", "Tráfico frío", "Audiencias amplias"].map((tag, i) => (
-                                        <span
-                                          key={i}
-                                          className="px-3 py-1.5 rounded-lg bg-zinc-800/60 border border-white/10 text-xs sm:text-sm font-light text-white block select-none animate-fade-in-up"
-                                        >
-                                          {tag}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            {activeHookTab === "Psicología" && (
-                              <div className="p-6 md:p-8 pt-5 space-y-6">
-                                <div className="p-6 bg-white/[0.01] border border-white/5 rounded-[2rem] space-y-4">
-                                  <div className="flex items-center gap-2 px-2.5 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg text-xs font-black uppercase w-fit">
-                                    Estrategia Psicológica de Fondo
-                                  </div>
-                                  <p className="text-sm md:text-base text-zinc-100 leading-relaxed font-normal italic">
-                                    "{hStrategy}"
-                                  </p>
-                                  
-                                  <div className="border-t border-white/5 pt-4 space-y-3">
-                                    <h5 className="text-xs font-black text-white uppercase tracking-wider">
-                                      ¿Cómo influye este gancho en el prospecto ideal?
-                                    </h5>
-                                    <p className="text-xs text-zinc-400 leading-relaxed">
-                                      Al atacar de frente una creencia tradicional limitante o la insatisfacción por las ganancias actuales, obligas al cerebro reptiliano de tu espectador a pausar el deslizamiento de pantalla por mero instinto de supervivencia profesional. Una vez ganados esos 3 segundos iniciales, la curiosidad se transfiere directamente al resto del guion estético de conversión.
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            {activeHookTab === "Guión de Video" && (
-                              <div className="p-6 md:p-8 pt-5 space-y-6">
-                                <div className="space-y-4">
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-xs font-black uppercase w-fit select-none">
-                                      Guión de Video Completo
-                                    </div>
-                                    <button
-                                      onClick={() => {
-                                        navigator.clipboard.writeText(scriptText);
-                                        alert("¡Guión copiado al portapapeles!");
-                                      }}
-                                      className="flex items-center gap-1 px-2.5 py-1 text-[10px] text-zinc-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg font-bold transition-all cursor-pointer"
-                                    >
-                                      <Copy className="w-3.5 h-3.5" /> Copiar Guión
-                                    </button>
-                                  </div>
-                                  
-                                  <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-[2rem] relative">
-                                    <pre className="text-xs sm:text-sm text-zinc-350 font-mono whitespace-pre-wrap leading-relaxed select-all">
-                                      {scriptText || "No hay guión guardado para este hook."}
-                                    </pre>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            {activeHookTab === "Copy para Anuncio" && (
-                              <div className="p-6 md:p-8 pt-5 space-y-6">
-                                <div className="space-y-4">
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2 px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg text-xs font-black uppercase w-fit select-none">
-                                      Texto para Caption / Pauta en Redes
-                                    </div>
-                                    <button
-                                      onClick={() => {
-                                        navigator.clipboard.writeText(adsText);
-                                        alert("¡Texto de pauta copiado al portapapeles!");
-                                      }}
-                                      className="flex items-center gap-1 px-2.5 py-1 text-[10px] text-zinc-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg font-bold transition-all cursor-pointer"
-                                    >
-                                      <Copy className="w-3.5 h-3.5" /> Copiar Copy
-                                    </button>
-                                  </div>
-                                  
-                                  <div className="p-6 bg-[#0c0c10] border border-white/5 rounded-[2rem] relative">
-                                    <pre className="text-xs sm:text-sm text-zinc-350 font-sans whitespace-pre-wrap leading-relaxed select-all">
-                                      {adsText || "No hay copy publicitario redactado para este gancho."}
-                                    </pre>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            {activeHookTab === "CTA Sugerido" && (
-                              <div className="p-6 md:p-8 pt-5 space-y-6">
-                                <div className="p-6 bg-white/[0.01] border border-white/5 rounded-[2rem] space-y-4 text-left">
-                                  <div className="flex items-center gap-2 px-2.5 py-1 bg-[#FF5D1E]/10 border border-[#FF5D1E]/20 text-[#FF5D1E] rounded-lg text-xs font-black uppercase w-fit select-none">
-                                    Llamados a la Acción Invisibles
-                                  </div>
-                                  <p className="text-xs md:text-sm text-zinc-350 leading-relaxed font-normal">
-                                    Evita vender directamente en tus videos cortos. En su lugar, usa ganchos con "palabras mágicas" en comentarios para derivar tráfico en piloto automático:
-                                  </p>
-                                  
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                                    <div className="p-4 bg-white/[0.01] border border-white/5 rounded-2xl space-y-2">
-                                      <strong className="text-white text-xs font-bold block uppercase text-emerald-400 select-none font-sans">Mensajería Directa</strong>
-                                      <p className="text-xs text-zinc-300 leading-relaxed">
-                                        "Comenta la palabra <span className="text-[#FF5D1E] font-black">'{isManicurista ? "MANICURA" : isMicroblading ? "CEJAS" : "BELLEZA"}'</span> aquí abajo y te enviaré tus credenciales de acceso gratuito a la masterclass de hoy mismo por DM."
-                                      </p>
-                                    </div>
-                                    <div className="p-4 bg-white/[0.01] border border-white/5 rounded-2xl space-y-2">
-                                      <strong className="text-white text-xs font-bold block uppercase text-sky-400 select-none font-sans">Enlace en el Perfil</strong>
-                                      <p className="text-xs text-zinc-300 leading-relaxed">
-                                        "Toca el enlace de mi perfil ahora mismo para unirte a nuestro taller y descargar la guía práctica de conversión sin demoras."
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            {activeHookTab === "Variaciones" && (
-                              <div className="p-6 md:p-8 pt-5 space-y-6 text-left">
-                                <div className="space-y-4">
-                                  <span className="text-[10px] font-black uppercase text-pink-400 tracking-widest bg-pink-500/10 px-2.5 py-1 rounded-md select-none">
-                                    Variaciones de Miniaturas / Portadas
-                                  </span>
-                                  <p className="text-xs text-zinc-400">
-                                    Recomendamos ensayar estas variaciones en tus portadas de video fijas para duplicar tus CTR de visualización:
-                                  </p>
-                                  
-                                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                                    {thumbsList.length > 0 ? (
-                                      thumbsList.map((thumb: string, tIdx: number) => (
-                                        <div
-                                          key={tIdx}
-                                          className="p-5 bg-[#14141c]/50 border border-white/5 hover:border-pink-500/20 rounded-2xl transition-all"
-                                        >
-                                          <p className="text-[9px] font-extrabold text-pink-300 uppercase tracking-widest select-none">
-                                            VARIACIÓN {tIdx + 1}
-                                          </p>
-                                          <p className="mt-2 text-xs md:text-sm text-white leading-normal font-sans font-bold">
-                                            {thumb}
-                                          </p>
-                                        </div>
-                                      ))
-                                    ) : (
-                                      ["Prueba Gratis Hoy 💸", "Logra el Éxito Estético 📈", "Controla Tu Tiempo Mañana ⏰"].map((thumb, tIdx) => (
-                                        <div
-                                          key={tIdx}
-                                          className="p-5 bg-[#14141c]/50 border border-white/5 rounded-2xl"
-                                        >
-                                          <p className="text-[9px] font-extrabold text-pink-300 uppercase tracking-widest select-none">
-                                            VARIACIÓN {tIdx + 1}
-                                          </p>
-                                          <p className="mt-2 text-xs md:text-sm text-white leading-normal font-sans font-bold text-left">
-                                            {thumb}
-                                          </p>
-                                        </div>
-                                      ))
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                              </>
-                            )}
-                          </div>
-
-                          {/* Persistent Plan PRO Bottom Conversion Banner */}
-                          {!isActiveHookLocked && (
-                            <div className="p-6 md:p-8 pt-3 border-t border-white/[0.04] bg-[#08080c]/30 mt-auto">
-                            <div className="p-6 rounded-[2.5rem] bg-gradient-to-br from-amber-500/10 via-[#FF5D1E]/5 to-[#0c0c11] border border-amber-500/20 space-y-6 text-left relative overflow-hidden">
-                              <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#FF5D1E]/5 blur-3xl rounded-full" />
-                              <div className="flex items-start gap-3.5">
-                                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 select-none font-sans">
-                                  <Crown className="w-5 h-5" />
-                                </div>
-                                <div className="space-y-1">
-                                  <h4 className="text-sm md:text-base font-black text-white uppercase tracking-tight">
-                                    Desbloquea todo el poder de tus ganchos de atracción
-                                  </h4>
-                                  <p className="text-white font-light text-sm sm:text-base leading-relaxed animate-fade-in-up">
-                                    Accede a los 27 hooks restantes + plantillas de guiones técnicos + análisis de rendimiento completo.
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-2.5 border-y border-white/[0.03]">
-                                {[
-                                  { v: "30 Ganchos", l: "al mes directos" },
-                                  { v: "Guiones", l: "completos listos" },
-                                  { v: "Análisis de", l: "rendimiento estético" },
-                                  { v: "Variaciones", l: "ilimitadas de portada" }
-                                ].map((feat, i) => (
-                                  <div key={i} className="text-left space-y-1">
-                                    <p className="text-sm font-black text-white uppercase tracking-wide leading-none">{feat.v}</p>
-                                    <p className="text-white font-light text-xs sm:text-sm leading-tight mt-1.5 animate-fade-in-up">{feat.l}</p>
-                                  </div>
-                                ))}
-                              </div>
-
-                              <div className="space-y-2.5">
-                                <button
-                                  onClick={() => setShowUpgradeModal(true)}
-                                  className="w-full py-3.5 bg-gradient-to-r from-[#FF5D1E] to-[#E04812] hover:from-[#ff6d3c] hover:to-[#f0531c] text-white font-black uppercase text-xs tracking-widest transition-all rounded-[18px] flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(255,90,31,0.22)] active:scale-[0.99] cursor-pointer"
-                                >
-                                  <Crown className="w-4 h-4 text-white" /> Desbloquear Plan PRO
-                                </button>
-                                <p className="text-zinc-400 font-light text-[10px] sm:text-xs text-center uppercase tracking-widest leading-none mt-1 animate-fade-in-up">
-                                  Cancela cuando quieras • Acceso inmediato y seguro
-                                </p>
+                                  </>
+                                ) : (
+                                  <p className="text-xs text-zinc-500 text-center py-6">No se encontraron hooks...</p>
+                                )}
                               </div>
                             </div>
                           </div>
+
+                          {/* COLUMNA DERECHA (Pestañas de control y Ficha Técnica Detallada) */}
+                          {activeHook && (
+                            <div className="flex-1 flex flex-col justify-between bg-[#040406] overflow-y-auto custom-scrollbar relative pb-24">
+                              <div className="p-6 md:p-8 space-y-6">
+                                {/* Details Header Card */}
+                                <div className="bg-[#0c0c11]/60 border border-white/[0.04] p-6 md:p-8 rounded-[20px] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                                  <div className="space-y-3 max-w-2xl text-left">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[10px] md:text-xs font-black tracking-widest text-[#FF5D1E] uppercase">
+                                        VIDEO HOOK #{activeHookIdx + 1}
+                                      </span>
+                                      <span className="text-[10px] md:text-xs text-zinc-500 font-bold">•</span>
+                                      <span className="text-[10px] md:text-xs font-bold tracking-widest text-zinc-300 uppercase">
+                                        {activeCategoryLabel}
+                                      </span>
+                                    </div>
+                                    <h2 className="text-xl md:text-2xl font-black text-white tracking-tight leading-snug">
+                                      ¿{hTitle.replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?
+                                    </h2>
+                                  </div>
+
+                                  {!isActiveHookLocked && (
+                                    <div className="flex flex-wrap items-center gap-3 shrink-0">
+                                      <button
+                                        onClick={() => {
+                                          navigator.clipboard.writeText(hTitle);
+                                          alert("¡Hook copiado al portapapeles!");
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white text-xs font-bold transition-all cursor-pointer"
+                                      >
+                                        <Copy className="w-4 h-4" />
+                                        <span>Copiar hook</span>
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          const fullCopy = `HOOK: ${hTitle}\n\nGUIÓN:\n${scriptText}\n\nCOPY PUBLICITARIO:\n${adsText}`;
+                                          navigator.clipboard.writeText(fullCopy);
+                                          const element = document.createElement("a");
+                                          const file = new Blob([fullCopy], { type: 'text/plain' });
+                                          element.href = URL.createObjectURL(file);
+                                          element.download = `video-hook-${activeHookIdx + 1}.txt`;
+                                          document.body.appendChild(element);
+                                          element.click();
+                                          document.body.removeChild(element);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-xs font-black transition-all shadow-[0_4px_12px_rgba(255,93,30,0.2)] cursor-pointer"
+                                      >
+                                        <Download className="w-4 h-4" />
+                                        <span>Descargar video</span>
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* High-Fidelity Tabs Row */}
+                                {!isActiveHookLocked && (
+                                  <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-white/[0.04]">
+                                    {["Hook", "Por qué funciona", "Guion del reel", "Texto y CTA"].map((tab) => {
+                                      const isActive = 
+                                        (tab === "Hook" && activeHookTab === "Gancho") ||
+                                        (tab === "Por qué funciona" && activeHookTab === "Psicología") ||
+                                        (tab === "Guion del reel" && activeHookTab === "Guión de Video") ||
+                                        (tab === "Texto y CTA" && activeHookTab === "Copy para Anuncio");
+
+                                      const tabMapping = {
+                                        "Hook": "Gancho",
+                                        "Por qué funciona": "Psicología",
+                                        "Guion del reel": "Guión de Video",
+                                        "Texto y CTA": "Copy para Anuncio"
+                                      };
+
+                                      return (
+                                        <button
+                                          key={tab}
+                                          onClick={() => {
+                                            setActiveHookTab(tabMapping[tab as keyof typeof tabMapping]);
+                                          }}
+                                          className={`px-4 py-2 text-xs md:text-sm font-bold whitespace-nowrap border-b-2 transition-all cursor-pointer duration-200 tracking-wide ${
+                                            isActive
+                                              ? "border-[#FF5D1E] text-[#FF5D1E]"
+                                              : "border-transparent text-zinc-400 hover:text-white"
+                                          }`}
+                                        >
+                                          {tab}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                {/* Locked view or dynamic active tabs content */}
+                                {isActiveHookLocked ? (
+                                  <div className="p-8 text-center relative min-h-[380px] flex flex-col items-center justify-center rounded-3xl overflow-hidden border border-amber-500/20 bg-gradient-to-b from-[#14110a] to-[#040402] shadow-[0_12px_40px_rgba(245,158,11,0.1)]">
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-gradient-to-b from-amber-500/10 to-transparent blur-2xl rounded-full pointer-events-none" />
+                                    <div className="relative z-10 max-w-md mx-auto space-y-6 flex flex-col items-center">
+                                      <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+                                        <Lock className="w-6 h-6" />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <h3 className="text-lg font-extrabold text-white tracking-tight uppercase">
+                                          Contenido Exclusivo Pro
+                                        </h3>
+                                        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                                          Este video hook de alta conversión, sus estrategias psicológicas, guión listo para grabar y copies de publicidad están reservados para miembros premium.
+                                        </p>
+                                      </div>
+                                      <button
+                                        onClick={() => setShowUpgradeModal(true)}
+                                        className="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-amber-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-[0_4px_12px_rgba(245,158,11,0.2)] transition-all cursor-pointer"
+                                      >
+                                        Actualizar a Plan Pro
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <>
+                                    {activeHookTab === "Gancho" && (
+                                      <div className="space-y-6">
+                                        {/* Ejemplo en Contexto Section */}
+                                        <div className="p-6 md:p-8 bg-[#0c0c11]/80 border border-white/[0.04] rounded-[24px] text-left">
+                                          <div className="mb-6">
+                                            <span className="text-base font-normal text-zinc-200">Ejemplo en contexto</span>
+                                          </div>
+                                          
+                                          <div className="flex flex-col md:flex-row gap-6 items-start">
+                                            {/* Left side: Video Thumbnail */}
+                                            <div className="w-[140px] h-[190px] md:w-[160px] md:h-[220px] rounded-2xl bg-zinc-900 border border-white/10 relative overflow-hidden shrink-0 shadow-md">
+                                              <img
+                                                src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=600&auto=format&fit=crop"
+                                                alt="Hook aesthetic content thumbnail"
+                                                className="w-full h-full object-cover"
+                                                referrerPolicy="no-referrer"
+                                              />
+                                              <div className="absolute inset-0 bg-black/20" />
+                                              <div className="absolute inset-0 flex items-center justify-center">
+                                                <div className="w-12 h-12 rounded-full border border-white bg-black/10 backdrop-blur-sm flex items-center justify-center text-white shadow-lg cursor-pointer hover:scale-105 transition-transform">
+                                                  <svg className="w-4.5 h-4.5 fill-white stroke-none ml-0.5" viewBox="0 0 24 24">
+                                                    <path d="M8 5v14l11-7z" />
+                                                  </svg>
+                                                </div>
+                                              </div>
+                                              <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 text-[10px] font-bold text-white bg-black/80 rounded-[4px] tracking-wide">
+                                                0:03
+                                              </span>
+                                            </div>
+
+                                            {/* Right side: Info */}
+                                            <div className="flex-1">
+                                              <div className="pl-4 border-l-2 border-[#FF5D1E] space-y-1 text-left">
+                                                <span className="text-xs text-zinc-400 font-medium">Primeros 3 segundos</span>
+                                                <p className="italic text-zinc-100 font-medium text-sm md:text-base leading-relaxed">
+                                                  "¿{hTitle.replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?"
+                                                </p>
+                                              </div>
+
+                                              <div className="border-t border-white/[0.06] mt-6 pt-5">
+                                                <h4 className="text-sm font-medium text-white mb-3">Cómo utilizarlo</h4>
+                                                <div className="space-y-2.5 text-xs md:text-sm">
+                                                  <div className="flex items-center gap-2.5">
+                                                    <CheckCircle className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
+                                                    <span className="text-zinc-300 font-normal">Usa voz o texto en pantalla</span>
+                                                  </div>
+                                                  <div className="flex items-center gap-2.5">
+                                                    <CheckCircle className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
+                                                    <span className="text-zinc-300 font-normal">Mantén el encuadre simple</span>
+                                                  </div>
+                                                  <div className="flex items-center gap-2.5">
+                                                    <CheckCircle className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
+                                                    <span className="text-zinc-300 font-normal">Continúa con el desarrollo del valor</span>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          {/* Info Badges/Chips at bottom */}
+                                          <div className="flex flex-wrap items-center gap-3 pt-5 mt-6 border-t border-white/[0.04]">
+                                            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/5 bg-white/[0.01]">
+                                              <Video className="w-4 h-4 text-zinc-400" />
+                                              <span className="text-xs font-bold text-[#FF5D1E]">Canal: <span className="text-white font-normal ml-1">Reels/TikTok</span></span>
+                                            </div>
+                                            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/5 bg-white/[0.01]">
+                                              <BookOpen className="w-4 h-4 text-zinc-400" />
+                                              <span className="text-xs font-bold text-[#FF5D1E]">Formato: <span className="text-white font-normal ml-1">Educativo</span></span>
+                                            </div>
+                                            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/5 bg-white/[0.01]">
+                                              <Target className="w-4 h-4 text-[#FF5D1E]" />
+                                              <span className="text-xs font-bold text-[#FF5D1E]">Destino: <span className="text-white font-normal ml-1">Página de captura</span></span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {activeHookTab === "Psicología" && (
+                                      <div className="space-y-6">
+                                        <div className="p-6 bg-[#0c0c11] border border-white/[0.03] rounded-2xl space-y-4">
+                                          <span className="px-2.5 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded text-[10px] font-black uppercase w-fit tracking-wider">
+                                            Por qué este Hook funciona
+                                          </span>
+                                          <p className="text-sm sm:text-base text-zinc-100 leading-relaxed italic font-normal">
+                                            "{hStrategy}"
+                                          </p>
+                                          <div className="border-t border-white/[0.04] pt-4 space-y-2">
+                                            <h5 className="text-xs font-black text-white uppercase tracking-wider">Influencia de conversión</h5>
+                                            <p className="text-xs text-zinc-400 leading-relaxed">
+                                              Al atacar una necesidad clara o un problema común de manera empática, despiertas atención inmediata. Consigue retener el scroll del usuario permitiéndote educar, nutrir o proponer un llamado a la acción preciso.
+                                            </p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {activeHookTab === "Guión de Video" && (
+                                      <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                          <span className="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded text-[10px] font-black uppercase tracking-wider">
+                                            Guión del Reel
+                                          </span>
+                                        </div>
+                                        <div className="p-6 bg-[#0c0c10] border border-white/[0.03] rounded-2xl">
+                                          <pre className="text-xs sm:text-sm text-zinc-300 font-mono whitespace-pre-wrap leading-relaxed select-all text-left">
+                                            {scriptText || "No hay guión guardado para este hook."}
+                                          </pre>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {activeHookTab === "Copy para Anuncio" && (
+                                      <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                          <span className="px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded text-[10px] font-black uppercase tracking-wider">
+                                            Texto y CTA (Caption)
+                                          </span>
+                                        </div>
+                                        <div className="p-6 bg-[#0c0c10] border border-white/[0.03] rounded-2xl">
+                                          <pre className="text-xs sm:text-sm text-zinc-300 font-sans whitespace-pre-wrap leading-relaxed select-all text-left">
+                                            {adsText || "No hay copy publicitario redactado para este gancho."}
+                                          </pre>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -3962,26 +3711,27 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     return (
                       <div className="flex flex-col h-full min-h-[85vh] bg-[#07070a] text-white overflow-hidden font-sans">
                         {/* Cabecera general */}
-                        <div className="p-6 md:p-8 border-b border-white/5 bg-[#0b0b0f] flex items-center justify-between">
+                        <div className="p-6 pb-5 border-b border-white/[0.04] bg-[#0b0b0f] flex items-center justify-between">
                           <div className="flex items-center gap-4">
                             {/* Icono del libro dorado */}
-                            <div className="w-12 h-12 flex items-center justify-center bg-amber-500/10 border border-amber-500/20 text-[#FFBF00] rounded-xl shrink-0">
-                              <BookOpen className="w-6 h-6" />
+                            <div className="w-11 h-11 rounded-xl bg-[#FFBF00]/10 border border-[#FFBF00]/20 flex items-center justify-center text-[#FFBF00] shrink-0">
+                              <BookOpen className="w-5 h-5" />
                             </div>
-                            <div className="text-left font-sans">
-                              <span className="text-[10px] font-black uppercase text-[#FFBF00] tracking-widest block leading-none mb-1">
-                                Canales Orgánicos
-                              </span>
-                              <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight text-white leading-tight">
+                            <div className="space-y-1.5 text-left font-sans">
+                              <h3 className="text-base md:text-lg font-black text-white uppercase tracking-tight">
                                 Artículos de Blog SEO
-                              </h2>
+                              </h3>
+                              <p className="text-white font-light text-xs sm:text-sm leading-relaxed animate-fade-in-up">
+                                Estructura de contenidos optimizada para capturar búsquedas de alta intención de compra desde Google.
+                              </p>
                             </div>
                           </div>
                           
                           {/* Close button (X) */}
                           <button
                             onClick={() => setActiveDetailsDrawer(null)}
-                            className="p-2.5 rounded-full bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none shrink-0"
+                            className="p-2.5 rounded-full bg-[#FF5D1E]/10 text-[#FF5D1E] hover:bg-[#FF5D1E]/20 transition-colors focus:outline-none shrink-0 cursor-pointer border border-[#FF5D1E]/20 shadow-[0_0_15px_rgba(255,93,30,0.15)]"
+                            title="Cerrar panel"
                           >
                             <X className="w-5 h-5" />
                           </button>
@@ -3990,13 +3740,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                         {/* Contenedor principal scrollable para el listado centrado */}
                         <div className="flex-1 overflow-y-auto p-6 md:p-8 pb-12 scrollbar-thin">
                           <div className="max-w-2xl mx-auto w-full space-y-6">
-                            
-                            {/* Subtítulo descriptivo */}
-                            <div className="text-left">
-                              <p className="text-white font-light text-sm sm:text-base leading-relaxed animate-fade-in-up">
-                                Estructura de contenidos optimizada para capturar búsquedas de alta intención de compra desde Google.
-                              </p>
-                            </div>
 
                             {/* Listado Vertical de Artículos */}
                             <div className="space-y-3">
@@ -4061,23 +3804,20 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       {/* COLUMNA IZQUIERDA: Lista de Artículos */}
                       <div className="w-full lg:w-4/12 border-r border-white/5 bg-[#0b0b0f] flex flex-col justify-between shrink-0">
                         {/* Cabecera de la Columna Izquierda */}
-                        <div className="p-6 border-b border-white/5">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl">
+                        <div className="p-6 pb-5 border-b border-white/[0.04]">
+                          <div className="flex items-center gap-4 text-left">
+                            <div className="w-11 h-11 rounded-xl bg-[#FFBF00]/10 border border-[#FFBF00]/20 flex items-center justify-center text-[#FFBF00] shrink-0">
                               <BookOpen className="w-5 h-5" />
                             </div>
-                            <div className="text-left">
-                              <span className="text-[10px] font-black uppercase text-[#FFBF00] tracking-widest block leading-none mb-1">
-                                Canales Orgánicos
-                              </span>
-                              <h2 className="text-lg font-black uppercase tracking-tight text-white leading-tight">
+                            <div className="space-y-1.5 text-left font-sans">
+                              <h3 className="text-base md:text-lg font-black text-white uppercase tracking-tight">
                                 Artículos de Blog SEO
-                              </h2>
+                              </h3>
+                              <p className="text-white font-light text-xs sm:text-sm leading-relaxed animate-fade-in-up">
+                                Estructura de contenidos optimizada para capturar búsquedas de alta intención de compra desde Google.
+                              </p>
                             </div>
                           </div>
-                          <p className="text-white font-light text-sm sm:text-base leading-relaxed text-left animate-fade-in-up">
-                            Estructura de contenidos optimizada para capturar búsquedas de alta intención de compra desde Google.
-                          </p>
                         </div>
 
                         {/* Listado de Tarjetas */}
@@ -4364,18 +4104,25 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     return (
                       <div className="flex flex-col h-full bg-[#0a0a0e] font-sans text-left">
                         {/* Custom Header for List View */}
-                        <div className="p-6 border-b border-white/5 bg-[#14141c]/80 backdrop-blur-md flex items-center justify-between">
-                          <div className="text-left">
-                            <span className="text-xs font-black uppercase text-[#3b82f6] tracking-widest block mb-1">
-                              CANALES ORGÁNICOS
-                            </span>
-                            <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">
-                              EMAIL MARKETING AUTOMATIZADO
-                            </h3>
+                        <div className="p-6 pb-5 border-b border-white/[0.04] bg-[#14141c]/80 backdrop-blur-md flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            {/* Icono del email azul */}
+                            <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[#3b82f6] shrink-0">
+                              <Mail className="w-5 h-5" />
+                            </div>
+                            <div className="space-y-1.5 text-left font-sans">
+                              <h3 className="text-base md:text-lg font-black text-white uppercase tracking-tight">
+                                Email Marketing Automatizado
+                              </h3>
+                              <p className="text-white font-light text-xs sm:text-sm leading-relaxed animate-fade-in-up">
+                                Estructura de contenidos optimizada para captar, nutrir la confianza del cliente y cerrar ventas en piloto automático.
+                              </p>
+                            </div>
                           </div>
                           <button
                             onClick={() => setActiveDetailsDrawer(null)}
-                            className="p-2.5 rounded-full bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none shrink-0"
+                            className="p-2.5 rounded-full bg-[#FF5D1E]/10 text-[#FF5D1E] hover:bg-[#FF5D1E]/20 transition-colors focus:outline-none shrink-0 cursor-pointer border border-[#FF5D1E]/20 shadow-[0_0_15px_rgba(255,93,30,0.15)]"
+                            title="Cerrar panel"
                           >
                             <X className="w-5 h-5" />
                           </button>
@@ -4383,9 +4130,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
                         {/* Content Area with independent scroll */}
                         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8">
-                          <p className="text-zinc-400 text-sm leading-relaxed">
-                            Estructura de contenidos optimizada para captar, nutrir la confianza del cliente y cerrar ventas en piloto automático.
-                          </p>
 
                           {/* Haz Clic Banner */}
                           <div className="flex items-center gap-2 text-xs font-extrabold text-[#3b82f6] uppercase tracking-wider">
@@ -4684,18 +4428,25 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     return (
                       <div className="flex flex-col h-full bg-[#0a0a0e] font-sans text-left">
                         {/* Custom Header for List View */}
-                        <div className="p-6 border-b border-white/5 bg-[#14141c]/80 backdrop-blur-md flex items-center justify-between">
-                          <div className="text-left">
-                            <span className="text-xs font-black uppercase text-[#10B981] tracking-widest block mb-1">
-                              CANALES ORGÁNICOS
-                            </span>
-                            <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">
-                              SECUENCIAS DE WHATSAPP
-                            </h3>
+                        <div className="p-6 pb-5 border-b border-white/[0.04] bg-[#14141c]/80 backdrop-blur-md flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            {/* Icono de whatsapp verde */}
+                            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-[#10B981] shrink-0">
+                              <MessageSquare className="w-5 h-5" />
+                            </div>
+                            <div className="space-y-1.5 text-left font-sans">
+                              <h3 className="text-base md:text-lg font-black text-white uppercase tracking-tight">
+                                Secuencias de WhatsApp
+                              </h3>
+                              <p className="text-white font-light text-xs sm:text-sm leading-relaxed animate-fade-in-up">
+                                Guiones persuasivos y respuestas rápidas para calentar prospectos y cerrar ventas en tus grupos de chat.
+                              </p>
+                            </div>
                           </div>
                           <button
                             onClick={() => setActiveDetailsDrawer(null)}
-                            className="p-2.5 rounded-full bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none shrink-0"
+                            className="p-2.5 rounded-full bg-[#FF5D1E]/10 text-[#FF5D1E] hover:bg-[#FF5D1E]/20 transition-colors focus:outline-none shrink-0 cursor-pointer border border-[#FF5D1E]/20 shadow-[0_0_15px_rgba(255,93,30,0.15)]"
+                            title="Cerrar panel"
                           >
                             <X className="w-5 h-5" />
                           </button>
@@ -4703,9 +4454,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
                         {/* Content Area with independent scroll */}
                         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8">
-                          <p className="text-zinc-300 text-sm md:text-base leading-relaxed">
-                            Estructura de guiones persuasivos y respuestas interactivas optimizadas para calentar prospectos, responder objeciones en vivo y cerrar ventas masivas en tus grupos de chat en tiempo récord.
-                          </p>
 
                           {/* Haz Clic Banner */}
                           <div className="flex items-center gap-2 text-xs font-extrabold text-[#10B981] uppercase tracking-wider">
@@ -4984,26 +4732,22 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               {!activeComercialOption ? (
                 <div className="flex flex-col h-full">
                   {/* Header */}
-                  <div className="p-6 border-b border-white/[0.04] bg-[#0e0e14]/80 backdrop-blur-md flex items-center justify-between">
+                  <div className="p-6 pb-5 border-b border-white/[0.04] bg-[#0e0e14]/80 backdrop-blur-md flex items-center justify-between">
                     <div className="flex items-center gap-4 text-left">
-                      <div className="w-12 h-12 rounded-2xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5D1E] shrink-0">
-                        <Target className="w-6 h-6" />
+                      <div className="w-11 h-11 rounded-xl bg-[#FF5D1E]/10 border border-[#FF5D1E]/20 flex items-center justify-center text-[#FF5D1E] shrink-0">
+                        <Target className="w-5 h-5" />
                       </div>
-                      <div className="text-left">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-lg md:text-xl font-extrabold text-white">Estrategia Comercial</h3>
-                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-400 uppercase tracking-wider">
-                            ✓ COMPLETADO Y ACTIVO
-                          </span>
-                        </div>
-                        <p className="text-white font-light text-xs sm:text-sm mt-1 animate-fade-in-up">
-                          Planes de atracción y optimización
+                      <div className="space-y-1.5 text-left">
+                        <h3 className="text-base md:text-lg font-black text-white uppercase tracking-tight">Estrategia Comercial</h3>
+                        <p className="text-white font-light text-xs sm:text-sm leading-relaxed animate-fade-in-up">
+                          Tu plan de ruta estratégico para posicionar tu marca y escalar tus ventas de forma óptima.
                         </p>
                       </div>
                     </div>
                     <button
                       onClick={() => setIsEstrategiaDrawerOpen(false)}
-                      className="p-2.5 rounded-full bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none shrink-0"
+                      className="p-2.5 rounded-full bg-[#FF5D1E]/10 text-[#FF5D1E] hover:bg-[#FF5D1E]/20 transition-colors focus:outline-none shrink-0 cursor-pointer border border-[#FF5D1E]/20 shadow-[0_0_15px_rgba(255,93,30,0.15)]"
+                      title="Cerrar panel"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -5011,27 +4755,18 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
                   {/* Body Content */}
                   <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                    <div className="text-left space-y-2">
-                      <p className="text-zinc-100 text-sm sm:text-base font-semibold leading-relaxed">
-                        La hoja de ruta principal para vender tu <span className="text-white font-extrabold text-sm sm:text-base">Planes de atracción y optimización</span> con éxito.
-                      </p>
-                      <div className="flex items-center gap-2 text-[#FF5D1E] pt-1">
-                        <FileText className="w-4 h-4 shrink-0" />
-                        <span className="text-xs font-bold uppercase tracking-wider">8 componentes generados</span>
-                      </div>
-                    </div>
 
                     {/* Las 8 Opciones (Imagen 1 Layout) */}
-                    <div className="space-y-3.5">
+                    <div className="space-y-3.5 font-sans">
                       {[
-                        { id: "avatar", title: "Avatares Psicológicos" },
-                        { id: "testimonials", title: "Testimonios Persuasivos" },
-                        { id: "objections", title: "Frustraciones del Avatar" },
-                        { id: "benefits", title: "Beneficios Magnéticos" },
-                        { id: "proposition", title: "Propuesta de Valor" },
-                        { id: "offer", title: "Oferta Principal" },
-                        { id: "funnel", title: "Embudo de Conversión" },
-                        { id: "cta", title: "CTA Principal" },
+                        { id: "avatar", title: "Avatares Psicológicos", desc: "Tus compradores ideales totalmente perfilados con sus dolores, deseos y motivaciones." },
+                        { id: "testimonials", title: "Testimonios Persuasivos", desc: "Historias de éxito realistas y testimonios diseñados para derribar el escepticismo." },
+                        { id: "objections", title: "Frustraciones del Avatar", desc: "Análisis de las barreras de compra más comunes y cómo resolverlas eficazmente." },
+                        { id: "benefits", title: "Beneficios Magnéticos", desc: "Los ganchos de transformación que conectan las características con las emociones." },
+                        { id: "proposition", title: "Propuesta de Valor", desc: "La declaración central que resume por qué tu cliente ideal debe elegirte." },
+                        { id: "offer", title: "Oferta Principal", desc: "La estructura irresistible de tu producto o servicio con bonos y garantías." },
+                        { id: "funnel", title: "Embudo de Conversión", desc: "El mapa paso a paso del viaje de tu cliente desde el descubrimiento hasta el cierre." },
+                        { id: "cta", title: "CTA Principal", desc: "Llamados a la acción directos y persuasivos diseñados para maximizar la conversión." },
                       ].map((opt) => (
                         <div
                           key={opt.id}
@@ -5039,50 +4774,70 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                             setActiveComercialOption(opt.id as any);
                             setAvatarSubTab("resumen");
                           }}
-                          className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.04] hover:border-[#FF5D1E]/40 rounded-2xl cursor-pointer transition-all duration-300 hover:bg-[#FF5D1E]/[0.02] group"
+                          className="flex items-start justify-between p-4 bg-white/[0.02] border border-white/[0.04] hover:border-[#FF5D1E]/40 rounded-2xl cursor-pointer transition-all duration-300 hover:bg-[#FF5D1E]/[0.02] group gap-4"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-[18px] h-[18px] rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                          <div className="flex items-start gap-3">
+                            <div className="w-[18px] h-[18px] rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0 mt-0.5">
                               <Check className="w-3 h-3 text-emerald-400" />
                             </div>
                             <div className="text-left">
                               <h4 className="text-sm font-bold text-white group-hover:text-[#FF5D1E] transition-colors leading-snug">
                                 {opt.title}
                               </h4>
+                              <span className="text-zinc-400 font-light text-xs mt-1 leading-normal block animate-fade-in-up">
+                                {opt.desc}
+                              </span>
                             </div>
                           </div>
-                          <ChevronRight className="w-4 h-4 text-zinc-650 group-hover:text-[#FF5D1E] group-hover:translate-x-0.5 transition-all shrink-0" />
+                          <ChevronRight className="w-4 h-4 text-zinc-650 group-hover:text-[#FF5D1E] group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5" />
                         </div>
                       ))}
                     </div>
+                  </div>
+
+                  {/* Drawer Footer */}
+                  <div className="p-6 border-t border-white/5 bg-[#0e0e14]/95 flex justify-end items-center relative z-10 shrink-0">
+                    <button
+                      onClick={() => setIsEstrategiaDrawerOpen(false)}
+                      className="px-6 py-3 bg-[#FF5A1F] hover:bg-[#FF5A1F]/90 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_4px_15px_rgba(255,90,31,0.25)] cursor-pointer"
+                    >
+                      Cerrar Vista
+                    </button>
                   </div>
                 </div>
               ) : (
                 /* VISTA EXPANDIDA COMPLETA (Imagen 2: Split Layout Dual) */
                 <div className="flex flex-col h-full bg-[#0b0b0f]">
+                  {/* Header de Alta Fidelidad (Imagen 1 Layout adaptado a Estrategia Comercial) */}
+                  <div className="p-6 pb-5 border-b border-white/[0.04] bg-[#0e0e14]/80 backdrop-blur-md flex items-center justify-between">
+                    <div className="flex items-center gap-4 text-left">
+                      <div className="w-11 h-11 rounded-xl bg-[#FF5D1E]/10 border border-[#FF5D1E]/20 flex items-center justify-center text-[#FF5D1E] shrink-0">
+                        <Target className="w-5 h-5" />
+                      </div>
+                      <div className="space-y-1.5 text-left">
+                        <h3 className="text-base md:text-lg font-black text-white uppercase tracking-tight">Estrategia Comercial</h3>
+                        <p className="text-white font-light text-xs sm:text-sm leading-relaxed animate-fade-in-up">
+                          Tu plan de ruta estratégico para posicionar tu marca y escalar tus ventas de forma óptima.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsEstrategiaDrawerOpen(false);
+                        setActiveComercialOption(null);
+                      }}
+                      className="p-2.5 rounded-full bg-[#FF5D1E]/10 text-[#FF5D1E] hover:bg-[#FF5D1E]/20 transition-colors focus:outline-none shrink-0 cursor-pointer border border-[#FF5D1E]/20 shadow-[0_0_15px_rgba(255,93,30,0.15)]"
+                      title="Cerrar panel"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
                   {/* Main Grid Wrapper */}
                   <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
                     {/* Left Column (35-40%): Sidebar menu inside split */}
                     <div className="w-full md:w-[320px] lg:w-[350px] bg-[#0d0d12] border-r border-white/[0.04] p-5 flex flex-col gap-5 overflow-y-auto shrink-0">
-                      {/* Comercial strategy resume header */}
-                      <div className="p-4 bg-white/[0.01]/50 border border-white/5 rounded-2xl space-y-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5D1E]">
-                            <Target className="w-4.5 h-4.5" />
-                          </div>
-                          <div className="text-left">
-                            <h3 className="text-sm font-semibold text-white leading-normal">Estrategia Comercial</h3>
-                            <span className="inline-block mt-0.5 text-[8px] px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded font-black tracking-wide leading-none select-none">
-                              ✓ COMPLETADO Y ACTIVO
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
-                          <FileText className="w-3.5 h-3.5 text-[#FF5D1E]" />
-                          <span>8 componentes generados</span>
-                        </div>
-                      </div>
-
+                      
                       {/* 8 Selected / Unselected list items */}
                       <div className="space-y-2">
                         {[
@@ -5103,10 +4858,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 setActiveComercialOption(opt.id as any);
                                 setAvatarSubTab("resumen");
                               }}
-                              className={`flex items-center justify-between p-3.5 rounded-xl cursor-pointer transition-all duration-300 border ${
+                              className={`flex items-center justify-between p-3.5 rounded-xl cursor-pointer transition-all duration-300 border font-sans ${
                                 isActive
-                                  ? "bg-[#FF5D1E]/[0.04] border-[#FF5D1E]/40 text-white font-extrabold shadow-sm shadow-[#FF5D1E]/5"
-                                  : "bg-white/[0.01] border-white/[0.03] text-zinc-400 hover:bg-white/[0.03] hover:text-white"
+                                  ? "bg-[#FF5D1E]/[0.04] border-[#FF5D1E]/40 text-white font-black shadow-sm shadow-[#FF5D1E]/5"
+                                  : "bg-white/[0.01] border-white/[0.03] text-zinc-400 font-semibold hover:bg-white/[0.03] hover:text-white"
                               }`}
                             >
                               <div className="flex items-center gap-2.5">
@@ -5117,7 +4872,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 }`}>
                                   <Check className="w-2.5 h-2.5" />
                                 </div>
-                                <span className="text-xs sm:text-[13px] tracking-tight">{opt.title}</span>
+                                <span className={`text-xs sm:text-[13px] tracking-tight ${isActive ? "font-black" : "font-semibold"}`}>{opt.title}</span>
                               </div>
                               <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
                                 isActive ? "text-[#FF5D1E]" : "text-zinc-650"
@@ -5428,9 +5183,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                               return (
                                 <div className="space-y-4">
                                   {/* Banner instructivo elegante */}
-                                  <div className="flex items-center gap-2 px-1 mb-1 text-white font-light text-xs sm:text-sm select-none animate-pulse">
+                                  <div className="flex items-center gap-2 px-1 mb-1 text-zinc-400 font-light text-xs sm:text-sm select-none font-sans">
                                     <span className="w-1.5 h-1.5 rounded-full bg-[#FF5D1E]"></span>
-                                    <span className="animate-fade-in-up">Haz clic en cualquiera de los avatares para expandir y ver su análisis detallado.</span>
+                                    <span>Haz clic en cualquiera de los avatares para expandir y ver su análisis detallado.</span>
                                   </div>
 
                                   {avatarsToRender.map((av, idx) => {
@@ -5508,29 +5263,32 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                             >
                                               <div className="p-5 md:p-8 space-y-6 bg-gradient-to-b from-[#0c0c11]/80 to-[#08080c]/95">
                                                 {/* Internal Tab Navigation per Expanded Avatar */}
-                                                <div className="flex items-center gap-1 border-b border-white/[0.04] overflow-x-auto overflow-y-hidden pb-1 px-1 mt-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                                                <div className="flex items-center gap-2 overflow-x-auto pb-2 bg-black/30 p-2 rounded-2xl border border-white/5 custom-scrollbar">
                                                   {[
                                                     { id: "resumen", label: "Resumen" },
                                                     { id: "demografico", label: "Perfil Demográfico" },
                                                     { id: "dolores", label: "Dolores y Miedos" },
                                                     { id: "deseos", label: "Deseos y Motivaciones" },
                                                     { id: "comportamiento", label: "Comportamientos" },
-                                                  ].map((tab) => (
-                                                    <button
-                                                      key={tab.id}
-                                                      onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setAvatarSubTab(tab.id as any);
-                                                      }}
-                                                      className={`px-2 sm:px-3.5 py-2 text-[11px] sm:text-[13px] font-bold uppercase transition-all duration-300 relative whitespace-nowrap shrink-0 border-b-2 -mb-[5px] ${
-                                                        avatarSubTab === tab.id
-                                                          ? "text-[#FF5D1E] border-[#FF5D1E]"
-                                                          : "text-zinc-500 border-transparent hover:text-zinc-300"
-                                                      }`}
-                                                    >
-                                                      {tab.label}
-                                                    </button>
-                                                  ))}
+                                                  ].map((tab) => {
+                                                    const isActive = avatarSubTab === tab.id;
+                                                    return (
+                                                      <button
+                                                        key={tab.id}
+                                                        onClick={(e) => {
+                                                          e.stopPropagation();
+                                                          setAvatarSubTab(tab.id as any);
+                                                        }}
+                                                        className={`px-4 py-2.5 text-[11px] sm:text-xs font-black whitespace-nowrap rounded-xl transition-all cursor-pointer duration-200 uppercase tracking-wider shrink-0 ${
+                                                          isActive
+                                                            ? "bg-gradient-to-r from-[#FF5D1E] to-[#e04c13] text-white border-2 border-[#FF5D1E] shadow-lg shadow-[#FF5D1E]/20 scale-[1.02] -translate-y-0.5"
+                                                            : "bg-[#0c0c11] text-zinc-400 border border-white/5 hover:bg-white/[0.04] hover:text-white hover:border-white/10"
+                                                        }`}
+                                                      >
+                                                        {tab.label}
+                                                      </button>
+                                                    );
+                                                  })}
                                                 </div>
 
                                                 {/* Tab: Resumen */}
@@ -5752,7 +5510,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                             return (
                               <div className="space-y-4 pt-2">
                                 {/* Banner instructivo elegante */}
-                                <div className="flex items-center gap-2 px-1 mb-1 text-xs text-zinc-400 select-none animate-pulse font-sans">
+                                <div className="flex items-center gap-2 px-1 mb-1 text-xs text-zinc-400 select-none font-sans">
                                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                   <span>Haz clic en cualquiera de los testimonios para expandir y ver sus detalles de conversión.</span>
                                 </div>
@@ -6025,7 +5783,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                               return (
                                 <div className="space-y-4">
                                   {/* Banner instructivo elegante */}
-                                  <div className="flex items-center gap-2 px-1 mb-1 text-white font-light text-xs sm:text-sm select-none animate-pulse font-sans">
+                                  <div className="flex items-center gap-2 px-1 mb-1 text-zinc-400 font-light text-xs sm:text-sm select-none font-sans">
                                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
                                     <span>Haz clic en cualquiera de los avatares para expandir y ver sus frustraciones específicas.</span>
                                   </div>

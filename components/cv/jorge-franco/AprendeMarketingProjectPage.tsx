@@ -4,8 +4,17 @@ import {
   Code, Database, Server, Cpu, Award, Zap, Heart, BookmarkCheck, Copy, Check
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { TechnologyStack } from './components/TechnologyStack';
 
-export const JorgeFrancoPage: React.FC = () => {
+interface AprendeMarketingProjectPageProps {
+  isDrawer?: boolean;
+  onClose?: () => void;
+}
+
+export const AprendeMarketingProjectPage: React.FC<AprendeMarketingProjectPageProps> = ({
+  isDrawer = false,
+  onClose
+}) => {
   const navigate = useNavigate();
 
   const [copiedUrl, setCopiedUrl] = React.useState(false);
@@ -27,35 +36,6 @@ export const JorgeFrancoPage: React.FC = () => {
     }
   };
   
-  // Technical Stack categories
-  const technicalStack = [
-    {
-      category: 'Lenguajes y Frameworks',
-      items: 'React 19, TypeScript, Node.js (Express), PHP (Laravel), JavaScript (ES6+).',
-      icon: <Code className="w-5 h-5 text-[#FF5A1F]" />
-    },
-    {
-      category: 'Ingeniería de IA',
-      items: 'Implementación de pipelines de IA Generativa con Google Gemini SDK y orquestación de LLMs.',
-      icon: <Cpu className="w-5 h-5 text-[#FFBF00]" />
-    },
-    {
-      category: 'Infraestructura y DevOps',
-      items: 'Google Cloud Platform (Cloud Run, Cloud SQL), Contenerización con Docker.',
-      icon: <Server className="w-5 h-5 text-[#FF5A1F]" />
-    },
-    {
-      category: 'Bases de Datos',
-      items: 'MySQL 8.0 (Diseño de esquemas relacionales y optimización de consultas).',
-      icon: <Database className="w-5 h-5 text-[#FFBF00]" />
-    },
-    {
-      category: 'Rendimiento y Herramientas',
-      items: 'SEO Técnico (Core Web Vitals), APIs/Webhooks, Stripe API, Git, Metodologías Ágiles.',
-      icon: <Sparkles className="w-5 h-5 text-[#FF5A1F]" />
-    }
-  ];
-
   // System statistics of his development achievements
   const achievements = [
     { 
@@ -76,7 +56,7 @@ export const JorgeFrancoPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0B0B0B] text-white font-sans selection:bg-[#FF5A1F] selection:text-white flex flex-col relative overflow-x-hidden">
+    <div className={`${isDrawer ? '' : 'min-h-screen'} bg-[#0B0B0B] text-white font-sans selection:bg-[#FF5A1F] selection:text-white flex flex-col relative overflow-x-hidden`}>
       
       {/* Background ambient glows */}
       <div className="absolute top-[10%] left-[-10%] w-[500px] h-[500px] bg-[#FF5A1F]/10 rounded-full blur-[150px] pointer-events-none"></div>
@@ -84,188 +64,160 @@ export const JorgeFrancoPage: React.FC = () => {
       <div className="absolute bottom-[10%] left-[10%] w-[600px] h-[600px] bg-[#FF5A1F]/5 rounded-full blur-[200px] pointer-events-none"></div>
 
       {/* Navigation */}
-      <nav className="fixed w-full z-50 bg-[#0B0B0B]/90 backdrop-blur-xl border-b border-white/5">
-        <div className="container mx-auto px-6 py-4 flex justify-center items-center max-w-7xl">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="w-12 h-9 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-black text-white text-lg shadow-lg shadow-[#FF5A1F]/20 px-1">AM</div>
-            <span className="text-xl font-bold tracking-tight text-white">Aprende.<span className="text-gray-400 font-normal">Marketing</span></span>
+      {!isDrawer ? (
+        <nav className="fixed w-full z-50 bg-[#0B0B0B]/90 backdrop-blur-xl border-b border-white/5">
+          <div className="container mx-auto px-6 py-4 flex justify-center items-center max-w-7xl">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+              <div className="w-12 h-9 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-black text-white text-lg shadow-lg shadow-[#FF5A1F]/20 px-1">AM</div>
+              <span className="text-xl font-bold tracking-tight text-white">Aprende.<span className="text-gray-400 font-normal">Marketing</span></span>
+            </div>
           </div>
-        </div>
-      </nav>
+        </nav>
+      ) : (
+        <nav className="sticky top-0 w-full z-50 bg-[#0B0B0B]/95 backdrop-blur-xl border-b border-white/5">
+          <div className="container mx-auto px-6 py-4 flex justify-between items-center max-w-7xl">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-9 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-black text-white text-lg shadow-lg shadow-[#FF5A1F]/20 px-1">AM</div>
+              <span className="text-xl font-bold tracking-tight text-white">Aprende.<span className="text-gray-400 font-normal">Marketing</span></span>
+            </div>
+            <button 
+              onClick={onClose}
+              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" /> Volver
+            </button>
+          </div>
+        </nav>
+      )}
 
-      <main className="pt-32 pb-24 flex-1">
+      <main className={`${isDrawer ? 'pt-8' : 'pt-32'} pb-24 flex-1`}>
         <div className="container mx-auto px-6 max-w-6xl">
           
           {/* Hero Portfolio Profile */}
-          <section className="grid md:grid-cols-12 gap-12 items-center mb-24 relative z-10">
-            {/* Profile Pic / Card Column */}
-            <div className="md:col-span-5 flex flex-col items-center">
-              <div className="relative group w-full max-w-[340px]">
-                {/* Glowing borders */}
-                <div className="absolute -inset-1.5 bg-gradient-to-tr from-[#FF5A1F] to-[#FFBF00] rounded-3xl blur opacity-30 group-hover:opacity-50 transition duration-700"></div>
-                
-                {/* Main Card */}
-                <div className="relative bg-[#111] border border-white/10 rounded-3xl p-4 text-center space-y-5">
-                  {/* Photo Container */}
-                  <div className="w-full aspect-square mx-auto rounded-2xl overflow-hidden border-2 border-[#FF5A1F]/30 bg-gradient-to-tr from-[#151515] to-[#252525] flex items-center justify-center relative shadow-inner">
-                    <img 
-                      src="https://github.com/user-attachments/assets/b6dafd03-8d9c-448e-9981-aa250aee6b78" 
-                      alt="Jorge Franco - Full Stack Developer" 
-                      className="w-full h-full object-cover transition-all duration-700 hover:scale-105"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                    <div className="absolute bottom-3 left-0 right-0">
-                      <span className="px-3 py-1 bg-[#FF5A1F] text-[10px] font-black uppercase text-white rounded-md tracking-wider">
-                        Full Stack Dev
+          {!isDrawer && (
+            <section className="grid md:grid-cols-12 gap-12 items-center mb-24 relative z-10">
+              {/* Profile Pic / Card Column */}
+              <div className="md:col-span-5 flex flex-col items-center">
+                <div className="relative group w-full max-w-[340px]">
+                  {/* Glowing borders */}
+                  <div className="absolute -inset-1.5 bg-gradient-to-tr from-[#FF5A1F] to-[#FFBF00] rounded-3xl blur opacity-30 group-hover:opacity-50 transition duration-700"></div>
+                  
+                  {/* Main Card */}
+                  <div className="relative bg-[#111] border border-white/10 rounded-3xl p-4 text-center space-y-5">
+                    {/* Photo Container */}
+                    <div className="w-full aspect-square mx-auto rounded-2xl overflow-hidden border-2 border-[#FF5A1F]/30 bg-gradient-to-tr from-[#151515] to-[#252525] flex items-center justify-center relative shadow-inner">
+                      <img 
+                        src="https://github.com/user-attachments/assets/b6dafd03-8d9c-448e-9981-aa250aee6b78" 
+                        alt="Jorge Franco - Full Stack Developer" 
+                        className="w-full h-full object-cover transition-all duration-700 hover:scale-105"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                      <div className="absolute bottom-3 left-0 right-0">
+                        <span className="px-3 py-1 bg-[#FF5A1F] text-[10px] font-black uppercase text-white rounded-md tracking-wider">
+                          Full Stack Dev
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Header / Brand Title */}
+                    <div className="space-y-1">
+                      <h2 className="text-2xl font-black tracking-tight text-white uppercase">Jorge Franco</h2>
+                      <p className="text-sm font-semibold text-[#FFBF00] uppercase tracking-wider">Creador de Aprende<span className="text-[#FF5A1F]">.Marketing</span></p>
+                    </div>
+
+                    <p className="text-white text-sm md:text-base leading-relaxed font-normal px-2">
+                      Ingeniero de Sistemas y Desarrollador Full-Stack especializado en el diseño de arquitecturas de alto rendimiento. Integro Inteligencia Artificial y procesos asíncronos para crear ecosistemas de marketing escalables y orientados a la conversión.
+                    </p>
+
+                    {/* Badges / Location */}
+                    <div className="flex flex-wrap items-center justify-center gap-2 pt-2 border-t border-white/5">
+                      <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/15 rounded-md text-xs md:text-sm font-bold text-white">
+                        <Globe className="w-4 h-4 text-[#FF5A1F]" /> Málaga, España
+                      </span>
+                      <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md text-xs md:text-sm font-bold text-emerald-400 animate-pulse">
+                        ● Disponible para CTOs
                       </span>
                     </div>
                   </div>
+                </div>
+              </div>
 
-                  {/* Header / Brand Title */}
-                  <div className="space-y-1">
-                    <h2 className="text-2xl font-black tracking-tight text-white uppercase">Jorge Franco</h2>
-                    <p className="text-sm font-semibold text-[#FFBF00] uppercase tracking-wider">Creador de Aprende<span className="text-[#FF5A1F]">.Marketing</span></p>
-                  </div>
-
-                  <p className="text-white text-sm md:text-base leading-relaxed font-normal px-2">
-                    Ingeniero de Sistemas y Desarrollador Full-Stack especializado en el diseño de arquitecturas de alto rendimiento. Integro Inteligencia Artificial y procesos asíncronos para crear ecosistemas de marketing escalables y orientados a la conversión.
+              {/* Description / Introduction Column */}
+              <div className="md:col-span-7 space-y-8">
+                <div className="space-y-4">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFBF00]/10 border border-[#FFBF00]/30 rounded-full text-xs font-black text-[#FFBF00] uppercase tracking-widest">
+                    ★ EL CONSTRUCTOR DETRÁS DEL SISTEMA ★
+                  </span>
+                  <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-none uppercase">
+                    Desglose de tecnologías y <span className="text-[#FF5A1F]">capacidades técnicas</span>
+                  </h1>
+                  <p className="text-lg md:text-xl text-white font-medium leading-relaxed">
+                    Mi nombre es Jorge Franco y he liderado el desarrollo completo de la plataforma de <span className="text-[#FF5A1F]">Aprende.Marketing</span>, llevando la ingeniería de software a un nivel donde la velocidad de ejecución y la psicología de ventas automatizada con Inteligencia Artificial se fusionan perfectamente.
                   </p>
+                </div>
 
-                  {/* Badges / Location */}
-                  <div className="flex flex-wrap items-center justify-center gap-2 pt-2 border-t border-white/5">
-                    <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/15 rounded-md text-xs md:text-sm font-bold text-white">
-                      <Globe className="w-4 h-4 text-[#FF5A1F]" /> Málaga, España
-                    </span>
-                    <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md text-xs md:text-sm font-bold text-emerald-400 animate-pulse">
-                      ● Disponible para CTOs
-                    </span>
+                {/* Direct Link Action Cards (Moved Above achievements grid) */}
+                <div className="space-y-4 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                    <button 
+                      onClick={() => {
+                        const el = document.getElementById('video-presentacion');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className="w-full px-6 py-4 bg-gradient-to-r from-[#FF5A1F]/20 via-[#FFBF00]/10 to-[#FF5A1F]/15 border border-[#FF5A1F]/40 hover:border-[#FF5A1F]/70 text-[#FFBF00] rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-[#FF5A1F]/5 group"
+                    >
+                      <Zap className="w-4 h-4 text-[#FF5A1F] animate-pulse" />
+                      <span>Ver Presentación</span>
+                    </button>
+
+                    <a 
+                      href="https://github.com/ingenierojorgefranco/" 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 hover:border-white/20 text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all hover:bg-white/10"
+                    >
+                      <Github className="w-4 h-4 text-white" /> GitHub
+                    </a>
+
+                    <a 
+                      href="https://drive.google.com/file/d/1neROWIk7FfUgKqkNbTkEAbChTnbeJljI/view?usp=sharing"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full px-6 py-4 bg-[#FFBF00]/10 border border-[#FFBF00]/30 hover:border-[#FFBF00]/20 text-[#FFBF00] rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all hover:bg-[#FFBF00]/20"
+                    >
+                      <Download className="w-4 h-4" /> Curriculum (CV)
+                    </a>
+
+                    <a 
+                      href="https://calendly.com/jorgefranpuntoco/seminariosonline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full px-6 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5A1F]/15"
+                    >
+                      <MessageSquare className="w-4 h-4 text-white" /> Agendar Llamada
+                    </a>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Description / Introduction Column */}
-            <div className="md:col-span-7 space-y-8">
-              <div className="space-y-4">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFBF00]/10 border border-[#FFBF00]/30 rounded-full text-xs font-black text-[#FFBF00] uppercase tracking-widest">
-                  ★ EL CONSTRUCTOR DETRÁS DEL SISTEMA ★
-                </span>
-                <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-none uppercase">
-                  Desglose de tecnologías y <span className="text-[#FF5A1F]">capacidades técnicas</span>
-                </h1>
-                <p className="text-lg md:text-xl text-white font-medium leading-relaxed">
-                  Mi nombre es Jorge Franco y he liderado el desarrollo completo de la plataforma de <span className="text-[#FF5A1F]">Aprende.Marketing</span>, llevando la ingeniería de software a un nivel donde la velocidad de ejecución y la psicología de ventas automatizada con Inteligencia Artificial se fusionan perfectamente.
-                </p>
-              </div>
-
-              {/* Direct Link Action Cards (Moved Above achievements grid) */}
-              <div className="space-y-4 pt-2">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-                  <button 
-                    onClick={() => {
-                      const el = document.getElementById('video-presentacion');
-                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    className="w-full px-6 py-4 bg-gradient-to-r from-[#FF5A1F]/20 via-[#FFBF00]/10 to-[#FF5A1F]/15 border border-[#FF5A1F]/40 hover:border-[#FF5A1F]/70 text-[#FFBF00] rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-[#FF5A1F]/5 group"
-                  >
-                    <Zap className="w-4 h-4 text-[#FF5A1F] animate-pulse" />
-                    <span>Ver Presentación</span>
-                  </button>
-
-                  <a 
-                    href="https://github.com/ingenierojorgefranco/" 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 hover:border-white/20 text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all hover:bg-white/10"
-                  >
-                    <Github className="w-4 h-4 text-white" /> GitHub
-                  </a>
-
-                  <a 
-                    href="https://drive.google.com/file/d/1neROWIk7FfUgKqkNbTkEAbChTnbeJljI/view?usp=sharing"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full px-6 py-4 bg-[#FFBF00]/10 border border-[#FFBF00]/30 hover:border-[#FFBF00]/20 text-[#FFBF00] rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all hover:bg-[#FFBF00]/20"
-                  >
-                    <Download className="w-4 h-4" /> Curriculum (CV)
-                  </a>
-
-                  <a 
-                    href="https://calendly.com/jorgefranpuntoco/seminariosonline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full px-6 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5A1F]/15"
-                  >
-                    <MessageSquare className="w-4 h-4 text-white" /> Agendar Llamada
-                  </a>
-                </div>
-              </div>
-
-              {/* Achievements Grid (Moved Below, updated styling for 3 columns) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-                {achievements.map((ach: any, idx) => (
-                  <div key={idx} className="bg-[#111] border border-white/5 rounded-2xl p-6 text-center hover:border-white/10 transition-colors flex flex-col items-center justify-start gap-3">
-                    <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center mx-auto mb-1">
-                      {ach.icon}
+                {/* Achievements Grid (Moved Below, updated styling for 3 columns) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+                  {achievements.map((ach: any, idx) => (
+                    <div key={idx} className="bg-[#111] border border-white/5 rounded-2xl p-6 text-center hover:border-white/10 transition-colors flex flex-col items-center justify-start gap-3">
+                      <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center mx-auto mb-1">
+                        {ach.icon}
+                      </div>
+                      <div className="text-base font-extrabold text-white leading-snug">{ach.title}</div>
+                      <div className="text-xs text-gray-400 font-light leading-relaxed">{ach.subtext}</div>
                     </div>
-                    <div className="text-base font-extrabold text-white leading-snug">{ach.title}</div>
-                    <div className="text-xs text-gray-400 font-light leading-relaxed">{ach.subtext}</div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* CV & Interactive Stack Knowledge Section */}
-          <section id="curriculum" className="space-y-12 mb-24 text-left">
-            {/* Skills & Cards container (Full Width) */}
-            <div className="space-y-8 bg-[#111] border border-white/5 rounded-[2.5rem] p-8 md:p-12 relative w-full">
-              <div className="space-y-2">
-                <p className="text-xs font-black text-[#FFBF00] uppercase tracking-widest">HABILIDADES COMO FULLSTACK DEVELOPER</p>
-                <h3 className="text-3xl font-black text-white uppercase tracking-tight">Stack Tecnológico</h3>
-              </div>
- 
-              {/* Grid of technical cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                {technicalStack.map((tech, idx) => (
-                  <div key={idx} className="group p-6 bg-[#0B0B0B] border border-white/5 rounded-2xl hover:border-white/10 transition-all flex flex-col gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 text-white">
-                      {tech.icon}
-                    </div>
-                    <div>
-                      <h4 className="font-extrabold text-[#FFBF00] uppercase tracking-wider mb-2 text-sm">{tech.category}</h4>
-                      <p className="text-white text-base md:text-lg font-normal leading-relaxed">
-                        {tech.items}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
- 
-              {/* CV Banner underneath */}
-              <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="space-y-2 max-w-2xl font-bold">
-                  <h4 className="text-2xl font-black text-white uppercase tracking-tight">Curriculum Vitae</h4>
-                  <p className="text-white font-normal text-lg md:text-xl leading-relaxed">
-                    Descarga mi CV. Conoce las tecnologías que manejo, mi historial de proyectos y mi visión técnica para escalar aplicaciones web eficientes.
-                  </p>
-                </div>
-                <div className="w-full md:w-auto shrink-0">
-                  <a 
-                    href="https://drive.google.com/file/d/1neROWIk7FfUgKqkNbTkEAbChTnbeJljI/view?usp=sharing" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full md:w-auto px-8 py-4 bg-[#FFBF00] hover:bg-[#E5AC00] text-black font-black text-sm uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#FFBF00]/10"
-                  >
-                    <Download className="w-4 h-4 text-black stroke-[2.5]" />
-                    Descargar CV Oficial PDF
-                  </a>
-                </div>
-              </div>
-
-            </div>
-          </section>
+          {!isDrawer && <TechnologyStack />}
 
           {/* Duplicated Contact Section after ID Curriculum */}
           <section className="max-w-3xl mx-auto mb-24">
@@ -306,8 +258,8 @@ export const JorgeFrancoPage: React.FC = () => {
                 <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase leading-none">
                   Descubre sobre <span className="text-[#FF5A1F]">Aprende.Marketing</span>
                 </h2>
-                <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                  Aprende.Marketing elimina la brecha de ejecución en el marketing de productos digitales al automatizar todo el proceso de ventas, creando un embudo de conversión profesional para generar resultados escalables y automatizados.
+                <p className="text-white/90 font-normal leading-loose text-base md:text-lg max-w-2xl mx-auto">
+                  Aprende.Marketing elimina la brecha de ejecución en el marketing de productos digitales al automatizar todo el proceso de ventas, creando un embudo de conversión profesional para generar resultados escalables and automatizados.
                 </p>
               </div>
 
@@ -454,28 +406,28 @@ export const JorgeFrancoPage: React.FC = () => {
                     <BookmarkCheck className="w-6 h-6 text-[#FF5A1F] shrink-0 mt-0.5" />
                     <div>
                       <span className="block text-white font-extrabold text-xs uppercase tracking-wider mb-1">Frontend</span>
-                      <span className="text-gray-300 text-base md:text-lg font-normal leading-relaxed">React 19.2 + Vite 7 (Atomic Design & TypeScript)</span>
+                      <span className="text-gray-300 text-sm md:text-base font-normal leading-relaxed">React 19.2 + Vite 7 (Atomic Design & TypeScript)</span>
                     </div>
                   </div>
                   <div className="p-4 bg-white/5 border border-white/5 rounded-xl flex items-start gap-4 hover:border-white/10 transition-colors">
                     <BookmarkCheck className="w-6 h-6 text-[#FF5A1F] shrink-0 mt-0.5" />
                     <div>
                       <span className="block text-white font-extrabold text-xs uppercase tracking-wider mb-1">Backend</span>
-                      <span className="text-gray-300 text-base md:text-lg font-normal leading-relaxed">Node.js 20 + Express (Modular REST API)</span>
+                      <span className="text-gray-300 text-sm md:text-base font-normal leading-relaxed">Node.js 20 + Express (Modular REST API)</span>
                     </div>
                   </div>
                   <div className="p-4 bg-white/5 border border-white/5 rounded-xl flex items-start gap-4 hover:border-white/10 transition-colors">
                     <BookmarkCheck className="w-6 h-6 text-[#FF5A1F] shrink-0 mt-0.5" />
                     <div>
                       <span className="block text-white font-extrabold text-xs uppercase tracking-wider mb-1">AI Engine</span>
-                      <span className="text-gray-300 text-base md:text-lg font-normal leading-relaxed">Gemini 1.5 Flash (Fragmented 6-Stage Pipeline)</span>
+                      <span className="text-gray-300 text-sm md:text-base font-normal leading-relaxed">Gemini 1.5 Flash (Fragmented 6-Stage Pipeline)</span>
                     </div>
                   </div>
                   <div className="p-4 bg-white/5 border border-white/5 rounded-xl flex items-start gap-4 hover:border-white/10 transition-colors">
                     <BookmarkCheck className="w-6 h-6 text-[#FFBF00] shrink-0 mt-0.5" />
                     <div>
                       <span className="block text-white font-extrabold text-xs uppercase tracking-wider mb-1">Cloud</span>
-                      <span className="text-gray-300 text-base md:text-lg font-normal leading-relaxed">Docker + Google Cloud Run (CI/CD Pipelines)</span>
+                      <span className="text-gray-300 text-sm md:text-base font-normal leading-relaxed">Docker + Google Cloud Run (CI/CD Pipelines)</span>
                     </div>
                   </div>
                 </div>
@@ -507,25 +459,25 @@ export const JorgeFrancoPage: React.FC = () => {
                 <div className="bg-[#0B0B0B] border border-white/5 rounded-2xl p-6 relative hover:border-[#FF5A1F]/20 transition-all group">
                   <div className="text-4xl font-black text-[#FF5A1F] mb-1 group-hover:scale-105 transition-transform">20+</div>
                   <div className="text-xs font-black text-white uppercase tracking-wider mb-2">Embudos Generados</div>
-                  <p className="text-white/90 font-normal leading-loose text-base md:text-lg">Sistemas de ventas completos creados desde una sola idea inicial en menos de 2 minutos.</p>
+                  <p className="text-white/90 font-normal leading-loose text-sm md:text-base">Sistemas de ventas completos creados desde una sola idea inicial en menos de 2 minutos.</p>
                 </div>
                 
                 <div className="bg-[#0B0B0B] border border-white/5 rounded-2xl p-6 relative hover:border-[#FFBF00]/20 transition-all group">
                   <div className="text-4xl font-black text-[#FFBF00] mb-1 group-hover:scale-105 transition-transform">~1.5 Min</div>
                   <div className="text-xs font-black text-white uppercase tracking-wider mb-2">Tiempo de Procesamiento</div>
-                  <p className="text-white/90 font-normal leading-loose text-base md:text-lg">Pipeline asíncrono optimizado de 6 etapas que integra y formatea todos los activos de venta.</p>
+                  <p className="text-white/90 font-normal leading-loose text-sm md:text-base">Pipeline asíncrono optimizado de 6 etapas que integra y formatea todos los activos de venta.</p>
                 </div>
 
                 <div className="bg-[#0B0B0B] border border-white/5 rounded-2xl p-6 relative hover:border-[#FF5A1F]/20 transition-all group">
                   <div className="text-4xl font-black text-white mb-1 group-hover:scale-105 transition-transform">15+</div>
                   <div className="text-xs font-black text-[#FF5A1F] uppercase tracking-wider mb-2">Usuarios Beta Activos</div>
-                  <p className="text-white/90 font-normal leading-loose text-base md:text-lg">Emprendedores y afiliados validando embudos reales diariamente en la plataforma.</p>
+                  <p className="text-white/90 font-normal leading-loose text-sm md:text-base">Emprendedores y afiliados validando embudos reales diariamente en la plataforma.</p>
                 </div>
 
                 <div className="bg-[#0B0B0B] border border-white/5 rounded-2xl p-6 relative hover:border-emerald-500/20 transition-all group">
                   <div className="text-4xl font-black text-emerald-400 mb-1 group-hover:scale-105 transition-transform">+15%</div>
                   <div className="text-xs font-black text-white uppercase tracking-wider mb-2">Mejora de Conversión</div>
-                  <p className="text-white/90 font-normal leading-loose text-base md:text-lg">Porcentaje de conversión incrementado frente a embudos tradicionales no optimizados.</p>
+                  <p className="text-white/90 font-normal leading-loose text-sm md:text-base">Porcentaje de conversión incrementado frente a embudos tradicionales no optimizados.</p>
                 </div>
               </div>
             </div>
@@ -567,15 +519,15 @@ export const JorgeFrancoPage: React.FC = () => {
                     
                     <div className="space-y-4 pt-2">
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-xs block mb-1">El Problema:</strong>
                           Servir proyectos únicos de múltiples usuarios a través de sus propios dominios personalizados (CNAME) sin añadir sobrecarga en cache de estado global, latencia de sesión o retrasos de base de datos.
                         </p>
                       </div>
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
-                          Diseñé e implementé un middleware de detección de host personalizado en <span className="text-gray-400 font-mono">pageRoutes.js</span>. Intercepta el hostname de la solicitud entrante, realiza un <span className="text-gray-400 font-mono">LEFT JOIN</span> altamente optimizado en las tablas <span className="text-gray-400 font-mono">landing_pages</span> y <span className="text-gray-400 font-mono">projects</span>, resolviendo y sirviendo el contenido del tenant en menos de 180ms sin comprometer el aislamiento ni requerir balanceadores de carga complejos.
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-xs block mb-1">Solución Aplicada:</strong>
+                          Diseñé e implementé un middleware de detección de host personalizado en <span className="text-gray-400 font-mono">pageRoutes.js</span>. Intercepta el hostname de la solicitud entrante, realiza un <span className="text-gray-400 font-mono">LEFT JOIN</span> altamente optimizado en las tablas <span className="text-gray-400 font-mono">landing_pages</span> and <span className="text-gray-400 font-mono">projects</span>, resolviendo y sirviendo el contenido del tenant en menos de 180ms sin comprometer el aislamiento ni requerir balanceadores de carga complejos.
                         </p>
                       </div>
                     </div>
@@ -598,14 +550,14 @@ export const JorgeFrancoPage: React.FC = () => {
                     
                     <div className="space-y-4 pt-2">
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-xs block mb-1">El Problema:</strong>
                           Controlar errores de red, respuestas fallidas de tasa de límite (503/504) e interrupciones del SDK de Gemini durante secuencias pesadas de generación de contenido continuo.
                         </p>
                       </div>
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-xs block mb-1">Solución Aplicada:</strong>
                           Creé un algoritmo de reintento recursivo con Retroceso Exponencial y Jitter (desviación aleatoria) para todas las llamadas críticas al SDK del modelo. Esto garantiza que las generaciones profundas divididas en 6 fases asínconas consecutivas finalicen de forma robusta e imperceptible para el usuario, recuperándose de caídas de red transitorias automáticamente.
                         </p>
                       </div>
@@ -629,14 +581,14 @@ export const JorgeFrancoPage: React.FC = () => {
                     
                     <div className="space-y-4 pt-2">
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-xs block mb-1">El Problema:</strong>
                           Las tasas excesivas de actualización de la UI en editores interactivos en tiempo real provocaban bloqueos de renderizado al manipular estructuras complejas de CSS y JSON de páginas de aterrizaje completas.
                         </p>
                       </div>
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-xs block mb-1">Solución Aplicada:</strong>
                           Desarrollé un motor de render reactive optimizado basado en plantillas dinámicas que desacopla por completo el árbol de edición del lienzo de visualización del iframe. Esto reduce los costes de cómputo en el navegador a O(1) para actualizaciones instantáneas, ofreciendo una experiencia interactiva sin lag al arrastrar, modificar textos o cambiar llamadas a la acción.
                         </p>
                       </div>
@@ -660,14 +612,14 @@ export const JorgeFrancoPage: React.FC = () => {
                     
                     <div className="space-y-4 pt-2">
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-xs block mb-1">El Problema:</strong>
                           Sincronizar planes de suscripción, asignación de créditos de IA persistentes e inicios de sesión a través de plataformas con estructuras de datos de webhooks radicalmente incompatibles.
                         </p>
                       </div>
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-xs block mb-1">Solución Aplicada:</strong>
                           Diseñé una Capa de Orquestación y Normalización de Pasarelas de Pago que recibe eventos de Stripe (JSON crudo y firmas HMAC) y Hotmart (eventos cifrados). Convierte de forma asíncrona todos los payloads entrantes en un stream interno estandarizado que actualiza de inmediato las cuotas de uso de los usuarios y activa accesos de seguridad a nivel atómico en tiempo de ejecución.
                         </p>
                       </div>
@@ -691,14 +643,14 @@ export const JorgeFrancoPage: React.FC = () => {
                     
                     <div className="space-y-4 pt-2">
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-xs block mb-1">El Problema:</strong>
                           La sincronización retrasada de leads capturados en páginas generadas por el SaaS hacia flujos de automatización externos (como Systeme.io) generaba una brecha de conversión de hasta varios minutos.
                         </p>
                       </div>
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-xs block mb-1">Solución Aplicada:</strong>
                           Programé un despachador de eventos integrado que consume directamente leads desde las páginas del cliente. El sistema encapsula los datos y realiza una inserción asíncrona mediante la API de Systeme.io aplicando una arquitectura basada en etiquetas ("Tag-Triggered"). Esto arranca las campañas automáticas de emails al instante exacto de la suscripción, maximizando las tasas de apertura.
                         </p>
                       </div>
@@ -722,14 +674,14 @@ export const JorgeFrancoPage: React.FC = () => {
                     
                     <div className="space-y-4 pt-2">
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-xs block mb-1">El Problema:</strong>
                           Los usuarios finales carecían de una forma integrada para verificar el origen, comportamiento histórico y estado de conversión de sus prospectos sin recurrir a software de terceros caro y complejo.
                         </p>
                       </div>
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-xs block mb-1">Solución Aplicada:</strong>
                           Diseñé un módulo nativo de CRM dentro de la aplicación. Captura de forma segura a través de API webhooks cada registro desde los hooks de las páginas de captura, normaliza los datos con marcas de tiempo precisas y los centraliza en una base de datos relacional para proyectar gráficos en tiempo real sobre el rendimiento del embudo.
                         </p>
                       </div>
@@ -753,13 +705,13 @@ export const JorgeFrancoPage: React.FC = () => {
                     
                     <div className="space-y-4 pt-2">
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-xs block mb-1">El Problema:</strong>
                           Pérdida de usuarios activos mensuales debido al síndrome de la "pantalla vacía" y la falta de educación sobre cómo estructurar campañas utilizando la plataforma.
                         </p>
                       </div>
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
                           <strong className="text-[#FFBF05]">Solución Aplicada:</strong> El Sistema de Gestión de Aprendizaje (LMS) seguro y privado directamente integrado con el núcleo de autenticación del SaaS protege flujos de streaming de capacitación avanzada e implementa módulos de progreso escalonados según las capacidades contratadas, disminuyendo significativamente la tasa de abandono de nuevos usuarios.
                         </p>
                       </div>
@@ -783,14 +735,14 @@ export const JorgeFrancoPage: React.FC = () => {
                     
                     <div className="space-y-4 pt-2">
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-white font-extrabold uppercase tracking-wider text-sm block mb-1">El Problema:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-white font-extrabold uppercase tracking-wider text-xs block mb-1">El Problema:</strong>
                           Copiar o replicar de forma manual arquitecturas y estrategias ganadoras de un proyecto de marketing a otro requería múltiples peticiones e inserciones anidadas lentas y propensas a errores de formato.
                         </p>
                       </div>
                       <div className="p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                        <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
-                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-sm block mb-1">Solución Aplicada:</strong>
+                        <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
+                          <strong className="text-[#FFBF00] font-extrabold uppercase tracking-wider text-xs block mb-1">Solución Aplicada:</strong>
                           Implementé un motor de clonación atómica que hereda de una cuenta clave "Plan Root" todas las relaciones de tablas completas (layouts, avatares, copys, etc.) en un único disparo relacional. El sistema copia la estructura íntegra de forma asíncrona en menos de 50ms, facilitando flujos rápidos de testeo masivo.
                         </p>
                       </div>
@@ -829,7 +781,7 @@ export const JorgeFrancoPage: React.FC = () => {
                       <span className="text-xs font-black text-white uppercase tracking-wider">Hito Q1-Q2</span>
                     </div>
                     <h4 className="text-lg font-extrabold text-[#FFBF00] uppercase tracking-tight">Constructor Visual Dinámico</h4>
-                    <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                    <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
                       Lienzo de edición con drag-and-drop completo para reordenar bloques, layouts y hooks dinámicos en tiempo real con JSON persistente.
                     </p>
                   </div>
@@ -842,7 +794,7 @@ export const JorgeFrancoPage: React.FC = () => {
                       <span className="text-xs font-black text-white uppercase tracking-wider">Hito Q3</span>
                     </div>
                     <h4 className="text-lg font-extrabold text-[#FFBF00] uppercase tracking-tight">Motor de Pruebas A/B</h4>
-                    <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                    <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
                       Distribución dinámica y automática de tráfico aleatorio a múltiples variantes de copys y landings con tracking de KPIs de conversión nativos.
                     </p>
                   </div>
@@ -855,7 +807,7 @@ export const JorgeFrancoPage: React.FC = () => {
                       <span className="text-xs font-black text-white uppercase tracking-wider">Hito Q4</span>
                     </div>
                     <h4 className="text-lg font-extrabold text-[#FFBF00] uppercase tracking-tight">Conversión por WhatsApp API</h4>
-                    <p className="text-white/90 font-normal leading-loose text-base md:text-lg">
+                    <p className="text-white/90 font-normal leading-loose text-sm md:text-base">
                       Integración de chatbot conversacional avanzado con la API de WhatsApp para seguimiento asíncrono y cualificación automática de leads calientes.
                     </p>
                   </div>
@@ -894,19 +846,21 @@ export const JorgeFrancoPage: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-[#0B0B0B] border-t border-white/5 py-12 relative z-10 text-xs font-light text-gray-500">
-        <div className="container mx-auto px-6 max-w-6xl flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-7 bg-[#FF5A1F]/20 text-[#FF5A1F] border border-[#FF5A1F]/30 rounded-lg flex items-center justify-center font-bold text-xs">AM</div>
-            <span>&copy; {new Date().getFullYear()} Jorge Franco Portfolio. Hecho con <Heart className="inline-block w-3.5 h-3.5 text-red-500 mx-0.5" /> para el mundo.</span>
+      {!isDrawer && (
+        <footer className="bg-[#0B0B0B] border-t border-white/5 py-12 relative z-10 text-xs font-light text-gray-500">
+          <div className="container mx-auto px-6 max-w-6xl flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-7 bg-[#FF5A1F]/20 text-[#FF5A1F] border border-[#FF5A1F]/30 rounded-lg flex items-center justify-center font-bold text-xs">AM</div>
+              <span>&copy; {new Date().getFullYear()} Jorge Franco Portfolio. Hecho con <Heart className="inline-block w-3.5 h-3.5 text-red-500 mx-0.5" /> para el mundo.</span>
+            </div>
+            <div className="flex items-center gap-6">
+              <a href="https://github.com/ingenierojorgefranco/" target="_blank" rel="noreferrer" className="hover:text-white transition flex items-center gap-1.5 font-bold"><Github className="w-4 h-4" /> GitHub</a>
+              <span>•</span>
+              <span className="font-bold text-gray-400 tracking-wide uppercase">Full Stack Developer</span>
+            </div>
           </div>
-          <div className="flex items-center gap-6">
-            <a href="https://github.com/ingenierojorgefranco/" target="_blank" rel="noreferrer" className="hover:text-white transition flex items-center gap-1.5 font-bold"><Github className="w-4 h-4" /> GitHub</a>
-            <span>•</span>
-            <span className="font-bold text-gray-400 tracking-wide uppercase">Full Stack Developer</span>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
     </div>
   );
 };

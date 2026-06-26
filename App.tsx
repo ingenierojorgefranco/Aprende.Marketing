@@ -17,7 +17,8 @@ import { PublicLandingView } from "./components/PublicLandingView";
 import { ContactPage } from "./components/ContactPage";
 import { TermsPage } from "./components/TermsPage";
 import { PrivacyPage } from "./components/PrivacyPage";
-import { JorgeFrancoPage } from "./components/JorgeFrancoPage";
+import { JorgeFrancoPage } from "./components/cv/jorge-franco/JorgeFrancoPage";
+import { AprendeMarketingProjectPage } from "./components/cv/jorge-franco/AprendeMarketingProjectPage";
 ////////// Fin de importación - 14/06/2025 01:15 //////////
 
 // Dashboard Core
@@ -320,6 +321,7 @@ const App: React.FC = () => {
         <Route path="/terminos" element={<TermsPage />} />
         <Route path="/privacidad" element={<PrivacyPage />} />
         <Route path="/jorge-franco" element={<JorgeFrancoPage />} />
+        <Route path="/jorge-franco/proyectos/aprende-marketing" element={<AprendeMarketingProjectPage />} />
         {/* ////////// Fin de nuevas rutas - 27/05/2025 01:15 ////////// */}
 
         <Route 

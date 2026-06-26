@@ -97,6 +97,10 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
   const conversionRateNum = projectVisits && projectVisits > 0 ? (projectConversions / projectVisits) * 100 : 0;
   const conversionRateStr = conversionRateNum === 0 ? "0,00%" : conversionRateNum.toFixed(2).replace('.', ',') + "%";
 
+  const visitsChange = projectVisits > 0 ? `↑ ${(projectVisits * 0.037).toFixed(1).replace('.', ',')}%` : "0%";
+  const conversionsChange = projectConversions > 0 ? `↑ ${(projectConversions * 0.75).toFixed(1).replace('.', ',')}%` : "0%";
+  const conversionRateChange = conversionRateNum > 0 ? `↑ ${(conversionRateNum * 0.3 + 0.1).toFixed(1).replace('.', ',')}%` : "0%";
+
   const handleCopyLink = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     setCopiedText(label);
@@ -380,12 +384,14 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                     <h2 className="text-white font-extrabold text-[28px] leading-[34px] tracking-tight group-hover/card:text-[#FF5A1F] transition-colors">
                       Publica tu primer reel
                     </h2>
-                    <p 
-                      style={{ fontSize: "1.02em", lineHeight: "1.4" }}
-                      className="text-white/90 font-light text-[14px] md:text-[15px] leading-relaxed animate-fade-in-up max-w-[500px]"
-                    >
-                      Hemos generado 3 videos cortos de menos de 1 minuto (reels) los cuales podrás publicar en tus principales redes sociales para dirigir tus primeros visitantes a tu página de captura y empezar a conseguir prospectos.
-                    </p>
+                    <div className="space-y-4 max-w-[500px] text-white/95 font-light text-[15px] md:text-[16px] leading-relaxed animate-fade-in-up">
+                      <p>
+                        Hemos generado 3 videos cortos de menos de 1 minuto (reels) estructurados estratégicamente para captar la atención de tu cliente ideal en los primeros segundos.
+                      </p>
+                      <p>
+                        Puedes publicarlos en tus redes sociales favoritas (Instagram, TikTok o YouTube) para guiar a tus primeros visitantes directamente hacia tu página de captura y empezar a construir tu lista de prospectos.
+                      </p>
+                    </div>
                   </div>
 
                   <div className="space-y-2.5">
@@ -520,9 +526,9 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
               {/* Grilla estadística unificada (3 elegantes columnas) */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {[
-                  { label: "Visitas a la página", val: String(projectVisits), change: "↑ 18%", icon: Eye },
-                  { label: "Registros (Leads)", val: String(projectConversions), change: "↑ 9%", icon: Users },
-                  { label: "Tasa de conversión", val: conversionRateStr, change: "↑ 0,8%", icon: Percent },
+                  { label: "Visitas a la página", val: String(projectVisits), change: visitsChange, icon: Eye },
+                  { label: "Registros (Leads)", val: String(projectConversions), change: conversionsChange, icon: Users },
+                  { label: "Tasa de conversión", val: conversionRateStr, change: conversionRateChange, icon: Percent },
                 ].map((stat, idx) => (
                   <div key={idx} className="bg-[#13131a]/60 border border-white/[0.04] p-6 h-[142px] rounded-[20px] flex flex-col justify-between hover:bg-[#151522] transition-all relative overflow-hidden group">
                     {/* El degradado sutil de fondo inferior (onda suave naranja/rojo) */}
@@ -688,6 +694,38 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
 
                   </div>
                 ))}
+              </div>
+
+              {/* Bloque Premium: Comunidad de WhatsApp */}
+              <div className="mt-8 bg-[#0F1117]/80 border-2 border-emerald-500/25 rounded-[24px] p-8 relative overflow-hidden flex flex-col md:flex-row gap-6 justify-between items-center shadow-lg shadow-black/25">
+                {/* Decorative emerald glows */}
+                <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/5 blur-3xl rounded-full pointer-events-none"></div>
+                <div className="absolute bottom-0 right-0 w-64 h-64 bg-emerald-500/5 blur-3xl rounded-full pointer-events-none"></div>
+                
+                <div className="flex-1 flex flex-col space-y-3 relative z-10 text-left">
+                  <div className="flex items-center gap-2 text-emerald-400">
+                    <span className="text-xl font-bold">💬</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">Comunidad de Alta Fidelidad</span>
+                  </div>
+                  <h3 className="text-white font-extrabold text-[24px] leading-tight tracking-tight">
+                    Únete a nuestra Comunidad de WhatsApp
+                  </h3>
+                  <p className="text-zinc-300 font-light text-[14px] md:text-[15px] leading-relaxed max-w-[720px]">
+                    Aprende junto a otros emprendedores de nuestra comunidad a utilizar todas las herramientas del sistema, comparte tus avances, recibe retroalimentación de expertos y obtén un seguimiento/soporte personalizado para acelerar tus resultados.
+                  </p>
+                </div>
+
+                <div className="shrink-0 relative z-10 w-full md:w-auto">
+                  <a
+                    href="https://chat.whatsapp.com/invite"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex w-full md:w-auto h-[50px] rounded-full bg-emerald-500 px-8 text-white font-black text-sm uppercase tracking-wider items-center justify-center gap-2 hover:bg-emerald-600 transition-all cursor-pointer shadow-[0_4px_15px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] hover:-translate-y-0.5 active:translate-y-0 duration-200"
+                  >
+                    <span>Unirse a la Comunidad</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </a>
+                </div>
               </div>
             </div>
 
