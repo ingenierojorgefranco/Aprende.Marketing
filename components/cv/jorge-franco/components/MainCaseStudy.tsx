@@ -3,7 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AprendeMarketingProjectPage } from '../AprendeMarketingProjectPage';
 import { ArrowRight, Sparkles, Terminal, MessageSquare, Code, Cpu, Server, Zap, Check, Eye } from 'lucide-react';
 
-export const MainCaseStudy: React.FC = () => {
+interface MainCaseStudyProps {
+  lang: 'es' | 'en';
+}
+
+export const MainCaseStudy: React.FC<MainCaseStudyProps> = ({ lang }) => {
   const [isPlayingVideo, setIsPlayingVideo] = React.useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
 
@@ -19,16 +23,27 @@ export const MainCaseStudy: React.FC = () => {
   }, [isDrawerOpen]);
 
   return (
-    <section id="aprende-marketing-case-study" className="mb-24 relative z-10 text-left">
+    <section 
+      id="aprende-marketing-case-study" 
+      className={`mb-24 relative text-left transition-all ${isDrawerOpen ? 'z-[200]' : 'z-10'}`}
+    >
+      {/* Section Title */}
+      <div className="flex items-center gap-3 mb-8">
+        <div className="w-1.5 h-6 bg-[#FF5A1F] rounded-full"></div>
+        <h2 className="text-2xl font-black text-white tracking-tight uppercase">
+          {lang === 'es' ? 'PROYECTOS EN DESARROLLO' : 'PROJECTS IN DEVELOPMENT'}
+        </h2>
+      </div>
+
       {/* Container Card */}
-      <div className="bg-[#111111] border border-white/5 rounded-[2.5rem] p-8 md:p-12 space-y-12 shadow-2xl relative overflow-hidden">
+      <div className="bg-[#111111] border border-white/5 rounded-[2.5rem] p-6 md:py-8 md:px-10 space-y-8 shadow-2xl relative overflow-hidden">
         {/* Glow ambient inside card */}
         <div className="absolute top-[-20%] right-[-10%] w-[350px] h-[350px] bg-[#FF5A1F]/5 rounded-full blur-[100px] pointer-events-none"></div>
 
         {/* Header inside */}
         <div className="space-y-2">
           <span className="inline-block text-[#FF5A1F] text-xs font-black tracking-widest uppercase">
-            CASO DE ESTUDIO PRINCIPAL
+            {lang === 'es' ? 'CASO DE ESTUDIO PRINCIPAL' : 'MAIN CASE STUDY'}
           </span>
           <h2 className="text-3xl md:text-[2.5rem] font-black text-white tracking-tight leading-none uppercase">
             Aprende.Marketing
@@ -41,44 +56,47 @@ export const MainCaseStudy: React.FC = () => {
           <div className="lg:col-span-5 space-y-6">
             <div className="space-y-4">
               <div className="space-y-2">
-                <h4 className="text-base font-black text-white uppercase tracking-wider">Problema</h4>
-                <p className="text-base text-white font-normal leading-relaxed">
-                  Los emprendedores y empresas pierden tiempo y dinero creando embudos, páginas y contenido desde cero. El proceso es costoso, lento y complejo.
+                <h4 className="text-base font-black text-white uppercase tracking-wider">
+                  {lang === 'es' ? 'Problema' : 'Problem'}
+                </h4>
+                <p className="text-lg md:text-[1rem] text-white font-normal leading-relaxed max-w-2xl">
+                  {lang === 'es'
+                    ? 'Los emprendedores y empresas pierden tiempo y dinero creando embudos, páginas y contenido desde cero. El proceso es costoso, lento y complejo.'
+                    : 'Entrepreneurs and businesses waste time and money building funnels, pages, and marketing content from scratch. It is costly, slow, and complex.'}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-base font-black text-white uppercase tracking-wider">Solución</h4>
-                <p className="text-base text-white font-normal leading-relaxed">
-                  Plataforma SaaS con IA que genera y gestiona embudos completos en minutos, integrando hosting, dominios, e-commerce, pagos y automatizaciones.
+                <h4 className="text-base font-black text-white uppercase tracking-wider">
+                  {lang === 'es' ? 'Solución' : 'Solution'}
+                </h4>
+                <p className="text-lg md:text-[1rem] text-white font-normal leading-relaxed max-w-2xl">
+                  {lang === 'es'
+                    ? 'Plataforma SaaS con IA que genera y gestiona embudos completos en minutos, integrando hosting, dominios, e-commerce, pagos y automatizaciones.'
+                    : 'An AI-powered SaaS platform that designs and deploys comprehensive marketing funnels in minutes, bundling hosting, custom domains, e-commerce, payment processing, and automations.'}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-base font-black text-white uppercase tracking-wider">Mi responsabilidad</h4>
-                <p className="text-base text-white font-normal leading-relaxed">
-                  Diseñé y desarrollé la arquitectura completa, frontend, backend, base de datos, pipeline de IA, integraciones de pago y despliegue en la nube. También participé en la definición del producto, UX y estrategia de crecimiento.
+                <h4 className="text-base font-black text-white uppercase tracking-wider">
+                  {lang === 'es' ? 'Mi responsabilidad' : 'My Responsibility'}
+                </h4>
+                <p className="text-lg md:text-[1rem] text-white font-normal leading-relaxed max-w-2xl">
+                  {lang === 'es'
+                    ? 'Diseñé y desarrollé la arquitectura completa, frontend, backend, base de datos, pipeline de IA, integraciones de pago y despliegue en la nube. También participé en la definición del producto, UX y estrategia de crecimiento.'
+                    : 'Engineered and built the entire core architecture, frontend, backend API, database structure, AI-generation pipelines, secure billing checkouts, and cloud scaling. Actively drove UX design, product roadmap definitions, and growth funnels.'}
                 </p>
               </div>
             </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
-              <a 
-                href="https://aprende.marketing" 
-                target="_blank" 
-                rel="noreferrer"
-                className="px-5 py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 group"
-              >
-                Probar demo
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </a>
-
               <button 
                 onClick={() => setIsDrawerOpen(true)}
-                className="px-5 py-3 bg-[#161616] hover:bg-white/5 border border-white/10 hover:border-white/20 text-white font-bold text-xs rounded-xl transition-all"
+                className="px-8 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 group shadow-lg shadow-[#FF5A1F]/20 hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
               >
-                Ver más detalles →
+                {lang === 'es' ? 'Ver Detalles del Proyecto' : 'View Project Details'}
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           </div>
@@ -107,14 +125,14 @@ export const MainCaseStudy: React.FC = () => {
                     <span className="w-4 h-4 rounded-md bg-[#FF5A1F] flex items-center justify-center text-white text-[9px] font-black">AM</span>
                     <span>Dashboard</span>
                   </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">Embudos</div>
-                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">Sitios</div>
-                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">Emails</div>
-                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">Ventas</div>
-                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">Contactos</div>
-                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">Automatizaciones</div>
-                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">Ajustes</div>
+                  <div className="space-y-1.5 text-left">
+                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">{lang === 'es' ? 'Embudos' : 'Funnels'}</div>
+                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">{lang === 'es' ? 'Sitios' : 'Sites'}</div>
+                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">{lang === 'es' ? 'Emails' : 'Emails'}</div>
+                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">{lang === 'es' ? 'Ventas' : 'Sales'}</div>
+                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">{lang === 'es' ? 'Contactos' : 'Contacts'}</div>
+                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">{lang === 'es' ? 'Automatizaciones' : 'Automations'}</div>
+                    <div className="flex items-center gap-2 px-2 py-1 hover:text-white cursor-pointer">{lang === 'es' ? 'Ajustes' : 'Settings'}</div>
                   </div>
                 </div>
 
@@ -122,26 +140,28 @@ export const MainCaseStudy: React.FC = () => {
                 <div className="col-span-9 bg-[#0E0E0E] p-5 space-y-4">
                   {/* Header Row */}
                   <div className="flex justify-between items-center pb-2 border-b border-white/5">
-                    <h5 className="font-extrabold text-sm text-white">Hola, Jorge 👋</h5>
-                    <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-[9px] font-bold uppercase tracking-wider">● En Vivo</span>
+                    <h5 className="font-extrabold text-sm text-white">{lang === 'es' ? 'Hola, Jorge 👋' : 'Hi, Jorge 👋'}</h5>
+                    <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-[9px] font-bold uppercase tracking-wider">
+                      {lang === 'es' ? '● En Vivo' : '● Live'}
+                    </span>
                   </div>
 
                   {/* Top KPIs row */}
                   <div className="grid grid-cols-4 gap-2.5">
                     <div className="p-2.5 bg-white/[0.02] border border-white/5 rounded-xl text-left space-y-0.5">
-                      <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider block">Embudos</span>
+                      <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider block">{lang === 'es' ? 'Embudos' : 'Funnels'}</span>
                       <span className="text-xs font-black text-white">20+</span>
                     </div>
                     <div className="p-2.5 bg-white/[0.02] border border-white/5 rounded-xl text-left space-y-0.5">
-                      <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider block">Sitios</span>
+                      <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider block">{lang === 'es' ? 'Sitios' : 'Sites'}</span>
                       <span className="text-xs font-black text-white">15+</span>
                     </div>
                     <div className="p-2.5 bg-white/[0.02] border border-white/5 rounded-xl text-left space-y-0.5">
-                      <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider block">Contactos</span>
+                      <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider block">{lang === 'es' ? 'Contactos' : 'Contacts'}</span>
                       <span className="text-xs font-black text-white">1,250</span>
                     </div>
                     <div className="p-2.5 bg-white/[0.02] border border-white/5 rounded-xl text-left space-y-0.5">
-                      <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider block">Ventas</span>
+                      <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider block">{lang === 'es' ? 'Ventas' : 'Sales'}</span>
                       <span className="text-xs font-black text-[#FFBF00]">€24,500</span>
                     </div>
                   </div>
@@ -150,13 +170,19 @@ export const MainCaseStudy: React.FC = () => {
                   <div className="grid grid-cols-12 gap-3.5 pt-1">
                     {/* List of Recent funnels */}
                     <div className="col-span-7 bg-[#111111] border border-white/5 rounded-xl p-3 space-y-2">
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400 block border-b border-white/5 pb-1 text-left">Embudos Recientes</span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400 block border-b border-white/5 pb-1 text-left">
+                        {lang === 'es' ? 'Embudos Recientes' : 'Recent Funnels'}
+                      </span>
                       
                       <div className="space-y-2 text-left">
                         <div className="flex justify-between items-center text-[10px]">
                           <div>
-                            <span className="block font-bold text-white">Lanzamiento Curso IA</span>
-                            <span className="text-[8px] text-gray-500 font-normal">Publicado</span>
+                            <span className="block font-bold text-white">
+                              {lang === 'es' ? 'Lanzamiento Curso IA' : 'AI Course Launch'}
+                            </span>
+                            <span className="text-[8px] text-gray-500 font-normal">
+                              {lang === 'es' ? 'Publicado' : 'Published'}
+                            </span>
                           </div>
                           <div className="text-right">
                             <span className="text-emerald-400 block font-bold">+12%</span>
@@ -166,8 +192,12 @@ export const MainCaseStudy: React.FC = () => {
 
                         <div className="flex justify-between items-center text-[10px] pt-1.5 border-t border-white/5">
                           <div>
-                            <span className="block font-bold text-white">Webinar de Ventas</span>
-                            <span className="text-[8px] text-gray-500 font-normal">Publicado</span>
+                            <span className="block font-bold text-white">
+                              {lang === 'es' ? 'Webinar de Ventas' : 'Sales Webinar'}
+                            </span>
+                            <span className="text-[8px] text-gray-500 font-normal">
+                              {lang === 'es' ? 'Publicado' : 'Published'}
+                            </span>
                           </div>
                           <div className="text-right">
                             <span className="text-emerald-400 block font-bold">+10%</span>
@@ -180,7 +210,9 @@ export const MainCaseStudy: React.FC = () => {
                     {/* Conversion Card with SVG Line chart */}
                     <div className="col-span-5 bg-[#111111] border border-white/5 rounded-xl p-3 text-left space-y-2">
                       <div className="space-y-0.5">
-                        <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400 block">Conversiones</span>
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400 block">
+                          {lang === 'es' ? 'Conversiones' : 'Conversions'}
+                        </span>
                         <div className="flex items-baseline gap-1.5">
                           <span className="text-sm font-black text-white">15.2%</span>
                           <span className="text-[8px] font-extrabold text-emerald-400">+7.5%</span>
@@ -222,109 +254,6 @@ export const MainCaseStudy: React.FC = () => {
           </div>
         </div>
 
-        {/* Video de Presentación Interactiva */}
-        <div id="video-presentacion" className="pt-10 border-t border-white/5 space-y-8">
-          <div className="max-w-4xl mx-auto space-y-4 text-center">
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs font-black text-[#FF5A1F] uppercase tracking-widest">
-              <Terminal className="w-4 h-4" /> Presentación en Video
-            </span>
-            <h2 className="text-3xl md:text-[2.5rem] font-black text-white tracking-tight uppercase leading-none">
-              Descubre sobre <span className="text-[#FF5A1F]">Aprende.Marketing</span>
-            </h2>
-            <p className="text-sm md:text-base text-gray-300 font-normal leading-relaxed max-w-3xl mx-auto">
-              Aprende.Marketing elimina la brecha de ejecución en el marketing de productos digitales al automatizar todo el proceso de ventas, creando un embudo de conversión profesional para generar resultados escalables y automatizados.
-            </p>
-          </div>
-
-          {isPlayingVideo ? (
-            <div className="relative aspect-video rounded-3xl overflow-hidden border border-white/10 bg-black shadow-2xl max-w-3xl mx-auto w-full">
-              <iframe
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/96xL5jPp4WM?autoplay=1"
-                title="Presentación Aprende.Marketing"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              ></iframe>
-            </div>
-          ) : (
-            <div 
-              onClick={() => setIsPlayingVideo(true)}
-              className="relative aspect-video rounded-3xl overflow-hidden border border-white/10 bg-[#0B0B0B] group shadow-2xl max-w-3xl mx-auto w-full flex flex-col items-center justify-center cursor-pointer select-none"
-            >
-              <div 
-                className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-color-dodge transition-all duration-700 group-hover:scale-105 group-hover:opacity-45" 
-                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=1200&q=80')" }}
-              ></div>
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FF5A1F]/15 via-transparent to-[#FFBF00]/15"></div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-              
-              <div className="absolute top-4 left-4 flex gap-2">
-                <span className="px-2.5 py-1 bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-black uppercase tracking-wider text-white rounded-lg flex items-center gap-1.5 shadow-lg">
-                  <span className="w-2 h-2 bg-[#FF5A1F] rounded-full animate-pulse" /> Presentación Jorge Franco
-                </span>
-              </div>
-              
-              <div className="absolute top-4 right-4">
-                <span className="px-2.5 py-1 bg-[#FFBF00]/15 border border-[#FFBF00]/30 text-[10px] font-black uppercase tracking-wider text-[#FFBF00] rounded-lg shadow-lg">
-                  4:21 Minutos
-                </span>
-              </div>
-
-              <div className="relative z-10 flex flex-col items-center gap-4 transition-all duration-500 group-hover:scale-105">
-                <div className="w-20 h-20 bg-gradient-to-tr from-[#FF5A1F] to-[#FFBF00] rounded-full flex items-center justify-center shadow-2xl relative">
-                  <svg className="w-8 h-8 text-white fill-current translate-x-0.5" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom Metrics/Features Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 pt-6 border-t border-white/5">
-          <div className="p-4 bg-[#0B0B0B] border border-white/5 rounded-2xl space-y-2 text-left">
-            <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white">
-              <Cpu className="w-4 h-4 text-[#FF5A1F]" />
-            </div>
-            <h5 className="font-extrabold text-white text-sm uppercase tracking-wider">Generación con IA</h5>
-            <p className="text-sm text-white leading-normal font-normal">Embudos completos en ~1.5 minutos.</p>
-          </div>
-
-          <div className="p-4 bg-[#0B0B0B] border border-white/5 rounded-2xl space-y-2 text-left">
-            <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white">
-              <Server className="w-4 h-4 text-[#FFBF00]" />
-            </div>
-            <h5 className="font-extrabold text-white text-sm uppercase tracking-wider">Multi-tenant</h5>
-            <p className="text-sm text-white leading-normal font-normal">Arquitectura escalable por cuentas.</p>
-          </div>
-
-          <div className="p-4 bg-[#0B0B0B] border border-white/5 rounded-2xl space-y-2 text-left">
-            <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white">
-              <Zap className="w-4 h-4 text-emerald-500" />
-            </div>
-            <h5 className="font-extrabold text-white text-sm uppercase tracking-wider">Pagos integrados</h5>
-            <p className="text-sm text-white leading-normal font-normal">Stripe, Hotmart y Systeme.io.</p>
-          </div>
-
-          <div className="p-4 bg-[#0B0B0B] border border-white/5 rounded-2xl space-y-2 text-left">
-            <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white">
-              <Check className="w-4 h-4 text-blue-400" />
-            </div>
-            <h5 className="font-extrabold text-white text-sm uppercase tracking-wider">Alto rendimiento</h5>
-            <p className="text-sm text-white leading-normal font-normal">Latencia mediana &lt; 180ms.</p>
-          </div>
-
-          <div className="p-4 bg-[#0B0B0B] border border-white/5 rounded-2xl space-y-2 text-left">
-            <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white">
-              <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
-            </div>
-            <h5 className="font-extrabold text-white text-sm uppercase tracking-wider">Infraestructura cloud</h5>
-            <p className="text-sm text-white leading-normal font-normal">Desplegado en Google Cloud Run.</p>
-          </div>
-        </div>
-
       </div>
 
       {/* Slide-over Drawer for Aprende.Marketing details */}
@@ -351,6 +280,7 @@ export const MainCaseStudy: React.FC = () => {
               <AprendeMarketingProjectPage 
                 isDrawer={true} 
                 onClose={() => setIsDrawerOpen(false)} 
+                lang={lang}
               />
             </motion.div>
           </div>

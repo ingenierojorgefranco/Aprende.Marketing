@@ -11,10 +11,12 @@ const ArrowRight: React.FC = () => (
   </div>
 );
 
-const ArrowDownRow: React.FC = () => (
+const ArrowDownRow: React.FC<{ lang?: 'es' | 'en' }> = ({ lang }) => (
   <div className="hidden md:flex items-center justify-center py-4 my-2">
     <div className="flex flex-col items-center gap-1">
-      <span className="text-[10px] font-black text-[#FFBF00] uppercase tracking-widest bg-white/5 border border-white/10 px-3 py-1 rounded-full">Siguiente Fase</span>
+      <span className="text-[10px] font-black text-[#FFBF00] uppercase tracking-widest bg-white/5 border border-white/10 px-3 py-1 rounded-full">
+        {lang === 'es' ? 'Siguiente Fase' : 'Next Phase'}
+      </span>
       <div className="w-0.5 h-12 bg-gradient-to-b from-[#FF5A1F] to-[#FFBF00] relative animate-pulse">
         <svg className="w-4 h-4 text-[#FFBF00] absolute -bottom-3 -left-[7px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -34,55 +36,73 @@ const MobileArrowDown: React.FC = () => (
   </div>
 );
 
-export const HighLevelArchitecture: React.FC = () => {
+interface HighLevelArchitectureProps {
+  lang?: 'es' | 'en';
+}
+
+export const HighLevelArchitecture: React.FC<HighLevelArchitectureProps> = ({ lang = 'es' }) => {
   const steps = [
     {
-      title: 'Usuario',
-      pilar: 'Acceso e interacción',
-      subtitle: 'Cliente Web',
-      desc: 'Entrada de los usuarios para interactuar con la plataforma y gestionar campañas.',
+      title: lang === 'es' ? 'Usuario' : 'User',
+      pilar: lang === 'es' ? 'Acceso e interacción' : 'Access & Interaction',
+      subtitle: lang === 'es' ? 'Cliente Web' : 'Web Client',
+      desc: lang === 'es' 
+        ? 'Entrada de los usuarios para interactuar con la plataforma y gestionar campañas.'
+        : 'User entry point for interacting with the platform and managing campaigns.',
       icon: <User className="w-6 h-6 text-gray-400" />
     },
     {
       title: 'Frontend',
-      pilar: 'Interfaz de usuario',
+      pilar: lang === 'es' ? 'Interfaz de usuario' : 'User Interface',
       subtitle: 'React + TS',
-      desc: 'Aplicación SPA interactiva, optimizada para rendimiento y SEO técnico.',
+      desc: lang === 'es'
+        ? 'Aplicación SPA interactiva, optimizada para rendimiento y SEO técnico.'
+        : 'Interactive SPA application, optimized for performance and technical SEO.',
       icon: <Code className="w-6 h-6 text-blue-400" />
     },
     {
       title: 'API (Backend)',
-      pilar: 'Orquestación & Endpoints',
+      pilar: lang === 'es' ? 'Orquestación & Endpoints' : 'Orchestration & Endpoints',
       subtitle: 'Node.js • Express',
-      desc: 'Servicio backend para control de lógica, rutas seguras y comunicación externa.',
+      desc: lang === 'es'
+        ? 'Servicio backend para control de lógica, rutas seguras y comunicación externa.'
+        : 'Backend service for logic control, secure routing, and external integration.',
       icon: <Server className="w-6 h-6 text-[#FF5A1F]" />
     },
     {
-      title: 'Base de datos',
-      pilar: 'Consistencia y Persistencia',
+      title: lang === 'es' ? 'Base de datos' : 'Database',
+      pilar: lang === 'es' ? 'Consistencia y Persistencia' : 'Consistency & Persistence',
       subtitle: 'MySQL (Cloud SQL)',
-      desc: 'Base de datos relacional para gestión de cuentas multi-tenant y datos transaccionales.',
+      desc: lang === 'es'
+        ? 'Base de datos relacional para gestión de cuentas multi-tenant y datos transaccionales.'
+        : 'Relational database for multi-tenant accounts management and transactional data.',
       icon: <Database className="w-6 h-6 text-emerald-500" />
     },
     {
       title: 'IA Engine',
-      pilar: 'Inteligencia Generativa',
+      pilar: lang === 'es' ? 'Inteligencia Generativa' : 'Generative Intelligence',
       subtitle: 'Gemini API SDK',
-      desc: 'Motor inteligente para la automatización y creación de embudos y copys de venta.',
+      desc: lang === 'es'
+        ? 'Motor inteligente para la automatización y creación de embudos y copys de venta.'
+        : 'Intelligent engine for sales funnel automation and copy generation.',
       icon: <Cpu className="w-6 h-6 text-[#FFBF00]" />
     },
     {
-      title: 'Pagos & Webhooks',
-      pilar: 'Monetización y Eventos',
+      title: lang === 'es' ? 'Pagos & Webhooks' : 'Payments & Webhooks',
+      pilar: lang === 'es' ? 'Monetización y Eventos' : 'Monetization & Events',
       subtitle: 'Stripe / Hotmart',
-      desc: 'Integración de pasarelas de pago y escucha de eventos mediante webhooks seguros.',
+      desc: lang === 'es'
+        ? 'Integración de pasarelas de pago y escucha de eventos mediante webhooks seguros.'
+        : 'Payment gateway integration and event listening via secure webhooks.',
       icon: <CreditCard className="w-6 h-6 text-purple-400" />
     },
     {
-      title: 'Despliegue & Cloud',
-      pilar: 'Infraestructura Cloud',
+      title: lang === 'es' ? 'Despliegue & Cloud' : 'Deployment & Cloud',
+      pilar: lang === 'es' ? 'Infraestructura Cloud' : 'Cloud Infrastructure',
       subtitle: 'Google Cloud Run',
-      desc: 'Contenedores Docker autogestionados y escalables desplegados en la nube de GCP.',
+      desc: lang === 'es'
+        ? 'Contenedores Docker autogestionados y escalables desplegados en la nube de GCP.'
+        : 'Self-managed, scalable Docker containers deployed on GCP Cloud.',
       icon: <Cloud className="w-6 h-6 text-sky-400" />
     }
   ];
@@ -90,32 +110,44 @@ export const HighLevelArchitecture: React.FC = () => {
   const features = [
     {
       title: 'Multi-tenant',
-      desc: 'Arquitectura escalable que aísla de forma segura la información y base de datos por cada cuenta de cliente.',
+      desc: lang === 'es'
+        ? 'Arquitectura escalable que aísla de forma segura la información y base de datos por cada cuenta de cliente.'
+        : 'Scalable architecture that securely isolates data and database per client account.',
       icon: <Layers className="w-5 h-5 text-emerald-500" />
     },
     {
-      title: 'Seguridad por roles',
-      desc: 'Control de acceso basado en roles (RBAC) para limitar funciones administrativas y de usuario.',
+      title: lang === 'es' ? 'Seguridad por roles' : 'Role-based security',
+      desc: lang === 'es'
+        ? 'Control de acceso basado en roles (RBAC) para limitar funciones administrativas y de usuario.'
+        : 'Role-Based Access Control (RBAC) to limit admin and user functions.',
       icon: <ShieldAlert className="w-5 h-5 text-red-400" />
     },
     {
-      title: 'Webhooks idempotentes',
-      desc: 'Mecanismo de reintentos seguro que evita el procesamiento duplicado de transacciones o eventos de pago.',
+      title: lang === 'es' ? 'Webhooks idempotentes' : 'Idempotent webhooks',
+      desc: lang === 'es'
+        ? 'Mecanismo de reintentos seguro que evita el procesamiento duplicado de transacciones o eventos de pago.'
+        : 'Secure retry mechanism that avoids duplicate processing of transactions or payment events.',
       icon: <RefreshCw className="w-5 h-5 text-amber-500" />
     },
     {
-      title: 'Escalable',
-      desc: 'Diseñado con procesos asíncronos y cargas optimizadas para soportar un alto volumen de peticiones concurrentes.',
+      title: lang === 'es' ? 'Escalable' : 'Scalable',
+      desc: lang === 'es'
+        ? 'Diseñado con procesos asíncronos y cargas optimizadas para soportar un alto volumen de peticiones concurrentes.'
+        : 'Designed with asynchronous processing and optimized loads to support high concurrent requests.',
       icon: <Cpu className="w-5 h-5 text-[#FF5A1F]" />
     },
     {
-      title: 'Backups automáticos',
-      desc: 'Respaldo diario programado de la base de datos para garantizar la integridad y recuperación de datos críticos.',
+      title: lang === 'es' ? 'Backups automáticos' : 'Automated backups',
+      desc: lang === 'es'
+        ? 'Respaldo diario programado de la base de datos para garantizar la integridad y recuperación de datos críticos.'
+        : 'Scheduled daily database backups to guarantee integrity and critical data recovery.',
       icon: <Database className="w-5 h-5 text-[#FFBF00]" />
     },
     {
-      title: 'Monitoreo y logs',
-      desc: 'Registro centralizado de excepciones y métricas de rendimiento en tiempo real para detección proactiva de fallas.',
+      title: lang === 'es' ? 'Monitoreo y logs' : 'Monitoring and logs',
+      desc: lang === 'es'
+        ? 'Registro centralizado de excepciones y métricas de rendimiento en tiempo real para detección proactiva de fallas.'
+        : 'Centralized exception logs and real-time performance metrics for proactive fault detection.',
       icon: <Server className="w-5 h-5 text-blue-400" />
     }
   ];
@@ -126,7 +158,7 @@ export const HighLevelArchitecture: React.FC = () => {
       <div className="flex items-center gap-3 mb-12">
         <div className="w-1.5 h-6 bg-[#FF5A1F] rounded-full"></div>
         <h2 className="text-2xl font-black text-white tracking-tight uppercase">
-          ARQUITECTURA PROFESIONAL Y DE ALTO NIVEL
+          {lang === 'es' ? 'ARQUITECTURA PROFESIONAL Y DE ALTO NIVEL' : 'PROFESSIONAL & HIGH-LEVEL ARCHITECTURE'}
         </h2>
       </div>
 
@@ -187,7 +219,7 @@ export const HighLevelArchitecture: React.FC = () => {
         </div>
 
         {/* CONNECTING FLOW ARROW (Row 1 to Row 2) */}
-        <ArrowDownRow />
+        <ArrowDownRow lang={lang} />
         <MobileArrowDown />
 
         {/* ROW 2 */}
@@ -243,7 +275,7 @@ export const HighLevelArchitecture: React.FC = () => {
         </div>
 
         {/* CONNECTING FLOW ARROW (Row 2 to Row 3) */}
-        <ArrowDownRow />
+        <ArrowDownRow lang={lang} />
         <MobileArrowDown />
 
         {/* ROW 3 (Centered Step 7) */}
@@ -266,7 +298,9 @@ export const HighLevelArchitecture: React.FC = () => {
         {/* Feature Cards Grid */}
         <div className="pt-10 border-t border-white/5">
           <div className="text-center mb-8">
-            <h3 className="text-sm font-black text-[#FFBF00] uppercase tracking-widest">Características Clave del Ecosistema</h3>
+            <h3 className="text-sm font-black text-[#FFBF00] uppercase tracking-widest">
+              {lang === 'es' ? 'Características Clave del Ecosistema' : 'Key Ecosystem Features'}
+            </h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feat, idx) => (

@@ -1,8 +1,12 @@
 import React from 'react';
 import { MapPin, Briefcase, Clock, Calendar } from 'lucide-react';
 
-export const ProfessionalExperience: React.FC = () => {
-  const experiences = [
+interface ProfessionalExperienceProps {
+  lang: 'es' | 'en';
+}
+
+export const ProfessionalExperience: React.FC<ProfessionalExperienceProps> = ({ lang }) => {
+  const experiences = lang === 'es' ? [
     {
       period: 'Jul. 2025 - Actualidad',
       duration: '1 año',
@@ -118,6 +122,122 @@ export const ProfessionalExperience: React.FC = () => {
       ],
       stack: ['Marketplace', 'Product Development', 'SEO Técnico', 'Lead Generation']
     }
+  ] : [
+    {
+      period: 'Jul. 2025 - Present',
+      duration: '1 year',
+      company: 'Aprende.Marketing',
+      role: 'Founder & Full-Stack Product Engineer',
+      location: 'Málaga, Spain · Hybrid',
+      desc: 'Integral design and deployment of Aprende.Marketing, an AI-powered SaaS platform that automates the generation and deployment of marketing campaigns and assets.',
+      highlights: [
+        'Full-stack engineering of client dashboard (React + TypeScript) and backend services (Node.js + Express).',
+        'Relational DB design and query optimization using MySQL and Google Cloud SQL.',
+        'Multi-step GenAI pipelines powered by Google Gemini SDK to write high-converting copy.',
+        'Multi-tenant infrastructure supporting custom domains SSL/TLS resolution and strict data isolation.',
+        'Recurrent checkout subscription models integrating Stripe and Hotmart platforms via webhooks.',
+        'Docker containerization and automated deployments on scalable Google Cloud Run environments.'
+      ],
+      stack: ['React', 'TypeScript', 'Node.js', 'Express', 'MySQL', 'Docker', 'Google Cloud Run', 'Gemini API', 'Stripe', 'Hotmart']
+    },
+    {
+      period: 'Aug. 2019 - May 2025',
+      duration: '5 years 10 months',
+      company: 'Seminarios.Online®',
+      role: 'Technical Mentor | Web Development & Marketing Automation',
+      location: 'Remote',
+      desc: 'Hands-on technical mentorship and training for digital marketing and development professionals on funnels design, landing pages, and systems automation.',
+      highlights: [
+        'Technical mentorship to over 250 students in web development, API integrations, and digital business infrastructure.',
+        'Training on building performance-oriented websites with excellent Core Web Vitals, conversion rates, and UX.',
+        'In-depth education on lead capturing pipelines, modern email marketing, and automated process orchestration.'
+      ],
+      stack: ['Web Development', 'Marketing Automation', 'Lead Management', 'Google Ads', 'Meta Ads']
+    },
+    {
+      period: 'Apr. 2023 - Mar. 2025',
+      duration: '2 years',
+      company: 'GF Publicidad',
+      role: 'Full-Stack Developer & Technical SEO Specialist',
+      location: 'Seville, Spain · On-site',
+      desc: 'Full-stack development, optimizations, and technical maintenance of robust web portals for a portfolio of over 40 corporate accounts.',
+      highlights: [
+        'Development of websites, custom functionalities, and bespoke plugin modules in PHP and WordPress ecosystems.',
+        'Extensive performance optimization, web vitals boosting, page speed tuning, and code minification.',
+        'Structured data implementation (JSON-LD schema) to maximize organic search engine crawler indexing.'
+      ],
+      stack: ['PHP', 'WordPress', 'Technical SEO', 'Core Web Vitals', 'JSON-LD', 'Performance']
+    },
+    {
+      period: 'Nov. 2021 - Feb. 2023',
+      duration: '1 year 4 months',
+      company: 'Viajero.Digital',
+      role: 'Founder & Digital Business Instructor',
+      location: 'Remote',
+      desc: 'Creation and instruction of a comprehensive training system enabling entrepreneurs to structure and scale digital operations.',
+      highlights: [
+        'Curating and instructing practical workshops on building professional business sites via WordPress.',
+        'Comprehensive training in affiliate marketing models, lead nurture, email sequencing, and marketing funnels.',
+        'Paid advertising tactics using Google Ads, Meta Ads, and search engine optimization (SEO).'
+      ],
+      stack: ['WordPress', 'Affiliate Marketing', 'Email Marketing', 'Google Ads', 'Meta Ads']
+    },
+    {
+      period: 'Mar. 2017 - Jun. 2022',
+      duration: '5 years 4 months',
+      company: 'Habitaci.com - Ingecolint.com',
+      role: 'Technical Product Manager & Full-Stack Developer',
+      location: 'On-site',
+      desc: 'Product roadmap ownership and full-stack development of a web system built to manage and list short-term rental listings.',
+      highlights: [
+        'Defining backlog, prioritizing features, and managing requirements for digital rental products.',
+        'Designing and optimization of operational flows for listings, booking engines, secure reservations, and lead pipelines.',
+        'Development of core system features and commercial automation of backend cronjobs.'
+      ],
+      stack: ['Product Management', 'Web Development', 'Automations', 'CRM']
+    },
+    {
+      period: 'Jan. 2011 - Oct. 2021',
+      duration: '10 years 10 months',
+      company: 'Aerorutas.com',
+      role: 'Senior Web Developer & Technical SEO Lead',
+      location: 'On-site',
+      desc: 'Development and evolution of the high-traffic e-commerce portal and custom CRM used to retail flight tickets, hotel reservations, and custom tours.',
+      highlights: [
+        'Design and end-to-end development of a custom, bespoke CRM to manage customers, quotations, and bookings.',
+        'Deep Amadeus GDS and Booking.com API integrations to automate flight search queries and real-time inventory checks.',
+        'Comprehensive SEO strategy driving organic search traffic from 4,000 to over 49,000 monthly unique visitors.'
+      ],
+      stack: ['PHP', 'MySQL', 'Amadeus GDS', 'Technical SEO', 'Joomla', 'WordPress']
+    },
+    {
+      period: 'Jan. 2007 - Dec. 2011',
+      duration: '5 years',
+      company: 'Ingecol International',
+      role: 'Founder & Technical Director',
+      location: 'On-site',
+      desc: 'Founding and leading a technology-focused creative agency specializing in web development, online products, and corporate digital transformations.',
+      highlights: [
+        'Supervising the full software lifecycle, from conceptual scoping and wireframes to final deployment and maintenance.',
+        'Coordinating cross-functional squads of visual designers, software developers, and external suppliers.',
+        'Managing engineering budgets, technical scopes, timelines, and rigorous quality assurance standards.'
+      ],
+      stack: ['Project Management', 'Web Development', 'SEO Strategy', 'Client Relations']
+    },
+    {
+      period: 'Nov. 2004 - Sep. 2009',
+      duration: '4 years 11 months',
+      company: 'Concesionarioenlinea.com',
+      role: 'Founder & Web Product Developer',
+      location: 'On-site',
+      desc: 'Conceptualized, designed, and engineered a multi-tenant car dealer marketplace for listings of new and used vehicles.',
+      highlights: [
+        'Building the multi-tenant marketplace dashboard featuring custom microsites for registered car dealerships.',
+        'Implementing administration dashboards, catalog managers, custom lead CRM, and automated newsletters.',
+        'Conducting SEO and web audits to drive web traffic, surpassing 59,000 monthly active users.'
+      ],
+      stack: ['Marketplace', 'Product Development', 'Technical SEO', 'Lead Generation']
+    }
   ];
 
   return (
@@ -127,11 +247,11 @@ export const ProfessionalExperience: React.FC = () => {
         <div className="flex items-center gap-3">
           <div className="w-1.5 h-6 bg-[#FF5A1F] rounded-full"></div>
           <h2 className="text-2xl font-black text-white tracking-tight uppercase">
-            EXPERIENCIA PROFESIONAL
+            {lang === 'es' ? 'EXPERIENCIA PROFESIONAL' : 'PROFESSIONAL EXPERIENCE'}
           </h2>
         </div>
         <span className="text-xs font-black text-[#FFBF00] uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-          Trayectoria Completa
+          {lang === 'es' ? 'Trayectoria Completa' : 'Full Career Path'}
         </span>
       </div>
 
@@ -159,12 +279,12 @@ export const ProfessionalExperience: React.FC = () => {
                     </h4>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-gray-400">
-                    <span className="flex items-center gap-1 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5 text-gray-300">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-white">
+                    <span className="flex items-center gap-1 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5 text-white">
                       <Calendar className="w-3.5 h-3.5 text-[#FFBF00]" />
                       <span>{exp.period}</span>
                     </span>
-                    <span className="flex items-center gap-1 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5 text-gray-300">
+                    <span className="flex items-center gap-1 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5 text-white">
                       <Clock className="w-3.5 h-3.5 text-emerald-500" />
                       <span>{exp.duration}</span>
                     </span>
@@ -173,17 +293,17 @@ export const ProfessionalExperience: React.FC = () => {
 
                 {/* Location & Summary */}
                 <div className="space-y-3">
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
+                  <div className="flex items-center gap-1 text-xs text-white">
                     <MapPin className="w-3.5 h-3.5 text-blue-400" />
                     <span>{exp.location}</span>
                   </div>
-                  <p className="text-base text-white/95 font-normal leading-relaxed">
+                  <p className="text-lg md:text-[1rem] text-white font-normal leading-relaxed max-w-2xl">
                     {exp.desc}
                   </p>
                 </div>
 
                 {/* Bullet Highlights */}
-                <ul className="space-y-2 text-sm text-white/90 pl-1 list-none">
+                <ul className="space-y-2 text-lg md:text-[1rem] text-white pl-1 list-none max-w-2xl">
                   {exp.highlights.map((bullet, bIdx) => (
                     <li key={bIdx} className="flex items-start gap-2">
                       <span className="text-[#FF5A1F] font-bold mt-0.5 select-none">•</span>
@@ -197,7 +317,7 @@ export const ProfessionalExperience: React.FC = () => {
                   {exp.stack.map((tech, tIdx) => (
                     <span 
                       key={tIdx} 
-                      className="px-2.5 py-1 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 rounded-lg text-[10px] font-semibold text-gray-400 hover:text-white transition-colors uppercase tracking-wider"
+                      className="px-2.5 py-1 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 rounded-lg text-[10px] font-semibold text-white transition-colors uppercase tracking-wider"
                     >
                       {tech}
                     </span>

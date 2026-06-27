@@ -1,9 +1,13 @@
 import React from 'react';
 import { Code, Cpu, Server, Database, Sparkles, Download } from 'lucide-react';
 
-export const TechnologyStack: React.FC = () => {
+interface TechnologyStackProps {
+  lang: 'es' | 'en';
+}
+
+export const TechnologyStack: React.FC<TechnologyStackProps> = ({ lang }) => {
   // Technical Stack categories
-  const technicalStack = [
+  const technicalStack = lang === 'es' ? [
     {
       category: 'Lenguajes y Frameworks',
       items: 'React 19, TypeScript, Node.js (Express), PHP (Laravel), JavaScript (ES6+).',
@@ -29,6 +33,32 @@ export const TechnologyStack: React.FC = () => {
       items: 'SEO Técnico (Core Web Vitals), APIs/Webhooks, Stripe API, Git, Metodologías Ágiles.',
       icon: <Sparkles className="w-5 h-5 text-[#FF5A1F]" />
     }
+  ] : [
+    {
+      category: 'Languages & Frameworks',
+      items: 'React 19, TypeScript, Node.js (Express), PHP (Laravel), JavaScript (ES6+).',
+      icon: <Code className="w-5 h-5 text-[#FF5A1F]" />
+    },
+    {
+      category: 'AI Engineering',
+      items: 'Implementing Generative AI pipelines with Google Gemini SDK and LLM orchestration.',
+      icon: <Cpu className="w-5 h-5 text-[#FFBF00]" />
+    },
+    {
+      category: 'Infrastructure & DevOps',
+      items: 'Google Cloud Platform (Cloud Run, Cloud SQL), Containerization with Docker.',
+      icon: <Server className="w-5 h-5 text-[#FF5A1F]" />
+    },
+    {
+      category: 'Databases',
+      items: 'MySQL 8.0 (Relational schema design and query optimization).',
+      icon: <Database className="w-5 h-5 text-[#FFBF00]" />
+    },
+    {
+      category: 'Performance & Tools',
+      items: 'Technical SEO (Core Web Vitals), APIs/Webhooks, Stripe API, Git, Agile Methodologies.',
+      icon: <Sparkles className="w-5 h-5 text-[#FF5A1F]" />
+    }
   ];
 
   return (
@@ -36,8 +66,12 @@ export const TechnologyStack: React.FC = () => {
       {/* Skills & Cards container (Full Width) */}
       <div className="space-y-8 bg-[#111] border border-white/5 rounded-[2.5rem] p-8 md:p-12 relative w-full">
         <div className="space-y-2">
-          <p className="text-xs font-black text-[#FFBF00] uppercase tracking-widest">HABILIDADES COMO FULLSTACK DEVELOPER</p>
-          <h3 className="text-3xl font-black text-white uppercase tracking-tight">Stack Tecnológico</h3>
+          <p className="text-xs font-black text-[#FFBF00] uppercase tracking-widest">
+            {lang === 'es' ? 'HABILIDADES COMO FULLSTACK DEVELOPER' : 'FULL-STACK DEVELOPER SKILLS'}
+          </p>
+          <h3 className="text-3xl font-black text-white uppercase tracking-tight">
+            {lang === 'es' ? 'Stack Tecnológico' : 'Technology Stack'}
+          </h3>
         </div>
 
         {/* Grid of technical cards */}
@@ -62,7 +96,9 @@ export const TechnologyStack: React.FC = () => {
           <div className="space-y-2 max-w-2xl font-bold">
             <h4 className="text-2xl font-black text-white uppercase tracking-tight">Curriculum Vitae</h4>
             <p className="text-white font-normal text-lg md:text-xl leading-relaxed">
-              Descarga mi CV. Conoce las tecnologías que manejo, mi historial de proyectos y mi visión técnica para escalar aplicaciones web eficientes.
+              {lang === 'es'
+                ? 'Descarga mi CV. Conoce las tecnologías que manejo, mi historial de proyectos y mi visión técnica para escalar aplicaciones web eficientes.'
+                : 'Download my Resume. Read more about my core tech stack, historic development projects, and architectural vision for scaling modern web ecosystems.'}
             </p>
           </div>
           <div className="w-full md:w-auto shrink-0">
@@ -73,7 +109,7 @@ export const TechnologyStack: React.FC = () => {
               className="w-full md:w-auto px-8 py-4 bg-[#FFBF00] hover:bg-[#E5AC00] text-black font-black text-sm uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#FFBF00]/10"
             >
               <Download className="w-4 h-4 text-black stroke-[2.5]" />
-              Descargar CV Oficial PDF
+              {lang === 'es' ? 'Descargar CV Oficial PDF' : 'Download Official PDF CV'}
             </a>
           </div>
         </div>

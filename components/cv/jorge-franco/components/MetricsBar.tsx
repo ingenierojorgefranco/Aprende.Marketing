@@ -1,8 +1,12 @@
 import React from 'react';
 import { Calendar, Server, Cpu, Zap } from 'lucide-react';
 
-export const MetricsBar: React.FC = () => {
-  const metrics = [
+interface MetricsBarProps {
+  lang: 'es' | 'en';
+}
+
+export const MetricsBar: React.FC<MetricsBarProps> = ({ lang }) => {
+  const metrics = lang === 'es' ? [
     {
       value: '15+',
       title: 'Años de experiencia',
@@ -24,6 +28,28 @@ export const MetricsBar: React.FC = () => {
       desc: 'Creación de ecosistemas de alto rendimiento orientados a la conversión (React 19, TypeScript).',
       icon: <Zap className="w-5 h-5 text-[#FF5A1F]" />
     }
+  ] : [
+    {
+      value: '15+',
+      title: 'Years of Experience',
+      desc: 'in development, product strategy, and digital marketing',
+      icon: <Calendar className="w-5 h-5 text-[#FF5A1F]" />
+    },
+    {
+      title: 'Cloud Architecture & Backend',
+      desc: 'Designing scalable infrastructures and relational databases (Node.js, GCP, Cloud SQL).',
+      icon: <Server className="w-5 h-5 text-emerald-400" />
+    },
+    {
+      title: 'Artificial Intelligence Engineering',
+      desc: 'Orchestrating large language models (LLMs) and generative pipelines (Google Gemini SDK).',
+      icon: <Cpu className="w-5 h-5 text-[#FFBF00]" />
+    },
+    {
+      title: 'Advanced Full-Stack Development',
+      desc: 'Building high-performance conversion-oriented ecosystems (React 19, TypeScript).',
+      icon: <Zap className="w-5 h-5 text-[#FF5A1F]" />
+    }
   ];
 
   return (
@@ -43,7 +69,7 @@ export const MetricsBar: React.FC = () => {
             <h3 className="text-lg font-black text-white leading-snug tracking-tight">
               {m.value ? `${m.value} ${m.title}` : m.title}
             </h3>
-            <p className="text-sm text-gray-400 font-normal leading-relaxed">
+            <p className="text-lg md:text-[1rem] text-white font-normal leading-relaxed max-w-2xl">
               {m.desc}
             </p>
           </div>

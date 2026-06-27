@@ -6,7 +6,8 @@ import { HeroSection } from './components/HeroSection';
 import { MetricsBar } from './components/MetricsBar';
 import { MainCaseStudy } from './components/MainCaseStudy';
 import { TechnologyStack } from './components/TechnologyStack';
-import { HighLevelArchitecture } from './components/HighLevelArchitecture';
+import { MainTechnologies } from './components/MainTechnologies';
+import { Certifications } from './components/Certifications';
 import { EngineeringPractices } from './components/EngineeringPractices';
 import { ProfessionalExperience } from './components/ProfessionalExperience';
 import { AboutAndAvailability } from './components/AboutAndAvailability';
@@ -14,6 +15,9 @@ import { CTABanner } from './components/CTABanner';
 import { JFFooter } from './components/JFFooter';
 
 export const JorgeFrancoPage: React.FC = () => {
+  // State to manage the selected language, defaulting to Spanish ('es')
+  const [lang, setLang] = React.useState<'es' | 'en'>('es');
+
   // Scroll handler for smooth navigation
   const handleScrollTo = (elementId: string) => {
     const targetId = elementId === 'proyectos' ? 'aprende-marketing-case-study' : elementId;
@@ -32,36 +36,38 @@ export const JorgeFrancoPage: React.FC = () => {
       <div className="absolute bottom-[10%] left-[10%] w-[600px] h-[600px] bg-[#FF5A1F]/5 rounded-full blur-[200px] pointer-events-none"></div>
 
       {/* Header / Navigation */}
-      <JFHeader onScrollTo={handleScrollTo} />
+      <JFHeader onScrollTo={handleScrollTo} lang={lang} setLang={setLang} />
 
       {/* Main Content Area */}
-      <main className="pt-28 pb-16 flex-1">
+      <main className="pt-16 pb-16 flex-1">
         <div className="container mx-auto px-6 max-w-7xl">
           
           {/* High Fidelity Designed Sections */}
-          <HeroSection onScrollTo={handleScrollTo} />
+          <HeroSection onScrollTo={handleScrollTo} lang={lang} />
           
-          <MetricsBar />
+          <MetricsBar lang={lang} />
           
-          <AboutAndAvailability />
+          <AboutAndAvailability lang={lang} />
           
-          <MainCaseStudy />
+          <MainCaseStudy lang={lang} />
           
-          <TechnologyStack />
+          <MainTechnologies lang={lang} />
           
-          <HighLevelArchitecture />
+          <TechnologyStack lang={lang} />
           
-          <EngineeringPractices />
+          <Certifications lang={lang} />
           
-          <ProfessionalExperience />
+          <EngineeringPractices lang={lang} />
           
-          <CTABanner />
+          <ProfessionalExperience lang={lang} />
+          
+          <CTABanner lang={lang} />
 
         </div>
       </main>
 
       {/* Footer */}
-      <JFFooter />
+      <JFFooter lang={lang} />
     </div>
   );
 };
