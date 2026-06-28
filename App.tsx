@@ -21,6 +21,11 @@ import { JorgeFrancoPage } from "./components/cv/jorge-franco/JorgeFrancoPage";
 import { AprendeMarketingProjectPage } from "./components/cv/jorge-franco/AprendeMarketingProjectPage";
 ////////// Fin de importación - 14/06/2025 01:15 //////////
 
+const AprendeMarketingProjectPageWrapper: React.FC = () => {
+  const { lang } = useParams() as { lang?: string };
+  return <AprendeMarketingProjectPage lang={lang === 'en' ? 'en' : 'es'} />;
+};
+
 // Dashboard Core
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
 import { DashboardHome } from "./components/dashboard/DashboardHome";
@@ -320,8 +325,10 @@ const App: React.FC = () => {
         <Route path="/contacto" element={<ContactPage />} />
         <Route path="/terminos" element={<TermsPage />} />
         <Route path="/privacidad" element={<PrivacyPage />} />
-        <Route path="/jorge-franco" element={<JorgeFrancoPage />} />
-        <Route path="/jorge-franco/proyectos/aprende-marketing" element={<AprendeMarketingProjectPage />} />
+        <Route path="/jorge-franco" element={<Navigate to="/jorge-franco/es" replace />} />
+        <Route path="/jorge-franco/:lang" element={<JorgeFrancoPage />} />
+        <Route path="/jorge-franco/proyectos/aprende-marketing" element={<Navigate to="/jorge-franco/es/proyectos/aprende-marketing" replace />} />
+        <Route path="/jorge-franco/:lang/proyectos/aprende-marketing" element={<AprendeMarketingProjectPageWrapper />} />
         {/* ////////// Fin de nuevas rutas - 27/05/2025 01:15 ////////// */}
 
         <Route 

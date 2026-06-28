@@ -18,13 +18,13 @@ export const CTABanner: React.FC<CTABannerProps> = ({ lang }) => {
           </span>
           
           <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight max-w-2xl mx-auto leading-tight">
-            {lang === 'es' ? '¿Tienes un proyecto o una oportunidad?' : 'Have a project or an opportunity?'}
+            {lang === 'es' ? '¿Buscas un Senior Full-Stack o Product Engineer?' : 'Looking for a Senior Full-Stack or Product Engineer?'}
           </h3>
           
           <p className="text-white font-normal max-w-xl mx-auto leading-relaxed text-base md:text-lg">
             {lang === 'es'
-              ? 'Estoy abierto a nuevas oportunidades de ingeniería, consultorías de producto o colaboraciones para escalar plataformas robustas.'
-              : "I'm open to engineering roles, product consulting, or strategic collaborations to scale robust software solutions."}
+              ? 'Estoy abierto a oportunidades full-time en equipos que construyan productos SaaS, plataformas digitales y soluciones con inteligencia artificial.'
+              : "I'm open to full-time opportunities in teams building SaaS products, digital platforms, and AI-powered solutions."}
           </p>
           
           <div className="pt-4">
@@ -35,7 +35,7 @@ export const CTABanner: React.FC<CTABannerProps> = ({ lang }) => {
               className="inline-flex items-center gap-2.5 px-8 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/15 active:scale-[0.98] group"
             >
               <MessageSquare className="w-4 h-4 text-white" /> 
-              <span>{lang === 'es' ? 'Hablemos' : 'Let\'s Talk'}</span>
+              <span>{lang === 'es' ? 'Contactarme' : 'Contact Me'}</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </a>
           </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Code, Cpu, Server, Database, Sparkles, Download } from 'lucide-react';
+import { Code, Cpu, Server, Database, Sparkles, Download, CreditCard } from 'lucide-react';
 
 interface TechnologyStackProps {
   lang: 'es' | 'en';
@@ -29,9 +29,14 @@ export const TechnologyStack: React.FC<TechnologyStackProps> = ({ lang }) => {
       icon: <Database className="w-5 h-5 text-[#FFBF00]" />
     },
     {
+      category: 'Monetización e Integraciones',
+      items: 'Integración avanzada de pasarelas de pago y e-learning como Stripe, Hotmart y PayPal mediante APIs RESTful y Webhooks para automatización de cobros y suscripciones.',
+      icon: <CreditCard className="w-5 h-5 text-[#FF5A1F]" />
+    },
+    {
       category: 'Rendimiento y Herramientas',
-      items: 'SEO Técnico (Core Web Vitals), APIs/Webhooks, Stripe API, Git, Metodologías Ágiles.',
-      icon: <Sparkles className="w-5 h-5 text-[#FF5A1F]" />
+      items: 'SEO Técnico (Core Web Vitals), Git, Metodologías Ágiles. Desarrollo acelerado asistido por IA (Cursor, Lovable, Claude, AI Studio, Google Flow).',
+      icon: <Sparkles className="w-5 h-5 text-[#FFBF00]" />
     }
   ] : [
     {
@@ -55,9 +60,14 @@ export const TechnologyStack: React.FC<TechnologyStackProps> = ({ lang }) => {
       icon: <Database className="w-5 h-5 text-[#FFBF00]" />
     },
     {
+      category: 'Monetization & Integrations',
+      items: 'Advanced integration of payment and e-learning platforms such as Stripe, Hotmart, and PayPal utilizing RESTful APIs and Webhooks for automated billing and subscriptions.',
+      icon: <CreditCard className="w-5 h-5 text-[#FF5A1F]" />
+    },
+    {
       category: 'Performance & Tools',
-      items: 'Technical SEO (Core Web Vitals), APIs/Webhooks, Stripe API, Git, Agile Methodologies.',
-      icon: <Sparkles className="w-5 h-5 text-[#FF5A1F]" />
+      items: 'Technical SEO (Core Web Vitals), Git, Agile Methodologies. Accelerated AI-assisted development (Cursor, Lovable, Claude, AI Studio, Google Flow).',
+      icon: <Sparkles className="w-5 h-5 text-[#FFBF00]" />
     }
   ];
 
@@ -103,7 +113,7 @@ export const TechnologyStack: React.FC<TechnologyStackProps> = ({ lang }) => {
           </div>
           <div className="w-full md:w-auto shrink-0">
             <a 
-              href="https://drive.google.com/file/d/1neROWIk7FfUgKqkNbTkEAbChTnbeJljI/view?usp=sharing" 
+              href={lang === 'en' ? "https://drive.google.com/file/d/1VCpBth4IoMivaJPCuQyx8QTLYAJyK2dG/view?usp=drive_link" : "https://drive.google.com/file/d/1neROWIk7FfUgKqkNbTkEAbChTnbeJljI/view?usp=sharing"} 
               target="_blank"
               rel="noopener noreferrer"
               className="w-full md:w-auto px-8 py-4 bg-[#FFBF00] hover:bg-[#E5AC00] text-black font-black text-sm uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#FFBF00]/10"

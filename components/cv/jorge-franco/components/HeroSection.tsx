@@ -49,7 +49,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollTo, lang }) =>
           {/* Fila Superior: Descargar CV y Ver proyectos */}
           <div className="grid grid-cols-2 gap-3.5 w-full max-w-[620px]">
             <a 
-              href="https://drive.google.com/file/d/1neROWIk7FfUgKqkNbTkEAbChTnbeJljI/view?usp=sharing"
+              href={lang === 'en' ? "https://drive.google.com/file/d/1VCpBth4IoMivaJPCuQyx8QTLYAJyK2dG/view?usp=drive_link" : "https://drive.google.com/file/d/1neROWIk7FfUgKqkNbTkEAbChTnbeJljI/view?usp=sharing"}
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/15 flex items-center justify-center gap-2 group cursor-pointer w-full text-center"

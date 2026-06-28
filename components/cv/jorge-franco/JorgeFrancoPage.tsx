@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
 // New designed modular components
 import { JFHeader } from './components/JFHeader';
@@ -6,7 +7,6 @@ import { HeroSection } from './components/HeroSection';
 import { MetricsBar } from './components/MetricsBar';
 import { MainCaseStudy } from './components/MainCaseStudy';
 import { TechnologyStack } from './components/TechnologyStack';
-import { MainTechnologies } from './components/MainTechnologies';
 import { Certifications } from './components/Certifications';
 import { EngineeringPractices } from './components/EngineeringPractices';
 import { ProfessionalExperience } from './components/ProfessionalExperience';
@@ -15,8 +15,22 @@ import { CTABanner } from './components/CTABanner';
 import { JFFooter } from './components/JFFooter';
 
 export const JorgeFrancoPage: React.FC = () => {
-  // State to manage the selected language, defaulting to Spanish ('es')
-  const [lang, setLang] = React.useState<'es' | 'en'>('es');
+  const { lang: urlLang } = useParams() as { lang?: string };
+  const navigate = useNavigate();
+
+  // Determine language based on URL parameter, defaulting to Spanish ('es')
+  const lang: 'es' | 'en' = urlLang === 'en' ? 'en' : 'es';
+
+  // Ensure url matches language precisely
+  React.useEffect(() => {
+    if (urlLang !== 'es' && urlLang !== 'en') {
+      navigate('/jorge-franco/es', { replace: true });
+    }
+  }, [urlLang, navigate]);
+
+  const setLang = (newLang: 'es' | 'en') => {
+    navigate(`/jorge-franco/${newLang}`);
+  };
 
   // Scroll handler for smooth navigation
   const handleScrollTo = (elementId: string) => {
@@ -50,8 +64,6 @@ export const JorgeFrancoPage: React.FC = () => {
           <AboutAndAvailability lang={lang} />
           
           <MainCaseStudy lang={lang} />
-          
-          <MainTechnologies lang={lang} />
           
           <TechnologyStack lang={lang} />
           

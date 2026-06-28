@@ -31,7 +31,7 @@ export const MainCaseStudy: React.FC<MainCaseStudyProps> = ({ lang }) => {
       <div className="flex items-center gap-3 mb-8">
         <div className="w-1.5 h-6 bg-[#FF5A1F] rounded-full"></div>
         <h2 className="text-2xl font-black text-white tracking-tight uppercase">
-          {lang === 'es' ? 'PROYECTOS EN DESARROLLO' : 'PROJECTS IN DEVELOPMENT'}
+          {lang === 'es' ? 'CASO DE ESTUDIO PRINCIPAL' : 'MAIN CASE STUDY'}
         </h2>
       </div>
 
@@ -43,7 +43,7 @@ export const MainCaseStudy: React.FC<MainCaseStudyProps> = ({ lang }) => {
         {/* Header inside */}
         <div className="space-y-2">
           <span className="inline-block text-[#FF5A1F] text-xs font-black tracking-widest uppercase">
-            {lang === 'es' ? 'CASO DE ESTUDIO PRINCIPAL' : 'MAIN CASE STUDY'}
+            {lang === 'es' ? 'SaaS en producción' : 'SaaS in Production'}
           </span>
           <h2 className="text-3xl md:text-[2.5rem] font-black text-white tracking-tight leading-none uppercase">
             Aprende.Marketing
@@ -254,6 +254,87 @@ export const MainCaseStudy: React.FC<MainCaseStudyProps> = ({ lang }) => {
           </div>
         </div>
 
+      </div>
+
+      {/* Additional Projects Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+        {/* Aerorutas */}
+        <div className="bg-[#111111] border border-white/5 rounded-3xl p-6 md:p-8 space-y-6 shadow-xl relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute top-[-10%] right-[-10%] w-[200px] h-[200px] bg-[#FF5A1F]/5 rounded-full blur-[60px] pointer-events-none"></div>
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <span className="inline-block text-[#FF5A1F] text-[10px] font-black tracking-widest uppercase">
+                {lang === 'es' ? 'SaaS en producción' : 'SaaS in Production'}
+              </span>
+              <h3 className="text-2xl font-black text-white tracking-tight uppercase">Aerorutas</h3>
+              <p className="text-[#FFBF00] font-bold text-xs uppercase tracking-wider">
+                {lang === 'es' ? 'CRM, reservas e integraciones turísticas' : 'CRM, bookings & travel integrations'}
+              </p>
+            </div>
+            <p className="text-gray-300 text-sm leading-relaxed">
+              {lang === 'es'
+                ? 'Desarrollo completo de una plataforma de reservas turísticas y CRM interno. Integración con el sistema de distribución global Amadeus GDS y la API de Booking.com, potenciando el SEO técnico.'
+                : 'End-to-end development of a travel reservation platform and custom CRM. Integrated Amadeus GDS global distribution system and Booking.com APIs, with a strong focus on technical SEO.'}
+            </p>
+            <div className="flex flex-wrap gap-1.5 pt-2">
+              {['PHP', 'MySQL', 'Amadeus GDS', 'Booking.com', 'SEO'].map((tech) => (
+                <span key={tech} className="px-2.5 py-1 bg-white/5 border border-white/5 rounded-md text-[10px] font-semibold text-gray-400 font-mono">
+                  {tech === 'SEO' && lang === 'es' ? 'SEO técnico' : tech}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="pt-4 border-t border-white/5 mt-auto flex items-center justify-between">
+            <div>
+              <span className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                {lang === 'es' ? 'Resultado Destacado' : 'Key Result'}
+              </span>
+              <span className="text-emerald-400 font-black text-base">
+                {lang === 'es' ? '4.000 a 49.000 visitas/mes' : '4,000 to 49,000 visits/month'}
+              </span>
+            </div>
+            <span className="text-gray-600 font-mono text-[10px] uppercase font-bold">2018 - 2020</span>
+          </div>
+        </div>
+
+        {/* Concesionarioenlinea */}
+        <div className="bg-[#111111] border border-white/5 rounded-3xl p-6 md:p-8 space-y-6 shadow-xl relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute top-[-10%] right-[-10%] w-[200px] h-[200px] bg-[#FF5A1F]/5 rounded-full blur-[60px] pointer-events-none"></div>
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <span className="inline-block text-[#FF5A1F] text-[10px] font-black tracking-widest uppercase">
+                {lang === 'es' ? 'SaaS en producción' : 'SaaS in Production'}
+              </span>
+              <h3 className="text-2xl font-black text-white tracking-tight uppercase">Concesionarioenlinea</h3>
+              <p className="text-[#FFBF00] font-bold text-xs uppercase tracking-wider">
+                {lang === 'es' ? 'Marketplace automotriz con micrositios e inventarios' : 'Automotive marketplace with microsites & inventory managers'}
+              </p>
+            </div>
+            <p className="text-gray-300 text-sm leading-relaxed">
+              {lang === 'es'
+                ? 'Arquitectura e implementación de un marketplace automotriz multidominio con creación de micrositios y catálogos de inventario sincronizados en tiempo real, CRM integrado y optimización SEO.'
+                : 'Architecture and implementation of a multi-tenant automotive marketplace featuring instant dealer microsites, real-time inventory management, built-in CRM, and advanced SEO.'}
+            </p>
+            <div className="flex flex-wrap gap-1.5 pt-2">
+              {['PHP', 'MySQL', 'Joomla', 'CRM', 'SEO'].map((tech) => (
+                <span key={tech} className="px-2.5 py-1 bg-white/5 border border-white/5 rounded-md text-[10px] font-semibold text-gray-400 font-mono">
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="pt-4 border-t border-white/5 mt-auto flex items-center justify-between">
+            <div>
+              <span className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                {lang === 'es' ? 'Resultado Destacado' : 'Key Result'}
+              </span>
+              <span className="text-emerald-400 font-black text-base">
+                {lang === 'es' ? 'Más de 59.000 visitas/mes' : 'Over 59,000 visits/month'}
+              </span>
+            </div>
+            <span className="text-gray-600 font-mono text-[10px] uppercase font-bold">2016 - 2018</span>
+          </div>
+        </div>
       </div>
 
       {/* Slide-over Drawer for Aprende.Marketing details */}

@@ -203,7 +203,7 @@ export const AprendeMarketingProjectPage: React.FC<AprendeMarketingProjectPagePr
                     </a>
 
                     <a 
-                      href="https://drive.google.com/file/d/1neROWIk7FfUgKqkNbTkEAbChTnbeJljI/view?usp=sharing"
+                      href={lang === 'en' ? "https://drive.google.com/file/d/1VCpBth4IoMivaJPCuQyx8QTLYAJyK2dG/view?usp=drive_link" : "https://drive.google.com/file/d/1neROWIk7FfUgKqkNbTkEAbChTnbeJljI/view?usp=sharing"}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full px-6 py-4 bg-[#FFBF00]/10 border border-[#FFBF00]/30 hover:border-[#FFBF00]/20 text-[#FFBF00] rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all hover:bg-[#FFBF00]/20"
