@@ -18,14 +18,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollTo, lang }) =>
         
         <h1 className="text-4xl md:text-[3.25rem] font-black text-white leading-[1.1] tracking-tight">
           {lang === 'es' 
-            ? 'Construyo productos digitales escalables que resuelven problemas reales y generan valor de negocio.'
-            : 'I build scalable digital products that solve real-world problems and generate business value.'}
+            ? 'Full-Stack Software Engineer especializado en construir plataformas SaaS con React, Node.js, IA y Google Cloud.'
+            : 'Full-Stack Software Engineer specializing in building SaaS platforms with React, Node.js, AI, and Google Cloud.'}
         </h1>
         
         <p className="text-lg md:text-[1.2rem] text-white font-normal leading-relaxed max-w-2xl">
           {lang === 'es'
-            ? 'Más de 15 años diseñando, desarrollando y escalando plataformas web, SaaS, marketing pipelines y sistemas de automatización con IA.'
-            : 'Over 15 years designing, developing, and scaling web platforms, SaaS, marketing pipelines, and AI automation systems.'}
+            ? 'He diseñado y desarrollado plataformas completas en producción, desde la arquitectura hasta el despliegue, integrando IA generativa, Stripe, automatizaciones y arquitecturas multi-tenant.'
+            : 'I have designed and developed complete platforms in production, from architecture to deployment, integrating generative AI, Stripe, automation, and multi-tenant architectures.'}
         </p>
 
         {/* Pilas de Características */}
@@ -125,7 +125,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollTo, lang }) =>
             <div className="space-y-1">
               <h2 className="text-xl font-black text-white tracking-wide uppercase">Jorge Alberto Franco</h2>
               <p className="text-xs font-semibold text-[#FFBF00] uppercase tracking-widest flex items-center justify-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-[#FF5A1F]" /> {lang === 'es' ? 'Málaga, España' : 'Málaga, Spain'}
+                <MapPin className="w-3.5 h-3.5 text-[#FF5A1F]" /> {lang === 'es' ? 'Sevilla, España' : 'Sevilla, Spain'}
               </p>
             </div>
 

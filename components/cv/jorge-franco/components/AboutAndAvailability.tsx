@@ -22,19 +22,25 @@ export const AboutAndAvailability: React.FC<AboutAndAvailabilityProps> = ({ lang
           {lang === 'es' ? (
             <>
               <p>
-                Apasionado por crear productos digitales que combinan tecnología, diseño y estrategia. Me enfoco en construir soluciones escalables, seguras y centradas en el usuario.
+                Ingeniero de Sistemas y Telecomunicaciones con más de 15 años de experiencia en tecnología, desarrollo web y productos digitales.
               </p>
               <p>
-                Me encanta aprender, automatizar procesos y aplicar IA para resolver problemas reales y generar impacto. Cuando no estoy programando, disfruto el SEO, el marketing digital y los viajes.
+                Diseño y desarrollo aplicaciones Full Stack con React, TypeScript, Node.js y Laravel. Integro inteligencia artificial generativa, APIs y automatizaciones, y despliego soluciones SaaS en Google Cloud mediante Docker.
+              </p>
+              <p>
+                Combino ingeniería de producto, rendimiento técnico y visión de negocio para crear sistemas escalables, mantenibles y orientados a resultados.
               </p>
             </>
           ) : (
             <>
               <p>
-                Passionate about creating digital products that combine technology, design, and strategy. I focus on building scalable, secure, and user-centered solutions.
+                Systems and Telecommunications Engineer with 15+ years of experience in technology, web development, and digital products.
               </p>
               <p>
-                I love learning, automating processes, and applying AI to solve real-world problems and drive impact. When I'm not coding, I enjoy SEO, digital marketing, and traveling.
+                I design and build full-stack applications with React, TypeScript, Node.js, and Laravel. I integrate generative AI, APIs, and automation, and deploy SaaS solutions on Google Cloud using Docker.
+              </p>
+              <p>
+                I combine product engineering, technical performance, and business acumen to build scalable, maintainable, results-driven systems.
               </p>
             </>
           )}

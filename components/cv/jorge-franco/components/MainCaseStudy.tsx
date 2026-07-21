@@ -95,8 +95,7 @@ export const MainCaseStudy: React.FC<MainCaseStudyProps> = ({ lang }) => {
                 onClick={() => setIsDrawerOpen(true)}
                 className="px-8 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 group shadow-lg shadow-[#FF5A1F]/20 hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
               >
-                {lang === 'es' ? 'Ver Detalles del Proyecto' : 'View Project Details'}
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                {lang === 'es' ? 'Ver caso de estudio completo →' : 'View full case study →'}
               </button>
             </div>
           </div>
@@ -250,6 +249,15 @@ export const MainCaseStudy: React.FC<MainCaseStudyProps> = ({ lang }) => {
 
                 </div>
               </div>
+            </div>
+
+            {/* Texto destacado, centrado y atractivo debajo de la imagen 2 */}
+            <div className="text-center pt-5 pb-1 max-w-2xl mx-auto">
+              <p className="text-xs md:text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFBF00] via-[#FF5A1F] to-[#FFBF00] uppercase tracking-wider leading-relaxed">
+                {lang === 'es'
+                  ? 'Arquitectura multi-tenant, IA generativa, Stripe, Docker, Google Cloud y despliegue en producción.'
+                  : 'Multi-tenant architecture, generative AI, Stripe, Docker, Google Cloud, and production deployment.'}
+              </p>
             </div>
           </div>
         </div>

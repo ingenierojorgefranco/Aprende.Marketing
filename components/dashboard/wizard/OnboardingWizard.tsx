@@ -69,6 +69,7 @@ import {
   SuccessStep,
 } from "./WizardSteps";
 import { Image1Dashboard } from "./Image1Dashboard";
+import { ImplementationGuide } from "./ImplementationGuide";
 
 const UserProfileModal = React.lazy(() => import("../UserProfileModal"));
 
@@ -785,6 +786,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   }, [unlockedProject?.id]);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const projectPanelRef = useRef<HTMLDivElement>(null);
 
   const loadMasterProjects = async () => {
     if (projects.length > 0) return;
@@ -1413,8 +1415,30 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         ) : step === "success" ? (
           <div className="w-full min-h-screen flex flex-col justify-center pt-28 md:pt-30 pb-16 relative z-10 font-sans">
 
+            {/* NUEVA GUÍA DE IMPLEMENTACIÓN CON INTERACTIVIDAD COMPLETA */}
+            <div className="w-full mb-16 z-35 relative">
+              <ImplementationGuide
+                projectName={activeProjectName}
+                projectNiche={activeProjectNiche}
+                projectPrice={activeProjectPrice}
+                projectCommission={activeProjectCommission}
+                projectUrl={activeProjectUrl}
+                projectPublishedAt={activeProjectDate}
+                projectVisits={activePage?.visits}
+                projectConversions={activePage?.conversions}
+                onUpgradeClick={() => setShowUpgradeModal(true)}
+                onScrollToProjectPanel={() => {
+                  projectPanelRef.current?.scrollIntoView({ behavior: "smooth" });
+                }}
+              />
+            </div>
+
             {/* COMPONENTE IMAGE1DASHBOARD AL COMIENZO (ALTA FIDELIDAD CON LA IMAGEN 1) */}
-            <div className="w-full max-w-[1840px] mx-auto px-4 md:px-6 lg:px-8 mb-16 z-30 relative">
+            <div ref={projectPanelRef} className="w-full max-w-[1840px] mx-auto px-4 md:px-6 lg:px-8 mb-16 z-30 relative pt-12 border-t border-white/[0.04]">
+              <div className="mb-6 text-left">
+                <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1">Centro de Operaciones</span>
+                <h3 className="text-xl font-black text-white uppercase tracking-tight">Panel Principal del Proyecto</h3>
+              </div>
               <Image1Dashboard 
                 projectName={activeProjectName}
                 projectNiche={activeProjectNiche}
@@ -2373,101 +2397,113 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   <div className="space-y-6 font-sans text-left">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                       {/* Left Column: Páginas del recorrido (span 3) - Sticky Layout */}
-                      <div className="lg:col-span-3 space-y-4 lg:sticky lg:top-6 self-start">
-                        <h4 className="text-sm sm:text-base font-extrabold text-white tracking-tight">
-                          Páginas del recorrido
-                        </h4>
+                      <div className="lg:col-span-3 lg:sticky lg:top-6 self-start flex flex-col justify-between min-h-[480px] space-y-6">
+                        <div className="space-y-4">
+                          <h4 className="text-sm sm:text-base font-extrabold text-white tracking-tight">
+                            Páginas del recorrido
+                          </h4>
 
-                        {/* Cards container with vertical layout and downward arrow */}
-                        <div className="space-y-3 relative">
-                          {/* Card 1: Página de captación */}
-                          <button
-                            onClick={() => setSelectedLandingPageTab("captacion")}
-                            className={`w-full p-4 rounded-2xl text-left border transition-all duration-300 relative block group ${
-                              selectedLandingPageTab === "captacion"
-                                ? "border-[#FF5A1F] bg-[#1a171d]/60 shadow-[0_0_20px_rgba(255,90,31,0.12)] animate-none"
-                                : "border-white/5 bg-[#101015]/40 hover:border-white/10"
-                            }`}
-                          >
-                            {/* Floating circular number badge */}
-                            <div className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-[#FF5A1F] text-white text-[10px] font-black flex items-center justify-center shadow-lg">
-                              1
-                            </div>
-
-                            <div className="flex items-start gap-3">
-                              {/* Icon box */}
-                              <div className={`p-2 rounded-xl border shrink-0 ${
+                          {/* Cards container with vertical layout and downward arrow */}
+                          <div className="space-y-3 relative">
+                            {/* Card 1: Página de captación */}
+                            <button
+                              onClick={() => setSelectedLandingPageTab("captacion")}
+                              className={`w-full p-4 rounded-2xl text-left border transition-all duration-300 relative block group ${
                                 selectedLandingPageTab === "captacion"
-                                  ? "bg-[#FF5A1F]/15 border-[#FF5A1F]/25 text-[#FF5A1F]"
-                                  : "bg-white/5 border-white/5 text-zinc-400 group-hover:text-white transition-colors"
-                              }`}>
-                                <Globe className="w-4 h-4" />
+                                  ? "border-[#FF5A1F] bg-[#1a171d]/60 shadow-[0_0_20px_rgba(255,90,31,0.12)] animate-none"
+                                  : "border-white/5 bg-[#101015]/40 hover:border-white/10"
+                              }`}
+                            >
+                              {/* Floating circular number badge */}
+                              <div className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-[#FF5A1F] text-white text-[10px] font-black flex items-center justify-center shadow-lg">
+                                1
                               </div>
 
-                              <div className="space-y-1.5 flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs font-black text-white truncate">Página de captación</span>
-                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[8px] font-black text-emerald-400 uppercase tracking-wider leading-none">
-                                    Publicada
-                                  </span>
+                              <div className="flex items-start gap-3">
+                                {/* Icon box */}
+                                <div className={`p-2 rounded-xl border shrink-0 ${
+                                  selectedLandingPageTab === "captacion"
+                                    ? "bg-[#FF5A1F]/15 border-[#FF5A1F]/25 text-[#FF5A1F]"
+                                    : "bg-white/5 border-white/5 text-zinc-400 group-hover:text-white transition-colors"
+                                }`}>
+                                  <Globe className="w-4 h-4" />
                                 </div>
-                                <p className="text-white font-light text-sm sm:text-base leading-relaxed pt-2 pb-1 animate-fade-in-up">
-                                  Recibe visitantes y registra sus datos
-                                </p>
 
-                                {/* Info Row */}
-                                <div className="flex items-center gap-3 text-xs sm:text-sm text-white font-light pt-3 pb-1 animate-fade-in-up">
-                                  <span>Visitas: <strong className="text-zinc-200 font-semibold">{activePage?.visits ?? 0}</strong></span>
-                                  <span>•</span>
-                                  <span>Registros: <strong className="text-zinc-200 font-semibold">{activePage?.conversions ?? 0}</strong></span>
+                                <div className="space-y-1.5 flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs font-black text-white truncate">Página de captación</span>
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[8px] font-black text-emerald-400 uppercase tracking-wider leading-none">
+                                      Publicada
+                                    </span>
+                                  </div>
+                                  <p className="text-white font-light text-sm sm:text-base leading-relaxed pt-2 pb-1 animate-fade-in-up">
+                                    Recibe visitantes y registra sus datos
+                                  </p>
+
+                                  {/* Info Row */}
+                                  <div className="flex items-center gap-3 text-xs sm:text-sm text-white font-light pt-3 pb-1 animate-fade-in-up">
+                                    <span>Visitas: <strong className="text-zinc-200 font-semibold">{activePage?.visits ?? 0}</strong></span>
+                                    <span>•</span>
+                                    <span>Registros: <strong className="text-zinc-200 font-semibold">{activePage?.conversions ?? 0}</strong></span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </button>
+                            </button>
 
-                          {/* Downward arrow connector */}
-                          <div className="flex justify-center py-1">
-                            <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 shadow-md">
-                              <span className="text-xs font-bold font-mono">↓</span>
-                            </div>
-                          </div>
-
-                          {/* Card 2: Página de gracias */}
-                          <button
-                            onClick={() => setSelectedLandingPageTab("gracias")}
-                            className={`w-full p-4 rounded-2xl text-left border transition-all duration-300 relative block group ${
-                              selectedLandingPageTab === "gracias"
-                                ? "border-[#FF5A1F] bg-[#1a171d]/60 shadow-[0_0_20px_rgba(255,90,31,0.12)] animate-none"
-                                : "border-white/5 bg-[#101015]/40 hover:border-white/10"
-                            }`}
-                          >
-                            {/* Floating circular number badge */}
-                            <div className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-zinc-700 text-white text-[10px] font-black flex items-center justify-center shadow-lg">
-                              2
+                            {/* Downward arrow connector */}
+                            <div className="flex justify-center py-1">
+                              <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 shadow-md">
+                                <span className="text-xs font-bold font-mono">↓</span>
+                              </div>
                             </div>
 
-                            <div className="flex items-start gap-3">
-                              {/* Icon box */}
-                              <div className={`p-2 rounded-xl border shrink-0 ${
+                            {/* Card 2: Página de gracias */}
+                            <button
+                              onClick={() => setSelectedLandingPageTab("gracias")}
+                              className={`w-full p-4 rounded-2xl text-left border transition-all duration-300 relative block group ${
                                 selectedLandingPageTab === "gracias"
-                                  ? "bg-[#FF5A1F]/15 border-[#FF5A1F]/25 text-[#FF5A1F]"
-                                  : "bg-white/5 border-white/5 text-zinc-400 group-hover:text-white transition-colors"
-                              }`}>
-                                <CheckCircle className="w-4 h-4" />
+                                  ? "border-[#FF5A1F] bg-[#1a171d]/60 shadow-[0_0_20px_rgba(255,90,31,0.12)] animate-none"
+                                  : "border-white/5 bg-[#101015]/40 hover:border-white/10"
+                              }`}
+                            >
+                              {/* Floating circular number badge */}
+                              <div className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-zinc-700 text-white text-[10px] font-black flex items-center justify-center shadow-lg">
+                                2
                               </div>
 
-                              <div className="space-y-1.5 flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs font-black text-white truncate">Página de gracias</span>
-                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[8px] font-black text-emerald-400 uppercase tracking-wider leading-none">
-                                    Publicada
-                                  </span>
+                              <div className="flex items-start gap-3">
+                                {/* Icon box */}
+                                <div className={`p-2 rounded-xl border shrink-0 ${
+                                  selectedLandingPageTab === "gracias"
+                                    ? "bg-[#FF5A1F]/15 border-[#FF5A1F]/25 text-[#FF5A1F]"
+                                    : "bg-white/5 border-white/5 text-zinc-400 group-hover:text-white transition-colors"
+                                }`}>
+                                  <CheckCircle className="w-4 h-4" />
                                 </div>
-                                <p className="text-white font-light text-sm sm:text-base leading-relaxed pt-2 pb-1 animate-fade-in-up">
-                                  Confirma el registro y presenta el siguiente paso
-                                </p>
+
+                                <div className="space-y-1.5 flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs font-black text-white truncate">Página de gracias</span>
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[8px] font-black text-emerald-400 uppercase tracking-wider leading-none">
+                                      Publicada
+                                    </span>
+                                  </div>
+                                  <p className="text-white font-light text-sm sm:text-base leading-relaxed pt-2 pb-1 animate-fade-in-up">
+                                    Confirma el registro y presenta el siguiente paso
+                                  </p>
+                                </div>
                               </div>
-                            </div>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Botón Cerrar Vista abajo en la columna izquierda */}
+                        <div className="pt-4 border-t border-white/5">
+                          <button
+                            onClick={() => setActiveDetailsDrawer(null)}
+                            className="w-full py-3 bg-[#FF5A1F] hover:bg-[#FF5A1F]/90 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_4px_15px_rgba(255,90,31,0.25)] cursor-pointer text-center"
+                          >
+                            Cerrar Vista
                           </button>
                         </div>
                       </div>
@@ -4688,14 +4724,16 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               </div>
 
               {/* Drawer Footer */}
-              <div className="p-6 border-t border-white/5 bg-[#14141c]/95 flex justify-end items-center relative z-10">
-                <button
-                  onClick={() => setActiveDetailsDrawer(null)}
-                  className="px-6 py-3 bg-[#FF5A1F] hover:bg-[#FF5A1F]/90 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_4px_15px_rgba(255,90,31,0.25)]"
-                >
-                  Cerrar Vista
-                </button>
-              </div>
+              {activeDetailsDrawer !== "landing" && (
+                <div className="p-6 border-t border-white/5 bg-[#14141c]/95 flex justify-end items-center relative z-10">
+                  <button
+                    onClick={() => setActiveDetailsDrawer(null)}
+                    className="px-6 py-3 bg-[#FF5A1F] hover:bg-[#FF5A1F]/90 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_4px_15px_rgba(255,90,31,0.25)]"
+                  >
+                    Cerrar Vista
+                  </button>
+                </div>
+              )}
             </motion.div>
           </div>
         )}
@@ -4794,16 +4832,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       ))}
                     </div>
                   </div>
-
-                  {/* Drawer Footer */}
-                  <div className="p-6 border-t border-white/5 bg-[#0e0e14]/95 flex justify-end items-center relative z-10 shrink-0">
-                    <button
-                      onClick={() => setIsEstrategiaDrawerOpen(false)}
-                      className="px-6 py-3 bg-[#FF5A1F] hover:bg-[#FF5A1F]/90 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_4px_15px_rgba(255,90,31,0.25)] cursor-pointer"
-                    >
-                      Cerrar Vista
-                    </button>
-                  </div>
                 </div>
               ) : (
                 /* VISTA EXPANDIDA COMPLETA (Imagen 2: Split Layout Dual) */
@@ -4880,6 +4908,19 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                             </div>
                           );
                         })}
+                      </div>
+
+                      {/* Botón Cerrar Vista abajo en la columna izquierda */}
+                      <div className="mt-auto pt-4 border-t border-white/5">
+                        <button
+                          onClick={() => {
+                            setIsEstrategiaDrawerOpen(false);
+                            setActiveComercialOption(null);
+                          }}
+                          className="w-full py-3 bg-[#FF5A1F] hover:bg-[#FF5A1F]/90 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_4px_15px_rgba(255,90,31,0.25)] cursor-pointer text-center"
+                        >
+                          Cerrar Vista
+                        </button>
                       </div>
                     </div>
 

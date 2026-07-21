@@ -147,7 +147,7 @@ export const AprendeMarketingProjectPage: React.FC<AprendeMarketingProjectPagePr
                     {/* Badges / Location */}
                     <div className="flex flex-wrap items-center justify-center gap-2 pt-2 border-t border-white/5">
                       <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/15 rounded-md text-xs md:text-sm font-bold text-white">
-                        <Globe className="w-4 h-4 text-[#FF5A1F]" /> {lang === 'es' ? 'Málaga, España' : 'Málaga, Spain'}
+                        <Globe className="w-4 h-4 text-[#FF5A1F]" /> {lang === 'es' ? 'Sevilla, España' : 'Sevilla, Spain'}
                       </span>
                       <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md text-xs md:text-sm font-bold text-emerald-400 animate-pulse">
                         ● {lang === 'es' ? 'Disponible para CTOs' : 'Available for CTOs'}
