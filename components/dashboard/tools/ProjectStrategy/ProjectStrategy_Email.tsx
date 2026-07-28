@@ -4,13 +4,15 @@ import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2,
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, EmailMessage, EmailSequence, LandingPage, AffiliateLink, Project } from '../../../../types';
 import { api } from '../../../../services/api';
+import { StepHeaderCard } from '../../wizard/StepHeaderCard';
+import { StepVideoContainer } from '../../wizard/StepVideoContainer';
 
 interface ProjectStrategy_EmailProps {
     emailData?: any[];
     avatars?: any[];
-    activeEmail: number;
-    setActiveEmail: (idx: number) => void;
-    onUpgrade: () => void;
+    activeEmail?: number;
+    setActiveEmail?: (idx: number) => void;
+    onUpgrade?: () => void;
     
     // Props de límites y persistencia real
     features?: PlanFeatures;
@@ -29,14 +31,19 @@ interface ProjectStrategy_EmailProps {
 }
 
 export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
-    emailData: initialEmailData, avatars: initialAvatars, activeEmail, setActiveEmail, onUpgrade, features, planLimits, nextPlan, realMessages: initialRealMessages = [], isSimulating = false, sequenceCount: initialSequenceCount = 0, sequenceId: initialSequenceId = null,
+    emailData: initialEmailData, avatars: initialAvatars, activeEmail: propActiveEmail, setActiveEmail: propSetActiveEmail, onUpgrade = () => {}, features, planLimits, nextPlan, realMessages: initialRealMessages = [], isSimulating = false, sequenceCount: initialSequenceCount = 0, sequenceId: initialSequenceId = null,
     activeType: initialActiveType = 'conversion', setActiveType,
     projectId: propProjectId, hideHeader = false
 }) => {
     const navigate = useNavigate();
     const { id: urlProjectId } = useParams() as { id: string };
     const projectId = propProjectId || urlProjectId;
-    const { user } = useOutletContext() as any;
+    const context = useOutletContext() as any;
+    const user = context?.user;
+
+    const [localActiveEmail, setLocalActiveEmail] = useState<number>(0);
+    const activeEmail = propActiveEmail !== undefined ? propActiveEmail : localActiveEmail;
+    const setActiveEmail = propSetActiveEmail || setLocalActiveEmail;
 
     // Estados para autonomía cuando se usa fuera de la estrategia
     const [emailData, setEmailData] = useState<any[]>(initialEmailData || []);
@@ -524,7 +531,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     };
 
     return (
-        <div id="psd-email-section" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen pt-8">
+        <div id="psd-email-section" className="space-y-6 text-left animate-in fade-in duration-500">
             <style>{`
                 @keyframes loading-shine {
                     0% { transform: translateX(-100%); }
@@ -624,46 +631,22 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
             {/* --- ENCABEZADO ESTRATÉGICO ACTUALIZADO --- */}
             {!hideHeader && (
-                <div className="seccion_encabezado space-y-12 mb-20">
-                    {/* --- HEADER SECCIÓN --- */}
-                    <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
-                        {/* Degradado superior sutil */}
-                        <div className="absolute inset-x-0 -top-24 h-[600px] bg-blue-600/10 blur-[140px] -z-10 rounded-full" />
-                        
-                        <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
-                            <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6]" />
-                            <Sparkles className="w-4 h-4" /> Correos de Conversión
-                        </div>
-                        
-                        <div className="space-y-4 px-4">
-                            <h3 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-none text-center max-w-5xl mx-auto">
-                                Email Marketing: <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-blue-400">Secuencia de Conversión (7 Días)</span>
-                            </h3>
-                            <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
-                                Hemos diseñado una secuencia de 7 correos electrónicos estratégicos diseñados para nutrir a tus prospectos y llevarlos paso a paso hacia la decisión de compra, utilizando gatillos mentales de autoridad, escasez y urgencia.
-                            </p>
-                        </div>
-                    </div>
+                <div className="space-y-6">
+                    {/* --- HEADER CARD --- */}
+                    <StepHeaderCard
+                        stepNumber={11}
+                        totalSteps={13}
+                        categoryTitle="Email Marketing: Secuencia de Venta"
+                        title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Conversión (7 Días)</span></>}
+                        description="Hemos diseñado una secuencia de 7 correos electrónicos estratégicos para nutrir a tus prospectos y llevarlos paso a paso hacia la decisión de compra, utilizando gatillos mentales de autoridad, escasez y urgencia."
+                    />
 
-                    {/* --- VIDEO EXPLICATIVO --- */}
-                    <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
-                        <div className="inline-flex items-center gap-3 text-blue-300 font-extrabold uppercase tracking-widest text-sm bg-blue-500/5 px-8 py-4 rounded-2xl border border-blue-500/10 backdrop-blur-sm mx-auto">
-                            <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
-                        </div>
-                        
-                        <div className="group relative">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-blue-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
-                            
-                            <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-blue-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
-                                <iframe 
-                                    className="w-full h-full"
-                                    src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
-                                    title="Video Tutorial Email" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowFullScreen
-                                ></iframe>
-                            </div>
-                        </div>
+                    {/* --- VIDEO TUTORIAL --- */}
+                    <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
+                        <StepVideoContainer 
+                            videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
+                            title="Video Tutorial Email"
+                        />
                     </div>
                 </div>
             )}

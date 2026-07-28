@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Layers, ArrowRight, ArrowDown, Clapperboard, Globe, CheckCircle2, Users, MessageCircle, FileText, MonitorPlay, ShoppingCart, Zap, RefreshCw, Sparkles, Rocket, X, AlertTriangle, BarChart3, ListChecks, Brain, Target, Lightbulb, TrendingUp, ShieldCheck, Mail, BookOpen, Play } from 'lucide-react';
+import { StepHeaderCard } from '../../wizard/StepHeaderCard';
+import { StepVideoContainer } from '../../wizard/StepVideoContainer';
 
 const ACQUISITION_STEPS = [
     { 
@@ -489,68 +491,43 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
 };
 
 interface ProjectStrategy_BlueprintProps {
-    handleTooltipHover: (e: React.MouseEvent, content: string[]) => void;
-    handleTooltipLeave: () => void;
+    handleTooltipHover?: (e: React.MouseEvent, content: string[]) => void;
+    handleTooltipLeave?: () => void;
 }
 
 export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps> = () => {
     const [selectedMasterclass, setSelectedMasterclass] = useState<any | null>(null);
 
     return (
-        <div id="psd-blueprint-container" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-12 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen">
-            {/* Div agrupador para encabezado y video (seccion_encabezado) */}
-            <div className="seccion_encabezado space-y-12">
-                {/* --- HEADER SECCIÓN --- */}
-                <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
-                    {/* Degradado superior sutil */}
-                    <div className="absolute inset-x-0 -top-24 h-[600px] bg-emerald-600/10 blur-[140px] -z-10 rounded-full" />
-                    
-                    <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
-                        <Zap className="w-4 h-4 fill-current" /> ¿Cómo será mi estrategia?
-                    </div>
-                    
-                    <div className="space-y-4 px-4">
-                        <h3 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-none">
-                            ¿Cómo funcionará tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">estrategia de ventas?</span>
-                        </h3>
-                        <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
-                            Nuestro sistema de ventas no depende de la suerte. Nuestra estrategia está diseñada para atraer clientes interesados en tu producto digital y llevarlos paso a paso hasta que tomen la decisión de compra con confianza.
-                        </p>
-                    </div>
-                </div>
+        <div id="psd-blueprint-container" className="space-y-6 text-left animate-in fade-in duration-500">
+            
+            {/* 1. HEADER CARD */}
+            <StepHeaderCard
+                stepNumber={4}
+                totalSteps={13}
+                categoryTitle="Tu Mapa de Ruta (Blueprint)"
+                title="Tu Mapa de Ruta (Blueprint)"
+                description="Nuestro sistema de ventas no depende de la suerte. Nuestra estrategia está diseñada para atraer clientes interesados en tu producto digital y llevarlos paso a paso hasta que tomen la decisión de compra con confianza."
+            />
 
-                {/* --- VIDEO EXPLICATIVO --- */}
-                <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
-                    <div className="inline-flex items-center gap-3 text-emerald-300 font-extrabold uppercase tracking-widest text-sm bg-emerald-500/5 px-8 py-4 rounded-2xl border border-emerald-500/10 backdrop-blur-sm mx-auto">
-                        <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
-                    </div>
-                    
-                    <div className="group relative">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600/20 to-teal-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
-                        
-                        <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-emerald-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
-                                title="Video Tutorial Blueprint" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-                    </div>
-                </div>
+            {/* 2. VIDEO TUTORIAL */}
+            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
+                <StepVideoContainer 
+                    videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
+                    title="Video Tutorial Blueprint"
+                />
             </div>
             
-            <div id="psd-blueprint-grid-wrapper" className="w-full border border-gray-800 rounded-[3.5rem] relative overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5)] bg-[#050505]">
+            {/* 3. RECORRIDO Y CARDS INTERACTIVAS */}
+            <div id="psd-blueprint-grid-wrapper" className="w-full border border-slate-800 rounded-2xl relative overflow-hidden shadow-xl bg-[#0B1120] p-4 sm:p-8">
                 {/* Enhanced Animated Grid Background */}
                 <div className="absolute inset-0 z-0">
                      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20"></div>
                      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-emerald-900/10 via-transparent to-transparent"></div>
                 </div>
 
-                <div className="max-w-[1400px] mx-auto px-6 py-12 lg:py-20 relative z-10">
-                    <h4 className="text-center text-white font-black text-2xl uppercase tracking-[0.2em] mb-24 opacity-80">
+                <div className="max-w-[1400px] mx-auto px-2 sm:px-6 py-6 lg:py-12 relative z-10">
+                    <h4 className="text-center text-white font-black text-xl sm:text-2xl uppercase tracking-[0.2em] mb-12 sm:mb-20 opacity-90">
                         El recorrido completo de tu cliente (de principio a fin)
                     </h4>
                     

@@ -5,6 +5,8 @@ import { useOutletContext, useParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { callGeminiBackend, Type } from '../../../../services/geminiService';
 import { LandingPage } from '../../../../types';
+import { StepHeaderCard } from '../../wizard/StepHeaderCard';
+import { StepVideoContainer } from '../../wizard/StepVideoContainer';
 
 interface TestimonialsProps {
   strategyData?: any;
@@ -12,8 +14,18 @@ interface TestimonialsProps {
 
 export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ strategyData: propStrategyData }) => {
   const context = useOutletContext() as any;
-  const strategyData = propStrategyData || context.strategyData;
   const { id: projectId } = useParams() as { id: string };
+  const [fetchedStrategy, setFetchedStrategy] = useState<any>(null);
+
+  useEffect(() => {
+    if (!propStrategyData && !context?.strategyData && projectId) {
+      api.getProjectStrategy(projectId).then(data => {
+        if (data) setFetchedStrategy(data);
+      }).catch(err => console.error("Error loading strategy in testimonials", err));
+    }
+  }, [propStrategyData, context, projectId]);
+
+  const strategyData = propStrategyData || context?.strategyData || fetchedStrategy;
 
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [tempText, setTempText] = useState("");
@@ -47,6 +59,27 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
 
   const allAvatarOptions = [...femaleAvatars, ...maleAvatars];
 
+  const defaultTestimonials = [
+    {
+      name: "Laura Martínez",
+      text: "¡Hola! Solo quería agradecerte. Después de aplicar la estrategia del programa, logré cerrar mi primera venta en menos de 48 horas. ¡Es increíble la claridad que da!",
+      image: femaleAvatars[0],
+      is_custom_avatar: false
+    },
+    {
+      name: "Carlos Rodríguez",
+      text: "Tenía mis dudas al principio porque había probado otros programas sin resultados, pero la estructura paso a paso de este sistema superó mis expectativas. ¡Totalmente recomendado!",
+      image: maleAvatars[0],
+      is_custom_avatar: false
+    },
+    {
+      name: "Sofía Gómez",
+      text: "Lo mejor de todo fue la plantilla de persuasión y el soporte. Pude implementar todo el embudo este fin de semana y ya tengo prospectos calificados preguntando.",
+      image: femaleAvatars[1],
+      is_custom_avatar: false
+    }
+  ];
+
   useEffect(() => {
     const checkLanding = async () => {
         if (!projectId) return;
@@ -64,26 +97,26 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
   // Función inteligente de detección de género basada en el nombre
   const detectGender = (name: string): 'male' | 'female' => {
     const n = name.toLowerCase().trim();
-    // Patrones comunes de nombres femeninos en español/inglés
     if (n.endsWith('a') || n.endsWith('ia') || n.endsWith('ita') || n.endsWith('na') || n.endsWith('ra') || n.endsWith('sa') || n.endsWith('th') || n.endsWith('ly')) {
       return 'female';
     }
     return 'male';
   };
 
-  // Verificación de existencia de testimonios estratégicos
-  const hasTestimonials = strategyData?.modules?.testimonials && strategyData.modules.testimonials.length >= 3;
+  const rawTestimonials = (strategyData?.modules?.testimonials && strategyData.modules.testimonials.length >= 3)
+    ? strategyData.modules.testimonials
+    : defaultTestimonials;
+
+  const hasTestimonials = true;
 
   // Lógica de asignación dinámica de imágenes por género
   let maleIdx = 0;
   let femaleIdx = 0;
 
-  const dynamicTestimonials = hasTestimonials
-    ? strategyData.modules.testimonials.slice(0, 3).map((t: any, i: number) => {
-        const correspondingAvatar = strategyData.avatars && strategyData.avatars[i];
+  const dynamicTestimonials = rawTestimonials.slice(0, 3).map((t: any, i: number) => {
+        const correspondingAvatar = strategyData?.avatars && strategyData.avatars[i];
         const avatarImg = correspondingAvatar?.image || "";
 
-        // Si el usuario seleccionó uno manualmente en la sesión actual, lo usamos.
         if (customAvatars[i]) {
             return {
                 name: t.name,
@@ -93,7 +126,6 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
             };
         }
 
-        // Si es una imagen personalizada elegida y guardada persistente, tiene prioridad absoluta sobre la original del avatar del proyecto
         if (t.is_custom_avatar && t.image) {
             return {
                 name: t.name,
@@ -103,7 +135,6 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
             };
         }
 
-        // PRIORIDAD: La imagen original editada del Avatar del Proyecto !
         if (avatarImg) {
             return {
                 name: t.name,
@@ -113,7 +144,6 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
             };
         }
 
-        // Si ya hay una imagen persistida en el objeto de la estrategia, la usamos
         if (t.image) {
             return {
                 name: t.name,
@@ -138,8 +168,7 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
           msg: t.text,
           reply: expertReplies[i]
         };
-      })
-    : [];
+  });
 
   const handleStartEdit = (idx: number, text: string) => {
     setEditingIdx(idx);
@@ -242,54 +271,27 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen">
+    <div id="psd-testimonials-section" className="space-y-6 text-left animate-in fade-in duration-500">
       
-      {/* Div agrupador para encabezado y video (seccion_encabezado) */}
-      <div className="seccion_encabezado space-y-12">
-        {/* --- HEADER SECCIÓN --- */}
-        <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
-            {/* Degradado superior sutil */}
-            <div className="absolute inset-x-0 -top-24 h-[600px] bg-emerald-600/10 blur-[140px] -z-10 rounded-full" />
-            
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
-                <MessageSquare className="w-4 h-4 fill-current" /> Prueba Social Validada
-            </div>
-            
-            <div className="space-y-4 px-4">
-                <h3 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 tracking-tight leading-none">
-                  Testimonios de Éxito
-                </h3>
-                <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
-                  La prueba social es el gatillo mental más potente para cerrar ventas. Cuando tus prospectos ven que otros ya están logrando resultados, su miedo al fracaso desaparece.
-                </p>
-            </div>
-        </div>
+      {/* 1. HEADER CARD */}
+      <StepHeaderCard
+          stepNumber={7}
+          totalSteps={13}
+          categoryTitle="Los Testimonios de tu Producto"
+          title="Testimonios de Éxito"
+          description="La prueba social es el gatillo mental más potente para cerrar ventas. Cuando tus prospectos ven que otros ya están logrando resultados, su miedo al fracaso desaparece."
+      />
 
-        {/* --- VIDEO EXPLICATIVO --- */}
-        <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
-            <div className="inline-flex items-center gap-3 text-emerald-300 font-extrabold uppercase tracking-widest text-sm bg-emerald-500/5 px-8 py-4 rounded-2xl border border-emerald-500/10 backdrop-blur-sm mx-auto">
-                <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
-            </div>
-            
-            <div className="group relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600/20 to-teal-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
-                
-                <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-emerald-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
-                    <iframe 
-                        className="w-full h-full"
-                        src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
-                        title="Video Tutorial Testimonios" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowFullScreen
-                    ></iframe>
-                </div>
-            </div>
-        </div>
+      {/* 2. VIDEO TUTORIAL */}
+      <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
+          <StepVideoContainer 
+              videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
+              title="Video Tutorial Testimonios"
+          />
       </div>
 
-      {/* GRID DE WHATSAPP CHATS O ESTADO VACÍO */}
-      <div className="max-w-[85em] mx-auto px-6 relative z-10">
+      {/* 3. GRID DE WHATSAPP CHATS O ESTADO VACÍO */}
+      <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl relative z-10">
         {!hasTestimonials ? (
             <div className="bg-[#111] p-16 rounded-[3rem] border border-dashed border-emerald-500/30 text-center space-y-8 animate-in zoom-in-95 duration-700 shadow-2xl">
                 <div className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center text-emerald-500 mx-auto border border-emerald-500/20 shadow-lg">

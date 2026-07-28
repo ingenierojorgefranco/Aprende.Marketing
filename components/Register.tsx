@@ -92,7 +92,7 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
       }
 
       onLogin(mappedUser);
-      navigate('/dashboard');
+      navigate('/wizard/dashboard');
     } catch (err: any) {
       setError(err.message || 'Error al iniciar modo prueba');
     } finally {
@@ -112,6 +112,10 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('force_wizard_step');
+    }
 
     try {
       const user = await api.register({ name, email, password });

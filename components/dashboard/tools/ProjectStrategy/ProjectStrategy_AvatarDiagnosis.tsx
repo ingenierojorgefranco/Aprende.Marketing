@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from "motion/react";
 import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight, Users, Clock, Coffee, Heart, Play, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
+import { StepHeaderCard } from '../../wizard/StepHeaderCard';
+import { StepVideoContainer } from '../../wizard/StepVideoContainer';
 
 interface ProjectStrategy_AvatarDiagnosisProps {
     avatars: any[];
@@ -377,57 +379,33 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
     };
 
     return (
-        <div id="psd-avatar-diagnosis-section" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen">
+        <div id="psd-avatar-diagnosis-section" className="space-y-6 text-left animate-in fade-in duration-500">
             
-            {/* Div agrupador para encabezado y video (seccion_encabezado) */}
-            <div className="seccion_encabezado space-y-12">
-                {/* --- HEADER SECCIÓN --- */}
-                <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
-                    {/* Degradado superior sutil */}
-                    <div className="absolute inset-x-0 -top-24 h-[600px] bg-pink-600/10 blur-[140px] -z-10 rounded-full" />
-                    
-                    <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
-                        <div className="w-2 h-2 rounded-full bg-pink-500 shadow-[0_0_10px_#ec4899]" />
-                        <Users className="w-4 h-4" /> ¿Quién comprará mi producto digital?
-                    </div>
-                    
-                    <div className="space-y-4 px-4">
-                        <h3 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-none">
-                            Descubriendo el ADN de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500">comprador ideal</span>
-                        </h3>
-                        <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
-                            El 90% de los embudos fracasan porque el mensaje es demasiado genérico. Aquí tienes los 3 perfiles psicológicos exactos de las personas que realmente comprarán tu producto.
-                        </p>
-                    </div>
-                </div>
+            {/* 1. HEADER CARD */}
+            <StepHeaderCard
+                stepNumber={5}
+                totalSteps={13}
+                categoryTitle="Conoce a tu Comprador Ideal"
+                title="Conoce a tu Comprador Ideal"
+                description="El 90% de los embudos fracasan porque el mensaje es demasiado genérico. Aquí tienes los perfiles psicológicos exactos de las personas que realmente comprarán tu producto."
+            />
 
-                {/* --- VIDEO EXPLICATIVO --- */}
-                <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
-                    <div className="inline-flex items-center gap-3 text-pink-300 font-extrabold uppercase tracking-widest text-sm bg-pink-500/5 px-8 py-4 rounded-2xl border border-pink-500/10 backdrop-blur-sm mx-auto">
-                        <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
-                    </div>
-                    
-                    <div className="group relative">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-pink-600/20 to-purple-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
-                        
-                        <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-pink-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
-                                title="Video Tutorial Avatar" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-                    </div>
-                </div>
+            {/* 2. VIDEO TUTORIAL */}
+            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
+                <StepVideoContainer 
+                    videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
+                    title="Video Tutorial Avatar"
+                />
             </div>
 
             {/* --- ESTRUCTURA AVANZADA (CON ACORDEÓN EXPANDIBLE) --- */}
-            <div className="space-y-8 max-w-[85em] mx-auto px-4">
-                <div className="text-center pb-2">
-                    <p className="text-zinc-400 text-xs sm:text-sm font-semibold max-w-xl mx-auto leading-relaxed">
-                        Haz clic en cualquiera de los avatares para expandir y ver su análisis detallado.
+            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
+                <div className="text-left border-b border-slate-800 pb-4">
+                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                        Análisis Detallado de tus Avatares
+                    </h3>
+                    <p className="text-slate-400 text-xs sm:text-sm pt-1">
+                        Haz clic en cualquiera de los avatares para expandir y ver su análisis psicológico y hábitos.
                     </p>
                 </div>
 

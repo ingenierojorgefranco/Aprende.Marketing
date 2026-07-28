@@ -37,6 +37,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     
     if (mode === 'offline') {
       api.enableMockMode();
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('force_wizard_step');
+      }
       try {
           const mockUser = await api.login(email, password);
           onLogin(mockUser);
@@ -50,6 +53,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
     try {
       api.disableMockMode();
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('force_wizard_step');
+      }
       const { user } = await authLogin({ email, password });
       const mappedUser: User = {
         id: user.id.toString(),

@@ -6,6 +6,8 @@ import { api } from '../../../../services/api';
 import { PlanLimits, WhatsAppLaunchMessage, WhatsAppLaunch } from '../../../../types';
 import { ProjectMasterStrategy } from '../../../../services/strategySchema';
 import { generateWhatsAppMessage } from '../../../../services/geminiservices/whatsappService';
+import { StepHeaderCard } from '../../wizard/StepHeaderCard';
+import { StepVideoContainer } from '../../wizard/StepVideoContainer';
 
 const WHATSAPP_LAUNCH_MOMENTS = [
     { id: 'wl1', name: 'Bienvenida + Fecha (Día -7)', momentText: 'Día -7', objective: 'Confirmar que está en el lugar correcto y fijar la fecha del evento en su mente.', pilarType: 'Bienvenida y Valor', purpose: 'Este mensaje sirve para reducir la incertidumbre del prospecto al confirmar su ingreso al grupo.\n\nLograrás fijar la fecha del evento en su mente y generar el primer micro-compromiso, asegurando que no se olvide de la cita y aumentando la tasa de retención inicial.', timeRule: 'fixed', timeValue: '09:00', dayOffset: -7 },
@@ -111,20 +113,27 @@ const ChatSimulator: React.FC<{
 };
 
 interface ProjectStrategy_WhatsAppProps {
-    activeWaScript: number;
-    setActiveWaScript: (idx: number) => void;
-    onUpgrade: () => void;
+    activeWaScript?: number;
+    setActiveWaScript?: (idx: number) => void;
+    onUpgrade?: () => void;
     projectId?: string;
     isSimulating?: boolean;
     planLimits?: PlanLimits;
     strategyData?: ProjectMasterStrategy | null;
+    hideHeader?: boolean;
 }
 
 export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> = ({
-    activeWaScript, setActiveWaScript, onUpgrade, projectId, isSimulating = false, planLimits, strategyData: propStrategyData
+    activeWaScript: propActiveWaScript, setActiveWaScript: propSetActiveWaScript, onUpgrade = () => {}, projectId, isSimulating = false, planLimits, strategyData: propStrategyData,
+    hideHeader = false
 }) => {
     const navigate = useNavigate();
-    const { user } = useOutletContext() as any;
+    const context = useOutletContext() as any;
+    const user = context?.user;
+
+    const [localActiveWaScript, setLocalActiveWaScript] = useState<number>(0);
+    const activeWaScript = propActiveWaScript !== undefined ? propActiveWaScript : localActiveWaScript;
+    const setActiveWaScript = propSetActiveWaScript || setLocalActiveWaScript;
     
     const [whatsappLaunch, setWhatsappLaunch] = useState<any[]>([]);
     const [launchCount, setLaunchCount] = useState(0);
@@ -550,7 +559,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     };
 
     return (
-        <div id="psd-whatsapp-section" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen pt-8 relative">
+        <div id="psd-whatsapp-section" className="space-y-6 text-left animate-in fade-in duration-500 relative">
             <style>{`
                 @keyframes confetti-fall { 0% { transform: translateY(-100%) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
                 .confetti { position: absolute; width: 8px; height: 8px; animation: confetti-fall 3s linear forwards; top: -10px; z-index: 210; pointer-events: none; }
@@ -639,48 +648,27 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 </div>
             )}
 
-            <div className="seccion_encabezado space-y-12 mb-20">
-                {/* --- HEADER SECCIÓN --- */}
-                <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
-                    {/* Degradado superior sutil */}
-                    <div className="absolute inset-x-0 -top-24 h-[600px] bg-emerald-600/10 blur-[140px] -z-10 rounded-full" />
-                    
-                    <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
-                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#10b981]" />
-                        <MessageCircle className="w-4 h-4" /> Resumen estratégico
-                    </div>
-                    
-                    <div className="space-y-4 px-4">
-                        <h3 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-none text-center max-w-5xl mx-auto">
-                            Secuencia de Lanzamiento <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">Lanzamiento vía WhatsApp</span>
-                        </h3>
-                        <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
-                            El cierre por WhatsApp permite humanizar la venta y generar picos de facturación masiva. Nuestra estrategia divide el lanzamiento en 12 momentos críticos divididos en 4 fases psicológicas.
-                        </p>
-                    </div>
-                </div>
+            {/* ENCABEZADO ESTRATÉGICO */}
+            {!hideHeader && (
+                <div className="space-y-6">
+                    {/* --- HEADER CARD --- */}
+                    <StepHeaderCard
+                        stepNumber={13}
+                        totalSteps={13}
+                        categoryTitle="WhatsApp: Scripts de Venta"
+                        title={<>Secuencia de Lanzamiento <span className="text-[#FF5A1F]">vía WhatsApp</span></>}
+                        description="El cierre por WhatsApp permite humanizar la venta y generar picos de facturación masiva. Nuestra estrategia divide el lanzamiento en 12 momentos críticos divididos en 4 fases psicológicas."
+                    />
 
-                {/* --- VIDEO EXPLICATIVO --- */}
-                <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
-                    <div className="inline-flex items-center gap-3 text-emerald-300 font-extrabold uppercase tracking-widest text-sm bg-emerald-500/5 px-8 py-4 rounded-2xl border border-emerald-500/10 backdrop-blur-sm mx-auto">
-                        <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
-                    </div>
-                    
-                    <div className="group relative">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600/20 to-green-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
-                        
-                        <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-emerald-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
-                                title="Video Tutorial WhatsApp" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
+                    {/* --- VIDEO TUTORIAL --- */}
+                    <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
+                        <StepVideoContainer 
+                            videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
+                            title="Video Tutorial WhatsApp"
+                        />
                     </div>
                 </div>
-            </div>
+            )}
 
             {loadingLocal ? (
                 <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary" /></div>

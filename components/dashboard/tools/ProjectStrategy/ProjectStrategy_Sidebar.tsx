@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     LayoutDashboard, TrendingUp, Map, UserSearch, 
     Globe, FileText, Mail, Calendar, MessageCircle,
@@ -15,11 +15,32 @@ interface SidebarItem {
 }
 
 interface ProjectStrategy_SidebarProps {
-    activeSection: string;
-    onSectionChange: (id: string) => void;
+    activeSection?: string;
+    onSectionChange?: (id: string) => void;
 }
 
-export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = ({ activeSection, onSectionChange }) => {
+export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = ({ 
+    activeSection = 'summary', 
+    onSectionChange 
+}) => {
+    const [openGroups, setOpenGroups] = useState<number[]>([0, 1, 2]);
+
+    const toggleGroup = (gIdx: number) => {
+        if (openGroups.includes(gIdx)) {
+            setOpenGroups(openGroups.filter(idx => idx !== gIdx));
+        } else {
+            setOpenGroups([...openGroups, gIdx]);
+        }
+    };
+
+    useEffect(() => {
+        menuItems.forEach((group, gIdx) => {
+            if (group.items.some(item => item.id === activeSection)) {
+                setOpenGroups(prev => prev.includes(gIdx) ? prev : [...prev, gIdx]);
+            }
+        });
+    }, [activeSection]);
+
     const menuItems: { module: string; items: SidebarItem[] }[] = [
         {
             module: "ETAPA 1: LOS CIMIENTOS (FUNDAMENTOS)",
@@ -52,62 +73,78 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
     ];
 
     return (
-        <aside className="w-full bg-[#0b0b0b] border border-gray-800 rounded-2xl flex flex-col sticky top-6 shadow-2xl transition-all duration-300 max-h-[calc(100vh-40px)] overflow-y-auto custom-scrollbar">
-            {/* --- HEADER ESTILO ACADEMIA --- */}
-            <div className="p-5 border-b border-gray-800 bg-gray-900 sticky top-0 z-10">
-                <h3 className="text-white font-bold text-lg flex items-center gap-3">
-                    <PlayCircle className="w-5 h-5 text-primary" /> Índice Estratégico
-                </h3>
+        <div className="w-full bg-[#0B1120] border border-slate-800 rounded-2xl flex flex-col shadow-2xl transition-all duration-300 overflow-hidden">
+            {/* --- HEADER MATCHING GUIA DE IMPLEMENTACION --- */}
+            <div className="p-5 border-b border-slate-800 bg-[#0d1322] flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                    <PlayCircle className="w-5 h-5" />
+                </div>
+                <div>
+                    <h3 className="text-base font-black text-white tracking-tight uppercase leading-tight">
+                        Índice Estratégico
+                    </h3>
+                    <span className="text-xs text-slate-400 font-medium">Contenido de tu proyecto</span>
+                </div>
             </div>
 
             {/* --- LISTADO DE SECCIONES (LECCIONES) --- */}
-            <div className="flex-1 pb-32">
-                {menuItems.map((group, gIdx) => (
-                    <div key={gIdx} className="border-b border-gray-800 last:border-0">
-                        {/* Cabecera de Módulo (Estilo Botón LMS) */}
-                        <button className="w-full flex items-center justify-between p-5 hover:bg-gray-800 transition text-left bg-gray-900/50">
-                            <span className="font-bold text-gray-200 text-lg uppercase tracking-tight">{group.module}</span>
-                            <ChevronDown className="w-5 h-5 text-gray-500" />
-                        </button>
-                        
-                        <div className="bg-black/20">
-                            {group.items.map((item) => {
-                                const isActive = activeSection === item.id;
-                                return (
-                                    <button
-                                        key={item.id}
-                                        onClick={() => onSectionChange(item.id)}
-                                        className={`w-full flex items-center gap-4 p-5 text-base transition text-left border-l-4 group ${
-                                            isActive 
-                                            ? 'bg-primary/10 border-primary text-white' 
-                                            : 'border-transparent text-gray-400 hover:bg-white/5 hover:text-gray-200'
-                                        }`}
-                                    >
-                                        {/* Icono Circular Lección */}
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${
-                                            isActive 
-                                            ? 'bg-primary text-white scale-110 shadow-lg shadow-primary/30' 
-                                            : 'bg-gray-800 text-gray-500 group-hover:bg-gray-700'
-                                        }`}>
-                                            <item.icon className="w-4 h-4" />
-                                        </div>
+            <div className="flex-1 divide-y divide-slate-800">
+                {menuItems.map((group, gIdx) => {
+                    const isOpen = openGroups.includes(gIdx);
+                    return (
+                        <div key={gIdx} className="border-b border-slate-800/80 last:border-0">
+                            {/* Cabecera de Módulo */}
+                            <button 
+                                onClick={() => toggleGroup(gIdx)}
+                                className="w-full flex items-center justify-between p-3.5 hover:bg-slate-800/60 transition text-left bg-slate-900/50 group cursor-pointer"
+                            >
+                                <span className="font-extrabold text-slate-200 text-xs sm:text-sm uppercase tracking-tight pr-2">{group.module}</span>
+                                <ChevronDown className={`w-4 h-4 text-slate-400 group-hover:text-white transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180 text-[#FF5A1F]' : ''}`} />
+                            </button>
+                            
+                            {isOpen && (
+                                <div className="bg-black/20 divide-y divide-slate-900/60">
+                                    {group.items.map((item) => {
+                                        const isActive = activeSection === item.id;
+                                        return (
+                                            <button
+                                                key={item.id}
+                                                onClick={() => onSectionChange && onSectionChange(item.id)}
+                                                className={`w-full flex items-center gap-3 p-3.5 text-xs sm:text-sm transition text-left border-l-4 group cursor-pointer ${
+                                                    isActive 
+                                                    ? 'bg-[#FF5A1F]/15 border-[#FF5A1F] text-white font-semibold' 
+                                                    : 'border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                                                }`}
+                                            >
+                                                {/* Icono Circular Lección */}
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${
+                                                    isActive 
+                                                    ? 'bg-[#FF5A1F] text-white scale-105 shadow-lg shadow-[#FF5A1F]/30' 
+                                                    : 'bg-slate-800/90 text-slate-400 group-hover:bg-slate-700 group-hover:text-white'
+                                                }`}>
+                                                    <item.icon className="w-3.5 h-3.5" />
+                                                </div>
 
-                                        {/* Textos */}
-                                        <div className="flex-1 min-w-0">
-                                            <p className={`font-medium line-clamp-2 leading-snug ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'}`}>
-                                                {item.label}
-                                            </p>
-                                            <span className="text-sm opacity-60 font-mono mt-1.5 block">
-                                                {item.description}
-                                            </span>
-                                        </div>
-                                    </button>
-                                );
-                            })}
+                                                {/* Textos */}
+                                                <div className="flex-1 min-w-0">
+                                                    <p className={`font-semibold line-clamp-2 leading-snug ${isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
+                                                        {item.label}
+                                                    </p>
+                                                    {item.description && (
+                                                        <span className="text-[11px] text-slate-400 opacity-75 font-mono mt-0.5 block truncate">
+                                                            {item.description}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
-        </aside>
+        </div>
     );
 };

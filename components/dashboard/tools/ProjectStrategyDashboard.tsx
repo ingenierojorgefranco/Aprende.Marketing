@@ -9,6 +9,7 @@ import {
 
 import { ProjectStrategy_Header } from './ProjectStrategy/ProjectStrategy_Header';
 import { ProjectStrategy_Sidebar } from './ProjectStrategy/ProjectStrategy_Sidebar';
+import { ImplementationGuide } from '../wizard/ImplementationGuide';
 
 // Actualización: Casting de tipos en componentes Lazy para asegurar que acepten props dinámicas sin errores de IntrinsicAttributes - 08/01/2026
 const ProjectStrategy_Summary = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Summary').then(m => ({ default: m.ProjectStrategy_Summary }))) as React.FC<any>;
@@ -232,32 +233,52 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 </div>
             )}
 
-            <ProjectStrategy_Header projectName={strategyData.meta?.projectName || "Proyecto"} onBack={() => navigate('/dashboard/projects')} />
+            {/* Guía de implementación del wizard */}
+            <ImplementationGuide 
+                projectId={id}
+                projectName={strategyData.meta?.projectName || "Proyecto"}
+                projectNiche={strategyData.meta?.niche || "Belleza y Estética"}
+                projectPrice={strategyData.meta?.price || 200}
+                projectCommission={strategyData.meta?.commissionRate ? Math.round(strategyData.meta.commissionRate * 100) : 58}
+                projectUrl=""
+                projectPublishedAt={new Date()}
+                projectVisits={487}
+                projectConversions={12}
+                activeStrategySection={activeSection}
+                onStrategySectionChange={setActiveSection}
+                onBack={() => navigate('/dashboard/projects')}
+                onScrollToProjectPanel={() => {
+                    const el = document.getElementById('project-strategy-index');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                onUpgradeClick={() => setShowUpgradeModal(true)}
+            />
 
-            <div className="max-w-full mx-auto py-6 px-0 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-8 relative">
+            {/* Índice Estratégico y resto del contenido existente */}
+            <div id="project-strategy-index" className="max-w-full mx-auto py-8 px-4 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-8 relative border-t border-white/10">
                 <div className="lg:col-span-3">
                     <ProjectStrategy_Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
                 </div>
                 <div className="lg:col-span-9 min-w-0">
                     <Suspense fallback={<div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>}>
-                        {activeSection === 'summary' && <ProjectStrategy_Summary strategyData={strategyData} description={projectDescription} activeHeaderItem={activeHeaderItem} setActiveHeaderItem={setActiveHeaderItem} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
+                        {activeSection === 'summary' && strategyData && <ProjectStrategy_Summary strategyData={strategyData} description={projectDescription} activeHeaderItem={activeHeaderItem} setActiveHeaderItem={setActiveHeaderItem} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
                         {activeSection === 'hotlinks' && <ProjectStrategy_Hotlinks projectId={id} />}
-                        {activeSection === 'growth' && <ProjectStrategy_BusinessGrowth chartData={chartData} commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)} commissionRate={strategyData.meta?.commissionRate || 0} />}
+                        {activeSection === 'growth' && strategyData && <ProjectStrategy_BusinessGrowth chartData={chartData} commissionValue={(strategyData?.meta?.price || 0) * (strategyData?.meta?.commissionRate || 0)} commissionRate={strategyData?.meta?.commissionRate || 0} />}
                         {activeSection === 'blueprint' && <ProjectStrategy_Blueprint handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
-                        {activeSection === 'avatar' && <ProjectStrategy_AvatarDiagnosis avatars={strategyData.avatars} psychology={strategyData.psychology} benefitsItems={strategyData.modules?.web?.landingPageTabs?.benefits?.items || []} />}
-                        {activeSection === 'psychology' && <ProjectStrategy_Psychology strategy={strategyData} benefitsItems={strategyData.modules?.web?.landingPageTabs?.benefits?.items || []} />}
-                        {activeSection === 'hooks' && <ProjectStrategy_Hooks strategyData={strategyData} activeHook={activeHook} setActiveHook={setActiveHook} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
-                        {activeSection === 'testimonials' && <ProjectStrategy_Testimonials strategyData={strategyData} />}
-                        {activeSection === 'web' && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData.modules?.web?.landingPageTabs} tyTabsData={strategyData.modules?.web?.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onEditPage={(pid: string) => navigate(`/dashboard/editor/${pid}`)} pageCount={globalPageCount} planLimits={user.planLimits} userRole={user.role} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
-                        {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules?.content || []} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
+                        {activeSection === 'avatar' && strategyData && <ProjectStrategy_AvatarDiagnosis avatars={strategyData?.avatars || []} psychology={strategyData?.psychology} benefitsItems={strategyData?.modules?.web?.landingPageTabs?.benefits?.items || []} />}
+                        {activeSection === 'psychology' && strategyData && <ProjectStrategy_Psychology strategy={strategyData} benefitsItems={strategyData?.modules?.web?.landingPageTabs?.benefits?.items || []} />}
+                        {activeSection === 'hooks' && strategyData && <ProjectStrategy_Hooks strategyData={strategyData} activeHook={activeHook} setActiveHook={setActiveHook} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
+                        {activeSection === 'testimonials' && strategyData && <ProjectStrategy_Testimonials strategyData={strategyData} />}
+                        {activeSection === 'web' && strategyData && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData?.modules?.web?.landingPageTabs} tyTabsData={strategyData?.modules?.web?.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onEditPage={(pid: string) => navigate(`/dashboard/editor/${pid}`)} pageCount={globalPageCount} planLimits={user?.planLimits} userRole={user?.role} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
+                        {activeSection === 'content' && strategyData && <ProjectStrategy_Content contentData={strategyData?.modules?.content || []} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user?.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
                         {activeSection === 'email' && (
                             <ProjectStrategy_Email 
                                 projectId={id}
                                 activeEmail={activeEmail} 
                                 setActiveEmail={setActiveEmail} 
                                 onUpgrade={() => setShowUpgradeModal(true)} 
-                                features={user.planLimits?.features} 
-                                planLimits={user.planLimits} 
+                                features={user?.planLimits?.features} 
+                                planLimits={user?.planLimits} 
                                 nextPlan={nextPlan} 
                                 isSimulating={isSimulating} 
                                 activeType={activeEmailSequenceType} 
@@ -267,8 +288,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                 sequenceCount={sequenceCount}
                             />
                         )}
-                        {activeSection === 'evergreen' && <ProjectStrategy_Evergreen projectId={id} evergreenData={strategyData.modules?.emails?.evergreen || []} avatars={strategyData.avatars || []} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
-                        {activeSection === 'whatsapp' && <ProjectStrategy_WhatsApp activeWaScript={activeWaScript} setActiveWaScript={setActiveWaScript} onUpgrade={() => setShowUpgradeModal(true)} projectId={id} isSimulating={isSimulating} planLimits={user.planLimits} strategyData={strategyData} />}
+                        {/* El enlace 12 (Evergreen) y 13 (WhatsApp) se muestran arriba en ImplementationGuide para evitar duplicados */}
                     </Suspense>
                 </div>
             </div>

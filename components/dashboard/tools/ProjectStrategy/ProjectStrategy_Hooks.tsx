@@ -6,13 +6,15 @@ import { api } from '../../../../services/api';
 import { UpgradeModal } from '../../UpgradeModal';
 import { DeletionRestrictionModal } from '../../DeletionRestrictionModal';
 import { ProjectHook } from '../../../../types';
+import { StepHeaderCard } from '../../wizard/StepHeaderCard';
+import { StepVideoContainer } from '../../wizard/StepVideoContainer';
 
 interface ProjectStrategy_HooksProps {
-  strategyData: any;
-  activeHook: number;
-  setActiveHook: (idx: number) => void;
-  handleTooltipHover: (e: React.MouseEvent, content: string[]) => void;
-  handleTooltipLeave: () => void;
+  strategyData?: any;
+  activeHook?: number;
+  setActiveHook?: (idx: number) => void;
+  handleTooltipHover?: (e: React.MouseEvent, content: string[]) => void;
+  handleTooltipLeave?: () => void;
   overrideProjectId?: string;
 }
 
@@ -30,12 +32,15 @@ const seededShuffle = (array: any[], seed: number) => {
 };
 
 export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
-  activeHook,
-  setActiveHook,
-  handleTooltipHover,
-  handleTooltipLeave,
+  activeHook: propActiveHook,
+  setActiveHook: propSetActiveHook,
+  handleTooltipHover = () => {},
+  handleTooltipLeave = () => {},
   overrideProjectId
 }) => {
+  const [localActiveHook, setLocalActiveHook] = useState<number>(0);
+  const activeHook = propActiveHook !== undefined ? propActiveHook : localActiveHook;
+  const setActiveHook = propSetActiveHook || setLocalActiveHook;
   const { id: routeProjectId } = useParams() as { id: string };
   const projectId = overrideProjectId || routeProjectId;
   const context = useOutletContext() as any;
@@ -689,7 +694,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen">
+    <div className="space-y-6 text-left animate-in fade-in duration-500">
       <style>{`
         @keyframes loading-shine {
           0% { transform: translateX(-100%); }
@@ -700,48 +705,24 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         }
       `}</style>
       
-      {/* Div agrupador para encabezado y video (seccion_encabezado) */}
+      {/* Div agrupador para encabezado y video */}
       {!overrideProjectId && (
-        <div className="seccion_encabezado space-y-12 mb-20">
-            {/* --- HEADER SECCIÓN --- */}
-            <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
-                {/* Degradado superior sutil */}
-                <div className="absolute inset-x-0 -top-24 h-[600px] bg-orange-600/10 blur-[140px] -z-10 rounded-full" />
-                
-                <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
-                    <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_#f97316]" />
-                    <Zap className="w-4 h-4 fill-current" /> Hooks de Atracción de Audiencia
-                </div>
-                
-                <div className="space-y-4 px-4">
-                    <h3 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 tracking-tight leading-none">
-                        Hooks de Atracción
-                    </h3>
-                    <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
-                      Un Hook no es solo una pregunta; es el puente que detiene el scroll de tu cliente ideal. Hemos diseñado estos ganchos para atacar directamente los deseos de libertad y crecimiento de tu avatar.
-                    </p>
-                </div>
-            </div>
+        <div className="space-y-6">
+            {/* --- HEADER CARD --- */}
+            <StepHeaderCard
+                stepNumber={9}
+                totalSteps={13}
+                categoryTitle="Tus Ganchos de Venta"
+                title={<>Hooks <span className="text-[#FF5A1F]">de Atracción</span></>}
+                description="Un Hook no es solo una pregunta; es el puente que detiene el scroll de tu cliente ideal. Hemos diseñado estos ganchos para atacar directamente los deseos de libertad y crecimiento de tu avatar."
+            />
 
-            {/* --- VIDEO EXPLICATIVO --- */}
-            <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
-                <div className="inline-flex items-center gap-3 text-orange-300 font-extrabold uppercase tracking-widest text-sm bg-orange-500/5 px-8 py-4 rounded-2xl border border-orange-500/10 backdrop-blur-sm mx-auto">
-                    <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
-                </div>
-                
-                <div className="group relative">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-orange-600/20 to-amber-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
-                    
-                    <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-orange-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
-                        <iframe 
-                            className="w-full h-full"
-                            src="https://www.youtube.com/embed/bTV5aFTchJ8?rel=0&controls=1&showinfo=0" 
-                            title="Video Tutorial Hooks" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
-                    </div>
-                </div>
+            {/* --- VIDEO TUTORIAL --- */}
+            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
+                <StepVideoContainer 
+                    videoUrl="https://www.youtube.com/embed/bTV5aFTchJ8?rel=0&controls=1&showinfo=0"
+                    title="Video Tutorial Hooks"
+                />
             </div>
         </div>
       )}

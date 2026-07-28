@@ -1433,7 +1433,7 @@ export const api = {
     },
   
     getLoginRedirect: async (): Promise<string> => {
-        if (isMockMode) return "/dashboard/training/bienvenida";
+        if (isMockMode) return "/dashboard";
         if (apiCache.loginRedirect) return apiCache.loginRedirect;
         try {
             const data = await fetchWithFallback('/settings/redirect');

@@ -3,15 +3,17 @@ import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, Che
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, Article, EmailMessage } from '../../../../types';
 import { api } from '../../../../services/api';
+import { StepHeaderCard } from '../../wizard/StepHeaderCard';
+import { StepVideoContainer } from '../../wizard/StepVideoContainer';
 import confetti from 'canvas-confetti';
 
 interface ProjectStrategy_EvergreenProps {
     projectId: string;
-    evergreenData: any[];
-    avatars: any[];
-    activeEvergreenEmail: number;
-    setActiveEvergreenEmail: (idx: number) => void;
-    onUpgrade: () => void;
+    evergreenData?: any[];
+    avatars?: any[];
+    activeEvergreenEmail?: number;
+    setActiveEvergreenEmail?: (idx: number) => void;
+    onUpgrade?: () => void;
     
     // Props de límites y datos vinculados
     features?: PlanFeatures;
@@ -22,15 +24,22 @@ interface ProjectStrategy_EvergreenProps {
 }
 
 export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps> = ({
-    projectId, evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features, planLimits, nextPlan, linkedArticles = [],
+    projectId, evergreenData = [], avatars = [], activeEvergreenEmail: propActiveEvergreenEmail, setActiveEvergreenEmail: propSetActiveEvergreenEmail, onUpgrade = () => {}, features, planLimits, nextPlan, linkedArticles = [],
     hideHeader = false
 }) => {
     const navigate = useNavigate();
-    const { user, isSimulating } = useOutletContext() as any;
+    const context = useOutletContext() as any;
+    const user = context?.user;
+    const isSimulating = context?.isSimulating || false;
+
+    const [localActiveEmail, setLocalActiveEmail] = useState<number>(0);
+    const activeEvergreenEmail = propActiveEvergreenEmail !== undefined ? propActiveEvergreenEmail : localActiveEmail;
+    const setActiveEvergreenEmail = propSetActiveEvergreenEmail || setLocalActiveEmail;
     const [generatingId, setGeneratingId] = useState<string | null>(null);
     const [copySuccess, setCopySuccess] = useState<string | null>(null);
     const [nurturingMessages, setNurturingMessages] = useState<EmailMessage[]>([]);
     const [loadingMessages, setLoadingMessages] = useState(true);
+    const [localArticles, setLocalArticles] = useState<Article[]>([]);
 
     // Estados para el flujo de generación profesional
     const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success' | 'error'>('idle');
@@ -54,11 +63,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     useEffect(() => {
         const loadMessages = async () => {
             try {
+                if (!projectId) return;
                 const sequences = await api.getEmailSequences();
-                const nurturingSeq = sequences.find(s => s.projectId === projectId && s.type === 'nurturing');
-                if (nurturingSeq) {
-                    const messages = await api.getSequenceMessages(nurturingSeq.id);
-                    setNurturingMessages(messages.filter(m => m.type === 'nurturing'));
+                if (Array.isArray(sequences)) {
+                    const nurturingSeq = sequences.find(s => String(s.projectId) === String(projectId) && s.type === 'nurturing');
+                    if (nurturingSeq) {
+                        const messages = await api.getSequenceMessages(nurturingSeq.id);
+                        if (Array.isArray(messages)) {
+                            setNurturingMessages(messages.filter(m => m.type === 'nurturing'));
+                        }
+                    }
                 }
             } catch (error) {
                 console.error("Error loading nurturing messages:", error);
@@ -69,51 +83,56 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         loadMessages();
     }, [projectId]);
 
-    // Si no hay artículos, mostramos el estado vacío con invitación a generar contenido
-    if (linkedArticles.length === 0) {
-        return (
-            <div id="psd-evergreen-empty" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen">
-            {!hideHeader && (
-                <div className="seccion_encabezado space-y-12 mb-20">
-                    {/* --- HEADER SECCIÓN --- */}
-                    <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
-                        {/* Degradado superior sutil */}
-                        <div className="absolute inset-x-0 -top-24 h-[600px] bg-orange-600/10 blur-[140px] -z-10 rounded-full" />
-                        
-                        <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
-                            <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_#f97316]" />
-                            <Sparkles className="w-4 h-4" /> Correos Electrónicos a largo plazo
-                        </div>
-                        
-                        <div className="space-y-4 px-4">
-                            <h3 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-none text-center max-w-5xl mx-auto">
-                                Secuencia de Autoridad <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">(Evergreen)</span>
-                            </h3>
-                            <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
-                                Esta secuencia se construye automáticamente a partir de los artículos que generes en la sección "Contenido". Cada artículo se transforma en un punto de contacto para nutrir a tu audiencia.
-                            </p>
-                        </div>
-                    </div>
+    useEffect(() => {
+        if ((!linkedArticles || linkedArticles.length === 0) && projectId) {
+            Promise.all([
+                api.getPages().catch(() => []),
+                api.getArticles().catch(() => [])
+            ]).then(([allPages, allArticles]) => {
+                if (Array.isArray(allPages) && Array.isArray(allArticles)) {
+                    const projectPages = allPages.filter((p: any) => String(p.projectId) === String(projectId));
+                    const projectArts = allArticles.filter((a: any) => projectPages.some((p: any) => String(p.id) === String(a.pageId)));
+                    setLocalArticles(projectArts);
+                }
+            }).catch(err => console.error(err));
+        }
+    }, [projectId, linkedArticles]);
 
-                    {/* --- VIDEO EXPLICATIVO --- */}
-                    <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
-                        <div className="inline-flex items-center gap-3 text-orange-300 font-extrabold uppercase tracking-widest text-sm bg-orange-500/5 px-8 py-4 rounded-2xl border border-orange-500/10 backdrop-blur-sm mx-auto">
-                            <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
-                        </div>
-                        
-                        <div className="group relative">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-orange-600/20 to-amber-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
-                            
-                            <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-orange-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
-                                <iframe 
-                                    className="w-full h-full"
-                                    src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
-                                    title="Video Tutorial Evergreen" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowFullScreen
-                                ></iframe>
-                            </div>
-                        </div>
+    const effectiveArticles = (linkedArticles && linkedArticles.length > 0)
+        ? linkedArticles
+        : (localArticles && localArticles.length > 0)
+            ? localArticles
+            : (evergreenData && evergreenData.length > 0)
+                ? evergreenData.map((item: any, idx: number) => ({
+                    id: item.id || `ev-art-${idx}`,
+                    title: item.title || item.subject || item.name || `Artículo ${idx + 1}`,
+                    description: item.description || item.purpose || item.summary || '',
+                    contentHtml: item.contentHtml || item.body || item.content || '',
+                    slug: item.slug || `art-${idx + 1}`
+                }))
+                : [];
+
+    // Si no hay artículos, mostramos el estado vacío con invitación a generar contenido
+    if (effectiveArticles.length === 0) {
+        return (
+            <div id="psd-evergreen-empty" className="space-y-6 text-left animate-in fade-in duration-500">
+            {!hideHeader && (
+                <div className="space-y-6">
+                    {/* --- HEADER CARD --- */}
+                    <StepHeaderCard
+                        stepNumber={12}
+                        totalSteps={13}
+                        categoryTitle="Emails: Secuencia de Confianza"
+                        title={<>Secuencia de Autoridad <span className="text-[#FF5A1F]">(Evergreen)</span></>}
+                        description="Esta secuencia se construye automáticamente a partir de los artículos que generes en la sección 'Contenido'. Cada artículo se transforma en un punto de contacto para nutrir a tu audiencia."
+                    />
+
+                    {/* --- VIDEO TUTORIAL --- */}
+                    <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
+                        <StepVideoContainer 
+                            videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
+                            title="Video Tutorial Evergreen"
+                        />
                     </div>
                 </div>
             )}
@@ -132,7 +151,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                         </p>
                     </div>
                     <button 
-                        onClick={() => navigate({ search: "?section=content" })}
+                        onClick={() => navigate(`/dashboard/strategy/${projectId}?section=content`)}
                         className="px-10 py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-orange-900/20 flex items-center justify-center gap-3 mx-auto transform hover:scale-[1.03]"
                     >
                         Ir a Generar Contenidos <ArrowRight className="w-5 h-5" />
@@ -361,9 +380,9 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     };
 
     // Mapeamos los artículos reales a una secuencia dinámica basada en email_messages
-    const dynamicSequence = linkedArticles.map((article, idx) => {
+    const dynamicSequence = effectiveArticles.map((article, idx) => {
         const dayNum = 8 + (idx * 2);
-        const dbMessage = nurturingMessages.find(m => m.dayIndex === dayNum);
+        const dbMessage = Array.isArray(nurturingMessages) ? nurturingMessages.find(m => m.dayIndex === dayNum) : undefined;
         
         return {
             id: article.id,
@@ -380,50 +399,30 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
 
     const activeEmail = dynamicSequence[activeEvergreenEmail] || dynamicSequence[0];
 
+    if (!activeEmail) {
+        return null;
+    }
+
     return (
-        <div id="psd-evergreen-section" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen pt-8">
+        <div id="psd-evergreen-section" className="space-y-6 text-left animate-in fade-in duration-500">
             {/* ENCABEZADO ESTRATÉGICO */}
             {!hideHeader && (
-                <div className="seccion_encabezado space-y-12 mb-20">
-                    {/* --- HEADER SECCIÓN --- */}
-                    <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
-                        {/* Degradado superior sutil */}
-                        <div className="absolute inset-x-0 -top-24 h-[600px] bg-orange-600/10 blur-[140px] -z-10 rounded-full" />
-                        
-                        <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
-                            <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_#f97316]" />
-                            <Sparkles className="w-4 h-4" /> Secuencia dinámica activa
-                        </div>
-                        
-                        <div className="space-y-4 px-4">
-                            <h3 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-none text-center max-w-5xl mx-auto">
-                                Tu Estrategia <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">de Nutrición (Evergreen)</span>
-                            </h3>
-                            <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
-                                Tienes {linkedArticles.length} artículos vinculados. El sistema ha programado estos correos para enviarse a partir del Día 8, manteniendo tu oferta presente sin ser invasivo.
-                            </p>
-                        </div>
-                    </div>
+                <div className="space-y-6">
+                    {/* --- HEADER CARD --- */}
+                    <StepHeaderCard
+                        stepNumber={12}
+                        totalSteps={13}
+                        categoryTitle="Emails: Secuencia de Confianza"
+                        title={<>Tu Estrategia <span className="text-[#FF5A1F]">de Nutrición (Evergreen)</span></>}
+                        description={`Tienes ${effectiveArticles.length} artículos vinculados. El sistema ha programado estos correos para enviarse a partir del Día 8, manteniendo tu oferta presente sin ser invasivo.`}
+                    />
 
-                    {/* --- VIDEO EXPLICATIVO --- */}
-                    <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
-                        <div className="inline-flex items-center gap-3 text-orange-300 font-extrabold uppercase tracking-widest text-sm bg-orange-500/5 px-8 py-4 rounded-2xl border border-orange-500/10 backdrop-blur-sm mx-auto">
-                            <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
-                        </div>
-                        
-                        <div className="group relative">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-orange-600/20 to-amber-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
-                            
-                            <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-orange-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
-                                <iframe 
-                                    className="w-full h-full"
-                                    src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
-                                    title="Video Tutorial Evergreen" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowFullScreen
-                                ></iframe>
-                            </div>
-                        </div>
+                    {/* --- VIDEO TUTORIAL --- */}
+                    <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
+                        <StepVideoContainer 
+                            videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
+                            title="Video Tutorial Evergreen"
+                        />
                     </div>
                 </div>
             )}
@@ -692,7 +691,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                             </div>
                                             <div className="max-h-[180px] overflow-y-auto custom-scrollbar">
                                                 <p className="text-white text-lg font-light leading-relaxed">
-                                                    {activeEmail.originalArticle.psychologicalStrategy?.focus || activeEmail.originalArticle.description}
+                                                    {(activeEmail.originalArticle as any)?.psychologicalStrategy?.focus || activeEmail.originalArticle.description}
                                                 </p>
                                             </div>
                                         </div>

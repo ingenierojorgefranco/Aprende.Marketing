@@ -10,6 +10,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../../../services/api';
 import { LandingPage } from '../../../../types';
 import { ProjectMasterStrategy } from '../../../../services/strategySchema';
+import { StepHeaderCard } from '../../wizard/StepHeaderCard';
+import { StepVideoContainer } from '../../wizard/StepVideoContainer';
 
 // Mapeo de iconos para renderizado dinámico
 const IconMap: Record<string, React.ReactNode> = {
@@ -30,12 +32,23 @@ const IconMap: Record<string, React.ReactNode> = {
 };
 
 interface ProjectStrategy_PsychologyProps {
-    strategy: ProjectMasterStrategy;
+    strategy?: ProjectMasterStrategy;
     benefitsItems?: Array<{ title: string; desc?: string; description?: string }>;
 }
+const defaultStrategy: ProjectMasterStrategy = {
+    avatars: [],
+    psychology: {
+        pains: [],
+        solutions: [],
+        awarenessStages: { stage1_pain: '', stage2_solution: '', stage3_barrier: '' },
+        conversionStrategy: { mainFocus: [], tacticalNote: '' },
+        learningModules: []
+    }
+} as any;
+
 export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProps> = ({ strategy, benefitsItems = [] }) => {
     const { id } = useParams() as { id: string };
-    const [localStrategy, setLocalStrategy] = useState<ProjectMasterStrategy | null>(strategy);
+    const [localStrategy, setLocalStrategy] = useState<ProjectMasterStrategy>(strategy || defaultStrategy);
     const [isSaving, setIsSaving] = useState(false);
     const [activeAvatarIndex, setActiveAvatarIndex] = useState<number | null>(0);
 
@@ -196,7 +209,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
     }, [strategy]);
 
     // Guardia de carga para evitar errores de desestructuración si la estrategia es null/undefined
-    if (!strategy || !localStrategy) {
+    if (!localStrategy) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
                 <div className="text-center">
@@ -448,7 +461,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
     };
 
     return (
-        <div id="psd-psychology-section" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-16 pb-24 bg-gradient-to-b from-[#050b18] via-[#02040a] to-black min-h-screen">
+        <div id="psd-psychology-section" className="space-y-6 text-left animate-in fade-in duration-500">
             
             {isSaving && (
                 <div className="fixed top-8 right-8 z-50 flex items-center gap-2 bg-purple-500/20 backdrop-blur-xl border border-purple-500/30 px-4 py-2 rounded-full text-purple-200 text-xs font-bold animate-pulse">
@@ -456,58 +469,35 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                 </div>
             )}
             
-            <div className="seccion_encabezado space-y-12">
-                <div className="relative pt-16 flex flex-col items-center text-center space-y-8">
-                    <div className="absolute inset-x-0 -top-24 h-[600px] bg-orange-600/10 blur-[140px] -z-10 rounded-full" />
-                    
-                    <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold uppercase tracking-[0.2em] shadow-2xl">
-                        <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_#f97316]" />
-                        <Flame className="w-4 h-4 fill-current" /> ¿Cómo persuadimos tus clientes?
-                    </div>
-                    
-                    <div className="space-y-4 px-4">
-                        <h3 id="psd-psychology-title" className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-400 tracking-tight leading-none">
-                            Psicología y Estrategia de Persuasión
-                        </h3>
-                        <p className="pt-[1.3em] text-white max-w-[51rem] font-['Verdana'] text-[1.3rem] leading-[2rem] mx-auto font-normal">
-                            Comprar no es un acto racional, es un acto emocional que luego se justifica con lógica. Por eso, nuestra estrategia no vende características técnicas, vende la solución al dolor que no deja dormir a tu cliente.
-                        </p>
-                    </div>
-                </div>
+            {/* 1. HEADER CARD */}
+            <StepHeaderCard
+                stepNumber={6}
+                totalSteps={13}
+                categoryTitle="Psicología de Compra y Objeciones"
+                title="Psicología de Compra y Objeciones"
+                description="Comprar no es un acto racional, es un acto emocional que luego se justifica con lógica. Por eso, nuestra estrategia no vende características técnicas, vende la solución al dolor que no deja dormir a tu cliente."
+            />
 
-                <div className="max-w-4xl mx-auto w-full px-4 space-y-8 text-center pt-8">
-                    <div className="inline-flex items-center gap-3 text-orange-300 font-extrabold uppercase tracking-widest text-sm bg-orange-500/5 px-8 py-4 rounded-2xl border border-orange-500/10 backdrop-blur-sm mx-auto">
-                        <Play className="w-4 h-4 fill-current" /> 🎥 ¿Dudas de cómo hacerlo? Mira este video de 2 minutos
-                    </div>
-                    
-                    <div className="group relative">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-orange-600/20 to-rose-600/20 rounded-[2.5rem] blur opacity-40 group-hover:opacity-70 transition duration-700"></div>
-                        
-                        <div className="relative aspect-video bg-[#02040a] rounded-[2.5rem] overflow-hidden border border-orange-500/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
-                                title="Video Tutorial Psychology" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-                    </div>
-                </div>
+            {/* 2. VIDEO TUTORIAL */}
+            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
+                <StepVideoContainer 
+                    videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
+                    title="Video Tutorial Psychology"
+                />
             </div>
             
             {/* --- SECCIÓN FRUSTRACIONES DEL AVATAR (Interactive Accordions) --- */}
-            <div className="max-w-[75em] mx-auto px-6 mt-32 space-y-12">
+            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                 {/* Inner Header */}
-                <div className="flex items-start gap-5">
-                    <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 shadow-lg shadow-blue-500/5">
-                        <MessageSquare className="w-7 h-7" />
+                <div className="flex items-start gap-5 border-b border-slate-800 pb-4">
+                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 shadow-lg shadow-blue-500/5">
+                        <MessageSquare className="w-6 h-6" />
                     </div>
                     <div className="text-left">
-                        <h2 className="text-3xl md:text-4xl font-extrabold text-white uppercase tracking-tight font-sans">
+                        <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                             Frustraciones del Avatar
-                        </h2>
-                        <p className="text-zinc-400 text-sm md:text-base leading-relaxed mt-2 font-sans">
+                        </h3>
+                        <p className="text-slate-400 text-xs sm:text-sm pt-1">
                             Retos emocionales, miedos ocultos e insatisfacciones profundas que impulsan a tu cliente a buscar una solución de inmediato. Mapeado detalladamente por avatar.
                         </p>
                     </div>
