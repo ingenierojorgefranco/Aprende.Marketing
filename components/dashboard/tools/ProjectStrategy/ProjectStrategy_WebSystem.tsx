@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp, Save, Play } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp, Save, Play, Copy } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan, Project } from '../../../../types';
 import { Generator } from '../Generator';
@@ -58,6 +58,26 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     
     // Estado para el control de acordeón en el modal de dominios
     const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
+
+    // Estados para copiar URLs
+    const [copiedLpUrl, setCopiedLpUrl] = useState(false);
+    const [copiedTyUrl, setCopiedTyUrl] = useState(false);
+
+    const handleCopyLpUrl = () => {
+        const subdomain = linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo';
+        const url = `aprende.marketing/admin/lp/${subdomain}`;
+        navigator.clipboard.writeText(`https://${url}`);
+        setCopiedLpUrl(true);
+        setTimeout(() => setCopiedLpUrl(false), 2000);
+    };
+
+    const handleCopyTyUrl = () => {
+        const subdomain = linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo';
+        const url = `aprende.marketing/admin/lp/${subdomain}/gracias`;
+        navigator.clipboard.writeText(`https://${url}`);
+        setCopiedTyUrl(true);
+        setTimeout(() => setCopiedTyUrl(false), 2000);
+    };
 
     // Estados para edición en línea
     const [draftLpTabsData, setDraftLpTabsData] = useState<any>(null);
@@ -442,127 +462,528 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     />
                 </div>
 
-                {/* 3. CONSOLA PRINCIPAL */}
-                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
-                    <div className="grid grid-cols-1 xl:grid-cols-11 gap-8 items-stretch relative">
-                        <div className="xl:col-span-5 space-y-8 flex flex-col h-full">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-400">
-                                        <Globe className="w-6 h-6" />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-2xl font-black text-white flex items-center gap-3">
-                                            Página de Captura
-                                            {isSaving && (
-                                                <span className="flex items-center gap-2 text-blue-400 text-xs font-medium animate-pulse">
-                                                    <Loader2 className="w-3 h-3 animate-spin" />
-                                                    Guardando...
-                                                </span>
-                                            )}
-                                        </h4>
-                                    </div>
-                                </div>
-                                {loadingLocal && (
-                                    <div className="flex items-center gap-2 px-3 py-1">
-                                        <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
-                                    </div>
-                                )}
-                            </div>
-                            <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative">
-                                <div className="flex-1 space-y-8">
-                                    <div className="space-y-4">
-                                        <h5 className="font-bold text-[#FF5A1F] text-xl">Estructura de tu Página Web</h5>
-                                        <p className="text-white font-light text-[1.3rem] leading-[2.5rem]">Usaremos los siguientes elementos para construir una página web 100% profesional enfocada en los dolores, necesidades y beneficios de tus potenciales clientes. <br/><br/>Haz clic en los elementos para más detalles.</p>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {lpTabs.filter(t => t.key === 'hero').map(tab => (
-                                            <button 
-                                                key={tab.key} 
-                                                onClick={() => setSelectedLpTab(tab.key)} 
-                                                className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest border border-blue-400 bg-blue-600 text-white shadow-lg`}
-                                            >
-                                                {tab.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    {renderBrowserMockup(renderLpContent(selectedLpTab || 'hero'))}
-                                </div>
-                            </div>
+                {/* 2.5. VISTA PREVIA DE TU PÁGINA DE CAPTURA (IMÁGENES 1 Y 2) */}
+                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6 text-left">
+                    {/* Encabezado descriptivo */}
+                    <div className="space-y-1">
+                        <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                            Vista previa de tu página de captación
+                        </h3>
+                        <p className="text-slate-400 text-xs sm:text-sm font-medium">
+                            Esta es la página que compartirás en tus reels, artículos y publicaciones para captar personas interesadas.
+                        </p>
+                    </div>
+
+                    {/* Barra de URL y Acciones */}
+                    <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                        <div className="flex-1 flex items-center bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-2 min-w-0">
+                            <Globe className="w-4 h-4 text-slate-500 shrink-0" />
+                            <span className="truncate flex-1 select-all">
+                                aprende.marketing/admin/lp/{linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo'}
+                            </span>
+                            <button 
+                                onClick={handleCopyLpUrl} 
+                                className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0"
+                                title="Copiar enlace"
+                            >
+                                {copiedLpUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                            </button>
                         </div>
 
-                        <div className="xl:col-span-1 flex flex-col items-center justify-center gap-4 py-8"><div className="hidden xl:flex flex-col items-center gap-4"><div className="h-24 w-px bg-gradient-to-b from-blue-500 to-emerald-500"></div><div className="w-14 h-14 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-lg"><ArrowRight className="w-8 h-8" /></div><div className="h-24 w-px bg-gradient-to-b from-emerald-500 to-emerald-700"></div></div></div>
+                        <div className="flex items-center gap-2.5 shrink-0">
+                            <a 
+                                href={linkedPages.length > 0 ? `/admin/lp/${linkedPages[0].subdomain.split('.')[0]}` : '#'} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                onClick={(e) => {
+                                    if (linkedPages.length === 0) {
+                                        e.preventDefault();
+                                        setShowConfirmModal(true);
+                                    }
+                                }}
+                                className="bg-[#FF5A1F] hover:bg-[#e04e18] text-white font-black py-2.5 px-4 sm:px-5 rounded-xl shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-2 text-xs uppercase tracking-wider transition-all transform hover:scale-[1.02]"
+                            >
+                                <span>ABRIR PÁGINA</span>
+                                <ExternalLink className="w-3.5 h-3.5 stroke-[2.5]" />
+                            </a>
 
-                        <div className="xl:col-span-5 space-y-8 flex flex-col h-full">
-                            <div className="flex items-center gap-3">
-                                <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400">
-                                    <CheckCircle2 className="w-6 h-6" />
-                                </div>
-                                <h4 className="text-2xl font-black text-white flex items-center gap-3">
-                                    Página de Gracias
-                                    {isSaving && (
-                                        <span className="flex items-center gap-2 text-emerald-400 text-xs font-medium animate-pulse">
-                                            <Loader2 className="w-3 h-3 animate-spin" />
-                                            Guardando...
-                                        </span>
-                                    )}
-                                </h4>
-                            </div>
-                            <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative">
-                                <div className="flex-1 space-y-8">
-                                    <div className="space-y-4">
-                                        <h5 className="font-bold text-[#FF5A1F] text-xl">Estructura de tu Página de Gracias</h5>
-                                        <p className="text-white font-light text-[1.3rem] leading-[2.5rem]">Hemos unificado los elementos clave en un solo lugar para construir una página de gracias persuasiva enfocada en guiar al usuario hacia tu comunidad y entregar tu regalo.</p>
-                                    </div>
-                                    {renderBrowserMockup(renderTyContent(), true)}
-                                </div>
-                            </div>
+                            <button 
+                                onClick={() => {
+                                    if (linkedPages.length > 0) {
+                                        const url = window.location.hash.startsWith('#/') ? `#/dashboard/editor/${linkedPages[0].id}` : `/dashboard/editor/${linkedPages[0].id}`;
+                                        window.open(url, '_blank');
+                                    } else {
+                                        setShowConfirmModal(true);
+                                    }
+                                }}
+                                className="bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 text-slate-200 font-black py-2.5 px-4 sm:px-5 rounded-xl flex items-center justify-center gap-2 text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer"
+                            >
+                                <PenTool className="w-3.5 h-3.5 text-slate-300" />
+                                <span>EDITAR PÁGINA</span>
+                            </button>
                         </div>
                     </div>
 
-                    <div id="web-system-anchor" className="max-w-4xl mx-auto w-full pt-10">
-                        {loadingLocal ? (
-                            <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
-                        ) : linkedPages.length > 0 ? (
-                            <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-[47rem] p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden">
-                                <CheckCircle2 className="w-16 h-16 text-emerald-500" />
-                                <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">¡Tu página de captura ha sido creada correctamente!</h3>
-                                <p className="text-white text-lg font-medium leading-relaxed max-w-2xl">Ya tienes tu página web lista y configurada para atraer y capturar audiencia interesada en el producto digital que deseas promocionar. <br /><br />usa los siguientes botones para visualizar y finalizar la configuración de tu página de captura.</p>
-                                
-                                <div className="w-full space-y-4">
-                                    {/* Fila 1 - Visualización */}
-                                    <div className="flex flex-col sm:flex-row gap-4">
-                                        <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white text-black font-black py-4 px-10 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Captura</a>
-                                        <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-emerald-600 text-white font-black py-4 px-10 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Gracias</a>
+                    {/* Grid Principal (Iframe/Mockup + Sidebar) */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        
+                        {/* Contenedor Navegador / Iframe de la Landing Page */}
+                        <div className="lg:col-span-8 bg-[#0e1628] border border-slate-800/90 rounded-2xl overflow-hidden shadow-2xl">
+                            
+                            {/* Barra superior de pestañas del navegador */}
+                            <div className="bg-[#080d18] px-4 py-3 border-b border-slate-800/80 flex items-center justify-between">
+                                <div className="flex gap-1.5">
+                                    <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+                                    <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+                                    <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+                                </div>
+                                <div className="bg-[#040710] border border-slate-800/80 px-4 py-1 rounded-full text-[11px] text-slate-400 font-mono truncate max-w-xs">
+                                    aprende.marketing/admin/lp/{linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo'}
+                                </div>
+                                <div className="w-12"></div>
+                            </div>
+
+                            {/* Contenido de la Landing Page en vista previa */}
+                            {linkedPages.length > 0 ? (
+                                <iframe 
+                                    src={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`} 
+                                    className="w-full h-[580px] border-0 bg-white"
+                                    title="Vista previa página de captura"
+                                />
+                            ) : (
+                                <div className="relative bg-[#0a0f1d] text-white overflow-hidden">
+                                    {/* Header de la página */}
+                                    <div className="px-5 sm:px-8 py-4 bg-[#080d1a]/90 backdrop-blur-md border-b border-slate-800/50 flex items-center justify-between">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-7 h-7 rounded-lg bg-[#FF5A1F]/20 border border-[#FF5A1F]/40 flex items-center justify-center text-[#FF5A1F] font-black text-xs">
+                                                M
+                                            </div>
+                                            <span className="font-extrabold text-white text-xs sm:text-sm tracking-widest uppercase">
+                                                MICROBLADING DE CEJAS
+                                            </span>
+                                        </div>
+
+                                        <div className="hidden md:flex items-center gap-6 text-xs text-slate-300 font-semibold">
+                                            <span className="hover:text-white cursor-pointer transition">¿Qué aprenderás?</span>
+                                            <span className="hover:text-white cursor-pointer transition">Beneficios</span>
+                                            <span className="hover:text-white cursor-pointer transition">Testimonios</span>
+                                        </div>
+
+                                        <button className="bg-[#FF5A1F] hover:bg-[#e04e18] text-white text-[11px] sm:text-xs font-extrabold px-3.5 py-2 rounded-lg transition shadow-md">
+                                            Accede a la clase gratis
+                                        </button>
                                     </div>
-                                    {/* Fila 2 - Gestión */}
-                                    <div className="flex flex-col sm:flex-row gap-4">
-                                        <a 
-                                            href={window.location.hash.startsWith('#/') ? `#/dashboard/editor/${linkedPages[0].id}` : `/dashboard/editor/${linkedPages[0].id}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-10 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all flex items-center justify-center gap-3"
-                                        >
-                                            <PenTool className="w-5 h-5" /> Editar Página de Captura
-                                        </a>
-                                        <button 
-                                            onClick={() => setShowDomainModal(true)} 
-                                            className={`flex-1 py-4 rounded-2xl font-black flex items-center justify-center gap-3 transition border shadow-xl transform hover:scale-[1.03] ${
-                                                linkedPages[0].customDomain 
-                                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-white" 
-                                                : "bg-blue-500/10 text-blue-400 border-blue-500/30 hover:bg-blue-600 hover:text-white"
-                                            }`}
-                                        >
-                                            {linkedPages[0].customDomain ? <CheckCircle2 className="w-5 h-5" /> : <Globe className="w-5 h-5" />}
-                                            {linkedPages[0].customDomain ? "Ver Dominio" : "Asignar Dominio"}
+
+                                    {/* Hero Banner con fondo e imagen */}
+                                    <div className="relative p-6 sm:p-10 md:p-12 overflow-hidden bg-gradient-to-r from-black/95 via-black/85 to-slate-950/90">
+                                        <img 
+                                            src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=1200" 
+                                            alt="Microblading" 
+                                            className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-overlay pointer-events-none"
+                                        />
+
+                                        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
+                                            <div className="md:col-span-7 text-left space-y-4">
+                                                <span className="inline-block text-[#FF5A1F] font-extrabold text-xs tracking-widest uppercase bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 px-3 py-1 rounded-full">
+                                                    CLASE GRATUITA
+                                                </span>
+                                                
+                                                <h2 className="text-white font-extrabold text-2xl sm:text-3xl md:text-4xl leading-snug tracking-tight">
+                                                    Aprende Microblading de Cejas desde cero <span className="text-[#FF5A1F]">y transforma tu futuro</span>
+                                                </h2>
+
+                                                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed font-medium max-w-xl">
+                                                    Descubre la técnica paso a paso y conviértete en una profesional altamente demandada.
+                                                </p>
+
+                                                <div className="space-y-2.5 pt-2 text-xs sm:text-sm font-semibold text-slate-200">
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-slate-950 shrink-0">
+                                                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                                        </div>
+                                                        <span>Sin experiencia previa</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-slate-950 shrink-0">
+                                                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                                        </div>
+                                                        <span>Desde casa y a tu ritmo</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-slate-950 shrink-0">
+                                                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                                        </div>
+                                                        <span>Certificado incluido</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="md:col-span-5">
+                                                <div className="bg-slate-50 text-slate-900 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-3.5 text-center border border-white">
+                                                    <h4 className="font-extrabold text-slate-900 text-base sm:text-lg leading-tight">
+                                                        Accede ahora a la clase gratuita
+                                                    </h4>
+                                                    <p className="text-slate-500 text-xs font-medium">
+                                                        Completa tus datos y recibe el acceso inmediato.
+                                                    </p>
+
+                                                    <div className="space-y-2.5 pt-1">
+                                                        <input 
+                                                            type="text" 
+                                                            placeholder="Tu nombre" 
+                                                            disabled 
+                                                            className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-700 placeholder:text-slate-400 font-medium shadow-sm"
+                                                        />
+                                                        <input 
+                                                            type="email" 
+                                                            placeholder="Tu mejor correo" 
+                                                            disabled 
+                                                            className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-700 placeholder:text-slate-400 font-medium shadow-sm"
+                                                        />
+                                                    </div>
+
+                                                    <button className="w-full bg-[#FF5A1F] hover:bg-[#e04e18] text-white font-extrabold py-3 rounded-xl text-xs sm:text-sm shadow-md transition">
+                                                        Quiero mi clase gratuita
+                                                    </button>
+
+                                                    <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-500 font-semibold pt-1">
+                                                        <Lock className="w-3 h-3 text-slate-400" />
+                                                        <span>Tus datos están 100% protegidos.</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Barra Inferior de Métricas */}
+                                    <div className="bg-white text-slate-900 px-6 sm:px-10 py-5 grid grid-cols-2 sm:grid-cols-4 gap-4 items-center text-center border-t border-slate-200">
+                                        <div className="sm:border-r sm:border-slate-200 pr-2 space-y-0.5">
+                                            <div className="font-black text-lg sm:text-xl text-slate-900">+2.000</div>
+                                            <div className="text-xs text-slate-500 font-semibold">Alumnos formados</div>
+                                        </div>
+                                        <div className="sm:border-r sm:border-slate-200 pr-2 space-y-0.5">
+                                            <div className="font-black text-lg sm:text-xl text-slate-900">4.8/5</div>
+                                            <div className="text-amber-400 text-xs tracking-widest my-0.5 font-bold">★★★★★</div>
+                                            <div className="text-xs text-slate-500 font-semibold">Valoración promedio</div>
+                                        </div>
+                                        <div className="sm:border-r sm:border-slate-200 pr-2 space-y-0.5">
+                                            <div className="font-black text-lg sm:text-xl text-slate-900">100%</div>
+                                            <div className="text-xs text-slate-500 font-semibold">Online y a tu ritmo</div>
+                                        </div>
+                                        <div className="space-y-0.5">
+                                            <div className="font-black text-lg sm:text-xl text-slate-900">Certificado</div>
+                                            <div className="text-xs text-slate-500 font-semibold">Incluido</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Sidebar Derecha: Rendimiento + Personaliza con PRO */}
+                        <div className="lg:col-span-4 space-y-5">
+                            {/* Rendimiento */}
+                            <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-5 space-y-4">
+                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest text-left">
+                                    RENDIMIENTO
+                                </h4>
+                                <div className="grid grid-cols-3 gap-2 text-center">
+                                    <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
+                                        <div className="text-[10px] text-slate-400 font-extrabold uppercase">VISITAS</div>
+                                        <div className="text-lg font-black text-white mt-1">487</div>
+                                    </div>
+                                    <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
+                                        <div className="text-[10px] text-slate-400 font-extrabold uppercase">REGISTROS</div>
+                                        <div className="text-lg font-black text-white mt-1">12</div>
+                                    </div>
+                                    <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
+                                        <div className="text-[10px] text-slate-400 font-extrabold uppercase">CONVERSIÓN</div>
+                                        <div className="text-lg font-black text-white mt-1">2,46%</div>
+                                    </div>
+                                </div>
+                                <p className="text-slate-400 text-xs text-left leading-relaxed">
+                                    Comparte el enlace o publica tu primer reel para comenzar a recibir actividad.
+                                </p>
+                            </div>
+
+                            {/* Personaliza con PRO */}
+                            <div className="bg-gradient-to-b from-[#131109] to-[#0e1628] border border-amber-500/30 rounded-2xl p-5 space-y-4 text-left">
+                                <div className="flex items-center gap-2 text-amber-400 font-black text-xs uppercase tracking-wider">
+                                    <Crown className="w-4 h-4 text-amber-400" />
+                                    <span>PERSONALIZA CON PRO</span>
+                                </div>
+                                <div className="space-y-2.5 text-xs text-slate-200 font-medium">
+                                    <div className="flex items-center gap-2">
+                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
+                                        <span>Editar textos y colores</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
+                                        <span>Gestionar páginas adicionales</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
+                                        <span>Analítica avanzada</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
+                                        <span>Conectar dominio personalizado</span>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={onUpgrade}
+                                    className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg transition"
+                                >
+                                    DESBLOQUEAR EDICIÓN AVANZADA
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                {/* Indicador de Flujo: Botón verde con flecha hacia abajo entre Captación y Gracias */}
+                <div className="flex justify-center py-2 my-1">
+                    <div className="w-12 h-12 rounded-full bg-[#00c280] text-slate-950 flex items-center justify-center shadow-lg shadow-[#00c280]/20 hover:scale-105 transition-transform">
+                        <ArrowDown className="w-6 h-6 stroke-[3]" />
+                    </div>
+                </div>
+
+                {/* 2.6. VISTA PREVIA DE TU PÁGINA DE GRACIAS */}
+                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6 text-left">
+                    {/* Encabezado descriptivo */}
+                    <div className="space-y-1">
+                        <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                            Vista previa de tu página de gracias
+                        </h3>
+                        <p className="text-slate-400 text-xs sm:text-sm font-medium">
+                            Esta es la página de agradecimiento que se muestra inmediatamente después de que el usuario se registre.
+                        </p>
+                    </div>
+
+                    {/* Barra de URL y Acciones */}
+                    <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                        <div className="flex-1 flex items-center bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-2 min-w-0">
+                            <Globe className="w-4 h-4 text-slate-500 shrink-0" />
+                            <span className="truncate flex-1 select-all">
+                                aprende.marketing/admin/lp/{linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo'}/gracias
+                            </span>
+                            <button 
+                                onClick={handleCopyTyUrl} 
+                                className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0"
+                                title="Copiar enlace"
+                            >
+                                {copiedTyUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                            </button>
+                        </div>
+
+                        <div className="flex items-center gap-2.5 shrink-0">
+                            <a 
+                                href={linkedPages.length > 0 ? `/admin/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias` : '#'} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                onClick={(e) => {
+                                    if (linkedPages.length === 0) {
+                                        e.preventDefault();
+                                        setShowConfirmModal(true);
+                                    }
+                                }}
+                                className="bg-[#FF5A1F] hover:bg-[#e04e18] text-white font-black py-2.5 px-4 sm:px-5 rounded-xl shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-2 text-xs uppercase tracking-wider transition-all transform hover:scale-[1.02]"
+                            >
+                                <span>ABRIR PÁGINA</span>
+                                <ExternalLink className="w-3.5 h-3.5 stroke-[2.5]" />
+                            </a>
+
+                            <button 
+                                onClick={() => {
+                                    if (linkedPages.length > 0) {
+                                        const url = window.location.hash.startsWith('#/') ? `#/dashboard/editor/${linkedPages[0].id}` : `/dashboard/editor/${linkedPages[0].id}`;
+                                        window.open(url, '_blank');
+                                    } else {
+                                        setShowConfirmModal(true);
+                                    }
+                                }}
+                                className="bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 text-slate-200 font-black py-2.5 px-4 sm:px-5 rounded-xl flex items-center justify-center gap-2 text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer"
+                            >
+                                <PenTool className="w-3.5 h-3.5 text-slate-300" />
+                                <span>EDITAR PÁGINA</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Grid de 2 columnas (Iframe/Mockup 8 cols + Sidebar 4 cols) */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        
+                        {/* Contenedor Navegador / Iframe de la Página de Gracias */}
+                        <div className="lg:col-span-8 bg-[#0e1628] border border-slate-800/90 rounded-2xl overflow-hidden shadow-2xl">
+                            <div className="bg-[#080d18] px-4 py-3 border-b border-slate-800/80 flex items-center justify-between">
+                                <div className="flex gap-1.5">
+                                    <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+                                    <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+                                    <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+                                </div>
+                                <div className="bg-[#040710] border border-slate-800/80 px-4 py-1 rounded-full text-[11px] text-slate-400 font-mono truncate max-w-xs">
+                                    aprende.marketing/admin/lp/{linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo'}/gracias
+                                </div>
+                                <div className="w-12"></div>
+                            </div>
+
+                            {linkedPages.length > 0 ? (
+                                <iframe 
+                                    src={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`} 
+                                    className="w-full h-[580px] border-0 bg-white"
+                                    title="Vista previa página de gracias"
+                                />
+                            ) : (
+                                <div className="relative bg-[#0a0f1d] text-white p-8 sm:p-12 min-h-[580px] flex flex-col items-center justify-center text-center space-y-6">
+                                    <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/10">
+                                        <Check className="w-8 h-8 stroke-[3]" />
+                                    </div>
+
+                                    <div className="space-y-2 max-w-md">
+                                        <span className="text-[11px] font-black uppercase tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
+                                            REGISTRO CONFIRMADO
+                                        </span>
+                                        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+                                            ¡Felicidades! Tu acceso ha sido reservado
+                                        </h2>
+                                        <p className="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed">
+                                            Hemos enviado un correo con los detalles. Por favor realiza el siguiente paso obligatorio para asegurar tu cupo:
+                                        </p>
+                                    </div>
+
+                                    <div className="w-full max-w-sm bg-[#0e182e] border border-emerald-500/30 rounded-2xl p-5 space-y-3.5 shadow-xl">
+                                        <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-wider">
+                                            <Sparkles className="w-4 h-4" />
+                                            <span>Paso Final Obligatorio</span>
+                                        </div>
+                                        <button className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold py-3.5 px-4 rounded-xl text-xs sm:text-sm shadow-lg flex items-center justify-center gap-2 transition">
+                                            <MessageCircle className="w-4.5 h-4.5 fill-current" />
+                                            <span>UNIRME AL GRUPO VIP DE WHATSAPP</span>
+                                        </button>
+                                    </div>
+
+                                    <div className="w-full max-w-sm bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-3">
+                                        <div className="flex items-center gap-3 text-left">
+                                            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                                                <Gift className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h5 className="text-xs font-bold text-white">Bono de Bienvenida</h5>
+                                                <p className="text-[11px] text-slate-400">Guía práctica en PDF</p>
+                                            </div>
+                                        </div>
+                                        <button className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold py-2 px-3 rounded-lg border border-slate-700 flex items-center gap-1.5 shrink-0 transition">
+                                            <Download className="w-3.5 h-3.5" />
+                                            <span>Descargar</span>
                                         </button>
                                     </div>
                                 </div>
+                            )}
+                        </div>
+
+                        {/* Sidebar Derecha: Rendimiento + Personaliza con PRO */}
+                        <div className="lg:col-span-4 space-y-5">
+                            {/* Rendimiento */}
+                            <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-5 space-y-4">
+                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest text-left">
+                                    RENDIMIENTO
+                                </h4>
+                                <div className="grid grid-cols-3 gap-2 text-center">
+                                    <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
+                                        <div className="text-[10px] text-slate-400 font-extrabold uppercase">VISITAS</div>
+                                        <div className="text-lg font-black text-white mt-1">58</div>
+                                    </div>
+                                    <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
+                                        <div className="text-[10px] text-slate-400 font-extrabold uppercase">REGISTROS</div>
+                                        <div className="text-lg font-black text-white mt-1">0</div>
+                                    </div>
+                                    <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
+                                        <div className="text-[10px] text-slate-400 font-extrabold uppercase">CONVERSIÓN</div>
+                                        <div className="text-lg font-black text-white mt-1">100%</div>
+                                    </div>
+                                </div>
+                                <p className="text-slate-400 text-xs text-left leading-relaxed">
+                                    Comparte el enlace o publica tu primer reel para comenzar a recibir actividad.
+                                </p>
                             </div>
-                        ) : (
-                            <button onClick={() => setShowConfirmModal(true)} className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-xl flex items-center justify-center gap-4">Crear Página Web de Captura</button>
-                        )}
+
+                            {/* Personaliza con PRO */}
+                            <div className="bg-gradient-to-b from-[#131109] to-[#0e1628] border border-amber-500/30 rounded-2xl p-5 space-y-4 text-left">
+                                <div className="flex items-center gap-2 text-amber-400 font-black text-xs uppercase tracking-wider">
+                                    <Crown className="w-4 h-4 text-amber-400" />
+                                    <span>PERSONALIZA CON PRO</span>
+                                </div>
+                                <div className="space-y-2.5 text-xs text-slate-200 font-medium">
+                                    <div className="flex items-center gap-2">
+                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
+                                        <span>Editar textos y colores</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
+                                        <span>Gestionar páginas adicionales</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
+                                        <span>Analítica avanzada</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
+                                        <span>Conectar dominio personalizado</span>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={onUpgrade}
+                                    className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg transition"
+                                >
+                                    DESBLOQUEAR EDICIÓN AVANZADA
+                                </button>
+                            </div>
+                        </div>
+
                     </div>
+                </div>
+
+                {/* Estado de la Página */}
+                <div id="web-system-anchor" className="max-w-4xl mx-auto w-full pt-4">
+                    {loadingLocal ? (
+                        <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
+                    ) : (
+                        <div className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-[47rem] p-12 text-center shadow-2xl animate-in zoom-in-95 duration-500 flex flex-col items-center space-y-8 relative overflow-hidden mx-auto">
+                            <CheckCircle2 className="w-16 h-16 text-emerald-500" />
+                            <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">¡Tu página de captura ha sido creada correctamente!</h3>
+                            <p className="text-white text-lg font-medium leading-relaxed max-w-2xl">Ya tienes tu página web lista y configurada para atraer y capturar audiencia interesada en el producto digital que deseas promocionar. <br /><br />usa los siguientes botones para visualizar y finalizar la configuración de tu página de captura.</p>
+                            
+                            <div className="w-full space-y-4">
+                                {/* Fila 1 - Visualización */}
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <a href={`/admin/lp/${linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : (projectId || 'microblading-demo')}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white text-black font-black py-4 px-10 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Captura</a>
+                                    <a href={`/admin/lp/${linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : (projectId || 'microblading-demo')}/gracias`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-emerald-600 text-white font-black py-4 px-10 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Gracias</a>
+                                </div>
+                                {/* Fila 2 - Gestión */}
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <a 
+                                        href={linkedPages.length > 0 ? (window.location.hash.startsWith('#/') ? `#/dashboard/editor/${linkedPages[0].id}` : `/dashboard/editor/${linkedPages[0].id}`) : '#'}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-10 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all flex items-center justify-center gap-3"
+                                    >
+                                        <PenTool className="w-5 h-5" /> Editar Página de Captura
+                                    </a>
+                                    <button 
+                                        onClick={() => setShowDomainModal(true)} 
+                                        className={`flex-1 py-4 rounded-2xl font-black flex items-center justify-center gap-3 transition border shadow-xl transform hover:scale-[1.03] ${
+                                            linkedPages.length > 0 && linkedPages[0].customDomain 
+                                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-white" 
+                                            : "bg-blue-500/10 text-blue-400 border-blue-500/30 hover:bg-blue-600 hover:text-white"
+                                        }`}
+                                    >
+                                        {linkedPages.length > 0 && linkedPages[0].customDomain ? <CheckCircle2 className="w-5 h-5" /> : <Globe className="w-5 h-5" />}
+                                        {linkedPages.length > 0 && linkedPages[0].customDomain ? "Ver Dominio" : "Asignar Dominio"}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 

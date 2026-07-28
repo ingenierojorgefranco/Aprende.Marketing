@@ -19,8 +19,10 @@ import { StepVideoContainer } from "./StepVideoContainer";
 import { 
   CheckCircle, 
   ChevronRight, 
+  ChevronDown,
   Globe, 
   Users, 
+  UserCheck,
   Target, 
   Clock, 
   Play, 
@@ -44,7 +46,18 @@ import {
   MinusCircle,
   Rocket,
   MessageCircle,
-  X
+  X,
+  TrendingUp,
+  Film,
+  PlayCircle,
+  ShoppingCart,
+  ArrowUpRight,
+  ArrowRight,
+  AlertTriangle,
+  Tag,
+  DollarSign,
+  Percent,
+  Map
 } from "lucide-react";
 
 interface ImplementationGuideProps {
@@ -63,6 +76,19 @@ interface ImplementationGuideProps {
   activeStrategySection?: string;
   onStrategySectionChange?: (sectionId: string) => void;
 }
+
+const formatValue = (val: number | string) => {
+    const num = Number(val);
+    if (isNaN(num)) return "0";
+    
+    if (Number.isInteger(num)) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+    
+    const parts = num.toFixed(2).split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return `${parts[0]},${parts[1]}`;
+};
 
 export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   projectId,
@@ -89,6 +115,21 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const [strategyData, setStrategyData] = useState<any>(null);
   const [projectDescription, setProjectDescription] = useState<string>("");
   const [isAnalysisDrawerOpen, setIsAnalysisDrawerOpen] = useState<boolean>(false);
+  const [isProjectionDrawerOpen, setIsProjectionDrawerOpen] = useState<boolean>(false);
+  const [openGuideStages, setOpenGuideStages] = useState<number[]>([1]);
+
+  useEffect(() => {
+    const activeStageNum = stepsList.find(s => s.id === activeStep)?.stage || 1;
+    setOpenGuideStages([activeStageNum]);
+  }, [activeStep]);
+
+  const toggleGuideStage = (stageNum: number) => {
+    if (openGuideStages.includes(stageNum)) {
+      setOpenGuideStages(openGuideStages.filter(s => s !== stageNum));
+    } else {
+      setOpenGuideStages([stageNum]);
+    }
+  };
 
   useEffect(() => {
     const pid = projectId || searchParams.get('id');
@@ -115,20 +156,41 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const cleanAnalysisText = fullAnalysisText.replace(/<[^>]*>/g, '').trim();
   const analysisTextIsHtml = /<[a-z][\s\S]*>/i.test(fullAnalysisText);
 
+  const stepToSectionMap: Record<number, string> = {
+    1: 'summary',
+    2: 'hotlinks',
+    3: 'growth',
+    4: 'blueprint',
+    5: 'avatar',
+    6: 'psychology',
+    7: 'testimonials',
+    8: 'web',
+    9: 'hooks',
+    10: 'content',
+    11: 'email',
+    12: 'evergreen',
+    13: 'whatsapp'
+  };
+
+  const sectionToStepMap: Record<string, number> = {
+    summary: 1,
+    hotlinks: 2,
+    growth: 3,
+    blueprint: 4,
+    avatar: 5,
+    psychology: 6,
+    testimonials: 7,
+    web: 8,
+    hooks: 9,
+    content: 10,
+    email: 11,
+    evergreen: 12,
+    whatsapp: 13
+  };
+
   useEffect(() => {
-    if (currentStrategySection === 'summary') setActiveStep(1);
-    else if (currentStrategySection === 'hotlinks') setActiveStep(2);
-    else if (currentStrategySection === 'growth') setActiveStep(3);
-    else if (currentStrategySection === 'blueprint') setActiveStep(4);
-    else if (currentStrategySection === 'avatar') setActiveStep(5);
-    else if (currentStrategySection === 'psychology') setActiveStep(6);
-    else if (currentStrategySection === 'testimonials') setActiveStep(7);
-    else if (currentStrategySection === 'web') setActiveStep(8);
-    else if (currentStrategySection === 'hooks') setActiveStep(9);
-    else if (currentStrategySection === 'content') setActiveStep(10);
-    else if (currentStrategySection === 'email') setActiveStep(11);
-    else if (currentStrategySection === 'evergreen') setActiveStep(12);
-    else if (currentStrategySection === 'whatsapp') setActiveStep(13);
+    const step = sectionToStepMap[currentStrategySection] || 1;
+    setActiveStep(step);
   }, [currentStrategySection]);
 
   const handleStrategySectionClick = (sectionId: string) => {
@@ -136,6 +198,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     if (onStrategySectionChange) {
       onStrategySectionChange(sectionId);
     }
+    const step = sectionToStepMap[sectionId] || 1;
+    setActiveStep(step);
     const el = document.getElementById('project-strategy-index');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -146,25 +210,32 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const earnings = Math.round(projectPrice * (projectCommission / 100));
 
   const stepsList = [
-    { id: 1, title: "1. Conoce tu proyecto", stage: 1, stageTitle: "ETAPA 1 — Prepara tu sistema" },
-    { id: 2, title: "2. Revisa tu página de captación", stage: 1 },
-    { id: 3, title: "3. Comprueba la página de gracias", stage: 1 },
+    { id: 1, title: "1. Tu Proyecto Digital", stage: 1, stageTitle: "ETAPA 1 — Activa tu sistema" },
+    { id: 2, title: "2. Tus Enlaces de Afiliado", stage: 1 },
+    { id: 3, title: "3. Proyección de tus Ganancias", stage: 1 },
+    { id: 4, title: "4. Tu Mapa de Ruta (Blueprint)", stage: 1 },
     
-    { id: 4, title: "4. Elige tu primer reel", stage: 2, stageTitle: "ETAPA 2 — Prepara tu contenido" },
-    { id: 5, title: "5. Revisa el guion y el texto", stage: 2 },
-    { id: 6, title: "6. Publica tu primer reel", stage: 2 },
+    { id: 5, title: "5. Conoce a tu Comprador Ideal", stage: 2, stageTitle: "ETAPA 2 — Tu mercado y cliente" },
+    { id: 6, title: "6. Entiende su Mentalidad", stage: 2 },
+    { id: 7, title: "7. Los Testimonios de tu Producto", stage: 2 },
     
-    { id: 7, title: "7. Instala tu píxel", stage: 3, stageTitle: "ETAPA 3 — Mide y valida" },
-    { id: 8, title: "8. Realiza un registro de prueba", stage: 3 },
-    
-    { id: 9, title: "9. Conoce tu CRM", stage: 4, stageTitle: "ETAPA 4 — Gestiona tus contactos" },
-    
-    { id: 10, title: "10. Activa Email Marketing", stage: 5, stageTitle: "ETAPA 5 — Automatiza y escala", isPro: true },
-    { id: 11, title: "11. Conecta tu dominio", stage: 5, isPro: true },
+    { id: 8, title: "8. Tu Página Web de Captura", stage: 3, stageTitle: "ETAPA 3 — Tu sistema de ventas" },
+    { id: 9, title: "9. Tus Ganchos de Venta (Hooks)", stage: 3 },
+    { id: 10, title: "10. Tu Estrategia de Contenidos", stage: 3 },
+    { id: 11, title: "11. Emails: Secuencia de Venta", stage: 3 },
+    { id: 12, title: "12. Emails: Secuencia de Confianza", stage: 3 },
+    { id: 13, title: "13. Scripts de WhatsApp (Cierre)", stage: 3 },
   ];
 
   const handleStepClick = (id: number) => {
     setActiveStep(id);
+    const sectionId = stepToSectionMap[id];
+    if (sectionId) {
+      setSearchParams({ section: sectionId });
+      if (onStrategySectionChange) {
+        onStrategySectionChange(sectionId);
+      }
+    }
   };
 
   const handleMarkAsCompleted = (id: number) => {
@@ -192,7 +263,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
       
       {/* Layout Grid */}
       <div className="w-full max-w-[1760px] mx-auto px-2 sm:px-3 md:px-4 pt-1 pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-[335px_1fr] gap-4 lg:gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[270px_minmax(0,1fr)] xl:grid-cols-[310px_minmax(0,1fr)] 2xl:grid-cols-[350px_minmax(0,1fr)] gap-4 lg:gap-5 xl:gap-6 items-start">
           
           {/* COLUMNA IZQUIERDA: Menús Laterales (Índice Estratégico + Guía de implementación) */}
           <aside className="space-y-4 lg:sticky lg:top-3 max-h-[calc(100vh-20px)] overflow-y-auto custom-scrollbar pr-1.5">
@@ -220,238 +291,161 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               </div>
 
             {/* Steps Navigation */}
-            <div className="p-3.5 space-y-6 max-h-[calc(100vh-220px)] overflow-y-auto custom-scrollbar">
+            <div className="p-4 space-y-5 max-h-[calc(100vh-220px)] overflow-y-auto custom-scrollbar">
               {/* Etapa 1 */}
-              <div className="space-y-2">
-                <div className="px-3.5 py-2 bg-gradient-to-r from-slate-900/90 via-[#0e172a] to-slate-900/90 border border-slate-700/80 rounded-xl shadow-md flex items-center justify-between">
-                  <span className="text-[12.5px] font-black text-slate-100 tracking-wider uppercase flex items-center gap-2">
+              <div className="space-y-2.5">
+                <button 
+                  onClick={() => toggleGuideStage(1)}
+                  className="w-full px-4.5 py-3.5 bg-gradient-to-r from-slate-900/90 via-[#0e172a] to-slate-900/90 border border-slate-700/80 rounded-xl shadow-md flex items-center justify-between cursor-pointer group transition-all"
+                >
+                  <span className="text-xs sm:text-[13px] font-bold text-slate-200 group-hover:text-white tracking-wider uppercase flex items-center gap-2 transition-colors">
                     <span className="w-2 h-2 rounded-full bg-[#FF5A1F] shrink-0 shadow-[0_0_8px_#FF5A1F]"></span>
-                    ETAPA 1 — Prepara tu sistema
+                    ETAPA 1 — Activa tu sistema
                   </span>
-                </div>
-                <div className="space-y-1.5 pl-1">
-                  {stepsList.filter(s => s.stage === 1).map(s => {
-                    const isActive = activeStep === s.id;
-                    const isDone = completedSteps.includes(s.id);
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => handleStepClick(s.id)}
-                        className={`relative w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border text-left ${
-                          isActive
-                            ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-semibold shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]'
-                            : 'border-transparent text-[#B0B0B0] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-medium hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 min-w-0 relative z-10">
-                          <div className={`w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 transition-all ${
+                  <ChevronDown className={`w-4 h-4 text-slate-400 group-hover:text-white transition-transform duration-200 shrink-0 ${openGuideStages.includes(1) ? 'rotate-180 text-[#FF5A1F]' : ''}`} />
+                </button>
+                {openGuideStages.includes(1) && (
+                  <div className="space-y-2 py-1 pl-1 animate-in fade-in duration-200">
+                    {stepsList.filter(s => s.stage === 1).map(s => {
+                      const isActive = activeStep === s.id;
+                      const isDone = completedSteps.includes(s.id);
+                      return (
+                        <button
+                          key={s.id}
+                          onClick={() => handleStepClick(s.id)}
+                          className={`relative w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border text-left ${
                             isActive
-                              ? "bg-white text-[#FF5A1F] shadow-sm font-black"
-                              : isDone
-                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                              : "bg-slate-800/90 text-slate-400 border border-slate-700/50"
-                          }`}>
-                            {isDone ? (
-                              <Check className="w-3 h-3" />
-                            ) : (
-                              s.id
-                            )}
+                              ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-medium shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]'
+                              : 'border-transparent text-[#CBD5E1] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-normal hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3.5 min-w-0 relative z-10">
+                            <div className={`w-5.5 h-5.5 rounded-full text-[11px] font-semibold flex items-center justify-center shrink-0 transition-all ${
+                              isActive
+                                ? "bg-white text-[#FF5A1F] shadow-sm font-extrabold"
+                                : isDone
+                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                                : "bg-slate-800/90 text-slate-400 border border-slate-700/50"
+                            }`}>
+                              {isDone ? (
+                                <Check className="w-3 h-3" />
+                              ) : (
+                                s.id
+                              )}
+                            </div>
+                            <span className={`text-sm sm:text-[14px] leading-snug truncate ${isActive ? "text-white font-medium" : "text-slate-200 font-normal"}`}>
+                              {s.title.replace(/^\d+\.\s*/, '')}
+                            </span>
                           </div>
-                          <span className={`text-[14.5px] tracking-tight truncate ${isActive ? "text-white font-semibold" : "text-[#B0B0B0] font-medium"}`}>
-                            {s.title.replace(/^\d+\.\s*/, '')}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Etapa 2 */}
-              <div className="space-y-2">
-                <div className="px-3.5 py-2 bg-gradient-to-r from-slate-900/90 via-[#0e172a] to-slate-900/90 border border-slate-700/80 rounded-xl shadow-md flex items-center justify-between">
-                  <span className="text-[12.5px] font-black text-slate-100 tracking-wider uppercase flex items-center gap-2">
+              <div className="space-y-2.5">
+                <button 
+                  onClick={() => toggleGuideStage(2)}
+                  className="w-full px-4.5 py-3.5 bg-gradient-to-r from-slate-900/90 via-[#0e172a] to-slate-900/90 border border-slate-700/80 rounded-xl shadow-md flex items-center justify-between cursor-pointer group transition-all"
+                >
+                  <span className="text-xs sm:text-[13px] font-bold text-slate-200 group-hover:text-white tracking-wider uppercase flex items-center gap-2 transition-colors">
                     <span className="w-2 h-2 rounded-full bg-[#FF5A1F] shrink-0 shadow-[0_0_8px_#FF5A1F]"></span>
-                    ETAPA 2 — Prepara tu contenido
+                    ETAPA 2 — Tu mercado y cliente
                   </span>
-                </div>
-                <div className="space-y-1.5 pl-1">
-                  {stepsList.filter(s => s.stage === 2).map(s => {
-                    const isActive = activeStep === s.id;
-                    const isDone = completedSteps.includes(s.id);
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => handleStepClick(s.id)}
-                        className={`relative w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border text-left ${
-                          isActive
-                            ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-semibold shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]'
-                            : 'border-transparent text-[#B0B0B0] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-medium hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 min-w-0 relative z-10">
-                          <div className={`w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 transition-all ${
+                  <ChevronDown className={`w-4 h-4 text-slate-400 group-hover:text-white transition-transform duration-200 shrink-0 ${openGuideStages.includes(2) ? 'rotate-180 text-[#FF5A1F]' : ''}`} />
+                </button>
+                {openGuideStages.includes(2) && (
+                  <div className="space-y-2 py-1 pl-1 animate-in fade-in duration-200">
+                    {stepsList.filter(s => s.stage === 2).map(s => {
+                      const isActive = activeStep === s.id;
+                      const isDone = completedSteps.includes(s.id);
+                      return (
+                        <button
+                          key={s.id}
+                          onClick={() => handleStepClick(s.id)}
+                          className={`relative w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border text-left ${
                             isActive
-                              ? "bg-white text-[#FF5A1F] shadow-sm font-black"
-                              : isDone
-                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                              : "bg-slate-800/90 text-slate-400 border border-slate-700/50"
-                          }`}>
-                            {isDone ? (
-                              <Check className="w-3 h-3" />
-                            ) : (
-                              s.id
-                            )}
+                              ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-medium shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]'
+                              : 'border-transparent text-[#CBD5E1] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-normal hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3.5 min-w-0 relative z-10">
+                            <div className={`w-5.5 h-5.5 rounded-full text-[11px] font-semibold flex items-center justify-center shrink-0 transition-all ${
+                              isActive
+                                ? "bg-white text-[#FF5A1F] shadow-sm font-extrabold"
+                                : isDone
+                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                                : "bg-slate-800/90 text-slate-400 border border-slate-700/50"
+                            }`}>
+                              {isDone ? (
+                                <Check className="w-3 h-3" />
+                              ) : (
+                                s.id
+                              )}
+                            </div>
+                            <span className={`text-sm sm:text-[14px] leading-snug truncate ${isActive ? "text-white font-medium" : "text-slate-200 font-normal"}`}>
+                              {s.title.replace(/^\d+\.\s*/, '')}
+                            </span>
                           </div>
-                          <span className={`text-[14.5px] tracking-tight truncate ${isActive ? "text-white font-semibold" : "text-[#B0B0B0] font-medium"}`}>
-                            {s.title.replace(/^\d+\.\s*/, '')}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Etapa 3 */}
-              <div className="space-y-2">
-                <div className="px-3.5 py-2 bg-gradient-to-r from-slate-900/90 via-[#0e172a] to-slate-900/90 border border-slate-700/80 rounded-xl shadow-md flex items-center justify-between">
-                  <span className="text-[12.5px] font-black text-slate-100 tracking-wider uppercase flex items-center gap-2">
+              <div className="space-y-2.5">
+                <button 
+                  onClick={() => toggleGuideStage(3)}
+                  className="w-full px-4.5 py-3.5 bg-gradient-to-r from-slate-900/90 via-[#0e172a] to-slate-900/90 border border-slate-700/80 rounded-xl shadow-md flex items-center justify-between cursor-pointer group transition-all"
+                >
+                  <span className="text-xs sm:text-[13px] font-bold text-slate-200 group-hover:text-white tracking-wider uppercase flex items-center gap-2 transition-colors">
                     <span className="w-2 h-2 rounded-full bg-[#FF5A1F] shrink-0 shadow-[0_0_8px_#FF5A1F]"></span>
-                    ETAPA 3 — Mide y valida
+                    ETAPA 3 — Tu sistema de ventas
                   </span>
-                </div>
-                <div className="space-y-1.5 pl-1">
-                  {stepsList.filter(s => s.stage === 3).map(s => {
-                    const isActive = activeStep === s.id;
-                    const isDone = completedSteps.includes(s.id);
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => handleStepClick(s.id)}
-                        className={`relative w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border text-left ${
-                          isActive
-                            ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-semibold shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]'
-                            : 'border-transparent text-[#B0B0B0] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-medium hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 min-w-0 relative z-10">
-                          <div className={`w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 transition-all ${
+                  <ChevronDown className={`w-4 h-4 text-slate-400 group-hover:text-white transition-transform duration-200 shrink-0 ${openGuideStages.includes(3) ? 'rotate-180 text-[#FF5A1F]' : ''}`} />
+                </button>
+                {openGuideStages.includes(3) && (
+                  <div className="space-y-2 py-1 pl-1 animate-in fade-in duration-200">
+                    {stepsList.filter(s => s.stage === 3).map(s => {
+                      const isActive = activeStep === s.id;
+                      const isDone = completedSteps.includes(s.id);
+                      return (
+                        <button
+                          key={s.id}
+                          onClick={() => handleStepClick(s.id)}
+                          className={`relative w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border text-left ${
                             isActive
-                              ? "bg-white text-[#FF5A1F] shadow-sm font-black"
-                              : isDone
-                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                              : "bg-slate-800/90 text-slate-400 border border-slate-700/50"
-                          }`}>
-                            {isDone ? (
-                              <Check className="w-3 h-3" />
-                            ) : (
-                              s.id
-                            )}
+                              ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-medium shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]'
+                              : 'border-transparent text-[#CBD5E1] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-normal hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3.5 min-w-0 relative z-10">
+                            <div className={`w-5.5 h-5.5 rounded-full text-[11px] font-semibold flex items-center justify-center shrink-0 transition-all ${
+                              isActive
+                                ? "bg-white text-[#FF5A1F] shadow-sm font-extrabold"
+                                : isDone
+                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                                : "bg-slate-800/90 text-slate-400 border border-slate-700/50"
+                            }`}>
+                              {isDone ? (
+                                <Check className="w-3 h-3" />
+                              ) : (
+                                s.id
+                              )}
+                            </div>
+                            <span className={`text-sm sm:text-[14px] leading-snug truncate ${isActive ? "text-white font-medium" : "text-slate-200 font-normal"}`}>
+                              {s.title.replace(/^\d+\.\s*/, '')}
+                            </span>
                           </div>
-                          <span className={`text-[14.5px] tracking-tight truncate ${isActive ? "text-white font-semibold" : "text-[#B0B0B0] font-medium"}`}>
-                            {s.title.replace(/^\d+\.\s*/, '')}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Etapa 4 */}
-              <div className="space-y-2">
-                <div className="px-3.5 py-2 bg-gradient-to-r from-slate-900/90 via-[#0e172a] to-slate-900/90 border border-slate-700/80 rounded-xl shadow-md flex items-center justify-between">
-                  <span className="text-[12.5px] font-black text-slate-100 tracking-wider uppercase flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#FF5A1F] shrink-0 shadow-[0_0_8px_#FF5A1F]"></span>
-                    ETAPA 4 — Gestiona tus contactos
-                  </span>
-                </div>
-                <div className="space-y-1.5 pl-1">
-                  {stepsList.filter(s => s.stage === 4).map(s => {
-                    const isActive = activeStep === s.id;
-                    const isDone = completedSteps.includes(s.id);
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => handleStepClick(s.id)}
-                        className={`relative w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border text-left ${
-                          isActive
-                            ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-semibold shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]'
-                            : 'border-transparent text-[#B0B0B0] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-medium hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 min-w-0 relative z-10">
-                          <div className={`w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 transition-all ${
-                            isActive
-                              ? "bg-white text-[#FF5A1F] shadow-sm font-black"
-                              : isDone
-                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                              : "bg-slate-800/90 text-slate-400 border border-slate-700/50"
-                          }`}>
-                            {isDone ? (
-                              <Check className="w-3 h-3" />
-                            ) : (
-                              s.id
-                            )}
-                          </div>
-                          <span className={`text-[14.5px] tracking-tight truncate ${isActive ? "text-white font-semibold" : "text-[#B0B0B0] font-medium"}`}>
-                            {s.title.replace(/^\d+\.\s*/, '')}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Etapa 5 */}
-              <div className="space-y-2">
-                <div className="px-3.5 py-2 bg-gradient-to-r from-slate-900/90 via-[#0e172a] to-slate-900/90 border border-slate-700/80 rounded-xl shadow-md flex items-center justify-between">
-                  <span className="text-[12.5px] font-black text-slate-100 tracking-wider uppercase flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#FF5A1F] shrink-0 shadow-[0_0_8px_#FF5A1F]"></span>
-                    ETAPA 5 — Automatiza y escala
-                  </span>
-                </div>
-                <div className="space-y-1.5 pl-1">
-                  {stepsList.filter(s => s.stage === 5).map(s => {
-                    const isActive = activeStep === s.id;
-                    const isDone = completedSteps.includes(s.id);
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => handleStepClick(s.id)}
-                        className={`relative w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border text-left ${
-                          isActive
-                            ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-semibold shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]'
-                            : 'border-transparent text-[#B0B0B0] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-medium hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 min-w-0 relative z-10">
-                          <div className={`w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 transition-all ${
-                            isActive
-                              ? "bg-white text-[#FF5A1F] shadow-sm font-black"
-                              : isDone
-                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                              : "bg-slate-800/90 text-slate-400 border border-slate-700/50"
-                          }`}>
-                            {isDone ? (
-                              <Check className="w-3 h-3" />
-                            ) : (
-                              s.id
-                            )}
-                          </div>
-                          <span className={`text-[14.5px] tracking-tight truncate ${isActive ? "text-white font-semibold" : "text-[#B0B0B0] font-medium"}`}>
-                            {s.title.replace(/^\d+\.\s*/, '')}
-                          </span>
-                        </div>
-                        <span className="text-[9px] font-black px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-amber-400 uppercase tracking-wider shrink-0 relative z-10">
-                          PRO
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Direct Project Panel Access box */}
@@ -516,7 +510,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               <StepHeaderCard 
                 stepNumber={activeStep}
                 totalSteps={13}
-                title={stepsList[activeStep - 1]?.title.replace(/^\d+\.\s*/, '') || "Conoce tu proyecto"}
+                title={stepsList[activeStep - 1]?.title.replace(/^\d+\.\s*/, '') || "Tu Proyecto Digital"}
                 description="En este paso entenderás el producto que has seleccionado, cómo ganarás comisiones y cuál es el objetivo del sistema que hemos preparado para ti."
                 completedSteps={1}
               />
@@ -526,44 +520,73 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
             {activeStep === 1 && (
               <div className="space-y-6">
 
-                {/* Video Guía */}
+                {/* Video Guía (Aparece arriba del todo en el Paso 1) */}
                 <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                   <StepVideoContainer 
                     posterImage="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675"
                     videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
-                    title="Video Guía - Conoce tu proyecto"
+                    title="Video Guía - Tu Proyecto Digital"
                   />
+                </div>
+
+                {/* Bloque con el nombre del proyecto (Fondo gris oscuro, sin bordes claros) */}
+                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-3 text-left shadow-xl">
+                  <div>
+                    <span className="inline-flex bg-[#102A1E] text-[#10B981] border border-[#10B981]/20 px-3.5 py-1.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider items-center gap-2 shrink-0 shadow-sm mb-3">
+                      <span className="w-2 h-2 bg-[#10B981] rounded-full animate-pulse"></span>
+                      TU PÁGINA ESTÁ PUBLICADA Y TUS TRES REELS ESTÁN LISTOS PARA COMENZAR A ATRAER VISITAS.
+                    </span>
+                    <h1 className="text-white font-extrabold text-2xl sm:text-3xl md:text-4xl leading-tight tracking-tight">
+                      {projectName || strategyData?.meta?.projectName || strategyData?.meta?.insights?.overview?.items?.[0]?.value || "Masterclass Microblading Pro"}
+                    </h1>
+                  </div>
+                  <p className="text-slate-400 text-xs sm:text-sm md:text-base font-semibold tracking-wide">
+                    Digital · Producto activo · Publicado el 22 de junio de 2026
+                  </p>
                 </div>
 
                 {/* 3 Status Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-[#0B1120] border border-slate-800 p-5 rounded-2xl flex items-center gap-4 text-left shadow-lg">
-                    <div className="w-11 h-11 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 select-none">
-                      <CheckCircle className="w-6 h-6" />
+                  
+                  {/* Card 1: Precio público del producto */}
+                  <div className="bg-[#0B1120] border border-slate-800 p-5 rounded-2xl flex items-center gap-4 text-left shadow-lg hover:border-emerald-500/30 transition-all">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 select-none shadow-sm shadow-emerald-500/10">
+                      <DollarSign className="w-5 h-5 text-emerald-400" />
                     </div>
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider leading-none">Producto seleccionado</h4>
-                      <p className="text-sm font-extrabold text-emerald-400">Listo para promocionar</p>
-                    </div>
-                  </div>
-                  <div className="bg-[#0B1120] border border-slate-800 p-5 rounded-2xl flex items-center gap-4 text-left shadow-lg">
-                    <div className="w-11 h-11 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 select-none">
-                      <CheckCircle className="w-6 h-6" />
-                    </div>
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider leading-none">Comisión configurada</h4>
-                      <p className="text-sm font-extrabold text-emerald-400">Tu ganancia definida</p>
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <h4 className="text-[11px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider leading-none">PRECIO PÚBLICO DEL PRODUCTO</h4>
+                      <p className="text-base sm:text-xl font-black text-white">
+                        USD {projectPrice || strategyData?.meta?.price || 200}
+                      </p>
                     </div>
                   </div>
-                  <div className="bg-[#0B1120] border border-slate-800 p-5 rounded-2xl flex items-center gap-4 text-left shadow-lg">
-                    <div className="w-11 h-11 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 select-none">
-                      <CheckCircle className="w-6 h-6" />
+
+                  {/* Card 2: Tu ganancia por venta */}
+                  <div className="bg-[#0B1120] border border-slate-800 p-5 rounded-2xl flex items-center gap-4 text-left shadow-lg hover:border-amber-500/30 transition-all">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0 select-none shadow-sm shadow-amber-500/10">
+                      <TrendingUp className="w-5 h-5 text-amber-500" />
                     </div>
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider leading-none">Estrategia creada</h4>
-                      <p className="text-sm font-extrabold text-emerald-400">Ruta inicial lista</p>
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <h4 className="text-[11px] sm:text-xs font-bold text-amber-500 uppercase tracking-wider leading-none">TU GANANCIA POR VENTA</h4>
+                      <p className="text-base sm:text-xl font-black text-white">
+                        USD {earnings || Math.round((projectPrice || 200) * ((projectCommission || 80) / 100)) || 130}
+                      </p>
                     </div>
                   </div>
+
+                  {/* Card 3: Tu % de comisión */}
+                  <div className="bg-[#0B1120] border border-slate-800 p-5 rounded-2xl flex items-center gap-4 text-left shadow-lg hover:border-sky-500/30 transition-all">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 shrink-0 select-none shadow-sm shadow-sky-500/10">
+                      <Percent className="w-5 h-5 text-sky-400" />
+                    </div>
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <h4 className="text-[11px] sm:text-xs font-bold text-sky-400 uppercase tracking-wider leading-none">TU % DE COMISIÓN</h4>
+                      <p className="text-base sm:text-xl font-black text-white">
+                        {projectCommission || (strategyData?.meta?.commissionRate ? Math.round(strategyData.meta.commissionRate * (strategyData.meta.commissionRate <= 1 ? 100 : 1)) : 80)}%
+                      </p>
+                    </div>
+                  </div>
+
                 </div>
 
                 {/* Resumen del proyecto */}
@@ -607,26 +630,6 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
 
                       <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-left">
                         <span className="text-slate-400 font-medium flex items-center gap-2 select-none">
-                          <Rocket className="w-4.5 h-4.5 text-slate-400 shrink-0" />
-                          <span>Qué hace el sistema por ti:</span>
-                        </span>
-                        <span className="font-semibold text-white text-sm sm:text-right leading-relaxed sm:max-w-md">
-                          {strategyData?.meta?.summary?.systemAction || "Crea las páginas, mensajes y contenidos necesarios"}
-                        </span>
-                      </div>
-
-                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-left">
-                        <span className="text-slate-400 font-medium flex items-center gap-2 select-none">
-                          <MessageCircle className="w-4.5 h-4.5 text-slate-400 shrink-0" />
-                          <span>¿Cómo se vende?:</span>
-                        </span>
-                        <span className="font-semibold text-white text-sm sm:text-right leading-relaxed sm:max-w-md">
-                          {strategyData?.meta?.summary?.salesMethod || "Embudo automático con página + guía PDF + WhatsApp"}
-                        </span>
-                      </div>
-
-                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-left">
-                        <span className="text-slate-400 font-medium flex items-center gap-2 select-none">
                           <Users className="w-4.5 h-4.5 text-slate-400 shrink-0" />
                           <span>Para quién es:</span>
                         </span>
@@ -651,7 +654,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                           <span>Precio del producto:</span>
                         </span>
                         <span className="font-black text-white">
-                          USD {projectPrice || strategyData?.meta?.price || 200}
+                          USD {projectPrice || strategyData?.meta?.price || 147}
                         </span>
                       </div>
 
@@ -661,7 +664,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                           <span>Comisión que obtendrás:</span>
                         </span>
                         <span className="font-black text-white">
-                          {projectCommission || (strategyData?.meta?.commissionRate ? Math.round(strategyData.meta.commissionRate * (strategyData.meta.commissionRate <= 1 ? 100 : 1)) : 65)}%
+                          {projectCommission || (strategyData?.meta?.commissionRate ? Math.round(strategyData.meta.commissionRate * (strategyData.meta.commissionRate <= 1 ? 100 : 1)) : 80)}%
                         </span>
                       </div>
 
@@ -671,7 +674,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                           <span>Tu ganancia por venta:</span>
                         </span>
                         <span className="font-black text-emerald-400 text-xl">
-                          USD {earnings || Math.round((projectPrice || 200) * ((projectCommission || 65) / 100))}
+                          USD {earnings || Math.round((projectPrice || 147) * ((projectCommission || 80) / 100)) || 116}
                         </span>
                       </div>
 
@@ -699,113 +702,319 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                     </button>
                   </div>
 
-                  <div className="relative border-l-4 border-indigo-500/80 pl-4 py-2 bg-indigo-500/5 rounded-r-xl">
-                    <p className="text-slate-200 text-sm sm:text-base leading-relaxed font-light line-clamp-2">
-                      {cleanAnalysisText || "Curso profesional de técnica de cejas pelo a pelo para principiantes y esteticistas."}
+                  <div className="relative border-l-4 border-indigo-500/80 pl-4 py-2.5 bg-indigo-500/5 rounded-r-xl">
+                    <p className="text-slate-200 text-sm sm:text-base leading-relaxed font-light line-clamp-4">
+                      {cleanAnalysisText && cleanAnalysisText.length > 60 
+                        ? cleanAnalysisText 
+                        : "Curso profesional de técnica de cejas pelo a pelo para principiantes y esteticistas. Este programa de formación intensiva está diseñado paso a paso para dominar el diseño, la simetría y la pigmentación en el microblading, permitiendo crear un negocio propio altamente rentable en el sector de la estética con una demanda en constante crecimiento."}
                     </p>
                   </div>
                 </div>
 
-                {/* Avatar recomendado */}
-                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 flex items-start gap-4 text-left shadow-xl">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
-                    <Users className="w-6 h-6" />
-                  </div>
-                  <div className="space-y-3 flex-1">
-                    <h3 className="text-lg font-black text-white uppercase tracking-tight">
-                      Avatar recomendado
-                    </h3>
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-base text-slate-200 font-normal">
+                {/* Grid de 2 columnas: Avatar recomendado y Tipo de público */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch text-left">
+                  
+                  {/* Avatar recomendado */}
+                  <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-start space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+                        <UserCheck className="w-5 h-5" />
+                      </div>
+                      <h3 className="text-base font-extrabold text-white tracking-wide">
+                        Avatar recomendado
+                      </h3>
+                    </div>
+                    <ul className="space-y-2.5 text-xs sm:text-sm text-slate-300 font-normal">
                       <li className="flex items-start gap-2.5">
-                        <span className="text-orange-500 font-bold select-none">•</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0 mt-1.5" />
                         <span>Mujeres de 22 a 45 años</span>
                       </li>
                       <li className="flex items-start gap-2.5">
-                        <span className="text-orange-500 font-bold select-none">•</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0 mt-1.5" />
                         <span>Interesadas en belleza, estética y generar ingresos</span>
                       </li>
                       <li className="flex items-start gap-2.5">
-                        <span className="text-orange-500 font-bold select-none">•</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0 mt-1.5" />
                         <span>Buscan aprender una habilidad rentable</span>
                       </li>
                       <li className="flex items-start gap-2.5">
-                        <span className="text-orange-500 font-bold select-none">•</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0 mt-1.5" />
                         <span>Valoran formación práctica y resultados rápidos</span>
                       </li>
                     </ul>
                   </div>
-                </div>
 
-                {/* Tipo de público */}
-                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 flex items-start gap-4 text-left shadow-xl">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
-                    <Users className="w-6 h-6" />
-                  </div>
-                  <div className="space-y-4 flex-1">
-                    <h3 className="text-lg font-black text-white uppercase tracking-tight">
-                      Tipo de público
-                    </h3>
-                    <div className="flex flex-wrap gap-2.5">
+                  {/* Tipo de público */}
+                  <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-start space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <h3 className="text-base font-extrabold text-white tracking-wide">
+                        Tipo de público
+                      </h3>
+                    </div>
+                    <div className="flex flex-wrap gap-2 pt-1">
                       {["Principiante", "Emprendedora", "Autoempleo", "Belleza y estética", "Busca ingresos extra"].map((tag, idx) => (
                         <span 
                           key={idx} 
-                          className="px-4 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-sm font-semibold text-slate-200 transition-colors hover:border-slate-500"
+                          className="px-3 py-1.5 bg-slate-900/90 border border-slate-800 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:border-slate-700 transition-colors"
                         >
                           {tag}
                         </span>
                       ))}
                     </div>
                   </div>
+
                 </div>
 
-                {/* Puntos clave del proyecto */}
-                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 flex items-start gap-4 text-left shadow-xl">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
-                    <Star className="w-6 h-6" />
-                  </div>
-                  <div className="space-y-4 flex-1">
-                    <h3 className="text-lg font-black text-white uppercase tracking-tight">
-                      Puntos clave del proyecto
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-base text-slate-200 font-normal">
-                      {[
-                        "Producto validado",
-                        "Enlace de afiliado preparado",
-                        "Comisión alta",
-                        "Mercado con alta demanda",
-                        "Página y contenido se crearán para este producto"
-                      ].map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-3">
-                          <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
-                          <span>{item}</span>
-                        </div>
-                      ))}
+                {/* Puntos clave del proyecto (Reemplaza a "Lo que harás en este paso" - Imagen 7) */}
+                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl text-left space-y-5">
+                  <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+                    <div className="w-11 h-11 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+                      <Star className="w-6 h-6 text-orange-400" />
                     </div>
+                    <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-wide">
+                      PUNTOS CLAVE DEL PROYECTO
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-sm sm:text-base text-slate-200 font-normal">
+                    {[
+                      "Producto validado",
+                      "Enlace de afiliado preparado",
+                      "Comisión alta",
+                      "Mercado con alta demanda",
+                      "Página y contenido se crearán para este producto"
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-3 bg-slate-900/60 border border-slate-800/80 p-3.5 rounded-xl">
+                        <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
+                        <span className="font-semibold text-slate-100">{item}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Lo que harás en este paso */}
-                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 flex items-start gap-4 text-left shadow-xl">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
-                    <Target className="w-6 h-6" />
-                  </div>
-                  <div className="space-y-4 flex-1">
-                    <h3 className="text-lg font-black text-white uppercase tracking-tight">
-                      Lo que harás en este paso
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-base text-slate-200 font-normal">
-                      {[
-                        "Comprender el producto y su promesa",
-                        "Confirmar cuánto ganarás por venta",
-                        "Entender a quién va dirigido",
-                        "Revisar el recorrido inicial del sistema"
-                      ].map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-3">
-                          <CheckCircle className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                          <span>{item}</span>
-                        </div>
-                      ))}
+                {/* Recorrido básico de tu sistema (Botones grandes y flujo visual mejorado) */}
+                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl text-left space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-11 h-11 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0 shadow-md shadow-indigo-500/20">
+                        <Compass className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-wide">
+                          Recorrido básico de tu sistema
+                        </h3>
+                        <p className="text-xs sm:text-sm text-slate-400">
+                          El flujo continuo que atrae prospectos y los convierte en clientes finales.
+                        </p>
+                      </div>
                     </div>
+                  </div>
+
+                  {/* Grid de 5 botones/tarjetas grandes del recorrido */}
+                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 pt-2">
+                    
+                    {/* Paso 1: Reels / Contenido */}
+                    <div className="bg-[#070D19] border border-slate-800 hover:border-fuchsia-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-fuchsia-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-default">
+                      <span className="px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-400 text-[10px] font-black uppercase tracking-wider">
+                        PASO 1
+                      </span>
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-400 flex items-center justify-center shadow-xl shadow-fuchsia-500/10 group-hover:scale-110 transition-transform duration-300">
+                        <Film className="w-8 h-8 sm:w-10 sm:h-10" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm sm:text-base font-extrabold text-white group-hover:text-fuchsia-400 transition-colors">
+                          Reels / Contenido
+                        </h4>
+                        <p className="text-xs text-slate-400 font-medium">
+                          Atraemos atención
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Paso 2: Página de captación */}
+                    <div className="bg-[#070D19] border border-slate-800 hover:border-sky-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-sky-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-default">
+                      <span className="px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-[10px] font-black uppercase tracking-wider">
+                        PASO 2
+                      </span>
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-sky-500/15 border border-sky-500/30 text-sky-400 flex items-center justify-center shadow-xl shadow-sky-500/10 group-hover:scale-110 transition-transform duration-300">
+                        <Globe className="w-8 h-8 sm:w-10 sm:h-10" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm sm:text-base font-extrabold text-white group-hover:text-sky-400 transition-colors">
+                          Página de captación
+                        </h4>
+                        <p className="text-xs text-slate-400 font-medium">
+                          Capturamos el interés
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Paso 3: Registro del usuario */}
+                    <div className="bg-[#070D19] border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-emerald-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-default">
+                      <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                        PASO 3
+                      </span>
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-xl shadow-emerald-500/10 group-hover:scale-110 transition-transform duration-300">
+                        <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm sm:text-base font-extrabold text-white group-hover:text-emerald-400 transition-colors">
+                          Registro del usuario
+                        </h4>
+                        <p className="text-xs text-slate-400 font-medium">
+                          Generamos confianza
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Paso 4: Clase u oferta principal */}
+                    <div className="bg-[#070D19] border border-slate-800 hover:border-purple-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-purple-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-default">
+                      <span className="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-[10px] font-black uppercase tracking-wider">
+                        PASO 4
+                      </span>
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-purple-500/15 border border-purple-500/30 text-purple-400 flex items-center justify-center shadow-xl shadow-purple-500/10 group-hover:scale-110 transition-transform duration-300">
+                        <PlayCircle className="w-8 h-8 sm:w-10 sm:h-10" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm sm:text-base font-extrabold text-white group-hover:text-purple-400 transition-colors">
+                          Clase u oferta principal
+                        </h4>
+                        <p className="text-xs text-slate-400 font-medium">
+                          Presentamos la solución
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Paso 5: Venta y comisión */}
+                    <div className="bg-[#070D19] border border-slate-800 hover:border-amber-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-amber-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-default">
+                      <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-wider">
+                        PASO 5
+                      </span>
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shadow-xl shadow-amber-500/10 group-hover:scale-110 transition-transform duration-300">
+                        <ShoppingCart className="w-8 h-8 sm:w-10 sm:h-10" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm sm:text-base font-extrabold text-white group-hover:text-amber-400 transition-colors">
+                          Venta y comisión
+                        </h4>
+                        <p className="text-xs text-slate-400 font-medium">
+                          Obtienes tu ganancia
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* Proyección de ingresos basada en tu comisión (Linkeable: Abre ventana lateral desde la derecha) */}
+                <div 
+                  onClick={() => setIsProjectionDrawerOpen(true)}
+                  className="bg-[#0B1120] border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl text-left cursor-pointer group transition-all duration-300 relative hover:shadow-2xl hover:shadow-emerald-500/10"
+                >
+                  {/* Banner CTA superior para indicación de click */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div className="flex items-center gap-3">
+                      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                        <Target className="w-3.5 h-3.5" /> Generación de Leads
+                      </span>
+                      <span className="text-xs text-slate-400 hidden sm:inline">• Clic para desplegar detalle completo</span>
+                    </div>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsProjectionDrawerOpen(true);
+                      }}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs sm:text-sm hover:bg-emerald-400 transition-all shadow-lg hover:scale-105 shrink-0 self-start sm:self-auto"
+                    >
+                      <span>Ver proyección completa y gráfica</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    
+                    {/* Columna Izquierda: Parámetros */}
+                    <div className="lg:col-span-5 space-y-6">
+                      <div>
+                        <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight group-hover:text-emerald-400 transition-colors">
+                          Proyección de ingresos basada en tu comisión
+                        </h3>
+                      </div>
+
+                      <div className="space-y-3 bg-[#070D19] border border-slate-800 p-5 rounded-2xl text-sm text-slate-300">
+                        <div className="flex items-center gap-3">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>Ganancia neta por venta: <strong className="text-white">${formatValue(earnings || Math.round((projectPrice || 147) * ((projectCommission || 80) / 100)) || 130)} USD</strong></span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>Tasa de cierre objetivo: <strong className="text-white">5% en WhatsApp</strong></span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>Porcentaje de comisión: <strong className="text-white">{formatValue(projectCommission || 80)}%</strong></span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-[#070D19] border border-emerald-500/30 rounded-xl p-4 text-center">
+                          <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mb-1">Ganancia / Venta</p>
+                          <p className="text-emerald-400 font-extrabold text-2xl sm:text-3xl">${formatValue(earnings || Math.round((projectPrice || 147) * ((projectCommission || 80) / 100)) || 130)}</p>
+                        </div>
+                        <div className="bg-[#070D19] border border-slate-800 rounded-xl p-4 text-center">
+                          <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mb-1">Cierre WA</p>
+                          <p className="text-white font-extrabold text-2xl sm:text-3xl">5%</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Columna Derecha: Escala de Leads */}
+                    <div className="lg:col-span-7 bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-6 space-y-4">
+                      <h4 className="text-sm sm:text-base font-bold text-white flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                          <ArrowUpRight className="w-4 h-4 text-emerald-400" /> 
+                          Escala de ingresos según volumen de Leads
+                        </span>
+                        <span className="text-xs text-emerald-400 font-semibold group-hover:underline flex items-center gap-1">
+                          Ver gráfico <ArrowRight className="w-3 h-3" />
+                        </span>
+                      </h4>
+                      
+                      <div className="space-y-2.5">
+                        {[50, 100, 200, 500, 1000].map((leads, i) => {
+                          const commVal = earnings || Math.round((projectPrice || 147) * ((projectCommission || 80) / 100)) || 130;
+                          const sales = Math.floor(leads * 0.05);
+                          const incomeValue = sales * commVal;
+                          return (
+                            <div key={i} className="flex items-center justify-between p-3.5 sm:p-4 rounded-xl bg-[#0B1120] border border-slate-800 group-hover:border-slate-700 transition-all">
+                              <div className="text-left">
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Atrayendo</p>
+                                <p className="text-white font-bold text-sm sm:text-base flex items-center gap-1.5">
+                                  <Users className="w-4 h-4 text-sky-400" /> {formatValue(leads)} Leads
+                                </p>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <p className="text-[10px] text-slate-400 font-bold uppercase">{formatValue(sales)} {sales === 1 ? 'venta' : 'ventas'}</p>
+                                <ArrowRight className="w-4 h-4 text-slate-500" />
+                              </div>
+                              <div className="text-right">
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Ganancia aprox.</p>
+                                <p className="text-emerald-400 font-extrabold text-lg sm:text-xl">${formatValue(incomeValue)} USD</p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="flex items-center gap-3 p-3.5 bg-[#0B1120] border-l-4 border-amber-500/50 rounded-r-xl text-left text-xs sm:text-sm text-slate-300">
+                        <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
+                        <p>Proyecciones basadas en un cierre conservador del 5%. Muestran el potencial de escala de tu activo digital.</p>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
@@ -1263,6 +1472,66 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
             <div className="p-6 border-t border-slate-800 bg-[#0d1322] flex items-center justify-end">
               <button
                 onClick={() => setIsAnalysisDrawerOpen(false)}
+                className="w-full sm:w-auto px-8 py-3.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl border border-slate-700/80 transition-all cursor-pointer text-sm uppercase tracking-wider flex items-center justify-center gap-2"
+              >
+                <X className="w-4 h-4" />
+                <span>Cerrar Panel</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Drawer deslizable desde la derecha para Proyección de tus ganancias */}
+      {isProjectionDrawerOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
+          {/* Overlay de fondo */}
+          <div 
+            className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity animate-in fade-in duration-300 cursor-pointer"
+            onClick={() => setIsProjectionDrawerOpen(false)}
+          />
+
+          {/* Panel lateral deslizable desde la derecha */}
+          <div className="relative w-full max-w-4xl bg-[#070D19] border-l border-slate-800 shadow-2xl z-50 flex flex-col h-full overflow-hidden animate-in slide-in-from-right duration-300">
+            {/* Header del Panel */}
+            <div className="p-6 border-b border-slate-800 bg-[#0d1322] flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                  <TrendingUp className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-wide">
+                    Proyección de tus Ganancias
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Estrategia de ingresos a 12 meses, escala de leads y hoja de ruta paso a paso.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsProjectionDrawerOpen(false)}
+                className="p-2.5 text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 rounded-xl border border-slate-700/80 transition-all cursor-pointer"
+                title="Cerrar panel"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Contenido del Panel (Scrollable con todo el contenido de Proyección de tus ganancias, gráfica y roadmap) */}
+            <div className="p-6 sm:p-8 flex-1 overflow-y-auto space-y-8 text-left custom-scrollbar">
+              <ProjectStrategy_BusinessGrowth 
+                commissionValue={earnings || Math.round((projectPrice || 147) * ((projectCommission || 80) / 100)) || 116}
+                commissionRate={(projectCommission || 80) / 100}
+                hideHeader={true}
+              />
+            </div>
+
+            {/* Footer del Panel */}
+            <div className="p-6 border-t border-slate-800 bg-[#0d1322] flex items-center justify-end shrink-0">
+              <button
+                onClick={() => setIsProjectionDrawerOpen(false)}
                 className="w-full sm:w-auto px-8 py-3.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl border border-slate-700/80 transition-all cursor-pointer text-sm uppercase tracking-wider flex items-center justify-center gap-2"
               >
                 <X className="w-4 h-4" />

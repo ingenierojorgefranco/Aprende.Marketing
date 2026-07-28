@@ -263,7 +263,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     <Suspense fallback={<div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>}>
                         {activeSection === 'summary' && strategyData && <ProjectStrategy_Summary strategyData={strategyData} description={projectDescription} activeHeaderItem={activeHeaderItem} setActiveHeaderItem={setActiveHeaderItem} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
                         {activeSection === 'hotlinks' && <ProjectStrategy_Hotlinks projectId={id} />}
-                        {activeSection === 'growth' && strategyData && <ProjectStrategy_BusinessGrowth chartData={chartData} commissionValue={(strategyData?.meta?.price || 0) * (strategyData?.meta?.commissionRate || 0)} commissionRate={strategyData?.meta?.commissionRate || 0} />}
                         {activeSection === 'blueprint' && <ProjectStrategy_Blueprint handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
                         {activeSection === 'avatar' && strategyData && <ProjectStrategy_AvatarDiagnosis avatars={strategyData?.avatars || []} psychology={strategyData?.psychology} benefitsItems={strategyData?.modules?.web?.landingPageTabs?.benefits?.items || []} />}
                         {activeSection === 'psychology' && strategyData && <ProjectStrategy_Psychology strategy={strategyData} benefitsItems={strategyData?.modules?.web?.landingPageTabs?.benefits?.items || []} />}

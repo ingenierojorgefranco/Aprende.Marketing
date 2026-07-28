@@ -9,6 +9,7 @@ interface ProjectStrategy_BusinessGrowthProps {
     onOpenVideo?: () => void;
     commissionValue?: number;
     commissionRate?: number;
+    hideHeader?: boolean;
 }
 
 const formatValue = (val: number | string) => {
@@ -64,7 +65,8 @@ const CustomTooltip = ({ active, payload, commissionValue }: any) => {
 export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGrowthProps> = ({ 
     chartData, 
     commissionValue = 116, 
-    commissionRate = 0.58 
+    commissionRate = 0.58,
+    hideHeader = false
 }) => {
     const commissionVal = commissionValue || 116;
 
@@ -103,21 +105,25 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
         <div className="space-y-6 text-left animate-in fade-in duration-500">
             
             {/* 1. HEADER CARD */}
-            <StepHeaderCard
-                stepNumber={3}
-                totalSteps={13}
-                categoryTitle="Proyección de tus ganancias"
-                title="Proyección de tus ganancias"
-                description="Nuestro sistema está diseñado para ayudarte a construir un negocio digital con ingresos progresivos. Sin embargo, requiere tiempo y dedicación; plantéate desarrollar tu estrategia por mínimo 1 año."
-            />
+            {!hideHeader && (
+                <StepHeaderCard
+                    stepNumber={3}
+                    totalSteps={13}
+                    categoryTitle="Proyección de tus ganancias"
+                    title="Proyección de tus ganancias"
+                    description="Nuestro sistema está diseñado para ayudarte a construir un negocio digital con ingresos progresivos. Sin embargo, requiere tiempo y dedicación; plantéate desarrollar tu estrategia por mínimo 1 año."
+                />
+            )}
 
             {/* 2. VIDEO TUTORIAL */}
-            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
-                <StepVideoContainer 
-                    videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
-                    title="Video Tutorial Growth"
-                />
-            </div>
+            {!hideHeader && (
+                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
+                    <StepVideoContainer 
+                        videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
+                        title="Video Tutorial Growth"
+                    />
+                </div>
+            )}
 
             {/* 3. CONTENIDO DE PROYECCIÓN Y TABLA */}
             <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">

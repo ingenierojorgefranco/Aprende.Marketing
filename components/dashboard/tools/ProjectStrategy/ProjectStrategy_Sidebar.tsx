@@ -23,31 +23,13 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
     activeSection = 'summary', 
     onSectionChange 
 }) => {
-    const [openGroups, setOpenGroups] = useState<number[]>([0, 1, 2]);
-
-    const toggleGroup = (gIdx: number) => {
-        if (openGroups.includes(gIdx)) {
-            setOpenGroups(openGroups.filter(idx => idx !== gIdx));
-        } else {
-            setOpenGroups([...openGroups, gIdx]);
-        }
-    };
-
-    useEffect(() => {
-        menuItems.forEach((group, gIdx) => {
-            if (group.items.some(item => item.id === activeSection)) {
-                setOpenGroups(prev => prev.includes(gIdx) ? prev : [...prev, gIdx]);
-            }
-        });
-    }, [activeSection]);
-
     const menuItems: { module: string; items: SidebarItem[] }[] = [
         {
-            module: "ETAPA 1: LOS CIMIENTOS (FUNDAMENTOS)",
+            module: "ETAPA 1 — ACTIVA TU SISTEMA",
             items: [
-                { id: 'summary', label: '1. Tu Nuevo Negocio Digital', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
-                { id: 'hotlinks', label: '2. Configura tus Enlaces de Afiliado', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado" },
-                { id: 'growth', label: '3. Proyección de tus Ganancias', icon: TrendingUp, module: "FUNDAMENTOS", description: "Proyección de Ingresos" },
+                { id: 'summary', label: '1. Tu Proyecto Digital', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
+                { id: 'web', label: '2. Tu Página Web de Captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
+                { id: 'hotlinks', label: '3. Tus Enlaces de Afiliado', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado" },
                 { id: 'blueprint', label: '4. Tu Mapa de Ruta (Blueprint)', icon: Map, module: "FUNDAMENTOS", description: "Ruta para Crecer y Ganar" },
             ]
         },
@@ -62,28 +44,50 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         {
             module: "ETAPA 3: TU SISTEMA DE VENTAS (LISTO PARA USAR)",
             items: [
-                { id: 'web', label: '8. Mira tu Página de Captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
-                { id: 'hooks', label: '9. Tus Ganchos de Venta (Hooks)', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
-                { id: 'content', label: '10. Tu Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
-                { id: 'email', label: '11. Emails: Secuencia de Venta', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
-                { id: 'evergreen', label: '12. Emails: Secuencia de Confianza', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
-                { id: 'whatsapp', label: '13. Scripts de WhatsApp (Cierre)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
+                { id: 'hooks', label: '8. Tus Ganchos de Venta (Hooks)', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
+                { id: 'content', label: '9. Tu Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
+                { id: 'email', label: '10. Emails: Secuencia de Venta', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
+                { id: 'evergreen', label: '11. Emails: Secuencia de Confianza', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
+                { id: 'whatsapp', label: '12. Scripts de WhatsApp (Cierre)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
             ]
         }
     ];
 
+    // Encontrar la etapa correspondiente a la sección activa
+    const initialGroupIdx = menuItems.findIndex(group => 
+        group.items.some(item => item.id === activeSection)
+    );
+    const [openGroups, setOpenGroups] = useState<number[]>([initialGroupIdx !== -1 ? initialGroupIdx : 0]);
+
+    const toggleGroup = (gIdx: number) => {
+        if (openGroups.includes(gIdx)) {
+            setOpenGroups(openGroups.filter(idx => idx !== gIdx));
+        } else {
+            // Abrir la etapa seleccionada y comprimir las demás
+            setOpenGroups([gIdx]);
+        }
+    };
+
+    useEffect(() => {
+        const activeGroupIdx = menuItems.findIndex(group => 
+            group.items.some(item => item.id === activeSection)
+        );
+        if (activeGroupIdx !== -1) {
+            setOpenGroups([activeGroupIdx]);
+        }
+    }, [activeSection]);
+
     return (
         <div className="w-full bg-[#0B1120] border border-slate-800 rounded-2xl flex flex-col shadow-2xl transition-all duration-300 overflow-hidden">
             {/* --- HEADER MATCHING GUIA DE IMPLEMENTACION --- */}
-            <div className="p-5 border-b border-slate-800 bg-[#0d1322] flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
+            <div className="p-4 sm:p-5 border-b border-slate-800 bg-[#0d1322] flex items-center gap-3">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
                     <PlayCircle className="w-5 h-5" />
                 </div>
                 <div>
-                    <h3 className="text-base font-black text-white tracking-tight uppercase leading-tight">
-                        Índice Estratégico
+                    <h3 className="text-sm sm:text-base font-extrabold text-white tracking-wide uppercase leading-tight">
+                        Guía de implementación
                     </h3>
-                    <span className="text-xs text-slate-400 font-medium">Contenido de tu proyecto</span>
                 </div>
             </div>
 
@@ -96,45 +100,42 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                             {/* Cabecera de Módulo */}
                             <button 
                                 onClick={() => toggleGroup(gIdx)}
-                                className="w-full flex items-center justify-between p-3.5 hover:bg-slate-800/60 transition text-left bg-slate-900/50 group cursor-pointer"
+                                className="w-full flex items-center justify-between px-3.5 py-3 sm:px-4 sm:py-3.5 hover:bg-slate-800/60 transition-all text-left bg-slate-900/40 group cursor-pointer border-b border-slate-800/40"
                             >
-                                <span className="font-extrabold text-slate-200 text-xs sm:text-sm uppercase tracking-tight pr-2">{group.module}</span>
+                                <span className="font-bold text-slate-200 group-hover:text-white text-[11px] sm:text-xs uppercase tracking-wider pr-1.5 transition-colors leading-tight">
+                                    {group.module}
+                                </span>
                                 <ChevronDown className={`w-4 h-4 text-slate-400 group-hover:text-white transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180 text-[#FF5A1F]' : ''}`} />
                             </button>
                             
                             {isOpen && (
-                                <div className="bg-black/20 divide-y divide-slate-900/60">
+                                <div className="bg-black/20 py-2 sm:py-2.5 px-1 space-y-1">
                                     {group.items.map((item) => {
                                         const isActive = activeSection === item.id;
                                         return (
                                             <button
                                                 key={item.id}
                                                 onClick={() => onSectionChange && onSectionChange(item.id)}
-                                                className={`w-full flex items-center gap-3 p-3.5 text-xs sm:text-sm transition text-left border-l-4 group cursor-pointer ${
+                                                className={`w-full flex items-center gap-2.5 sm:gap-3 px-3 py-2.5 sm:px-3.5 sm:py-3 text-sm transition-all text-left border-l-4 rounded-r-xl group cursor-pointer ${
                                                     isActive 
-                                                    ? 'bg-[#FF5A1F]/15 border-[#FF5A1F] text-white font-semibold' 
-                                                    : 'border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                                                    ? 'bg-[#FF5A1F]/15 border-[#FF5A1F] text-white' 
+                                                    : 'border-transparent text-slate-300 hover:bg-white/5 hover:text-white'
                                                 }`}
                                             >
-                                                {/* Icono Circular Lección */}
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${
+                                                {/* Icono Circular/Cuadrado Lección */}
+                                                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200 ${
                                                     isActive 
-                                                    ? 'bg-[#FF5A1F] text-white scale-105 shadow-lg shadow-[#FF5A1F]/30' 
-                                                    : 'bg-slate-800/90 text-slate-400 group-hover:bg-slate-700 group-hover:text-white'
+                                                    ? 'bg-[#FF5A1F] text-white scale-105 shadow-md shadow-[#FF5A1F]/30' 
+                                                    : 'bg-slate-800/80 text-slate-400 group-hover:bg-slate-700/80 group-hover:text-slate-200'
                                                 }`}>
                                                     <item.icon className="w-3.5 h-3.5" />
                                                 </div>
 
-                                                {/* Textos */}
+                                                {/* Titulo del Menu */}
                                                 <div className="flex-1 min-w-0">
-                                                    <p className={`font-semibold line-clamp-2 leading-snug ${isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
+                                                    <p className={`text-xs sm:text-[13.5px] leading-snug ${isActive ? 'text-white font-medium' : 'text-slate-200 font-normal group-hover:text-white'}`}>
                                                         {item.label}
                                                     </p>
-                                                    {item.description && (
-                                                        <span className="text-[11px] text-slate-400 opacity-75 font-mono mt-0.5 block truncate">
-                                                            {item.description}
-                                                        </span>
-                                                    )}
                                                 </div>
                                             </button>
                                         );
