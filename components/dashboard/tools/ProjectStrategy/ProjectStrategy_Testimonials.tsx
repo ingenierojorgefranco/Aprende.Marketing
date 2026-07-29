@@ -275,8 +275,8 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
       
       {/* 1. HEADER CARD */}
       <StepHeaderCard
-          stepNumber={7}
-          totalSteps={12}
+          stepNumber={6}
+          totalSteps={11}
           categoryTitle="Los Testimonios de tu Producto"
           title="Testimonios de Éxito"
           description="La prueba social es el gatillo mental más potente para cerrar ventas. Cuando tus prospectos ven que otros ya están logrando resultados, su miedo al fracaso desaparece."

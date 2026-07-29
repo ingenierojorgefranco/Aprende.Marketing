@@ -366,8 +366,9 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             
             {/* 1. HEADER CARD */}
             <StepHeaderCard
-                stepNumber={5}
-                totalSteps={12}
+                stepNumber={2}
+                totalSteps={9}
+                stageNumber={1}
                 categoryTitle="Conoce a tu Comprador Ideal"
                 title="Conoce a tu Comprador Ideal"
                 description="El 90% de los embudos fracasan porque el mensaje es demasiado genérico. Aquí tienes los perfiles psicológicos exactos de las personas que realmente comprarán tu producto."
@@ -396,8 +397,8 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     </p>
                 </div>
 
-                {/* Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                {/* Cards Grid: 2 tarjetas horizontales por fila */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {[
                         {
                             id: "avatar" as CommercialOptionId,
@@ -496,34 +497,34 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                     setSelectedCommercialOption(card.id);
                                     setIsCommercialDrawerOpen(true);
                                 }}
-                                className="bg-[#0b0b10] border border-white/[0.06] hover:border-[#FF5D1E]/40 rounded-3xl p-5 flex flex-col justify-between space-y-4 cursor-pointer transition-all duration-300 hover:shadow-[0_10px_30px_rgba(255,93,30,0.1)] hover:-translate-y-1 group text-left"
+                                className="bg-[#0b0b10] border border-white/[0.06] hover:border-[#FF5D1E]/40 rounded-3xl p-6 flex flex-col justify-between space-y-5 cursor-pointer transition-all duration-300 hover:shadow-[0_10px_30px_rgba(255,93,30,0.1)] hover:-translate-y-1 group text-left"
                             >
-                                <div className="space-y-3.5">
+                                <div className="space-y-4">
                                     {/* Top Row: Icon + Badge */}
                                     <div className="flex items-center justify-between gap-2">
-                                        <div className={`w-10 h-10 rounded-2xl border flex items-center justify-center shrink-0 ${card.iconBg}`}>
+                                        <div className={`w-11 h-11 rounded-2xl border flex items-center justify-center shrink-0 ${card.iconBg}`}>
                                             <CardIcon className={`w-5 h-5 ${card.iconColor}`} />
                                         </div>
-                                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border leading-none ${card.badgeClass}`}>
+                                        <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border leading-none ${card.badgeClass}`}>
                                             {card.badge}
                                         </span>
                                     </div>
 
                                     {/* Title & Desc */}
-                                    <div className="space-y-1.5 text-left">
-                                        <h4 className="text-base font-black text-white group-hover:text-[#FF5D1E] transition-colors leading-tight font-sans">
+                                    <div className="space-y-2 text-left">
+                                        <h4 className="text-lg font-black text-white group-hover:text-[#FF5D1E] transition-colors leading-tight font-sans">
                                             {card.title}
                                         </h4>
-                                        <p className="text-zinc-400 font-light text-xs leading-relaxed line-clamp-3 font-sans">
+                                        <p className="text-zinc-400 font-normal text-sm leading-relaxed font-sans">
                                             {card.desc}
                                         </p>
                                     </div>
                                 </div>
 
                                 {/* Bottom Footer */}
-                                <div className="pt-3 border-t border-white/[0.04] flex items-center justify-end">
-                                    <button className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm cursor-pointer ${card.btnClass}`}>
-                                        Ver Detalles <ChevronRight className="w-3.5 h-3.5" />
+                                <div className="pt-4 border-t border-white/[0.04] flex items-center justify-end">
+                                    <button className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer ${card.btnClass}`}>
+                                        Ver Detalles <ChevronRight className="w-4 h-4" />
                                     </button>
                                 </div>
                             </div>

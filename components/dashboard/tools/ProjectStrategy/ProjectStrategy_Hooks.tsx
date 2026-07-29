@@ -710,8 +710,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         <div className="space-y-6">
             {/* --- HEADER CARD --- */}
             <StepHeaderCard
-                stepNumber={8}
-                totalSteps={12}
+                stepNumber={5}
+                totalSteps={9}
+                stageNumber={2}
                 categoryTitle="Tus Ganchos de Venta"
                 title={<>Hooks <span className="text-[#FF5A1F]">de Atracción</span></>}
                 description="Un Hook no es solo una pregunta; es el puente que detiene el scroll de tu cliente ideal. Hemos diseñado estos ganchos para atacar directamente los deseos de libertad y crecimiento de tu avatar."

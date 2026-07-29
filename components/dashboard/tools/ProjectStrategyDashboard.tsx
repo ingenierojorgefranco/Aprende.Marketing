@@ -23,7 +23,6 @@ const ProjectStrategy_Hooks = React.lazy(() => import('./ProjectStrategy/Project
 const ProjectStrategy_Email = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Email').then(m => ({ default: m.ProjectStrategy_Email }))) as React.FC<any>;
 const ProjectStrategy_Evergreen = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Evergreen').then(m => ({ default: m.ProjectStrategy_Evergreen }))) as React.FC<any>;
 const ProjectStrategy_WhatsApp = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_WhatsApp').then(m => ({ default: m.ProjectStrategy_WhatsApp }))) as React.FC<any>;
-const ProjectStrategy_Testimonials = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Testimonials').then(m => ({ default: m.ProjectStrategy_Testimonials }))) as React.FC<any>;
 const ProjectStrategy_Hotlinks = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Hotlinks').then(m => ({ default: m.ProjectStrategy_Hotlinks }))) as React.FC<any>;
 
 import { UpgradeModal } from '../UpgradeModal';
@@ -218,7 +217,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
     );
 
     return (
-        <div id="psd-page-root" className="min-h-screen bg-black text-gray-200 pb-20 font-sans relative">
+        <div id="psd-page-root" className="min-h-screen bg-[#060913] text-gray-200 font-sans relative">
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
                 onClose={() => setShowUpgradeModal(false)} 
@@ -247,50 +246,9 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 activeStrategySection={activeSection}
                 onStrategySectionChange={setActiveSection}
                 onBack={() => navigate('/dashboard/projects')}
-                onScrollToProjectPanel={() => {
-                    const el = document.getElementById('project-strategy-index');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }}
+                onScrollToProjectPanel={() => {}}
                 onUpgradeClick={() => setShowUpgradeModal(true)}
             />
-
-            {/* Índice Estratégico y resto del contenido existente */}
-            <div id="project-strategy-index" className="max-w-full mx-auto py-8 px-4 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-8 relative border-t border-white/10">
-                <div className="lg:col-span-3">
-                    <ProjectStrategy_Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-                </div>
-                <div className="lg:col-span-9 min-w-0">
-                    <Suspense fallback={<div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>}>
-                        {activeSection === 'summary' && strategyData && <ProjectStrategy_Summary strategyData={strategyData} description={projectDescription} activeHeaderItem={activeHeaderItem} setActiveHeaderItem={setActiveHeaderItem} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
-                        {activeSection === 'hotlinks' && <ProjectStrategy_Hotlinks projectId={id} />}
-                        {activeSection === 'blueprint' && <ProjectStrategy_Blueprint handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
-                        {activeSection === 'avatar' && strategyData && <ProjectStrategy_AvatarDiagnosis avatars={strategyData?.avatars || []} psychology={strategyData?.psychology} benefitsItems={strategyData?.modules?.web?.landingPageTabs?.benefits?.items || []} />}
-                        {activeSection === 'psychology' && strategyData && <ProjectStrategy_Psychology strategy={strategyData} benefitsItems={strategyData?.modules?.web?.landingPageTabs?.benefits?.items || []} />}
-                        {activeSection === 'hooks' && strategyData && <ProjectStrategy_Hooks strategyData={strategyData} activeHook={activeHook} setActiveHook={setActiveHook} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
-                        {activeSection === 'testimonials' && strategyData && <ProjectStrategy_Testimonials strategyData={strategyData} />}
-                        {activeSection === 'web' && strategyData && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData?.modules?.web?.landingPageTabs} tyTabsData={strategyData?.modules?.web?.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onEditPage={(pid: string) => navigate(`/dashboard/editor/${pid}`)} pageCount={globalPageCount} planLimits={user?.planLimits} userRole={user?.role} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
-                        {activeSection === 'content' && strategyData && <ProjectStrategy_Content contentData={strategyData?.modules?.content || []} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user?.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
-                        {activeSection === 'email' && (
-                            <ProjectStrategy_Email 
-                                projectId={id}
-                                activeEmail={activeEmail} 
-                                setActiveEmail={setActiveEmail} 
-                                onUpgrade={() => setShowUpgradeModal(true)} 
-                                features={user?.planLimits?.features} 
-                                planLimits={user?.planLimits} 
-                                nextPlan={nextPlan} 
-                                isSimulating={isSimulating} 
-                                activeType={activeEmailSequenceType} 
-                                setActiveType={setActiveEmailSequenceType} 
-                                realMessages={realMessages}
-                                sequenceId={emailSequenceId}
-                                sequenceCount={sequenceCount}
-                            />
-                        )}
-                        {/* El enlace 12 (Evergreen) y 13 (WhatsApp) se muestran arriba en ImplementationGuide para evitar duplicados */}
-                    </Suspense>
-                </div>
-            </div>
         </div>
     );
 };

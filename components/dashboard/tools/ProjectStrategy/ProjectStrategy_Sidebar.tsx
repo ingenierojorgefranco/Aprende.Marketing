@@ -27,44 +27,35 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         {
             module: "ETAPA 1 — ACTIVA TU SISTEMA",
             items: [
-                { id: 'summary', label: '1. Tu Proyecto Digital', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
-                { id: 'web', label: '2. Tu Página Web de Captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
-                { id: 'hotlinks', label: '3. Tus Enlaces de Afiliado', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado" },
-                { id: 'blueprint', label: '4. Tu Mapa de Ruta (Blueprint)', icon: Map, module: "FUNDAMENTOS", description: "Ruta para Crecer y Ganar" },
+                { id: 'summary', label: '1. Confirma tu proyecto', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
+                { id: 'avatar', label: '2. Conoce a tu Comprador Ideal', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto" },
+                { id: 'web', label: '3. Activa tu Página de Captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
+                { id: 'hotlinks', label: '4. Configura tus enlaces de afiliado', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado" },
             ]
         },
         {
             module: "ETAPA 2: TU MERCADO Y CLIENTE",
-            items: [
-                { id: 'avatar', label: '5. Conoce a tu Comprador Ideal', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto" },
-                { id: 'psychology', label: '6. Entiende su Mentalidad', icon: Brain, module: "FUNDAMENTOS", description: "Dolores Vs Beneficios" },
-                { id: 'testimonials', label: '7. Los Testimonios de tu Producto', icon: MessageSquare, module: "FUNDAMENTOS", description: "Testimonios de Éxito" },
-            ]
+            items: []
         },
         {
-            module: "ETAPA 3: TU SISTEMA DE VENTAS (LISTO PARA USAR)",
+            module: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)",
             items: [
-                { id: 'hooks', label: '8. Tus Ganchos de Venta (Hooks)', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
-                { id: 'content', label: '9. Tu Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
-                { id: 'email', label: '10. Emails: Secuencia de Venta', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
-                { id: 'evergreen', label: '11. Emails: Secuencia de Confianza', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
-                { id: 'whatsapp', label: '12. Scripts de WhatsApp (Cierre)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
+                { id: 'hooks', label: '5. Crea tus hooks de atracción', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
+                { id: 'content', label: '6. Prepara tu estrategia de contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
+                { id: 'email', label: '7. Activa tu secuencia de venta', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
+                { id: 'evergreen', label: '8. Activa tu secuencia de confianza', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
+                { id: 'whatsapp', label: '9. Configura tus mensajes de cierre', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
             ]
         }
-    ];
+    ].filter(group => group.items.length > 0);
 
-    // Encontrar la etapa correspondiente a la sección activa
-    const initialGroupIdx = menuItems.findIndex(group => 
-        group.items.some(item => item.id === activeSection)
-    );
-    const [openGroups, setOpenGroups] = useState<number[]>([initialGroupIdx !== -1 ? initialGroupIdx : 0]);
+    const [openGroups, setOpenGroups] = useState<number[]>(menuItems.map((_, i) => i));
 
     const toggleGroup = (gIdx: number) => {
         if (openGroups.includes(gIdx)) {
             setOpenGroups(openGroups.filter(idx => idx !== gIdx));
         } else {
-            // Abrir la etapa seleccionada y comprimir las demás
-            setOpenGroups([gIdx]);
+            setOpenGroups([...openGroups, gIdx]);
         }
     };
 
@@ -73,7 +64,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
             group.items.some(item => item.id === activeSection)
         );
         if (activeGroupIdx !== -1) {
-            setOpenGroups([activeGroupIdx]);
+            setOpenGroups(prev => prev.includes(activeGroupIdx) ? prev : [...prev, activeGroupIdx]);
         }
     }, [activeSection]);
 
@@ -116,27 +107,18 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                                             <button
                                                 key={item.id}
                                                 onClick={() => onSectionChange && onSectionChange(item.id)}
-                                                className={`w-full flex items-center gap-2.5 sm:gap-3 px-3 py-2.5 sm:px-3.5 sm:py-3 text-sm transition-all text-left border-l-4 rounded-r-xl group cursor-pointer ${
+                                                className={`relative w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border text-left group ${
                                                     isActive 
-                                                    ? 'bg-[#FF5A1F]/15 border-[#FF5A1F] text-white' 
-                                                    : 'border-transparent text-slate-300 hover:bg-white/5 hover:text-white'
+                                                    ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-semibold shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]' 
+                                                    : 'border-transparent text-[#B0B0B0] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-medium hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
                                                 }`}
                                             >
-                                                {/* Icono Circular/Cuadrado Lección */}
-                                                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200 ${
-                                                    isActive 
-                                                    ? 'bg-[#FF5A1F] text-white scale-105 shadow-md shadow-[#FF5A1F]/30' 
-                                                    : 'bg-slate-800/80 text-slate-400 group-hover:bg-slate-700/80 group-hover:text-slate-200'
-                                                }`}>
-                                                    <item.icon className="w-3.5 h-3.5" />
-                                                </div>
+                                                <item.icon className={`w-5 h-5 shrink-0 relative z-10 ${isActive ? 'text-white' : 'text-[#B0B0B0] group-hover:text-white'}`} />
 
                                                 {/* Titulo del Menu */}
-                                                <div className="flex-1 min-w-0">
-                                                    <p className={`text-xs sm:text-[13.5px] leading-snug ${isActive ? 'text-white font-medium' : 'text-slate-200 font-normal group-hover:text-white'}`}>
-                                                        {item.label}
-                                                    </p>
-                                                </div>
+                                                <span className={`text-[14.5px] tracking-tight relative z-10 leading-snug ${isActive ? 'text-white font-semibold' : 'text-[#B0B0B0] font-medium group-hover:text-white'}`}>
+                                                    {item.label}
+                                                </span>
                                             </button>
                                         );
                                     })}

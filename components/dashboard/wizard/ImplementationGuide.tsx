@@ -6,8 +6,6 @@ import { ProjectStrategy_Hotlinks } from "../tools/ProjectStrategy/ProjectStrate
 import { ProjectStrategy_BusinessGrowth } from "../tools/ProjectStrategy/ProjectStrategy_BusinessGrowth";
 import { ProjectStrategy_Blueprint } from "../tools/ProjectStrategy/ProjectStrategy_Blueprint";
 import { ProjectStrategy_AvatarDiagnosis } from "../tools/ProjectStrategy/ProjectStrategy_AvatarDiagnosis";
-import { ProjectStrategy_Psychology } from "../tools/ProjectStrategy/ProjectStrategy_Psychology";
-import { ProjectStrategy_Testimonials } from "../tools/ProjectStrategy/ProjectStrategy_Testimonials";
 import { ProjectStrategy_WebSystem } from "../tools/ProjectStrategy/ProjectStrategy_WebSystem";
 import { ProjectStrategy_Hooks } from "../tools/ProjectStrategy/ProjectStrategy_Hooks";
 import { ProjectStrategy_Content } from "../tools/ProjectStrategy/ProjectStrategy_Content";
@@ -16,6 +14,7 @@ import { ProjectStrategy_Evergreen } from "../tools/ProjectStrategy/ProjectStrat
 import { ProjectStrategy_WhatsApp } from "../tools/ProjectStrategy/ProjectStrategy_WhatsApp";
 import { StepHeaderCard } from "./StepHeaderCard";
 import { StepVideoContainer } from "./StepVideoContainer";
+import { EstrategiaComercialDrawer, CommercialOptionId } from "./EstrategiaComercialDrawer";
 import { 
   CheckCircle, 
   ChevronRight, 
@@ -116,6 +115,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const [projectDescription, setProjectDescription] = useState<string>("");
   const [isAnalysisDrawerOpen, setIsAnalysisDrawerOpen] = useState<boolean>(false);
   const [isProjectionDrawerOpen, setIsProjectionDrawerOpen] = useState<boolean>(false);
+  const [isCommercialDrawerOpen, setIsCommercialDrawerOpen] = useState<boolean>(false);
+  const [selectedCommercialOption, setSelectedCommercialOption] = useState<CommercialOptionId | null>(null);
   const [openGuideStages, setOpenGuideStages] = useState<number[]>([1]);
 
   useEffect(() => {
@@ -158,32 +159,26 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
 
   const stepToSectionMap: Record<number, string> = {
     1: 'summary',
-    2: 'web',
-    3: 'hotlinks',
-    4: 'blueprint',
-    5: 'avatar',
-    6: 'psychology',
-    7: 'testimonials',
-    8: 'hooks',
-    9: 'content',
-    10: 'email',
-    11: 'evergreen',
-    12: 'whatsapp'
+    2: 'avatar',
+    3: 'web',
+    4: 'hotlinks',
+    5: 'hooks',
+    6: 'content',
+    7: 'email',
+    8: 'evergreen',
+    9: 'whatsapp'
   };
 
   const sectionToStepMap: Record<string, number> = {
     summary: 1,
-    web: 2,
-    hotlinks: 3,
-    blueprint: 4,
-    avatar: 5,
-    psychology: 6,
-    testimonials: 7,
-    hooks: 8,
-    content: 9,
-    email: 10,
-    evergreen: 11,
-    whatsapp: 12
+    avatar: 2,
+    web: 3,
+    hotlinks: 4,
+    hooks: 5,
+    content: 6,
+    email: 7,
+    evergreen: 8,
+    whatsapp: 9
   };
 
   useEffect(() => {
@@ -208,20 +203,16 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const earnings = Math.round(projectPrice * (projectCommission / 100));
 
   const stepsList = [
-    { id: 1, title: "1. Tu Proyecto Digital", stage: 1, stageTitle: "ETAPA 1 — Activa tu sistema" },
-    { id: 2, title: "2. Tu Página Web de Captura", stage: 1 },
-    { id: 3, title: "3. Tus Enlaces de Afiliado", stage: 1 },
-    { id: 4, title: "4. Tu Mapa de Ruta (Blueprint)", stage: 1 },
+    { id: 1, title: "1. Confirma tu proyecto", stage: 1, stageTitle: "ETAPA 1 — Activa tu sistema" },
+    { id: 2, title: "2. Conoce a tu Comprador Ideal", stage: 1 },
+    { id: 3, title: "3. Activa tu Página de Captura", stage: 1 },
+    { id: 4, title: "4. Configura tus enlaces de afiliado", stage: 1 },
     
-    { id: 5, title: "5. Conoce a tu Comprador Ideal", stage: 2, stageTitle: "ETAPA 2 — Tu mercado y cliente" },
-    { id: 6, title: "6. Entiende su Mentalidad", stage: 2 },
-    { id: 7, title: "7. Los Testimonios de tu Producto", stage: 2 },
-    
-    { id: 8, title: "8. Tus Ganchos de Venta (Hooks)", stage: 3, stageTitle: "ETAPA 3 — Tu sistema de ventas" },
-    { id: 9, title: "9. Tu Estrategia de Contenidos", stage: 3 },
-    { id: 10, title: "10. Emails: Secuencia de Venta", stage: 3 },
-    { id: 11, title: "11. Emails: Secuencia de Confianza", stage: 3 },
-    { id: 12, title: "12. Scripts de WhatsApp (Cierre)", stage: 3 },
+    { id: 5, title: "5. Crea tus hooks de atracción", stage: 2, stageTitle: "ETAPA 2 — Tu sistema de ventas" },
+    { id: 6, title: "6. Prepara tu estrategia de contenidos", stage: 2 },
+    { id: 7, title: "7. Activa tu secuencia de venta", stage: 2 },
+    { id: 8, title: "8. Activa tu secuencia de confianza", stage: 2 },
+    { id: 9, title: "9. Configura tus mensajes de cierre", stage: 2 },
   ];
 
   const handleStepClick = (id: number) => {
@@ -240,7 +231,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
       setCompletedSteps(prev => [...prev, id]);
     }
     // Automatically transition to next step if not last
-    if (id < 11) {
+    if (id < 9) {
       setActiveStep(id + 1);
     }
   };
@@ -253,13 +244,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     }
   };
 
-  const percentCompleted = Math.round((completedSteps.length / 11) * 100);
+  const percentCompleted = Math.round((completedSteps.length / 9) * 100);
 
   return (
-    <div className="w-full text-slate-200 font-sans min-h-screen bg-[#060913] border-b border-slate-800/60 pb-16 -mt-2 sm:-mt-4 -mx-1 sm:-mx-3">
+    <div className="w-full text-slate-200 font-sans min-h-screen bg-[#060913] -mt-2 sm:-mt-4 -mx-1 sm:-mx-3">
       
       {/* Layout Grid */}
-      <div className="w-full max-w-[1760px] mx-auto px-2 sm:px-3 md:px-4 pt-1 pb-16">
+      <div className="w-full max-w-[1760px] mx-auto px-2 sm:px-3 md:px-4 pt-1 pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-[270px_minmax(0,1fr)] xl:grid-cols-[310px_minmax(0,1fr)] 2xl:grid-cols-[350px_minmax(0,1fr)] gap-4 lg:gap-5 xl:gap-6 items-start">
           
           {/* COLUMNA IZQUIERDA: Menús Laterales (Índice Estratégico + Guía de implementación) */}
@@ -270,205 +261,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               activeSection={currentStrategySection}
               onSectionChange={handleStrategySectionClick}
             />
-
-            {/* 2. Menú Guía de Implementación (Imagen 2) */}
-            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl overflow-hidden space-y-5 shadow-2xl">
-              
-              {/* Header del Sidebar */}
-              <div className="p-5 border-b border-slate-800 bg-[#0d1322] flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
-                  <BookOpen className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white tracking-tight uppercase leading-tight">
-                    Guía de implementación
-                  </h3>
-                  <span className="text-xs text-slate-400 font-medium">Paso a paso de tu proyecto</span>
-                </div>
-              </div>
-
-            {/* Steps Navigation */}
-            <div className="p-4 space-y-5 max-h-[calc(100vh-220px)] overflow-y-auto custom-scrollbar">
-              {/* Etapa 1 */}
-              <div className="space-y-2.5">
-                <button 
-                  onClick={() => toggleGuideStage(1)}
-                  className="w-full px-4.5 py-3.5 bg-gradient-to-r from-slate-900/90 via-[#0e172a] to-slate-900/90 border border-slate-700/80 rounded-xl shadow-md flex items-center justify-between cursor-pointer group transition-all"
-                >
-                  <span className="text-xs sm:text-[13px] font-bold text-slate-200 group-hover:text-white tracking-wider uppercase flex items-center gap-2 transition-colors">
-                    <span className="w-2 h-2 rounded-full bg-[#FF5A1F] shrink-0 shadow-[0_0_8px_#FF5A1F]"></span>
-                    ETAPA 1 — Activa tu sistema
-                  </span>
-                  <ChevronDown className={`w-4 h-4 text-slate-400 group-hover:text-white transition-transform duration-200 shrink-0 ${openGuideStages.includes(1) ? 'rotate-180 text-[#FF5A1F]' : ''}`} />
-                </button>
-                {openGuideStages.includes(1) && (
-                  <div className="space-y-2 py-1 pl-1 animate-in fade-in duration-200">
-                    {stepsList.filter(s => s.stage === 1).map(s => {
-                      const isActive = activeStep === s.id;
-                      const isDone = completedSteps.includes(s.id);
-                      return (
-                        <button
-                          key={s.id}
-                          onClick={() => handleStepClick(s.id)}
-                          className={`relative w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border text-left ${
-                            isActive
-                              ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-medium shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]'
-                              : 'border-transparent text-[#CBD5E1] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-normal hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3.5 min-w-0 relative z-10">
-                            <div className={`w-5.5 h-5.5 rounded-full text-[11px] font-semibold flex items-center justify-center shrink-0 transition-all ${
-                              isActive
-                                ? "bg-white text-[#FF5A1F] shadow-sm font-extrabold"
-                                : isDone
-                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                                : "bg-slate-800/90 text-slate-400 border border-slate-700/50"
-                            }`}>
-                              {isDone ? (
-                                <Check className="w-3 h-3" />
-                              ) : (
-                                s.id
-                              )}
-                            </div>
-                            <span className={`text-sm sm:text-[14px] leading-snug truncate ${isActive ? "text-white font-medium" : "text-slate-200 font-normal"}`}>
-                              {s.title.replace(/^\d+\.\s*/, '')}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Etapa 2 */}
-              <div className="space-y-2.5">
-                <button 
-                  onClick={() => toggleGuideStage(2)}
-                  className="w-full px-4.5 py-3.5 bg-gradient-to-r from-slate-900/90 via-[#0e172a] to-slate-900/90 border border-slate-700/80 rounded-xl shadow-md flex items-center justify-between cursor-pointer group transition-all"
-                >
-                  <span className="text-xs sm:text-[13px] font-bold text-slate-200 group-hover:text-white tracking-wider uppercase flex items-center gap-2 transition-colors">
-                    <span className="w-2 h-2 rounded-full bg-[#FF5A1F] shrink-0 shadow-[0_0_8px_#FF5A1F]"></span>
-                    ETAPA 2 — Tu mercado y cliente
-                  </span>
-                  <ChevronDown className={`w-4 h-4 text-slate-400 group-hover:text-white transition-transform duration-200 shrink-0 ${openGuideStages.includes(2) ? 'rotate-180 text-[#FF5A1F]' : ''}`} />
-                </button>
-                {openGuideStages.includes(2) && (
-                  <div className="space-y-2 py-1 pl-1 animate-in fade-in duration-200">
-                    {stepsList.filter(s => s.stage === 2).map(s => {
-                      const isActive = activeStep === s.id;
-                      const isDone = completedSteps.includes(s.id);
-                      return (
-                        <button
-                          key={s.id}
-                          onClick={() => handleStepClick(s.id)}
-                          className={`relative w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border text-left ${
-                            isActive
-                              ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-medium shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]'
-                              : 'border-transparent text-[#CBD5E1] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-normal hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3.5 min-w-0 relative z-10">
-                            <div className={`w-5.5 h-5.5 rounded-full text-[11px] font-semibold flex items-center justify-center shrink-0 transition-all ${
-                              isActive
-                                ? "bg-white text-[#FF5A1F] shadow-sm font-extrabold"
-                                : isDone
-                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                                : "bg-slate-800/90 text-slate-400 border border-slate-700/50"
-                            }`}>
-                              {isDone ? (
-                                <Check className="w-3 h-3" />
-                              ) : (
-                                s.id
-                              )}
-                            </div>
-                            <span className={`text-sm sm:text-[14px] leading-snug truncate ${isActive ? "text-white font-medium" : "text-slate-200 font-normal"}`}>
-                              {s.title.replace(/^\d+\.\s*/, '')}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Etapa 3 */}
-              <div className="space-y-2.5">
-                <button 
-                  onClick={() => toggleGuideStage(3)}
-                  className="w-full px-4.5 py-3.5 bg-gradient-to-r from-slate-900/90 via-[#0e172a] to-slate-900/90 border border-slate-700/80 rounded-xl shadow-md flex items-center justify-between cursor-pointer group transition-all"
-                >
-                  <span className="text-xs sm:text-[13px] font-bold text-slate-200 group-hover:text-white tracking-wider uppercase flex items-center gap-2 transition-colors">
-                    <span className="w-2 h-2 rounded-full bg-[#FF5A1F] shrink-0 shadow-[0_0_8px_#FF5A1F]"></span>
-                    ETAPA 3 — Tu sistema de ventas
-                  </span>
-                  <ChevronDown className={`w-4 h-4 text-slate-400 group-hover:text-white transition-transform duration-200 shrink-0 ${openGuideStages.includes(3) ? 'rotate-180 text-[#FF5A1F]' : ''}`} />
-                </button>
-                {openGuideStages.includes(3) && (
-                  <div className="space-y-2 py-1 pl-1 animate-in fade-in duration-200">
-                    {stepsList.filter(s => s.stage === 3).map(s => {
-                      const isActive = activeStep === s.id;
-                      const isDone = completedSteps.includes(s.id);
-                      return (
-                        <button
-                          key={s.id}
-                          onClick={() => handleStepClick(s.id)}
-                          className={`relative w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border text-left ${
-                            isActive
-                              ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-medium shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]'
-                              : 'border-transparent text-[#CBD5E1] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-normal hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3.5 min-w-0 relative z-10">
-                            <div className={`w-5.5 h-5.5 rounded-full text-[11px] font-semibold flex items-center justify-center shrink-0 transition-all ${
-                              isActive
-                                ? "bg-white text-[#FF5A1F] shadow-sm font-extrabold"
-                                : isDone
-                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                                : "bg-slate-800/90 text-slate-400 border border-slate-700/50"
-                            }`}>
-                              {isDone ? (
-                                <Check className="w-3 h-3" />
-                              ) : (
-                                s.id
-                              )}
-                            </div>
-                            <span className={`text-sm sm:text-[14px] leading-snug truncate ${isActive ? "text-white font-medium" : "text-slate-200 font-normal"}`}>
-                              {s.title.replace(/^\d+\.\s*/, '')}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Direct Project Panel Access box */}
-              <div className="bg-[#0d1322] border border-slate-800 p-4 rounded-2xl relative overflow-hidden text-left mt-6">
-                <div className="absolute -top-12 -right-12 w-24 h-24 bg-[#FF5A1F]/10 blur-xl rounded-full"></div>
-                <div className="w-9 h-9 rounded-xl bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] mb-3">
-                  <HelpCircle className="w-5 h-5 animate-pulse" />
-                </div>
-                <h4 className="text-sm font-bold text-white mb-1">¿Prefieres ir directo al proyecto?</h4>
-                <p className="text-slate-400 font-normal text-xs leading-relaxed mb-4">
-                  Puedes volver a esta guía cuando quieras.
-                </p>
-                <button
-                  onClick={onScrollToProjectPanel}
-                  className="w-full h-11 px-4 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 rounded-xl flex items-center justify-center gap-2 text-white font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-md"
-                >
-                  <span>Ir al panel del proyecto</span>
-                  <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
-                </button>
-              </div>
-
-            </div>
-
-          </div>
-
-        </aside>
+          </aside>
 
           {/* COLUMNA DERECHA: Detalle del Paso Activo */}
           <main className="space-y-6">
@@ -502,13 +295,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               </nav>
             </div>
             
-            {/* 1. Header del paso (Solo para pasos diferentes a los Pasos 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 y 13, ya que tienen su propio header) */}
-            {activeStep !== 2 && activeStep !== 3 && activeStep !== 4 && activeStep !== 5 && activeStep !== 6 && activeStep !== 7 && activeStep !== 8 && activeStep !== 9 && activeStep !== 10 && activeStep !== 11 && activeStep !== 12 && activeStep !== 13 && (
+            {/* 1. Header del paso (Solo para pasos diferentes a los Pasos 2 a 9 ya que tienen su propio header) */}
+            {activeStep !== 2 && activeStep !== 3 && activeStep !== 4 && activeStep !== 5 && activeStep !== 6 && activeStep !== 7 && activeStep !== 8 && activeStep !== 9 && (
               <StepHeaderCard 
                 stepNumber={activeStep}
-                totalSteps={13}
+                totalSteps={9}
                 title={stepsList[activeStep - 1]?.title.replace(/^\d+\.\s*/, '') || "Tu Proyecto Digital"}
-                description="En este paso entenderás el producto que has seleccionado, cómo ganarás comisiones y cuál es el objetivo del sistema que hemos preparado para ti."
+                description="Revisa el producto que vas a promocionar, cuánto puedes ganar por cada venta y cómo funcionará el sistema que hemos preparado para ti."
                 completedSteps={1}
               />
             )}
@@ -765,34 +558,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
 
                 </div>
 
-                {/* Puntos clave del proyecto (Reemplaza a "Lo que harás en este paso" - Imagen 7) */}
-                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl text-left space-y-5">
-                  <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
-                    <div className="w-11 h-11 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
-                      <Star className="w-6 h-6 text-orange-400" />
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-wide">
-                      PUNTOS CLAVE DEL PROYECTO
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-sm sm:text-base text-slate-200 font-normal">
-                    {[
-                      "Producto validado",
-                      "Enlace de afiliado preparado",
-                      "Comisión alta",
-                      "Mercado con alta demanda",
-                      "Página y contenido se crearán para este producto"
-                    ].map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-3 bg-slate-900/60 border border-slate-800/80 p-3.5 rounded-xl">
-                        <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
-                        <span className="font-semibold text-slate-100">{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Recorrido básico de tu sistema (Botones grandes y flujo visual mejorado) */}
+                {/* Recorrido básico de tu sistema (Linkeable: Abre mapa de ruta en drawer derecho) */}
                 <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl text-left space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
                     <div className="flex items-center gap-3.5">
@@ -808,13 +574,30 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                         </p>
                       </div>
                     </div>
+
+                    <button
+                      onClick={() => {
+                        setSelectedCommercialOption("funnel");
+                        setIsCommercialDrawerOpen(true);
+                      }}
+                      className="px-4 py-2 bg-[#FF5D1E]/10 hover:bg-[#FF5D1E]/20 border border-[#FF5D1E]/40 text-[#FF5D1E] rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 shadow-md hover:scale-[1.02] self-start sm:self-auto"
+                    >
+                      <span>Ver mapa de ruta completo</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
                   </div>
 
                   {/* Grid de 5 botones/tarjetas grandes del recorrido */}
                   <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 pt-2">
                     
                     {/* Paso 1: Reels / Contenido */}
-                    <div className="bg-[#070D19] border border-slate-800 hover:border-fuchsia-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-fuchsia-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-default">
+                    <div 
+                      onClick={() => {
+                        setSelectedCommercialOption("funnel");
+                        setIsCommercialDrawerOpen(true);
+                      }}
+                      className="bg-[#070D19] border border-slate-800 hover:border-fuchsia-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-fuchsia-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-pointer"
+                    >
                       <span className="px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-400 text-[10px] font-black uppercase tracking-wider">
                         PASO 1
                       </span>
@@ -832,7 +615,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                     </div>
 
                     {/* Paso 2: Página de captación */}
-                    <div className="bg-[#070D19] border border-slate-800 hover:border-sky-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-sky-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-default">
+                    <div 
+                      onClick={() => {
+                        setSelectedCommercialOption("funnel");
+                        setIsCommercialDrawerOpen(true);
+                      }}
+                      className="bg-[#070D19] border border-slate-800 hover:border-sky-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-sky-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-pointer"
+                    >
                       <span className="px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-[10px] font-black uppercase tracking-wider">
                         PASO 2
                       </span>
@@ -850,7 +639,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                     </div>
 
                     {/* Paso 3: Registro del usuario */}
-                    <div className="bg-[#070D19] border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-emerald-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-default">
+                    <div 
+                      onClick={() => {
+                        setSelectedCommercialOption("funnel");
+                        setIsCommercialDrawerOpen(true);
+                      }}
+                      className="bg-[#070D19] border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-emerald-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-pointer"
+                    >
                       <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
                         PASO 3
                       </span>
@@ -868,7 +663,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                     </div>
 
                     {/* Paso 4: Clase u oferta principal */}
-                    <div className="bg-[#070D19] border border-slate-800 hover:border-purple-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-purple-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-default">
+                    <div 
+                      onClick={() => {
+                        setSelectedCommercialOption("funnel");
+                        setIsCommercialDrawerOpen(true);
+                      }}
+                      className="bg-[#070D19] border border-slate-800 hover:border-purple-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-purple-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-pointer"
+                    >
                       <span className="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-[10px] font-black uppercase tracking-wider">
                         PASO 4
                       </span>
@@ -886,7 +687,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                     </div>
 
                     {/* Paso 5: Venta y comisión */}
-                    <div className="bg-[#070D19] border border-slate-800 hover:border-amber-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-amber-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-default">
+                    <div 
+                      onClick={() => {
+                        setSelectedCommercialOption("funnel");
+                        setIsCommercialDrawerOpen(true);
+                      }}
+                      className="bg-[#070D19] border border-slate-800 hover:border-amber-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-amber-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-pointer"
+                    >
                       <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-wider">
                         PASO 5
                       </span>
@@ -936,77 +743,77 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                     {/* Columna Izquierda: Parámetros */}
                     <div className="lg:col-span-5 space-y-6">
                       <div>
-                        <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight group-hover:text-emerald-400 transition-colors">
+                        <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight group-hover:text-emerald-400 transition-colors leading-tight">
                           Proyección de ingresos basada en tu comisión
                         </h3>
                       </div>
 
-                      <div className="space-y-3 bg-[#070D19] border border-slate-800 p-5 rounded-2xl text-sm text-slate-300">
+                      <div className="space-y-3.5 bg-[#070D19] border border-slate-800 p-6 rounded-2xl text-base text-slate-200 font-medium">
                         <div className="flex items-center gap-3">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Ganancia neta por venta: <strong className="text-white">${formatValue(earnings || Math.round((projectPrice || 147) * ((projectCommission || 80) / 100)) || 130)} USD</strong></span>
+                          <Check className="w-5 h-5 text-emerald-400 shrink-0" />
+                          <span>Ganancia neta por venta: <strong className="text-white font-bold">${formatValue(earnings || Math.round((projectPrice || 147) * ((projectCommission || 80) / 100)) || 130)} USD</strong></span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Tasa de cierre objetivo: <strong className="text-white">5% en WhatsApp</strong></span>
+                          <Check className="w-5 h-5 text-emerald-400 shrink-0" />
+                          <span>Tasa de cierre objetivo: <strong className="text-white font-bold">5% en WhatsApp</strong></span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Porcentaje de comisión: <strong className="text-white">{formatValue(projectCommission || 80)}%</strong></span>
+                          <Check className="w-5 h-5 text-emerald-400 shrink-0" />
+                          <span>Porcentaje de comisión: <strong className="text-white font-bold">{formatValue(projectCommission || 80)}%</strong></span>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-[#070D19] border border-emerald-500/30 rounded-xl p-4 text-center">
-                          <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mb-1">Ganancia / Venta</p>
-                          <p className="text-emerald-400 font-extrabold text-2xl sm:text-3xl">${formatValue(earnings || Math.round((projectPrice || 147) * ((projectCommission || 80) / 100)) || 130)}</p>
+                        <div className="bg-[#070D19] border border-emerald-500/30 rounded-2xl p-4 sm:p-5 text-center">
+                          <p className="text-xs sm:text-sm text-slate-400 font-extrabold uppercase tracking-wider mb-1.5">Ganancia / Venta</p>
+                          <p className="text-emerald-400 font-black text-3xl sm:text-4xl">${formatValue(earnings || Math.round((projectPrice || 147) * ((projectCommission || 80) / 100)) || 130)}</p>
                         </div>
-                        <div className="bg-[#070D19] border border-slate-800 rounded-xl p-4 text-center">
-                          <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mb-1">Cierre WA</p>
-                          <p className="text-white font-extrabold text-2xl sm:text-3xl">5%</p>
+                        <div className="bg-[#070D19] border border-slate-800 rounded-2xl p-4 sm:p-5 text-center">
+                          <p className="text-xs sm:text-sm text-slate-400 font-extrabold uppercase tracking-wider mb-1.5">Cierre WA</p>
+                          <p className="text-white font-black text-3xl sm:text-4xl">5%</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Columna Derecha: Escala de Leads */}
-                    <div className="lg:col-span-7 bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-6 space-y-4">
-                      <h4 className="text-sm sm:text-base font-bold text-white flex items-center justify-between">
+                    <div className="lg:col-span-7 bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-7 space-y-5">
+                      <h4 className="text-base sm:text-lg font-extrabold text-white flex items-center justify-between">
                         <span className="flex items-center gap-2">
-                          <ArrowUpRight className="w-4 h-4 text-emerald-400" /> 
+                          <ArrowUpRight className="w-5 h-5 text-emerald-400" /> 
                           Escala de ingresos según volumen de Leads
                         </span>
-                        <span className="text-xs text-emerald-400 font-semibold group-hover:underline flex items-center gap-1">
-                          Ver gráfico <ArrowRight className="w-3 h-3" />
+                        <span className="text-xs sm:text-sm text-emerald-400 font-bold group-hover:underline flex items-center gap-1">
+                          Ver gráfico <ArrowRight className="w-3.5 h-3.5" />
                         </span>
                       </h4>
                       
-                      <div className="space-y-2.5">
+                      <div className="space-y-3">
                         {[50, 100, 200, 500, 1000].map((leads, i) => {
                           const commVal = earnings || Math.round((projectPrice || 147) * ((projectCommission || 80) / 100)) || 130;
                           const sales = Math.floor(leads * 0.05);
                           const incomeValue = sales * commVal;
                           return (
-                            <div key={i} className="flex items-center justify-between p-3.5 sm:p-4 rounded-xl bg-[#0B1120] border border-slate-800 group-hover:border-slate-700 transition-all">
+                            <div key={i} className="flex items-center justify-between p-4 sm:p-4.5 rounded-2xl bg-[#0B1120] border border-slate-800 group-hover:border-slate-700 transition-all">
                               <div className="text-left">
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Atrayendo</p>
-                                <p className="text-white font-bold text-sm sm:text-base flex items-center gap-1.5">
-                                  <Users className="w-4 h-4 text-sky-400" /> {formatValue(leads)} Leads
+                                <p className="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider mb-0.5">Atrayendo</p>
+                                <p className="text-white font-black text-base sm:text-lg flex items-center gap-2">
+                                  <Users className="w-4.5 h-4.5 text-sky-400" /> {formatValue(leads)} Leads
                                 </p>
                               </div>
                               <div className="flex flex-col items-center">
-                                <p className="text-[10px] text-slate-400 font-bold uppercase">{formatValue(sales)} {sales === 1 ? 'venta' : 'ventas'}</p>
+                                <p className="text-xs sm:text-sm text-slate-300 font-extrabold uppercase">{formatValue(sales)} {sales === 1 ? 'venta' : 'ventas'}</p>
                                 <ArrowRight className="w-4 h-4 text-slate-500" />
                               </div>
                               <div className="text-right">
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Ganancia aprox.</p>
-                                <p className="text-emerald-400 font-extrabold text-lg sm:text-xl">${formatValue(incomeValue)} USD</p>
+                                <p className="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider mb-0.5">Ganancia aprox.</p>
+                                <p className="text-emerald-400 font-black text-xl sm:text-2xl">${formatValue(incomeValue)} USD</p>
                               </div>
                             </div>
                           );
                         })}
                       </div>
 
-                      <div className="flex items-center gap-3 p-3.5 bg-[#0B1120] border-l-4 border-amber-500/50 rounded-r-xl text-left text-xs sm:text-sm text-slate-300">
+                      <div className="flex items-center gap-3 p-4 bg-[#0B1120] border-l-4 border-amber-500/50 rounded-r-2xl text-left text-xs sm:text-sm text-slate-200 font-medium">
                         <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
                         <p>Proyecciones basadas en un cierre conservador del 5%. Muestran el potencial de escala de tu activo digital.</p>
                       </div>
@@ -1018,27 +825,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               </div>
             )}
 
-            {/* Paso 2: Tu Página Web de Captura */}
+            {/* Paso 2: Conoce a tu Comprador Ideal */}
             {activeStep === 2 && (
-              <ProjectStrategy_WebSystem 
-                projectId={projectId || searchParams.get('id') || ''} 
-                lpTabsData={strategyData?.modules?.web?.landingPageTabs} 
-                tyTabsData={strategyData?.modules?.web?.thankYouPageTabs} 
-              />
-            )}
-
-            {/* Paso 3: Configura tus enlaces de afiliado */}
-            {activeStep === 3 && (
-              <ProjectStrategy_Hotlinks projectId={projectId || searchParams.get('id') || ''} />
-            )}
-
-            {/* Paso 4: Tu Mapa de Ruta (Blueprint) */}
-            {activeStep === 4 && (
-              <ProjectStrategy_Blueprint />
-            )}
-
-            {/* Paso 5: Conoce a tu Comprador Ideal */}
-            {activeStep === 5 && (
               <ProjectStrategy_AvatarDiagnosis 
                 avatars={strategyData?.avatars || []} 
                 psychology={strategyData?.psychology || { 
@@ -1052,35 +840,36 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 6: Psicología de Compra y Objeciones */}
-            {activeStep === 6 && (
-              <ProjectStrategy_Psychology 
-                strategy={strategyData} 
-                benefitsItems={strategyData?.modules?.web?.landingPageTabs?.benefits?.items || []} 
+            {/* Paso 3: Tu Página Web de Captura */}
+            {activeStep === 3 && (
+              <ProjectStrategy_WebSystem 
+                projectId={projectId || searchParams.get('id') || ''} 
+                lpTabsData={strategyData?.modules?.web?.landingPageTabs} 
+                tyTabsData={strategyData?.modules?.web?.thankYouPageTabs} 
               />
             )}
 
-            {/* Paso 7: Los Testimonios de tu Producto */}
-            {activeStep === 7 && (
-              <ProjectStrategy_Testimonials strategyData={strategyData} />
+            {/* Paso 4: Configura tus enlaces de afiliado */}
+            {activeStep === 4 && (
+              <ProjectStrategy_Hotlinks projectId={projectId || searchParams.get('id') || ''} />
             )}
 
-            {/* Paso 8: Tus Ganchos de Venta (Hooks) */}
-            {activeStep === 8 && (
+            {/* Paso 5: Tus Ganchos de Venta (Hooks) */}
+            {activeStep === 5 && (
               <ProjectStrategy_Hooks 
                 strategyData={strategyData}
               />
             )}
 
-            {/* Paso 9: Tu Estrategia de Contenidos */}
-            {activeStep === 9 && (
+            {/* Paso 6: Tu Estrategia de Contenidos */}
+            {activeStep === 6 && (
               <ProjectStrategy_Content 
                 contentData={strategyData?.modules?.content || []}
               />
             )}
 
-            {/* Paso 10: Email Marketing */}
-            {activeStep === 10 && (
+            {/* Paso 7: Email Marketing */}
+            {activeStep === 7 && (
               <ProjectStrategy_Email 
                 projectId={projectId || searchParams.get('id') || undefined}
                 emailData={strategyData?.modules?.emails?.nurture || []}
@@ -1088,8 +877,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 11: Secuencia de Confianza (Evergreen) */}
-            {activeStep === 11 && (
+            {/* Paso 8: Secuencia de Confianza (Evergreen) */}
+            {activeStep === 8 && (
               <ProjectStrategy_Evergreen 
                 projectId={projectId || searchParams.get('id') || ''}
                 evergreenData={strategyData?.modules?.emails?.evergreen || []}
@@ -1099,8 +888,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 12: Scripts de WhatsApp (Cierre) */}
-            {activeStep === 12 && (
+            {/* Paso 9: Scripts de WhatsApp (Cierre) */}
+            {activeStep === 9 && (
               <ProjectStrategy_WhatsApp 
                 projectId={projectId || searchParams.get('id') || ''}
                 strategyData={strategyData}
@@ -1108,8 +897,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Dinámico para otros pasos (Paso 13+) */}
-            {activeStep > 12 && (
+            {/* Dinámico para otros pasos (Paso 10+) */}
+            {activeStep > 9 && (
               <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-8 text-center space-y-6 shadow-xl">
                 
                 <div className="max-w-md mx-auto space-y-4">
@@ -1320,49 +1109,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               </div>
             )}
 
-            {/* Botonera de acciones inferior */}
-            <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => handleMarkAsCompleted(activeStep)}
-                  className="px-6 py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center gap-2 group cursor-pointer"
-                >
-                  <CheckCircle className="w-5 h-5 shrink-0" />
-                  <span>Marcar paso como completado y continuar</span>
-                  <ChevronRight className="w-4 h-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
-                </button>
 
-                <button
-                  onClick={() => handleToggleSaveForLater(activeStep)}
-                  className={`px-5 py-3.5 border rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
-                    savedForLater.includes(activeStep)
-                      ? "bg-amber-500/15 border-amber-500/40 text-amber-400"
-                      : "bg-slate-900 border-slate-700 hover:border-slate-500 text-slate-200"
-                  }`}
-                >
-                  <Bookmark className="w-4.5 h-4.5 shrink-0" />
-                  <span>{savedForLater.includes(activeStep) ? "Guardado" : "Guardar para después"}</span>
-                </button>
-              </div>
-
-              {activeStep < 11 && (
-                <div className="flex items-center gap-3 text-left">
-                  <div className="space-y-0.5 text-right hidden sm:block">
-                    <span className="text-xs text-slate-400 uppercase font-bold tracking-wider block">Siguiente paso:</span>
-                    <span className="text-sm text-white font-bold block truncate max-w-xs">{stepsList[activeStep]?.title.substring(3)}</span>
-                  </div>
-                  <button
-                    onClick={() => setActiveStep(activeStep + 1)}
-                    className="px-5 py-3.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-slate-500 rounded-xl text-xs sm:text-sm font-black text-white uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-md"
-                  >
-                    <span>Continuar</span>
-                    <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
-                  </button>
-                </div>
-              )}
-
-            </div>
 
           </main>
 
@@ -1532,6 +1279,15 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
           </div>
         </div>
       )}
+
+      {/* Drawer para Estrategia Comercial (Mapa de Ruta, Avatares, Objeciones, Oferta, etc.) */}
+      <EstrategiaComercialDrawer
+        isOpen={isCommercialDrawerOpen}
+        onClose={() => setIsCommercialDrawerOpen(false)}
+        activeOption={selectedCommercialOption}
+        setActiveOption={setSelectedCommercialOption}
+        strategyData={strategyData}
+      />
 
     </div>
   );

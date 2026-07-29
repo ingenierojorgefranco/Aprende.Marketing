@@ -142,66 +142,66 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                             </h3>
                         </div>
 
-                        <div className="space-y-3 bg-[#070D19] border border-slate-800 p-5 rounded-2xl text-sm text-slate-300">
+                        <div className="space-y-3.5 bg-[#070D19] border border-slate-800 p-6 rounded-2xl text-base text-slate-200 font-medium">
                             <div className="flex items-center gap-3">
-                                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                                <span>Ganancia neta por venta: <strong className="text-white">${formatValue(commissionVal)} USD</strong></span>
+                                <Check className="w-5 h-5 text-emerald-400 shrink-0" />
+                                <span>Ganancia neta por venta: <strong className="text-white font-bold">${formatValue(commissionVal)} USD</strong></span>
                             </div>
                             <div className="flex items-center gap-3">
-                                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                                <span>Tasa de cierre objetivo: <strong className="text-white">5% en WhatsApp</strong></span>
+                                <Check className="w-5 h-5 text-emerald-400 shrink-0" />
+                                <span>Tasa de cierre objetivo: <strong className="text-white font-bold">5% en WhatsApp</strong></span>
                             </div>
                             <div className="flex items-center gap-3">
-                                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                                <span>Porcentaje de comisión: <strong className="text-white">{formatValue(Math.round(commissionRate * 100))}%</strong></span>
+                                <Check className="w-5 h-5 text-emerald-400 shrink-0" />
+                                <span>Porcentaje de comisión: <strong className="text-white font-bold">{formatValue(Math.round(commissionRate * 100))}%</strong></span>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-[#070D19] border border-emerald-500/30 rounded-xl p-4 text-center">
-                                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mb-1">Ganancia / Venta</p>
-                                <p className="text-emerald-400 font-extrabold text-2xl sm:text-3xl">${formatValue(commissionVal)}</p>
+                            <div className="bg-[#070D19] border border-emerald-500/30 rounded-2xl p-4 sm:p-5 text-center">
+                                <p className="text-xs sm:text-sm text-slate-400 font-extrabold uppercase tracking-wider mb-1.5">Ganancia / Venta</p>
+                                <p className="text-emerald-400 font-black text-3xl sm:text-4xl">${formatValue(commissionVal)}</p>
                             </div>
-                            <div className="bg-[#070D19] border border-slate-800 rounded-xl p-4 text-center">
-                                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mb-1">Cierre WA</p>
-                                <p className="text-white font-extrabold text-2xl sm:text-3xl">5%</p>
+                            <div className="bg-[#070D19] border border-slate-800 rounded-2xl p-4 sm:p-5 text-center">
+                                <p className="text-xs sm:text-sm text-slate-400 font-extrabold uppercase tracking-wider mb-1.5">Cierre WA</p>
+                                <p className="text-white font-black text-3xl sm:text-4xl">5%</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Columna Derecha: Escala de Leads */}
-                    <div className="lg:col-span-7 bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-6 space-y-4">
-                        <h4 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                            <ArrowUpRight className="w-4 h-4 text-emerald-400" /> 
+                    <div className="lg:col-span-7 bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-7 space-y-5">
+                        <h4 className="text-base sm:text-lg font-extrabold text-white flex items-center gap-2">
+                            <ArrowUpRight className="w-5 h-5 text-emerald-400" /> 
                             Escala de ingresos según volumen de Leads
                         </h4>
                         
-                        <div className="space-y-2.5">
+                        <div className="space-y-3">
                             {leadScenarios.map((leads, i) => {
                                 const sales = Math.floor(leads * 0.05);
                                 const incomeValue = sales * commissionVal;
                                 return (
-                                    <div key={i} className="flex items-center justify-between p-3.5 sm:p-4 rounded-xl bg-[#0B1120] border border-slate-800 hover:border-emerald-500/30 transition-all">
+                                    <div key={i} className="flex items-center justify-between p-4 sm:p-4.5 rounded-2xl bg-[#0B1120] border border-slate-800 hover:border-emerald-500/30 transition-all">
                                         <div className="text-left">
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Atrayendo</p>
-                                            <p className="text-white font-bold text-sm sm:text-base flex items-center gap-1.5">
-                                                <Users className="w-4 h-4 text-sky-400" /> {formatValue(leads)} Leads
+                                            <p className="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider mb-0.5">Atrayendo</p>
+                                            <p className="text-white font-black text-base sm:text-lg flex items-center gap-2">
+                                                <Users className="w-4.5 h-4.5 text-sky-400" /> {formatValue(leads)} Leads
                                             </p>
                                         </div>
                                         <div className="flex flex-col items-center">
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase">{formatValue(sales)} {sales === 1 ? 'venta' : 'ventas'}</p>
+                                            <p className="text-xs sm:text-sm text-slate-300 font-extrabold uppercase">{formatValue(sales)} {sales === 1 ? 'venta' : 'ventas'}</p>
                                             <ArrowRight className="w-4 h-4 text-slate-500" />
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Ganancia aprox.</p>
-                                            <p className="text-emerald-400 font-extrabold text-lg sm:text-xl">${formatValue(incomeValue)} USD</p>
+                                            <p className="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider mb-0.5">Ganancia aprox.</p>
+                                            <p className="text-emerald-400 font-black text-xl sm:text-2xl">${formatValue(incomeValue)} USD</p>
                                         </div>
                                     </div>
                                 );
                             })}
                         </div>
 
-                        <div className="flex items-center gap-3 p-3.5 bg-[#0B1120] border-l-4 border-amber-500/50 rounded-r-xl text-left text-xs sm:text-sm text-slate-300">
+                        <div className="flex items-center gap-3 p-4 bg-[#0B1120] border-l-4 border-amber-500/50 rounded-r-2xl text-left text-xs sm:text-sm text-slate-200 font-medium">
                             <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
                             <p>Proyecciones basadas en un cierre conservador del 5%. Muestran el potencial de escala de tu activo digital.</p>
                         </div>

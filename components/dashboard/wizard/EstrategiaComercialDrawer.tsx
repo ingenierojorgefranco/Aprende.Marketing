@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { 
   Target, X, Check, ChevronRight, Users, Sparkles, MessageSquare, 
   BookOpen, TrendingUp, Shield, Crown, Brain, Calendar, ChevronDown, 
-  CheckCircle, Globe, PenTool, FileText
+  CheckCircle, Globe, PenTool, FileText, Clapperboard, PlayCircle, ShoppingCart, Film, ArrowRight
 } from 'lucide-react';
+import { ProjectStrategy_Blueprint } from '../tools/ProjectStrategy/ProjectStrategy_Blueprint';
 
 export type CommercialOptionId = 
   | "avatar" 
@@ -87,8 +88,12 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
   strategyData,
 }) => {
   const [avatarSubTab, setAvatarSubTab] = useState<"resumen" | "demografico" | "dolores" | "deseos" | "comportamientos">("resumen");
-  const [activeAvatarIndex, setActiveAvatarIndex] = useState<number | null>(0);
+  const [activeAvatarIndex, setActiveAvatarIndex] = useState<number | null>(null);
   const [activeTestimonialIndex, setActiveTestimonialIndex] = useState<number>(-1);
+
+  useEffect(() => {
+    setActiveAvatarIndex(null);
+  }, [activeOption, isOpen]);
   const [editingTestimonialIndex, setEditingTestimonialIndex] = useState<number>(-1);
   const [editingTestimonialText, setEditingTestimonialText] = useState<string>("");
   const [isSavingTestimonial, setIsSavingTestimonial] = useState<boolean>(false);
@@ -1467,47 +1472,12 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
                       );
                     })()}
 
-                    {/* 7. EMBUDO DE CONVERSIÓN */}
-                    {activeOption === "funnel" && (() => {
-                      const comm = strategyData?.commercial || {};
-                      const funnelSteps = comm.funnel?.funnelSteps || [
-                        { stage: "Atracción Orgánica / Pauta", idea: "Anuncios y Reels hipersegmentados basados en el dolor del estancamiento financiero laboral tradicional de las esteticistas." },
-                        { stage: "Captura de Datos", idea: "Landing de registro optimizada donde el prospecto se inscribe para ver una clase práctica express de Micropigmentación." },
-                        { stage: "Nutrición con Persuasión", idea: "Secuencia automatizada de emails y recordatorios por WhatsApp calentando el escepticismo inicial y demostrando viabilidad." },
-                        { stage: "Presentación de la Oferta / Cierre", idea: "Clase definitiva de 25 minutos con simulación guiada donde se abre la inscripción exclusiva al entrenamiento máster con su precio promocional." }
-                      ];
-                      
-                      return (
-                        <div className="space-y-6 text-left">
-                          <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 shadow-lg shadow-blue-500/5">
-                              <Globe className="w-6 h-6" />
-                            </div>
-                            <div className="text-left">
-                              <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Embudo de Conversión</h2>
-                              <p className="text-white font-light text-sm sm:text-base leading-relaxed mt-1">
-                                El recorrido optimizado del usuario para calentar prospectos fríos y convertirlos en clientes calificados de forma predecible.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="space-y-4 pt-2">
-                            {funnelSteps.map((fun: any, fIdx: number) => {
-                              const stepNum = String(fIdx + 1).padStart(2, '0');
-                              return (
-                                <div key={fIdx} className="p-4 bg-white/[0.01] border border-white/[0.04] rounded-2xl flex items-start gap-4 relative">
-                                  <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-extrabold font-mono text-xs shrink-0">{stepNum}</div>
-                                  <div className="space-y-1 text-left">
-                                    <h4 className="text-sm font-bold text-white uppercase tracking-tight text-left">{fun.stage}</h4>
-                                    <p className="text-white font-light text-xs sm:text-sm leading-relaxed text-left mt-1">{fun.idea || fun.desc}</p>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    })()}
+                    {/* 7. EMBUDO DE CONVERSIÓN / MAPA DE RUTA (BLUEPRINT COMPLETO) */}
+                    {activeOption === "funnel" && (
+                      <div className="space-y-6 text-left font-sans">
+                        <ProjectStrategy_Blueprint hideHeader={true} />
+                      </div>
+                    )}
 
                     {/* 8. CTA PRINCIPAL */}
                     {activeOption === "cta" && (() => {

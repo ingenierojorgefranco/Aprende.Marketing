@@ -242,12 +242,14 @@ export const DashboardLayout = ({
         ];
     }
 
+    const SHOW_TU_SISTEMA_MENU = false; // Ocultado según instrucción. Cambiar a true para reactivar.
+
     return [
         { id: 'dashboard', label: 'Panel Principal', icon: LayoutDashboard, path: '/dashboard' },
         { id: 'projects', label: 'Mis Proyectos', icon: Briefcase, path: '/dashboard/projects' },
         { id: 'crm', label: 'Contactos', icon: Users, path: '/dashboard/crm' },
         { id: 'training', label: 'Academia', icon: GraduationCap, subItems: courseItems },
-        { id: 'sistema', label: 'Tu Sistema', icon: Layers, subItems: [
+        ...(SHOW_TU_SISTEMA_MENU ? [{ id: 'sistema', label: 'Tu Sistema', icon: Layers, subItems: [
             { label: 'Mis Proyectos', path: '/dashboard/projects', icon: Briefcase },
             { label: 'Hooks de Atracción', path: '/dashboard/hooks', icon: Zap },
             { label: 'Páginas de Captura', path: '/dashboard/pages', icon: FileText },
@@ -255,7 +257,7 @@ export const DashboardLayout = ({
             { label: 'Email Marketing', path: '/dashboard/email', icon: Mail },
             { label: 'WhatsApp Lanzamientos', path: '/dashboard/whatsapp-launch', icon: Smartphone }
           ]
-        },
+        }] : []),
         { id: 'admin', label: 'Administración', icon: Shield, adminOnly: true, subItems: [
               { label: 'Usuarios', path: '/dashboard/admin', icon: Users },
               { label: 'Panel Hotmart', path: '/dashboard/admin/hotmart', icon: ShoppingCart },

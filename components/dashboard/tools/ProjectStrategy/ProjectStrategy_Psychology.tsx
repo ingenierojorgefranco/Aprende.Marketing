@@ -50,7 +50,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
     const { id } = useParams() as { id: string };
     const [localStrategy, setLocalStrategy] = useState<ProjectMasterStrategy>(strategy || defaultStrategy);
     const [isSaving, setIsSaving] = useState(false);
-    const [activeAvatarIndex, setActiveAvatarIndex] = useState<number | null>(0);
+    const [activeAvatarIndex, setActiveAvatarIndex] = useState<number | null>(null);
 
     const getSystemAvatarsProps = (strategyData: any) => {
         const hasSavedAvatars = !!(strategyData?.avatars && strategyData.avatars.length > 0);
@@ -471,8 +471,8 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
             
             {/* 1. HEADER CARD */}
             <StepHeaderCard
-                stepNumber={6}
-                totalSteps={12}
+                stepNumber={5}
+                totalSteps={11}
                 categoryTitle="Psicología de Compra y Objeciones"
                 title="Psicología de Compra y Objeciones"
                 description="Comprar no es un acto racional, es un acto emocional que luego se justifica con lógica. Por eso, nuestra estrategia no vende características técnicas, vende la solución al dolor que no deja dormir a tu cliente."

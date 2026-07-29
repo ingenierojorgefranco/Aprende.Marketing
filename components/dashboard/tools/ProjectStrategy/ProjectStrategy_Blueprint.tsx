@@ -493,22 +493,25 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
 interface ProjectStrategy_BlueprintProps {
     handleTooltipHover?: (e: React.MouseEvent, content: string[]) => void;
     handleTooltipLeave?: () => void;
+    hideHeader?: boolean;
 }
 
-export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps> = () => {
+export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps> = ({ hideHeader }) => {
     const [selectedMasterclass, setSelectedMasterclass] = useState<any | null>(null);
 
     return (
         <div id="psd-blueprint-container" className="space-y-6 text-left animate-in fade-in duration-500">
             
             {/* 1. HEADER CARD */}
-            <StepHeaderCard
-                stepNumber={4}
-                totalSteps={12}
-                categoryTitle="Tu Mapa de Ruta (Blueprint)"
-                title="Tu Mapa de Ruta (Blueprint)"
-                description="Nuestro sistema de ventas no depende de la suerte. Nuestra estrategia está diseñada para atraer clientes interesados en tu producto digital y llevarlos paso a paso hasta que tomen la decisión de compra con confianza."
-            />
+            {!hideHeader && (
+                <StepHeaderCard
+                    stepNumber={4}
+                    totalSteps={12}
+                    categoryTitle="Tu Mapa de Ruta (Blueprint)"
+                    title="Tu Mapa de Ruta (Blueprint)"
+                    description="Nuestro sistema de ventas no depende de la suerte. Nuestra estrategia está diseñada para atraer clientes interesados en tu producto digital y llevarlos paso a paso hasta que tomen la decisión de compra con confianza."
+                />
+            )}
 
             {/* 2. VIDEO TUTORIAL */}
             <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">

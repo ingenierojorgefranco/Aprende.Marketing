@@ -12,14 +12,14 @@ interface StepHeaderCardProps {
 
 export const StepHeaderCard: React.FC<StepHeaderCardProps> = ({
   stepNumber,
-  totalSteps = 12,
+  totalSteps = 9,
   stageNumber,
   categoryTitle,
   title,
   description,
 }) => {
   // Determinar la etapa según el número de paso si no se especifica
-  const computedStage = stageNumber ?? (stepNumber <= 4 ? 1 : stepNumber <= 7 ? 2 : 3);
+  const computedStage = stageNumber ?? (stepNumber <= 4 ? 1 : 2);
 
   return (
     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl transition-all">
@@ -31,7 +31,7 @@ export const StepHeaderCard: React.FC<StepHeaderCardProps> = ({
           {title}
         </h2>
         {description && (
-          <p className="text-slate-300 text-sm sm:text-base leading-relaxed font-normal pt-1">
+          <p className="text-slate-300 text-sm sm:text-base leading-relaxed font-normal pt-1 max-w-xl sm:max-w-2xl">
             {description}
           </p>
         )}
