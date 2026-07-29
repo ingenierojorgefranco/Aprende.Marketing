@@ -472,7 +472,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
             {/* 1. HEADER CARD */}
             <StepHeaderCard
                 stepNumber={6}
-                totalSteps={13}
+                totalSteps={12}
                 categoryTitle="Psicología de Compra y Objeciones"
                 title="Psicología de Compra y Objeciones"
                 description="Comprar no es un acto racional, es un acto emocional que luego se justifica con lógica. Por eso, nuestra estrategia no vende características técnicas, vende la solución al dolor que no deja dormir a tu cliente."

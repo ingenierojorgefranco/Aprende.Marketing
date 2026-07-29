@@ -158,34 +158,32 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
 
   const stepToSectionMap: Record<number, string> = {
     1: 'summary',
-    2: 'hotlinks',
-    3: 'growth',
+    2: 'web',
+    3: 'hotlinks',
     4: 'blueprint',
     5: 'avatar',
     6: 'psychology',
     7: 'testimonials',
-    8: 'web',
-    9: 'hooks',
-    10: 'content',
-    11: 'email',
-    12: 'evergreen',
-    13: 'whatsapp'
+    8: 'hooks',
+    9: 'content',
+    10: 'email',
+    11: 'evergreen',
+    12: 'whatsapp'
   };
 
   const sectionToStepMap: Record<string, number> = {
     summary: 1,
-    hotlinks: 2,
-    growth: 3,
+    web: 2,
+    hotlinks: 3,
     blueprint: 4,
     avatar: 5,
     psychology: 6,
     testimonials: 7,
-    web: 8,
-    hooks: 9,
-    content: 10,
-    email: 11,
-    evergreen: 12,
-    whatsapp: 13
+    hooks: 8,
+    content: 9,
+    email: 10,
+    evergreen: 11,
+    whatsapp: 12
   };
 
   useEffect(() => {
@@ -211,20 +209,19 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
 
   const stepsList = [
     { id: 1, title: "1. Tu Proyecto Digital", stage: 1, stageTitle: "ETAPA 1 — Activa tu sistema" },
-    { id: 2, title: "2. Tus Enlaces de Afiliado", stage: 1 },
-    { id: 3, title: "3. Proyección de tus Ganancias", stage: 1 },
+    { id: 2, title: "2. Tu Página Web de Captura", stage: 1 },
+    { id: 3, title: "3. Tus Enlaces de Afiliado", stage: 1 },
     { id: 4, title: "4. Tu Mapa de Ruta (Blueprint)", stage: 1 },
     
     { id: 5, title: "5. Conoce a tu Comprador Ideal", stage: 2, stageTitle: "ETAPA 2 — Tu mercado y cliente" },
     { id: 6, title: "6. Entiende su Mentalidad", stage: 2 },
     { id: 7, title: "7. Los Testimonios de tu Producto", stage: 2 },
     
-    { id: 8, title: "8. Tu Página Web de Captura", stage: 3, stageTitle: "ETAPA 3 — Tu sistema de ventas" },
-    { id: 9, title: "9. Tus Ganchos de Venta (Hooks)", stage: 3 },
-    { id: 10, title: "10. Tu Estrategia de Contenidos", stage: 3 },
-    { id: 11, title: "11. Emails: Secuencia de Venta", stage: 3 },
-    { id: 12, title: "12. Emails: Secuencia de Confianza", stage: 3 },
-    { id: 13, title: "13. Scripts de WhatsApp (Cierre)", stage: 3 },
+    { id: 8, title: "8. Tus Ganchos de Venta (Hooks)", stage: 3, stageTitle: "ETAPA 3 — Tu sistema de ventas" },
+    { id: 9, title: "9. Tu Estrategia de Contenidos", stage: 3 },
+    { id: 10, title: "10. Emails: Secuencia de Venta", stage: 3 },
+    { id: 11, title: "11. Emails: Secuencia de Confianza", stage: 3 },
+    { id: 12, title: "12. Scripts de WhatsApp (Cierre)", stage: 3 },
   ];
 
   const handleStepClick = (id: number) => {
@@ -1021,17 +1018,18 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               </div>
             )}
 
-            {/* Paso 2: Configura tus enlaces de afiliado */}
+            {/* Paso 2: Tu Página Web de Captura */}
             {activeStep === 2 && (
-              <ProjectStrategy_Hotlinks projectId={projectId || searchParams.get('id') || ''} />
+              <ProjectStrategy_WebSystem 
+                projectId={projectId || searchParams.get('id') || ''} 
+                lpTabsData={strategyData?.modules?.web?.landingPageTabs} 
+                tyTabsData={strategyData?.modules?.web?.thankYouPageTabs} 
+              />
             )}
 
-            {/* Paso 3: Proyección de tus Ganancias */}
+            {/* Paso 3: Configura tus enlaces de afiliado */}
             {activeStep === 3 && (
-              <ProjectStrategy_BusinessGrowth 
-                commissionValue={Math.round(projectPrice * (projectCommission / 100))} 
-                commissionRate={projectCommission / 100} 
-              />
+              <ProjectStrategy_Hotlinks projectId={projectId || searchParams.get('id') || ''} />
             )}
 
             {/* Paso 4: Tu Mapa de Ruta (Blueprint) */}
@@ -1050,6 +1048,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                   conversionStrategy: { mainFocus: [], tacticalNote: '' } 
                 }} 
                 benefitsItems={strategyData?.modules?.web?.landingPageTabs?.benefits?.items || []}
+                strategyData={strategyData}
               />
             )}
 
@@ -1066,31 +1065,22 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               <ProjectStrategy_Testimonials strategyData={strategyData} />
             )}
 
-            {/* Paso 8: Mira tu Página de Captura */}
+            {/* Paso 8: Tus Ganchos de Venta (Hooks) */}
             {activeStep === 8 && (
-              <ProjectStrategy_WebSystem 
-                projectId={projectId || searchParams.get('id') || ''} 
-                lpTabsData={strategyData?.modules?.web?.landingPageTabs} 
-                tyTabsData={strategyData?.modules?.web?.thankYouPageTabs} 
-              />
-            )}
-
-            {/* Paso 9: Tus Ganchos de Venta (Hooks) */}
-            {activeStep === 9 && (
               <ProjectStrategy_Hooks 
                 strategyData={strategyData}
               />
             )}
 
-            {/* Paso 10: Tu Estrategia de Contenidos */}
-            {activeStep === 10 && (
+            {/* Paso 9: Tu Estrategia de Contenidos */}
+            {activeStep === 9 && (
               <ProjectStrategy_Content 
                 contentData={strategyData?.modules?.content || []}
               />
             )}
 
-            {/* Paso 11: Email Marketing */}
-            {activeStep === 11 && (
+            {/* Paso 10: Email Marketing */}
+            {activeStep === 10 && (
               <ProjectStrategy_Email 
                 projectId={projectId || searchParams.get('id') || undefined}
                 emailData={strategyData?.modules?.emails?.nurture || []}
@@ -1098,8 +1088,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 12: Secuencia de Confianza (Evergreen) */}
-            {activeStep === 12 && (
+            {/* Paso 11: Secuencia de Confianza (Evergreen) */}
+            {activeStep === 11 && (
               <ProjectStrategy_Evergreen 
                 projectId={projectId || searchParams.get('id') || ''}
                 evergreenData={strategyData?.modules?.emails?.evergreen || []}
@@ -1109,8 +1099,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 13: Scripts de WhatsApp (Cierre) */}
-            {activeStep === 13 && (
+            {/* Paso 12: Scripts de WhatsApp (Cierre) */}
+            {activeStep === 12 && (
               <ProjectStrategy_WhatsApp 
                 projectId={projectId || searchParams.get('id') || ''}
                 strategyData={strategyData}
@@ -1118,8 +1108,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Dinámico para otros pasos (Paso 14+) */}
-            {activeStep > 13 && (
+            {/* Dinámico para otros pasos (Paso 13+) */}
+            {activeStep > 12 && (
               <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-8 text-center space-y-6 shadow-xl">
                 
                 <div className="max-w-md mx-auto space-y-4">

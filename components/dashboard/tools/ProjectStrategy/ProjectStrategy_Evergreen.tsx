@@ -120,8 +120,8 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={12}
-                        totalSteps={13}
+                        stepNumber={11}
+                        totalSteps={12}
                         categoryTitle="Emails: Secuencia de Confianza"
                         title={<>Secuencia de Autoridad <span className="text-[#FF5A1F]">(Evergreen)</span></>}
                         description="Esta secuencia se construye automáticamente a partir de los artículos que generes en la sección 'Contenido'. Cada artículo se transforma en un punto de contacto para nutrir a tu audiencia."
@@ -410,8 +410,8 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={12}
-                        totalSteps={13}
+                        stepNumber={11}
+                        totalSteps={12}
                         categoryTitle="Emails: Secuencia de Confianza"
                         title={<>Tu Estrategia <span className="text-[#FF5A1F]">de Nutrición (Evergreen)</span></>}
                         description={`Tienes ${effectiveArticles.length} artículos vinculados. El sistema ha programado estos correos para enviarse a partir del Día 8, manteniendo tu oferta presente sin ser invasivo.`}

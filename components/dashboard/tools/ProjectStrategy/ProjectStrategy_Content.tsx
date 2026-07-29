@@ -645,8 +645,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={10}
-                        totalSteps={13}
+                        stepNumber={9}
+                        totalSteps={12}
                         categoryTitle="Tu Estrategia de Contenidos"
                         title={<>Contenido SEO <span className="text-[#FF5A1F]">que crearemos automáticamente</span></>}
                         description="Los activos digitales son la clave de la libertad financiera. No basta con pagar anuncios; necesitas crear una red de contenidos que trabajen por ti 24/7."

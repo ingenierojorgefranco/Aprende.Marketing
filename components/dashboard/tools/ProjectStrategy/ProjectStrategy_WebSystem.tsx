@@ -447,8 +447,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             <div id="psd-websystem-section" className="space-y-6 text-left animate-in fade-in duration-500">
                 {/* 1. HEADER CARD */}
                 <StepHeaderCard
-                    stepNumber={8}
-                    totalSteps={13}
+                    stepNumber={2}
+                    totalSteps={12}
                     categoryTitle="Mira tu Página de Captura"
                     title="Activa tu Página Web Profesional y captura clientes en automático"
                     description="Imagina que pudieses crear tu propia página web profesional que capture clientes interesados todos los días. Hoy es ese día, nuestra Inteligencia Artificial creará por ti tu propia página web personalizada (Landing Page) en minutos."

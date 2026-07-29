@@ -12,7 +12,7 @@ interface StepHeaderCardProps {
 
 export const StepHeaderCard: React.FC<StepHeaderCardProps> = ({
   stepNumber,
-  totalSteps = 13,
+  totalSteps = 12,
   stageNumber,
   categoryTitle,
   title,

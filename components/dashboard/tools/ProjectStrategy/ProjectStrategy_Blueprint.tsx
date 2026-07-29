@@ -504,7 +504,7 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
             {/* 1. HEADER CARD */}
             <StepHeaderCard
                 stepNumber={4}
-                totalSteps={13}
+                totalSteps={12}
                 categoryTitle="Tu Mapa de Ruta (Blueprint)"
                 title="Tu Mapa de Ruta (Blueprint)"
                 description="Nuestro sistema de ventas no depende de la suerte. Nuestra estrategia está diseñada para atraer clientes interesados en tu producto digital y llevarlos paso a paso hasta que tomen la decisión de compra con confianza."

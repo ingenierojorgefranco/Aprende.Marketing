@@ -135,10 +135,10 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
     return (
         <div className="space-y-6 text-left animate-in fade-in duration-500">
             
-            {/* HEADER DEL PASO 2 */}
+            {/* HEADER DEL PASO 3 */}
             <StepHeaderCard
-                stepNumber={2}
-                totalSteps={13}
+                stepNumber={3}
+                totalSteps={12}
                 categoryTitle="Configura tus enlaces de afiliado"
                 title="Configura tus enlaces de afiliado"
                 description="Configura tus enlaces ahora para que el sistema pueda automatizar tus ventas. Si no sabes cómo obtenerlos, mira el tutorial de abajo."

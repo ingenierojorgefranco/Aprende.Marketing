@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from "motion/react";
-import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight, Users, Clock, Coffee, Heart, Play, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
+import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight, Users, Clock, Coffee, Heart, Play, ChevronDown, ChevronUp, Calendar, FileText, Globe, ChevronRight } from 'lucide-react';
 import { StepHeaderCard } from '../../wizard/StepHeaderCard';
 import { StepVideoContainer } from '../../wizard/StepVideoContainer';
+import { EstrategiaComercialDrawer, CommercialOptionId } from '../../wizard/EstrategiaComercialDrawer';
 
 interface ProjectStrategy_AvatarDiagnosisProps {
     avatars: any[];
@@ -27,6 +28,7 @@ interface ProjectStrategy_AvatarDiagnosisProps {
             mainBarrier: string;
         };
     };
+    strategyData?: any;
 }
 
 const getProcessedAvatars = (rawAvatars: any[]): any[] => {
@@ -354,29 +356,10 @@ const getProcessedAvatars = (rawAvatars: any[]): any[] => {
 };
 
 export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDiagnosisProps> = ({ 
-    avatars = [], 
-    psychology = { pains: [], solutions: [], awarenessStages: { stage1_pain: '', stage2_solution: '', stage3_barrier: '' }, conversionStrategy: { mainFocus: [], tacticalNote: '' } }, 
-    benefitsItems = [] 
+    strategyData
 }) => {
-    const [activeAvatarIndex, setActiveAvatarIndex] = useState<number | null>(0);
-    const [avatarSubTab, setAvatarSubTab] = useState<'resumen' | 'demografico' | 'dolores' | 'deseos' | 'comportamiento'>('resumen');
-
-    const processedAvs = getProcessedAvatars(avatars);
-
-    const getAvatarRoleBadge = (idx: number) => {
-        const badges = [
-            { label: "Avatar Principal — Perfil de Atracción", gradient: "from-pink-600 to-rose-600" },
-            { label: "Avatar Secundario", gradient: "from-purple-600 to-indigo-600" },
-            { label: "Avatar de Apoyo", gradient: "from-blue-600 to-cyan-600" }
-        ];
-        const badge = badges[idx] || badges[0];
-
-        return (
-            <div className={`absolute top-0 left-0 bg-gradient-to-r ${badge.gradient} text-white text-[10px] font-black px-6 py-2 rounded-br-2xl uppercase tracking-[0.2em] shadow-lg flex items-center justify-center gap-2 z-20`}>
-                <Crown className="w-3 h-3" /> {badge.label}
-            </div>
-        );
-    };
+    const [isCommercialDrawerOpen, setIsCommercialDrawerOpen] = useState<boolean>(false);
+    const [selectedCommercialOption, setSelectedCommercialOption] = useState<CommercialOptionId | null>(null);
 
     return (
         <div id="psd-avatar-diagnosis-section" className="space-y-6 text-left animate-in fade-in duration-500">
@@ -384,7 +367,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             {/* 1. HEADER CARD */}
             <StepHeaderCard
                 stepNumber={5}
-                totalSteps={13}
+                totalSteps={12}
                 categoryTitle="Conoce a tu Comprador Ideal"
                 title="Conoce a tu Comprador Ideal"
                 description="El 90% de los embudos fracasan porque el mensaje es demasiado genérico. Aquí tienes los perfiles psicológicos exactos de las personas que realmente comprarán tu producto."
@@ -398,309 +381,165 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                 />
             </div>
 
-            {/* --- ESTRUCTURA AVANZADA (CON ACORDEÓN EXPANDIBLE) --- */}
-            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
-                <div className="text-left border-b border-slate-800 pb-4">
-                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-                        Análisis Detallado de tus Avatares
-                    </h3>
-                    <p className="text-slate-400 text-xs sm:text-sm pt-1">
-                        Haz clic en cualquiera de los avatares para expandir y ver su análisis psicológico y hábitos.
+            {/* SECCIÓN ESTRATEGIA COMERCIAL CARDS */}
+            <div className="mt-8 space-y-6 text-left">
+                {/* Header */}
+                <div className="space-y-2 text-left">
+                    <div className="flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-[#FF5D1E]" />
+                        <h3 className="text-xl md:text-2xl font-black text-white tracking-tight font-sans">
+                            Esto hemos generado <span className="text-[#FF5D1E]">para ti</span>
+                        </h3>
+                    </div>
+                    <p className="text-zinc-400 font-light text-xs sm:text-sm leading-relaxed font-sans">
+                        Previsualiza cada parte de tu sistema. Haz clic en cualquier tarjeta para ver el contenido completo.
                     </p>
                 </div>
 
-                    <div className="space-y-6">
-                        {processedAvs.map((av, idx) => {
-                            const isOpen = activeAvatarIndex === idx;
-
-                            return (
-                                <div 
-                                    key={av.id || idx}
-                                    className={`group relative bg-[#090e1a]/80 backdrop-blur-md rounded-[2.5rem] border transition-all duration-500 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden ${
-                                        isOpen 
-                                            ? (idx === 0 ? 'border-pink-500/40' : idx === 1 ? 'border-amber-500/30' : 'border-violet-500/30') 
-                                            : 'border-white/[0.04] hover:border-white/10'
-                                    }`}
-                                >
-                                    {/* Accordion trigger header */}
-                                    <div
-                                        onClick={() => {
-                                            setActiveAvatarIndex(isOpen ? null : idx);
-                                        }}
-                                        className="p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-5 cursor-pointer select-none"
-                                    >
-                                        <div className="flex flex-col sm:flex-row sm:items-center gap-5 text-left">
-                                            {/* Avatar Picture styled beautifully */}
-                                            <div className="relative shrink-0 flex justify-center">
-                                                <div className={`w-[84px] h-[84px] sm:w-[96px] sm:h-[96px] rounded-full border-2 p-0.5 bg-zinc-950 shadow-[0_4px_15px_rgba(0,0,0,0.4)] flex items-center justify-center overflow-hidden transition-transform duration-500 ${isOpen ? 'scale-105 border-pink-500' : 'border-zinc-800'}`}>
-                                                    <img
-                                                        src={av.img}
-                                                        alt={av.name}
-                                                        referrerPolicy="no-referrer"
-                                                        className="w-full h-full rounded-full object-cover"
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <div className="flex items-center gap-2.5 flex-wrap">
-                                                    <h3 className="text-xl sm:text-2xl font-black text-white leading-tight font-sans tracking-tight">
-                                                        {av.name}
-                                                    </h3>
-                                                    {/* Badge */}
-                                                    <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest leading-none ${av.priorityClass}`}>
-                                                        {av.priority}
-                                                    </span>
-                                                </div>
-
-                                                {/* Demographic description line with vector calendar */}
-                                                <div className="flex items-center gap-2 text-zinc-400 text-xs sm:text-[13px] font-bold flex-wrap">
-                                                    <Calendar className="w-4 h-4 text-pink-500 shrink-0" />
-                                                    <span>{av.age}</span>
-                                                    <span>•</span>
-                                                    <span>{av.occupation}</span>
-                                                    <span>•</span>
-                                                    <span>{av.income}</span>
-                                                </div>
-                                            </div>
+                {/* Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    {[
+                        {
+                            id: "avatar" as CommercialOptionId,
+                            title: "Avatares Psicológicos",
+                            badge: "PLAN DE ATRACCIÓN",
+                            badgeClass: "bg-[#FF5D1E]/10 border-[#FF5D1E]/30 text-[#FF5D1E]",
+                            desc: "Tus compradores ideales totalmente perfilados con sus dolores, deseos y motivaciones.",
+                            icon: Users,
+                            iconColor: "text-[#FF5D1E]",
+                            iconBg: "bg-[#FF5D1E]/10 border-[#FF5D1E]/20",
+                            btnClass: "bg-[#FF5D1E] hover:bg-[#ff743c] text-white"
+                        },
+                        {
+                            id: "testimonials" as CommercialOptionId,
+                            title: "Testimonios Persuasivos",
+                            badge: "PRUEBA SOCIAL",
+                            badgeClass: "bg-amber-500/10 border-amber-500/30 text-amber-400",
+                            desc: "Historias de éxito realistas y testimonios diseñados para derribar el escepticismo.",
+                            icon: Sparkles,
+                            iconColor: "text-amber-400",
+                            iconBg: "bg-amber-500/10 border-amber-500/20",
+                            btnClass: "bg-amber-500 hover:bg-amber-400 text-black font-extrabold"
+                        },
+                        {
+                            id: "objections" as CommercialOptionId,
+                            title: "Frustraciones del Avatar",
+                            badge: "BARRERAS Y OBJETIVOS",
+                            badgeClass: "bg-blue-500/10 border-blue-500/30 text-blue-400",
+                            desc: "Análisis de las barreras de compra más comunes y cómo resolverlas eficazmente.",
+                            icon: MessageSquare,
+                            iconColor: "text-blue-400",
+                            iconBg: "bg-blue-500/10 border-blue-500/20",
+                            btnClass: "bg-blue-600 hover:bg-blue-500 text-white"
+                        },
+                        {
+                            id: "benefits" as CommercialOptionId,
+                            title: "Beneficios Magnéticos",
+                            badge: "TRANSFORMACIÓN",
+                            badgeClass: "bg-purple-500/10 border-purple-500/30 text-purple-400",
+                            desc: "Los ganchos de transformación que conectan las características con las emociones.",
+                            icon: Zap,
+                            iconColor: "text-purple-400",
+                            iconBg: "bg-purple-500/10 border-purple-500/20",
+                            btnClass: "bg-purple-600 hover:bg-purple-500 text-white"
+                        },
+                        {
+                            id: "proposition" as CommercialOptionId,
+                            title: "Propuesta de Valor",
+                            badge: "POSICIONAMIENTO",
+                            badgeClass: "bg-[#FF5D1E]/10 border-[#FF5D1E]/30 text-[#FF5D1E]",
+                            desc: "La declaración central que resume por qué tu cliente ideal debe elegirte.",
+                            icon: Target,
+                            iconColor: "text-[#FF5D1E]",
+                            iconBg: "bg-[#FF5D1E]/10 border-[#FF5D1E]/20",
+                            btnClass: "bg-[#FF5D1E] hover:bg-[#ff743c] text-white"
+                        },
+                        {
+                            id: "offer" as CommercialOptionId,
+                            title: "Oferta Principal",
+                            badge: "ESTRUCTURA DE OFERTA",
+                            badgeClass: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
+                            desc: "La estructura irresistible de tu producto o servicio con bonos y garantías.",
+                            icon: FileText,
+                            iconColor: "text-emerald-400",
+                            iconBg: "bg-emerald-500/10 border-emerald-500/20",
+                            btnClass: "bg-emerald-600 hover:bg-emerald-500 text-white"
+                        },
+                        {
+                            id: "funnel" as CommercialOptionId,
+                            title: "Embudo de Conversión",
+                            badge: "MAPA DEL VIAJE",
+                            badgeClass: "bg-teal-500/10 border-teal-500/30 text-teal-400",
+                            desc: "El mapa paso a paso del viaje de tu cliente desde el descubrimiento hasta el cierre.",
+                            icon: Globe,
+                            iconColor: "text-teal-400",
+                            iconBg: "bg-teal-500/10 border-teal-500/20",
+                            btnClass: "bg-teal-600 hover:bg-teal-500 text-white"
+                        },
+                        {
+                            id: "cta" as CommercialOptionId,
+                            title: "CTA Principal",
+                            badge: "LLAMADOS A LA ACCIÓN",
+                            badgeClass: "bg-rose-500/10 border-rose-500/30 text-rose-400",
+                            desc: "Llamados a la acción directos y persuasivos diseñados para maximizar la conversión.",
+                            icon: Crown,
+                            iconColor: "text-rose-400",
+                            iconBg: "bg-rose-500/10 border-rose-500/20",
+                            btnClass: "bg-rose-600 hover:bg-rose-500 text-white"
+                        }
+                    ].map((card) => {
+                        const CardIcon = card.icon;
+                        return (
+                            <div
+                                key={card.id}
+                                onClick={() => {
+                                    setSelectedCommercialOption(card.id);
+                                    setIsCommercialDrawerOpen(true);
+                                }}
+                                className="bg-[#0b0b10] border border-white/[0.06] hover:border-[#FF5D1E]/40 rounded-3xl p-5 flex flex-col justify-between space-y-4 cursor-pointer transition-all duration-300 hover:shadow-[0_10px_30px_rgba(255,93,30,0.1)] hover:-translate-y-1 group text-left"
+                            >
+                                <div className="space-y-3.5">
+                                    {/* Top Row: Icon + Badge */}
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div className={`w-10 h-10 rounded-2xl border flex items-center justify-center shrink-0 ${card.iconBg}`}>
+                                            <CardIcon className={`w-5 h-5 ${card.iconColor}`} />
                                         </div>
-
-                                        {/* Chevron status */}
-                                        <div className="flex justify-end items-center md:pl-4">
-                                            <div className="w-8 h-8 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
-                                                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
-                                            </div>
-                                        </div>
+                                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border leading-none ${card.badgeClass}`}>
+                                            {card.badge}
+                                        </span>
                                     </div>
 
-                                    {/* Accordion body panels */}
-                                    <AnimatePresence initial={false}>
-                                        {isOpen && (
-                                            <motion.div
-                                                key="content-panel"
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: "auto", opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                transition={{ duration: 0.25, ease: "easeInOut" }}
-                                                className="border-t border-white/[0.04]"
-                                            >
-                                                <div className="p-6 md:p-10 space-y-8 bg-gradient-to-b from-[#0a0f1d] to-[#04060b]">
-                                                    {/* Multitabs Navigation Header */}
-                                                    <div className="flex items-center gap-1 border-b border-white/[0.04] overflow-x-auto overflow-y-hidden pb-1 px-1 mt-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                                                        {[
-                                                            { id: "resumen", label: "Resumen" },
-                                                            { id: "demografico", label: "Perfil Demográfico" },
-                                                            { id: "dolores", label: "Dolores y Miedos" },
-                                                            { id: "deseos", label: "Deseos y Motivaciones" },
-                                                            { id: "comportamiento", label: "Comportamientos" },
-                                                        ].map((tab) => (
-                                                            <button
-                                                                key={tab.id}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setAvatarSubTab(tab.id as any);
-                                                                }}
-                                                                className={`px-3 sm:px-5 py-2.5 text-[11px] sm:text-[13px] font-bold uppercase transition-all duration-300 relative whitespace-nowrap shrink-0 border-b-2 -mb-[5px] ${
-                                                                    avatarSubTab === tab.id
-                                                                        ? "text-pink-500 border-pink-500"
-                                                                        : "text-zinc-500 border-transparent hover:text-zinc-300"
-                                                                }`}
-                                                            >
-                                                                {tab.label}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-
-                                                    {/* TAB RESUMEN (IMAGEN 2 CARDS) */}
-                                                    {avatarSubTab === "resumen" && (
-                                                        <div className="space-y-8">
-                                                            {/* 2-by-2 visual cards matching layout of psychology avatars */}
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                                                {/* Dolor Crítico */}
-                                                                <div className="p-5 bg-red-500/[0.02] border border-red-500/10 rounded-2xl flex flex-col gap-3.5 hover:border-red-500/20 transition-all duration-300 shadow-lg shadow-black/20 text-left">
-                                                                    <div>
-                                                                        <span className="px-2 py-0.5 rounded bg-red-500/10 text-red-400 text-[10px] font-black uppercase tracking-wide border border-red-500/20">Dolor Crítico</span>
-                                                                    </div>
-                                                                    <p className="text-zinc-300 text-xs sm:text-sm font-semibold leading-relaxed">
-                                                                        {av.dolores_principales?.[0] || "(no definido)"}
-                                                                    </p>
-                                                                </div>
-
-                                                                {/* Transformación Deseada */}
-                                                                <div className="p-5 bg-[#10b981]/[0.02] border border-[#10b981]/10 rounded-2xl flex flex-col gap-3.5 hover:border-[#10b981]/20 transition-all duration-300 shadow-lg shadow-black/20 text-left">
-                                                                    <div>
-                                                                        <span className="px-2 py-0.5 rounded bg-[#10b981]/10 text-[#34d399] text-[10px] font-black uppercase tracking-wide border border-[#10b981]/20">Transformación Deseada</span>
-                                                                    </div>
-                                                                    <p className="text-zinc-300 text-xs sm:text-sm font-semibold leading-relaxed">
-                                                                        {av.deseos_principales?.[0] || "(no definido)"}
-                                                                    </p>
-                                                                </div>
-
-                                                                {/* Barrera de Venta */}
-                                                                <div className="p-5 bg-amber-500/[0.02] border border-amber-500/10 rounded-2xl flex flex-col gap-3.5 hover:border-amber-500/25 transition-all duration-300 shadow-lg shadow-black/20 text-left">
-                                                                    <div>
-                                                                        <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] font-black uppercase tracking-wide border border-amber-500/20">Barrera de Venta</span>
-                                                                    </div>
-                                                                    <p className="text-zinc-300 text-xs sm:text-sm font-semibold leading-relaxed">
-                                                                        {av.dolores_principales?.[1] || av.objection || "(no definido)"}
-                                                                    </p>
-                                                                </div>
-
-                                                                {/* Para qué Emocional */}
-                                                                <div className="p-5 bg-pink-500/[0.02] border border-pink-500/10 rounded-2xl flex flex-col gap-3.5 hover:border-pink-500/20 transition-all duration-300 shadow-lg shadow-black/20 text-left">
-                                                                    <div>
-                                                                        <span className="px-2 py-0.5 rounded bg-pink-500/10 text-pink-400 text-[10px] font-black uppercase tracking-wide border border-pink-500/20">Para qué Emocional</span>
-                                                                    </div>
-                                                                    <p className="text-zinc-300 text-xs sm:text-sm font-semibold leading-relaxed">
-                                                                        {av.deseos_principales?.[1] || av.emotional_reason || "(no definido)"}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Decision Drivers with Stars */}
-                                                            <div className="pt-6 border-t border-white/[0.04] text-left">
-                                                                <p className="text-[#FFBF00] text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
-                                                                    <span className="text-[#FFBF00]">⚡</span> Drilvers De Decisión
-                                                                </p>
-                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                    {Object.entries(av.motivations || {}).map(([key, value]: any) => {
-                                                                        const isStringValue = typeof value === 'string';
-                                                                        if (!isStringValue) return null;
-                                                                        return (
-                                                                            <div key={key} className="flex items-start gap-3.5 p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-yellow-500/10 transition-all shadow-md">
-                                                                                <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center shrink-0 border border-yellow-500/20 mt-0.5 animate-pulse">
-                                                                                    <span className="text-[#FFBF00] font-bold text-sm">✦</span>
-                                                                                </div>
-                                                                                <div className="space-y-0.5">
-                                                                                    <p className="text-[10px] text-[#FFBF00] font-black uppercase tracking-widest">{key.toUpperCase()}</p>
-                                                                                    <p className="text-zinc-200 text-xs sm:text-sm leading-relaxed font-normal text-left">{value}</p>
-                                                                                </div>
-                                                                            </div>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Quote / Hook Callout box */}
-                                                            <div className="space-y-3 pt-6 border-t border-white/[0.04] text-left">
-                                                                <span className="text-xs font-black uppercase text-[#FFBF00] tracking-widest block font-sans">
-                                                                    Mensaje que Más Conecta con Este Avatar
-                                                                </span>
-                                                                <div className="p-6 bg-white/[0.01] border border-white/[0.04] rounded-2xl relative overflow-hidden">
-                                                                    <span className="absolute top-1 left-2.5 text-5xl font-serif text-[#FFBF00]/15 select-none font-black">“</span>
-                                                                    <p className="text-sm md:text-base text-zinc-200 leading-relaxed font-semibold italic pl-4 text-left">
-                                                                        {av.quote}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {/* TAB DE DEMOGRAFÍA */}
-                                                    {avatarSubTab === "demografico" && (
-                                                        <div className="space-y-5 text-left">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
-                                                                <p className="text-zinc-400 text-xs sm:text-sm font-semibold leading-relaxed">
-                                                                    Perfil demográfico y tecnológico detallado de {av.name}
-                                                                </p>
-                                                            </div>
-                                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                                                {av.demographics.map((item: any, dIdx: number) => (
-                                                                    <div key={dIdx} className="p-4 bg-white/[0.01] border border-white/[0.04] rounded-xl flex flex-col gap-1 justify-between hover:border-white/10 transition-colors">
-                                                                        <span className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-wider">{item.label}</span>
-                                                                        <span className="text-xs sm:text-sm font-bold text-white mt-1 leading-snug">{item.val}</span>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {/* TAB DE DOLORES Y MIEDOS */}
-                                                    {avatarSubTab === "dolores" && (
-                                                        <div className="space-y-5 text-left">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                                                                <p className="text-zinc-400 text-xs sm:text-sm font-semibold leading-relaxed">
-                                                                    Miedos latentes y barreras que frenan su decisión de compra
-                                                                </p>
-                                                            </div>
-                                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-                                                                {av.dolores_ocultos.map((item: any, dIdx: number) => (
-                                                                    <div key={dIdx} className="p-5 bg-rose-500/[0.02] border border-rose-500/10 rounded-2xl flex flex-col gap-3.5 hover:border-rose-500/25 hover:bg-rose-500/[0.04] transition-all duration-300 shadow-lg shadow-black/20 text-left group">
-                                                                        <div className="flex items-center gap-2">
-                                                                            <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0 group-hover:scale-125 transition-transform duration-300" />
-                                                                            <h4 className="text-xs sm:text-sm font-extrabold text-rose-400 leading-snug uppercase tracking-wider">{item.title}</h4>
-                                                                        </div>
-                                                                        <p className="text-xs sm:text-[13px] text-zinc-300 font-semibold leading-relaxed mt-1">{item.text}</p>
-                                                                    </div>
-                                                                ))}
-                                                                {av.dolores_ocultos.length === 0 && (
-                                                                    <p className="text-zinc-500 text-xs italic">Actualmente no hay dolores o miedos específicos cargados.</p>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {/* TAB DE DESEOS Y MOTIVACIONES */}
-                                                    {avatarSubTab === "deseos" && (
-                                                        <div className="space-y-5 text-left">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                                                <p className="text-zinc-400 text-xs sm:text-sm font-semibold leading-relaxed">
-                                                                    Aspiraciones profundas y disparadores de decisión validados
-                                                                </p>
-                                                            </div>
-                                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-                                                                {av.deseos_motivaciones.map((item: any, dIdx: number) => (
-                                                                    <div key={dIdx} className="p-5 bg-emerald-500/[0.02] border border-emerald-500/10 rounded-2xl flex flex-col gap-3.5 hover:border-emerald-500/25 hover:bg-emerald-500/[0.04] transition-all duration-300 shadow-lg shadow-black/20 text-left group">
-                                                                        <div className="flex items-center gap-2">
-                                                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 group-hover:scale-125 transition-transform duration-300" />
-                                                                            <h4 className="text-xs sm:text-sm font-extrabold text-emerald-400 leading-snug uppercase tracking-wider">{item.title}</h4>
-                                                                        </div>
-                                                                        <p className="text-xs sm:text-[13px] text-zinc-300 font-semibold leading-relaxed mt-1">{item.text}</p>
-                                                                    </div>
-                                                                ))}
-                                                                {av.deseos_motivaciones.length === 0 && (
-                                                                    <p className="text-zinc-500 text-xs italic">Actualmente no hay deseos cargados en esta de sección.</p>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {/* TAB DE COMPORTAMIENTOS */}
-                                                    {avatarSubTab === "comportamiento" && (
-                                                        <div className="space-y-4 text-left">
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                                <span className="w-1.5 h-1.5 rounded-full bg-[#FFBB00]"></span>
-                                                                <p className="text-zinc-400 text-xs sm:text-sm font-semibold leading-relaxed">
-                                                                    Hábitos de consumo diario y canales donde captar su atención
-                                                                </p>
-                                                            </div>
-                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                                                                {av.comportamientos.map((item: string, dIdx: number) => (
-                                                                    <div key={dIdx} className="p-4 bg-white/[0.01] border border-white/[0.04] rounded-xl flex gap-3 text-xs sm:text-[13px] text-zinc-400 hover:text-zinc-200 transition-colors font-medium font-sans leading-relaxed items-start animate-fade-in">
-                                                                        <span className="text-pink-500 font-extrabold shrink-0">✓</span>
-                                                                        <span>{item}</span>
-                                                                    </div>
-                                                                ))}
-                                                                {av.comportamientos.length === 0 && (
-                                                                    <p className="text-zinc-500 text-xs italic">Actualmente no hay hábitos cargados en esta sección.</p>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
+                                    {/* Title & Desc */}
+                                    <div className="space-y-1.5 text-left">
+                                        <h4 className="text-base font-black text-white group-hover:text-[#FF5D1E] transition-colors leading-tight font-sans">
+                                            {card.title}
+                                        </h4>
+                                        <p className="text-zinc-400 font-light text-xs leading-relaxed line-clamp-3 font-sans">
+                                            {card.desc}
+                                        </p>
+                                    </div>
                                 </div>
-                            );
-                        })}
-                    </div>
-                </div>
 
+                                {/* Bottom Footer */}
+                                <div className="pt-3 border-t border-white/[0.04] flex items-center justify-end">
+                                    <button className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm cursor-pointer ${card.btnClass}`}>
+                                        Ver Detalles <ChevronRight className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* DRAWER SLIDE-OVER */}
+            <EstrategiaComercialDrawer
+                isOpen={isCommercialDrawerOpen}
+                onClose={() => setIsCommercialDrawerOpen(false)}
+                activeOption={selectedCommercialOption}
+                setActiveOption={setSelectedCommercialOption}
+                strategyData={strategyData}
+            />
         </div>
     );
 };
