@@ -513,15 +513,7 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                 />
             )}
 
-            {/* 2. VIDEO TUTORIAL */}
-            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
-                <StepVideoContainer 
-                    videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
-                    title="Video Tutorial Blueprint"
-                />
-            </div>
-            
-            {/* 3. RECORRIDO Y CARDS INTERACTIVAS */}
+            {/* 2. RECORRIDO Y CARDS INTERACTIVAS */}
             <div id="psd-blueprint-grid-wrapper" className="w-full border border-slate-800 rounded-2xl relative overflow-hidden shadow-xl bg-[#0B1120] p-4 sm:p-8">
                 {/* Enhanced Animated Grid Background */}
                 <div className="absolute inset-0 z-0">

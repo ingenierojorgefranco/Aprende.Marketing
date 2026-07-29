@@ -404,89 +404,57 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                             id: "avatar" as CommercialOptionId,
                             title: "Avatares Psicológicos",
                             badge: "PLAN DE ATRACCIÓN",
-                            badgeClass: "bg-[#FF5D1E]/10 border-[#FF5D1E]/30 text-[#FF5D1E]",
                             desc: "Tus compradores ideales totalmente perfilados con sus dolores, deseos y motivaciones.",
                             icon: Users,
-                            iconColor: "text-[#FF5D1E]",
-                            iconBg: "bg-[#FF5D1E]/10 border-[#FF5D1E]/20",
-                            btnClass: "bg-[#FF5D1E] hover:bg-[#ff743c] text-white"
-                        },
-                        {
-                            id: "testimonials" as CommercialOptionId,
-                            title: "Testimonios Persuasivos",
-                            badge: "PRUEBA SOCIAL",
-                            badgeClass: "bg-amber-500/10 border-amber-500/30 text-amber-400",
-                            desc: "Historias de éxito realistas y testimonios diseñados para derribar el escepticismo.",
-                            icon: Sparkles,
-                            iconColor: "text-amber-400",
-                            iconBg: "bg-amber-500/10 border-amber-500/20",
-                            btnClass: "bg-amber-500 hover:bg-amber-400 text-black font-extrabold"
-                        },
-                        {
-                            id: "objections" as CommercialOptionId,
-                            title: "Frustraciones del Avatar",
-                            badge: "BARRERAS Y OBJETIVOS",
-                            badgeClass: "bg-blue-500/10 border-blue-500/30 text-blue-400",
-                            desc: "Análisis de las barreras de compra más comunes y cómo resolverlas eficazmente.",
-                            icon: MessageSquare,
-                            iconColor: "text-blue-400",
-                            iconBg: "bg-blue-500/10 border-blue-500/20",
-                            btnClass: "bg-blue-600 hover:bg-blue-500 text-white"
-                        },
-                        {
-                            id: "benefits" as CommercialOptionId,
-                            title: "Beneficios Magnéticos",
-                            badge: "TRANSFORMACIÓN",
-                            badgeClass: "bg-purple-500/10 border-purple-500/30 text-purple-400",
-                            desc: "Los ganchos de transformación que conectan las características con las emociones.",
-                            icon: Zap,
-                            iconColor: "text-purple-400",
-                            iconBg: "bg-purple-500/10 border-purple-500/20",
-                            btnClass: "bg-purple-600 hover:bg-purple-500 text-white"
-                        },
-                        {
-                            id: "proposition" as CommercialOptionId,
-                            title: "Propuesta de Valor",
-                            badge: "POSICIONAMIENTO",
-                            badgeClass: "bg-[#FF5D1E]/10 border-[#FF5D1E]/30 text-[#FF5D1E]",
-                            desc: "La declaración central que resume por qué tu cliente ideal debe elegirte.",
-                            icon: Target,
-                            iconColor: "text-[#FF5D1E]",
-                            iconBg: "bg-[#FF5D1E]/10 border-[#FF5D1E]/20",
-                            btnClass: "bg-[#FF5D1E] hover:bg-[#ff743c] text-white"
-                        },
-                        {
-                            id: "offer" as CommercialOptionId,
-                            title: "Oferta Principal",
-                            badge: "ESTRUCTURA DE OFERTA",
-                            badgeClass: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
-                            desc: "La estructura irresistible de tu producto o servicio con bonos y garantías.",
-                            icon: FileText,
-                            iconColor: "text-emerald-400",
-                            iconBg: "bg-emerald-500/10 border-emerald-500/20",
-                            btnClass: "bg-emerald-600 hover:bg-emerald-500 text-white"
                         },
                         {
                             id: "funnel" as CommercialOptionId,
                             title: "Embudo de Conversión",
                             badge: "MAPA DEL VIAJE",
-                            badgeClass: "bg-teal-500/10 border-teal-500/30 text-teal-400",
                             desc: "El mapa paso a paso del viaje de tu cliente desde el descubrimiento hasta el cierre.",
                             icon: Globe,
-                            iconColor: "text-teal-400",
-                            iconBg: "bg-teal-500/10 border-teal-500/20",
-                            btnClass: "bg-teal-600 hover:bg-teal-500 text-white"
+                        },
+                        {
+                            id: "testimonials" as CommercialOptionId,
+                            title: "Testimonios Persuasivos",
+                            badge: "PRUEBA SOCIAL",
+                            desc: "Historias de éxito realistas y testimonios diseñados para derribar el escepticismo.",
+                            icon: Sparkles,
+                        },
+                        {
+                            id: "objections" as CommercialOptionId,
+                            title: "Frustraciones del Avatar",
+                            badge: "BARRERAS Y OBJETIVOS",
+                            desc: "Análisis de las barreras de compra más comunes y cómo resolverlas eficazmente.",
+                            icon: MessageSquare,
+                        },
+                        {
+                            id: "benefits" as CommercialOptionId,
+                            title: "Beneficios Magnéticos",
+                            badge: "TRANSFORMACIÓN",
+                            desc: "Los ganchos de transformación que conectan las características con las emociones.",
+                            icon: Zap,
+                        },
+                        {
+                            id: "proposition" as CommercialOptionId,
+                            title: "Propuesta de Valor",
+                            badge: "POSICIONAMIENTO",
+                            desc: "La declaración central que resume por qué tu cliente ideal debe elegirte.",
+                            icon: Target,
+                        },
+                        {
+                            id: "offer" as CommercialOptionId,
+                            title: "Oferta Principal",
+                            badge: "ESTRUCTURA DE OFERTA",
+                            desc: "La estructura irresistible de tu producto o servicio con bonos y garantías.",
+                            icon: FileText,
                         },
                         {
                             id: "cta" as CommercialOptionId,
                             title: "CTA Principal",
                             badge: "LLAMADOS A LA ACCIÓN",
-                            badgeClass: "bg-rose-500/10 border-rose-500/30 text-rose-400",
                             desc: "Llamados a la acción directos y persuasivos diseñados para maximizar la conversión.",
                             icon: Crown,
-                            iconColor: "text-rose-400",
-                            iconBg: "bg-rose-500/10 border-rose-500/20",
-                            btnClass: "bg-rose-600 hover:bg-rose-500 text-white"
                         }
                     ].map((card) => {
                         const CardIcon = card.icon;
@@ -497,33 +465,33 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                     setSelectedCommercialOption(card.id);
                                     setIsCommercialDrawerOpen(true);
                                 }}
-                                className="bg-[#0b0b10] border border-white/[0.06] hover:border-[#FF5D1E]/40 rounded-3xl p-6 flex flex-col justify-between space-y-5 cursor-pointer transition-all duration-300 hover:shadow-[0_10px_30px_rgba(255,93,30,0.1)] hover:-translate-y-1 group text-left"
+                                className="bg-[#0B1120] border border-slate-800 hover:border-[#FF5D1E]/50 rounded-2xl p-6 flex flex-col justify-between space-y-5 cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-[#FF5D1E]/10 hover:-translate-y-0.5 group text-left"
                             >
                                 <div className="space-y-4">
                                     {/* Top Row: Icon + Badge */}
                                     <div className="flex items-center justify-between gap-2">
-                                        <div className={`w-11 h-11 rounded-2xl border flex items-center justify-center shrink-0 ${card.iconBg}`}>
-                                            <CardIcon className={`w-5 h-5 ${card.iconColor}`} />
+                                        <div className="w-11 h-11 rounded-xl bg-[#FF5D1E]/10 border border-[#FF5D1E]/20 text-[#FF5D1E] flex items-center justify-center shrink-0">
+                                            <CardIcon className="w-5 h-5 text-[#FF5D1E]" />
                                         </div>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border leading-none ${card.badgeClass}`}>
+                                        <span className="px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-[#FF5D1E]/10 border border-[#FF5D1E]/25 text-[#FF5D1E] leading-none">
                                             {card.badge}
                                         </span>
                                     </div>
 
                                     {/* Title & Desc */}
                                     <div className="space-y-2 text-left">
-                                        <h4 className="text-lg font-black text-white group-hover:text-[#FF5D1E] transition-colors leading-tight font-sans">
+                                        <h4 className="text-lg sm:text-xl font-extrabold text-white group-hover:text-[#FF5D1E] transition-colors leading-snug font-sans">
                                             {card.title}
                                         </h4>
-                                        <p className="text-zinc-400 font-normal text-sm leading-relaxed font-sans">
+                                        <p className="text-slate-300 font-normal text-xs sm:text-sm leading-relaxed font-sans">
                                             {card.desc}
                                         </p>
                                     </div>
                                 </div>
 
                                 {/* Bottom Footer */}
-                                <div className="pt-4 border-t border-white/[0.04] flex items-center justify-end">
-                                    <button className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer ${card.btnClass}`}>
+                                <div className="pt-4 border-t border-slate-800/80 flex items-center justify-end">
+                                    <button className="px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 shadow-md shadow-[#FF5D1E]/15 cursor-pointer uppercase bg-[#FF5D1E] hover:bg-[#e04e17] text-white">
                                         Ver Detalles <ChevronRight className="w-4 h-4" />
                                     </button>
                                 </div>

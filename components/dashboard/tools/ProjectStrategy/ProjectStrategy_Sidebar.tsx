@@ -100,25 +100,28 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                             </button>
                             
                             {isOpen && (
-                                <div className="bg-black/20 py-2 sm:py-2.5 px-1 space-y-1">
+                                <div className="bg-black/20 p-2 space-y-1.5">
                                     {group.items.map((item) => {
                                         const isActive = activeSection === item.id;
                                         return (
                                             <button
                                                 key={item.id}
                                                 onClick={() => onSectionChange && onSectionChange(item.id)}
-                                                className={`relative w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border text-left group ${
+                                                className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 text-left border group cursor-pointer ${
                                                     isActive 
-                                                    ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-semibold shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]' 
-                                                    : 'border-transparent text-[#B0B0B0] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-medium hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
+                                                    ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-semibold shadow-lg shadow-[#FF5A1F]/20' 
+                                                    : 'border-transparent text-[#B0B0B0] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-medium'
                                                 }`}
                                             >
-                                                <item.icon className={`w-5 h-5 shrink-0 relative z-10 ${isActive ? 'text-white' : 'text-[#B0B0B0] group-hover:text-white'}`} />
+                                                {/* Icono Lección */}
+                                                <item.icon className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-[#B0B0B0] group-hover:text-white'}`} />
 
                                                 {/* Titulo del Menu */}
-                                                <span className={`text-[14.5px] tracking-tight relative z-10 leading-snug ${isActive ? 'text-white font-semibold' : 'text-[#B0B0B0] font-medium group-hover:text-white'}`}>
-                                                    {item.label}
-                                                </span>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className={`text-[14.5px] tracking-tight leading-tight ${isActive ? 'text-white font-semibold' : 'text-[#B0B0B0] font-medium group-hover:text-white'}`}>
+                                                        {item.label}
+                                                    </p>
+                                                </div>
                                             </button>
                                         );
                                     })}

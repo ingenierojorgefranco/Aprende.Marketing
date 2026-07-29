@@ -127,12 +127,12 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
 
   const optionsList: { id: CommercialOptionId; title: string; desc: string }[] = [
     { id: "avatar", title: "Avatares Psicológicos", desc: "Tus compradores ideales totalmente perfilados con sus dolores, deseos y motivaciones." },
+    { id: "funnel", title: "Embudo de Conversión", desc: "El mapa paso a paso del viaje de tu cliente desde el descubrimiento hasta el cierre." },
     { id: "testimonials", title: "Testimonios Persuasivos", desc: "Historias de éxito realistas y testimonios diseñados para derribar el escepticismo." },
     { id: "objections", title: "Frustraciones del Avatar", desc: "Análisis de las barreras de compra más comunes y cómo resolverlas eficazmente." },
     { id: "benefits", title: "Beneficios Magnéticos", desc: "Los ganchos de transformación que conectan las características con las emociones." },
     { id: "proposition", title: "Propuesta de Valor", desc: "La declaración central que resume por qué tu cliente ideal debe elegirte." },
     { id: "offer", title: "Oferta Principal", desc: "La estructura irresistible de tu producto o servicio con bonos y garantías." },
-    { id: "funnel", title: "Embudo de Conversión", desc: "El mapa paso a paso del viaje de tu cliente desde el descubrimiento hasta el cierre." },
     { id: "cta", title: "CTA Principal", desc: "Llamados a la acción directos y persuasivos diseñados para maximizar la conversión." },
   ];
 

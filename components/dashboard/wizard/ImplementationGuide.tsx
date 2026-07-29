@@ -296,6 +296,14 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
             </div>
             
             {/* 1. Header del paso (Solo para pasos diferentes a los Pasos 2 a 9 ya que tienen su propio header) */}
+            {activeStep === 1 && (
+              <div className="text-left mb-1">
+                <span className="inline-flex bg-[#102A1E] text-[#10B981] border border-[#10B981]/20 px-3.5 py-1.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider items-center gap-2 shrink-0 shadow-sm">
+                  <span className="w-2 h-2 bg-[#10B981] rounded-full animate-pulse"></span>
+                  TU PÁGINA ESTÁ PUBLICADA Y TUS TRES REELS ESTÁN LISTOS PARA COMENZAR A ATRAER VISITAS.
+                </span>
+              </div>
+            )}
             {activeStep !== 2 && activeStep !== 3 && activeStep !== 4 && activeStep !== 5 && activeStep !== 6 && activeStep !== 7 && activeStep !== 8 && activeStep !== 9 && (
               <StepHeaderCard 
                 stepNumber={activeStep}
@@ -319,17 +327,11 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                   />
                 </div>
 
-                {/* Bloque con el nombre del proyecto (Fondo gris oscuro, sin bordes claros) */}
-                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-3 text-left shadow-xl">
-                  <div>
-                    <span className="inline-flex bg-[#102A1E] text-[#10B981] border border-[#10B981]/20 px-3.5 py-1.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider items-center gap-2 shrink-0 shadow-sm mb-3">
-                      <span className="w-2 h-2 bg-[#10B981] rounded-full animate-pulse"></span>
-                      TU PÁGINA ESTÁ PUBLICADA Y TUS TRES REELS ESTÁN LISTOS PARA COMENZAR A ATRAER VISITAS.
-                    </span>
-                    <h1 className="text-white font-extrabold text-2xl sm:text-3xl md:text-4xl leading-tight tracking-tight">
-                      {projectName || strategyData?.meta?.projectName || strategyData?.meta?.insights?.overview?.items?.[0]?.value || "Masterclass Microblading Pro"}
-                    </h1>
-                  </div>
+                {/* Bloque con el nombre del proyecto (Transparente, sin fondo ni bordes) */}
+                <div className="py-2 text-left space-y-1">
+                  <h1 className="text-white font-extrabold text-2xl sm:text-3xl md:text-4xl leading-tight tracking-tight">
+                    {projectName || strategyData?.meta?.projectName || strategyData?.meta?.insights?.overview?.items?.[0]?.value || "Masterclass Microblading Pro"}
+                  </h1>
                   <p className="text-slate-400 text-xs sm:text-sm md:text-base font-semibold tracking-wide">
                     Digital · Producto activo · Publicado el 22 de junio de 2026
                   </p>
@@ -388,83 +390,43 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                   <div className="w-full">
                     <div className="divide-y divide-slate-800 text-sm sm:text-base">
                       
-                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-left">
-                        <span className="text-slate-400 font-medium flex items-center gap-2 select-none">
-                          <BookOpen className="w-4.5 h-4.5 text-slate-400 shrink-0" />
-                          <span>Producto que vas a vender:</span>
-                        </span>
-                        <span className="font-extrabold text-white truncate sm:max-w-md">
-                          {projectName || strategyData?.meta?.projectName || strategyData?.meta?.insights?.overview?.items?.[0]?.value || "Curso de Microblading Profesional"}
-                        </span>
-                      </div>
-
-                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-left">
-                        <span className="text-slate-400 font-medium flex items-center gap-2 select-none">
+                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-left">
+                        <span className="text-slate-300 font-normal text-sm sm:text-base flex items-center gap-2 select-none">
                           <Compass className="w-4.5 h-4.5 text-slate-400 shrink-0" />
                           <span>Sector:</span>
                         </span>
-                        <span className="font-extrabold text-[#FF5A1F] uppercase tracking-wider text-xs sm:text-sm">
+                        <span className="font-medium text-white text-sm sm:text-base sm:text-right">
                           {projectNiche || strategyData?.meta?.niche || strategyData?.meta?.insights?.overview?.items?.[1]?.value || "Belleza y Estética"}
                         </span>
                       </div>
 
-                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-left">
-                        <span className="text-slate-400 font-medium flex items-center gap-2 select-none">
+                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-left">
+                        <span className="text-slate-300 font-normal text-sm sm:text-base flex items-center gap-2 select-none">
                           <Target className="w-4.5 h-4.5 text-slate-400 shrink-0" />
                           <span>Objetivo principal:</span>
                         </span>
-                        <span className="font-semibold text-white text-sm sm:text-right leading-relaxed sm:max-w-md">
+                        <span className="font-medium text-white text-sm sm:text-base sm:text-right leading-relaxed sm:max-w-md">
                           {strategyData?.meta?.summary?.primaryObjective || strategyData?.meta?.insights?.overview?.items?.[4]?.value || "Generar leads cualificados y convertirlos en ventas"}
                         </span>
                       </div>
 
-                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-left">
-                        <span className="text-slate-400 font-medium flex items-center gap-2 select-none">
+                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-left">
+                        <span className="text-slate-300 font-normal text-sm sm:text-base flex items-center gap-2 select-none">
                           <Users className="w-4.5 h-4.5 text-slate-400 shrink-0" />
                           <span>Para quién es:</span>
                         </span>
-                        <span className="font-semibold text-white text-sm sm:text-right leading-relaxed sm:max-w-md">
+                        <span className="font-medium text-white text-sm sm:text-base sm:text-right leading-relaxed sm:max-w-md">
                           {strategyData?.meta?.summary?.targetAudienceSummary || "Mujeres que quieren aprender microblading y generar ingresos"}
                         </span>
                       </div>
 
-                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-left">
-                        <span className="text-slate-400 font-medium flex items-center gap-2 select-none">
+                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-left">
+                        <span className="text-slate-300 font-normal text-sm sm:text-base flex items-center gap-2 select-none">
                           <Clock className="w-4.5 h-4.5 text-slate-400 shrink-0" />
                           <span>Edades de tu público objetivo:</span>
                         </span>
-                        <span className="font-semibold text-white text-sm sm:text-right leading-relaxed sm:max-w-md">
+                        <span className="font-medium text-white text-sm sm:text-base sm:text-right leading-relaxed sm:max-w-md">
                           {strategyData?.meta?.summary?.targetAgeRange || "Mujeres de 22 a 45 años"}
-                        </span>
-                      </div>
-
-                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-left">
-                        <span className="text-slate-400 font-medium flex items-center gap-2 select-none">
-                          <Star className="w-4.5 h-4.5 text-slate-400 shrink-0" />
-                          <span>Precio del producto:</span>
-                        </span>
-                        <span className="font-black text-white">
-                          USD {projectPrice || strategyData?.meta?.price || 147}
-                        </span>
-                      </div>
-
-                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-left">
-                        <span className="text-slate-400 font-medium flex items-center gap-2 select-none">
-                          <CheckCircle className="w-4.5 h-4.5 text-slate-400 shrink-0" />
-                          <span>Comisión que obtendrás:</span>
-                        </span>
-                        <span className="font-black text-white">
-                          {projectCommission || (strategyData?.meta?.commissionRate ? Math.round(strategyData.meta.commissionRate * (strategyData.meta.commissionRate <= 1 ? 100 : 1)) : 80)}%
-                        </span>
-                      </div>
-
-                      <div className="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-left">
-                        <span className="text-slate-400 font-medium flex items-center gap-2 select-none">
-                          <Check className="w-4.5 h-4.5 text-emerald-400 shrink-0" />
-                          <span>Tu ganancia por venta:</span>
-                        </span>
-                        <span className="font-black text-emerald-400 text-xl">
-                          USD {earnings || Math.round((projectPrice || 147) * ((projectCommission || 80) / 100)) || 116}
                         </span>
                       </div>
 
@@ -492,8 +454,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                     </button>
                   </div>
 
-                  <div className="relative border-l-4 border-indigo-500/80 pl-4 py-2.5 bg-indigo-500/5 rounded-r-xl">
-                    <p className="text-slate-200 text-sm sm:text-base leading-relaxed font-light line-clamp-4">
+                  <div className="relative border-l-4 border-indigo-500/80 pl-5 pr-6 py-3 bg-indigo-500/5 rounded-r-xl max-w-3xl">
+                    <p className="text-white text-base sm:text-lg leading-relaxed sm:leading-8 font-normal line-clamp-2">
                       {cleanAnalysisText && cleanAnalysisText.length > 60 
                         ? cleanAnalysisText 
                         : "Curso profesional de técnica de cejas pelo a pelo para principiantes y esteticistas. Este programa de formación intensiva está diseñado paso a paso para dominar el diseño, la simetría y la pigmentación en el microblading, permitiendo crear un negocio propio altamente rentable en el sector de la estética con una demanda en constante crecimiento."}
@@ -501,62 +463,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                   </div>
                 </div>
 
-                {/* Grid de 2 columnas: Avatar recomendado y Tipo de público */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch text-left">
-                  
-                  {/* Avatar recomendado */}
-                  <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-start space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
-                        <UserCheck className="w-5 h-5" />
-                      </div>
-                      <h3 className="text-base font-extrabold text-white tracking-wide">
-                        Avatar recomendado
-                      </h3>
-                    </div>
-                    <ul className="space-y-2.5 text-xs sm:text-sm text-slate-300 font-normal">
-                      <li className="flex items-start gap-2.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0 mt-1.5" />
-                        <span>Mujeres de 22 a 45 años</span>
-                      </li>
-                      <li className="flex items-start gap-2.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0 mt-1.5" />
-                        <span>Interesadas en belleza, estética y generar ingresos</span>
-                      </li>
-                      <li className="flex items-start gap-2.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0 mt-1.5" />
-                        <span>Buscan aprender una habilidad rentable</span>
-                      </li>
-                      <li className="flex items-start gap-2.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0 mt-1.5" />
-                        <span>Valoran formación práctica y resultados rápidos</span>
-                      </li>
-                    </ul>
-                  </div>
 
-                  {/* Tipo de público */}
-                  <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-start space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
-                        <Users className="w-5 h-5" />
-                      </div>
-                      <h3 className="text-base font-extrabold text-white tracking-wide">
-                        Tipo de público
-                      </h3>
-                    </div>
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {["Principiante", "Emprendedora", "Autoempleo", "Belleza y estética", "Busca ingresos extra"].map((tag, idx) => (
-                        <span 
-                          key={idx} 
-                          className="px-3 py-1.5 bg-slate-900/90 border border-slate-800 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:border-slate-700 transition-colors"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                </div>
 
                 {/* Recorrido básico de tu sistema (Linkeable: Abre mapa de ruta en drawer derecho) */}
                 <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl text-left space-y-6">
