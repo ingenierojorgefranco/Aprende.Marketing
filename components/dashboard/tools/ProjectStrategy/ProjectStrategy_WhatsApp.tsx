@@ -121,11 +121,12 @@ interface ProjectStrategy_WhatsAppProps {
     planLimits?: PlanLimits;
     strategyData?: ProjectMasterStrategy | null;
     hideHeader?: boolean;
+    totalSteps?: number;
 }
 
 export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> = ({
     activeWaScript: propActiveWaScript, setActiveWaScript: propSetActiveWaScript, onUpgrade = () => {}, projectId, isSimulating = false, planLimits, strategyData: propStrategyData,
-    hideHeader = false
+    hideHeader = false, totalSteps
 }) => {
     const navigate = useNavigate();
     const context = useOutletContext() as any;
@@ -654,7 +655,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
                         stepNumber={9}
-                        totalSteps={9}
+                        totalSteps={totalSteps}
                         stageNumber={2}
                         categoryTitle="WhatsApp: Scripts de Venta"
                         title={<>Secuencia de Lanzamiento <span className="text-[#FF5A1F]">vía WhatsApp</span></>}

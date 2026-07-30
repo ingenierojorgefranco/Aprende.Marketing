@@ -181,20 +181,20 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                 const sales = Math.floor(leads * 0.05);
                                 const incomeValue = sales * commissionVal;
                                 return (
-                                    <div key={i} className="flex items-center justify-between p-4 sm:p-4.5 rounded-2xl bg-[#0B1120] border border-slate-800 hover:border-emerald-500/30 transition-all">
-                                        <div className="text-left">
-                                            <p className="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider mb-0.5">Atrayendo</p>
-                                            <p className="text-white font-black text-base sm:text-lg flex items-center gap-2">
-                                                <Users className="w-4.5 h-4.5 text-sky-400" /> {formatValue(leads)} Leads
+                                    <div key={i} className="flex items-center justify-between p-4 sm:p-4.5 rounded-2xl bg-[#0B1120] border border-slate-800 hover:border-emerald-500/30 transition-all gap-4">
+                                        <div className="text-left shrink-0">
+                                            <p className="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider mb-0.5 whitespace-nowrap">Atrayendo</p>
+                                            <p className="text-white font-black text-base sm:text-lg flex items-center gap-2 whitespace-nowrap">
+                                                <Users className="w-4.5 h-4.5 text-sky-400 shrink-0" /> {formatValue(leads)} Leads
                                             </p>
                                         </div>
-                                        <div className="flex flex-col items-center">
-                                            <p className="text-xs sm:text-sm text-slate-300 font-extrabold uppercase">{formatValue(sales)} {sales === 1 ? 'venta' : 'ventas'}</p>
+                                        <div className="flex flex-col items-center shrink-0">
+                                            <p className="text-xs sm:text-sm text-slate-300 font-extrabold uppercase whitespace-nowrap">{formatValue(sales)} {sales === 1 ? 'venta' : 'ventas'}</p>
                                             <ArrowRight className="w-4 h-4 text-slate-500" />
                                         </div>
-                                        <div className="text-right">
-                                            <p className="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider mb-0.5">Ganancia aprox.</p>
-                                            <p className="text-emerald-400 font-black text-xl sm:text-2xl">${formatValue(incomeValue)} USD</p>
+                                        <div className="text-right shrink-0">
+                                            <p className="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider mb-0.5 whitespace-nowrap">Ganancia aprox.</p>
+                                            <p className="text-emerald-400 font-black text-xl sm:text-2xl whitespace-nowrap">${formatValue(incomeValue)} USD</p>
                                         </div>
                                     </div>
                                 );

@@ -21,11 +21,12 @@ interface ProjectStrategy_EvergreenProps {
     nextPlan?: Plan | null;
     linkedArticles?: Article[];
     hideHeader?: boolean;
+    totalSteps?: number;
 }
 
 export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps> = ({
     projectId, evergreenData = [], avatars = [], activeEvergreenEmail: propActiveEvergreenEmail, setActiveEvergreenEmail: propSetActiveEvergreenEmail, onUpgrade = () => {}, features, planLimits, nextPlan, linkedArticles = [],
-    hideHeader = false
+    hideHeader = false, totalSteps
 }) => {
     const navigate = useNavigate();
     const context = useOutletContext() as any;
@@ -121,7 +122,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
                         stepNumber={8}
-                        totalSteps={9}
+                        totalSteps={totalSteps}
                         stageNumber={2}
                         categoryTitle="Emails: Secuencia de Confianza"
                         title={<>Secuencia de Autoridad <span className="text-[#FF5A1F]">(Evergreen)</span></>}
@@ -412,7 +413,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
                         stepNumber={8}
-                        totalSteps={9}
+                        totalSteps={totalSteps}
                         stageNumber={2}
                         categoryTitle="Emails: Secuencia de Confianza"
                         title={<>Tu Estrategia <span className="text-[#FF5A1F]">de Nutrición (Evergreen)</span></>}

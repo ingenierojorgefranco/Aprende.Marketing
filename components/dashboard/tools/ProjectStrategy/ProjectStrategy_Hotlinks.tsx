@@ -11,9 +11,10 @@ import { StepVideoContainer } from '../../wizard/StepVideoContainer';
 
 interface ProjectStrategy_HotlinksProps {
     projectId: string;
+    totalSteps?: number;
 }
 
-export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> = ({ projectId }) => {
+export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> = ({ projectId, totalSteps }) => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [project, setProject] = useState<Project | null>(null);
@@ -138,7 +139,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
             {/* HEADER DEL PASO 4 */}
             <StepHeaderCard
                 stepNumber={4}
-                totalSteps={9}
+                totalSteps={totalSteps}
                 stageNumber={1}
                 categoryTitle="Configura tus enlaces de afiliado"
                 title="Configura tus enlaces de afiliado"

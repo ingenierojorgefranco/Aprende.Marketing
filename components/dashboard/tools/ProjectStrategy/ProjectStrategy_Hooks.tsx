@@ -16,6 +16,7 @@ interface ProjectStrategy_HooksProps {
   handleTooltipHover?: (e: React.MouseEvent, content: string[]) => void;
   handleTooltipLeave?: () => void;
   overrideProjectId?: string;
+  totalSteps?: number;
 }
 
 const seededShuffle = (array: any[], seed: number) => {
@@ -36,7 +37,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   setActiveHook: propSetActiveHook,
   handleTooltipHover = () => {},
   handleTooltipLeave = () => {},
-  overrideProjectId
+  overrideProjectId,
+  totalSteps
 }) => {
   const [localActiveHook, setLocalActiveHook] = useState<number>(0);
   const activeHook = propActiveHook !== undefined ? propActiveHook : localActiveHook;
@@ -92,7 +94,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const itemsPerPage = 6;
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<'library' | 'generated'>('library');
+  const [activeTab, setActiveTab] = useState<'library' | 'generated'>('generated');
   const [libraryHooks, setLibraryHooks] = useState<any[]>([]);
   const [libraryTotal, setLibraryTotal] = useState(0);
   const [loadingLibrary, setLoadingLibrary] = useState(false);
@@ -711,7 +713,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             {/* --- HEADER CARD --- */}
             <StepHeaderCard
                 stepNumber={5}
-                totalSteps={9}
+                totalSteps={totalSteps}
                 stageNumber={2}
                 categoryTitle="Tus Ganchos de Venta"
                 title={<>Hooks <span className="text-[#FF5A1F]">de Atracción</span></>}
@@ -845,7 +847,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             <div className="w-full mb-6">
               <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                 <div className="flex justify-between items-center mb-2 text-sm">
-                  <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Hooks Desbloqueados</span>
+                  <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Hooks Disponibles este mes</span>
                   <span className="text-white font-bold">{currentHooksCount} / {isRealAdmin ? '∞' : maxHooks}</span>
                 </div>
                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
@@ -861,7 +863,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 </div>
                 <input
                     type="text"
-                    placeholder="Buscar hooks por título o estrategia..."
+                    placeholder="Buscar Hooks por titulo"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="block w-full pl-11 pr-4 py-3 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all"
@@ -879,16 +881,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             {/* Selector de Pestañas */}
             <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
               <button 
-                onClick={() => { setActiveTab('library'); setActiveLibraryHook(0); }}
-                className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-orange-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                onClick={() => { setActiveTab('generated'); setActiveHook(0); }}
+                className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
               >
-                Biblioteca de Hooks
+                Hooks Creados
               </button>
               <button 
-                onClick={() => { setActiveTab('generated'); setActiveHook(0); }}
-                className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                onClick={() => { setActiveTab('library'); setActiveLibraryHook(0); }}
+                className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-orange-600 text-white shadow-lg shadow-orange-900/40' : 'text-gray-500 hover:text-white'}`}
               >
-                Hooks Generados
+                Biblioteca de Hooks
               </button>
             </div>
             

@@ -26,12 +26,13 @@ interface ProjectStrategy_WebSystemProps {
     onUpgrade?: () => void;
     nextPlan?: Plan | null;
     isSimulating?: boolean;
+    totalSteps?: number;
 }
 
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
     projectId: propProjectId, lpTabsData, tyTabsData,
     selectedLpTab: propSelectedLpTab, setSelectedLpTab: propSetSelectedLpTab, selectedTyTab: propSelectedTyTab, setSelectedTyTab: propSetSelectedTyTab, onEditPage,
-    pageCount = 0, planLimits, userRole, isSimulating = false, onUpgrade
+    pageCount = 0, planLimits, userRole, isSimulating = false, onUpgrade, totalSteps
 }) => {
     const params = useParams() as { id: string };
     const projectId = propProjectId || params?.id || '';
@@ -448,7 +449,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 {/* 1. HEADER CARD */}
                 <StepHeaderCard
                     stepNumber={3}
-                    totalSteps={9}
+                    totalSteps={totalSteps}
                     stageNumber={1}
                     categoryTitle="Mira tu Página de Captura"
                     title="Activa tu Página Web Profesional y captura clientes en automático"
@@ -465,13 +466,14 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
                 {/* 2.5. VISTA PREVIA DE TU PÁGINA DE CAPTURA (IMÁGENES 1 Y 2) */}
                 <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6 text-left">
-                    {/* Encabezado descriptivo */}
-                    <div className="space-y-1">
-                        <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                            Vista previa de tu página de captación
+                    {/* Encabezado centrado (Reemplazo con contenido de Imagen 2) */}
+                    <div className="flex flex-col items-center justify-center text-center space-y-4 py-2">
+                        <CheckCircle2 className="w-16 h-16 text-emerald-500" />
+                        <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight italic">
+                            ¡TU PÁGINA DE CAPTURA HA SIDO CREADA CORRECTAMENTE!
                         </h3>
-                        <p className="text-slate-400 text-xs sm:text-sm font-medium">
-                            Esta es la página que compartirás en tus reels, artículos y publicaciones para captar personas interesadas.
+                        <p className="text-slate-200 text-base sm:text-lg font-medium leading-relaxed max-w-2xl mx-auto">
+                            Ya tienes tu página web lista y configurada para atraer y capturar audiencia interesada en el producto digital que deseas promocionar.
                         </p>
                     </div>
 
@@ -736,6 +738,13 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 >
                                     DESBLOQUEAR EDICIÓN AVANZADA
                                 </button>
+                                <button 
+                                    onClick={() => setShowDomainModal(true)}
+                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transform hover:scale-[1.02] active:scale-95 transition-all mt-3"
+                                >
+                                    <Globe className="w-4 h-4" />
+                                    <span>{linkedPages.length > 0 && linkedPages[0].customDomain ? "Ver Dominio" : "Asignar Dominio"}</span>
+                                </button>
                             </div>
                         </div>
 
@@ -938,14 +947,21 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 >
                                     DESBLOQUEAR EDICIÓN AVANZADA
                                 </button>
+                                <button 
+                                    onClick={() => setShowDomainModal(true)}
+                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transform hover:scale-[1.02] active:scale-95 transition-all mt-3"
+                                >
+                                    <Globe className="w-4 h-4" />
+                                    <span>{linkedPages.length > 0 && linkedPages[0].customDomain ? "Ver Dominio" : "Asignar Dominio"}</span>
+                                </button>
                             </div>
                         </div>
 
                     </div>
                 </div>
 
-                {/* Estado de la Página */}
-                <div id="web-system-anchor" className="max-w-4xl mx-auto w-full pt-4">
+                {/* Estado de la Página (Oculto manteniendo código intacto según solicitud) */}
+                <div id="web-system-anchor" className="hidden max-w-4xl mx-auto w-full pt-4">
                     {loadingLocal ? (
                         <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
                     ) : (

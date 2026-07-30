@@ -29,6 +29,7 @@ interface ProjectStrategy_AvatarDiagnosisProps {
         };
     };
     strategyData?: any;
+    totalSteps?: number;
 }
 
 const getProcessedAvatars = (rawAvatars: any[]): any[] => {
@@ -356,7 +357,8 @@ const getProcessedAvatars = (rawAvatars: any[]): any[] => {
 };
 
 export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDiagnosisProps> = ({ 
-    strategyData
+    strategyData,
+    totalSteps
 }) => {
     const [isCommercialDrawerOpen, setIsCommercialDrawerOpen] = useState<boolean>(false);
     const [selectedCommercialOption, setSelectedCommercialOption] = useState<CommercialOptionId | null>(null);
@@ -367,7 +369,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             {/* 1. HEADER CARD */}
             <StepHeaderCard
                 stepNumber={2}
-                totalSteps={9}
+                totalSteps={totalSteps}
                 stageNumber={1}
                 categoryTitle="Conoce a tu Comprador Ideal"
                 title="Conoce a tu Comprador Ideal"

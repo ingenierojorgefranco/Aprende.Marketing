@@ -28,12 +28,13 @@ interface ProjectStrategy_EmailProps {
     // Nuevas props para autonomía y unificación
     projectId?: string;
     hideHeader?: boolean;
+    totalSteps?: number;
 }
 
 export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     emailData: initialEmailData, avatars: initialAvatars, activeEmail: propActiveEmail, setActiveEmail: propSetActiveEmail, onUpgrade = () => {}, features, planLimits, nextPlan, realMessages: initialRealMessages = [], isSimulating = false, sequenceCount: initialSequenceCount = 0, sequenceId: initialSequenceId = null,
     activeType: initialActiveType = 'conversion', setActiveType,
-    projectId: propProjectId, hideHeader = false
+    projectId: propProjectId, hideHeader = false, totalSteps
 }) => {
     const navigate = useNavigate();
     const { id: urlProjectId } = useParams() as { id: string };
@@ -635,7 +636,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
                         stepNumber={7}
-                        totalSteps={9}
+                        totalSteps={totalSteps}
                         stageNumber={2}
                         categoryTitle="Email Marketing: Secuencia de Venta"
                         title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Conversión (7 Días)</span></>}

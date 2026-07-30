@@ -30,6 +30,7 @@ interface ProjectStrategy_ContentProps {
     onArticleSelect?: (article: any) => void;
     isEmbedded?: boolean;
     embeddedProjectId?: string;
+    totalSteps?: number;
 }
 
 const formatRelativeTime = (date: Date | string | null) => {
@@ -57,7 +58,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     handleTooltipLeave = () => {},
     onUpgrade = () => {},
     articleCount = 0, planLimits, nextPlan, isSimulating = false,
-    hideHeader = false, onArticleSelect, isEmbedded = false, embeddedProjectId
+    hideHeader = false, onArticleSelect, isEmbedded = false, embeddedProjectId, totalSteps
 }) => {
     const [localActiveArticle, setLocalActiveArticle] = useState<number>(0);
     const activeArticle = propActiveArticle !== undefined ? propActiveArticle : localActiveArticle;
@@ -646,7 +647,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
                         stepNumber={6}
-                        totalSteps={9}
+                        totalSteps={totalSteps}
                         stageNumber={2}
                         categoryTitle="Tu Estrategia de Contenidos"
                         title={<>Contenido SEO <span className="text-[#FF5A1F]">que crearemos automáticamente</span></>}

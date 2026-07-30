@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../../services/api";
 import { ProjectStrategy_Sidebar } from "../tools/ProjectStrategy/ProjectStrategy_Sidebar";
@@ -50,6 +51,7 @@ import {
   Film,
   PlayCircle,
   ShoppingCart,
+  Gift,
   ArrowUpRight,
   ArrowRight,
   AlertTriangle,
@@ -307,7 +309,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
             {activeStep !== 2 && activeStep !== 3 && activeStep !== 4 && activeStep !== 5 && activeStep !== 6 && activeStep !== 7 && activeStep !== 8 && activeStep !== 9 && (
               <StepHeaderCard 
                 stepNumber={activeStep}
-                totalSteps={9}
+                totalSteps={stepsList.length}
                 title={stepsList[activeStep - 1]?.title.replace(/^\d+\.\s*/, '') || "Tu Proyecto Digital"}
                 description="Revisa el producto que vas a promocionar, cuánto puedes ganar por cada venta y cómo funcionará el sistema que hemos preparado para ti."
                 completedSteps={1}
@@ -332,9 +334,6 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                   <h1 className="text-white font-extrabold text-2xl sm:text-3xl md:text-4xl leading-tight tracking-tight">
                     {projectName || strategyData?.meta?.projectName || strategyData?.meta?.insights?.overview?.items?.[0]?.value || "Masterclass Microblading Pro"}
                   </h1>
-                  <p className="text-slate-400 text-xs sm:text-sm md:text-base font-semibold tracking-wide">
-                    Digital · Producto activo · Publicado el 22 de junio de 2026
-                  </p>
                 </div>
 
                 {/* 3 Status Cards */}
@@ -484,7 +483,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
 
                     <button
                       onClick={() => {
-                        setSelectedCommercialOption("funnel");
+                        setSelectedCommercialOption("avatar");
                         setIsCommercialDrawerOpen(true);
                       }}
                       className="px-4 py-2 bg-[#FF5D1E]/10 hover:bg-[#FF5D1E]/20 border border-[#FF5D1E]/40 text-[#FF5D1E] rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 shadow-md hover:scale-[1.02] self-start sm:self-auto"
@@ -494,127 +493,248 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                     </button>
                   </div>
 
-                  {/* Grid de 5 botones/tarjetas grandes del recorrido */}
-                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 pt-2">
+                  {/* Grid de tarjetas grandes del recorrido (Pasos 1 al 11 distribuidos en filas de máximo 5 tarjetas con conectores fluidos) */}
+                  <div className="relative pt-2 space-y-2">
                     
-                    {/* Paso 1: Reels / Contenido */}
-                    <div 
-                      onClick={() => {
-                        setSelectedCommercialOption("funnel");
-                        setIsCommercialDrawerOpen(true);
-                      }}
-                      className="bg-[#070D19] border border-slate-800 hover:border-fuchsia-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-fuchsia-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-pointer"
-                    >
-                      <span className="px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-400 text-[10px] font-black uppercase tracking-wider">
-                        PASO 1
-                      </span>
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-400 flex items-center justify-center shadow-xl shadow-fuchsia-500/10 group-hover:scale-110 transition-transform duration-300">
-                        <Film className="w-8 h-8 sm:w-10 sm:h-10" />
+                    {/* FILA 1: Pasos 1 a 5 */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5 relative">
+                      
+                      {/* Paso 1: Reels / Contenido */}
+                      <div className="bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 transition-all duration-300 relative z-10">
+                        <span className="px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-400 text-[10px] font-black uppercase tracking-wider">
+                          PASO 1
+                        </span>
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-400 flex items-center justify-center shadow-xl shadow-fuchsia-500/10">
+                          <Film className="w-8 h-8 sm:w-10 sm:h-10" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm sm:text-base font-extrabold text-white">
+                            Reels / Contenido
+                          </h4>
+                          <p className="text-xs text-slate-400 font-medium">
+                            Atraemos atención
+                          </p>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <h4 className="text-sm sm:text-base font-extrabold text-white group-hover:text-fuchsia-400 transition-colors">
-                          Reels / Contenido
-                        </h4>
-                        <p className="text-xs text-slate-400 font-medium">
-                          Atraemos atención
-                        </p>
+
+                      {/* Paso 2: Página de captación */}
+                      <div className="bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 transition-all duration-300 relative z-10">
+                        <span className="px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-[10px] font-black uppercase tracking-wider">
+                          PASO 2
+                        </span>
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-sky-500/15 border border-sky-500/30 text-sky-400 flex items-center justify-center shadow-xl shadow-sky-500/10">
+                          <Globe className="w-8 h-8 sm:w-10 sm:h-10" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm sm:text-base font-extrabold text-white">
+                            Página de captación
+                          </h4>
+                          <p className="text-xs text-slate-400 font-medium">
+                            Capturamos el interés
+                          </p>
+                        </div>
                       </div>
+
+                      {/* Paso 3: Registro del usuario */}
+                      <div className="bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 transition-all duration-300 relative z-10">
+                        <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                          PASO 3
+                        </span>
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-xl shadow-emerald-500/10">
+                          <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm sm:text-base font-extrabold text-white">
+                            Registro del usuario
+                          </h4>
+                          <p className="text-xs text-slate-400 font-medium">
+                            Generamos confianza
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Paso 4: Página de gracias */}
+                      <div className="bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 transition-all duration-300 relative z-10">
+                        <span className="px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-[10px] font-black uppercase tracking-wider">
+                          PASO 4
+                        </span>
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center shadow-xl shadow-teal-500/10">
+                          <Gift className="w-8 h-8 sm:w-10 sm:h-10" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm sm:text-base font-extrabold text-white">
+                            Página de gracias
+                          </h4>
+                          <p className="text-xs text-slate-400 font-medium">
+                            Confirmación y guía
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Paso 5: Grupo de WhatsApp */}
+                      <div className="bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 transition-all duration-300 relative z-10">
+                        <span className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 text-[10px] font-black uppercase tracking-wider">
+                          PASO 5
+                        </span>
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-green-500/15 border border-green-500/30 text-green-400 flex items-center justify-center shadow-xl shadow-green-500/10">
+                          <MessageCircle className="w-8 h-8 sm:w-10 sm:h-10" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm sm:text-base font-extrabold text-white">
+                            Grupo de WhatsApp
+                          </h4>
+                          <p className="text-xs text-slate-400 font-medium">
+                            Comunidad y avisos
+                          </p>
+                        </div>
+                      </div>
+
                     </div>
 
-                    {/* Paso 2: Página de captación */}
-                    <div 
-                      onClick={() => {
-                        setSelectedCommercialOption("funnel");
-                        setIsCommercialDrawerOpen(true);
-                      }}
-                      className="bg-[#070D19] border border-slate-800 hover:border-sky-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-sky-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-pointer"
-                    >
-                      <span className="px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-[10px] font-black uppercase tracking-wider">
-                        PASO 2
-                      </span>
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-sky-500/15 border border-sky-500/30 text-sky-400 flex items-center justify-center shadow-xl shadow-sky-500/10 group-hover:scale-110 transition-transform duration-300">
-                        <Globe className="w-8 h-8 sm:w-10 sm:h-10" />
-                      </div>
-                      <div className="space-y-1">
-                        <h4 className="text-sm sm:text-base font-extrabold text-white group-hover:text-sky-400 transition-colors">
-                          Página de captación
-                        </h4>
-                        <p className="text-xs text-slate-400 font-medium">
-                          Capturamos el interés
-                        </p>
-                      </div>
+                    {/* CONECTOR SVG 1 (Desktop lg): De Paso 5 (Col 5) a Paso 6 (Col 1) */}
+                    <div className="hidden lg:block relative h-16 w-full my-1 pointer-events-none">
+                      <svg className="w-full h-full overflow-visible" viewBox="0 0 1000 100" preserveAspectRatio="none">
+                        <defs>
+                          <linearGradient id="flow-line-gradient-1" x1="100%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#22C55E" />
+                            <stop offset="50%" stopColor="#38BDF8" />
+                            <stop offset="100%" stopColor="#A855F7" />
+                          </linearGradient>
+                          <filter id="glow-line-1" x="-10%" y="-10%" width="120%" height="120%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                          </filter>
+                        </defs>
+
+                        {/* Línea fluorescente con resplandor */}
+                        <path 
+                          d="M 908,0 L 908,38 Q 908,48 893,48 L 107,48 Q 92,48 92,58 L 92,78" 
+                          fill="none" 
+                          stroke="url(#flow-line-gradient-1)" 
+                          strokeWidth="6" 
+                          strokeLinecap="round"
+                          filter="url(#glow-line-1)"
+                          className="opacity-40"
+                        />
+                        {/* Línea principal limpia punteada */}
+                        <path 
+                          d="M 908,0 L 908,38 Q 908,48 893,48 L 107,48 Q 92,48 92,58 L 92,78" 
+                          fill="none" 
+                          stroke="url(#flow-line-gradient-1)" 
+                          strokeWidth="3" 
+                          strokeLinecap="round"
+                          strokeDasharray="6 4"
+                        />
+
+                        {/* Nodo de origen (salida del Paso 5) */}
+                        <circle cx="908" cy="0" r="6" fill="#22C55E" />
+                        <circle cx="908" cy="0" r="2.5" fill="#FFFFFF" />
+
+                        {/* Flecha pequeña elegante señalando hacia abajo */}
+                        <g>
+                          <polygon points="86,76 92,88 98,76" fill="#A855F7" />
+                          <polygon points="88,76 92,85 96,76" fill="#FFFFFF" />
+                        </g>
+
+                        {/* Nodo de destino (llegada al Paso 6) */}
+                        <circle cx="92" cy="96" r="6" fill="#A855F7" />
+                        <circle cx="92" cy="96" r="2.5" fill="#FFFFFF" />
+                      </svg>
                     </div>
 
-                    {/* Paso 3: Registro del usuario */}
-                    <div 
-                      onClick={() => {
-                        setSelectedCommercialOption("funnel");
-                        setIsCommercialDrawerOpen(true);
-                      }}
-                      className="bg-[#070D19] border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-emerald-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-pointer"
-                    >
-                      <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
-                        PASO 3
-                      </span>
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-xl shadow-emerald-500/10 group-hover:scale-110 transition-transform duration-300">
-                        <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10" />
+                    {/* FILA 2: Pasos 6 a 10 */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5 relative">
+                      
+                      {/* Paso 6: Clase u oferta principal */}
+                      <div className="bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 transition-all duration-300 relative z-10">
+                        <span className="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-[10px] font-black uppercase tracking-wider">
+                          PASO 6
+                        </span>
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-purple-500/15 border border-purple-500/30 text-purple-400 flex items-center justify-center shadow-xl shadow-purple-500/10">
+                          <PlayCircle className="w-8 h-8 sm:w-10 sm:h-10" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm sm:text-base font-extrabold text-white">
+                            Clase u oferta principal
+                          </h4>
+                          <p className="text-xs text-slate-400 font-medium">
+                            Presentamos la solución
+                          </p>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <h4 className="text-sm sm:text-base font-extrabold text-white group-hover:text-emerald-400 transition-colors">
-                          Registro del usuario
-                        </h4>
-                        <p className="text-xs text-slate-400 font-medium">
-                          Generamos confianza
-                        </p>
-                      </div>
-                    </div>
 
-                    {/* Paso 4: Clase u oferta principal */}
-                    <div 
-                      onClick={() => {
-                        setSelectedCommercialOption("funnel");
-                        setIsCommercialDrawerOpen(true);
-                      }}
-                      className="bg-[#070D19] border border-slate-800 hover:border-purple-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-purple-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-pointer"
-                    >
-                      <span className="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-[10px] font-black uppercase tracking-wider">
-                        PASO 4
-                      </span>
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-purple-500/15 border border-purple-500/30 text-purple-400 flex items-center justify-center shadow-xl shadow-purple-500/10 group-hover:scale-110 transition-transform duration-300">
-                        <PlayCircle className="w-8 h-8 sm:w-10 sm:h-10" />
+                      {/* Paso 7: Lanzamiento y Checkout Full */}
+                      <div className="bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 transition-all duration-300 relative z-10">
+                        <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-wider">
+                          PASO 7
+                        </span>
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shadow-xl shadow-amber-500/10">
+                          <Rocket className="w-8 h-8 sm:w-10 sm:h-10" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm sm:text-base font-extrabold text-white">
+                            Lanzamiento & Checkout
+                          </h4>
+                          <p className="text-xs text-slate-400 font-medium">
+                            Oferta oficial full
+                          </p>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <h4 className="text-sm sm:text-base font-extrabold text-white group-hover:text-purple-400 transition-colors">
-                          Clase u oferta principal
-                        </h4>
-                        <p className="text-xs text-slate-400 font-medium">
-                          Presentamos la solución
-                        </p>
-                      </div>
-                    </div>
 
-                    {/* Paso 5: Venta y comisión */}
-                    <div 
-                      onClick={() => {
-                        setSelectedCommercialOption("funnel");
-                        setIsCommercialDrawerOpen(true);
-                      }}
-                      className="bg-[#070D19] border border-slate-800 hover:border-amber-500/50 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 hover:shadow-2xl hover:shadow-amber-500/10 hover:scale-[1.03] transition-all duration-300 group cursor-pointer"
-                    >
-                      <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-wider">
-                        PASO 5
-                      </span>
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shadow-xl shadow-amber-500/10 group-hover:scale-110 transition-transform duration-300">
-                        <ShoppingCart className="w-8 h-8 sm:w-10 sm:h-10" />
+                      {/* Paso 8: Secuencia de Venta Email Marketing */}
+                      <div className="bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 transition-all duration-300 relative z-10">
+                        <span className="px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[10px] font-black uppercase tracking-wider">
+                          PASO 8
+                        </span>
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center shadow-xl shadow-rose-500/10">
+                          <Mail className="w-8 h-8 sm:w-10 sm:h-10" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm sm:text-base font-extrabold text-white">
+                            Secuencia de Ventas
+                          </h4>
+                          <p className="text-xs text-slate-400 font-medium">
+                            Email marketing directo
+                          </p>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <h4 className="text-sm sm:text-base font-extrabold text-white group-hover:text-amber-400 transition-colors">
-                          Venta y comisión
-                        </h4>
-                        <p className="text-xs text-slate-400 font-medium">
-                          Obtienes tu ganancia
-                        </p>
+
+                      {/* Paso 9: Nutrición Evergreen & Blog */}
+                      <div className="bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 transition-all duration-300 relative z-10">
+                        <span className="px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-[10px] font-black uppercase tracking-wider">
+                          PASO 9
+                        </span>
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center shadow-xl shadow-indigo-500/10">
+                          <FileText className="w-8 h-8 sm:w-10 sm:h-10" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm sm:text-base font-extrabold text-white">
+                            Nutrición & Blog
+                          </h4>
+                          <p className="text-xs text-slate-400 font-medium">
+                            Emails y artículos de valor
+                          </p>
+                        </div>
                       </div>
+
+                      {/* Paso 10: Checkout con descuento */}
+                      <div className="bg-[#070D19] border border-slate-800 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between space-y-4 transition-all duration-300 relative z-10">
+                        <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                          PASO 10
+                        </span>
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-xl shadow-emerald-500/10">
+                          <Tag className="w-8 h-8 sm:w-10 sm:h-10" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm sm:text-base font-extrabold text-white">
+                            Checkout con Descuento
+                          </h4>
+                          <p className="text-xs text-slate-400 font-medium">
+                            Cierre con incentivo
+                          </p>
+                        </div>
+                      </div>
+
                     </div>
 
                   </div>
@@ -638,7 +758,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                         e.stopPropagation();
                         setIsProjectionDrawerOpen(true);
                       }}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs sm:text-sm hover:bg-emerald-400 transition-all shadow-lg hover:scale-105 shrink-0 self-start sm:self-auto"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-white font-extrabold text-xs sm:text-sm hover:bg-emerald-400 transition-all shadow-lg hover:scale-105 shrink-0 self-start sm:self-auto"
                     >
                       <span>Ver proyección completa y gráfica</span>
                       <ArrowRight className="w-4 h-4" />
@@ -735,6 +855,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
             {/* Paso 2: Conoce a tu Comprador Ideal */}
             {activeStep === 2 && (
               <ProjectStrategy_AvatarDiagnosis 
+                totalSteps={stepsList.length}
                 avatars={strategyData?.avatars || []} 
                 psychology={strategyData?.psychology || { 
                   pains: [], 
@@ -750,6 +871,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
             {/* Paso 3: Tu Página Web de Captura */}
             {activeStep === 3 && (
               <ProjectStrategy_WebSystem 
+                totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''} 
                 lpTabsData={strategyData?.modules?.web?.landingPageTabs} 
                 tyTabsData={strategyData?.modules?.web?.thankYouPageTabs} 
@@ -758,12 +880,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
 
             {/* Paso 4: Configura tus enlaces de afiliado */}
             {activeStep === 4 && (
-              <ProjectStrategy_Hotlinks projectId={projectId || searchParams.get('id') || ''} />
+              <ProjectStrategy_Hotlinks totalSteps={stepsList.length} projectId={projectId || searchParams.get('id') || ''} />
             )}
 
             {/* Paso 5: Tus Ganchos de Venta (Hooks) */}
             {activeStep === 5 && (
               <ProjectStrategy_Hooks 
+                totalSteps={stepsList.length}
                 strategyData={strategyData}
               />
             )}
@@ -771,6 +894,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
             {/* Paso 6: Tu Estrategia de Contenidos */}
             {activeStep === 6 && (
               <ProjectStrategy_Content 
+                totalSteps={stepsList.length}
                 contentData={strategyData?.modules?.content || []}
               />
             )}
@@ -778,6 +902,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
             {/* Paso 7: Email Marketing */}
             {activeStep === 7 && (
               <ProjectStrategy_Email 
+                totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || undefined}
                 emailData={strategyData?.modules?.emails?.nurture || []}
                 avatars={strategyData?.avatars || []}
@@ -787,6 +912,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
             {/* Paso 8: Secuencia de Confianza (Evergreen) */}
             {activeStep === 8 && (
               <ProjectStrategy_Evergreen 
+                totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
                 evergreenData={strategyData?.modules?.emails?.evergreen || []}
                 avatars={strategyData?.avatars || []}
@@ -798,6 +924,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
             {/* Paso 9: Scripts de WhatsApp (Cierre) */}
             {activeStep === 9 && (
               <ProjectStrategy_WhatsApp 
+                totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
                 strategyData={strategyData}
                 onUpgrade={onUpgradeClick || (() => {})}
@@ -1018,6 +1145,49 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
 
 
 
+            {/* BOTÓN NAVEGACIÓN "SIGUIENTE PASO" AL FINAL DE CADA PÁGINA */}
+            <div className="pt-8 pb-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 bg-[#0B1120] border border-slate-800 rounded-2xl p-6 shadow-xl">
+              <div className="text-left space-y-1">
+                <p className="text-xs font-bold text-[#FF5A1F] uppercase tracking-wider">
+                  {activeStep < stepsList.length ? `PASO SIGUIENTE EN TU RUTA DE IMPLEMENTACIÓN` : `¡HAS LLEGADO AL ÚLTIMO PASO DE TU GUÍA!`}
+                </p>
+                <p className="text-sm sm:text-base font-bold text-white">
+                  {activeStep < stepsList.length 
+                    ? `Paso ${activeStep + 1}: ${stepsList[activeStep]?.title.replace(/^\d+\.\s*/, '')}`
+                    : `Has completado la revisión de todos los pasos del sistema.`}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                {activeStep > 1 && (
+                  <button
+                    onClick={() => handleStepClick(activeStep - 1)}
+                    className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition-all border border-slate-700/80 flex items-center gap-2 cursor-pointer"
+                  >
+                    <span>Paso anterior</span>
+                  </button>
+                )}
+
+                {activeStep < stepsList.length ? (
+                  <button
+                    onClick={() => handleStepClick(activeStep + 1)}
+                    className="px-6 py-3.5 rounded-xl bg-[#FF5A1F] hover:bg-[#ff6c37] text-white font-extrabold text-sm sm:text-base transition-all shadow-lg shadow-[#FF5A1F]/20 hover:scale-[1.02] flex items-center justify-center gap-2.5 cursor-pointer w-full sm:w-auto"
+                  >
+                    <span>Siguiente paso</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleStepClick(1)}
+                    className="px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm sm:text-base transition-all shadow-lg shadow-emerald-500/20 hover:scale-[1.02] flex items-center justify-center gap-2.5 cursor-pointer w-full sm:w-auto"
+                  >
+                    <span>Volver al inicio</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
           </main>
 
         </div>
@@ -1128,64 +1298,76 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
       )}
 
       {/* Drawer deslizable desde la derecha para Proyección de tus ganancias */}
-      {isProjectionDrawerOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
-          {/* Overlay de fondo */}
-          <div 
-            className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity animate-in fade-in duration-300 cursor-pointer"
-            onClick={() => setIsProjectionDrawerOpen(false)}
-          />
+      <AnimatePresence>
+        {isProjectionDrawerOpen && (
+          <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
+            {/* Overlay de fondo */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 bg-black/80 backdrop-blur-md cursor-pointer"
+              onClick={() => setIsProjectionDrawerOpen(false)}
+            />
 
-          {/* Panel lateral deslizable desde la derecha */}
-          <div className="relative w-full max-w-4xl bg-[#070D19] border-l border-slate-800 shadow-2xl z-50 flex flex-col h-full overflow-hidden animate-in slide-in-from-right duration-300">
-            {/* Header del Panel */}
-            <div className="p-6 border-b border-slate-800 bg-[#0d1322] flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-                  <TrendingUp className="w-6 h-6" />
+            {/* Panel lateral deslizable desde la derecha */}
+            <motion.div 
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="relative w-full max-w-[95vw] lg:max-w-[85vw] xl:max-w-[1400px] bg-[#070D19] border-l border-slate-800 shadow-2xl z-50 flex flex-col h-full overflow-hidden"
+            >
+              {/* Header del Panel */}
+              <div className="p-6 border-b border-slate-800 bg-[#0d1322] flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                    <TrendingUp className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-wide">
+                      Proyección de tus Ganancias
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      Estrategia de ingresos a 12 meses, escala de leads y hoja de ruta paso a paso.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-wide">
-                    Proyección de tus Ganancias
-                  </h3>
-                  <p className="text-xs text-slate-400">
-                    Estrategia de ingresos a 12 meses, escala de leads y hoja de ruta paso a paso.
-                  </p>
-                </div>
+
+                <button
+                  onClick={() => setIsProjectionDrawerOpen(false)}
+                  className="p-2.5 text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 rounded-xl border border-slate-700/80 transition-all cursor-pointer"
+                  title="Cerrar panel"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              <button
-                onClick={() => setIsProjectionDrawerOpen(false)}
-                className="p-2.5 text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 rounded-xl border border-slate-700/80 transition-all cursor-pointer"
-                title="Cerrar panel"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+              {/* Contenido del Panel (Scrollable con todo el contenido de Proyección de tus ganancias, gráfica y roadmap) */}
+              <div className="p-6 sm:p-8 flex-1 overflow-y-auto space-y-8 text-left custom-scrollbar">
+                <ProjectStrategy_BusinessGrowth 
+                  commissionValue={earnings || Math.round((projectPrice || 147) * ((projectCommission || 80) / 100)) || 116}
+                  commissionRate={(projectCommission || 80) / 100}
+                  hideHeader={true}
+                />
+              </div>
 
-            {/* Contenido del Panel (Scrollable con todo el contenido de Proyección de tus ganancias, gráfica y roadmap) */}
-            <div className="p-6 sm:p-8 flex-1 overflow-y-auto space-y-8 text-left custom-scrollbar">
-              <ProjectStrategy_BusinessGrowth 
-                commissionValue={earnings || Math.round((projectPrice || 147) * ((projectCommission || 80) / 100)) || 116}
-                commissionRate={(projectCommission || 80) / 100}
-                hideHeader={true}
-              />
-            </div>
+              {/* Footer del Panel */}
+              <div className="p-6 border-t border-slate-800 bg-[#0d1322] flex items-center justify-end shrink-0">
+                <button
+                  onClick={() => setIsProjectionDrawerOpen(false)}
+                  className="w-full sm:w-auto px-8 py-3.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl border border-slate-700/80 transition-all cursor-pointer text-sm uppercase tracking-wider flex items-center justify-center gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  <span>Cerrar Panel</span>
+                </button>
+              </div>
 
-            {/* Footer del Panel */}
-            <div className="p-6 border-t border-slate-800 bg-[#0d1322] flex items-center justify-end shrink-0">
-              <button
-                onClick={() => setIsProjectionDrawerOpen(false)}
-                className="w-full sm:w-auto px-8 py-3.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl border border-slate-700/80 transition-all cursor-pointer text-sm uppercase tracking-wider flex items-center justify-center gap-2"
-              >
-                <X className="w-4 h-4" />
-                <span>Cerrar Panel</span>
-              </button>
-            </div>
-
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* Drawer para Estrategia Comercial (Mapa de Ruta, Avatares, Objeciones, Oferta, etc.) */}
       <EstrategiaComercialDrawer

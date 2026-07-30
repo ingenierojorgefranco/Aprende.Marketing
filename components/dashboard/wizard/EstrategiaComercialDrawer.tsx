@@ -127,7 +127,6 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
 
   const optionsList: { id: CommercialOptionId; title: string; desc: string }[] = [
     { id: "avatar", title: "Avatares Psicológicos", desc: "Tus compradores ideales totalmente perfilados con sus dolores, deseos y motivaciones." },
-    { id: "funnel", title: "Embudo de Conversión", desc: "El mapa paso a paso del viaje de tu cliente desde el descubrimiento hasta el cierre." },
     { id: "testimonials", title: "Testimonios Persuasivos", desc: "Historias de éxito realistas y testimonios diseñados para derribar el escepticismo." },
     { id: "objections", title: "Frustraciones del Avatar", desc: "Análisis de las barreras de compra más comunes y cómo resolverlas eficazmente." },
     { id: "benefits", title: "Beneficios Magnéticos", desc: "Los ganchos de transformación que conectan las características con las emociones." },
@@ -160,7 +159,7 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 220 }}
             className={`relative h-full bg-[#0b0b0f] border-l border-white/5 shadow-[-15px_0_50px_rgba(0,0,0,0.9)] flex flex-col z-10 overflow-hidden text-left transition-all duration-300 ${
-              activeOption ? "w-full max-w-[1300px]" : "w-full max-w-lg md:max-w-xl"
+              activeOption ? "w-full max-w-[95vw] lg:max-w-[90vw] xl:max-w-[1550px]" : "w-full max-w-lg md:max-w-xl"
             }`}
           >
             {/* Header */}
@@ -1471,13 +1470,6 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
                         </div>
                       );
                     })()}
-
-                    {/* 7. EMBUDO DE CONVERSIÓN / MAPA DE RUTA (BLUEPRINT COMPLETO) */}
-                    {activeOption === "funnel" && (
-                      <div className="space-y-6 text-left font-sans">
-                        <ProjectStrategy_Blueprint hideHeader={true} />
-                      </div>
-                    )}
 
                     {/* 8. CTA PRINCIPAL */}
                     {activeOption === "cta" && (() => {
