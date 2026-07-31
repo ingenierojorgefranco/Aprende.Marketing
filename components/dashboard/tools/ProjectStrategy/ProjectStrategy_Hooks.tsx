@@ -103,6 +103,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const [localTitle, setLocalTitle] = useState("");
   const [localStrategy, setLocalStrategy] = useState("");
+  const [activeHookTabImage1, setActiveHookTabImage1] = useState<"Hook" | "Por qué funciona" | "Guion del reel" | "Texto y CTA">("Hook");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
   const [isEditingScript, setIsEditingScript] = useState(false);
@@ -1029,6 +1030,175 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                     
                     <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">
                         <Shield className="w-3 h-3" /> Acceso Instantáneo tras Desbloqueo
+                    </div>
+                </div>
+            )}
+
+            {/* VISTA COMPLETA IMAGEN 1 (Actualizada según requerimientos) */}
+            {isCurrentUnlocked && currentHook.id && (
+                <div className="bg-[#08080c] border border-white/10 rounded-[24px] p-6 md:p-8 space-y-6 shadow-2xl mb-8 text-left">
+                    {/* Header Card (Ficha de la Imagen 1) */}
+                    <div className="bg-[#0c0c11]/80 border border-white/10 p-5 md:p-6 rounded-[20px] flex flex-col justify-between gap-4 shadow-2xl">
+                        <div className="space-y-2 text-left">
+                            <div className="flex items-center gap-2">
+                                <span className="text-[10px] md:text-xs font-black tracking-widest text-[#FF5D1E] uppercase">
+                                    VIDEO HOOK #{(activeTab === 'library' ? activeLibraryHook : activeHook) + 1}
+                                </span>
+                                <span className="text-[10px] md:text-xs text-zinc-500 font-bold">•</span>
+                                <span className="text-[10px] md:text-xs font-bold tracking-widest text-zinc-300 uppercase">
+                                    {currentHook.angle || currentHook.category || "OPORTUNIDAD"}
+                                </span>
+                            </div>
+                            <h2 className="text-sm sm:text-base md:text-lg font-bold text-white tracking-tight leading-relaxed max-w-3xl">
+                                ¿{(localTitle || currentHook.title || "").replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?
+                            </h2>
+                            <div className="pt-2 flex flex-wrap items-center gap-2.5">
+                                <button
+                                    onClick={() => {
+                                        const scriptText = currentKit?.script || localTitle || currentHook.title || "";
+                                        navigator.clipboard.writeText(scriptText);
+                                        alert("¡Guión copiado al portapapeles!");
+                                    }}
+                                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-zinc-200 hover:text-white text-xs font-bold transition-all cursor-pointer shadow-sm"
+                                >
+                                    <Copy className="w-3.5 h-3.5" />
+                                    <span>Copiar Guion</span>
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        const fullCopy = `HOOK: ${localTitle || currentHook.title || ""}\n\nGUIÓN:\n${currentKit?.script || ""}\n\nCOPY PUBLICITARIO:\n${currentKit?.ads || ""}`;
+                                        navigator.clipboard.writeText(fullCopy);
+                                        const element = document.createElement("a");
+                                        const file = new Blob([fullCopy], { type: 'text/plain' });
+                                        element.href = URL.createObjectURL(file);
+                                        element.download = `video-hook-${(activeTab === 'library' ? activeLibraryHook : activeHook) + 1}.txt`;
+                                        document.body.appendChild(element);
+                                        element.click();
+                                        document.body.removeChild(element);
+                                    }}
+                                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-xs font-bold transition-all shadow-[0_2px_8px_rgba(255,93,30,0.25)] cursor-pointer"
+                                >
+                                    <Download className="w-3.5 h-3.5" />
+                                    <span>Descargar video</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Tabs Row de Imagen 1 */}
+                    <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-white/[0.08]">
+                        {["Hook", "Guion del reel", "Texto y CTA"].map((tab) => {
+                            const isActive = activeHookTabImage1 === tab;
+                            return (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveHookTabImage1(tab as any)}
+                                    className={`px-4 py-2 text-xs md:text-sm font-bold whitespace-nowrap border-b-2 transition-all cursor-pointer duration-200 tracking-wide ${
+                                        isActive
+                                            ? "border-[#FF5D1E] text-[#FF5D1E]"
+                                            : "border-transparent text-zinc-400 hover:text-white"
+                                    }`}
+                                >
+                                    {tab}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Content Box de Imagen 1 */}
+                    <div className="pt-2">
+                        {activeHookTabImage1 === "Hook" && (
+                            <div className="p-6 md:p-8 bg-[#0c0c11]/90 border border-white/[0.06] rounded-[24px] text-left space-y-6">
+                                <div className="flex flex-col md:flex-row gap-6 items-start">
+                                    {/* Left: Video Thumbnail */}
+                                    <div className="w-[140px] h-[190px] md:w-[160px] md:h-[220px] rounded-2xl bg-zinc-900 border border-white/10 relative overflow-hidden shrink-0 shadow-md">
+                                        <img
+                                            src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=600&auto=format&fit=crop"
+                                            alt="Hook aesthetic content thumbnail"
+                                            className="w-full h-full object-cover"
+                                            referrerPolicy="no-referrer"
+                                        />
+                                        <div className="absolute inset-0 bg-black/20" />
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <div className="w-12 h-12 rounded-full border border-white bg-black/10 backdrop-blur-sm flex items-center justify-center text-white shadow-lg cursor-pointer hover:scale-105 transition-transform">
+                                                <Play className="w-5 h-5 fill-white stroke-none ml-0.5" />
+                                            </div>
+                                        </div>
+                                        <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 text-[10px] font-bold text-white bg-black/80 rounded-[4px] tracking-wide">
+                                            0:03
+                                        </span>
+                                    </div>
+
+                                    {/* Right: Info */}
+                                    <div className="flex-1 space-y-5">
+                                        <div className="pl-4 border-l-2 border-[#FF5D1E] space-y-1 text-left">
+                                            <span className="text-xs text-zinc-400 font-medium">Primeros 3 segundos</span>
+                                            <p className="italic text-zinc-100 font-medium text-sm md:text-base leading-relaxed">
+                                                "¿{(localTitle || currentHook.title || "").replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?"
+                                            </p>
+                                        </div>
+
+                                        <div className="border-t border-white/[0.06] pt-5">
+                                            <h4 className="text-sm font-medium text-white mb-3">Estrategia Psicologica</h4>
+                                            <div className="space-y-2.5 text-xs md:text-sm">
+                                                <div className="flex items-center gap-2.5">
+                                                    <CheckCircle2 className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
+                                                    <span className="text-zinc-300 font-normal">Usa voz o texto en pantalla</span>
+                                                </div>
+                                                <div className="flex items-center gap-2.5">
+                                                    <CheckCircle2 className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
+                                                    <span className="text-zinc-300 font-normal">Mantén el encuadre simple</span>
+                                                </div>
+                                                <div className="flex items-center gap-2.5">
+                                                    <CheckCircle2 className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
+                                                    <span className="text-zinc-300 font-normal">Continúa con el desarrollo del valor</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Info Badges/Chips */}
+                                <div className="flex flex-wrap items-center gap-3 pt-5 border-t border-white/[0.04]">
+                                    <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/5 bg-white/[0.01]">
+                                        <Video className="w-4 h-4 text-zinc-400" />
+                                        <span className="text-xs font-bold text-[#FF5D1E]">Canal: <span className="text-white font-normal ml-1">Reels de Instagram</span></span>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/5 bg-white/[0.01]">
+                                        <Target className="w-4 h-4 text-[#FF5D1E]" />
+                                        <span className="text-xs font-bold text-[#FF5D1E]">Destino: <span className="text-white font-normal ml-1">Mensaje Directo al DM</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeHookTabImage1 === "Guion del reel" && (
+                            <div className="p-6 md:p-8 bg-[#0c0c11]/90 border border-white/[0.06] rounded-[24px] text-left space-y-4">
+                                <h4 className="text-sm font-bold text-white uppercase tracking-wider">GUION DE VIDEO</h4>
+                                <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 text-zinc-200 text-sm md:text-base whitespace-pre-wrap leading-relaxed">
+                                    {currentKit?.script || "Aquí ingresa el guion del video persuasivo..."}
+                                </div>
+                            </div>
+                        )}
+
+                        {activeHookTabImage1 === "Texto y CTA" && (
+                            <div className="p-6 md:p-8 bg-[#0c0c11]/90 border border-white/[0.06] rounded-[24px] text-left space-y-4">
+                                <h4 className="text-sm font-bold text-white uppercase tracking-wider">TEXTO Y CTA</h4>
+                                <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 text-zinc-200 text-sm md:text-base whitespace-pre-wrap leading-relaxed">
+                                    {currentKit?.ads || (
+                                        <>
+                                            🔥 ¿{(localTitle || currentHook.title || "").replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?\n\n
+                                            Sé que suena a promesa vacía, pero en este sector la demanda es tan alta que muchas personas están logrando independencia financiera empezando en sus tiempos libres.\n\n
+                                            ✅ Sin jefes.\n
+                                            ✅ A tu ritmo.\n
+                                            ✅ Con una técnica probada.\n\n
+                                            He preparado una Masterclass gratuita donde te revelo el mapa exacto para lograrlo este mismo mes. 👇\n\n
+                                            🔗 [LINK DE TU LANDING]
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
