@@ -1116,9 +1116,35 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     {currentHook.angle || currentHook.category || "OPORTUNIDAD"}
                                 </span>
                             </div>
-                            <h2 className="text-sm sm:text-base md:text-lg font-bold text-white tracking-tight leading-relaxed max-w-3xl">
-                                ¿{(localTitle || currentHook.title || "").replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?
-                            </h2>
+                            {isRealAdmin && isEditingTitle ? (
+                                <div className="w-full max-w-3xl my-1">
+                                    <input
+                                        autoFocus
+                                        type="text"
+                                        value={localTitle}
+                                        onChange={(e) => setLocalTitle(e.target.value)}
+                                        onBlur={() => { handleUpdateMessage('title', localTitle); setIsEditingTitle(false); }}
+                                        onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+                                        className="w-full bg-black/80 border border-orange-500 rounded-xl px-4 py-2 text-white font-bold text-sm sm:text-base md:text-lg outline-none transition-all shadow-inner"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="relative group/maintitle max-w-3xl">
+                                    <h2
+                                        onClick={() => isRealAdmin && setIsEditingTitle(true)}
+                                        className={`text-sm sm:text-base md:text-lg font-bold text-white tracking-tight leading-relaxed flex items-center gap-2 ${
+                                            isRealAdmin ? 'cursor-pointer hover:text-orange-400 transition-colors' : ''
+                                        }`}
+                                    >
+                                        <span>¿{(localTitle || currentHook.title || "").replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?</span>
+                                        {isRealAdmin && (
+                                            <span className="opacity-0 group-hover/maintitle:opacity-100 transition-opacity text-[10px] font-medium text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded shrink-0">
+                                                Editar
+                                            </span>
+                                        )}
+                                    </h2>
+                                </div>
+                            )}
                             <div className="pt-2 flex flex-wrap items-center justify-end gap-2.5 w-full">
                                 <button
                                     onClick={() => {
@@ -1206,14 +1232,36 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         </div>
 
                                         <div className="border-t border-white/[0.06] pt-5">
-                                            <h4 className="text-sm font-medium text-white mb-3">Estrategia Psicologica</h4>
+                                            <div className="flex items-center justify-between mb-3">
+                                                <h4 className="text-sm font-medium text-white">Estrategia Psicologica</h4>
+                                                {isRealAdmin && (
+                                                    <span className="text-[10px] text-orange-400 font-medium bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded">
+                                                        Editable por Admin
+                                                    </span>
+                                                )}
+                                            </div>
                                             <div className="space-y-2.5 text-xs md:text-sm">
-                                                {parseStrategyItems(localStrategy || (currentHook as any).psychological_strategy || currentHook.psychologicalStrategy).map((item, idx) => (
-                                                    <div key={idx} className="flex items-center gap-2.5">
-                                                        <CheckCircle2 className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
-                                                        <span className="text-zinc-300 font-normal">{item}</span>
-                                                    </div>
-                                                ))}
+                                                {[0, 1, 2].map((idx) => {
+                                                    const parsed = parseStrategyItems(localStrategy || (currentHook as any).psychological_strategy || currentHook.psychologicalStrategy);
+                                                    const val = strategyItems[idx] !== undefined ? strategyItems[idx] : (parsed[idx] || "");
+                                                    return (
+                                                        <div key={idx} className="flex items-center gap-2.5">
+                                                            <CheckCircle2 className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
+                                                            {isRealAdmin ? (
+                                                                <input
+                                                                    type="text"
+                                                                    value={val}
+                                                                    onChange={(e) => updateStrategyItem(idx, e.target.value)}
+                                                                    onBlur={() => handleBlurStrategyItems(strategyItems)}
+                                                                    className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-1.5 text-zinc-100 text-xs md:text-sm font-normal outline-none focus:border-[#FF5D1E] focus:ring-1 focus:ring-[#FF5D1E] transition-all"
+                                                                    placeholder={`Ítem ${idx + 1} de la estrategia...`}
+                                                                />
+                                                            ) : (
+                                                                <span className="text-zinc-300 font-normal">{val}</span>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     </div>
