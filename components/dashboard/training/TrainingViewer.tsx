@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { CheckCircle, Clock, Award, PlayCircle, ChevronDown, ChevronUp, Play, FileText, MessageSquare, Send, User, Reply, ThumbsUp, Loader2 } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import { CheckCircle, Clock, Award, PlayCircle, ChevronDown, ChevronUp, Play, FileText, MessageSquare, Send, User, Reply, ThumbsUp, Loader2, ArrowLeft } from 'lucide-react';
 import { api } from '../../../services/api';
 
 // Types definition
@@ -236,6 +236,17 @@ export const TrainingViewer: React.FC = () => {
   return (
     <div className="max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-4 p-4 lg:p-8">
       
+      {/* Botón Volver a la Academia */}
+      <div className="mb-6">
+        <Link 
+          to="/dashboard/training" 
+          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-[#FF5A1F] transition-colors bg-slate-900/80 border border-slate-800 px-4 py-2.5 rounded-xl shadow-md hover:border-[#FF5A1F]/30"
+        >
+          <ArrowLeft className="w-4 h-4 text-[#FF5A1F]" />
+          <span>Volver a la Academia</span>
+        </Link>
+      </div>
+
       {/* Header Course Info */}
       <div className="mb-10 border-b border-gray-800 pb-10">
          <div className="flex items-center gap-3 mb-4">

@@ -45,6 +45,7 @@ import { AdminNews } from "./components/dashboard/admin/AdminNews";
 ////////// Fin de actualización - 07/06/2025 10:00 //////////
 
 // Dashboard Training
+import { AcademyCatalog } from "./components/dashboard/training/AcademyCatalog";
 import { TrainingViewer } from "./components/dashboard/training/TrainingViewer";
 
 // Dashboard Editor
@@ -371,6 +372,7 @@ const App: React.FC = () => {
           {/* ////////// Fin de actualización - 07/06/2025 10:00 ////////// */}
 
           {/* ACADEMIA */}
+          <Route path="training" element={<AcademyCatalog />} />
           <Route path="training/:moduleId" element={<TrainingViewer />} />
 
           {/* CRM */}

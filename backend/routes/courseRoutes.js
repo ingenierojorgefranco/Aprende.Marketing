@@ -13,7 +13,7 @@ export const adminRouter = express.Router();
 
 studentRouter.get('/courses', authMiddleware, async (req, res) => {
     try {
-        const [courses] = await pool.query('SELECT id, title, slug FROM courses WHERE is_active = 1 ORDER BY order_index ASC, created_at DESC');
+        const [courses] = await pool.query('SELECT id, title, subtitle, description, slug, thumbnail, badge_text FROM courses WHERE is_active = 1 ORDER BY order_index ASC, created_at DESC');
         res.json(courses);
     } catch (e) {
         console.error("[Courses] Error fetching list:", e);

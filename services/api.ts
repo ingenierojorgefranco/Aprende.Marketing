@@ -1319,8 +1319,8 @@ export const api = {
         return await fetchWithFallback(url, { headers: getAuthHeaders() });
     },
   
-    getCoursesList: async (): Promise<{id: string, title: string, slug: string}[]> => {
-        if (isMockMode) return Promise.resolve(localCourses.map(c => ({ id: c.id, title: c.title, slug: c.slug })));
+    getCoursesList: async (): Promise<any[]> => {
+        if (isMockMode) return Promise.resolve(localCourses);
         if (apiCache.courses) return apiCache.courses;
         const courses = await fetchWithFallback('/courses', { headers: getAuthHeaders() });
         apiCache.courses = courses;
