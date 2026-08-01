@@ -169,6 +169,29 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [tempPinnedComment, setTempPinnedComment] = useState("");
   const [tempReelTitle, setTempReelTitle] = useState("");
 
+  const handleDownloadVideo = () => {
+    if (currentKit?.downloadUrl && currentKit.downloadUrl.trim() !== '') {
+      const link = document.createElement("a");
+      link.href = currentKit.downloadUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.setAttribute("download", "");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      const fullCopy = `HOOK: ${localTitle || currentHook.title || ""}\n\nGUIÓN:\n${currentKit?.script || ""}\n\nCOPY PUBLICITARIO:\n${currentKit?.ads || ""}`;
+      navigator.clipboard.writeText(fullCopy);
+      const element = document.createElement("a");
+      const file = new Blob([fullCopy], { type: 'text/plain' });
+      element.href = URL.createObjectURL(file);
+      element.download = `video-hook-${(activeTab === 'library' ? activeLibraryHook : activeHook) + 1}.txt`;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    }
+  };
+
   const loadingMessages = [
     "Analizando ángulo psicológico...",
     "Redactando guion de alto impacto...",
@@ -555,7 +578,19 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   }, [searchTerm, activeTab, projectChecked, masterParentId]);
 
-  const currentKit = currentHook.contentJson || defaultKitContent;
+  const currentKit = useMemo(() => {
+    const raw = (currentHook && currentHook.contentJson && typeof currentHook.contentJson === 'object') ? currentHook.contentJson : {};
+    return {
+      script: raw.script || defaultKitContent.script,
+      reelTitle: raw.reelTitle || raw.reel_title || currentHook.reelTitle || currentHook.title || defaultKitContent.reelTitle,
+      ads: raw.ads || raw.caption || raw.description || defaultKitContent.ads,
+      pinnedComment: raw.pinnedComment || raw.pinned_comment || defaultKitContent.pinnedComment,
+      videoUrl: raw.videoUrl || raw.video_url || defaultKitContent.videoUrl,
+      downloadUrl: raw.downloadUrl || raw.download_url || defaultKitContent.downloadUrl,
+      thumbs: raw.thumbs || defaultKitContent.thumbs,
+      ...raw
+    };
+  }, [currentHook]);
 
   const handleUpdateKitJson = async (field: string, value: any) => {
     if (!currentHook.id) return;
@@ -563,6 +598,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         const updatedKit = { ...currentKit, [field]: value };
         await api.updateProjectHook(currentHook.id, { contentJson: updatedKit });
         setHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
+        setLibraryHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
     } catch (e) {
         console.error("Error updating kit json:", e);
     }
@@ -575,6 +611,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         const updatedKit = { ...currentKit, script: tempScript };
         await api.updateProjectHook(currentHook.id, { contentJson: updatedKit });
         setHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
+        setLibraryHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
         setIsEditingScript(false);
     } catch (e) {
         alert("Error al guardar el guion");
@@ -590,6 +627,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         const updatedKit = { ...currentKit, ads: tempAds, pinnedComment: tempPinnedComment, reelTitle: tempReelTitle };
         await api.updateProjectHook(currentHook.id, { contentJson: updatedKit });
         setHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
+        setLibraryHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
         setIsEditingAds(false);
     } catch (e) {
         alert("Error al guardar los cambios");
@@ -1279,6 +1317,25 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     </div>
                                 </div>
 
+                                {/* Campo URL de Video para Administrador */}
+                                {isRealAdmin && (
+                                    <div className="pt-4 border-t border-white/[0.06] space-y-2">
+                                        <label className="text-[10px] text-[#FF5D1E] font-black uppercase tracking-widest flex items-center gap-1.5 ml-1">
+                                            <Video className="w-3.5 h-3.5 text-[#FF5D1E]" />
+                                            <span>URL del Video a Descargar (Solo Admin)</span>
+                                        </label>
+                                        <div className="flex items-center gap-2 bg-black/60 border border-white/10 rounded-xl px-3.5 py-2.5 focus-within:border-[#FF5D1E] transition-all">
+                                            <input 
+                                                type="text"
+                                                value={currentKit?.downloadUrl || ''}
+                                                onChange={(e) => handleUpdateKitJson('downloadUrl', e.target.value)}
+                                                placeholder="https://..."
+                                                className="w-full bg-transparent text-white text-xs md:text-sm font-mono outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Botones Grandes de Acción de Abajo */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-5 border-t border-white/[0.08]">
                                     <button
@@ -1293,17 +1350,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         <span>Copiar Guion</span>
                                     </button>
                                     <button
-                                        onClick={() => {
-                                            const fullCopy = `HOOK: ${localTitle || currentHook.title || ""}\n\nGUIÓN:\n${currentKit?.script || ""}\n\nCOPY PUBLICITARIO:\n${currentKit?.ads || ""}`;
-                                            navigator.clipboard.writeText(fullCopy);
-                                            const element = document.createElement("a");
-                                            const file = new Blob([fullCopy], { type: 'text/plain' });
-                                            element.href = URL.createObjectURL(file);
-                                            element.download = `video-hook-${(activeTab === 'library' ? activeLibraryHook : activeHook) + 1}.txt`;
-                                            document.body.appendChild(element);
-                                            element.click();
-                                            document.body.removeChild(element);
-                                        }}
+                                        onClick={handleDownloadVideo}
                                         className="w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-sm md:text-base font-black flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-[0_4px_16px_rgba(255,93,30,0.3)] hover:scale-[1.01]"
                                     >
                                         <Download className="w-4.5 h-4.5" />
@@ -1315,10 +1362,53 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
                         {activeHookTabImage1 === "Guion del Hook" && (
                             <div className="p-6 md:p-8 bg-[#0c0c11]/90 border border-white/[0.06] rounded-[24px] text-left space-y-5">
-                                <h4 className="text-sm font-bold text-white uppercase tracking-wider">GUION DE VIDEO</h4>
-                                <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 text-zinc-200 text-sm md:text-base whitespace-pre-wrap leading-relaxed">
-                                    {currentKit?.script || "Aquí ingresa el guion del video persuasivo..."}
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-sm font-bold text-white uppercase tracking-wider">GUION DE VIDEO</h4>
+                                    {isRealAdmin && (
+                                        !isEditingScript ? (
+                                            <button 
+                                                onClick={() => {
+                                                    setTempScript(currentKit.script || "");
+                                                    setIsEditingScript(true);
+                                                }}
+                                                className="text-xs font-black text-[#FF5D1E] uppercase bg-[#FF5D1E]/10 px-3.5 py-1.5 rounded-lg border border-[#FF5D1E]/30 flex items-center gap-1.5 hover:bg-[#FF5D1E]/20 transition-all cursor-pointer"
+                                            >
+                                                <PenTool className="w-3.5 h-3.5 text-[#FF5D1E]" />
+                                                <span>Editar Guion (Admin)</span>
+                                            </button>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <button 
+                                                    onClick={() => setIsEditingScript(false)}
+                                                    className="text-xs font-bold text-zinc-400 bg-zinc-800 px-3 py-1.5 rounded-lg border border-white/10"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                                <button 
+                                                    onClick={handleSaveScript}
+                                                    disabled={saving}
+                                                    className="text-xs font-black text-emerald-400 uppercase bg-emerald-500/10 px-3.5 py-1.5 rounded-lg border border-emerald-500/30 flex items-center gap-1.5 hover:bg-emerald-500/20 transition-all cursor-pointer"
+                                                >
+                                                    {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                                                    <span>Guardar Guion</span>
+                                                </button>
+                                            </div>
+                                        )
+                                    )}
                                 </div>
+                                {isEditingScript ? (
+                                    <textarea
+                                        value={tempScript}
+                                        onChange={(e) => setTempScript(e.target.value)}
+                                        rows={8}
+                                        className="w-full bg-black/60 border border-white/10 rounded-xl p-5 text-white text-sm md:text-base font-normal leading-relaxed outline-none focus:border-[#FF5D1E] resize-y"
+                                        placeholder="Escribe el guion aquí..."
+                                    />
+                                ) : (
+                                    <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 text-zinc-200 text-sm md:text-base whitespace-pre-wrap leading-relaxed">
+                                        {currentKit?.script || "Aquí ingresa el guion del video persuasivo..."}
+                                    </div>
+                                )}
                                 <div className="pt-2">
                                     <button
                                         onClick={() => {
@@ -1337,64 +1427,134 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
                         {activeHookTabImage1 === "Publicacion y CTA" && (
                             <div className="p-6 md:p-8 bg-[#0c0c11]/90 border border-white/[0.06] rounded-[24px] text-left space-y-6">
-                                {/* Card 1: Título del Reel */}
-                                <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
-                                    <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
-                                        <span className="text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20 font-bold">TÍTULO</span>
-                                        <span className="text-zinc-400 font-bold flex items-center gap-1.5">
-                                            <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
-                                            TÍTULO DEL REEL
-                                        </span>
-                                    </div>
-                                    <h3 className="text-lg md:text-xl font-bold text-white tracking-tight">
-                                        {currentKit?.reelTitle || localTitle || currentHook.title || "Sin título definido"}
-                                    </h3>
-                                </div>
-
-                                {/* Card 2: Caption / Descripción Sugerida */}
-                                <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-4 text-left">
-                                    <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
-                                        <span className="text-emerald-400 font-bold">CAPTION / DESCRIPCIÓN</span>
-                                        <span className="text-zinc-400 font-bold flex items-center gap-1.5">
-                                            <Megaphone className="w-3.5 h-3.5 text-zinc-400" />
-                                            DESCRIPCIÓN SUGERIDA
-                                        </span>
-                                    </div>
-                                    <div className="text-zinc-200 text-sm md:text-base font-normal leading-relaxed whitespace-pre-wrap">
-                                        {currentKit?.ads || (
-                                            `¿Te gustaría generar ingresos extra los fines de semana sin tener que dejar tu empleo actual?\n\n💸 No se trata de un esfuerzo agotador, sino de dominar una habilidad de alta gama que te permite ganar en unas horas lo que a muchos les toma días de oficina.\n\n🎓 CLASE GRATIS DISPONIBLE:\nNuestra instructora experta te enseñará a dar tus primeros pasos en el microblading de cejas, una técnica "pelo a pelo" que te permitirá transformar la autoestima de tus clientas mientras transformas tu propia economía, incluso si empiezas desde cero.\n\n¿CÓMO REGISTRARTE A LA CLASE? 👇\n1️⃣ Haz clic donde dice: "▶️ GRATIS 👉 CLASE Microblading de Cejas" (está justo aquí abajo, arriba de mi nombre)`
+                                {/* Admin Header Bar with Edit Button */}
+                                {isRealAdmin && (
+                                    <div className="flex items-center justify-between pb-4 border-b border-white/[0.06]">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-black text-[#FF5D1E] uppercase tracking-wider">Modo Administrador</span>
+                                        </div>
+                                        {!isEditingAds ? (
+                                            <button 
+                                                onClick={() => {
+                                                    setTempReelTitle(currentKit.reelTitle || localTitle || currentHook.title || "");
+                                                    setTempAds(currentKit.ads || "");
+                                                    setTempPinnedComment(currentKit.pinnedComment || "");
+                                                    setIsEditingAds(true);
+                                                }}
+                                                className="text-xs font-black text-[#FF5D1E] uppercase bg-[#FF5D1E]/10 px-3.5 py-1.5 rounded-lg border border-[#FF5D1E]/30 flex items-center gap-1.5 hover:bg-[#FF5D1E]/20 transition-all cursor-pointer"
+                                            >
+                                                <PenTool className="w-3.5 h-3.5 text-[#FF5D1E]" />
+                                                <span>Editar Contenido (Admin)</span>
+                                            </button>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <button 
+                                                    onClick={() => setIsEditingAds(false)}
+                                                    className="text-xs font-bold text-zinc-400 bg-zinc-800 px-3 py-1.5 rounded-lg border border-white/10"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                                <button 
+                                                    onClick={handleSaveAds}
+                                                    disabled={saving}
+                                                    className="text-xs font-black text-emerald-400 uppercase bg-emerald-500/10 px-3.5 py-1.5 rounded-lg border border-emerald-500/30 flex items-center gap-1.5 hover:bg-emerald-500/20 transition-all cursor-pointer"
+                                                >
+                                                    {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                                                    <span>Guardar Cambios</span>
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
-                                </div>
+                                )}
 
-                                {/* Card 3: Comentario Fijado */}
-                                <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
-                                    <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
-                                        <span className="text-emerald-400 font-bold">COMENTARIO FIJADO</span>
-                                        <span className="text-emerald-400 font-bold flex items-center gap-1.5">
-                                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                                            COMENTARIO DE VALOR
-                                        </span>
+                                {isEditingAds ? (
+                                    <div className="space-y-6">
+                                        {/* Edit Card 1: Título del Reel */}
+                                        <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
+                                            <label className="text-[11px] font-black text-emerald-400 uppercase tracking-widest block">TÍTULO DEL REEL</label>
+                                            <input 
+                                                type="text"
+                                                value={tempReelTitle}
+                                                onChange={(e) => setTempReelTitle(e.target.value)}
+                                                className="w-full bg-black/60 border border-white/10 rounded-xl p-3.5 text-white font-bold text-base md:text-lg outline-none focus:border-[#FF5D1E] transition-all"
+                                                placeholder="Ingresa el título del Reel..."
+                                            />
+                                        </div>
+
+                                        {/* Edit Card 2: Caption / Descripción Sugerida */}
+                                        <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
+                                            <label className="text-[11px] font-black text-emerald-400 uppercase tracking-widest block">CAPTION / DESCRIPCIÓN SUGERIDA</label>
+                                            <textarea 
+                                                value={tempAds}
+                                                onChange={(e) => setTempAds(e.target.value)}
+                                                rows={8}
+                                                className="w-full bg-black/60 border border-white/10 rounded-xl p-3.5 text-white text-sm md:text-base font-normal leading-relaxed outline-none focus:border-[#FF5D1E] transition-all resize-y"
+                                                placeholder="Ingresa la descripción para el post..."
+                                            />
+                                        </div>
+
+                                        {/* Edit Card 3: Comentario Fijado */}
+                                        <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
+                                            <label className="text-[11px] font-black text-emerald-400 uppercase tracking-widest block">COMENTARIO FIJADO (DE VALOR)</label>
+                                            <textarea 
+                                                value={tempPinnedComment}
+                                                onChange={(e) => setTempPinnedComment(e.target.value)}
+                                                rows={4}
+                                                className="w-full bg-black/60 border border-white/10 rounded-xl p-3.5 text-white text-sm md:text-base font-normal italic outline-none focus:border-[#FF5D1E] transition-all resize-y"
+                                                placeholder="Ingresa el comentario fijado..."
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="text-zinc-200 text-sm md:text-base font-normal italic leading-relaxed whitespace-pre-wrap">
-                                        {currentKit?.pinnedComment || "Sin comentario fijado"}
-                                    </div>
-                                </div>
+                                ) : (
+                                    <>
+                                        {/* Card 1: Título del Reel */}
+                                        <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
+                                            <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
+                                                <span className="text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20 font-bold">TÍTULO</span>
+                                                <span className="text-zinc-400 font-bold flex items-center gap-1.5">
+                                                    <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
+                                                    TÍTULO DEL REEL
+                                                </span>
+                                            </div>
+                                            <h3 className="text-lg md:text-xl font-bold text-white tracking-tight">
+                                                {currentKit?.reelTitle || localTitle || currentHook.title || "Sin título definido"}
+                                            </h3>
+                                        </div>
+
+                                        {/* Card 2: Caption / Descripción Sugerida */}
+                                        <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-4 text-left">
+                                            <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
+                                                <span className="text-emerald-400 font-bold">CAPTION / DESCRIPCIÓN</span>
+                                                <span className="text-zinc-400 font-bold flex items-center gap-1.5">
+                                                    <Megaphone className="w-3.5 h-3.5 text-zinc-400" />
+                                                    DESCRIPCIÓN SUGERIDA
+                                                </span>
+                                            </div>
+                                            <div className="text-zinc-200 text-sm md:text-base font-normal leading-relaxed whitespace-pre-wrap">
+                                                {currentKit?.ads || "Sin descripción definida"}
+                                            </div>
+                                        </div>
+
+                                        {/* Card 3: Comentario Fijado */}
+                                        <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
+                                            <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
+                                                <span className="text-emerald-400 font-bold">COMENTARIO FIJADO</span>
+                                                <span className="text-emerald-400 font-bold flex items-center gap-1.5">
+                                                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                                                    COMENTARIO DE VALOR
+                                                </span>
+                                            </div>
+                                            <div className="text-zinc-200 text-sm md:text-base font-normal italic leading-relaxed whitespace-pre-wrap">
+                                                {currentKit?.pinnedComment || "Sin comentario fijado"}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
 
                                 {/* Botón Descargar Video */}
                                 <div className="pt-2">
                                     <button
-                                        onClick={() => {
-                                            const fullCopy = `HOOK: ${localTitle || currentHook.title || ""}\n\nGUIÓN:\n${currentKit?.script || ""}\n\nCOPY PUBLICITARIO:\n${currentKit?.ads || ""}`;
-                                            navigator.clipboard.writeText(fullCopy);
-                                            const element = document.createElement("a");
-                                            const file = new Blob([fullCopy], { type: 'text/plain' });
-                                            element.href = URL.createObjectURL(file);
-                                            element.download = `video-hook-${(activeTab === 'library' ? activeLibraryHook : activeHook) + 1}.txt`;
-                                            document.body.appendChild(element);
-                                            element.click();
-                                            document.body.removeChild(element);
-                                        }}
+                                        onClick={handleDownloadVideo}
                                         className="w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-sm md:text-base font-black flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-[0_4px_16px_rgba(255,93,30,0.3)] hover:scale-[1.01]"
                                     >
                                         <Download className="w-4.5 h-4.5" />
