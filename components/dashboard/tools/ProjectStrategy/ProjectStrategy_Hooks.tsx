@@ -103,8 +103,64 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const [localTitle, setLocalTitle] = useState("");
   const [localStrategy, setLocalStrategy] = useState("");
-  const [activeHookTabImage1, setActiveHookTabImage1] = useState<"Hook" | "Por qué funciona" | "Guion del reel" | "Texto y CTA">("Hook");
+  const [strategyItems, setStrategyItems] = useState<string[]>(["", "", ""]);
+  const [activeHookTabImage1, setActiveHookTabImage1] = useState<"Hook" | "Guion del Hook" | "Publicacion y CTA">("Hook");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+
+  const parseStrategyItems = (strategyRaw: any): string[] => {
+    if (!strategyRaw) {
+      return [
+        "Usa voz o texto en pantalla",
+        "Mantén el encuadre simple",
+        "Continúa con el desarrollo del valor"
+      ];
+    }
+    if (Array.isArray(strategyRaw)) {
+      const items = strategyRaw.map(s => String(s).trim()).filter(Boolean);
+      while (items.length < 3) items.push("");
+      return items.slice(0, 3);
+    }
+    if (typeof strategyRaw === 'string') {
+      const trimmed = strategyRaw.trim();
+      if (trimmed.startsWith('[')) {
+        try {
+          const parsed = JSON.parse(trimmed);
+          if (Array.isArray(parsed)) {
+            const items = parsed.map(s => String(s).trim()).filter(Boolean);
+            while (items.length < 3) items.push("");
+            return items.slice(0, 3);
+          }
+        } catch (e) {
+          // fallback
+        }
+      }
+      const lines = trimmed.split(/\r?\n|\|\|/).map(l => l.replace(/^[•\-\*\d+\.\s]+/, '').trim()).filter(Boolean);
+      if (lines.length >= 3) {
+        return lines.slice(0, 3);
+      } else if (lines.length === 2) {
+        return [lines[0], lines[1], "Continúa con el desarrollo del valor"];
+      } else if (lines.length === 1 && lines[0]) {
+        return [lines[0], "Mantén el encuadre simple", "Continúa con el desarrollo del valor"];
+      }
+    }
+    return [
+      "Usa voz o texto en pantalla",
+      "Mantén el encuadre simple",
+      "Continúa con el desarrollo del valor"
+    ];
+  };
+
+  const updateStrategyItem = (index: number, val: string) => {
+    const updated = [...strategyItems];
+    updated[index] = val;
+    setStrategyItems(updated);
+    setLocalStrategy(JSON.stringify(updated));
+  };
+
+  const handleBlurStrategyItems = (updatedItems: string[]) => {
+    const jsonStr = JSON.stringify(updatedItems);
+    handleUpdateMessage('psychological_strategy', jsonStr);
+  };
 
   const [isEditingScript, setIsEditingScript] = useState(false);
   const [tempScript, setTempScript] = useState("");
@@ -306,7 +362,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   useEffect(() => {
     if (currentHook && currentHook.id) {
         setLocalTitle(currentHook.title || "");
-        setLocalStrategy((currentHook as any).psychological_strategy || currentHook.psychologicalStrategy || "");
+        const strat = (currentHook as any).psychological_strategy || currentHook.psychologicalStrategy || "";
+        setLocalStrategy(strat);
+        setStrategyItems(parseStrategyItems(strat));
         setIsEditingTitle(false);
         setIsEditingScript(false);
         setIsEditingAds(false);
@@ -636,7 +694,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             const now = new Date().toISOString();
             const hookData = {
                 title: 'Nuevo Gancho Manual',
-                psychological_strategy: 'Ingresa aquí el enfoque estratégico...',
+                psychological_strategy: JSON.stringify([
+                    "Usa voz o texto en pantalla",
+                    "Mantén el encuadre simple",
+                    "Continúa con el desarrollo del valor"
+                ]),
                 contentJson: defaultKitContent,
                 isGenerated: false,
                 updatedAt: now
@@ -998,11 +1060,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                       <div className="bg-orange-500/5 rounded-2xl p-6 border border-orange-500/20 backdrop-blur-sm mb-8">
                         <div className="flex items-center gap-2 mb-3">
                           <Brain className="w-5 h-5 text-orange-400" />
-                          <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
+                          <span className="text-white font-bold text-xs uppercase tracking-widest">Estrategia Psicológica</span>
                         </div>
-                        <p className="text-white text-lg font-light leading-relaxed">
-                          {currentHook.psychologicalStrategy}
-                        </p>
+                        <div className="space-y-2 text-xs md:text-sm">
+                          {parseStrategyItems(currentHook.psychologicalStrategy || (currentHook as any).psychological_strategy).map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-2.5">
+                              <CheckCircle2 className="w-4 h-4 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
+                              <span className="text-zinc-200 font-normal">{item}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
@@ -1052,14 +1119,14 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             <h2 className="text-sm sm:text-base md:text-lg font-bold text-white tracking-tight leading-relaxed max-w-3xl">
                                 ¿{(localTitle || currentHook.title || "").replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?
                             </h2>
-                            <div className="pt-2 flex flex-wrap items-center gap-2.5">
+                            <div className="pt-2 flex flex-wrap items-center justify-end gap-2.5 w-full">
                                 <button
                                     onClick={() => {
                                         const scriptText = currentKit?.script || localTitle || currentHook.title || "";
                                         navigator.clipboard.writeText(scriptText);
                                         alert("¡Guión copiado al portapapeles!");
                                     }}
-                                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-zinc-200 hover:text-white text-xs font-bold transition-all cursor-pointer shadow-sm"
+                                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-zinc-200 hover:text-white text-xs font-bold transition-all cursor-pointer shadow-sm ml-auto"
                                 >
                                     <Copy className="w-3.5 h-3.5" />
                                     <span>Copiar Guion</span>
@@ -1087,7 +1154,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
                     {/* Tabs Row de Imagen 1 */}
                     <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-white/[0.08]">
-                        {["Hook", "Guion del reel", "Texto y CTA"].map((tab) => {
+                        {["Hook", "Guion del Hook", "Publicacion y CTA"].map((tab) => {
                             const isActive = activeHookTabImage1 === tab;
                             return (
                                 <button
@@ -1141,18 +1208,12 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         <div className="border-t border-white/[0.06] pt-5">
                                             <h4 className="text-sm font-medium text-white mb-3">Estrategia Psicologica</h4>
                                             <div className="space-y-2.5 text-xs md:text-sm">
-                                                <div className="flex items-center gap-2.5">
-                                                    <CheckCircle2 className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
-                                                    <span className="text-zinc-300 font-normal">Usa voz o texto en pantalla</span>
-                                                </div>
-                                                <div className="flex items-center gap-2.5">
-                                                    <CheckCircle2 className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
-                                                    <span className="text-zinc-300 font-normal">Mantén el encuadre simple</span>
-                                                </div>
-                                                <div className="flex items-center gap-2.5">
-                                                    <CheckCircle2 className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
-                                                    <span className="text-zinc-300 font-normal">Continúa con el desarrollo del valor</span>
-                                                </div>
+                                                {parseStrategyItems(localStrategy || (currentHook as any).psychological_strategy || currentHook.psychologicalStrategy).map((item, idx) => (
+                                                    <div key={idx} className="flex items-center gap-2.5">
+                                                        <CheckCircle2 className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
+                                                        <span className="text-zinc-300 font-normal">{item}</span>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
@@ -1169,33 +1230,128 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         <span className="text-xs font-bold text-[#FF5D1E]">Destino: <span className="text-white font-normal ml-1">Mensaje Directo al DM</span></span>
                                     </div>
                                 </div>
-                            </div>
-                        )}
 
-                        {activeHookTabImage1 === "Guion del reel" && (
-                            <div className="p-6 md:p-8 bg-[#0c0c11]/90 border border-white/[0.06] rounded-[24px] text-left space-y-4">
-                                <h4 className="text-sm font-bold text-white uppercase tracking-wider">GUION DE VIDEO</h4>
-                                <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 text-zinc-200 text-sm md:text-base whitespace-pre-wrap leading-relaxed">
-                                    {currentKit?.script || "Aquí ingresa el guion del video persuasivo..."}
+                                {/* Botones Grandes de Acción de Abajo */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-5 border-t border-white/[0.08]">
+                                    <button
+                                        onClick={() => {
+                                            const scriptText = currentKit?.script || localTitle || currentHook.title || "";
+                                            navigator.clipboard.writeText(scriptText);
+                                            alert("¡Guión copiado al portapapeles!");
+                                        }}
+                                        className="w-full py-3.5 px-5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-white/15 text-white text-sm md:text-base font-bold flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-md hover:scale-[1.01]"
+                                    >
+                                        <Copy className="w-4 h-4 text-zinc-300" />
+                                        <span>Copiar Guion</span>
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const fullCopy = `HOOK: ${localTitle || currentHook.title || ""}\n\nGUIÓN:\n${currentKit?.script || ""}\n\nCOPY PUBLICITARIO:\n${currentKit?.ads || ""}`;
+                                            navigator.clipboard.writeText(fullCopy);
+                                            const element = document.createElement("a");
+                                            const file = new Blob([fullCopy], { type: 'text/plain' });
+                                            element.href = URL.createObjectURL(file);
+                                            element.download = `video-hook-${(activeTab === 'library' ? activeLibraryHook : activeHook) + 1}.txt`;
+                                            document.body.appendChild(element);
+                                            element.click();
+                                            document.body.removeChild(element);
+                                        }}
+                                        className="w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-sm md:text-base font-black flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-[0_4px_16px_rgba(255,93,30,0.3)] hover:scale-[1.01]"
+                                    >
+                                        <Download className="w-4.5 h-4.5" />
+                                        <span>Descargar video</span>
+                                    </button>
                                 </div>
                             </div>
                         )}
 
-                        {activeHookTabImage1 === "Texto y CTA" && (
-                            <div className="p-6 md:p-8 bg-[#0c0c11]/90 border border-white/[0.06] rounded-[24px] text-left space-y-4">
-                                <h4 className="text-sm font-bold text-white uppercase tracking-wider">TEXTO Y CTA</h4>
+                        {activeHookTabImage1 === "Guion del Hook" && (
+                            <div className="p-6 md:p-8 bg-[#0c0c11]/90 border border-white/[0.06] rounded-[24px] text-left space-y-5">
+                                <h4 className="text-sm font-bold text-white uppercase tracking-wider">GUION DE VIDEO</h4>
                                 <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 text-zinc-200 text-sm md:text-base whitespace-pre-wrap leading-relaxed">
-                                    {currentKit?.ads || (
-                                        <>
-                                            🔥 ¿{(localTitle || currentHook.title || "").replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?\n\n
-                                            Sé que suena a promesa vacía, pero en este sector la demanda es tan alta que muchas personas están logrando independencia financiera empezando en sus tiempos libres.\n\n
-                                            ✅ Sin jefes.\n
-                                            ✅ A tu ritmo.\n
-                                            ✅ Con una técnica probada.\n\n
-                                            He preparado una Masterclass gratuita donde te revelo el mapa exacto para lograrlo este mismo mes. 👇\n\n
-                                            🔗 [LINK DE TU LANDING]
-                                        </>
-                                    )}
+                                    {currentKit?.script || "Aquí ingresa el guion del video persuasivo..."}
+                                </div>
+                                <div className="pt-2">
+                                    <button
+                                        onClick={() => {
+                                            const scriptText = currentKit?.script || localTitle || currentHook.title || "";
+                                            navigator.clipboard.writeText(scriptText);
+                                            alert("¡Guión copiado al portapapeles!");
+                                        }}
+                                        className="w-full py-3.5 px-5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-white/15 text-white text-sm md:text-base font-bold flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-md hover:scale-[1.01]"
+                                    >
+                                        <Copy className="w-4 h-4 text-zinc-300" />
+                                        <span>Copiar Guion</span>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeHookTabImage1 === "Publicacion y CTA" && (
+                            <div className="p-6 md:p-8 bg-[#0c0c11]/90 border border-white/[0.06] rounded-[24px] text-left space-y-6">
+                                {/* Card 1: Título del Reel */}
+                                <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
+                                    <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
+                                        <span className="text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20 font-bold">TÍTULO</span>
+                                        <span className="text-zinc-400 font-bold flex items-center gap-1.5">
+                                            <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
+                                            TÍTULO DEL REEL
+                                        </span>
+                                    </div>
+                                    <h3 className="text-lg md:text-xl font-bold text-white tracking-tight">
+                                        {currentKit?.reelTitle || localTitle || currentHook.title || "Sin título definido"}
+                                    </h3>
+                                </div>
+
+                                {/* Card 2: Caption / Descripción Sugerida */}
+                                <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-4 text-left">
+                                    <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
+                                        <span className="text-emerald-400 font-bold">CAPTION / DESCRIPCIÓN</span>
+                                        <span className="text-zinc-400 font-bold flex items-center gap-1.5">
+                                            <Megaphone className="w-3.5 h-3.5 text-zinc-400" />
+                                            DESCRIPCIÓN SUGERIDA
+                                        </span>
+                                    </div>
+                                    <div className="text-zinc-200 text-sm md:text-base font-normal leading-relaxed whitespace-pre-wrap">
+                                        {currentKit?.ads || (
+                                            `¿Te gustaría generar ingresos extra los fines de semana sin tener que dejar tu empleo actual?\n\n💸 No se trata de un esfuerzo agotador, sino de dominar una habilidad de alta gama que te permite ganar en unas horas lo que a muchos les toma días de oficina.\n\n🎓 CLASE GRATIS DISPONIBLE:\nNuestra instructora experta te enseñará a dar tus primeros pasos en el microblading de cejas, una técnica "pelo a pelo" que te permitirá transformar la autoestima de tus clientas mientras transformas tu propia economía, incluso si empiezas desde cero.\n\n¿CÓMO REGISTRARTE A LA CLASE? 👇\n1️⃣ Haz clic donde dice: "▶️ GRATIS 👉 CLASE Microblading de Cejas" (está justo aquí abajo, arriba de mi nombre)`
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Card 3: Comentario Fijado */}
+                                <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
+                                    <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
+                                        <span className="text-emerald-400 font-bold">COMENTARIO FIJADO</span>
+                                        <span className="text-emerald-400 font-bold flex items-center gap-1.5">
+                                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                                            COMENTARIO DE VALOR
+                                        </span>
+                                    </div>
+                                    <div className="text-zinc-200 text-sm md:text-base font-normal italic leading-relaxed whitespace-pre-wrap">
+                                        {currentKit?.pinnedComment || "Sin comentario fijado"}
+                                    </div>
+                                </div>
+
+                                {/* Botón Descargar Video */}
+                                <div className="pt-2">
+                                    <button
+                                        onClick={() => {
+                                            const fullCopy = `HOOK: ${localTitle || currentHook.title || ""}\n\nGUIÓN:\n${currentKit?.script || ""}\n\nCOPY PUBLICITARIO:\n${currentKit?.ads || ""}`;
+                                            navigator.clipboard.writeText(fullCopy);
+                                            const element = document.createElement("a");
+                                            const file = new Blob([fullCopy], { type: 'text/plain' });
+                                            element.href = URL.createObjectURL(file);
+                                            element.download = `video-hook-${(activeTab === 'library' ? activeLibraryHook : activeHook) + 1}.txt`;
+                                            document.body.appendChild(element);
+                                            element.click();
+                                            document.body.removeChild(element);
+                                        }}
+                                        className="w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-sm md:text-base font-black flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-[0_4px_16px_rgba(255,93,30,0.3)] hover:scale-[1.01]"
+                                    >
+                                        <Download className="w-4.5 h-4.5" />
+                                        <span>Descargar video</span>
+                                    </button>
                                 </div>
                             </div>
                         )}
@@ -1240,19 +1396,25 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 )}
                             </div>
 
-                            <div className="bg-orange-500/5 rounded-[3rem] p-8 border border-orange-500/30 backdrop-blur-sm mb-8 flex flex-col gap-4 items-start shadow-inner">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Brain className="w-6 h-6 text-orange-400 shrink-0"/>
-                                    <h5 className="text-white font-bold text-sm uppercase tracking-widest">Estrategia Psicológica</h5>
+                            <div className="bg-orange-500/5 rounded-[2.5rem] p-6 md:p-8 border border-orange-500/30 backdrop-blur-sm mb-8 flex flex-col gap-4 items-start shadow-inner w-full">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Brain className="w-5 h-5 text-orange-400 shrink-0"/>
+                                    <h5 className="text-white font-bold text-xs uppercase tracking-widest">Estrategia Psicológica (3 Ítems)</h5>
                                 </div>
-                                <div className="w-full pl-8">
-                                    <textarea 
-                                        value={localStrategy}
-                                        onChange={(e) => setLocalStrategy(e.target.value)}
-                                        onBlur={() => handleUpdateMessage('psychological_strategy', localStrategy)}
-                                        className="w-full bg-transparent border-none text-gray-400 text-lg font-light italic outline-none resize-none h-auto min-h-[100px]"
-                                        placeholder="Ingresa aquí el ángulo psicológico..."
-                                    />
+                                <div className="w-full space-y-3">
+                                    {[0, 1, 2].map((idx) => (
+                                        <div key={idx} className="flex items-center gap-3 w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5">
+                                            <CheckCircle2 className="w-4 h-4 text-orange-400 shrink-0" />
+                                            <input
+                                                type="text"
+                                                value={strategyItems[idx] || ""}
+                                                onChange={(e) => updateStrategyItem(idx, e.target.value)}
+                                                onBlur={() => handleBlurStrategyItems(strategyItems)}
+                                                className="w-full bg-transparent border-none text-zinc-100 text-sm md:text-base font-normal outline-none focus:ring-0"
+                                                placeholder={`Ítem ${idx + 1} de la estrategia...`}
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -1298,18 +1460,26 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         <Trash2 className="w-5 h-5" />
                                     </button>
                                 </div>
-                                <div className="mt-4 bg-emerald-500/5 border border-emerald-500/20 rounded-[2rem] p-6 shadow-inner w-full flex flex-col gap-2">
+                                <div className="mt-4 bg-emerald-500/5 border border-emerald-500/20 rounded-[2rem] p-6 shadow-inner w-full flex flex-col gap-4">
                                     <div className="flex items-center gap-2">
                                         <Brain className="w-4 h-4 text-emerald-400" />
-                                        <h5 className="text-white font-bold text-xs uppercase tracking-widest">Estrategia Psicológica</h5>
+                                        <h5 className="text-white font-bold text-xs uppercase tracking-widest">Estrategia Psicológica (3 Ítems)</h5>
                                     </div>
-                                    <textarea 
-                                        value={localStrategy}
-                                        onChange={(e) => setLocalStrategy(e.target.value)}
-                                        onBlur={() => handleUpdateMessage('psychological_strategy', localStrategy)}
-                                        className="w-full bg-transparent border-none text-white text-lg font-light outline-none pl-6"
-                                        style={{ height: '140px' }}
-                                    />
+                                    <div className="w-full space-y-3">
+                                        {[0, 1, 2].map((idx) => (
+                                            <div key={idx} className="flex items-center gap-3 w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5">
+                                                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                                                <input
+                                                    type="text"
+                                                    value={strategyItems[idx] || ""}
+                                                    onChange={(e) => updateStrategyItem(idx, e.target.value)}
+                                                    onBlur={() => handleBlurStrategyItems(strategyItems)}
+                                                    className="w-full bg-transparent border-none text-zinc-100 text-sm md:text-base font-normal outline-none focus:ring-0"
+                                                    placeholder={`Ítem ${idx + 1} de la estrategia...`}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
