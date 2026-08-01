@@ -343,8 +343,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     reelTitle: "🎬 Título sugerido para tu Reel...",
     ads: "🔥 Aquí ingresa la descripción para tus anuncios...\n\n✅ Beneficio 1\n✅ Beneficio 2\n\n🔗 [LINK]",
     pinnedComment: "📌 Comentario fijado sugerido para este video...",
-    videoUrl: "https://www.youtube.com/embed/vGfXD9VbfXo",
-    downloadUrl: "https://www.youtube.com/watch?v=vGfXD9VbfXo",
+    videoUrl: "",
+    downloadUrl: "",
     thumbs: [
       "Diseño Sugerido 1",
       "Diseño Sugerido 2",
@@ -580,13 +580,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const currentKit = useMemo(() => {
     const raw = (currentHook && currentHook.contentJson && typeof currentHook.contentJson === 'object') ? currentHook.contentJson : {};
+    const vUrl = raw.videoUrl || raw.video_url || "";
+    const dUrl = raw.downloadUrl || raw.download_url || vUrl || "";
     return {
       script: raw.script || defaultKitContent.script,
       reelTitle: raw.reelTitle || raw.reel_title || currentHook.reelTitle || currentHook.title || defaultKitContent.reelTitle,
       ads: raw.ads || raw.caption || raw.description || defaultKitContent.ads,
       pinnedComment: raw.pinnedComment || raw.pinned_comment || defaultKitContent.pinnedComment,
-      videoUrl: raw.videoUrl || raw.video_url || defaultKitContent.videoUrl,
-      downloadUrl: raw.downloadUrl || raw.download_url || defaultKitContent.downloadUrl,
+      videoUrl: vUrl,
+      downloadUrl: dUrl,
       thumbs: raw.thumbs || defaultKitContent.thumbs,
       ...raw
     };
@@ -1242,23 +1244,51 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             <div className="p-6 md:p-8 bg-[#0c0c11]/90 border border-white/[0.06] rounded-[24px] text-left space-y-6">
                                 <div className="flex flex-col md:flex-row gap-6 items-start">
                                     {/* Left: Video Thumbnail */}
-                                    <div className="w-[140px] h-[190px] md:w-[160px] md:h-[220px] rounded-2xl bg-zinc-900 border border-white/10 relative overflow-hidden shrink-0 shadow-md">
-                                        <img
-                                            src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=600&auto=format&fit=crop"
-                                            alt="Hook aesthetic content thumbnail"
-                                            className="w-full h-full object-cover"
-                                            referrerPolicy="no-referrer"
-                                        />
-                                        <div className="absolute inset-0 bg-black/20" />
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <div className="w-12 h-12 rounded-full border border-white bg-black/10 backdrop-blur-sm flex items-center justify-center text-white shadow-lg cursor-pointer hover:scale-105 transition-transform">
-                                                <Play className="w-5 h-5 fill-white stroke-none ml-0.5" />
+                                    {(() => {
+                                        const videoUrl = currentKit?.downloadUrl || currentKit?.videoUrl || "";
+                                        const driveMatch = videoUrl.match(/(?:file\/d\/|id=)([\w-]+)/);
+                                        const driveId = driveMatch ? driveMatch[1] : null;
+                                        
+                                        let thumbUrl = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=600&auto=format&fit=crop";
+                                        if (driveId) {
+                                            thumbUrl = `https://drive.google.com/thumbnail?id=${driveId}&sz=w800`;
+                                        } else {
+                                            const ytMatch = videoUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+                                            if (ytMatch && ytMatch[1]) {
+                                                thumbUrl = `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`;
+                                            }
+                                        }
+
+                                        return (
+                                            <div className="w-[140px] h-[190px] md:w-[160px] md:h-[220px] rounded-2xl bg-zinc-900 border border-white/10 relative overflow-hidden shrink-0 shadow-md">
+                                                <img
+                                                    src={thumbUrl}
+                                                    alt="Hook aesthetic content thumbnail"
+                                                    className="w-full h-full object-cover"
+                                                    referrerPolicy="no-referrer"
+                                                    onError={(e) => {
+                                                        (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=600&auto=format&fit=crop";
+                                                    }}
+                                                />
+                                                <div className="absolute inset-0 bg-black/20" />
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <button 
+                                                        onClick={() => {
+                                                            if (videoUrl) {
+                                                                window.open(videoUrl, "_blank", "noopener,noreferrer");
+                                                            } else {
+                                                                alert("No hay URL de video configurada aún.");
+                                                            }
+                                                        }}
+                                                        title={videoUrl ? "Ver / Reproducir Video" : "Sin URL de video"}
+                                                        className="w-12 h-12 rounded-full border border-white bg-black/10 backdrop-blur-sm flex items-center justify-center text-white shadow-lg cursor-pointer hover:scale-105 transition-transform"
+                                                    >
+                                                        <Play className="w-5 h-5 fill-white stroke-none ml-0.5" />
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 text-[10px] font-bold text-white bg-black/80 rounded-[4px] tracking-wide">
-                                            0:03
-                                        </span>
-                                    </div>
+                                        );
+                                    })()}
 
                                     {/* Right: Info */}
                                     <div className="flex-1 space-y-5">
