@@ -1373,25 +1373,31 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         </div>
                         
                         <div className="space-y-6">
-                            {/* Edición In-place para el título */}
+                            {/* Edición In-place para el título (Solo Admin) */}
                             <div className="relative group/edit">
-                                {isEditingTitle ? (
-                                    <input 
-                                        autoFocus
-                                        type="text"
-                                        value={localTitle}
-                                        onChange={(e) => setLocalTitle(e.target.value)}
-                                        onBlur={() => { handleUpdateMessage('title', localTitle); setIsEditingTitle(false); }}
-                                        onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget.blur())}
-                                        className="w-full bg-black/60 border border-orange-500 rounded-2xl px-6 py-4 text-white font-black text-2xl outline-none transition-all shadow-inner"
-                                    />
+                                {isRealAdmin ? (
+                                    isEditingTitle ? (
+                                        <input 
+                                            autoFocus
+                                            type="text"
+                                            value={localTitle}
+                                            onChange={(e) => setLocalTitle(e.target.value)}
+                                            onBlur={() => { handleUpdateMessage('title', localTitle); setIsEditingTitle(false); }}
+                                            onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget.blur())}
+                                            className="w-full bg-black/60 border border-orange-500 rounded-2xl px-6 py-4 text-white font-black text-2xl outline-none transition-all shadow-inner"
+                                        />
+                                    ) : (
+                                        <div 
+                                            onClick={() => setIsEditingTitle(true)}
+                                            className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-black text-2xl cursor-pointer hover:border-orange-500/50 transition-all shadow-inner min-h-[4rem] flex items-center justify-between"
+                                        >
+                                            <span>{localTitle}</span>
+                                            <div className="opacity-0 group-hover/edit:opacity-100 transition-opacity text-[9px] font-black uppercase text-gray-500 bg-gray-800 px-2 py-1 rounded">Haz clic para editar</div>
+                                        </div>
+                                    )
                                 ) : (
-                                    <div 
-                                        onClick={() => setIsEditingTitle(true)}
-                                        className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-black text-2xl cursor-pointer hover:border-orange-500/50 transition-all shadow-inner min-h-[4rem] flex items-center justify-between"
-                                    >
+                                    <div className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-black text-2xl shadow-inner min-h-[4rem] flex items-center">
                                         <span>{localTitle}</span>
-                                        <div className="opacity-0 group-hover/edit:opacity-100 transition-opacity text-[9px] font-black uppercase text-gray-500 bg-gray-800 px-2 py-1 rounded">Haz clic para editar</div>
                                     </div>
                                 )}
                             </div>
@@ -1405,14 +1411,20 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     {[0, 1, 2].map((idx) => (
                                         <div key={idx} className="flex items-center gap-3 w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5">
                                             <CheckCircle2 className="w-4 h-4 text-orange-400 shrink-0" />
-                                            <input
-                                                type="text"
-                                                value={strategyItems[idx] || ""}
-                                                onChange={(e) => updateStrategyItem(idx, e.target.value)}
-                                                onBlur={() => handleBlurStrategyItems(strategyItems)}
-                                                className="w-full bg-transparent border-none text-zinc-100 text-sm md:text-base font-normal outline-none focus:ring-0"
-                                                placeholder={`Ítem ${idx + 1} de la estrategia...`}
-                                            />
+                                            {isRealAdmin ? (
+                                                <input
+                                                    type="text"
+                                                    value={strategyItems[idx] || ""}
+                                                    onChange={(e) => updateStrategyItem(idx, e.target.value)}
+                                                    onBlur={() => handleBlurStrategyItems(strategyItems)}
+                                                    className="w-full bg-transparent border-none text-zinc-100 text-sm md:text-base font-normal outline-none focus:ring-0"
+                                                    placeholder={`Ítem ${idx + 1} de la estrategia...`}
+                                                />
+                                            ) : (
+                                                <span className="w-full text-zinc-100 text-sm md:text-base font-normal py-0.5">
+                                                    {strategyItems[idx] || ""}
+                                                </span>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -1437,28 +1449,34 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         <div className="p-8 border-b border-white/5 bg-gradient-to-r from-emerald-500/10 to-transparent flex items-center gap-4">
                             <div className="flex-1">
                                 <div className="flex justify-between items-center">
-                                    {isEditingTitle ? (
-                                        <input 
-                                            autoFocus
-                                            type="text"
-                                            value={localTitle}
-                                            onChange={(e) => setLocalTitle(e.target.value)}
-                                            onBlur={() => { handleUpdateMessage('title', localTitle); setIsEditingTitle(false); }}
-                                            onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget.blur())}
-                                            className="w-full bg-black/40 border border-emerald-500 rounded-xl px-4 py-2 text-white font-black text-xl outline-none focus:border-emerald-500"
-                                        />
+                                    {isRealAdmin ? (
+                                        isEditingTitle ? (
+                                            <input 
+                                                autoFocus
+                                                type="text"
+                                                value={localTitle}
+                                                onChange={(e) => setLocalTitle(e.target.value)}
+                                                onBlur={() => { handleUpdateMessage('title', localTitle); setIsEditingTitle(false); }}
+                                                onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget.blur())}
+                                                className="w-full bg-black/40 border border-emerald-500 rounded-xl px-4 py-2 text-white font-black text-xl outline-none focus:border-emerald-500"
+                                            />
+                                        ) : (
+                                            <div 
+                                                onClick={() => setIsEditingTitle(true)}
+                                                className="group/title-edit cursor-pointer w-full flex items-center justify-between"
+                                            >
+                                                <h3 className="text-white font-medium leading-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem', paddingBottom: '1em' }}>{localTitle}</h3>
+                                                <div className="opacity-0 group-hover/title-edit:opacity-100 transition-opacity text-[8px] font-black uppercase text-gray-500 bg-gray-800 px-1.5 py-0.5 rounded ml-4 whitespace-nowrap">Editar Título</div>
+                                            </div>
+                                        )
                                     ) : (
-                                        <div 
-                                            onClick={() => setIsEditingTitle(true)}
-                                            className="group/title-edit cursor-pointer w-full flex items-center justify-between"
-                                        >
-                                            <h3 className="text-white font-medium leading-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem', paddingBottom: '1em' }}>{localTitle}</h3>
-                                            <div className="opacity-0 group-hover/title-edit:opacity-100 transition-opacity text-[8px] font-black uppercase text-gray-500 bg-gray-800 px-1.5 py-0.5 rounded ml-4 whitespace-nowrap">Editar Título</div>
-                                        </div>
+                                        <h3 className="text-white font-medium leading-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem', paddingBottom: '1em' }}>{localTitle}</h3>
                                     )}
-                                    <button onClick={handleDeleteHook} className="p-2 text-gray-500 hover:text-red-500 transition-colors ml-4">
-                                        <Trash2 className="w-5 h-5" />
-                                    </button>
+                                    {isRealAdmin && (
+                                        <button onClick={handleDeleteHook} className="p-2 text-gray-500 hover:text-red-500 transition-colors ml-4">
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
+                                    )}
                                 </div>
                                 <div className="mt-4 bg-emerald-500/5 border border-emerald-500/20 rounded-[2rem] p-6 shadow-inner w-full flex flex-col gap-4">
                                     <div className="flex items-center gap-2">
@@ -1469,14 +1487,20 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         {[0, 1, 2].map((idx) => (
                                             <div key={idx} className="flex items-center gap-3 w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5">
                                                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                                                <input
-                                                    type="text"
-                                                    value={strategyItems[idx] || ""}
-                                                    onChange={(e) => updateStrategyItem(idx, e.target.value)}
-                                                    onBlur={() => handleBlurStrategyItems(strategyItems)}
-                                                    className="w-full bg-transparent border-none text-zinc-100 text-sm md:text-base font-normal outline-none focus:ring-0"
-                                                    placeholder={`Ítem ${idx + 1} de la estrategia...`}
-                                                />
+                                                {isRealAdmin ? (
+                                                    <input
+                                                        type="text"
+                                                        value={strategyItems[idx] || ""}
+                                                        onChange={(e) => updateStrategyItem(idx, e.target.value)}
+                                                        onBlur={() => handleBlurStrategyItems(strategyItems)}
+                                                        className="w-full bg-transparent border-none text-zinc-100 text-sm md:text-base font-normal outline-none focus:ring-0"
+                                                        placeholder={`Ítem ${idx + 1} de la estrategia...`}
+                                                    />
+                                                ) : (
+                                                    <span className="w-full text-zinc-100 text-sm md:text-base font-normal py-0.5">
+                                                        {strategyItems[idx] || ""}
+                                                    </span>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
