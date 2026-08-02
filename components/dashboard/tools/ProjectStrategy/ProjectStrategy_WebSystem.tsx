@@ -459,6 +459,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 {/* 2. VIDEO TUTORIAL */}
                 <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                     <StepVideoContainer 
+                        stepNumber={3}
                         videoUrl="https://www.youtube.com/embed/WUqaWRJG92c?rel=0&controls=1&showinfo=0"
                         title="Video Tutorial Web System"
                     />

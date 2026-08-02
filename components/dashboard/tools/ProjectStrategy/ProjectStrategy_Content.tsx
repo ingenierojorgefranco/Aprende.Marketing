@@ -657,6 +657,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
+                            stepNumber={6}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial Content"
                         />

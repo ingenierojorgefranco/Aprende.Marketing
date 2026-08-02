@@ -53,46 +53,38 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
   const isUserAdmin = typeof isAdminProp === 'boolean'
     ? isAdminProp
     : Boolean(activeUser && activeUser.role === 'admin');
-  // Built-in default videos matching screenshot if custom list is not provided
-  const initialVideos: VideoItem[] = (customVideos && customVideos.length > 0)
-    ? customVideos
-    : [
-        {
-          id: 'v1',
-          stepNumber: 1,
-          type: 'Principal',
-          duration: '4:36',
-          title: title || 'Entiende tu proyecto',
-          subtitle: 'Resumen del producto, público y recorrido',
-          videoUrl: videoUrl,
-          posterImage: posterImage,
-        },
-        {
-          id: 'v2',
-          stepNumber: 1,
-          type: 'Complementario',
-          duration: '2:18',
-          title: 'Cómo interpretar tu comisión',
-          subtitle: 'Precio, porcentaje y ganancia por venta',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0',
-          posterImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675',
-        },
-        {
-          id: 'v3',
-          stepNumber: 1,
-          type: 'Complementario',
-          duration: '3:05',
-          title: 'Cómo funciona tu sistema',
-          subtitle: 'Del contenido a la posible comisión',
-          videoUrl: 'https://www.youtube.com/embed/L_LUpnjgPso?rel=0&controls=1&showinfo=0',
-          posterImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200&h=675',
-        },
-      ];
 
-  const [videoList, setVideoList] = useState<VideoItem[]>(initialVideos);
+  // Helper para generar videos por defecto independientes según el paso
+  const getStepDefaultVideos = (step: number): VideoItem[] => {
+    if (customVideos && customVideos.length > 0) return customVideos;
+    return [
+      {
+        id: `step_${step}_v1`,
+        stepNumber: step,
+        type: 'Principal',
+        duration: '4:36',
+        title: title || `Video Lección Principal - Paso ${step}`,
+        subtitle: 'Resumen del módulo, objetivos y recorrido',
+        videoUrl: videoUrl,
+        posterImage: posterImage,
+      },
+      {
+        id: `step_${step}_v2`,
+        stepNumber: step,
+        type: 'Complementario',
+        duration: '2:18',
+        title: `Guía Complementaria - Paso ${step}`,
+        subtitle: 'Recomendaciones y mejores prácticas',
+        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675',
+      },
+    ];
+  };
+
+  const [videoList, setVideoList] = useState<VideoItem[]>(() => getStepDefaultVideos(stepNumber));
   const [loading, setLoading] = useState<boolean>(false);
-  const [activeVideoId, setActiveVideoId] = useState<string>(initialVideos[0]?.id || 'v1');
-  const [watchedVideoIds, setWatchedVideoIds] = useState<Set<string>>(new Set([initialVideos[0]?.id || 'v1']));
+  const [activeVideoId, setActiveVideoId] = useState<string>('');
+  const [watchedVideoIds, setWatchedVideoIds] = useState<Set<string>>(new Set());
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
   // Modals state
@@ -110,7 +102,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Cargar videos desde la base de datos (master_step_videos)
+  // Cargar videos desde la base de datos (master_step_videos) filtrados por stepNumber
   useEffect(() => {
     let isMounted = true;
     const fetchMasterVideos = async () => {
@@ -118,13 +110,23 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
       try {
         const data = await api.getMasterStepVideos(stepNumber);
         if (isMounted) {
+          let listToSet: VideoItem[];
           if (data && data.length > 0) {
-            setVideoList(data);
-            setActiveVideoId(data[0].id);
+            listToSet = data;
           } else if (customVideos && customVideos.length > 0) {
-            setVideoList(customVideos);
-            setActiveVideoId(customVideos[0].id);
+            listToSet = customVideos;
+          } else {
+            listToSet = getStepDefaultVideos(stepNumber);
           }
+
+          setVideoList(listToSet);
+          if (listToSet.length > 0) {
+            setActiveVideoId(listToSet[0].id);
+            setWatchedVideoIds(new Set([listToSet[0].id]));
+          } else {
+            setActiveVideoId('');
+          }
+          setIsPlaying(false);
         }
       } catch (err) {
         console.error("Error al obtener master_step_videos:", err);
@@ -138,7 +140,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
   }, [stepNumber]);
 
   const activeVideoIndex = videoList.findIndex((v) => v.id === activeVideoId);
-  const activeVideo = videoList[activeVideoIndex >= 0 ? activeVideoIndex : 0] || videoList[0] || initialVideos[0];
+  const activeVideo = videoList[activeVideoIndex >= 0 ? activeVideoIndex : 0] || videoList[0];
 
   // Total cards including admin add button
   const totalCardsCount = videoList.length + (isUserAdmin ? 1 : 0);

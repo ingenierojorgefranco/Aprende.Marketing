@@ -152,6 +152,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                 {/* VIDEO TUTORIAL BLOQUE */}
                 <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                     <StepVideoContainer 
+                        stepNumber={4}
                         videoUrl="https://www.youtube.com/embed/2yez3O8ibzA?rel=0&controls=1&showinfo=0"
                         title="Video Tutorial Hotlinks"
                     />

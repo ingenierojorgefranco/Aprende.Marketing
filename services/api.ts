@@ -32,8 +32,9 @@ let localComments: Comment[] = [...MOCK_COMMENTS];
 let localCrmContacts: CRMContact[] = [...MOCK_CRM_CONTACTS];
 let localCrmActivities: CRMActivity[] = [...MOCK_CRM_ACTIVITIES];
 let localMasterStepVideos: MasterStepVideo[] = [
+    // Step 1
     {
-        id: 'v1',
+        id: 's1_v1',
         stepNumber: 1,
         type: 'Principal',
         title: 'Entiende tu proyecto',
@@ -44,7 +45,7 @@ let localMasterStepVideos: MasterStepVideo[] = [
         positionOrder: 1
     },
     {
-        id: 'v2',
+        id: 's1_v2',
         stepNumber: 1,
         type: 'Complementario',
         title: 'Cómo interpretar tu comisión',
@@ -55,7 +56,7 @@ let localMasterStepVideos: MasterStepVideo[] = [
         positionOrder: 2
     },
     {
-        id: 'v3',
+        id: 's1_v3',
         stepNumber: 1,
         type: 'Complementario',
         title: 'Cómo funciona tu sistema',
@@ -64,6 +65,132 @@ let localMasterStepVideos: MasterStepVideo[] = [
         videoUrl: 'https://www.youtube.com/embed/L_LUpnjgPso?rel=0&controls=1&showinfo=0',
         posterImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200&h=675',
         positionOrder: 3
+    },
+
+    // Step 2
+    {
+        id: 's2_v1',
+        stepNumber: 2,
+        type: 'Principal',
+        title: 'Conoce a tu Comprador Ideal',
+        subtitle: 'Diagnóstico de dolores, deseos y psicología de compra',
+        duration: '4:15',
+        videoUrl: 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+    {
+        id: 's2_v2',
+        stepNumber: 2,
+        type: 'Complementario',
+        title: 'Identifica los dolores de tu avatar',
+        subtitle: 'Análisis detallado de necesidades del comprador',
+        duration: '2:45',
+        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 2
+    },
+
+    // Step 3
+    {
+        id: 's3_v1',
+        stepNumber: 3,
+        type: 'Principal',
+        title: 'Tu Página Web de Captura y Gracias',
+        subtitle: 'Configuración y estructura de tu embudo de registro',
+        duration: '5:10',
+        videoUrl: 'https://www.youtube.com/embed/WUqaWRJG92c?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+    {
+        id: 's3_v2',
+        stepNumber: 3,
+        type: 'Complementario',
+        title: 'Personalización de tu Landing Page',
+        subtitle: 'Edición de textos, colores y llamado a la acción',
+        duration: '3:20',
+        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 2
+    },
+
+    // Step 4
+    {
+        id: 's4_v1',
+        stepNumber: 4,
+        type: 'Principal',
+        title: 'Configura tus enlaces de afiliado',
+        subtitle: 'Asegura tus comisiones vinculando tus enlaces correctamente',
+        duration: '3:50',
+        videoUrl: 'https://www.youtube.com/embed/2yez3O8ibzA?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+
+    // Step 5
+    {
+        id: 's5_v1',
+        stepNumber: 5,
+        type: 'Principal',
+        title: 'Ganchos y Guiones de Atracción',
+        subtitle: 'Estrategias de contenido de alto impacto para Reels y TikTok',
+        duration: '4:40',
+        videoUrl: 'https://www.youtube.com/embed/bTV5aFTchJ8?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+
+    // Step 6
+    {
+        id: 's6_v1',
+        stepNumber: 6,
+        type: 'Principal',
+        title: 'Estrategia de Contenidos y Calendario',
+        subtitle: 'Planificación de publicaciones para atraer prospectos',
+        duration: '4:20',
+        videoUrl: 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+
+    // Step 7
+    {
+        id: 's7_v1',
+        stepNumber: 7,
+        type: 'Principal',
+        title: 'Secuencias de Email Marketing',
+        subtitle: 'Automatización de correos de nutrición y venta',
+        duration: '5:00',
+        videoUrl: 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+
+    // Step 8
+    {
+        id: 's8_v1',
+        stepNumber: 8,
+        type: 'Principal',
+        title: 'Secuencia Evergreen y Confianza',
+        subtitle: 'Ventas continuas en piloto automático',
+        duration: '4:10',
+        videoUrl: 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+
+    // Step 9
+    {
+        id: 's9_v1',
+        stepNumber: 9,
+        type: 'Principal',
+        title: 'Scripts de Cierre por WhatsApp',
+        subtitle: 'Conversión de prospectos calificados por chat',
+        duration: '4:55',
+        videoUrl: 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
     }
 ];
 

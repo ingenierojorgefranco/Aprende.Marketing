@@ -646,6 +646,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
+                            stepNumber={7}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial Email"
                         />
