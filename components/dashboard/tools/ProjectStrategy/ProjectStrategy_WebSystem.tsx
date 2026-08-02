@@ -478,56 +478,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         </p>
                     </div>
 
-                    {/* Barra de URL y Acciones */}
-                    <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-                        <div className="flex-1 flex items-center bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-2 min-w-0">
-                            <Globe className="w-4 h-4 text-slate-500 shrink-0" />
-                            <span className="truncate flex-1 select-all">
-                                aprende.marketing/admin/lp/{linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo'}
-                            </span>
-                            <button 
-                                onClick={handleCopyLpUrl} 
-                                className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0"
-                                title="Copiar enlace"
-                            >
-                                {copiedLpUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                            </button>
-                        </div>
-
-                        <div className="flex items-center gap-2.5 shrink-0">
-                            <a 
-                                href={linkedPages.length > 0 ? `/admin/lp/${linkedPages[0].subdomain.split('.')[0]}` : '#'} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                onClick={(e) => {
-                                    if (linkedPages.length === 0) {
-                                        e.preventDefault();
-                                        setShowConfirmModal(true);
-                                    }
-                                }}
-                                className="bg-[#FF5A1F] hover:bg-[#e04e18] text-white font-black py-2.5 px-4 sm:px-5 rounded-xl shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-2 text-xs uppercase tracking-wider transition-all transform hover:scale-[1.02]"
-                            >
-                                <span>ABRIR PÁGINA</span>
-                                <ExternalLink className="w-3.5 h-3.5 stroke-[2.5]" />
-                            </a>
-
-                            <button 
-                                onClick={() => {
-                                    if (linkedPages.length > 0) {
-                                        const url = window.location.hash.startsWith('#/') ? `#/dashboard/editor/${linkedPages[0].id}` : `/dashboard/editor/${linkedPages[0].id}`;
-                                        window.open(url, '_blank');
-                                    } else {
-                                        setShowConfirmModal(true);
-                                    }
-                                }}
-                                className="bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 text-slate-200 font-black py-2.5 px-4 sm:px-5 rounded-xl flex items-center justify-center gap-2 text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer"
-                            >
-                                <PenTool className="w-3.5 h-3.5 text-slate-300" />
-                                <span>EDITAR PÁGINA</span>
-                            </button>
-                        </div>
-                    </div>
-
                     {/* Grid Principal (Iframe/Mockup + Sidebar) */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                         
@@ -683,8 +633,73 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             )}
                         </div>
 
-                        {/* Sidebar Derecha: Rendimiento + Personaliza con PRO */}
+                        {/* Sidebar Derecha: URL & Acciones + Rendimiento + Personaliza con PRO */}
                         <div className="lg:col-span-4 space-y-5">
+                            {/* Tarjeta 1: URL & Botones de Acción (Abrir y Editar) */}
+                            <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-5 space-y-4 text-left shadow-lg">
+                                <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                                    URL DE TU PÁGINA DE CAPTURA
+                                </h4>
+
+                                {/* Campo de URL con botón copiar */}
+                                <div className="flex items-center bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-2 min-w-0">
+                                    <span className="truncate flex-1 select-all">
+                                        aprende.marketing/admin/lp/{linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo'}
+                                    </span>
+                                    <button 
+                                        onClick={handleCopyLpUrl} 
+                                        className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0 cursor-pointer"
+                                        title="Copiar enlace"
+                                    >
+                                        {copiedLpUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                                    </button>
+                                </div>
+
+                                {/* Botones de Acción */}
+                                <div className="space-y-3 pt-1">
+                                    <a 
+                                        href={linkedPages.length > 0 ? `/admin/lp/${linkedPages[0].subdomain.split('.')[0]}` : '#'} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => {
+                                            if (linkedPages.length === 0) {
+                                                e.preventDefault();
+                                                setShowConfirmModal(true);
+                                            }
+                                        }}
+                                        className="w-full bg-[#00D084] hover:bg-[#00B874] text-slate-950 font-black py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all transform hover:scale-[1.01] active:scale-95 cursor-pointer"
+                                    >
+                                        <span>ABRIR PÁGINA</span>
+                                        <ExternalLink className="w-4 h-4 stroke-[2.5]" />
+                                    </a>
+
+                                    <button 
+                                        onClick={() => {
+                                            if (linkedPages.length > 0) {
+                                                const url = window.location.hash.startsWith('#/') ? `#/dashboard/editor/${linkedPages[0].id}` : `/dashboard/editor/${linkedPages[0].id}`;
+                                                window.open(url, '_blank');
+                                            } else {
+                                                setShowConfirmModal(true);
+                                            }
+                                        }}
+                                        className="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg shadow-amber-500/10 cursor-pointer transform hover:scale-[1.01] active:scale-95"
+                                    >
+                                        <span>EDITAR PÁGINA</span>
+                                        <Wand2 className="w-4 h-4 stroke-[2.5]" />
+                                    </button>
+
+                                    {!(linkedPages.length > 0 && linkedPages[0].customDomain) && (
+                                        <button 
+                                            onClick={() => setShowDomainModal(true)}
+                                            className="w-full bg-[#3B82F6] hover:bg-blue-600 text-white font-black py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg shadow-blue-500/20 cursor-pointer transform hover:scale-[1.01] active:scale-95"
+                                        >
+                                            <Globe className="w-4 h-4" />
+                                            <span>ASIGNAR DOMINIO</span>
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
                             {/* Rendimiento */}
                             <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-5 space-y-4">
                                 <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest text-left">
@@ -739,13 +754,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 >
                                     DESBLOQUEAR EDICIÓN AVANZADA
                                 </button>
-                                <button 
-                                    onClick={() => setShowDomainModal(true)}
-                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transform hover:scale-[1.02] active:scale-95 transition-all mt-3"
-                                >
-                                    <Globe className="w-4 h-4" />
-                                    <span>{linkedPages.length > 0 && linkedPages[0].customDomain ? "Ver Dominio" : "Asignar Dominio"}</span>
-                                </button>
                             </div>
                         </div>
 
@@ -769,56 +777,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         <p className="text-slate-400 text-xs sm:text-sm font-medium">
                             Esta es la página de agradecimiento que se muestra inmediatamente después de que el usuario se registre.
                         </p>
-                    </div>
-
-                    {/* Barra de URL y Acciones */}
-                    <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-                        <div className="flex-1 flex items-center bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-2 min-w-0">
-                            <Globe className="w-4 h-4 text-slate-500 shrink-0" />
-                            <span className="truncate flex-1 select-all">
-                                aprende.marketing/admin/lp/{linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo'}/gracias
-                            </span>
-                            <button 
-                                onClick={handleCopyTyUrl} 
-                                className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0"
-                                title="Copiar enlace"
-                            >
-                                {copiedTyUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                            </button>
-                        </div>
-
-                        <div className="flex items-center gap-2.5 shrink-0">
-                            <a 
-                                href={linkedPages.length > 0 ? `/admin/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias` : '#'} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                onClick={(e) => {
-                                    if (linkedPages.length === 0) {
-                                        e.preventDefault();
-                                        setShowConfirmModal(true);
-                                    }
-                                }}
-                                className="bg-[#FF5A1F] hover:bg-[#e04e18] text-white font-black py-2.5 px-4 sm:px-5 rounded-xl shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-2 text-xs uppercase tracking-wider transition-all transform hover:scale-[1.02]"
-                            >
-                                <span>ABRIR PÁGINA</span>
-                                <ExternalLink className="w-3.5 h-3.5 stroke-[2.5]" />
-                            </a>
-
-                            <button 
-                                onClick={() => {
-                                    if (linkedPages.length > 0) {
-                                        const url = window.location.hash.startsWith('#/') ? `#/dashboard/editor/${linkedPages[0].id}` : `/dashboard/editor/${linkedPages[0].id}`;
-                                        window.open(url, '_blank');
-                                    } else {
-                                        setShowConfirmModal(true);
-                                    }
-                                }}
-                                className="bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 text-slate-200 font-black py-2.5 px-4 sm:px-5 rounded-xl flex items-center justify-center gap-2 text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer"
-                            >
-                                <PenTool className="w-3.5 h-3.5 text-slate-300" />
-                                <span>EDITAR PÁGINA</span>
-                            </button>
-                        </div>
                     </div>
 
                     {/* Grid de 2 columnas (Iframe/Mockup 8 cols + Sidebar 4 cols) */}
@@ -892,8 +850,73 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             )}
                         </div>
 
-                        {/* Sidebar Derecha: Rendimiento + Personaliza con PRO */}
+                        {/* Sidebar Derecha: URL & Acciones + Rendimiento + Personaliza con PRO */}
                         <div className="lg:col-span-4 space-y-5">
+                            {/* Tarjeta 1: URL & Botones de Acción (Abrir, Editar, Dominio) */}
+                            <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-5 space-y-4 text-left shadow-lg">
+                                <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                                    URL DE TU PÁGINA DE GRACIAS
+                                </h4>
+
+                                {/* Campo de URL con botón copiar */}
+                                <div className="flex items-center bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-2 min-w-0">
+                                    <span className="truncate flex-1 select-all">
+                                        aprende.marketing/admin/lp/{linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo'}/gracias
+                                    </span>
+                                    <button 
+                                        onClick={handleCopyTyUrl} 
+                                        className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0 cursor-pointer"
+                                        title="Copiar enlace"
+                                    >
+                                        {copiedTyUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                                    </button>
+                                </div>
+
+                                {/* Botones de Acción */}
+                                <div className="space-y-3 pt-1">
+                                    <a 
+                                        href={linkedPages.length > 0 ? `/admin/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias` : '#'} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => {
+                                            if (linkedPages.length === 0) {
+                                                e.preventDefault();
+                                                setShowConfirmModal(true);
+                                            }
+                                        }}
+                                        className="w-full bg-[#00D084] hover:bg-[#00B874] text-slate-950 font-black py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all transform hover:scale-[1.01] active:scale-95 cursor-pointer"
+                                    >
+                                        <span>ABRIR PÁGINA</span>
+                                        <ExternalLink className="w-4 h-4 stroke-[2.5]" />
+                                    </a>
+
+                                    <button 
+                                        onClick={() => {
+                                            if (linkedPages.length > 0) {
+                                                const url = window.location.hash.startsWith('#/') ? `#/dashboard/editor/${linkedPages[0].id}` : `/dashboard/editor/${linkedPages[0].id}`;
+                                                window.open(url, '_blank');
+                                            } else {
+                                                setShowConfirmModal(true);
+                                            }
+                                        }}
+                                        className="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg shadow-amber-500/10 cursor-pointer transform hover:scale-[1.01] active:scale-95"
+                                    >
+                                        <span>EDITAR PÁGINA</span>
+                                        <Wand2 className="w-4 h-4 stroke-[2.5]" />
+                                    </button>
+
+                                    {!(linkedPages.length > 0 && linkedPages[0].customDomain) && (
+                                        <button 
+                                            onClick={() => setShowDomainModal(true)}
+                                            className="w-full bg-[#3B82F6] hover:bg-blue-600 text-white font-black py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg shadow-blue-500/20 cursor-pointer transform hover:scale-[1.01] active:scale-95"
+                                        >
+                                            <Globe className="w-4 h-4" />
+                                            <span>ASIGNAR DOMINIO</span>
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
                             {/* Rendimiento */}
                             <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-5 space-y-4">
                                 <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest text-left">
@@ -947,13 +970,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg transition"
                                 >
                                     DESBLOQUEAR EDICIÓN AVANZADA
-                                </button>
-                                <button 
-                                    onClick={() => setShowDomainModal(true)}
-                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transform hover:scale-[1.02] active:scale-95 transition-all mt-3"
-                                >
-                                    <Globe className="w-4 h-4" />
-                                    <span>{linkedPages.length > 0 && linkedPages[0].customDomain ? "Ver Dominio" : "Asignar Dominio"}</span>
                                 </button>
                             </div>
                         </div>
