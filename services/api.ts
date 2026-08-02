@@ -2369,6 +2369,65 @@ export const api = {
             console.warn("Falló eliminación API master-step-videos, usando borrado local:", e);
         }
     },
+
+    getWatchedStepVideos: async (stepNumber?: number): Promise<string[]> => {
+        let localWatched: string[] = [];
+        try {
+            const stored = localStorage.getItem('watched_step_video_ids');
+            if (stored) localWatched = JSON.parse(stored);
+        } catch (e) {
+            console.warn('Error al leer watched_step_video_ids de localStorage:', e);
+        }
+
+        if (isMockMode) return localWatched;
+
+        try {
+            const url = stepNumber !== undefined ? `/master-step-videos/watched?step=${stepNumber}` : '/master-step-videos/watched';
+            const res = await fetchWithFallback(url, { headers: getAuthHeaders() });
+            const remoteWatched: string[] = Array.isArray(res) ? res : (res?.watchedVideoIds || localWatched);
+            const merged = Array.from(new Set([...localWatched, ...remoteWatched]));
+            try {
+                localStorage.setItem('watched_step_video_ids', JSON.stringify(merged));
+            } catch (e) {}
+            return merged;
+        } catch (e) {
+            return localWatched;
+        }
+    },
+
+    markStepVideoWatched: async (videoId: string): Promise<string[]> => {
+        let localWatched: string[] = [];
+        try {
+            const stored = localStorage.getItem('watched_step_video_ids');
+            if (stored) localWatched = JSON.parse(stored);
+        } catch (e) {}
+
+        if (!localWatched.includes(videoId)) {
+            localWatched.push(videoId);
+            try {
+                localStorage.setItem('watched_step_video_ids', JSON.stringify(localWatched));
+            } catch (e) {}
+        }
+
+        if (isMockMode) return localWatched;
+
+        try {
+            const res = await fetchWithFallback('/master-step-videos/watched', {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ videoId })
+            });
+            if (res?.watchedVideoIds && Array.isArray(res.watchedVideoIds)) {
+                try {
+                    localStorage.setItem('watched_step_video_ids', JSON.stringify(res.watchedVideoIds));
+                } catch (e) {}
+                return res.watchedVideoIds;
+            }
+        } catch (e) {
+            console.warn('Falló guardado de watched video en servidor, mantenido localmente:', e);
+        }
+        return localWatched;
+    },
 };
   
 function safeParseJsonList(data: any): any[] {

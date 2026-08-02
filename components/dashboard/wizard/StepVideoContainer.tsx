@@ -102,13 +102,17 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Cargar videos desde la base de datos (master_step_videos) filtrados por stepNumber
+  // Cargar videos desde la base de datos (master_step_videos) y sus estados de visto guardados
   useEffect(() => {
     let isMounted = true;
     const fetchMasterVideos = async () => {
       setLoading(true);
       try {
-        const data = await api.getMasterStepVideos(stepNumber);
+        const [data, watchedList] = await Promise.all([
+          api.getMasterStepVideos(stepNumber),
+          api.getWatchedStepVideos(stepNumber)
+        ]);
+
         if (isMounted) {
           let listToSet: VideoItem[];
           if (data && data.length > 0) {
@@ -122,14 +126,19 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
           setVideoList(listToSet);
           if (listToSet.length > 0) {
             setActiveVideoId(listToSet[0].id);
-            setWatchedVideoIds(new Set([listToSet[0].id]));
           } else {
             setActiveVideoId('');
+          }
+
+          if (watchedList && Array.isArray(watchedList)) {
+            setWatchedVideoIds(new Set(watchedList));
+          } else {
+            setWatchedVideoIds(new Set());
           }
           setIsPlaying(false);
         }
       } catch (err) {
-        console.error("Error al obtener master_step_videos:", err);
+        console.error("Error al obtener master_step_videos o videos vistos:", err);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -146,10 +155,22 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
   const totalCardsCount = videoList.length + (isUserAdmin ? 1 : 0);
   const isMarquee = totalCardsCount > 3;
 
-  const handleSelectVideo = (video: VideoItem) => {
+  const handleSelectVideo = async (video: VideoItem) => {
     setActiveVideoId(video.id);
-    setWatchedVideoIds((prev) => new Set([...Array.from(prev), video.id]));
     setIsPlaying(true);
+
+    // Actualización inmediata del estado local
+    setWatchedVideoIds((prev) => new Set([...Array.from(prev), video.id]));
+
+    // Guardado persistente en base de datos / localStorage
+    try {
+      const updatedList = await api.markStepVideoWatched(video.id);
+      if (updatedList && Array.isArray(updatedList)) {
+        setWatchedVideoIds(new Set(updatedList));
+      }
+    } catch (err) {
+      console.error("Error al guardar estado de video visto en BD:", err);
+    }
   };
 
   const getEmbedUrl = (url: string) => {
@@ -316,9 +337,15 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
         <div key={activeVideo?.id} className="relative aspect-video w-full bg-black">
           {activeVideo?.posterImage && !isPlaying ? (
             <div 
-              onClick={() => {
+              onClick={async () => {
                 setIsPlaying(true);
                 setWatchedVideoIds((prev) => new Set([...Array.from(prev), activeVideo.id]));
+                try {
+                  const updated = await api.markStepVideoWatched(activeVideo.id);
+                  if (updated && Array.isArray(updated)) {
+                    setWatchedVideoIds(new Set(updated));
+                  }
+                } catch (e) {}
               }}
               className="relative w-full h-full cursor-pointer group"
             >
@@ -366,7 +393,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
 
           <div className="flex items-center gap-3">
             <span className="text-xs font-medium">
-              <strong className="text-[#FF5A1F] font-bold">{watchedVideoIds.size} de {videoList.length}</strong>{' '}
+              <strong className="text-emerald-400 font-bold">{watchedVideoIds.size} de {videoList.length}</strong>{' '}
               <span className="text-slate-400">vistos</span>
             </span>
 
@@ -413,7 +440,11 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                   isMarquee ? 'min-w-[280px] sm:min-w-[310px] md:min-w-[315px] snap-start shrink-0' : 'w-full'
                 } ${
                   isActive
-                    ? 'bg-[#FF5A1F]/[0.05] border-[#FF5A1F] ring-1 ring-[#FF5A1F]/60 shadow-lg shadow-orange-500/10'
+                    ? isWatched
+                      ? 'bg-[#FF5A1F]/[0.05] border-emerald-500 ring-2 ring-emerald-500/70 shadow-lg shadow-emerald-500/10'
+                      : 'bg-[#FF5A1F]/[0.05] border-[#FF5A1F] ring-1 ring-[#FF5A1F]/60 shadow-lg shadow-orange-500/10'
+                    : isWatched
+                    ? 'bg-[#0B1120] border-emerald-500 ring-1 ring-emerald-500/50 shadow-md shadow-emerald-500/10 hover:border-emerald-400 hover:bg-[#0E1628]'
                     : 'bg-[#0B1120] border-slate-800/90 hover:border-slate-700 hover:bg-[#0E1628]'
                 }`}
               >
@@ -424,7 +455,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                       <span className="text-slate-300 font-semibold">Video {idx + 1}</span> · {video.type} · {video.duration}
                     </span>
                     {isWatched && (
-                      <div className="w-5 h-5 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shrink-0 shadow-sm">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
                         <Check className="w-3 h-3 stroke-[3]" />
                       </div>
                     )}
@@ -435,6 +466,8 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                     <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 mt-0.5 transition-all group-hover:scale-105 ${
                       isActive
                         ? 'bg-[#FF5A1F] text-white shadow-md shadow-orange-500/30'
+                        : isWatched
+                        ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white'
                         : 'bg-slate-800/90 border border-slate-700 text-slate-200 group-hover:border-[#FF5A1F]/50 group-hover:text-[#FF5A1F]'
                     }`}>
                       <Play className="w-4 h-4 fill-current ml-0.5" />
@@ -462,7 +495,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                       REPRODUCIENDO
                     </span>
                   ) : isWatched ? (
-                    <span className="inline-flex items-center gap-1 text-[#FF5A1F] text-[11px] font-bold">
+                    <span className="inline-flex items-center gap-1 text-emerald-400 text-[11px] font-bold">
                       <Check className="w-3.5 h-3.5 stroke-[2.5]" /> Visto
                     </span>
                   ) : (
