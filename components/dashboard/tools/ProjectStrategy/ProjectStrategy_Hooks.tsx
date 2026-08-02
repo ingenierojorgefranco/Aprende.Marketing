@@ -170,26 +170,14 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [tempReelTitle, setTempReelTitle] = useState("");
 
   const handleDownloadVideo = () => {
-    if (currentKit?.downloadUrl && currentKit.downloadUrl.trim() !== '') {
-      const link = document.createElement("a");
-      link.href = currentKit.downloadUrl;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.setAttribute("download", "");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else {
-      const fullCopy = `HOOK: ${localTitle || currentHook.title || ""}\n\nGUIÓN:\n${currentKit?.script || ""}\n\nCOPY PUBLICITARIO:\n${currentKit?.ads || ""}`;
-      navigator.clipboard.writeText(fullCopy);
-      const element = document.createElement("a");
-      const file = new Blob([fullCopy], { type: 'text/plain' });
-      element.href = URL.createObjectURL(file);
-      element.download = `video-hook-${(activeTab === 'library' ? activeLibraryHook : activeHook) + 1}.txt`;
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
+    const videoUrl = (currentKit?.downloadUrl || currentKit?.videoUrl || "").trim();
+    if (!videoUrl) return;
+    let urlToOpen = videoUrl;
+    const driveMatch = videoUrl.match(/(?:file\/d\/|id=)([\w-]+)/);
+    if (driveMatch && driveMatch[1]) {
+      urlToOpen = `https://drive.google.com/uc?export=download&id=${driveMatch[1]}`;
     }
+    window.open(urlToOpen, "_blank", "noopener,noreferrer");
   };
 
   const loadingMessages = [
@@ -593,6 +581,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
       ...raw
     };
   }, [currentHook]);
+
+  const hasVideoUrl = Boolean((currentKit?.downloadUrl || currentKit?.videoUrl || "").trim());
 
   const handleUpdateKitJson = async (field: string, value: any) => {
     if (!currentHook.id) return;
@@ -1198,18 +1188,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     <span>Copiar Guion</span>
                                 </button>
                                 <button
-                                    onClick={() => {
-                                        const fullCopy = `HOOK: ${localTitle || currentHook.title || ""}\n\nGUIÓN:\n${currentKit?.script || ""}\n\nCOPY PUBLICITARIO:\n${currentKit?.ads || ""}`;
-                                        navigator.clipboard.writeText(fullCopy);
-                                        const element = document.createElement("a");
-                                        const file = new Blob([fullCopy], { type: 'text/plain' });
-                                        element.href = URL.createObjectURL(file);
-                                        element.download = `video-hook-${(activeTab === 'library' ? activeLibraryHook : activeHook) + 1}.txt`;
-                                        document.body.appendChild(element);
-                                        element.click();
-                                        document.body.removeChild(element);
-                                    }}
-                                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-xs font-bold transition-all shadow-[0_2px_8px_rgba(255,93,30,0.25)] cursor-pointer"
+                                    onClick={handleDownloadVideo}
+                                    disabled={!hasVideoUrl}
+                                    title={!hasVideoUrl ? "Sin URL de video configurada" : "Descargar video"}
+                                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-xs font-bold transition-all shadow-[0_2px_8px_rgba(255,93,30,0.25)] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:shadow-none"
                                 >
                                     <Download className="w-3.5 h-3.5" />
                                     <span>Descargar video</span>
@@ -1381,7 +1363,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     </button>
                                     <button
                                         onClick={handleDownloadVideo}
-                                        className="w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-sm md:text-base font-black flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-[0_4px_16px_rgba(255,93,30,0.3)] hover:scale-[1.01]"
+                                        disabled={!hasVideoUrl}
+                                        title={!hasVideoUrl ? "Sin URL de video configurada" : "Descargar video"}
+                                        className="w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-sm md:text-base font-black flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-[0_4px_16px_rgba(255,93,30,0.3)] hover:scale-[1.01] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:brightness-100 disabled:shadow-none"
                                     >
                                         <Download className="w-4.5 h-4.5" />
                                         <span>Descargar video</span>
@@ -1585,7 +1569,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 <div className="pt-2">
                                     <button
                                         onClick={handleDownloadVideo}
-                                        className="w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-sm md:text-base font-black flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-[0_4px_16px_rgba(255,93,30,0.3)] hover:scale-[1.01]"
+                                        disabled={!hasVideoUrl}
+                                        title={!hasVideoUrl ? "Sin URL de video configurada" : "Descargar video"}
+                                        className="w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-sm md:text-base font-black flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-[0_4px_16px_rgba(255,93,30,0.3)] hover:scale-[1.01] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:brightness-100 disabled:shadow-none"
                                     >
                                         <Download className="w-4.5 h-4.5" />
                                         <span>Descargar video</span>

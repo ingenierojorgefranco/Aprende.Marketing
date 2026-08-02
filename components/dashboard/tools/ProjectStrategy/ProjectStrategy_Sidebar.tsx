@@ -49,6 +49,20 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         }
     ].filter(group => group.items.length > 0);
 
+    const sectionAliases: Record<string, string> = {
+        '1': 'summary',
+        '2': 'avatar',
+        '3': 'web',
+        '4': 'hotlinks',
+        '5': 'hooks',
+        '6': 'content',
+        '7': 'email',
+        '8': 'evergreen',
+        '9': 'whatsapp',
+    };
+
+    const currentSectionId = sectionAliases[String(activeSection)] || String(activeSection);
+
     const [openGroups, setOpenGroups] = useState<number[]>(menuItems.map((_, i) => i));
 
     const toggleGroup = (gIdx: number) => {
@@ -61,12 +75,12 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
 
     useEffect(() => {
         const activeGroupIdx = menuItems.findIndex(group => 
-            group.items.some(item => item.id === activeSection)
+            group.items.some(item => item.id === currentSectionId || item.id === String(activeSection))
         );
         if (activeGroupIdx !== -1) {
             setOpenGroups(prev => prev.includes(activeGroupIdx) ? prev : [...prev, activeGroupIdx]);
         }
-    }, [activeSection]);
+    }, [activeSection, currentSectionId]);
 
     return (
         <div className="w-full bg-[#0B1120] border border-slate-800 rounded-2xl flex flex-col shadow-2xl transition-all duration-300 overflow-hidden">
@@ -102,7 +116,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                             {isOpen && (
                                 <div className="bg-black/20 p-2 space-y-1.5">
                                     {group.items.map((item) => {
-                                        const isActive = activeSection === item.id;
+                                        const isActive = currentSectionId === item.id || activeSection === item.id;
                                         return (
                                             <button
                                                 key={item.id}

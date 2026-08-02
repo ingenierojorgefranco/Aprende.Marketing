@@ -4802,7 +4802,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                         { id: "testimonials", title: "Testimonios Persuasivos", desc: "Historias de éxito realistas y testimonios diseñados para derribar el escepticismo." },
                         { id: "objections", title: "Frustraciones del Avatar", desc: "Análisis de las barreras de compra más comunes y cómo resolverlas eficazmente." },
                         { id: "benefits", title: "Beneficios Magnéticos", desc: "Los ganchos de transformación que conectan las características con las emociones." },
-                        { id: "proposition", title: "Propuesta de Valor", desc: "La declaración central que resume por qué tu cliente ideal debe elegirte." },
                         { id: "offer", title: "Oferta Principal", desc: "La estructura irresistible de tu producto o servicio con bonos y garantías." },
                         { id: "cta", title: "CTA Principal", desc: "Llamados a la acción directos y persuasivos diseñados para maximizar la conversión." },
                       ].map((opt) => (
@@ -4874,7 +4873,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                           { id: "testimonials", title: "Testimonios Persuasivos" },
                           { id: "objections", title: "Frustraciones del Avatar" },
                           { id: "benefits", title: "Beneficios Magnéticos" },
-                          { id: "proposition", title: "Propuesta de Valor" },
                           { id: "offer", title: "Oferta Principal" },
                           { id: "cta", title: "CTA Principal" },
                         ].map((opt) => {
@@ -6044,52 +6042,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                           </div>
                         </div>
                       )}
-                      {activeComercialOption === "proposition" && (() => {
-                        const comm = strategyData?.commercial || {};
-                        const positioningStatement = comm.proposition?.positioningStatement || "Ayudamos a esteticistas y emprendedoras de belleza a dominar la técnica de micropigmentación hiperrealista en 30 días con certificación oficial, logrando multiplicar por 5 sus ingresos por servicio sin depender de las marcas tradicionales o manuales complejos.";
-                        const traditionalMarketDescription = comm.proposition?.traditionalMarketDescription || "Enfoque teórico aburrido, soporte ausente, sin orientación comercial, guerra de precios e insumos genéricos.";
-                        const ourAlternativeDescription = comm.proposition?.ourAlternativeDescription || "Trazos hiperrealistas milimétricos garantizados, acompañamiento clínico activo, kit premium y tutoría para captar sus primeras 5 clientas estables.";
-                        return (
-                          <div className="space-y-6 text-left">
-                            {/* Inner Header */}
-                            <div className="flex items-start gap-4">
-                              <div className="w-12 h-12 rounded-2xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5D1E] shrink-0 shadow-lg shadow-orange-500/5">
-                                <Target className="w-6 h-6" />
-                              </div>
-                              <div className="text-left">
-                                <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Propuesta de Valor</h2>
-                                <p className="text-white font-light text-sm sm:text-base leading-relaxed mt-1 animate-fade-in-up">
-                                  Tu factor de diferenciación definitiva para salirte de la competencia destructiva de precios bajos.
-                                </p>
-                              </div>
-                            </div>
 
-                            <div className="p-6 bg-white/[0.01] border border-white/[0.04] rounded-3xl relative space-y-6 pt-5">
-                              <div className="text-left space-y-2">
-                                <h3 className="text-base sm:text-lg font-extrabold text-white">Declaración de Posicionamiento Único</h3>
-                                <p className="text-[#FFBF00] text-sm md:text-base font-medium leading-relaxed italic border-l-2 border-[#FF5A1F] pl-4 text-left">
-                                  "{positioningStatement}"
-                                </p>
-                              </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                                <div className="p-5 bg-rose-500/[0.015] border border-rose-500/10 rounded-2xl space-y-2 text-left">
-                                  <span className="text-[10px] uppercase font-bold text-rose-400 tracking-wider block">El mercado tradicional</span>
-                                  <p className="text-white font-light text-xs sm:text-sm leading-relaxed animate-fade-in-up">
-                                    {traditionalMarketDescription}
-                                  </p>
-                                </div>
-                                <div className="p-5 bg-emerald-500/[0.015] border border-emerald-500/10 rounded-2xl space-y-2 text-left">
-                                  <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider block">Nuestra Alternativa Única</span>
-                                  <p className="text-white font-light text-xs sm:text-sm leading-relaxed animate-fade-in-up">
-                                    {ourAlternativeDescription}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })()}
 
                       {/* 6. COMPONENTE: OFERTA PRINCIPAL */}
                       {activeComercialOption === "offer" && (() => {

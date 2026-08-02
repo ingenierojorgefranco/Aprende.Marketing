@@ -59,6 +59,22 @@ const initDb = async () => {
         // Desactivar checks de FK para evitar errores de orden durante creación
         await connection.query('SET FOREIGN_KEY_CHECKS = 0');
 
+        // 4. TABLA MASTER_STEP_VIDEOS (Lecciones globales por paso)
+        await connection.query(`CREATE TABLE IF NOT EXISTS master_step_videos (
+            id VARCHAR(255) PRIMARY KEY,
+            step_number INT NOT NULL DEFAULT 1,
+            type VARCHAR(50) DEFAULT 'Complementario',
+            title VARCHAR(255) NOT NULL,
+            subtitle TEXT,
+            duration VARCHAR(50) DEFAULT '3:00',
+            video_url TEXT NOT NULL,
+            poster_image TEXT,
+            position_order INT DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_step_number (step_number)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
         // 1. TABLA USERS (Principal)
         await connection.query(`CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -791,6 +807,23 @@ const initDb = async () => {
             }
         }
         ////////// Fin de actualización - 07/06/2025 10:00 //////////
+
+        // --- DATOS SEMILLA PARA MASTER_STEP_VIDEOS ---
+        const [existingMasterVideos] = await connection.query("SELECT id FROM master_step_videos LIMIT 1");
+        if (existingMasterVideos.length === 0) {
+            console.log('[DB Init] 🌱 Insertando datos semilla de master_step_videos...');
+            const defaultStep1Videos = [
+                ['v1', 1, 'Principal', 'Entiende tu proyecto', 'Resumen del producto, público y recorrido', '4:36', 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675', 1],
+                ['v2', 1, 'Complementario', 'Cómo interpretar tu comisión', 'Precio, porcentaje y ganancia por venta', '2:18', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675', 2],
+                ['v3', 1, 'Complementario', 'Cómo funciona tu sistema', 'Del contenido a la posible comisión', '3:05', 'https://www.youtube.com/embed/L_LUpnjgPso?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200&h=675', 3]
+            ];
+            for (const v of defaultStep1Videos) {
+                await connection.query(
+                    `INSERT INTO master_step_videos (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    v
+                );
+            }
+        }
 
         // Reactivar checks
         await connection.query('SET FOREIGN_KEY_CHECKS = 1');

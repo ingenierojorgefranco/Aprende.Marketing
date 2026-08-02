@@ -737,14 +737,14 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                             <div key={pIdx} className="space-y-2">
                                                 <button 
                                                     onClick={() => togglePhase(pIdx)}
-                                                    className={`w-full px-6 py-4 ${phase.color} border border-white/20 rounded-xl text-left flex items-center justify-between group transition-all hover:bg-blue-700`}
+                                                    className={`w-full px-4 py-3 ${phase.color} border border-white/20 rounded-xl text-left flex items-center justify-between group transition-all hover:bg-blue-700`}
                                                 >
-                                                    <span className="text-base text-white tracking-wide font-medium">{phase.title}</span>
-                                                    <ChevronDown className={`w-5 h-5 text-white transition-transform duration-300 ${openPhases.has(pIdx) ? 'rotate-180' : ''}`} />
+                                                    <span className="text-sm text-white tracking-wide font-medium">{phase.title}</span>
+                                                    <ChevronDown className={`w-4 h-4 text-white transition-transform duration-300 ${openPhases.has(pIdx) ? 'rotate-180' : ''}`} />
                                                 </button>
 
                                                 {openPhases.has(pIdx) && (
-                                                    <div className="space-y-2 pl-2 animate-in slide-in-from-top-2 duration-300">
+                                                    <div className="space-y-2 pl-1 animate-in slide-in-from-top-2 duration-300">
                                                         {phase.indices.map(idx => {
                                                             const script = whatsappLaunch[idx];
                                                             if (!script) return null;
@@ -752,30 +752,30 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                                 <div 
                                                                     key={script.id}
                                                                     onClick={() => setActiveWaScript(idx)} 
-                                                                    className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all duration-300 flex items-center justify-between gap-4 cursor-pointer 
-                                                                        ${activeWaScript === idx ? 'translate-x-3 border-l-4 border-l-blue-500 shadow-lg' : ''}
+                                                                    className={`relative pl-5 pr-4 py-3.5 rounded-xl border transition-all duration-300 flex items-center justify-between gap-3 cursor-pointer 
+                                                                        ${activeWaScript === idx ? 'translate-x-2 border-l-4 border-l-blue-500 shadow-lg' : ''}
                                                                         ${script.isGenerated 
                                                                             ? (activeWaScript === idx ? 'bg-emerald-500/30 border-emerald-500/50' : 'bg-emerald-500/10 border-emerald-500/20') 
                                                                             : (sentMessages.has(idx) ? 'bg-emerald-900/10 border-emerald-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800'))}
                                                                     `}
                                                                 >
-                                                                    <div className="flex items-center gap-6">
-                                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${script.isGenerated || sentMessages.has(idx) ? 'bg-green-50 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div>
+                                                                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all duration-300 ${script.isGenerated || sentMessages.has(idx) ? 'bg-green-50 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div>
                                                                         <div className="flex-1 min-w-0">
-                                                                            <div className="flex items-center gap-2 mb-1">
+                                                                            <div className="flex items-center gap-2 mb-0.5">
                                                                                 <span className="text-xs font-bold uppercase tracking-wider text-gray-400">{script.momentText}</span>
                                                                                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-500 flex items-center gap-1">
                                                                                     <Clock className="w-3 h-3" /> {getCalculatedTime(idx)}
                                                                                 </span>
                                                                             </div>
-                                                                            <h4 className={`text-lg font-thin leading-relaxed whitespace-normal text-white`}>{script.name}</h4>
+                                                                            <h4 className={`text-sm sm:text-base font-medium leading-snug whitespace-normal text-white`}>{script.name}</h4>
                                                                         </div>
                                                                     </div>
-                                                                    <div onClick={(e) => toggleSent(e, idx)} className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${sentMessages.has(idx) ? 'border-green-500 bg-green-500' : 'border-gray-600'}`}>
+                                                                    <div onClick={(e) => toggleSent(e, idx)} className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${sentMessages.has(idx) ? 'border-green-500 bg-green-500' : 'border-gray-600'}`}>
                                                                         {sentMessages.has(idx) ? (
-                                                                            <Check className="w-4 h-4 text-black font-black" />
+                                                                            <Check className="w-3.5 h-3.5 text-black font-black" />
                                                                         ) : (
-                                                                            <Check className="w-4 h-4 text-gray-600" />
+                                                                            <Check className="w-3.5 h-3.5 text-gray-600" />
                                                                         )}
                                                                     </div>
                                                                 </div>
@@ -807,31 +807,31 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                     {activeItem && activeItem.isGenerated ? (
                                         <div className="flex flex-col h-full space-y-6 relative z-10">
                                             <div className="flex justify-between items-center">
-                                                <span className="text-2xl font-black text-white uppercase tracking-tight">
+                                                <span className="text-xl font-bold text-white uppercase tracking-tight">
                                                     {activeItem.name}
                                                 </span>
-                                                <div className="flex items-center gap-4">
-                                                    <span className="bg-emerald-600 text-white px-6 py-2.5 rounded-full text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-emerald-500/20 border border-emerald-400/30">
+                                                <div className="flex items-center gap-4 shrink-0">
+                                                    <span className="bg-emerald-600 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg shadow-emerald-500/20 border border-emerald-400/30">
                                                         Mensaje {activeWaScript + 1}
                                                     </span>
                                                 </div>
                                             </div>
 
-                                            <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4">
-                                                <Brain className="w-6 h-6 text-emerald-400 shrink-0" />
-                                                <div className="text-gray-300 text-base leading-relaxed">
-                                                    <span className="font-bold text-emerald-200 block mb-1 uppercase text-xs tracking-widest">Propósito Estratégico:</span>
-                                                    <div className="prose prose-invert prose-p:text-gray-300 max-w-none italic">
+                                            <div className="bg-emerald-900/10 border border-emerald-500/20 p-4 rounded-xl flex gap-3">
+                                                <Brain className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                                                <div className="text-gray-300 text-sm leading-relaxed">
+                                                    <span className="font-bold text-emerald-200 block mb-0.5 uppercase text-xs tracking-wider">Propósito Estratégico:</span>
+                                                    <div className="prose prose-invert prose-p:text-gray-300 max-w-none italic text-sm">
                                                         {activeItem.purpose}
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div className="bg-amber-900/10 border border-amber-500/20 p-8 rounded-2xl flex flex-col items-center text-center gap-6">
-                                                <Calendar className="w-8 h-8 text-amber-400 shrink-0" />
-                                                <div className="space-y-4">
-                                                    <span className="font-black text-amber-500 uppercase tracking-widest block" style={{ fontSize: '1.1em' }}>Fecha en la que debes enviar el mensaje</span>
-                                                    <span className="text-white font-bold block" style={{ fontSize: '1.3em' }}>
+                                            <div className="bg-amber-900/10 border border-amber-500/20 p-4 rounded-xl flex flex-col items-center text-center gap-2">
+                                                <Calendar className="w-6 h-6 text-amber-400 shrink-0" />
+                                                <div className="space-y-1">
+                                                    <span className="font-bold text-amber-400 uppercase tracking-wider text-xs block">Fecha en la que debes enviar el mensaje</span>
+                                                    <span className="text-white font-bold text-base block">
                                                         {launchDate ? getCalculatedDate(launchDate, activeWaScript, true) : 'Fecha por Definir'}
                                                     </span>
                                                 </div>
@@ -841,61 +841,61 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                 <ChatSimulator messages={processedMessages} senderName={user?.name} onSaveMessage={handleSaveChatMessage} />
                                                 <button 
                                                     onClick={() => handleCopy(processedMessages[0]?.text || '')}
-                                                    className="absolute top-4 right-4 p-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl shadow-2xl opacity-0 group-hover/chat:opacity-100 transition-all transform hover:scale-110 active:scale-95 z-20 flex items-center gap-2 font-bold text-xs"
+                                                    className="absolute top-4 right-4 p-2.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl shadow-2xl opacity-0 group-hover/chat:opacity-100 transition-all transform hover:scale-110 active:scale-95 z-20 flex items-center gap-2 font-bold text-xs"
                                                 >
-                                                    <Copy className="w-4 h-4" /> Copiar
+                                                    <Copy className="w-3.5 h-3.5" /> Copiar
                                                 </button>
                                             </div>
                                             
-                                            <div className="flex gap-4 mt-auto pt-4">
+                                            <div className="flex gap-4 mt-auto pt-2">
                                                 <button 
                                                     onClick={() => handleCopy(processedMessages[0]?.text || '')} 
-                                                    className="flex-1 py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xl shadow-2xl shadow-emerald-500/20 flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 transition-all"
+                                                    className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-sm shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-95 transition-all"
                                                 >
-                                                    <Copy className="w-6 h-6" /> COPIAR MENSAJE PARA WHATSAPP
+                                                    <Copy className="w-4 h-4" /> COPIAR MENSAJE PARA WHATSAPP
                                                 </button>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="space-y-12 animate-in fade-in duration-500 flex-1 flex flex-col relative z-10">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-2xl font-black text-white uppercase tracking-tight">
+                                        <div className="space-y-6 animate-in fade-in duration-500 flex-1 flex flex-col relative z-10">
+                                            <div className="flex items-center justify-between gap-4">
+                                                <span className="text-xl font-bold text-white uppercase tracking-tight">
                                                     {activeItem?.name}
                                                 </span>
-                                                <span className="bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-500/20 border border-blue-400/30">
+                                                <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shrink-0 shadow-lg shadow-blue-500/20 border border-blue-400/30">
                                                     Mensaje {activeWaScript + 1}
                                                 </span>
                                             </div>
 
-                                            <div className="space-y-10">
-                                                <div className="space-y-3">
+                                            <div className="space-y-6">
+                                                <div className="space-y-2">
                                                     <div className="flex justify-between items-center">
-                                                        <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2">
-                                                            <Settings2 className="w-5 h-5 text-emerald-500" /> Pilar Estratégico (Tipo)
+                                                        <label className="text-xs font-bold text-emerald-400 uppercase tracking-wider ml-1 flex items-center gap-2">
+                                                            <Settings2 className="w-4 h-4 text-emerald-500" /> Pilar Estratégico (Tipo)
                                                         </label>
-                                                        <button onClick={() => setIsTypeLocked(!isTypeLocked)} className="text-xs font-black text-emerald-400 uppercase bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
+                                                        <button onClick={() => setIsTypeLocked(!isTypeLocked)} className="text-xs font-bold text-emerald-400 uppercase bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
                                                             {isTypeLocked ? 'Reordenar' : 'Guardar'}
                                                         </button>
                                                     </div>
-                                                    <select disabled={isTypeLocked} value={activeItem?.pilarType} onChange={(e) => handleUpdateMessage(activeWaScript, 'pilarType', e.target.value)} className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none appearance-none ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-emerald-500/50'}`}>
+                                                    <select disabled={isTypeLocked} value={activeItem?.pilarType} onChange={(e) => handleUpdateMessage(activeWaScript, 'pilarType', e.target.value)} className={`w-full bg-black/60 border border-white/10 rounded-xl py-3.5 px-4 text-white font-bold text-base outline-none appearance-none ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-emerald-500/50'}`}>
                                                         {waTypes.map(t => (<option key={t} value={t}>{t}</option>))}
                                                     </select>
                                                 </div>
                                                 
-                                                <div className="space-y-3">
-                                                    <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2">
-                                                        <Calendar className="w-5 h-5 text-emerald-500" /> Fecha en la que enviarás el mensaje.
+                                                <div className="space-y-2">
+                                                    <label className="text-xs font-bold text-emerald-400 uppercase tracking-wider ml-1 flex items-center gap-2">
+                                                        <Calendar className="w-4 h-4 text-emerald-500" /> Fecha en la que enviarás el mensaje
                                                     </label>
-                                                    <div className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl">
+                                                    <div className="w-full bg-black/60 border border-white/10 rounded-xl py-3.5 px-4 text-white font-bold text-base">
                                                         {launchDate ? getCalculatedDate(launchDate, activeWaScript, true) : 'Fecha por Definir'}
                                                     </div>
                                                 </div>
 
-                                                <div className="space-y-3">
-                                                    <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2">
-                                                        <Brain className="w-5 h-5 text-emerald-500" /> Propósito Estratégico
+                                                <div className="space-y-2">
+                                                    <label className="text-xs font-bold text-emerald-400 uppercase tracking-wider ml-1 flex items-center gap-2">
+                                                        <Brain className="w-4 h-4 text-emerald-500" /> Propósito Estratégico
                                                     </label>
-                                                    <textarea ref={purposeTextareaRef} rows={1} value={activeItem?.purpose} onChange={(e) => handleUpdateMessage(activeWaScript, 'purpose', e.target.value)} className="w-full bg-black/60 border border-white/10 rounded-[2.5rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none resize-none overflow-hidden" />
+                                                    <textarea ref={purposeTextareaRef} rows={1} value={activeItem?.purpose} onChange={(e) => handleUpdateMessage(activeWaScript, 'purpose', e.target.value)} className="w-full bg-black/60 border border-white/10 rounded-2xl p-4 text-gray-300 text-sm sm:text-base font-normal leading-relaxed outline-none resize-none overflow-hidden" />
                                                 </div>
                                             </div>
                                         </div>

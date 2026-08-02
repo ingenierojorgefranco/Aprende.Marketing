@@ -673,7 +673,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         <div id="psd-content-list-card" className="bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-xl">
                             <div className="flex items-center justify-between gap-3 mb-6">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-purple-900/30 rounded-lg text-purple-400 border border-purple-900/50">
+                                    <div className="p-2.5 bg-orange-500/10 rounded-xl text-orange-400 border border-orange-500/20">
                                         <FileText className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -683,7 +683,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 </div>
                                 <button 
                                     onClick={handleAddManual}
-                                    className="p-2 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-xl hover:bg-purple-500 hover:text-white transition-all group"
+                                    className="p-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-xl hover:bg-[#FF5D1E] hover:text-white transition-all group"
                                     title="Añadir Manualmente"
                                 >
                                     <Plus className="w-5 h-5" />
@@ -697,8 +697,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Artículos Generados/Desbloqueados</span>
                                         <span className="text-white font-bold">{currentArticleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                                     </div>
-                                    <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                        <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-purple-500" style={{ width: `${isRealAdmin ? (currentArticleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                    <div className="w-full bg-black/50 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                        <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-gradient-to-r from-[#FF5D1E] to-orange-500" style={{ width: `${isRealAdmin ? (currentArticleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                     </div>
                                 </div>
                             </div>
@@ -713,7 +713,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     placeholder="Buscar por título o keyword..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="block w-full pl-11 pr-4 py-3 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                                    className="block w-full pl-11 pr-4 py-3 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FF5D1E]/50 focus:border-[#FF5D1E]/50 transition-all"
                                 />
                                 {searchTerm && (
                                     <button 
@@ -729,13 +729,13 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
                                 <button 
                                     onClick={() => setActiveTab('library')}
-                                    className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-purple-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                                    className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-gradient-to-r from-[#FF5D1E] to-orange-600 text-white shadow-md shadow-orange-950/40' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
                                 >
                                     Biblioteca de Contenidos
                                 </button>
                                 <button 
                                     onClick={() => setActiveTab('generated')}
-                                    className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white' : (generatedData.length > 0 ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'text-gray-500 hover:text-white')}`}
+                                    className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md' : (generatedData.length > 0 ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'text-gray-400 hover:text-white hover:bg-white/5')}`}
                                 >
                                     Contenidos Generados
                                 </button>
@@ -757,22 +757,18 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden 
                                                 ${isGenerated 
                                                     ? (isActive 
-                                                        ? 'bg-emerald-600 border-emerald-500 text-white translate-x-2 border-l-4 border-l-white' 
-                                                        : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:translate-x-2 hover:border-l-4 hover:border-l-emerald-500') 
-                                                    : isSelected 
-                                                        ? 'bg-blue-600 border-blue-500 text-white translate-x-2 border-l-4 border-l-white' 
+                                                        ? 'bg-emerald-950/30 border-2 border-emerald-500 text-white translate-x-1' 
+                                                        : 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:border-emerald-500/50') 
+                                                    : (isActive || isSelected)
+                                                        ? 'bg-orange-950/25 border-2 border-[#FF5D1E] text-orange-200 shadow-[0_0_15px_rgba(255,93,30,0.15)] translate-x-1' 
                                                         : isUnlockedButNotGenerated 
-                                                            ? (isActive 
-                                                                ? 'bg-yellow-500/20 border-yellow-500 translate-x-2 border-l-4 border-l-yellow-500' 
-                                                                : 'bg-yellow-500/10 border-yellow-500/50 hover:translate-x-2 hover:border-l-4 hover:border-l-yellow-500') 
-                                                            : isActive 
-                                                                ? 'bg-purple-900/20 border-purple-500/50 translate-x-2 border-l-4 border-l-purple-500' 
-                                                                : 'bg-black/20 border-gray-800 hover:border-gray-700 hover:translate-x-2 hover:border-l-4 hover:border-l-purple-500'} 
+                                                            ? 'bg-amber-950/20 border border-amber-500/50 hover:border-amber-500/80' 
+                                                            : 'bg-black/30 border border-white/[0.08] hover:border-white/20 hover:border-l-4 hover:border-l-[#FF5D1E]'} 
                                                 ${!isUnlocked ? 'opacity-60 grayscale' : ''}
                                                 ${art.isActive === false ? 'opacity-40 grayscale' : ''}`}
                                         >
                                             <div className="flex-1">
-                                                <h4 className={`font-medium text-lg leading-snug ${isGenerated ? (isActive ? 'text-white' : 'text-emerald-400') : isSelected ? 'text-white' : isUnlockedButNotGenerated ? (isActive ? 'text-yellow-300' : 'text-yellow-400/80') : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
+                                                <h4 className={`font-medium text-lg leading-snug ${isGenerated ? (isActive ? 'text-white' : 'text-emerald-400') : (isActive || isSelected) ? 'text-yellow-300' : isUnlockedButNotGenerated ? 'text-yellow-400/90' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
                                                     {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
                                                     {art.title || (isRealAdmin ? 'Sin Título' : '')}
                                                 </h4>
@@ -806,8 +802,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                         )}
                                                     </div>
                                                 ) : (
-                                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isGenerated ? (isActive ? 'bg-white border-white' : 'bg-emerald-500/20 border-emerald-500') : isSelected ? 'bg-white border-white scale-110' : 'border-gray-600 group-hover:border-purple-400'}`}>
-                                                        {(isGenerated || isSelected) && <Check className={`w-4 h-4 font-bold ${isGenerated ? 'text-emerald-600' : 'text-blue-600'}`} />}
+                                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isGenerated ? (isActive ? 'bg-emerald-500 border-emerald-400 text-white' : 'bg-emerald-500/20 border-emerald-500 text-emerald-400') : (isActive || isSelected) ? 'bg-emerald-500 border-emerald-400 text-white scale-105' : 'border-emerald-500/50 text-emerald-400/70 group-hover:border-emerald-400'}`}>
+                                                        <Check className={`w-3.5 h-3.5 font-bold ${(isGenerated && isActive) || isActive || isSelected ? 'text-white' : 'text-emerald-400'}`} />
                                                     </div>
                                                 )}
                                             </div>
@@ -818,28 +814,28 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
                             {totalPages > 1 && (
                                 <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-800">
-                                    <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-purple-400 disabled:opacity-20 transition-all"><ChevronLeft className="w-5 h-5" /></button>
+                                    <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"><ChevronLeft className="w-5 h-5" /></button>
                                     <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Página <span className="text-white">{currentPage}</span> de <span className="text-white">{totalPages}</span></span>
-                                    <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)} className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-purple-400 disabled:opacity-20 transition-all"><ChevronRight className="w-5 h-5" /></button>
+                                    <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)} className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"><ChevronRight className="w-5 h-5" /></button>
                                 </div>
                             )}
                         </div>
                     </div>
-                    <div id="psd-content-detail-card" className="lg:col-span-7 bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/10 border border-gray-800 rounded-2xl p-8 flex flex-col relative overflow-hidden h-full min-h-[500px] shadow-2xl">
-                        <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Target className="w-40 h-40 text-purple-500" /></div>
+                    <div id="psd-content-detail-card" className="lg:col-span-7 bg-gradient-to-br from-gray-900 via-gray-900 to-orange-950/20 border border-gray-800 rounded-2xl p-8 flex flex-col relative overflow-hidden h-full min-h-[500px] shadow-2xl">
+                        <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Target className="w-40 h-40 text-orange-500" /></div>
                         
                         <div className="relative z-10 flex flex-col h-full">
                             {currentData[activeArticleIdx] ? (
                                 currentData[activeArticleIdx].isUnlocked === false && !isRealAdmin ? (
                                     <div className="flex flex-col items-center text-center relative animate-in zoom-in-95 w-full">
-                                        <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-purple-500" /></div>
+                                        <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-orange-500" /></div>
                                         
                                         <div className="w-full text-left mb-8">
                                             <h3 className="text-white mb-6 font-bold transition-colors" style={{ fontSize: '1.6rem', lineHeight: '2rem', paddingTop: '1em', paddingBottom: '0.3em' }}>{currentData[activeArticleIdx].title}</h3>
                                             
-                                            <div className="bg-purple-500/5 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm mb-4">
+                                            <div className="bg-orange-500/5 rounded-2xl p-6 border border-orange-500/20 backdrop-blur-sm mb-4">
                                                 <div className="flex items-center gap-2 mb-3">
-                                                    <Brain className="w-5 h-5 text-purple-400" />
+                                                    <Brain className="w-5 h-5 text-orange-400" />
                                                     <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
                                                 </div>
                                                 <div className="max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
@@ -849,19 +845,19 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                 </div>
                                             </div>
 
-                                            <div className="bg-purple-500/5 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm mb-8">
+                                            <div className="bg-orange-500/5 rounded-2xl p-6 border border-orange-500/20 backdrop-blur-sm mb-8">
                                                 <div className="flex items-center gap-2 mb-3">
-                                                    <Target className="w-5 h-5 text-purple-400" />
+                                                    <Target className="w-5 h-5 text-orange-400" />
                                                     <span className="text-white font-bold text-xs uppercase tracking-widest">Estado de Consciencia</span>
                                                 </div>
-                                                <p className="text-purple-300 font-bold text-lg text-center">
+                                                <p className="text-orange-300 font-bold text-lg text-center">
                                                     {currentData[activeArticleIdx].searchIntent || 'Por determinar'}
                                                 </p>
                                             </div>
                                         </div>
 
-                                        <div className="w-20 h-20 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6 border border-purple-500/20 shadow-lg animate-pulse">
-                                            <Lock className="w-10 h-10 text-purple-500" />
+                                        <div className="w-20 h-20 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-6 border border-orange-500/20 shadow-lg animate-pulse">
+                                            <Lock className="w-10 h-10 text-orange-500" />
                                         </div>
 
                                         <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Artículos Disponibles para Desbloquear</h4>
@@ -870,7 +866,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <button 
                                             onClick={isAtLimit ? onUpgrade : () => setShowUnlockConfirmModal(true)}
                                             disabled={unlockingSingle}
-                                            className={`w-full py-5 rounded-2xl ${isAtLimit ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-purple-600 hover:bg-purple-500'} text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-purple-900/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70`}
+                                            className={`w-full py-5 rounded-2xl ${isAtLimit ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110'} text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-950/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70`}
                                         >
                                             {unlockingSingle ? <Loader2 className="w-6 h-6 animate-spin" /> : isAtLimit ? <Crown className="w-6 h-6 fill-current" /> : <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />}
                                             {unlockingSingle ? 'Desbloqueando...' : isAtLimit ? 'Límite Alcanzado: Subir a PRO' : 'Desbloquear Artículo'}
@@ -889,7 +885,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                 <Check className="w-3 h-3" /> Artículo Generado
                                             </span>
                                         ) : (
-                                            <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">
+                                            <span className="inline-block py-1 px-3.5 rounded-full text-xs font-bold uppercase tracking-wider border bg-orange-500/10 text-orange-400 border-orange-500/20">
                                                 Artículos SEO Optimizados
                                             </span>
                                         )}
@@ -914,12 +910,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             value={localEdit?.title || ''}
                                             onChange={(e) => handleFieldChange('title', e.target.value)}
                                             onBlur={() => { setEditingField(null); handleBlurSave(); }}
-                                            className="w-full bg-black/40 border border-purple-500/50 rounded-xl px-4 py-2 text-3xl md:text-4xl font-bold text-white mb-6 outline-none"
+                                            className="w-full bg-black/40 border border-orange-500/50 rounded-xl px-4 py-2 text-3xl md:text-4xl font-bold text-white mb-6 outline-none"
                                         />
                                     ) : (
                                     <h3 
                                         onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('title')}
-                                        className={`font-bold text-white mb-6 transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-purple-300' : ''}`}
+                                        className={`font-bold text-white mb-6 transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-orange-300' : ''}`}
                                         style={{ fontSize: '1.6rem', lineHeight: '2rem' }}
                                     >
                                         {localEdit?.title || currentData[activeArticleIdx]?.title || (isRealAdmin ? 'Añadir Título...' : '')}
@@ -927,9 +923,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     )}
 
                                     {(localEdit?.strategy || isRealAdmin) && (
-                                        <div className="bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-6">
+                                        <div className="bg-black/40 rounded-xl p-6 border border-white/10 backdrop-blur-sm mb-6 shadow-inner">
                                             <h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-                                                <Sparkles className="w-4 h-4 text-purple-400"/> Enfoque Estratégico del Artículo
+                                                <Sparkles className="w-4 h-4 text-orange-400"/> Enfoque Estratégico del Artículo
                                             </h5>
                                             <div className="max-h-[180px] overflow-y-auto custom-scrollbar">
                                                 {editingField === 'strategy' ? (
@@ -955,7 +951,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
                                     <div className="space-y-4">
                                         <div 
-                                            className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group" 
+                                            className="px-4 py-4 bg-black/40 rounded-xl border border-white/10 w-full text-center group" 
                                         >
                                             <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
                                                 <Brain className="w-3 h-3"/> Intención de Búsqueda
@@ -964,7 +960,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                 value={localEdit?.searchIntent || ''}
                                                 onChange={(e) => handleSearchIntentChange(e.target.value)}
                                                 disabled={currentData[activeArticleIdx]?.isGenerated && !isRealAdmin}
-                                                className={`w-full bg-transparent text-purple-300 font-bold text-lg text-center outline-none appearance-none cursor-pointer ${(currentData[activeArticleIdx]?.isGenerated && !isRealAdmin) ? 'disabled:cursor-default' : ''}`}
+                                                className={`w-full bg-transparent text-orange-300 font-bold text-lg text-center outline-none appearance-none cursor-pointer ${(currentData[activeArticleIdx]?.isGenerated && !isRealAdmin) ? 'disabled:cursor-default' : ''}`}
                                             >
                                                 <option value="" className="bg-gray-900 text-gray-400">Seleccionar Intención...</option>
                                                 <option value="Inconsciente" className="bg-gray-900 text-white">Inconsciente</option>
@@ -977,7 +973,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
                                         {(localEdit?.keyword || isRealAdmin) && (
                                             <div 
-                                                className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group" 
+                                                className="px-4 py-4 bg-black/40 rounded-xl border border-white/10 w-full text-center group" 
                                             >
                                                 <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
                                                     <Search className="w-3 h-3"/> Keyword SEO
@@ -989,12 +985,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                         value={localEdit?.keyword || ''}
                                                         onChange={(e) => handleFieldChange('keyword', e.target.value)}
                                                         onBlur={() => { setEditingField(null); handleBlurSave(); }}
-                                                        className="w-full bg-transparent text-purple-300 font-bold text-lg text-center outline-none"
+                                                        className="w-full bg-transparent text-orange-300 font-bold text-lg text-center outline-none"
                                                     />
                                                 ) : (
                                                     <p 
                                                         onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('keyword')}
-                                                        className={`text-purple-300 font-bold text-lg leading-tight break-words transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-purple-100' : ''}`}
+                                                        className={`text-orange-300 font-bold text-lg leading-tight break-words transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-orange-100' : ''}`}
                                                     >
                                                         {localEdit?.keyword || currentData[activeArticleIdx]?.keyword || (isRealAdmin ? 'Añadir Keyword...' : '')}
                                                     </p>
@@ -1004,7 +1000,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
                                         {(localEdit?.searchVolume || isRealAdmin) && (
                                             <div 
-                                                className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group" 
+                                                className="px-4 py-4 bg-black/40 rounded-xl border border-white/10 w-full text-center group" 
                                             >
                                                 <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
                                                     <BarChart className="w-3 h-3"/> Vol. Búsqueda
@@ -1043,7 +1039,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                                 setShowGeneratorModal(true);
                                                             }
                                                         }} 
-                                                        className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]`}
+                                                        className={`w-full py-4 rounded-xl font-extrabold flex items-center justify-center gap-3 transition text-lg shadow-[0_4px_16px_rgba(255,93,30,0.3)] bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white hover:scale-[1.01]`}
                                                     >
                                                         <PenTool className="w-6 h-6" /> Escribir Artículo Seleccionado
                                                     </button>
@@ -1075,13 +1071,13 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
             {showUnlockConfirmModal && (
                 <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowUnlockConfirmModal(false)}>
-                    <div className="bg-[#0B0B0B] border border-purple-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-rose-500"></div>
+                    <div className="bg-[#0B0B0B] border border-orange-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5D1E] to-amber-500"></div>
                         <div className="p-8 md:p-10 space-y-8 flex-1 overflow-y-auto">
                             <div className="flex flex-col items-center text-center space-y-6">
-                                <div className="w-20 h-20 bg-purple-500/10 text-purple-400 rounded-3xl flex items-center justify-center mx-auto border border-purple-500/20 shadow-lg shadow-purple-900/10 animate-pulse"><Sparkles className="w-10 h-10" /></div>
+                                <div className="w-20 h-20 bg-orange-500/10 text-orange-400 rounded-3xl flex items-center justify-center mx-auto border border-orange-500/20 shadow-lg shadow-orange-950/20 animate-pulse"><Sparkles className="w-10 h-10" /></div>
                                 <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
-                                    Confirmar Consumo de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Créditos</span>
+                                    Confirmar Consumo de <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">Créditos</span>
                                 </h1>
                                 <p className="text-white text-lg leading-relaxed font-normal">
                                     Al desbloquear este artículo estratégico se consumirá 1 crédito de tu plan actual.
@@ -1099,7 +1095,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         </div>
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
                             <button onClick={() => setShowUnlockConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
-                            <button onClick={handleUnlockArticle} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-rose-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Desbloquear</button>
+                            <button onClick={handleUnlockArticle} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Desbloquear</button>
                         </div>
                     </div>
                 </div>
@@ -1107,13 +1103,13 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
             {showConfirmModal && (
                 <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowConfirmModal(false)}>
-                    <div className="bg-[#0B0B0B] border border-purple-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-rose-500"></div>
+                    <div className="bg-[#0B0B0B] border border-orange-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5D1E] to-amber-500"></div>
                         <div className="p-8 md:p-10 space-y-8 flex-1 overflow-y-auto">
                             <div className="flex flex-col items-center text-center space-y-6">
-                                <div className="w-20 h-20 bg-purple-500/10 text-purple-400 rounded-3xl flex items-center justify-center mx-auto border border-purple-500/20 shadow-lg shadow-purple-900/10 animate-pulse"><Sparkles className="w-10 h-10" /></div>
+                                <div className="w-20 h-20 bg-orange-500/10 text-orange-400 rounded-3xl flex items-center justify-center mx-auto border border-orange-500/20 shadow-lg shadow-orange-950/20 animate-pulse"><Sparkles className="w-10 h-10" /></div>
                                 <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
-                                    Generador de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Artículos SEO</span>
+                                    Generador de <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">Artículos SEO</span>
                                 </h1>
                                 <p className="text-white text-lg leading-relaxed font-normal">
                                     Genera artículos optimizados para buscadores que atraen tráfico orgánico a tus ofertas las 24 horas. Ten en cuenta que esta acción consumirá créditos de generación de tu plan.
@@ -1129,7 +1125,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 </div>
                             </div>
                         </div>
-                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0"><button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button><button onClick={() => { setShowConfirmModal(false); setShowGeneratorModal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-rose-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Redactar</button></div>
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0"><button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button><button onClick={() => { setShowConfirmModal(false); setShowGeneratorModal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Redactar</button></div>
                     </div>
                 </div>
             )}

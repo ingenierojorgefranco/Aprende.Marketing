@@ -433,7 +433,7 @@ export const ProjectWizard: React.FC = () => {
     
     // Commercial Strategy manually edited attributes
     const [isOpenCommercialModal, setIsOpenCommercialModal] = useState(false);
-    const [activeCommercialTab, setActiveCommercialTab] = useState<'proposition' | 'offer' | 'funnel' | 'cta'>('proposition');
+    const [activeCommercialTab, setActiveCommercialTab] = useState<'proposition' | 'offer' | 'funnel' | 'cta'>('offer');
     const [tempCommercial, setTempCommercial] = useState<any>(JSON.parse(JSON.stringify(DEFAULT_COMMERCIAL_DATA)));
     
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -1143,7 +1143,7 @@ export const ProjectWizard: React.FC = () => {
                                         <Briefcase className="w-5 h-5 text-amber-500" /> Estrategia Comercial del Proyecto
                                     </h3>
                                     <p className="text-xs text-gray-400 font-sans">
-                                        Perfecciona y unifica la Propuesta de Valor, Oferta de Alto Impacto, Embudo de Ventas y Llamados a la Acción interactivos.
+                                        Perfecciona y unifica la Oferta de Alto Impacto, Embudo de Ventas y Llamados a la Acción interactivos.
                                     </p>
                                 </div>
                                 <button
@@ -1174,7 +1174,7 @@ export const ProjectWizard: React.FC = () => {
                                                 </div>
                                                 <div>
                                                     <h3 className="text-xl font-bold text-white font-sans">Estrategia Comercial del Proyecto</h3>
-                                                    <p className="text-xs text-gray-500 mt-0.5 font-sans">Unifica e integra la propuesta de valor, la oferta, el embudo y los llamados a la acción.</p>
+                                                    <p className="text-xs text-gray-500 mt-0.5 font-sans">Unifica e integra la oferta, el embudo y los llamados a la acción.</p>
                                                 </div>
                                             </div>
                                             <button 
@@ -1189,7 +1189,6 @@ export const ProjectWizard: React.FC = () => {
                                         {/* Tabs Section */}
                                         <div className="flex border-b border-gray-800 bg-black/40 overflow-x-auto no-scrollbar">
                                             {[
-                                                { id: 'proposition', label: 'Propuesta de Valor' },
                                                 { id: 'offer', label: 'Oferta Principal' },
                                                 { id: 'funnel', label: 'Embudo de Conversión' },
                                                 { id: 'cta', label: 'CTA Principal' }
@@ -1211,67 +1210,6 @@ export const ProjectWizard: React.FC = () => {
 
                                         {/* Modal Active Tab Body Area */}
                                         <div className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
-                                            {activeCommercialTab === 'proposition' && (
-                                                <div className="space-y-4 text-left">
-                                                    <div>
-                                                        <label className="block text-xs font-bold uppercase tracking-wider text-amber-500 mb-2">Declaración de Posicionamiento Único</label>
-                                                        <textarea 
-                                                            rows={3} 
-                                                            value={tempCommercial.proposition?.positioningStatement || ''}
-                                                            onChange={(e) => {
-                                                                setTempCommercial({
-                                                                    ...tempCommercial,
-                                                                    proposition: {
-                                                                        ...tempCommercial.proposition,
-                                                                        positioningStatement: e.target.value
-                                                                    }
-                                                                });
-                                                            }}
-                                                            className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none transition-all text-sm font-sans"
-                                                            placeholder="Ej: Ayudamos a esteticistas y emprendedoras..."
-                                                        />
-                                                    </div>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <div>
-                                                            <label className="block text-xs font-bold uppercase tracking-wider text-[#FF5D1E] mb-2">El Mercado Tradicional (Frustraciones/Dolores)</label>
-                                                            <textarea 
-                                                                rows={4} 
-                                                                value={tempCommercial.proposition?.traditionalMarketDescription || ''}
-                                                                onChange={(e) => {
-                                                                    setTempCommercial({
-                                                                        ...tempCommercial,
-                                                                        proposition: {
-                                                                            ...tempCommercial.proposition,
-                                                                            traditionalMarketDescription: e.target.value
-                                                                        }
-                                                                    });
-                                                                }}
-                                                                className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-[#FF5D1E] outline-none transition-all text-sm font-sans"
-                                                                placeholder="Ej: Enfoque teórico aburrido..."
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">Nuestra Alternativa Única (Soluciones/Diferenciación)</label>
-                                                            <textarea 
-                                                                rows={4} 
-                                                                value={tempCommercial.proposition?.ourAlternativeDescription || ''}
-                                                                onChange={(e) => {
-                                                                    setTempCommercial({
-                                                                        ...tempCommercial,
-                                                                        proposition: {
-                                                                            ...tempCommercial.proposition,
-                                                                            ourAlternativeDescription: e.target.value
-                                                                        }
-                                                                    });
-                                                                }}
-                                                                className="w-full bg-[#16161c] border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-emerald-400 outline-none transition-all text-sm font-sans"
-                                                                placeholder="Ej: Trazos hiperrealistas avanzados..."
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-
                                             {activeCommercialTab === 'offer' && (
                                                 <div className="space-y-4 font-sans text-left">
                                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

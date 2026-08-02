@@ -1,5 +1,5 @@
 
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch, SupportTicket, ProjectHook } from "../types";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch, SupportTicket, ProjectHook, MasterStepVideo } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES, MOCK_MASTER_STRATEGY, MOCK_PROJECT_HOOKS } from "./mockData";
 import { ProjectMasterStrategy } from "./strategySchema";
 
@@ -31,6 +31,41 @@ let localCourses: Course[] = [...MOCK_COURSES];
 let localComments: Comment[] = [...MOCK_COMMENTS];
 let localCrmContacts: CRMContact[] = [...MOCK_CRM_CONTACTS];
 let localCrmActivities: CRMActivity[] = [...MOCK_CRM_ACTIVITIES];
+let localMasterStepVideos: MasterStepVideo[] = [
+    {
+        id: 'v1',
+        stepNumber: 1,
+        type: 'Principal',
+        title: 'Entiende tu proyecto',
+        subtitle: 'Resumen del producto, público y recorrido',
+        duration: '4:36',
+        videoUrl: 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+    {
+        id: 'v2',
+        stepNumber: 1,
+        type: 'Complementario',
+        title: 'Cómo interpretar tu comisión',
+        subtitle: 'Precio, porcentaje y ganancia por venta',
+        duration: '2:18',
+        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 2
+    },
+    {
+        id: 'v3',
+        stepNumber: 1,
+        type: 'Complementario',
+        title: 'Cómo funciona tu sistema',
+        subtitle: 'Del contenido a la posible comisión',
+        duration: '3:05',
+        videoUrl: 'https://www.youtube.com/embed/L_LUpnjgPso?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 3
+    }
+];
 
 const apiCache: {
     pages: LandingPage[] | null;
@@ -2113,6 +2148,99 @@ export const api = {
                 config: config
             })
         });
+    },
+
+    // --- MASTER STEP VIDEOS (Nivel general / global) ---
+    getMasterStepVideos: async (stepNumber?: number): Promise<MasterStepVideo[]> => {
+        if (isMockMode) {
+            if (stepNumber !== undefined) {
+                return localMasterStepVideos.filter(v => v.stepNumber === stepNumber);
+            }
+            return [...localMasterStepVideos];
+        }
+        try {
+            const url = stepNumber ? `/master-step-videos/step/${stepNumber}` : '/master-step-videos';
+            const data = await fetchWithFallback(url, { headers: getAuthHeaders() });
+            return data;
+        } catch (e) {
+            console.warn("Falló llamada API master-step-videos, usando almacenamiento local:", e);
+            if (stepNumber !== undefined) {
+                return localMasterStepVideos.filter(v => v.stepNumber === stepNumber);
+            }
+            return [...localMasterStepVideos];
+        }
+    },
+
+    createMasterStepVideo: async (videoData: Partial<MasterStepVideo>): Promise<MasterStepVideo> => {
+        const newId = videoData.id || `v_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+        const fullVideo: MasterStepVideo = {
+            id: newId,
+            stepNumber: videoData.stepNumber || 1,
+            type: videoData.type || 'Complementario',
+            title: videoData.title || 'Nuevo Video',
+            subtitle: videoData.subtitle || '',
+            duration: videoData.duration || '3:00',
+            videoUrl: videoData.videoUrl || '',
+            posterImage: videoData.posterImage || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200&h=675',
+            positionOrder: videoData.positionOrder || (localMasterStepVideos.length + 1)
+        };
+
+        if (isMockMode) {
+            localMasterStepVideos.push(fullVideo);
+            return fullVideo;
+        }
+
+        try {
+            const res = await fetchWithFallback('/master-step-videos', {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify(fullVideo)
+            });
+            localMasterStepVideos.push(res || fullVideo);
+            return res || fullVideo;
+        } catch (e) {
+            console.warn("Falló creación API master-step-videos, usando guardado local:", e);
+            localMasterStepVideos.push(fullVideo);
+            return fullVideo;
+        }
+    },
+
+    updateMasterStepVideo: async (id: string, videoData: Partial<MasterStepVideo>): Promise<MasterStepVideo> => {
+        const index = localMasterStepVideos.findIndex(v => v.id === id);
+        if (index !== -1) {
+            localMasterStepVideos[index] = { ...localMasterStepVideos[index], ...videoData };
+        }
+
+        if (isMockMode) {
+            return localMasterStepVideos[index] || { id, ...videoData } as MasterStepVideo;
+        }
+
+        try {
+            const res = await fetchWithFallback(`/master-step-videos/${id}`, {
+                method: 'PUT',
+                headers: getAuthHeaders(),
+                body: JSON.stringify(videoData)
+            });
+            return res;
+        } catch (e) {
+            console.warn("Falló actualización API master-step-videos, usando guardado local:", e);
+            return localMasterStepVideos[index] || { id, ...videoData } as MasterStepVideo;
+        }
+    },
+
+    deleteMasterStepVideo: async (id: string): Promise<void> => {
+        localMasterStepVideos = localMasterStepVideos.filter(v => v.id !== id);
+
+        if (isMockMode) return;
+
+        try {
+            await fetchWithFallback(`/master-step-videos/${id}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders()
+            });
+        } catch (e) {
+            console.warn("Falló eliminación API master-step-videos, usando borrado local:", e);
+        }
     },
 };
   

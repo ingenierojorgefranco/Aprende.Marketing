@@ -321,11 +321,11 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               <div className="space-y-6">
 
                 {/* Video Guía (Aparece arriba del todo en el Paso 1) */}
-                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
+                <div className="bg-[#0B1120] border border-slate-800/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl">
                   <StepVideoContainer 
                     posterImage="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675"
                     videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
-                    title="Video Guía - Tu Proyecto Digital"
+                    title="Entiende tu proyecto"
                   />
                 </div>
 
@@ -941,7 +941,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-2xl font-black text-white">Consola del Paso {activeStep}</h3>
-                    <p className="text-slate-300 text-base font-normal leading-relaxed">
+                    <p className="text-slate-200 text-base sm:text-lg font-normal leading-relaxed">
                       Este paso estratégico se encuentra totalmente configurado para tu nicho <strong className="text-white font-extrabold uppercase">{projectNiche}</strong>. A continuación puedes ver el estado del recurso y operarlo directamente.
                     </p>
                   </div>

@@ -20,6 +20,7 @@ import webhookRoutes from './routes/webhookRoutes.js';
 import systemRoutes from './routes/systemRoutes.js';
 import whatsappRoutes from './routes/whatsappRoutes.js';
 import hookRoutes from './routes/hookRoutes.js';
+import masterStepVideoRoutes from './routes/masterStepVideoRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -95,6 +96,7 @@ app.use('/api', crmRoutes);
 app.use('/api', systemRoutes);
 app.use('/api/whatsapp-launch', whatsappRoutes);
 app.use('/api/hooks', hookRoutes);
+app.use('/api/master-step-videos', masterStepVideoRoutes);
 
 // ======================================================
 //  STATIC FILES & SPA FALLBACK

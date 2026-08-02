@@ -438,13 +438,6 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                             icon: Zap,
                         },
                         {
-                            id: "proposition" as CommercialOptionId,
-                            title: "Propuesta de Valor",
-                            badge: "POSICIONAMIENTO",
-                            desc: "La declaración central que resume por qué tu cliente ideal debe elegirte.",
-                            icon: Target,
-                        },
-                        {
                             id: "offer" as CommercialOptionId,
                             title: "Oferta Principal",
                             badge: "ESTRUCTURA DE OFERTA",

@@ -7,6 +7,18 @@ export interface DashboardNews {
     date: string;
     iconType: 'update' | 'tip' | 'ia';
 }
+
+export interface MasterStepVideo {
+  id: string;
+  stepNumber: number;
+  type: 'Principal' | 'Complementario';
+  title: string;
+  subtitle?: string;
+  duration: string;
+  videoUrl: string;
+  posterImage?: string;
+  positionOrder?: number;
+}
 ////////// Fin de actualización - 24/05/2024 16:45 /////////
 
 /* */ /* Actualización: Definición de interfaces para el sistema de Email Marketing con persistencia - 24/06/2024 16:20 */
