@@ -76,6 +76,8 @@ interface ImplementationGuideProps {
   onBack?: () => void;
   activeStrategySection?: string;
   onStrategySectionChange?: (sectionId: string) => void;
+  user?: any;
+  isAdmin?: boolean;
 }
 
 const formatValue = (val: number | string) => {
@@ -106,11 +108,12 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   onBack,
   activeStrategySection,
   onStrategySectionChange,
+  user,
+  isAdmin,
 }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeStep, setActiveStep] = useState<number>(1);
-  const currentStrategySection = activeStrategySection || searchParams.get('section') || "summary";
   const [completedSteps, setCompletedSteps] = useState<number[]>([1]); // Default 1 completed
   const [savedForLater, setSavedForLater] = useState<number[]>([]);
   const [strategyData, setStrategyData] = useState<any>(null);
@@ -159,7 +162,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const cleanAnalysisText = fullAnalysisText.replace(/<[^>]*>/g, '').trim();
   const analysisTextIsHtml = /<[a-z][\s\S]*>/i.test(fullAnalysisText);
 
-  const stepToSectionMap: Record<number, string> = {
+  const stepToSectionMap: Record<number | string, string> = {
     1: 'summary',
     2: 'avatar',
     3: 'web',
@@ -180,21 +183,38 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     content: 6,
     email: 7,
     evergreen: 8,
-    whatsapp: 9
+    whatsapp: 9,
+    '1': 1,
+    '2': 2,
+    '3': 3,
+    '4': 4,
+    '5': 5,
+    '6': 6,
+    '7': 7,
+    '8': 8,
+    '9': 9
   };
 
+  const currentStrategySection = stepToSectionMap[activeStep] || activeStrategySection || searchParams.get('section') || "summary";
+
   useEffect(() => {
-    const step = sectionToStepMap[currentStrategySection] || 1;
-    setActiveStep(step);
-  }, [currentStrategySection]);
+    const rawSection = activeStrategySection || searchParams.get('section');
+    if (rawSection) {
+      const step = sectionToStepMap[rawSection];
+      if (step && step !== activeStep) {
+        setActiveStep(step);
+      }
+    }
+  }, [activeStrategySection, searchParams]);
 
   const handleStrategySectionClick = (sectionId: string) => {
-    setSearchParams({ section: sectionId });
-    if (onStrategySectionChange) {
-      onStrategySectionChange(sectionId);
-    }
     const step = sectionToStepMap[sectionId] || 1;
     setActiveStep(step);
+    const normalizedSection = stepToSectionMap[step] || sectionId;
+    setSearchParams({ section: normalizedSection });
+    if (onStrategySectionChange) {
+      onStrategySectionChange(normalizedSection);
+    }
     const el = document.getElementById('project-strategy-index');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -219,12 +239,10 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
 
   const handleStepClick = (id: number) => {
     setActiveStep(id);
-    const sectionId = stepToSectionMap[id];
-    if (sectionId) {
-      setSearchParams({ section: sectionId });
-      if (onStrategySectionChange) {
-        onStrategySectionChange(sectionId);
-      }
+    const sectionId = stepToSectionMap[id] || 'summary';
+    setSearchParams({ section: sectionId });
+    if (onStrategySectionChange) {
+      onStrategySectionChange(sectionId);
     }
   };
 
@@ -234,7 +252,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     }
     // Automatically transition to next step if not last
     if (id < 9) {
-      setActiveStep(id + 1);
+      handleStepClick(id + 1);
     }
   };
 
@@ -326,6 +344,9 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                     posterImage="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675"
                     videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                     title="Entiende tu proyecto"
+                    stepNumber={activeStep}
+                    user={user}
+                    isAdmin={isAdmin}
                   />
                 </div>
 

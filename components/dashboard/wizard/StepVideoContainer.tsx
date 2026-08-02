@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Check, Clock, Plus, ChevronLeft, ChevronRight, X, Video, Pencil, Trash2, Loader2 } from 'lucide-react';
-import { MasterStepVideo } from '../../../types';
+import { useOutletContext } from 'react-router-dom';
+import { MasterStepVideo, User } from '../../../types';
 import { api } from '../../../services/api';
 
 export interface VideoItem {
@@ -22,6 +23,7 @@ interface StepVideoContainerProps {
   title?: string;
   isAdmin?: boolean;
   stepNumber?: number;
+  user?: User | any;
 }
 
 export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
@@ -29,9 +31,28 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
   videoUrl = "https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0",
   posterImage = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675",
   title = "Entiende tu proyecto",
-  isAdmin = true, // Por defecto visible para admin
+  isAdmin: isAdminProp,
   stepNumber = 1,
+  user: userProp,
 }) => {
+  // Resolver usuario actual desde prop o desde el contexto de la aplicación (Outlet)
+  let contextUser: any = null;
+  try {
+    const ctx = useOutletContext() as any;
+    if (ctx && ctx.user) {
+      contextUser = ctx.user;
+    }
+  } catch {
+    // Si se renderiza fuera de OutletContext no falla
+  }
+
+  const activeUser = userProp || contextUser;
+
+  // Lógica estricta de administrador:
+  // Solo es admin si isAdmin prop es explícitamente true, O si no se especificó isAdmin pero activeUser tiene role === 'admin'
+  const isUserAdmin = typeof isAdminProp === 'boolean'
+    ? isAdminProp
+    : Boolean(activeUser && activeUser.role === 'admin');
   // Built-in default videos matching screenshot if custom list is not provided
   const initialVideos: VideoItem[] = (customVideos && customVideos.length > 0)
     ? customVideos
@@ -120,7 +141,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
   const activeVideo = videoList[activeVideoIndex >= 0 ? activeVideoIndex : 0] || videoList[0] || initialVideos[0];
 
   // Total cards including admin add button
-  const totalCardsCount = videoList.length + (isAdmin ? 1 : 0);
+  const totalCardsCount = videoList.length + (isUserAdmin ? 1 : 0);
   const isMarquee = totalCardsCount > 3;
 
   const handleSelectVideo = (video: VideoItem) => {
@@ -156,12 +177,14 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
   };
 
   const handleOpenAddModal = () => {
+    if (!isUserAdmin) return;
     resetForm();
     setShowAddModal(true);
   };
 
   const handleOpenEditModal = (video: VideoItem, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
+    if (!isUserAdmin) return;
     setEditingVideo(video);
     setFormTitle(video.title);
     setFormSubtitle(video.subtitle || '');
@@ -173,7 +196,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
 
   const handleAddVideoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formTitle.trim() || !formUrl.trim()) return;
+    if (!isUserAdmin || !formTitle.trim() || !formUrl.trim()) return;
 
     setIsSubmitting(true);
     try {
@@ -202,7 +225,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
 
   const handleEditVideoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingVideo || !formTitle.trim() || !formUrl.trim()) return;
+    if (!isUserAdmin || !editingVideo || !formTitle.trim() || !formUrl.trim()) return;
 
     setIsSubmitting(true);
     try {
@@ -230,6 +253,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
   };
 
   const handleDeleteVideo = async (videoId: string) => {
+    if (!isUserAdmin) return;
     if (!window.confirm('¿Estás seguro de que deseas eliminar este video?')) return;
 
     setIsSubmitting(true);
@@ -266,7 +290,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
           </span>
 
           {/* Botón Editar junto a Reproduciendo para Administrador */}
-          {isAdmin && activeVideo && (
+          {isUserAdmin && activeVideo && (
             <button
               onClick={(e) => handleOpenEditModal(activeVideo, e)}
               className="bg-slate-800/90 hover:bg-[#FF5A1F] text-slate-200 hover:text-white text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-700/80 hover:border-[#FF5A1F] flex items-center gap-1 transition-all shrink-0 cursor-pointer"
@@ -328,7 +352,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
             <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">
               VIDEOS DE ESTE PASO
             </h3>
-            {isAdmin && (
+            {isUserAdmin && (
               <span className="text-[10px] bg-amber-500/10 text-amber-400 font-bold px-2 py-0.5 rounded-md border border-amber-500/20">
                 ADMIN MASTER
               </span>
@@ -445,8 +469,8 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                     </span>
                   )}
 
-                  {/* Botón Editar en tarjeta para Administrador */}
-                  {isAdmin && (
+                  {/* Botón Editar en tarjeta SOLO para Administrador */}
+                  {isUserAdmin && (
                     <button
                       onClick={(e) => handleOpenEditModal(video, e)}
                       className="text-xs text-slate-400 hover:text-white hover:bg-slate-800 px-2 py-1 rounded-md border border-slate-800 hover:border-slate-700 flex items-center gap-1 transition-all"
@@ -462,7 +486,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
           })}
 
           {/* Admin "Añadir video" Card */}
-          {isAdmin && (
+          {isUserAdmin && (
             <div
               onClick={handleOpenAddModal}
               className={`relative p-4 rounded-2xl border-2 border-dashed border-slate-800 hover:border-[#FF5A1F]/70 bg-[#070D1A]/50 hover:bg-[#FF5A1F]/[0.03] transition-all cursor-pointer flex flex-col items-center justify-center text-center group min-h-[165px] ${
@@ -484,7 +508,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
       </div>
 
       {/* Modal para Administrador: Añadir Video */}
-      {showAddModal && (
+      {showAddModal && isUserAdmin && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-[#0B1120] border border-slate-800 rounded-2xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
@@ -599,7 +623,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
       )}
 
       {/* Modal para Administrador: Editar / Eliminar Video */}
-      {showEditModal && editingVideo && (
+      {showEditModal && editingVideo && isUserAdmin && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-[#0B1120] border border-slate-800 rounded-2xl sm:rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">

@@ -248,6 +248,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 onBack={() => navigate('/dashboard/projects')}
                 onScrollToProjectPanel={() => {}}
                 onUpgradeClick={() => setShowUpgradeModal(true)}
+                user={user}
             />
         </div>
     );

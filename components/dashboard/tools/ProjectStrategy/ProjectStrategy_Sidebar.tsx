@@ -59,6 +59,15 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         '7': 'email',
         '8': 'evergreen',
         '9': 'whatsapp',
+        summary: 'summary',
+        avatar: 'avatar',
+        web: 'web',
+        hotlinks: 'hotlinks',
+        hooks: 'hooks',
+        content: 'content',
+        email: 'email',
+        evergreen: 'evergreen',
+        whatsapp: 'whatsapp',
     };
 
     const currentSectionId = sectionAliases[String(activeSection)] || String(activeSection);
