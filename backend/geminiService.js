@@ -62,12 +62,16 @@ const withRetries = async (fn, maxRetries = 3) => {
  */
 const cleanJsonString = (str) => {
     if (!str) return "";
+    let s = str.trim();
     
-    // Buscamos el primer '{' o '[' y el último '}' o ']' para extraer solo el bloque JSON
-    const firstBrace = str.indexOf('{');
-    const firstBracket = str.indexOf('[');
-    const lastBrace = str.lastIndexOf('}');
-    const lastBracket = str.lastIndexOf(']');
+    // Eliminar marcadores de bloque de código Markdown
+    s = s.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+    
+    // Buscar los límites de llaves o corchetes
+    const firstBrace = s.indexOf('{');
+    const firstBracket = s.indexOf('[');
+    const lastBrace = s.lastIndexOf('}');
+    const lastBracket = s.lastIndexOf(']');
     
     let start = -1;
     if (firstBrace !== -1 && firstBracket !== -1) start = Math.min(firstBrace, firstBracket);
@@ -80,13 +84,13 @@ const cleanJsonString = (str) => {
     else if (lastBracket !== -1) end = lastBracket;
     
     if (start !== -1 && end !== -1 && end > start) {
-        return str.substring(start, end + 1).trim();
+        s = s.substring(start, end + 1).trim();
     }
 
-    return str
-        .replace(/```json/g, "")
-        .replace(/```/g, "")
-        .trim();
+    // Limpiar comas finales (trailing commas) antes de cierres de objeto o array
+    s = s.replace(/,\s*([}\]])/g, '$1');
+
+    return s;
 };
 
 /**
@@ -947,59 +951,74 @@ h2:
 
 
 
-    try {
-        const step1Res = await generateContent('gemini-3-flash-preview', step1Prompt, { 
-            responseMimeType: "application/json",
-            thinkingConfig: { thinkingBudget: 0 }
-        });
+    let step1Data = null;
+    const maxAiRetries = 3;
 
-        if (!step1Res) throw new Error("Gemini devolvió vacío en Etapa 1");
-        
-        step1Data = JSON.parse(cleanJsonString(step1Res));
+    for (let aiAttempt = 1; aiAttempt <= maxAiRetries; aiAttempt++) {
+        try {
+            process.stdout.write(`⏳ [PIPELINE IA] Llamando a Gemini 3 Flash (Intento ${aiAttempt}/${maxAiRetries}): ${productName}...\n`);
 
-        // Post-procesamiento de Imágenes (Garantizar randomuser.me para todos)
-        process.stdout.write(`🖼️ [PIPELINE IA] Post-procesando imágenes de avatares, testimonios e instructor...\n`);
-        
-        // 1. Instructor
-        if (!step1Data.teacher.image || !step1Data.teacher.image.includes('randomuser.me')) {
-            const gender = Math.random() > 0.5 ? 'women' : 'men';
-            const id = Math.floor(Math.random() * 99);
-            step1Data.teacher.image = `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
-        }
-
-        // 2. Avatares 
-        if (step1Data.avatars && Array.isArray(step1Data.avatars)) {
-            step1Data.avatars.forEach((avatar, index) => {
-                const gender = index === 0 ? 'women' : (index === 1 ? 'men' : 'women');
-                const id = 10 + index + Math.floor(Math.random() * 5); // Diferenciar por index
-                if (!avatar.image || !avatar.image.includes('randomuser.me')) {
-                    avatar.image = `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
-                }
+            const step1Res = await generateContent('gemini-3-flash-preview', step1Prompt, { 
+                responseMimeType: "application/json",
+                thinkingConfig: { thinkingBudget: 0 }
             });
-        }
 
-        // 3. Testimonios
-        if (step1Data.testimonials && Array.isArray(step1Data.testimonials)) {
-            step1Data.testimonials.forEach((t, index) => {
-                // Si existe el avatar en la misma posición, copiamos su foto
-                if (step1Data.avatars && step1Data.avatars[index] && step1Data.avatars[index].image) {
-                    t.image = step1Data.avatars[index].image;
-                } else {
-                    // Fallback por si acaso
-                    const gender = Math.random() > 0.5 ? 'women' : 'men';
-                    const id = 30 + index + Math.floor(Math.random() * 10);
-                    if (!t.image || !t.image.includes('randomuser.me')) {
-                        t.image = `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
+            if (!step1Res) throw new Error("Gemini devolvió respuesta vacía");
+            
+            const cleanedJson = cleanJsonString(step1Res);
+            const parsed = JSON.parse(cleanedJson);
+
+            // Validar que el JSON tenga las estructuras mínimas necesarias
+            if (!parsed || typeof parsed !== 'object' || !parsed.meta || !parsed.avatars || !parsed.psychology) {
+                throw new Error("Estructura JSON incompleta (faltan campos clave como meta, avatars o psychology)");
+            }
+
+            step1Data = parsed;
+
+            // Post-procesamiento de Imágenes (Garantizar randomuser.me para todos)
+            process.stdout.write(`🖼️ [PIPELINE IA] Post-procesando imágenes de avatares, testimonios e instructor...\n`);
+            
+            if (!step1Data.teacher) step1Data.teacher = {};
+            if (!step1Data.teacher.image || !step1Data.teacher.image.includes('randomuser.me')) {
+                const gender = Math.random() > 0.5 ? 'women' : 'men';
+                const id = Math.floor(Math.random() * 99);
+                step1Data.teacher.image = `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
+            }
+
+            if (step1Data.avatars && Array.isArray(step1Data.avatars)) {
+                step1Data.avatars.forEach((avatar, index) => {
+                    const gender = index === 0 ? 'women' : (index === 1 ? 'men' : 'women');
+                    const id = 10 + index + Math.floor(Math.random() * 5);
+                    if (!avatar.image || !avatar.image.includes('randomuser.me')) {
+                        avatar.image = `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
                     }
-                }
-            });
+                });
+            }
+
+            if (step1Data.testimonials && Array.isArray(step1Data.testimonials)) {
+                step1Data.testimonials.forEach((t, index) => {
+                    if (step1Data.avatars && step1Data.avatars[index] && step1Data.avatars[index].image) {
+                        t.image = step1Data.avatars[index].image;
+                    } else {
+                        const gender = Math.random() > 0.5 ? 'women' : 'men';
+                        const id = 30 + index + Math.floor(Math.random() * 10);
+                        if (!t.image || !t.image.includes('randomuser.me')) {
+                            t.image = `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
+                        }
+                    }
+                });
+            }
+
+            process.stdout.write(`✅ [PIPELINE IA] Etapa 1 + Psicología generada y validada con éxito en intento ${aiAttempt}.\n`);
+            break; // Exitoso, salimos del bucle de reintentos
+        } catch (err) {
+            process.stdout.write(`⚠️ [PIPELINE IA REINTENTO] Intento ${aiAttempt}/${maxAiRetries} falló: ${err.message}\n`);
+            if (aiAttempt === maxAiRetries) {
+                process.stdout.write(`❌ [PIPELINE ERROR ETAPA 1 IA FINAL]: Agotados los ${maxAiRetries} intentos.\n`);
+                throw new Error(`Fallo en la generación de estrategia JSON por la IA tras ${maxAiRetries} intentos: ${err.message}`);
+            }
+            await new Promise(r => setTimeout(r, 1000));
         }
-
-        process.stdout.write(`✅ [PIPELINE IA] Etapa 1 + Psicología (con imágenes) finalizada con éxito para ${productName}.\n`);
-
-    } catch (err) {
-        process.stdout.write(`❌ [PIPELINE ERROR ETAPA 1 IA]: ${err.message}\n`);
-        throw err;
     }
 
     try {

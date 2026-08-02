@@ -1370,9 +1370,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                         {project.name}
                       </h3>
                       <p className="text-white text-base leading-relaxed mb-8 flex-1 line-clamp-4">
-                        {project.shortDescription ||
-                          project.description ||
-                          "Este proyecto no tiene cargada una descripción pero está activo en tu plan."}
+                        {(() => {
+                          const desc = project.shortDescription || project.description || "";
+                          const plainText = desc.replace(/<[^>]*>?/gm, '').trim();
+                          return plainText || "Este proyecto no tiene cargada una descripción pero está activo en tu plan.";
+                        })()}
                       </p>
 
                       {/* Botón Ver Proyecto */}
@@ -1973,8 +1975,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       A continuación generaremos la audiencia, los principales dolores y los ángulos de venta que utilizarás en tu proyecto.
                     </p>
 
-                    {/* Project Consumption Info Box */}
-                    {(() => {
+                    {/* Project Consumption Info Box (Oculto temporalmente) */}
+                    {false && (() => {
                       const maxProjects = user?.planLimits?.maxProjects || 1;
                       const currentCount = userActiveProjects?.length || 0;
                       const remainingProjects = Math.max(0, maxProjects - currentCount - 1);

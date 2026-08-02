@@ -154,7 +154,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                     } else if (project.name.toLowerCase().includes("resina") || project.name.toLowerCase().includes("pisos")) {
                         idealForDesc = "Ideal para personas interesadas en la construcción, decoración de interiores y modelado de alta rentabilidad.";
                     } else if (project.shortDescription || project.description) {
-                        idealForDesc = project.shortDescription || project.description;
+                        idealForDesc = (project.shortDescription || project.description).replace(/<[^>]*>?/gm, '').trim();
                     }
 
                     return (
@@ -346,40 +346,40 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
                         {/* Bottom stats cards */}
                         <div className="space-y-3 pt-6 border-t border-white/5">
                             <div className="flex flex-col gap-3">
-                                {/* Price Card */}
-                                <div className="bg-gradient-to-r from-cyan-600/10 via-cyan-950/5 to-transparent border border-cyan-500/30 rounded-xl p-3.5 flex items-center gap-4 hover:from-cyan-500/15 hover:border-cyan-500/50 hover:shadow-[0_8px_24px_-10px_rgba(6,182,212,0.25)] transition-all duration-300 group/item">
-                                    <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover/item:bg-cyan-500/20 group-hover/item:border-cyan-500/40 transition-all duration-300 shrink-0">
+                                {/* Price Card (Naranja) */}
+                                <div className="bg-gradient-to-r from-[#FF5A1F]/15 via-[#FF5A1F]/5 to-transparent border border-[#FF5A1F]/40 rounded-xl p-3.5 flex items-center gap-4 hover:from-[#FF5A1F]/20 hover:border-[#FF5A1F]/60 hover:shadow-[0_8px_24px_-10px_rgba(255,90,31,0.35)] transition-all duration-300 group/item">
+                                    <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shadow-[0_0_15px_-3px_rgba(255,90,31,0.3)] group-hover/item:bg-[#FF5A1F]/20 group-hover/item:border-[#FF5A1F]/50 transition-all duration-300 shrink-0">
                                         <Tag className="w-5 h-5 shrink-0" />
                                     </div>
                                     <div className="flex flex-col text-left">
-                                        <span className="text-[11px] font-semibold text-cyan-400/80 uppercase tracking-wider leading-none font-sans">Precio del producto</span>
-                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1.5 font-sans">
+                                        <span className="text-[11px] font-bold text-[#FF5A1F] uppercase tracking-wider leading-none font-sans">Precio del producto</span>
+                                        <span className="text-[#FF5A1F] text-lg md:text-xl font-black tracking-tight mt-1.5 font-sans">
                                             USD {project.fullPrice || '200'}
                                         </span>
                                     </div>
                                 </div>
 
-                                {/* Commission Card */}
-                                <div className="bg-gradient-to-r from-emerald-600/10 via-emerald-900/5 to-transparent border border-emerald-500/30 rounded-xl p-3.5 flex items-center gap-4 hover:from-emerald-500/15 hover:border-emerald-500/50 hover:shadow-[0_8px_24px_-10px_rgba(16,185,129,0.25)] transition-all duration-300 group/item">
-                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover/item:bg-emerald-500/20 group-hover/item:border-emerald-500/40 transition-all duration-300 shrink-0">
+                                {/* Commission Card (Azul) */}
+                                <div className="bg-gradient-to-r from-blue-600/15 via-blue-950/5 to-transparent border border-blue-500/40 rounded-xl p-3.5 flex items-center gap-4 hover:from-blue-500/20 hover:border-blue-500/60 hover:shadow-[0_8px_24px_-10px_rgba(59,130,246,0.35)] transition-all duration-300 group/item">
+                                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shadow-[0_0_15px_-3px_rgba(59,130,246,0.3)] group-hover/item:bg-blue-500/20 group-hover/item:border-blue-500/50 transition-all duration-300 shrink-0">
                                         <Percent className="w-5 h-5 shrink-0" />
                                     </div>
                                     <div className="flex flex-col text-left">
-                                        <span className="text-[11px] font-semibold text-emerald-400/80 uppercase tracking-wider leading-none font-sans">Comisión que obtendrás</span>
-                                        <span className="text-white text-sm md:text-base font-extrabold tracking-tight mt-1.5 font-sans">
+                                        <span className="text-[11px] font-bold text-blue-400 uppercase tracking-wider leading-none font-sans">Comisión que obtendrás</span>
+                                        <span className="text-blue-400 text-lg md:text-xl font-black tracking-tight mt-1.5 font-sans">
                                             {displayCommission} %
                                         </span>
                                     </div>
                                 </div>
 
-                                {/* Estimated Revenue Card */}
-                                <div className="bg-gradient-to-r from-[#FF5A1F]/15 via-[#FF5A1F]/5 to-transparent border border-[#FF5A1F]/40 rounded-xl p-3.5 flex items-center gap-4 hover:from-[#FF5A1F]/20 hover:border-[#FF5A1F]/60 hover:shadow-[0_8px_24px_-10px_rgba(255,90,31,0.35)] transition-all duration-300 group/item">
-                                    <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shadow-[0_0_15px_-3px_rgba(255,90,31,0.4)] group-hover/item:bg-[#FF5A1F]/20 group-hover/item:border-[#FF5A1F]/50 transition-all duration-300 shrink-0">
+                                {/* Estimated Revenue / Profit Card (Verde) */}
+                                <div className="bg-gradient-to-r from-emerald-600/15 via-emerald-950/5 to-transparent border border-emerald-500/40 rounded-xl p-3.5 flex items-center gap-4 hover:from-emerald-500/20 hover:border-emerald-500/60 hover:shadow-[0_8px_24px_-10px_rgba(16,185,129,0.35)] transition-all duration-300 group/item">
+                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_-3px_rgba(16,185,129,0.3)] group-hover/item:bg-emerald-500/20 group-hover/item:border-emerald-500/50 transition-all duration-300 shrink-0">
                                         <TrendingUp className="w-5 h-5 shrink-0" />
                                     </div>
                                     <div className="flex flex-col text-left">
-                                        <span className="text-[11px] font-semibold text-[#FF5A1F]/90 uppercase tracking-wider leading-none font-sans font-medium">Tu ganancia por venta</span>
-                                        <span className="text-[#FF5A1F] text-sm md:text-base font-extrabold tracking-tight mt-1.5 font-sans">
+                                        <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider leading-none font-sans">Tu ganancia por venta</span>
+                                        <span className="text-emerald-400 text-lg md:text-xl font-black tracking-tight mt-1.5 font-sans">
                                             USD {Math.round(parseFloat(profitValue))}
                                         </span>
                                     </div>
@@ -548,8 +548,8 @@ export const GenerationStep: React.FC<{
     const renderCircle = (state: 'completed' | 'active' | 'pending') => {
         if (state === 'completed') {
             return (
-                <div className="w-6 h-6 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-[0_0_12px_rgba(255,90,31,0.4)] shrink-0">
-                    <svg className="w-3.5 h-3.5 text-white stroke-[3.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-7 h-7 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-[0_0_12px_rgba(255,90,31,0.4)] shrink-0 mt-0.5">
+                    <svg className="w-4 h-4 text-white stroke-[3.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
                 </div>
@@ -557,14 +557,14 @@ export const GenerationStep: React.FC<{
         }
         if (state === 'active') {
             return (
-                <div className="w-6 h-6 rounded-full border border-[#FF5A1F] bg-[#FF5A1F]/5 flex items-center justify-center shrink-0 relative">
+                <div className="w-7 h-7 rounded-full border border-[#FF5A1F] bg-[#FF5A1F]/5 flex items-center justify-center shrink-0 relative mt-0.5">
                     <div className="absolute inset-0 rounded-full border-2 border-t-transparent border-[#FF5A1F] animate-spin"></div>
-                    <div className="w-2 h-2 rounded-full bg-[#FF5A1F] animate-ping"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#FF5A1F] animate-ping"></div>
                 </div>
             );
         }
         return (
-            <div className="w-6 h-6 rounded-full border border-zinc-700 bg-transparent flex items-center justify-center shrink-0"></div>
+            <div className="w-7 h-7 rounded-full border border-zinc-700 bg-transparent flex items-center justify-center shrink-0 mt-0.5"></div>
         );
     };
 
@@ -585,13 +585,13 @@ export const GenerationStep: React.FC<{
             {/* 2. Titles */}
             <div className="space-y-3">
                 {displayTitle}
-                <p className="text-zinc-400 text-sm md:text-base font-light max-w-md mx-auto leading-relaxed">
+                <p className="text-zinc-300 text-base md:text-lg font-normal max-w-lg mx-auto leading-relaxed">
                     {displaySubtitle}
                 </p>
             </div>
 
             {/* 3. Selected Product Card */}
-            <div className="w-full bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex items-center gap-4 text-left max-w-md mx-auto shadow-xl">
+            <div className="w-full bg-white/[0.02] border border-white/5 rounded-2xl p-4 sm:p-5 flex items-center gap-4 text-left max-w-lg mx-auto shadow-xl">
                 <div className="w-20 md:w-24 aspect-video rounded-lg overflow-hidden relative shrink-0 bg-zinc-900 border border-white/10 flex items-center justify-center">
                     <img referrerPolicy="no-referrer" src={imageUrl} alt={productName} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30">
@@ -601,47 +601,47 @@ export const GenerationStep: React.FC<{
                     </div>
                 </div>
                 <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-[#FF5A1F] uppercase tracking-[0.2em]">PRODUCTO SELECCIONADO</span>
-                    <h4 className="text-white font-extrabold text-sm md:text-base leading-snug mt-1 line-clamp-2">{productName}</h4>
+                    <span className="text-xs sm:text-sm font-bold text-[#FF5A1F] uppercase tracking-[0.15em]">PRODUCTO SELECCIONADO</span>
+                    <h4 className="text-white font-extrabold text-base md:text-lg leading-snug mt-1 line-clamp-2">{productName}</h4>
                 </div>
             </div>
 
             {/* 4. Progressive Checklist */}
-            <div className="w-full bg-[#111111]/40 border border-white/5 rounded-2xl p-5 space-y-4 max-w-md mx-auto text-left backdrop-blur-sm shadow-xl">
+            <div className="w-full bg-[#111111]/40 border border-white/5 rounded-2xl p-6 space-y-5 max-w-lg mx-auto text-left backdrop-blur-sm shadow-xl">
                 {/* Step 1 */}
-                <div className="flex items-start gap-3.5 font-sans">
+                <div className="flex items-start gap-4 font-sans">
                     {renderCircle(step1State)}
                     <div className="flex flex-col">
-                        <span className={`text-sm font-bold leading-tight ${step1State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
+                        <span className={`text-base sm:text-lg font-extrabold leading-tight ${step1State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
                             {isWeb ? "Diseñando la estructura web" : "Analizando el producto"}
                         </span>
-                        <span className="text-xs text-zinc-500 mt-0.5">
+                        <span className="text-sm sm:text-base text-zinc-400 mt-1 font-normal leading-normal">
                             {isWeb ? "Generando bloques, secciones y distribución visual persuasiva." : "Identificando su propuesta, público y principales beneficios."}
                         </span>
                     </div>
                 </div>
 
                 {/* Step 2 */}
-                <div className="flex items-start gap-3.5 font-sans">
+                <div className="flex items-start gap-4 font-sans">
                     {renderCircle(step2State)}
                     <div className="flex flex-col">
-                        <span className={`text-sm font-bold leading-tight ${step2State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
+                        <span className={`text-base sm:text-lg font-extrabold leading-tight ${step2State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
                             {isWeb ? "Redactando textos persuasivos" : "Preparando la audiencia"}
                         </span>
-                        <span className="text-xs text-zinc-500 mt-0.5">
+                        <span className="text-sm sm:text-base text-zinc-400 mt-1 font-normal leading-normal">
                             {isWeb ? "Escribiendo títulos profesionales y llamados a la acción de alta conversión." : "Organizando los perfiles de cliente que podrás revisar."}
                         </span>
                     </div>
                 </div>
 
                 {/* Step 3 */}
-                <div className="flex items-start gap-3.5 font-sans">
+                <div className="flex items-start gap-4 font-sans">
                     {renderCircle(step3State)}
                     <div className="flex flex-col">
-                        <span className={`text-sm font-bold leading-tight ${step3State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
+                        <span className={`text-base sm:text-lg font-extrabold leading-tight ${step3State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
                             {isWeb ? "Publicando en la nube segura" : "Construyendo la estrategia inicial"}
                         </span>
-                        <span className="text-xs text-zinc-500 mt-0.5">
+                        <span className="text-sm sm:text-base text-zinc-400 mt-1 font-normal leading-normal">
                             {isWeb ? "Desplegando tu página web optimizada para capturar clientes interesados." : "Preparando dolores, deseos y posibles ángulos de venta."}
                         </span>
                     </div>
@@ -649,7 +649,7 @@ export const GenerationStep: React.FC<{
             </div>
 
             {/* 5. Progress Bar */}
-            <div className="w-full max-w-md space-y-2">
+            <div className="w-full max-w-lg space-y-2">
                 <div className="w-full bg-[#111] h-5 rounded-full overflow-hidden border border-white/10 p-1 relative shadow-inner">
                     <motion.div 
                         initial={{ width: 0 }}
@@ -661,18 +661,18 @@ export const GenerationStep: React.FC<{
                     </motion.div>
                 </div>
                 <div className="flex justify-end pr-1">
-                    <span className="text-xs font-bold text-[#FF5A1F]">
+                    <span className="text-sm font-extrabold text-[#FF5A1F]">
                         {Math.round(progress)}%
                     </span>
                 </div>
             </div>
 
             {/* 6. Info card footer */}
-            <div className="flex items-center gap-3 justify-center text-zinc-400 text-xs md:text-sm max-w-md mx-auto pt-2 font-sans">
-                <Info className="w-5 h-5 text-[#FF5A1F] shrink-0" />
+            <div className="flex items-center gap-3 justify-center text-zinc-300 text-sm md:text-base max-w-lg mx-auto pt-2 font-sans">
+                <Info className="w-6 h-6 text-[#FF5A1F] shrink-0" />
                 <div className="text-left">
-                    <p className="font-bold text-zinc-300 text-xs md:text-sm">Este proceso suele tardar unos instantes.</p>
-                    <p className="text-zinc-500 text-[10px] md:text-xs">Te llevaremos automáticamente al siguiente paso cuando esté listo.</p>
+                    <p className="font-bold text-zinc-200 text-sm sm:text-base">Este proceso suele tardar unos instantes.</p>
+                    <p className="text-zinc-400 text-xs sm:text-sm">Te llevaremos automáticamente al siguiente paso cuando esté listo.</p>
                 </div>
             </div>
         </div>

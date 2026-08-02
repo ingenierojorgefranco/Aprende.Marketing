@@ -232,46 +232,46 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
 
               {/* Bloque de 3 Métricas en Fila Horizontal */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {/* Tarjeta 1 - Precio (Cian) */}
-                <div className="flex items-center gap-5 p-6 rounded-[20px] border border-cyan-500/[0.12] bg-[#0D151B]/20 hover:bg-[#0D151B]/35 transition-all group min-h-[96px]">
-                  <div className="w-12 h-12 rounded-[14px] border border-cyan-500/20 bg-cyan-950/20 flex items-center justify-center text-cyan-400 shrink-0 group-hover:scale-105 transition-transform">
+                {/* Tarjeta 1 - Precio (Naranja) */}
+                <div className="flex items-center gap-5 p-6 rounded-[20px] border border-[#FF5A1F]/[0.2] bg-[#17110E]/30 hover:bg-[#17110E]/50 transition-all group min-h-[96px]">
+                  <div className="w-12 h-12 rounded-[14px] border border-[#FF5A1F]/30 bg-[#FF5A1F]/10 flex items-center justify-center text-[#FF5A1F] shrink-0 group-hover:scale-105 transition-transform">
                     <Tag className="w-5 h-5" />
                   </div>
                   <div className="text-left py-0.5">
-                    <span className="text-cyan-400 text-[11px] font-bold tracking-wider uppercase block">
+                    <span className="text-[#FF5A1F] text-[11px] font-bold tracking-wider uppercase block">
                       Precio del producto
                     </span>
-                    <span className="text-white text-[20px] font-bold block leading-tight mt-1">
+                    <span className="text-[#FF5A1F] text-[24px] font-black block leading-tight mt-1">
                       USD {projectPrice}
                     </span>
                   </div>
                 </div>
 
-                {/* Tarjeta 2 - Comisión (Verde) */}
-                <div className="flex items-center gap-5 p-6 rounded-[20px] border border-emerald-500/[0.12] bg-[#0C1713]/20 hover:bg-[#0C1713]/35 transition-all group min-h-[96px]">
-                  <div className="w-12 h-12 rounded-[14px] border border-emerald-500/20 bg-emerald-950/20 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
+                {/* Tarjeta 2 - Comisión (Azul) */}
+                <div className="flex items-center gap-5 p-6 rounded-[20px] border border-blue-500/[0.2] bg-[#0C1420]/30 hover:bg-[#0C1420]/50 transition-all group min-h-[96px]">
+                  <div className="w-12 h-12 rounded-[14px] border border-blue-500/30 bg-blue-950/30 flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-105 transition-transform">
                     <Percent className="w-5 h-5" />
                   </div>
                   <div className="text-left py-0.5">
-                    <span className="text-emerald-400 text-[11px] font-bold tracking-wider uppercase block">
+                    <span className="text-blue-400 text-[11px] font-bold tracking-wider uppercase block">
                       Comisión que obtendrás
                     </span>
-                    <span className="text-white text-[20px] font-bold block leading-tight mt-1">
+                    <span className="text-blue-400 text-[24px] font-black block leading-tight mt-1">
                       {displayCommission} %
                     </span>
                   </div>
                 </div>
 
-                {/* Tarjeta 3 - Ganancia (Naranja) */}
-                <div className="flex items-center gap-5 p-6 rounded-[20px] border border-[#FF5A1F]/[0.12] bg-[#17110E]/20 hover:bg-[#17110E]/35 transition-all group min-h-[96px]">
-                  <div className="w-12 h-12 rounded-[14px] border border-[#FF5A1F]/20 bg-[#FF5A1F]/5 flex items-center justify-center text-[#FF5A1F] shrink-0 group-hover:scale-105 transition-transform">
+                {/* Tarjeta 3 - Ganancia (Verde) */}
+                <div className="flex items-center gap-5 p-6 rounded-[20px] border border-emerald-500/[0.2] bg-[#0C1713]/30 hover:bg-[#0C1713]/50 transition-all group min-h-[96px]">
+                  <div className="w-12 h-12 rounded-[14px] border border-emerald-500/30 bg-emerald-950/30 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
                     <TrendingUp className="w-5 h-5" />
                   </div>
                   <div className="text-left py-0.5">
-                    <span className="text-[#FF5A1F] text-[11px] font-bold tracking-wider uppercase block">
+                    <span className="text-emerald-400 text-[11px] font-bold tracking-wider uppercase block">
                       Tu ganancia por venta
                     </span>
-                    <span className="text-white text-[20px] font-bold block leading-tight mt-1">
+                    <span className="text-emerald-400 text-[24px] font-black block leading-tight mt-1">
                       USD {calculatedEarnings}
                     </span>
                   </div>
