@@ -72,7 +72,6 @@ router.get('/master-library', async (req, res) => {
 router.post('/unlock/:id', async (req, res) => {
     const projectId = req.params.id;
     const { leadMagnetUrl, leadMagnetType, affiliateLinks } = req.body;
-    let newProjectId = null;
 
     try {
         // 1. Buscar los datos base del proyecto maestro
@@ -83,18 +82,7 @@ router.post('/unlock/:id', async (req, res) => {
         
         const master = projRows[0];
         
-        // 2. AUTO-LIMPIEZA DE CONTINGENCIA:
-        // Eliminar previamente cualquier proyecto zombie/sin estrategia del usuario para no bloquear sus cupos
-        const [userProjectsAll] = await pool.query('SELECT id, strategy_json FROM projects WHERE user_id = ? AND is_master = 0', [req.user.id]);
-        for (const p of userProjectsAll) {
-            if (!p.strategy_json) {
-                console.log(`[LEVEL 3 AUTO-CLEANUP] Limpiando proyecto zombie id: ${p.id} sin estrategia guardada.`);
-                await pool.query('DELETE FROM unlocked_projects WHERE user_id = ? AND project_id = ?', [req.user.id, projectId]);
-                await pool.query('DELETE FROM projects WHERE id = ?', [p.id]);
-            }
-        }
-
-        // Verificar límites del usuario de forma dinámica
+        // 2. Verificar límites del usuario de forma dinámica
         const [userProjects] = await pool.query('SELECT id FROM projects WHERE user_id = ? AND is_master = 0', [req.user.id]);
         const effectiveLimits = await getEffectiveLimits(req.user.id);
         const maxProjects = effectiveLimits.maxProjects;
@@ -108,8 +96,10 @@ router.post('/unlock/:id', async (req, res) => {
         const planId = starterPlan[0]?.id || null;
         const planSlug = starterPlan[0]?.slug || 'starter';
 
-        // 4. Crear un nuevo proyecto independiente para el usuario
+        // 4. Crear un nuevo proyecto independiente para el usuario (copia física del ADN base)
+        // Se asegura que master_parent_id quede registrado para habilitar la visualización de ganchos del padre
         const finalLeadMagnetType = (leadMagnetType && leadMagnetType.trim() !== '') ? leadMagnetType : master.lead_magnet_type;
+        
         const finalAffiliateLinks = (affiliateLinks && affiliateLinks.length > 0) ? affiliateLinks : DEFAULT_AFFILIATE_LINKS;
 
         const [result] = await pool.query(
@@ -133,71 +123,72 @@ router.post('/unlock/:id', async (req, res) => {
                 '', 
                 master.sales_page_url, 
                 master.id,
-                null,
+                null, // No guardamos la URL en el duplicado, se heredará dinámicamente
                 planId,
                 planSlug
             ]
         );
-        newProjectId = result.insertId;
+        const newProjectId = result.insertId;
 
-        // Registrar el desbloqueo temporalmente
+        // Registrar el desbloqueo para visualización en biblioteca
         await pool.query(
             'INSERT IGNORE INTO unlocked_projects (user_id, project_id, created_at) VALUES (?, ?, NOW())',
             [req.user.id, projectId]
         );
 
-        // 5. Invocar a la IA para la generación completa
-        const strategyJson = await generateFullStrategy(newProjectId);
-
-        // Inyectar Perfil Demográfico del maestro
-        const masterStrategy = safeParseJson(master.strategy_json);
-        if (masterStrategy && masterStrategy.avatars && Array.isArray(masterStrategy.avatars) && masterStrategy.avatars[0]) {
-            const masterAvatar = masterStrategy.avatars[0];
-            if (!strategyJson.avatars) strategyJson.avatars = [{}, {}, {}];
-            if (!Array.isArray(strategyJson.avatars)) strategyJson.avatars = [strategyJson.avatars, {}, {}];
-            while (strategyJson.avatars.length < 3) strategyJson.avatars.push({});
+        // 4. Invocar internamente a la función generateFullStrategy para que la IA genere avatares y contenidos únicos
+        try {
+            const strategyJson = await generateFullStrategy(newProjectId);
             
-            strategyJson.avatars[0] = {
-                ...strategyJson.avatars[0],
-                education: masterAvatar.education || masterAvatar.studies,
-                studies: masterAvatar.studies || masterAvatar.education,
-                archetype: masterAvatar.archetype || masterAvatar.occupation,
-                occupation: masterAvatar.occupation || masterAvatar.archetype,
-                incomeRange: masterAvatar.incomeRange || masterAvatar.income,
-                income: masterAvatar.income || masterAvatar.incomeRange,
-                location: masterAvatar.location || masterAvatar.geographic,
-                geographic: masterAvatar.geographic || masterAvatar.location,
-                civilStatus: masterAvatar.civilStatus || masterAvatar.marital_status,
-                marital_status: masterAvatar.marital_status || masterAvatar.civilStatus,
-                devices: masterAvatar.devices
-            };
+            // Inyectar de manera exacta la configuración manual del Perfil Demográfico que rellenaste en el proyecto maestro
+            const masterStrategy = safeParseJson(master.strategy_json);
+            if (masterStrategy && masterStrategy.avatars && Array.isArray(masterStrategy.avatars) && masterStrategy.avatars[0]) {
+                const masterAvatar = masterStrategy.avatars[0];
+                if (!strategyJson.avatars) {
+                    strategyJson.avatars = [{}, {}, {}];
+                }
+                if (!Array.isArray(strategyJson.avatars)) {
+                    strategyJson.avatars = [strategyJson.avatars, {}, {}];
+                }
+                while (strategyJson.avatars.length < 3) {
+                    strategyJson.avatars.push({});
+                }
+                
+                strategyJson.avatars[0] = {
+                    ...strategyJson.avatars[0],
+                    education: masterAvatar.education || masterAvatar.studies,
+                    studies: masterAvatar.studies || masterAvatar.education,
+                    archetype: masterAvatar.archetype || masterAvatar.occupation,
+                    occupation: masterAvatar.occupation || masterAvatar.archetype,
+                    incomeRange: masterAvatar.incomeRange || masterAvatar.income,
+                    income: masterAvatar.income || masterAvatar.incomeRange,
+                    location: masterAvatar.location || masterAvatar.geographic,
+                    geographic: masterAvatar.geographic || masterAvatar.location,
+                    civilStatus: masterAvatar.civilStatus || masterAvatar.marital_status,
+                    marital_status: masterAvatar.marital_status || masterAvatar.civilStatus,
+                    devices: masterAvatar.devices
+                };
+            }
+            
+            await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), newProjectId]);
+        } catch (genError) {
+            console.error("[Unlock Strategy Gen Error]", genError);
+            // Si falla la IA, devolvemos el ID del proyecto creado para que el frontend pueda manejarlo (reintentar o borrar)
+            return res.status(500).json({ 
+                error: 'Error al generar la estrategia personalizada por la IA. Puedes reintentar.',
+                projectId: String(newProjectId),
+                details: genError.message
+            });
         }
-        
-        await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), newProjectId]);
 
         // Registrar actividad de sistema
         await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_MASTER_STRATEGY_GEN', 'project', newProjectId, { masterName: master.name });
 
+        // 5. Retornar el ID del nuevo proyecto generado
         res.json({ id: String(newProjectId), success: true, message: 'Tu Estrategia Maestra única ha sido generada correctamente.' });
-
-    } catch (genError) {
-        console.error("[Unlock Strategy Gen Error]", genError);
-        
-        // LEVEL 3 TRANSACTIONAL ROLLBACK: Si la generación de la IA falla, BORRAR de inmediato el registro creado de la BD
-        if (newProjectId) {
-            try {
-                console.log(`[LEVEL 3 ROLLBACK EXECUTE] Eliminando proyecto cancelado id: ${newProjectId} y desbloqueo de la BD.`);
-                await pool.query('DELETE FROM unlocked_projects WHERE user_id = ? AND project_id = ?', [req.user.id, projectId]);
-                await pool.query('DELETE FROM projects WHERE id = ?', [newProjectId]);
-            } catch (cleanupErr) {
-                console.error("[Rollback Cleanup Error]", cleanupErr);
-            }
-        }
-
-        return res.status(500).json({ 
-            error: 'No se pudo completar la generación del proyecto por la IA. El proceso se ha cancelado automáticamente sin consumir tus cupos. Por favor, intenta nuevamente.',
-            details: genError.message
-        });
+    } catch (error) {
+        console.error("[Unlock Error]", error);
+        res.status(500).json({ error: error.message || 'Error al generar la estrategia personalizada' });
     }
 });
 

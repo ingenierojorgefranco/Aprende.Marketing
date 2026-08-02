@@ -154,7 +154,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                     } else if (project.name.toLowerCase().includes("resina") || project.name.toLowerCase().includes("pisos")) {
                         idealForDesc = "Ideal para personas interesadas en la construcción, decoración de interiores y modelado de alta rentabilidad.";
                     } else if (project.shortDescription || project.description) {
-                        idealForDesc = (project.shortDescription || project.description).replace(/<[^>]*>?/gm, '').trim();
+                        idealForDesc = project.shortDescription || project.description;
                     }
 
                     return (

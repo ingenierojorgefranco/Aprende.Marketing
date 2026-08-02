@@ -1370,11 +1370,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                         {project.name}
                       </h3>
                       <p className="text-white text-base leading-relaxed mb-8 flex-1 line-clamp-4">
-                        {(() => {
-                          const desc = project.shortDescription || project.description || "";
-                          const plainText = desc.replace(/<[^>]*>?/gm, '').trim();
-                          return plainText || "Este proyecto no tiene cargada una descripción pero está activo en tu plan.";
-                        })()}
+                        {project.shortDescription ||
+                          project.description ||
+                          "Este proyecto no tiene cargada una descripción pero está activo en tu plan."}
                       </p>
 
                       {/* Botón Ver Proyecto */}
