@@ -373,7 +373,7 @@ export const DashboardLayout = ({
   return (
     <div className="h-screen overflow-hidden bg-[#030712] text-[#FFFFFF] flex font-sans">
       {(!isSurveyPending && !isLaunchRestricted && !showWizard) && (
-        <aside className={`fixed md:relative top-0 left-0 h-full w-64 lg:w-[17rem] xl:w-[18.5rem] 2xl:w-[21rem] shrink-0 bg-[#030712] border-r border-slate-800/60 shadow-2xl z-40 transition-all duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <aside className={`fixed md:relative top-0 left-0 h-full w-64 md:w-[17rem] shrink-0 bg-[#030712] border-r border-slate-800/60 shadow-2xl z-40 transition-all duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
           <div className="p-6 pb-5 flex justify-between items-center">
             <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-black text-white text-sm shadow-md shadow-[#FF5A1F]/20 shrink-0">AM</div>

@@ -218,6 +218,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   const [unlockedArticles, setUnlockedArticles] = useState<any[]>([]);
   const [isLandingCreated, setIsLandingCreated] = useState(false);
   const [createdPageSubdomain, setCreatedPageSubdomain] = useState<string>("");
+
+  const handleFinishWizard = () => {
+    const activeProjectId = selectedProject?.id || unlockedProject?.id || userActiveProjects?.[0]?.id || projects?.[0]?.id;
+    if (activeProjectId) {
+      navigate(`/dashboard/projects/${activeProjectId}/strategy?section=summary&wizard=finish`);
+    } else if (onComplete) {
+      onComplete();
+    } else {
+      navigate("/dashboard/projects");
+    }
+  };
   const [activePage, setActivePage] = useState<any | null>(null);
   const [selectedLandingPageTab, setSelectedLandingPageTab] = useState<"captacion" | "gracias">("captacion");
   const [isHooksUnlocked, setIsHooksUnlocked] = useState(false);
@@ -1380,7 +1391,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                         <button
                           onClick={() => {
                             navigate(
-                              `/dashboard/projects/${project.id}/strategy`,
+                              `/dashboard/projects/${project.id}/strategy?section=summary&wizard=finish`,
                             );
                             onComplete?.();
                           }}
@@ -2230,7 +2241,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                 ref={successRef}
                 className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
               >
-                <SuccessStep onFinish={onComplete} />
+                <SuccessStep onFinish={handleFinishWizard} />
               </div>
             )}
           </div>

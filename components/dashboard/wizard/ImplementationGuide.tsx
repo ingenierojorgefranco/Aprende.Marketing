@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import confetti from "canvas-confetti";
 import { api } from "../../../services/api";
 import { ProjectStrategy_Sidebar } from "../tools/ProjectStrategy/ProjectStrategy_Sidebar";
 import { ProjectStrategy_Hotlinks } from "../tools/ProjectStrategy/ProjectStrategy_Hotlinks";
@@ -58,7 +59,8 @@ import {
   Tag,
   DollarSign,
   Percent,
-  Map
+  Map,
+  Sparkles
 } from "lucide-react";
 
 interface ImplementationGuideProps {
@@ -123,6 +125,40 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const [isCommercialDrawerOpen, setIsCommercialDrawerOpen] = useState<boolean>(false);
   const [selectedCommercialOption, setSelectedCommercialOption] = useState<CommercialOptionId | null>(null);
   const [openGuideStages, setOpenGuideStages] = useState<number[]>([1]);
+  const [showWizardFinishModal, setShowWizardFinishModal] = useState<boolean>(false);
+  const [isPlayingVideo, setIsPlayingVideo] = useState<boolean>(false);
+
+  useEffect(() => {
+    const wizardParam = searchParams.get("wizard");
+    if (wizardParam === "finish") {
+      setShowWizardFinishModal(true);
+
+      const duration = 3.5 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 70, zIndex: 99999 };
+
+      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+      const interval: any = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+        const particleCount = 50 * (timeLeft / duration);
+        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+      }, 250);
+
+      return () => clearInterval(interval);
+    }
+  }, [searchParams]);
+
+  const handleCloseWizardFinishModal = () => {
+    setShowWizardFinishModal(false);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete("wizard");
+    setSearchParams(newParams, { replace: true });
+  };
 
   useEffect(() => {
     const activeStageNum = stepsList.find(s => s.id === activeStep)?.stage || 1;
@@ -1398,6 +1434,104 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
         setActiveOption={setSelectedCommercialOption}
         strategyData={strategyData}
       />
+
+      {/* Modal de Bienvenida - Proyecto Listo (wizard=finish) */}
+      <AnimatePresence>
+        {showWizardFinishModal && (
+          <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="max-w-3xl w-full bg-[#0B1120] border-2 border-[#FF5A1F]/70 rounded-3xl p-6 sm:p-8 shadow-[0_0_60px_rgba(255,90,31,0.3)] relative text-white space-y-6 overflow-hidden my-auto"
+            >
+              {/* Glow resplandeciente decorativo */}
+              <div className="absolute -top-24 -right-24 w-72 h-72 bg-[#FF5A1F]/20 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+              {/* Botón cerrar X */}
+              <button
+                onClick={handleCloseWizardFinishModal}
+                className="absolute top-5 right-5 p-2 text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 rounded-full border border-slate-700/80 transition-all cursor-pointer z-20"
+                title="Cerrar"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Cabecera con Insignia + Título */}
+              <div className="space-y-3 relative z-10 text-center sm:text-left pr-8">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FF5A1F]/15 border border-[#FF5A1F]/40 text-[#FF5A1F] text-xs font-black uppercase tracking-wider">
+                  <Sparkles className="w-4 h-4 animate-pulse" />
+                  <span>¡Proyecto Configurado con Éxito!</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                  ¡Tu proyecto <span className="text-[#FF5A1F]">{projectName || "listo"}</span> ya está preparado!
+                </h2>
+                <p className="text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed font-normal">
+                  A continuación encontrarás todo tu proyecto listo y configurado: tu página de ventas, ganchos de reels, estrategia de contenidos y secuencias de comunicación. Mira este breve video de bienvenida para comenzar.
+                </p>
+              </div>
+
+              {/* Reproductor de Video Interactivo */}
+              <div className="relative aspect-video w-full rounded-2xl overflow-hidden border-2 border-slate-800/90 shadow-2xl bg-black group z-10">
+                {!isPlayingVideo ? (
+                  <div 
+                    className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-black/90 via-black/40 to-transparent p-6 text-center cursor-pointer group"
+                    onClick={() => setIsPlayingVideo(true)}
+                  >
+                    {/* Imagen de portada */}
+                    <img 
+                      src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1200&auto=format&fit=crop&q=80" 
+                      alt="Portada de Video Proyecto Listo"
+                      className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700 pointer-events-none"
+                    />
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors pointer-events-none"></div>
+
+                    {/* Botón de Play Central */}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#FF5A1F] hover:bg-[#E04E1A] text-white rounded-full flex items-center justify-center shadow-2xl shadow-[#FF5A1F]/50 transition-all transform group-hover:scale-110 active:scale-95 z-10 relative">
+                      <Play className="w-8 h-8 sm:w-10 sm:h-10 text-white fill-white ml-1" />
+                    </div>
+
+                    <div className="mt-4 z-10 space-y-1 relative">
+                      <span className="bg-black/60 backdrop-blur-md border border-white/20 text-white text-[11px] font-bold px-3 py-1 rounded-full inline-flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                        <span>1:30 min</span>
+                      </span>
+                      <p className="text-white font-bold text-sm sm:text-base drop-shadow-md">
+                        Ver video explicativo de tu proyecto
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <iframe 
+                    className="w-full h-full rounded-2xl"
+                    src="https://www.youtube.com/embed/vGfXD9VbfXo?autoplay=1&rel=0&controls=1"
+                    title="Video Tutorial Proyecto Listo"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
+              </div>
+
+              {/* Footer con Botón de Acción */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 relative z-10">
+                <div className="flex items-center gap-2 text-slate-400 text-xs">
+                  <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Estrategia, hooks y página publicados</span>
+                </div>
+                <button
+                  onClick={handleCloseWizardFinishModal}
+                  className="w-full sm:w-auto px-8 py-4 bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-black text-sm sm:text-base rounded-2xl shadow-xl shadow-[#FF5A1F]/30 transition-all flex items-center justify-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5 active:scale-95 uppercase tracking-wider"
+                >
+                  <span>Explorar mi proyecto</span>
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
