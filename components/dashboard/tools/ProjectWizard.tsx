@@ -688,7 +688,7 @@ export const ProjectWizard: React.FC = () => {
                 
                 setLoadingStatus('Fase 2/2: La IA está diseñando tu Estrategia Maestra (esto puede tardar unos 20 segundos)...');
                 await api.generateProjectStrategyFull(projectId);
-                navigate(`/dashboard/projects/${projectId}/strategy?section=summary&wizard=finish`);
+                navigate(`/dashboard/projects/${projectId}/strategy`);
             }
         } catch (error) {
             console.error(error);

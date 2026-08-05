@@ -1302,7 +1302,7 @@ export const ProjectsList: React.FC = () => {
                         <button 
                             onClick={() => {
                                 setGenerationStatus('idle');
-                                navigate(`/dashboard/projects/${generatedProjectId}/strategy?section=summary&wizard=finish`);
+                                navigate(`/dashboard/projects/${generatedProjectId}/strategy`);
                             }}
                             className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-emerald-900/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                         >
