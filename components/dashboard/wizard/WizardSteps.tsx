@@ -904,175 +904,47 @@ interface LandingSuccessProps extends StepProps {
     createdPageSubdomain?: string;
 }
 
-export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, onView, onEdit, project, createdPageSubdomain }) => {
-    const subdomainPart = createdPageSubdomain ? createdPageSubdomain.split(".")[0] : "";
-
+export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, project }) => {
     return (
         <motion.div 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-[1400px] mx-auto p-2 md:p-6 lg:p-8 font-sans"
+            className="w-full max-w-2xl mx-auto p-4 md:p-8 font-sans text-center space-y-8"
         >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
-                {/* Columna Izquierda: Información y Control */}
-                <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
-                    <div className="space-y-6">
-                        {/* Cabecera Izquierda */}
-                        <div className="space-y-4">
-                            <h2 className="text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[4rem] font-black text-white leading-[1.05] tracking-tight mt-3">
-                                Tu página de <br />
-                                <span className="text-emerald-400">Captura de Clientes</span> ha sido <br />
-                                generada
-                            </h2>
-                            <p className="text-white font-light text-base md:text-lg md:leading-relaxed animate-fade-in-up">
-                                Con tu Página Web de Captura tus visitantes podrán conocer la oferta de tu producto digital y dejar sus datos para acceder a su clase gratuita.
-                            </p>
-                        </div>
-
-                        <div className="bg-[#0b0b0c]/85 border border-zinc-800/40 rounded-2xl overflow-hidden divide-y divide-zinc-800/30">
-                            {/* Proyecto */}
-                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
-                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
-                                    <Package className="w-4.5 h-4.5 text-[#FF5A1F]" />
-                                    <span>Proyecto</span>
-                                </div>
-                                <span className="text-white text-xs font-extrabold truncate text-right">
-                                    {project?.name || "Curso Profesional Certificado de Microblading de Cejas"}
-                                </span>
-                            </div>
-
-                            {/* URL Temporal Interactiva */}
-                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
-                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold shrink-0">
-                                    <Link className="w-4.5 h-4.5 text-[#FF5A1F]" />
-                                    <span>URL temporal</span>
-                                </div>
-                                <div className="flex items-center gap-2 w-full sm:w-auto overflow-hidden justify-end">
-                                    <input
-                                        type="text"
-                                        readOnly
-                                        value={`aprende.marketing/admin/lp/${subdomainPart || "microblading-demo"}`}
-                                        onClick={(e) => {
-                                            e.currentTarget.select();
-                                            navigator.clipboard.writeText(`https://aprende.marketing/admin/lp/${subdomainPart || "microblading-demo"}`);
-                                        }}
-                                        className="bg-zinc-900/60 border border-zinc-800/60 text-zinc-400 text-xs font-mono px-3 py-1.5 rounded-lg w-full sm:w-56 cursor-pointer focus:outline-none focus:border-[#FF5A1F]/50 select-all font-semibold"
-                                        title="Haz clic para copiar automáticamente"
-                                    />
-                                    <a
-                                        href={`/admin/lp/${subdomainPart || "microblading-demo"}`}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-[#FF5A1F] hover:text-white p-2 rounded-lg transition-colors flex items-center justify-center shrink-0"
-                                        title="Ver página en nueva ventana"
-                                    >
-                                        <ExternalLink className="w-4 h-4" />
-                                    </a>
-                                </div>
-                            </div>
-
-                            {/* Estado */}
-                            <div className="flex items-center justify-between p-3.5 flex-wrap sm:flex-nowrap gap-3">
-                                <div className="flex items-center gap-3 text-zinc-400 text-sm font-semibold">
-                                    <ShieldCheck className="w-4.5 h-4.5 text-emerald-500" />
-                                    <span>Estado</span>
-                                </div>
-                                <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-black px-2.5 py-0.5 rounded-lg uppercase tracking-wider">
-                                    Publicada
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="space-y-3 mt-4">
-                            <p className="text-white font-light text-base md:text-lg md:leading-relaxed animate-fade-in-up">
-                                Ahora prepararemos 3 videos de menos de un minuto (Reels) que utilizarás para atraer visitas y llevarles hacia la página que acabamos de crear .
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Botones de Acción */}
-                    <div className="pt-6 border-t border-zinc-900 flex flex-col gap-4">
-                        <button 
-                            onClick={() => onNext()}
-                            className="w-full px-6 py-5 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-black text-base md:text-lg uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-[#FF5A1F]/15 active:scale-98 cursor-pointer"
-                        >
-                            <span>CONTINUAR: PREPARAR MIS 3 REELS</span>
-                            <Play className="w-4 h-4 fill-current shrink-0" />
-                        </button>
-                        <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs font-bold">
-                            <Lock className="w-3.5 h-3.5" />
-                            <span>Podrás editar y publicar tu página más adelante desde la sección Página web.</span>
-                        </div>
-                    </div>
+            {/* Icono de éxito con resplandor */}
+            <div className="relative inline-block">
+                <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full animate-pulse"></div>
+                <div className="w-20 h-20 md:w-24 md:h-24 bg-emerald-500/10 border-2 border-emerald-500/30 rounded-3xl flex items-center justify-center mx-auto relative shadow-2xl shadow-emerald-500/10">
+                    <CheckCircle className="w-10 h-10 md:w-12 md:h-12 text-emerald-400" />
                 </div>
+            </div>
 
-                {/* Columna Derecha: Vista Previa en Vivo Interactiva */}
-                <div className="lg:col-span-7 flex flex-col justify-center">
-                    <div className="flex flex-col h-full bg-[#080809]/40 border border-zinc-805 rounded-[2.5rem] p-5 md:p-6 shadow-3xl justify-center">
-                        {/* Mockup de Navegador Web */}
-                        <div className="h-[75vh] lg:h-[82vh] min-h-[500px] bg-[#121214] border border-zinc-800 rounded-[1.75rem] overflow-hidden flex flex-col shadow-2xl relative w-full">
-                            {/* Barra de Direcciones estilo Chrome/Safari */}
-                            <div className="bg-[#1c1c1f] px-4 py-3.5 flex items-center justify-between border-b border-zinc-900 select-none">
-                                <div className="flex items-center gap-4 flex-1">
-                                    {/* Botones del sistema window */}
-                                    <div className="flex items-center gap-1.5 shrink-0">
-                                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                                        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                        <div className="w-3 h-3 rounded-full bg-green-500 font-bold"></div>
-                                    </div>
-                                    
-                                    {/* Botones de navegación mockup */}
-                                    <div className="hidden sm:flex items-center gap-2.5 text-zinc-650 shrink-0">
-                                        <ChevronRight className="w-4 h-4 rotate-180 hover:text-[#FF5A1F] cursor-pointer text-zinc-500 transition-colors" />
-                                        <ChevronRight className="w-4 h-4 hover:text-[#FF5A1F] cursor-pointer text-zinc-500 transition-colors" />
-                                        <RotateCw className="w-3.5 h-3.5 hover:text-[#FF5A1F] cursor-pointer text-zinc-500 transition-colors" />
-                                    </div>
+            <div className="space-y-4">
+                <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
+                    Tu página de <span className="text-emerald-400">captura de clientes</span> ha sido generada
+                </h2>
+                <p className="text-slate-300 text-base md:text-lg max-w-xl mx-auto font-normal leading-relaxed">
+                    Tu página de captura fue creada correctamente para tu proyecto <span className="text-white font-bold">{project?.name || "activo"}</span>. Podrás editarla, personalizarla y modificarla directamente desde tu sección de <span className="text-[#FF5A1F] font-semibold">Mis Proyectos</span>.
+                </p>
+            </div>
 
-                                    {/* Barra de Direcciones segura */}
-                                    <div className="flex-1 bg-[#121214] border border-zinc-800 rounded-xl px-4 py-2 text-xs text-zinc-300 flex items-center gap-2 overflow-hidden select-all shadow-inner max-w-lg">
-                                        <Lock className="w-3 h-3 text-emerald-500 shrink-0" />
-                                        <span className="truncate font-mono text-zinc-400 font-semibold">
-                                            aprende.marketing/admin/lp/{subdomainPart || "microblading-demo"}
-                                        </span>
-                                    </div>
-                                </div>
+            <div className="bg-[#0b0b0c]/80 border border-zinc-800/60 p-6 rounded-2xl max-w-xl mx-auto space-y-3 shadow-xl">
+                <p className="text-white text-sm md:text-base font-medium leading-relaxed">
+                    Ahora prepararemos 3 videos de menos de un minuto (Reels) que utilizarás para atraer visitas y llevarlas hacia tu página.
+                </p>
+            </div>
 
-                                <div className="flex items-center gap-2 shrink-0">
-                                    <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider shadow-inner font-mono">
-                                        PUBLICADA
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Contenedor del Iframe interactivo */}
-                            <div className="flex-1 bg-zinc-950 relative overflow-hidden h-full">
-                                {subdomainPart ? (
-                                    <iframe 
-                                        src={`/admin/lp/${subdomainPart}`} 
-                                        className="w-full h-full border-none bg-zinc-950"
-                                        title="Vista previa interactiva de Landing Page"
-                                        sandbox="allow-scripts allow-same-origin allow-forms"
-                                    />
-                                ) : (
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center text-zinc-500 bg-zinc-950/95 gap-3">
-                                        <Loader2 className="w-8 h-8 animate-spin text-[#FF5A1F]" />
-                                        <p className="text-sm font-semibold text-zinc-400">Preparando tu vista previa interactiva...</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Enlace para Ampliar */}
-                        <div className="flex justify-center mt-6">
-                            <button 
-                                onClick={onView}
-                                className="inline-flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800/80 text-[#FF5A1F] hover:text-white px-6 py-3 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all duration-200 group active:scale-95 cursor-pointer shadow-md"
-                            >
-                                <Maximize2 className="w-4 h-4 group-hover:scale-110 transition-transform text-[#FF5A1F]" />
-                                <span>VER PÁGINA COMPLETA</span>
-                            </button>
-                        </div>
-                    </div>
+            <div className="pt-2 max-w-md mx-auto space-y-3">
+                <button 
+                    onClick={() => onNext()}
+                    className="w-full py-4 md:py-5 px-8 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-2xl font-extrabold text-base md:text-lg uppercase tracking-wider transition-all shadow-xl shadow-[#FF5A1F]/20 active:scale-95 flex items-center justify-center gap-3 cursor-pointer"
+                >
+                    <span>CONTINUAR: PREPARAR MIS 3 REELS</span>
+                    <Play className="w-5 h-5 fill-current shrink-0" />
+                </button>
+                <div className="flex items-center justify-center gap-2 text-slate-400 text-xs font-medium">
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>Podrás editar tu página más adelante desde la sección del proyecto.</span>
                 </div>
             </div>
         </motion.div>
