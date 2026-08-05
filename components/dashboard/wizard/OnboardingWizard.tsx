@@ -1187,6 +1187,19 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     );
   }
 
+  const handleFinishWizard = () => {
+    localStorage.removeItem("force_wizard_step");
+    const targetProjectId =
+      unlockedProject?.id ||
+      selectedProject?.id ||
+      userActiveProjects[0]?.id ||
+      "374";
+    navigate(`/dashboard/projects/${targetProjectId}/strategy`);
+    if (onComplete) {
+      onComplete();
+    }
+  };
+
   return (
     <div
       ref={containerRef}
@@ -2230,7 +2243,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                 ref={successRef}
                 className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
               >
-                <SuccessStep onFinish={onComplete} />
+                <SuccessStep onFinish={handleFinishWizard} />
               </div>
             )}
           </div>

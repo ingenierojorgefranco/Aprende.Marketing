@@ -619,8 +619,9 @@ const initDb = async () => {
 
         // --- SEED SYSTEM SETTINGS ---
         await connection.query(`
-            INSERT IGNORE INTO system_settings (setting_key, setting_value) 
-            VALUES ('after_login_url', '/dashboard/training/bienvenida')
+            INSERT INTO system_settings (setting_key, setting_value) 
+            VALUES ('after_login_url', '/dashboard/projects/374/strategy')
+            ON DUPLICATE KEY UPDATE setting_value = '/dashboard/projects/374/strategy'
         `);
 
         ////////// Inicialización de método de pago activo predeterminado - 24/05/2025 10:30 //////////

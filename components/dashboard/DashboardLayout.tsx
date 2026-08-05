@@ -546,7 +546,10 @@ export const DashboardLayout = ({
                 ) : showWizard ? (
                     <OnboardingWizard 
                         user={effectiveUser} 
-                        onComplete={() => window.location.reload()} 
+                        onComplete={() => {
+                            localStorage.removeItem('force_wizard_step');
+                            navigate('/dashboard/projects/374/strategy');
+                        }} 
                         onLogout={onLogout}
                         onGenerationStateChange={setIsWizardGenerating}
                         onUpdateUser={onUpdateUser}
