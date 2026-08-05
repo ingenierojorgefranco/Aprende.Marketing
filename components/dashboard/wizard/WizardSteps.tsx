@@ -1032,270 +1032,43 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
             style={{ paddingTop: 0 }}
         >
             {isUnlocked ? (
-                /* --- ESTADO LISTOS / ACTIVO (ISUNLOCKED === TRUE - IMAGEN 2) --- */
-                <div className="space-y-6">
-
-
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 lg:items-center items-start">
-                        {/* Columna Izquierda: Consumo de Reels */}
-                        <div className="lg:col-span-12 xl:col-span-4 flex flex-col space-y-6">
-                            <div className="space-y-4">
-                            <div className="space-y-2">
-                                <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight" style={{
-                                    fontSize: "2.5em",
-                                    lineHeight: "1.2em",
-                                    paddingBottom: "0.3em"
-                                }}>Tus 3 reels de atracción <span className="text-[#FF5A1F]">están listos </span></h1>
-                                <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{
-                                    paddingBottom: "0.20em"
-                                }}>Revisa, descarga y publica estos reels para dirigir personas interesadas hacia tu página de captura.</p>
-                            </div>
-                            </div>
-
-                            {/* Tarjeta de consumo premium */}
-                            <div className="bg-[#0b0b0c]/90 border border-zinc-800/80 rounded-2xl p-5 space-y-6 shadow-2xl relative overflow-hidden">
-                                <div className="flex items-center gap-4">
-                                    {/* Gráfico circular SVG 3/3 reels */}
-                                    <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
-                                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                                            <path
-                                                className="text-zinc-800"
-                                                strokeWidth="3.5"
-                                                stroke="currentColor"
-                                                fill="none"
-                                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                            />
-                                            <path
-                                                className="text-[#FF5A1F]"
-                                                strokeDasharray="100, 100"
-                                                strokeWidth="3.5"
-                                                strokeLinecap="round"
-                                                stroke="currentColor"
-                                                fill="none"
-                                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                            />
-                                        </svg>
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                                            <span className="text-white text-sm font-black leading-none">3/3</span>
-                                            <span className="text-zinc-500 text-[8px] font-black uppercase tracking-wider mt-0.5">Reels</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Texto explicativo */}
-                                    <div className="space-y-1 flex-1">
-                                        <h4 className="text-white text-sm font-bold leading-tight text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{
-                                            lineHeight: "1.3em",
-                                            fontSize: "1.2em",
-                                            paddingBottom: "0.7em"
-                                        }}>Has utilizado tus 3 reels gratuitos</h4>
-                                        <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{
-                                            fontSize: "0.95em",
-                                            lineHeight: "1.6em",
-                                            paddingBottom: "0.50em",
-                                            paddingTop: "0.3em"
-                                        }}>Ya utilizaste el contenido incluido en tu plan actual. Con Aprende Marketing Pro podrás preparar hasta 30 reels cada mes y mantener una publicación más constante.</p>
-                                    </div>
-                                </div>
-
-                                {/* Barra de Progreso Larga */}
-                                <div className="space-y-2 pt-2 border-t border-zinc-900/50">
-                                    <div className="flex items-center justify-between text-xs text-zinc-300 font-bold text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{
-                                        fontSize: "1em"
-                                    }}><span>Con Pro obtendrás</span></div>
-                                    <hr className="border-t-2 border-[#FF5A1F] opacity-90 rounded" />
-                                </div>
-
-                                {/* Características de valor con iconos de Imagen 2 */}
-                                <div className="space-y-4 pt-2">
-                                    <div className="flex items-center gap-3 text-xs text-zinc-300 text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{
-                                        fontSize: "1em"
-                                    }}>
-                                        <Calendar className="w-5 h-5 text-orange-500 shrink-0" />
-                                        <span>Desbloquear hasta 30 reels al mes</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-xs text-zinc-300 text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{
-                                        fontSize: "1em"
-                                    }}>
-                                        <Lightbulb className="w-5 h-5 text-orange-500 shrink-0" />
-                                        <span>Nuevos hooks, ángulos y formatos</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-xs text-zinc-300 text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{
-                                        fontSize: "1em"
-                                    }}>
-                                        <Play className="w-5 h-5 text-orange-500 fill-orange-500/10 shrink-0" />
-                                        <span>Más contenido para Instagram Reels y TikTok</span>
-                                    </div>
-                                </div>
-
-                                {/* Botón de desbloqueo */}
-                                <div className="pt-2">
-                                    <button 
-                                        onClick={() => setShowUpgradeModal(true)}
-                                        className="w-full py-4 bg-gradient-to-r from-orange-500 to-[#FF5A1F] hover:opacity-90 text-white rounded-xl font-bold text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-[#FF5A1F]/10 active:scale-98 transform hover:-translate-y-0.5"
-                                    >
-                                        <Crown className="w-4 h-4 fill-white" />
-                                        Desbloquear 30 reels al mes
-                                    </button>
-                                    <p className="text-white text-xs text-center mt-3 font-light">
-                                        Incluido en Aprende Marketing Pro por USD 39 al mes.
-                                    </p>
-                                </div>
-                            </div>
+                /* --- ESTADO LISTOS / ACTIVO (MENSAJE DE ÉXITO SIMPLIFICADO) --- */
+                <div className="w-full max-w-2xl mx-auto p-4 md:p-8 font-sans text-center space-y-8 my-auto">
+                    {/* Icono de éxito con resplandor */}
+                    <div className="relative inline-block">
+                        <div className="absolute inset-0 bg-[#FF5A1F]/20 blur-3xl rounded-full animate-pulse"></div>
+                        <div className="w-20 h-20 md:w-24 md:h-24 bg-[#FF5A1F]/10 border-2 border-[#FF5A1F]/30 rounded-3xl flex items-center justify-center mx-auto relative shadow-2xl shadow-[#FF5A1F]/20">
+                            <CheckCircle className="w-10 h-10 md:w-12 md:h-12 text-[#FF5A1F]" />
                         </div>
+                    </div>
 
-                        {/* Columna Derecha: Tarjetas de Reels Detalladas */}
-                        <div className="lg:col-span-12 xl:col-span-8 space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                                {currentDisplayHooks.slice(0, 3).map((hook, idx) => {
-                                    const hookTextStr = hook.hookText || hook.text || hook.title || hook.question || '';
-                                    const downloadVideoUrl = hook.contentJson?.downloadUrl || hook.contentJson?.videoUrl || hook.downloadUrl || hook.videoUrl;
+                    <div className="space-y-4">
+                        <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
+                            Tus 3 reels de atracción <span className="text-[#FF5A1F]">están listos</span>
+                        </h2>
+                        <p className="text-slate-300 text-base md:text-lg max-w-xl mx-auto font-normal leading-relaxed">
+                            Tus 3 reels de atracción fueron generados con éxito para tu proyecto <span className="text-white font-bold">{project?.name || "activo"}</span>. Podrás ver los guiones, editarlos y descargarlos directamente desde tu sección del proyecto.
+                        </p>
+                    </div>
 
-                                    const formats = ["Oportunidad", "Problema y solución", "Educación"];
-                                    const formattedDurations = ["0:35", "0:42", "0:38"];
-                                    const targets = ["Despertar interés", "Generar identificación", "Presentar la oportunidad"];
-                                    const destinations = isManicurista ? "Clase gratuita de manicuría" : "Clase gratuita de microblading";
+                    <div className="bg-[#0b0b0c]/80 border border-zinc-800/60 p-6 rounded-2xl max-w-xl mx-auto space-y-3 shadow-xl">
+                        <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">Tu sistema inicial está listo</h3>
+                        <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed">
+                            Tus 3 reels, tu página de captación y los textos para publicar ya están guardados dentro de tu proyecto.
+                        </p>
+                    </div>
 
-                                    return (
-                                        <div 
-                                            key={idx}
-                                            className="bg-[#0b0b0c]/90 border border-zinc-805/80 rounded-2xl p-4 overflow-hidden flex flex-col h-full shadow-lg group hover:border-[#FF5A1F]/30 hover:shadow-2xl hover:shadow-[#FF5A1F]/5 transition-all duration-300 relative"
-                                        >
-                                            {/* Tarjeta Cabecera */}
-                                            <div className="flex items-center justify-between pb-3 border-b border-zinc-800/55">
-                                                <span className="bg-[#FF5A1F]/10 border border-[#FF5A1F]/25 text-[#FF5A1F] text-[10px] font-black px-2.5 py-1 rounded-md tracking-wider">
-                                                    REEL {idx + 1}
-                                                </span>
-                                            </div>
-
-                                            {/* Video Cover Block & Título Superpuesto */}
-                                            <div className="relative aspect-[16/14.5] w-full mt-3 rounded-xl overflow-hidden border border-zinc-800/60 bg-zinc-950 flex flex-col justify-end p-4">
-                                                {(() => {
-                                                    const manicureImages = [
-                                                        "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=500", // gorgeous red nails close-up
-                                                        "https://images.unsplash.com/photo-1632345031435-8797b2d58045?auto=format&fit=crop&q=80&w=500", // manicure care close-up
-                                                        "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&q=80&w=500"  // luxury nails styling salon
-                                                    ];
-                                                    const microbladingImages = [
-                                                        "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&q=80&w=500", // eyebrow shaping/microblading
-                                                        "https://images.unsplash.com/photo-1621241804687-57a9773245f9?auto=format&fit=crop&q=80&w=500", // microblading precision tool
-                                                        "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&q=80&w=500"  // brows notebook training certification
-                                                    ];
-                                                    const imageUrl = isManicurista ? manicureImages[idx] : microbladingImages[idx];
-                                                    return (
-                                                        <img 
-                                                            src={imageUrl} 
-                                                            alt={`Reel ${idx + 1}`} 
-                                                            className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none opacity-40 brightness-[0.4] group-hover:scale-105 transition-transform duration-500"
-                                                            referrerPolicy="no-referrer"
-                                                        />
-                                                    );
-                                                })()}
-                                                
-                                                {/* Gradiente degradado elegante que oscurece el fondo de abajo hacia arriba */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-transparent z-0 pointer-events-none" />
-                                                
-                                                {/* Central play button */}
-                                                <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                                                    <Play className="w-4 h-4 text-black fill-black ml-0.5" />
-                                                </div>
-                                                
-                                                {/* Duration badge */}
-                                                <span className="absolute bottom-2.5 right-2.5 bg-black/70 backdrop-blur-md text-white text-[9px] font-bold px-1.5 py-0.5 rounded border border-white/5 z-10">
-                                                    {formattedDurations[idx]}
-                                                </span>
-
-                                                {/* Título en la parte inferior de la imagen sobre el degradado */}
-                                                <div className="relative z-10 w-full">
-                                                    <p 
-                                                        className="text-white text-[15px] font-black leading-snug tracking-tight text-center drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] animate-fade-in-up" 
-                                                        style={{
-                                                            fontSize: "1.1em",
-                                                            textAlign: "center",
-                                                            lineHeight: "1.3em"
-                                                        }}
-                                                    >
-                                                        {highlightText(hookTextStr)}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Fila de Propiedades con Labels Naranja y Sin Divisiones en Fila */}
-                                            <div className="mt-4 pt-3 border-t border-zinc-800/40 space-y-2">
-                                                <div className="flex justify-between items-center text-[13px]">
-                                                    <span className="text-[#FF5A1F] font-bold">Objetivo</span>
-                                                    <span className="text-zinc-100 font-medium text-right">{targets[idx]}</span>
-                                                </div>
-                                                <div className="flex justify-between items-center text-[13px]">
-                                                    <span className="text-[#FF5A1F] font-bold">Formato</span>
-                                                    <span className="text-zinc-100 font-medium text-right">{formats[idx]}</span>
-                                                </div>
-                                            </div>
-
-                                            {/* Botones de Acción */}
-                                            <div className="mt-5 space-y-2">
-                                                <a 
-                                                    href={downloadVideoUrl || "#"} 
-                                                    className="w-full py-3 bg-zinc-950 border border-[#FF5A1F] hover:bg-zinc-900 text-white rounded-xl font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-98 shadow-md"
-                                                >
-                                                    <Download className="w-3.5 h-3.5 text-white" />
-                                                    Descargar reel
-                                                </a>
-                                                <button 
-                                                    onClick={() => {
-                                                        const hookWithId = {
-                                                            ...hook,
-                                                            uniqueId: "hook-" + idx,
-                                                            hookText: hookTextStr
-                                                        };
-                                                        onOpenHookDetails?.(hookWithId);
-                                                    }} 
-                                                    className="w-full py-2.5 border border-zinc-800 hover:border-zinc-700 bg-zinc-900/40 hover:bg-zinc-900 text-zinc-300 rounded-xl font-bold text-[10px] flex items-center justify-center gap-1.5 transition-all active:scale-98 text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up"
-                                                    style={{
-                                                        fontSize: "0.90em"
-                                                    }}
-                                                >
-                                                    <FileText className="w-3.5 h-3.5 text-orange-500" />
-                                                    <span>Ver guion y texto</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Faja Inferior de Finalización */}
-                            <div className="bg-[#080809]/60 border border-zinc-800/80 rounded-3xl p-6 md:p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
-                                <div className="flex items-center gap-4 text-left flex-col sm:flex-row">
-                                    {/* Check circle con aura sutil verde */}
-                                    <div className="relative shrink-0 flex items-center justify-center">
-                                        <div className="absolute inset-0 bg-emerald-500/25 blur-xl rounded-full"></div>
-                                        <div className="w-14 h-14 rounded-full bg-emerald-950/40 border-2 border-emerald-500 flex items-center justify-center shadow-lg relative z-10">
-                                            <CheckCircle className="w-7 h-7 text-emerald-400" />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">Tu sistema inicial está listo</h3>
-                                        <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-1.5 animate-fade-in-up" style={{
-                                            fontSize: "1em"
-                                        }}>Tus 3 reels, tu página de captación y los textos para publicar ya están guardados dentro de tu proyecto.</p>
-
-                                    </div>
-                                </div>
-
-                                {/* Botón de Acción Final */}
-                                <div className="flex flex-col items-center w-full md:w-auto shrink-0">
-                                    <button 
-                                        onClick={() => onNext()}
-                                        className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-orange-500 to-[#FF5A1F] hover:opacity-95 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 shadow-lg shadow-[#FF5A1F]/10 transition-all uppercase tracking-wider whitespace-nowrap active:scale-98"
-                                    >
-                                        <Rocket className="w-4 h-4 text-white shrink-0 animate-bounce" />
-                                        <span>Finalizar y ver mi proyecto</span>
-                                    </button>
-                                    <span className="text-white text-xs text-center md:text-right mt-2 max-w-[280px] font-light">
-                                        Podrás descargar, revisar y gestionar todo desde tu panel del proyecto.
-                                    </span>
-                                </div>
-                            </div>
+                    <div className="pt-2 max-w-md mx-auto space-y-3">
+                        <button 
+                            onClick={() => onNext()}
+                            className="w-full py-4 md:py-5 px-8 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-2xl font-extrabold text-base md:text-lg uppercase tracking-wider transition-all shadow-xl shadow-[#FF5A1F]/20 active:scale-95 flex items-center justify-center gap-3 cursor-pointer"
+                        >
+                            <Rocket className="w-5 h-5 text-white shrink-0" />
+                            <span>FINALIZAR Y VER MI PROYECTO</span>
+                        </button>
+                        <div className="flex items-center justify-center gap-2 text-slate-400 text-xs font-medium">
+                            <Lock className="w-3.5 h-3.5" />
+                            <span>Podrás descargar, revisar y gestionar todo desde el panel de tu proyecto.</span>
                         </div>
                     </div>
                 </div>

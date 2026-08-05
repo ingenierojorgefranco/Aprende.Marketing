@@ -75,7 +75,7 @@ const UserProfileModal = React.lazy(() => import("../UserProfileModal"));
 
 interface OnboardingWizardProps {
   user: User;
-  onComplete: () => void;
+  onComplete: (projectId?: string | number) => void;
   onLogout?: () => void;
   onGenerationStateChange?: (isGenerating: boolean) => void;
   onUpdateUser?: (updatedUser: User) => void;
@@ -1192,11 +1192,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     const targetProjectId =
       unlockedProject?.id ||
       selectedProject?.id ||
-      userActiveProjects[0]?.id ||
-      "374";
-    navigate(`/dashboard/projects/${targetProjectId}/strategy`);
+      userActiveProjects[0]?.id;
+
     if (onComplete) {
-      onComplete();
+      onComplete(targetProjectId);
+    } else if (targetProjectId) {
+      navigate(`/dashboard/projects/${targetProjectId}/strategy`);
+    } else {
+      navigate("/dashboard/projects");
     }
   };
 
@@ -1395,7 +1398,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                             navigate(
                               `/dashboard/projects/${project.id}/strategy`,
                             );
-                            onComplete?.();
+                            onComplete?.(project.id);
                           }}
                           className="w-full py-4 bg-[#FF5A1F] text-white font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl shadow-[#FF5A1F]/20 hover:bg-[#D94A1E] transition-all flex items-center justify-center gap-2"
                         >
@@ -2223,9 +2226,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       if (!isHooksUnlocked) {
                         handleUnlockHooks();
                       } else {
-                        if (!revealedSections.includes("success")) {
-                          setStep("success");
-                        }
+                        handleFinishWizard();
                       }
                     }}
                     hooksRef={hooksRef}
