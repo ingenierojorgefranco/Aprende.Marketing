@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink, GraduationCap, Puzzle, Clock, Crown, Download, Calendar } from 'lucide-react';
+import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink, GraduationCap, Puzzle, Clock, Crown, Download, Calendar, Check } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface StepProps {
@@ -737,81 +737,81 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center space-y-6 md:space-y-8 max-w-4xl mx-auto px-4"
+            className="text-center space-y-4 md:space-y-6 max-w-4xl mx-auto px-4 font-sans"
         >
             {/* Títulos Principales */}
-            <div className="space-y-3 max-w-2xl mx-auto">
-                <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+            <div className="space-y-2 max-w-2xl mx-auto">
+                <h2 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
                     Tu estrategia inicial está lista
                 </h2>
             </div>
 
-            {/* Tarjeta Translúcida de Progreso ("Lo que ya está preparado") */}
-            <div className="w-full max-w-2xl mx-auto bg-[#0b0b0c]/60 border border-white/5 rounded-3xl p-6 md:p-8 space-y-6 text-left">
-                <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up text-left px-1 block" style={{ fontSize: '1em', color: '#a2afaf' }}>
+            {/* Tarjeta Translúcida de Progreso con Grid 2x2 */}
+            <div className="w-full max-w-3xl mx-auto bg-[#0b0b0c]/80 border border-white/5 rounded-3xl p-5 md:p-6 space-y-4 text-left shadow-2xl">
+                <p className="text-zinc-300 font-light text-xs md:text-sm leading-relaxed px-1 block">
                     Hemos preparado la base estratégica para promocionar el{" "}
                     <span className="text-[#FF5A1F] font-bold">
                         {project?.name || "Certificación Expert Microblading"}
                     </span>.
                 </p>
                 
-                <div className="space-y-3">
-                    {/* Item 1 - Producto */}
-                    <div className="flex items-center gap-4 bg-[#141416]/50 border border-white/5 p-4 rounded-2xl">
-                        <div className="w-11 h-11 bg-orange-500/5 border border-white/5 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    {/* Columna Izquierda - Item 1 */}
+                    <div className="flex items-start gap-3 bg-[#141416]/60 border border-white/5 p-4 rounded-2xl h-full">
+                        <div className="w-10 h-10 bg-orange-500/10 border border-[#FF5A1F]/20 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5">
                             <Package className="w-5 h-5 stroke-[2px]" />
                         </div>
-                        <div>
-                            <p className="text-white text-sm font-semibold tracking-tight">Producto seleccionado</p>
-                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{ fontSize: '1em', color: '#a2afaf' }}>{project?.name || "Curso Profesional de Microblading de Cejas"}</p>
+                        <div className="space-y-1">
+                            <p className="text-white text-xs md:text-sm font-bold tracking-tight">Producto seleccionado</p>
+                            <p className="text-zinc-400 font-light text-xs leading-relaxed">{project?.name || "Curso Profesional de Microblading de Cejas"}</p>
                         </div>
                     </div>
 
-                    {/* Item 2 - Público */}
-                    <div className="flex items-center gap-4 bg-[#141416]/50 border border-white/5 p-4 rounded-2xl">
-                        <div className="w-11 h-11 bg-orange-500/5 border border-white/5 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                    {/* Columna Derecha - Item 2 */}
+                    <div className="flex items-start gap-3 bg-[#141416]/60 border border-white/5 p-4 rounded-2xl h-full">
+                        <div className="w-10 h-10 bg-orange-500/10 border border-[#FF5A1F]/20 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5">
                             <Users className="w-5 h-5 stroke-[2px]" />
                         </div>
-                        <div>
-                            <p className="text-white text-sm font-semibold tracking-tight">Público y necesidades</p>
-                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{ fontSize: '1em', color: '#a2afaf' }}>Audiencia, dolores, deseos y objeciones relacionados con el producto.</p>
+                        <div className="space-y-1">
+                            <p className="text-white text-xs md:text-sm font-bold tracking-tight">Público y necesidades</p>
+                            <p className="text-zinc-400 font-light text-xs leading-relaxed">Audiencia, dolores, deseos y objeciones relacionados con el producto.</p>
                         </div>
                     </div>
 
-                    {/* Item 3 - Estrategia */}
-                    <div className="flex items-center gap-4 bg-[#141416]/50 border border-white/5 p-4 rounded-2xl">
-                        <div className="w-11 h-11 bg-orange-500/5 border border-white/5 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                    {/* Columna Izquierda - Item 3 */}
+                    <div className="flex items-start gap-3 bg-[#141416]/60 border border-white/5 p-4 rounded-2xl h-full">
+                        <div className="w-10 h-10 bg-orange-500/10 border border-[#FF5A1F]/20 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5">
                             <Target className="w-5 h-5 stroke-[2px]" />
                         </div>
-                        <div>
-                            <p className="text-white text-sm font-semibold tracking-tight">Estrategia de comunicación</p>
-                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{ fontSize: '1em', color: '#a2afaf' }}>Ángulos de venta y mensajes iniciales para presentar la oportunidad.</p>
+                        <div className="space-y-1">
+                            <p className="text-white text-xs md:text-sm font-bold tracking-tight">Estrategia de comunicación</p>
+                            <p className="text-zinc-400 font-light text-xs leading-relaxed">Ángulos de venta y mensajes iniciales para presentar la oportunidad.</p>
                         </div>
                     </div>
 
-                    {/* Item 4 - Siguiente Paso (Destacado) */}
-                    <div className="flex items-start gap-4 bg-orange-500/[0.02] border border-[#FF5A1F]/30 p-5 rounded-2xl shadow-[0_4px_30px_rgba(255,90,31,0.03)]">
-                        <div className="w-11 h-11 bg-orange-500/10 border border-[#FF5A1F]/20 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5">
+                    {/* Columna Derecha - Item 4 */}
+                    <div className="flex items-start gap-3 bg-orange-500/[0.03] border border-[#FF5A1F]/30 p-4 rounded-2xl h-full shadow-[0_4px_20px_rgba(255,90,31,0.05)]">
+                        <div className="w-10 h-10 bg-orange-500/15 border border-[#FF5A1F]/30 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5">
                             <Sparkles className="w-5 h-5 stroke-[2px]" />
                         </div>
-                        <div>
-                            <p className="text-white text-sm font-semibold tracking-tight">Siguiente paso</p>
-                            <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up" style={{ fontSize: '1em', color: '#a2afaf' }}>
-                                Ahora crearemos tu página web de captura de clientes. La página incluirá textos profesionales que atraerán personas realmente interesadas.
+                        <div className="space-y-1">
+                            <p className="text-white text-xs md:text-sm font-bold tracking-tight">Siguiente paso</p>
+                            <p className="text-zinc-300 font-light text-xs leading-relaxed">
+                                Crear tu página web de captura de clientes con textos profesionales para atraer compradores.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Botón de Acción Principal (Naranja Vibrante) */}
-            <div className="flex flex-col items-center gap-3 pt-2">
+            {/* Botón de Acción Principal (Naranja Vibrante Centrado) */}
+            <div className="flex justify-center pt-2">
                 <button 
                     onClick={() => onNext()}
-                    className="w-full max-w-md py-4 px-6 bg-[#FF5A1F] hover:bg-[#FF7A42] text-white rounded-2xl font-extrabold text-base transition-all shadow-lg shadow-[#FF5A1F]/10 flex items-center justify-between gap-3 active:scale-[0.98] focus:outline-none"
+                    className="py-3.5 px-8 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-black text-sm md:text-base tracking-wide transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer"
                 >
                     <Rocket className="w-5 h-5 shrink-0" />
-                    <span className="flex-1 text-center font-bold">Crear mi página web</span>
+                    <span>Crear mi página web</span>
                     <ArrowRight className="w-5 h-5 shrink-0" />
                 </button>
             </div>
@@ -1048,249 +1048,129 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
                     </div>
                 </div>
             ) : (
-                /* --- ESTADO PENDIENTE / PREVIEW (ISUNLOCKED === FALSE - VISTA EN DESARROLLO) --- */
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
-                    {/* Columna Izquierda: Configuración y Control */}
-                    <div className="lg:col-span-12 xl:col-span-5 flex flex-col justify-start space-y-6">
-                        <div className="space-y-6">
-                            {/* Identificador de paso */}
-                            <div className="space-y-2">
-                                <span className="text-[#FF5A1F] text-xs font-bold uppercase tracking-wider">
-                                    Paso 3 de 4 · Reels de atracción
-                                </span>
-                                <h1 className="text-3xl md:text-[2.5rem] lg:text-[2.75rem] font-extrabold text-white tracking-tight leading-[1.1] mt-3">
-                                    Preparemos tus <br />
-                                    <span className="text-[#FF5A1F]">3 reels</span> de atracción
-                                </h1>
-                                <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up">
-                                    Utilizaremos la estrategia de tu proyecto y tu página de captación para preparar contenido que dirija personas interesadas hacia tu clase gratuita.
-                                </p>
-                            </div>
+                /* --- ESTADO PENDIENTE / PREVIEW (ISUNLOCKED === FALSE - VISTA RESUMIDA) --- */
+                <div className="max-w-3xl mx-auto space-y-6 text-center font-sans">
+                    {/* Header */}
+                    <div className="space-y-2 max-w-2xl mx-auto">
+                        <span className="text-[#FF5A1F] text-xs font-bold uppercase tracking-wider">
+                            Paso 3 de 4 · Reels de atracción
+                        </span>
+                        <h1 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight leading-tight mt-1">
+                            Preparemos tus <span className="text-[#FF5A1F]">3 reels</span> de atracción
+                        </h1>
+                        <p className="text-zinc-300 font-light text-sm md:text-base leading-relaxed">
+                            Utilizaremos la estrategia de tu proyecto y tu página de captación para preparar contenido optimizado que dirija personas interesadas hacia tu clase gratuita.
+                        </p>
+                    </div>
 
-                            {/* Tarjeta Configuración recomendada */}
-                            <div className="bg-[#0b0b0c]/85 border border-zinc-800/80 rounded-2xl overflow-hidden p-5 space-y-4">
+                    {/* Tarjeta Principal Contenedora */}
+                    <div className="bg-[#0b0b0c]/85 border border-zinc-800/80 rounded-3xl p-5 md:p-8 space-y-6 text-left shadow-2xl">
+                        {/* Grid de Configuración & Beneficios */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Columna 1: Configuración recomendada */}
+                            <div className="space-y-4">
                                 <h3 className="text-[#FF5A1F] text-xs font-bold tracking-wider uppercase flex items-center gap-2">
                                     <span className="w-1.5 h-4 bg-[#FF5A1F] rounded-full"></span>
                                     Configuración recomendada
                                 </h3>
-                                <div className="divide-y divide-zinc-800/40">
-                                    {/* Producto */}
-                                    <div className="flex items-center justify-between py-3 flex-wrap sm:flex-nowrap gap-3">
-                                        <div className="flex items-center gap-3 text-zinc-400 text-sm">
-                                            <Briefcase className="w-4 h-4 text-[#FF5A1F]" />
-                                            <span>Producto</span>
+                                <div className="divide-y divide-zinc-800/50 bg-[#141416]/60 border border-white/5 rounded-2xl p-4">
+                                    <div className="flex items-center justify-between py-2.5 gap-3">
+                                        <div className="flex items-center gap-2.5 text-zinc-400 text-xs md:text-sm">
+                                            <Briefcase className="w-4 h-4 text-[#FF5A1F] shrink-0" />
+                                            <span>Producto:</span>
                                         </div>
-                                        <span className="text-white text-sm font-semibold truncate text-right max-w-[240px]">
-                                            {project?.name || (isManicurista ? "Curso Profesional Certificado de Manicurista" : "Curso Profesional Certificado de Microblading de Cejas")}
+                                        <span className="text-white text-xs md:text-sm font-semibold truncate text-right max-w-[180px]">
+                                            {project?.name || (isManicurista ? "Curso de Manicurista" : "Curso de Microblading")}
                                         </span>
                                     </div>
-
-                                    {/* Objetivo */}
-                                    <div className="flex items-center justify-between py-3 flex-wrap sm:flex-nowrap gap-3">
-                                        <div className="flex items-center gap-3 text-zinc-400 text-sm">
-                                            <Target className="w-4 h-4 text-[#FF5A1F]" />
-                                            <span>Objetivo</span>
+                                    <div className="flex items-center justify-between py-2.5 gap-3">
+                                        <div className="flex items-center gap-2.5 text-zinc-400 text-xs md:text-sm">
+                                            <Target className="w-4 h-4 text-[#FF5A1F] shrink-0" />
+                                            <span>Objetivo:</span>
                                         </div>
-                                        <span className="text-white text-sm font-semibold text-right">
-                                            Llevar visitas hacia la clase gratuita
+                                        <span className="text-white text-xs md:text-sm font-semibold text-right">
+                                            Llevar visitas a la clase
                                         </span>
                                     </div>
-
-                                    {/* Canales */}
-                                    <div className="flex items-center justify-between py-3 flex-wrap sm:flex-nowrap gap-3">
-                                        <div className="flex items-center gap-3 text-zinc-400 text-sm">
-                                            <Smartphone className="w-4 h-4 text-[#FF5A1F]" />
-                                            <span>Canales</span>
+                                    <div className="flex items-center justify-between py-2.5 gap-3">
+                                        <div className="flex items-center gap-2.5 text-zinc-400 text-xs md:text-sm">
+                                            <Smartphone className="w-4 h-4 text-[#FF5A1F] shrink-0" />
+                                            <span>Canales:</span>
                                         </div>
-                                        <span className="text-white text-sm font-semibold text-right">
+                                        <span className="text-white text-xs md:text-sm font-semibold text-right">
                                             Instagram Reels y TikTok
                                         </span>
                                     </div>
-
-                                    {/* Formato */}
-                                    <div className="flex items-center justify-between py-3 flex-wrap sm:flex-nowrap gap-3 pb-2">
-                                        <div className="flex items-center gap-3 text-zinc-400 text-sm">
-                                            <Film className="w-4 h-4 text-[#FF5A1F]" />
-                                            <span>Formato</span>
+                                    <div className="flex items-center justify-between py-2.5 gap-3">
+                                        <div className="flex items-center gap-2.5 text-zinc-400 text-xs md:text-sm">
+                                            <Film className="w-4 h-4 text-[#FF5A1F] shrink-0" />
+                                            <span>Formato:</span>
                                         </div>
-                                        <span className="text-white text-sm font-semibold text-right">
-                                            Videos sin mostrar el rostro
+                                        <span className="text-white text-xs md:text-sm font-semibold text-right">
+                                            Sin mostrar el rostro
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Faja de Plan */}
-                            <div className="bg-orange-950/20 border border-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-3 rounded-full flex items-center gap-2 justify-center text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{
-                                fontSize: "1.1em"
-                            }}>
-                                <span>🎁 Plan gratuito · 3 reels disponibles</span>
+                            {/* Columna 2: Lo que obtendrás */}
+                            <div className="space-y-4">
+                                <h3 className="text-[#FF5A1F] text-xs font-bold tracking-wider uppercase flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
+                                    Lo que obtendrás
+                                </h3>
+                                <div className="space-y-3 bg-[#141416]/60 border border-white/5 rounded-2xl p-4">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+                                            <Check className="w-3 h-3" />
+                                        </div>
+                                        <div className="space-y-0.5">
+                                            <p className="text-white text-xs md:text-sm font-bold">3 Guiones Estratégicos</p>
+                                            <p className="text-zinc-400 text-xs">Estructurados para captar atención en los primeros 3 segundos.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+                                            <Check className="w-3 h-3" />
+                                        </div>
+                                        <div className="space-y-0.5">
+                                            <p className="text-white text-xs md:text-sm font-bold">Textos y CTAs Listos</p>
+                                            <p className="text-zinc-400 text-xs">Acompañamientos optimizados para copiar y publicar.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+                                            <Check className="w-3 h-3" />
+                                        </div>
+                                        <div className="space-y-0.5">
+                                            <p className="text-white text-xs md:text-sm font-bold">Edición y Personalización</p>
+                                            <p className="text-zinc-400 text-xs">Podrás verlos, editarlos y gestionarlos en tu panel cuando estén creados.</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Botones y Candado */}
-                        <div className="pt-6 border-t border-zinc-900 flex flex-col gap-4">
-                            <button 
-                                onClick={() => onNext()}
-                                className="px-8 py-5 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-xl font-black text-sm tracking-widest uppercase transition-all duration-200 flex items-center justify-center gap-2.5 w-full shadow-lg shadow-[#FF5A1F]/15 active:scale-98 transform hover:-translate-y-0.5"
-                            >
-                                <Sparkles className="w-4 h-4 shrink-0 animate-pulse fill-white" />
-                                PREPARAR MIS 3 REELS
-                            </button>
+                        {/* Faja de Plan */}
+                        <div className="bg-orange-950/20 border border-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2 justify-center">
+                            <span>🎁 Plan gratuito · 3 reels disponibles</span>
                         </div>
                     </div>
 
-                    {/* Columna Derecha: Vista Previa de los 3 Reels */}
-                    <div className="lg:col-span-12 xl:col-span-7 flex flex-col justify-between">
-                        <div className="flex flex-col bg-[#080809]/40 border border-zinc-800/60 rounded-3xl p-5 md:p-6 shadow-3xl">
-                            {/* Indicador superior */}
-                            <div className="flex items-start gap-3 mb-6">
-                                <span className="text-2xl mt-0.5 select-none text-[#FF5A1F]">🎬</span>
-                                <div>
-                                    <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">
-                                        Vista previa de tus 3 reels
-                                    </h3>
-                                    <p className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up mt-4 mb-4">
-                                        Estos son los enfoques que utilizaremos para preparar tus videos con los que atraerás audiencia cualificada.
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Grid de 3 Reels con diseño Vertical de Video */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 items-start">
-                                {currentDisplayHooks.slice(0, 3).map((hook, idx) => {
-                                    const hookTextStr = hook.hookText || hook.text || hook.title || hook.question || '';
-                                    const formats = ["Educativo", "Problema y solución", "Oportunidad"];
-                                    const formattedDurations = ["35 s", "42 s", "38 s"];
-                                    const targets = ["Despertar interés", "Generar identificación", "Presentar la oportunidad"];
-                                    const descriptions = [
-                                        "Contenido para educar y despertar curiosidad sobre el potencial de la técnica.",
-                                        "Contenido que identifica un error común y presenta la solución adecuada.",
-                                        "Contenido que muestra los beneficios y lo que puedes lograr con la formación adecuada."
-                                    ];
-
-                                    return (
-                                        <div 
-                                            key={idx}
-                                            className="bg-[#0b0b0c]/90 border border-zinc-805/80 rounded-2xl p-4 overflow-hidden flex flex-col h-full shadow-lg group hover:border-[#FF5A1F]/30 hover:shadow-2xl hover:shadow-[#FF5A1F]/5 transition-all duration-300 relative"
-                                        >
-                                            {/* Tarjeta Cabecera */}
-                                            <div className="flex items-center justify-between pb-3 border-b border-zinc-800/55">
-                                                <span className="bg-[#FF5A1F]/10 border border-[#FF5A1F]/25 text-[#FF5A1F] text-[10px] font-black px-2.5 py-1 rounded-md tracking-wider">
-                                                    REEL {idx + 1}
-                                                </span>
-                                            </div>
-
-                                            {/* Video Cover Block & Título Superpuesto */}
-                                            <div className="relative aspect-[16/14.5] w-full mt-3 rounded-xl overflow-hidden border border-zinc-800/60 bg-zinc-950 flex flex-col justify-end p-4">
-                                                {(() => {
-                                                    const manicureImages = [
-                                                        "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=500", // gorgeous red nails close-up
-                                                        "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=500", 
-                                                        "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=500"
-                                                    ];
-                                                    const microbladingImages = [
-                                                        "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&q=80&w=500", // eyebrow shaping/microblading
-                                                        "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&q=80&w=500",
-                                                        "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&q=80&w=500"
-                                                    ];
-                                                    const imageUrl = isManicurista ? manicureImages[idx] : microbladingImages[idx];
-                                                    return (
-                                                        <img 
-                                                            src={imageUrl} 
-                                                            alt={`Reel ${idx + 1}`} 
-                                                            className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none opacity-40 brightness-[0.4] group-hover:scale-105 transition-transform duration-500"
-                                                            referrerPolicy="no-referrer"
-                                                        />
-                                                    );
-                                                })()}
-                                                
-                                                {/* Gradiente degradado elegante que oscurece el fondo de abajo hacia arriba */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-transparent z-0 pointer-events-none" />
-                                                
-                                                {/* Título en la parte inferior de la imagen sobre el degradado */}
-                                                <div className="relative z-10 w-full">
-                                                    <p 
-                                                        className="text-white text-[15px] font-black leading-snug tracking-tight text-center drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)] animate-fade-in-up" 
-                                                        style={{
-                                                            fontSize: "1.2em",
-                                                            textAlign: "center",
-                                                            lineHeight: "1.3em"
-                                                        }}
-                                                    >
-                                                        {highlightText(hookTextStr)}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Fila de Propiedades Detallada Premium */}
-                                            <div className="mt-4 pt-4 border-t border-zinc-800/40 space-y-3.5 text-left flex-1 flex flex-col justify-between">
-                                                <div className="space-y-3">
-                                                    {/* Categoría / Formato con icono correspondiente */}
-                                                    <div className="flex items-center gap-1.5 text-orange-400 text-xs font-bold uppercase tracking-wider">
-                                                        {idx === 0 ? (
-                                                            <GraduationCap className="w-4 h-4 text-orange-500" />
-                                                        ) : idx === 1 ? (
-                                                            <Puzzle className="w-4 h-4 text-orange-500" />
-                                                        ) : (
-                                                            <Lightbulb className="w-4 h-4 text-orange-500" />
-                                                        )}
-                                                        <span>{formats[idx]}</span>
-                                                    </div>
-                                                    {/* Descripción detallada */}
-                                                    <p className="text-zinc-400 text-xs leading-relaxed font-light">
-                                                        {descriptions[idx]}
-                                                    </p>
-                                                </div>
-
-                                                <div className="space-y-2 mt-2">
-                                                    {/* Fila de Duración */}
-                                                    <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-zinc-900/50">
-                                                        <div className="flex items-center gap-1.5 text-zinc-500 font-medium">
-                                                            <Clock className="w-3.5 h-3.5 text-zinc-650" />
-                                                            <span>Duración estimada:</span>
-                                                        </div>
-                                                        <span className="text-zinc-300 font-bold">{formattedDurations[idx]}</span>
-                                                    </div>
-
-                                                    {/* Fila de Objetivo */}
-                                                    <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-zinc-900/50">
-                                                        <div className="flex items-center gap-1.5 text-zinc-500 font-medium">
-                                                            <Target className="w-3.5 h-3.5 text-zinc-650" />
-                                                            <span>Objetivo:</span>
-                                                        </div>
-                                                        <span className="text-zinc-300 font-semibold text-right">{targets[idx]}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Botones de Acción */}
-                                            {isUnlocked && (
-                                                <div className="mt-5 space-y-2">
-                                                    <button 
-                                                        onClick={() => onNext()}
-                                                        className="w-full py-3 bg-zinc-950 border border-[#FF5A1F] hover:bg-zinc-900 text-white rounded-xl font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-98 shadow-md"
-                                                    >
-                                                        <Download className="w-3.5 h-3.5 text-white" />
-                                                        Descargar reel
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => onNext()} 
-                                                        className="w-full py-2.5 border border-zinc-800 hover:border-zinc-700 bg-zinc-900/40 hover:bg-zinc-900 text-zinc-300 rounded-xl font-bold text-[10px] flex items-center justify-center gap-1.5 transition-all active:scale-98 text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up"
-                                                        style={{
-                                                            fontSize: "0.90em"
-                                                        }}
-                                                     >
-                                                         <FileText className="w-3.5 h-3.5 text-orange-500" />
-                                                         <span>Ver guion y texto</span>
-                                                     </button>
-                                                 </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
+                    {/* Botón de Acción Principal Centrado */}
+                    <div className="flex flex-col items-center gap-2 pt-1 max-w-md mx-auto">
+                        <button 
+                            onClick={() => onNext()}
+                            className="w-full py-4 px-8 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-black text-sm md:text-base uppercase tracking-wider transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
+                        >
+                            <Sparkles className="w-4 h-4 shrink-0 fill-white" />
+                            <span>PREPARAR MIS 3 REELS</span>
+                        </button>
+                        <p className="text-zinc-400 text-xs">
+                            Una vez generados, podrás verlos y editarlos directamente desde tu proyecto.
+                        </p>
                     </div>
                 </div>
             )}
