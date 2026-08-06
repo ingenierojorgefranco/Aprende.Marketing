@@ -20,72 +20,87 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-8 max-w-3xl mx-auto px-4 md:px-0 font-sans"
+            className="text-center space-y-6 max-w-4xl mx-auto px-4 font-sans"
         >
-            <div className="relative inline-block mb-2">
+            <div className="relative inline-block">
                 <div className="absolute inset-0 bg-[#FF5A1F]/30 blur-3xl opacity-30 animate-pulse rounded-full"></div>
-                <div className="w-20 h-20 bg-[#FF5A1F] rounded-2xl flex items-center justify-center mx-auto relative border border-white/15 shadow-2xl">
-                    <Sparkles className="w-10 h-10 text-white" />
+                <div className="w-16 h-16 bg-[#FF5A1F] rounded-2xl flex items-center justify-center mx-auto relative border border-white/15 shadow-2xl">
+                    <Sparkles className="w-8 h-8 text-white" />
                 </div>
             </div>
             
-            <div className="space-y-4" style={{ marginTop: '0' }}>
-                <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
+            <div className="space-y-2">
+                <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
                     ¡Hola, <span className="text-[#FF5A1F]">{userName}</span>!
                 </h1>
 
-                <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
+                <p className="text-white font-light text-base md:text-lg leading-relaxed max-w-2xl mx-auto animate-fade-in-up">
                     Hemos preparado los primeros pasos de acuerdo con tu experiencia, objetivos y recursos disponibles.
                 </p>
             </div>
 
-            <div className="bg-[#111111]/80 border border-white/5 p-6 md:p-8 rounded-[2rem] shadow-2xl relative overflow-hidden text-left mt-6">
-                <div className="text-center font-bold text-[#FF5A1F] uppercase tracking-wider text-xs md:text-sm mb-6 pb-2 border-b border-white/5">
+            <div className="bg-[#111111]/80 border border-white/5 p-5 md:p-6 rounded-[2rem] shadow-2xl relative overflow-hidden text-left">
+                <div className="text-center font-bold text-[#FF5A1F] uppercase tracking-wider text-xs md:text-sm mb-4 pb-2 border-b border-white/5">
                     Dentro del asistente vas a:
                 </div>
                 
-                <div className="space-y-6 relative z-10">
-                    {/* Paso 1 */}
-                    <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
-                            <Package className="w-6 h-6" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 relative z-10">
+                    {/* Columna Izquierda - Fila 1 */}
+                    <div className="flex items-start gap-3.5 bg-white/[0.02] p-3.5 rounded-xl border border-white/5">
+                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
+                            <Package className="w-5 h-5" />
                         </div>
                         <div className="space-y-1">
-                            <h3 className="font-extrabold text-white text-base md:text-lg leading-tight">
+                            <h3 className="font-extrabold text-white text-sm md:text-base leading-tight">
                                 Definir el producto que vas a promocionar
                             </h3>
-                            <p className="text-zinc-400 font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{ color: '#c5c5c5', fontSize: '1.07em', lineHeight: '1.5em' }}>
+                            <p className="text-zinc-300 font-light text-xs md:text-sm leading-relaxed">
                                 Selecciona cualquiera de los productos digitales que nuestros profesionales han elegido para ti
                             </p>
                         </div>
                     </div>
 
-                    {/* Paso 2 */}
-                    <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
-                            <Target className="w-6 h-6" />
+                    {/* Columna Derecha - Fila 1 */}
+                    <div className="flex items-start gap-3.5 bg-white/[0.02] p-3.5 rounded-xl border border-white/5">
+                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
+                            <FileText className="w-5 h-5" />
                         </div>
                         <div className="space-y-1">
-                            <h3 className="font-extrabold text-white text-base md:text-lg leading-tight">
-                                Construir la estrategia de tu proyecto
+                            <h3 className="font-extrabold text-white text-sm md:text-base leading-tight">
+                                Preparar tus recursos de lanzamiento
                             </h3>
-                            <p className="text-zinc-400 font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{ color: '#c5c5c5', fontSize: '1.07em', lineHeight: '1.5em' }}>
-                                Definiremos tu audiencia, público objetivo y mejor estrategia de ventas para tu producto elegido
+                            <p className="text-zinc-300 font-light text-xs md:text-sm leading-relaxed">
+                                Generaremos tu página web, el contenido inicial y los videos para atraer visitantes interesados
                             </p>
                         </div>
                     </div>
 
-                    {/* Paso 3 */}
-                    <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
-                            <FileText className="w-6 h-6" />
+                    {/* Columna Izquierda - Fila 2 */}
+                    <div className="flex items-start gap-3.5 bg-white/[0.02] p-3.5 rounded-xl border border-white/5">
+                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
+                            <Target className="w-5 h-5" />
                         </div>
                         <div className="space-y-1">
-                            <h3 className="font-extrabold text-white text-base md:text-lg leading-tight">
-                                Preparar tus recursos de lanzamiento
+                            <h3 className="font-extrabold text-white text-sm md:text-base leading-tight">
+                                Construir la estrategia de tu proyecto
                             </h3>
-                            <p className="text-zinc-400 font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{ color: '#c5c5c5', fontSize: '1.07em', lineHeight: '1.5em' }}>
-                                Generaremos tu página web, el contenido inicial y los videos para atraer visitantes interesados desde tus redes sociales.
+                            <p className="text-zinc-300 font-light text-xs md:text-sm leading-relaxed">
+                                Definiremos tu audiencia, público objetivo y mejor estrategia de ventas para tu producto
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Columna Derecha - Fila 2 */}
+                    <div className="flex items-start gap-3.5 bg-white/[0.02] p-3.5 rounded-xl border border-white/5">
+                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
+                            <Rocket className="w-5 h-5" />
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="font-extrabold text-white text-sm md:text-base leading-tight">
+                                Activar tu sistema de atracción y ventas
+                            </h3>
+                            <p className="text-zinc-300 font-light text-xs md:text-sm leading-relaxed">
+                                Publica tus contenidos, atrae prospectos calificados y empieza a generar tus primeros clientes
                             </p>
                         </div>
                     </div>
@@ -95,10 +110,10 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
             <button 
                 onClick={() => !disabled && onNext()}
                 disabled={disabled}
-                className={`group flex items-center gap-3 px-8 py-5 ${disabled ? 'bg-zinc-800 cursor-not-allowed opacity-50 text-zinc-500' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] shadow-[0_12px_30px_-5px_rgba(255,90,31,0.4)] transform hover:-translate-y-1 active:scale-98'} text-white rounded-2xl font-black text-lg md:text-xl tracking-wide transition-all mx-auto`}
+                className={`group flex items-center gap-3 px-8 py-4 ${disabled ? 'bg-zinc-800 cursor-not-allowed opacity-50 text-zinc-500' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] shadow-[0_12px_30px_-5px_rgba(255,90,31,0.4)] transform hover:-translate-y-0.5 active:scale-98'} text-white rounded-2xl font-black text-base md:text-lg tracking-wide transition-all mx-auto cursor-pointer`}
             >
                 {disabled ? 'Configuración en proceso' : 'Crear mi primer proyecto'}
-                {!disabled && <ChevronRight className="w-6 h-6 group-hover:translate-x-1.5 transition-transform" />}
+                {!disabled && <ChevronRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />}
             </button>
         </motion.div>
     );
@@ -288,7 +303,7 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
     if (project.shortDescription || project.description) {
         idealText = project.shortDescription || project.description;
     } else if (isCejasOrMicroblading) {
-        idealText = "Una oportunidad ideal para personas interesadas en belleza, contenido visual y una estrategia basada en clase gratuita.";
+        idealText = "Transforma tu pasión por la belleza en un negocio de alto valor dominando la técnica de microblading hiperrealista desde cero. Logra independencia financiera diseñando miradas perfectas con certificación profesional.";
     } else if (project.name?.toLowerCase().includes("manicurista")) {
         idealText = "Una oportunidad ideal para personas creativas que disfrutan del cuidado de manos y uñas y quieren profesionalizar sus servicios.";
     } else if (project.name?.toLowerCase().includes("pestañas") || project.name?.toLowerCase().includes("lashista")) {
@@ -306,187 +321,147 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
         <motion.div 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-8 font-sans max-w-6xl mx-auto px-4 md:px-0"
+            className="space-y-4 font-sans max-w-5xl mx-auto px-4 md:px-0"
         >
-            {/* Header / Title Area */}
-            <div className="text-center space-y-3">
-                <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+            {/* Header / Title Area compact */}
+            <div className="text-center space-y-1">
+                <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">
                     Revisa el producto antes de crear tu estrategia
                 </h2>
             </div>
 
             {/* Main Rounded Component Container */}
-            <div className="bg-[#0A0A0A] border border-white/10 rounded-3xl overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] p-6 md:p-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            <div className="bg-[#0A0A0A] border border-white/10 rounded-3xl overflow-hidden shadow-2xl p-5 md:p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
                     
-                    {/* Left Column - Product details */}
-                    <div className="space-y-6 flex flex-col justify-start">
-                        <div className="space-y-6">
-                            {/* Niche/Category badge top left */}
-                            <div>
-                                <span className={`inline-flex items-center gap-1 px-3 py-1.5 ${isCejasOrMicroblading ? 'bg-[#200A03] border-[#FF5A1F] text-[#FF5A1F]' : 'bg-[#FF5A1F]/10 border-[#FF5A1F]/20 text-[#FF5A1F]'} border text-[10px] md:text-xs font-black uppercase tracking-wider rounded-lg`}>
-                                    {uppercaseNiche}
-                                </span>
-                            </div>
-
-                            {/* Product Title and Description */}
-                            <div className="space-y-3">
-                                <h3 className="text-2xl md:text-4xl font-extrabold text-white leading-tight tracking-tight">
-                                    {displayTitle}
-                                </h3>
-                                <p 
-                                    className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" 
-                                    style={{ fontSize: "1.06rem", lineHeight: "1.6rem" }}
-                                >
-                                    {idealText}
-                                </p>
-                            </div>
+                    {/* Left Column - Badge, Title, Description, Video */}
+                    <div className="lg:col-span-7 space-y-4">
+                        {/* 1. Niche/Category badge */}
+                        <div>
+                            <span className={`inline-flex items-center gap-1 px-3 py-1 ${isCejasOrMicroblading ? 'bg-[#200A03] border-[#FF5A1F] text-[#FF5A1F]' : 'bg-[#FF5A1F]/10 border-[#FF5A1F]/20 text-[#FF5A1F]'} border text-[10px] md:text-xs font-black uppercase tracking-wider rounded-lg`}>
+                                {uppercaseNiche}
+                            </span>
                         </div>
 
-                        {/* Bottom stats cards */}
-                        <div className="space-y-3 pt-6 border-t border-white/5">
-                            <div className="flex flex-col gap-3">
-                                {/* Price Card (Naranja) */}
-                                <div className="bg-gradient-to-r from-[#FF5A1F]/15 via-[#FF5A1F]/5 to-transparent border border-[#FF5A1F]/40 rounded-xl p-3.5 flex items-center gap-4 hover:from-[#FF5A1F]/20 hover:border-[#FF5A1F]/60 hover:shadow-[0_8px_24px_-10px_rgba(255,90,31,0.35)] transition-all duration-300 group/item">
-                                    <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shadow-[0_0_15px_-3px_rgba(255,90,31,0.3)] group-hover/item:bg-[#FF5A1F]/20 group-hover/item:border-[#FF5A1F]/50 transition-all duration-300 shrink-0">
-                                        <Tag className="w-5 h-5 shrink-0" />
-                                    </div>
-                                    <div className="flex flex-col text-left">
-                                        <span className="text-[11px] font-bold text-[#FF5A1F] uppercase tracking-wider leading-none font-sans">Precio del producto</span>
-                                        <span className="text-[#FF5A1F] text-lg md:text-xl font-black tracking-tight mt-1.5 font-sans">
-                                            USD {project.fullPrice || '200'}
-                                        </span>
+                        {/* 2. Product Title */}
+                        <h3 className="text-2xl md:text-3xl font-extrabold text-white leading-tight tracking-tight">
+                            {displayTitle}
+                        </h3>
+
+                        {/* 3. Product Description */}
+                        <p className="text-zinc-300 font-light text-sm md:text-base leading-relaxed">
+                            {idealText}
+                        </p>
+
+                        {/* 4. Video directly below description */}
+                        <div className="relative group w-full aspect-video bg-zinc-900 rounded-2xl overflow-hidden border border-white/10 flex items-center justify-center shadow-lg mt-2">
+                            {project.multimedia_json?.heroImages?.[0] ? (
+                                <img 
+                                    src={project.multimedia_json.heroImages[0]} 
+                                    alt={project.name} 
+                                    referrerPolicy="no-referrer"
+                                    className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500" 
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
+                                    <Target className="w-10 h-10 text-[#FF5A1F] opacity-30 animate-pulse" />
+                                </div>
+                            )}
+                            
+                            {isCejasOrMicroblading && (
+                                <div className="absolute inset-0 flex items-center justify-end p-6 select-none pointer-events-none">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-neutral-950/80 to-neutral-955/95" />
+                                    
+                                    <div className="relative z-10 w-1/2 flex flex-col items-center text-center space-y-1.5 justify-center h-full pt-4">
+                                        <div className="text-[#DFB56C] font-serif text-3xl font-light tracking-widest leading-none">
+                                            M
+                                        </div>
+                                        <div className="w-6 h-[1px] bg-[#DFB56C]/30" />
+                                        <div className="text-white font-semibold text-[13px] md:text-[15px] tracking-[0.2em] uppercase leading-snug">
+                                            Microblading
+                                            <span className="block text-[11px] md:text-[12px] tracking-[0.3em] font-light text-zinc-100">de Cejas</span>
+                                        </div>
+                                        <div className="text-[#DFB56C]/80 font-mono text-[8px] md:text-[9px] tracking-[0.25em] uppercase font-bold pt-1">
+                                            Formación Profesional
+                                        </div>
                                     </div>
                                 </div>
+                            )}
 
-                                {/* Commission Card (Azul) */}
-                                <div className="bg-gradient-to-r from-blue-600/15 via-blue-950/5 to-transparent border border-blue-500/40 rounded-xl p-3.5 flex items-center gap-4 hover:from-blue-500/20 hover:border-blue-500/60 hover:shadow-[0_8px_24px_-10px_rgba(59,130,246,0.35)] transition-all duration-300 group/item">
-                                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shadow-[0_0_15px_-3px_rgba(59,130,246,0.3)] group-hover/item:bg-blue-500/20 group-hover/item:border-blue-500/50 transition-all duration-300 shrink-0">
-                                        <Percent className="w-5 h-5 shrink-0" />
-                                    </div>
-                                    <div className="flex flex-col text-left">
-                                        <span className="text-[11px] font-bold text-blue-400 uppercase tracking-wider leading-none font-sans">Comisión que obtendrás</span>
-                                        <span className="text-blue-400 text-lg md:text-xl font-black tracking-tight mt-1.5 font-sans">
-                                            {displayCommission} %
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Estimated Revenue / Profit Card (Verde) */}
-                                <div className="bg-gradient-to-r from-emerald-600/15 via-emerald-950/5 to-transparent border border-emerald-500/40 rounded-xl p-3.5 flex items-center gap-4 hover:from-emerald-500/20 hover:border-emerald-500/60 hover:shadow-[0_8px_24px_-10px_rgba(16,185,129,0.35)] transition-all duration-300 group/item">
-                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_-3px_rgba(16,185,129,0.3)] group-hover/item:bg-emerald-500/20 group-hover/item:border-emerald-500/50 transition-all duration-300 shrink-0">
-                                        <TrendingUp className="w-5 h-5 shrink-0" />
-                                    </div>
-                                    <div className="flex flex-col text-left">
-                                        <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider leading-none font-sans">Tu ganancia por venta</span>
-                                        <span className="text-emerald-400 text-lg md:text-xl font-black tracking-tight mt-1.5 font-sans">
-                                            USD {Math.round(parseFloat(profitValue))}
-                                        </span>
-                                    </div>
+                            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+                                <div className="w-14 h-14 bg-[#FF5A1F] rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform relative cursor-pointer">
+                                    <Play className="w-5 h-5 text-white fill-current translate-x-0.5" />
+                                    <div className="absolute inset-0 bg-[#FF5A1F] rounded-full animate-ping opacity-25"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Right Column - Video overlay, checklists and CTA buttons */}
-                    <div className="space-y-6">
-                        {/* Video / Image with Play Trigger */}
-                        <div className="space-y-2">
-                            <span className="text-zinc-400 text-xs font-bold uppercase tracking-wider">
-                                Conoce esta oportunidad en 90 segundos
-                            </span>
-                            <div className="relative group w-full aspect-video bg-zinc-900 rounded-2xl overflow-hidden border border-white/10 flex items-center justify-center shadow-lg">
-                                {project.multimedia_json?.heroImages?.[0] ? (
-                                    <img 
-                                        src={project.multimedia_json.heroImages[0]} 
-                                        alt={project.name} 
-                                        referrerPolicy="no-referrer"
-                                        className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500" 
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
-                                        <Target className="w-10 h-10 text-[#FF5A1F] opacity-30 animate-pulse" />
-                                    </div>
-                                )}
-                                
-                                {isCejasOrMicroblading && (
-                                    <div className="absolute inset-0 flex items-center justify-end p-6 select-none pointer-events-none">
-                                        {/* El degradado horizontal de izquierda a derecha */}
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-neutral-950/80 to-neutral-955/95" />
-                                        
-                                        {/* Logotipo dorado "M" y marca */}
-                                        <div className="relative z-10 w-1/2 flex flex-col items-center text-center space-y-1.5 justify-center h-full pt-4">
-                                            {/* Logo de la M dorada */}
-                                            <div className="text-[#DFB56C] font-serif text-3xl font-light tracking-widest leading-none">
-                                                M
-                                            </div>
-                                            
-                                            {/* Separador de marca sutil */}
-                                            <div className="w-6 h-[1px] bg-[#DFB56C]/30" />
-                                            
-                                            {/* Título de la marca */}
-                                            <div className="text-white font-semibold text-[13px] md:text-[15px] tracking-[0.2em] uppercase leading-snug">
-                                                Microblading
-                                                <span className="block text-[11px] md:text-[12px] tracking-[0.3em] font-light text-zinc-100">de Cejas</span>
-                                            </div>
-                                            
-                                            {/* Subtítulo */}
-                                            <div className="text-[#DFB56C]/80 font-mono text-[8px] md:text-[9px] tracking-[0.25em] uppercase font-bold pt-1">
-                                                Formación Profesional
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                    {/* Right Column - Pricing cards & Actions */}
+                    <div className="lg:col-span-5 space-y-6 flex flex-col justify-between h-full pt-2 lg:pt-0">
+                        {/* Metrics Cards */}
+                        <div className="space-y-3.5">
+                            {/* Price Card */}
+                            <div className="bg-gradient-to-r from-[#FF5A1F]/15 via-[#FF5A1F]/5 to-transparent border border-[#FF5A1F]/40 rounded-xl p-4 flex items-center gap-4 hover:from-[#FF5A1F]/20 hover:border-[#FF5A1F]/60 transition-all duration-300 group/item">
+                                <div className="w-11 h-11 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                    <Tag className="w-5 h-5 shrink-0" />
+                                </div>
+                                <div className="flex flex-col text-left">
+                                    <span className="text-[11px] font-bold text-[#FF5A1F] uppercase tracking-wider leading-none font-sans">Precio del producto</span>
+                                    <span className="text-[#FF5A1F] text-xl font-black tracking-tight mt-1 font-sans">
+                                        USD {project.fullPrice || '200'}
+                                    </span>
+                                </div>
+                            </div>
 
-                                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/25 transition-colors flex items-center justify-center">
-                                    <div className="w-16 h-16 bg-[#FF5A1F] rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform relative cursor-pointer">
-                                        <Play className="w-6 h-6 text-white fill-current translate-x-0.5" />
-                                        <div className="absolute inset-0 bg-[#FF5A1F] rounded-full animate-ping opacity-25"></div>
-                                    </div>
+                            {/* Commission Card */}
+                            <div className="bg-gradient-to-r from-blue-600/15 via-blue-950/5 to-transparent border border-blue-500/40 rounded-xl p-4 flex items-center gap-4 hover:from-blue-500/20 hover:border-blue-500/60 transition-all duration-300 group/item">
+                                <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+                                    <Percent className="w-5 h-5 shrink-0" />
+                                </div>
+                                <div className="flex flex-col text-left">
+                                    <span className="text-[11px] font-bold text-blue-400 uppercase tracking-wider leading-none font-sans">Comisión que obtendrás</span>
+                                    <span className="text-blue-400 text-xl font-black tracking-tight mt-1 font-sans">
+                                        {displayCommission} %
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Profit Card */}
+                            <div className="bg-gradient-to-r from-emerald-600/15 via-emerald-950/5 to-transparent border border-emerald-500/40 rounded-xl p-4 flex items-center gap-4 hover:from-emerald-500/20 hover:border-emerald-500/60 transition-all duration-300 group/item">
+                                <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                                    <TrendingUp className="w-5 h-5 shrink-0" />
+                                </div>
+                                <div className="flex flex-col text-left">
+                                    <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider leading-none font-sans">Tu ganancia por venta</span>
+                                    <span className="text-emerald-400 text-xl font-black tracking-tight mt-1 font-sans">
+                                        USD {Math.round(parseFloat(profitValue))}
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Checklist Section */}
-                        <div className="space-y-3 pt-2">
-                            <h4 className="text-white text-sm md:text-base font-extrabold">Qué obtendrás</h4>
-                            <div className="space-y-2.5">
-                                <div className="flex items-center gap-3">
-                                    <Users className="w-4 h-4 text-[#FF5A1F]" />
-                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up">Audiencia y ángulo de venta</span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <FileText className="w-4 h-4 text-[#FF5A1F]" />
-                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up">Página de captación</span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <Mail className="w-4 h-4 text-[#FF5A1F]" />
-                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up">Contenido y seguimiento inicial</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Actions stack (Vertical flow identical to Image 2) */}
-                        <div className="flex flex-col gap-3 pt-2">
-                            {/* Choose primary strategy build button (Top button) */}
+                        {/* Action Buttons */}
+                        <div className="flex flex-col gap-3 pt-4 border-t border-white/5">
+                            {/* Choose product button */}
                             <button 
                                 type="button"
                                 onClick={() => !isStrategyGenerated && onNext()}
                                 disabled={isStrategyGenerated}
-                                className={`w-full py-4 px-6 ${isStrategyGenerated ? 'bg-emerald-600' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-xl font-black text-xs md:text-sm uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 group`}
+                                className={`w-full py-4 px-6 ${isStrategyGenerated ? 'bg-emerald-600' : 'bg-[#FF5A1F] hover:bg-[#D94A1E]'} text-white rounded-xl font-black text-xs md:text-sm uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 group cursor-pointer`}
                             >
                                 <span>{isStrategyGenerated ? 'Estrategia Generada' : 'Elegir este producto y crear mi estrategia'}</span>
                                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </button>
 
-                            {/* Back selection button (Bottom button) */}
+                            {/* Back selection button */}
                             {onBackToSelection && (
                                 <button 
                                     type="button"
                                     onClick={onBackToSelection}
-                                    className="w-full py-3 px-4 bg-transparent hover:bg-white/[0.04] text-white hover:text-zinc-200 border border-white/20 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+                                    className="w-full py-3 px-4 bg-transparent hover:bg-white/[0.04] text-zinc-300 hover:text-white border border-white/20 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                                 >
-                                    <span>← Volver a los productos</span>
+                                    <span>Volver a los otros productos</span>
                                 </button>
                             )}
                         </div>
