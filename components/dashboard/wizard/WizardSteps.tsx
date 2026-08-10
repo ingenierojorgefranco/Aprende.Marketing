@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink, GraduationCap, Puzzle, Clock, Crown, Download, Calendar, Check, X } from 'lucide-react';
+import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink, GraduationCap, Puzzle, Clock, Crown, Download, Calendar, Check, X, AlertTriangle } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface StepProps {
@@ -321,8 +321,41 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                 const displayTitle = confirmingProject.name?.toLowerCase().includes("microblading") 
                     ? "Curso Profesional de Microblading de Cejas" 
                     : confirmingProject.name;
-                const displayDescription = confirmingProject.description || confirmingProject.shortDescription || 
-                    "Transforma tu pasión por la belleza en un negocio de alto valor dominando la técnica de microblading hiperrealista desde cero. Logra independencia financiera diseñando miradas perfectas con certificación profesional.";
+                // Helper to extract a clean, short description from the project data
+                const getCleanShortDescription = (proj: any) => {
+                    let raw = proj?.shortDescription 
+                        || proj?.strategy_json?.shortDescription 
+                        || proj?.strategy_json?.productDescription 
+                        || proj?.strategy_json?.summary;
+                    
+                    if (!raw && proj?.description) {
+                        raw = proj.description;
+                    }
+
+                    if (!raw) {
+                        return "Transforma tu pasión por la belleza en un negocio de alto valor dominando la técnica con certificación profesional.";
+                    }
+
+                    // Strip any HTML tags and collapse whitespace
+                    let cleaned = raw
+                        .replace(/<[^>]*>/g, ' ')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+
+                    // If it was a long description with numbered headers (e.g. "1. Introducción..."), trim to first concise sentence
+                    if (cleaned.length > 220) {
+                        const firstSentenceMatch = cleaned.match(/^([^.!?]{40,180}[.!?])/);
+                        if (firstSentenceMatch && firstSentenceMatch[1]) {
+                            cleaned = firstSentenceMatch[1].trim();
+                        } else {
+                            cleaned = cleaned.substring(0, 180).trim() + "...";
+                        }
+                    }
+
+                    return cleaned;
+                };
+
+                const displayDescription = getCleanShortDescription(confirmingProject);
 
                 return (
                     <div 
@@ -901,12 +934,13 @@ export const GenerationStep: React.FC<{
                 </p>
             </div>
 
-            {/* 5. Info card footer */}
-            <div className="flex items-center gap-3 justify-center text-zinc-300 text-sm md:text-base max-w-lg mx-auto pt-2 font-sans">
-                <Info className="w-6 h-6 text-[#FF5A1F] shrink-0" />
-                <div className="text-left">
-                    <p className="font-bold text-zinc-200 text-sm sm:text-base">Este proceso suele tardar unos instantes.</p>
-                    <p className="text-zinc-400 text-xs sm:text-sm">Te llevaremos automáticamente al siguiente paso cuando esté listo.</p>
+            {/* 5. Warning badge: Do not close page */}
+            <div className="flex items-center justify-center pt-2 font-sans max-w-lg mx-auto">
+                <div className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.25)] backdrop-blur-md">
+                    <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 animate-pulse" />
+                    <span className="text-xs sm:text-sm font-extrabold tracking-wide text-amber-200">
+                        Por favor, no cierres esta página. Estamos generando tu proyecto.
+                    </span>
                 </div>
             </div>
         </div>
