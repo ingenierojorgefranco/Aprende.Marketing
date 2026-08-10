@@ -95,7 +95,6 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, o
 
 // 2. SELECCIÓN DE PROYECTO
 export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loading: boolean, selectedProjectId?: string, isLocked?: boolean }> = ({ projects, loading, onNext, selectedProjectId, isLocked, onGoToStep }) => {
-    const [showCustomProduct, setShowCustomProduct] = React.useState(false);
     const [confirmingProject, setConfirmingProject] = React.useState<any | null>(null);
     const [activeCategory, setActiveCategory] = React.useState('Belleza');
 
@@ -152,11 +151,8 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
             {/* Header */}
             <div className="text-center space-y-3">
                 <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
-                    Elige el producto con el que crearás tu <span className="text-[#FF5A1F]">primer proyecto</span>
+                    Elige tu <span className="text-[#FF5A1F]">Producto Digital</span>
                 </h2>
-                <p className="max-w-2xl mx-auto leading-relaxed text-zinc-300 font-light text-sm md:text-base opacity-90">
-                    Elige el producto digital que mejor encaja con tu experiencia, intereses y
-                </p>
 
                 {/* Filter Pills Bar */}
                 <div className="flex items-center justify-center gap-2 md:gap-3 flex-wrap pt-3 pb-2">
@@ -275,10 +271,6 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
 
                                 {/* Stats & Action Button */}
                                 <div className="pt-3 border-t border-zinc-800/60 space-y-3 mt-auto">
-                                    <div className="text-zinc-400 text-xs font-medium text-center">
-                                        Comisión: <span className="text-white font-bold">{commissions[index]}</span> - Dificultad: <span className="text-white font-bold">{difficulties[index]}</span>
-                                    </div>
-
                                     <button 
                                         type="button"
                                         onClick={(e) => {
@@ -294,20 +286,6 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                         </motion.div>
                     );
                 })}
-            </div>
-
-            {/* Footer / Add My Product */}
-            <div className="flex flex-col items-center justify-center space-y-1 pt-6 text-center">
-                <button
-                    type="button"
-                    onClick={() => setShowCustomProduct(true)}
-                    className="text-zinc-300 hover:text-white transition-colors font-extrabold text-xs md:text-sm flex items-center justify-center gap-1.5 uppercase tracking-wider cursor-pointer"
-                >
-                    ¿YA TIENES UN PRODUCTO? <span className="underline text-[#FF5A1F]">AÑADIR MI PRODUCTO →</span>
-                </button>
-                <p className="text-zinc-500 text-xs font-light">
-                    O, si ya tienes uno en mente, simplemente añádelo ahora.
-                </p>
             </div>
 
             {/* Confirmation Modal (Image 2 content) */}
@@ -381,9 +359,6 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                 <h2 className="text-xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">
                                     ¿Estás seguro de elegir este producto digital?
                                 </h2>
-                                <p className="text-xs md:text-sm text-zinc-400 font-light">
-                                    Revisa el producto antes de crear tu estrategia
-                                </p>
                             </div>
 
                             {/* Inner Box Container */}
@@ -396,9 +371,6 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                     <h3 className="text-2xl md:text-3xl font-extrabold text-white leading-snug">
                                         {displayTitle}
                                     </h3>
-                                    <p className="text-zinc-300 text-xs md:text-sm font-light leading-relaxed">
-                                        {displayDescription}
-                                    </p>
                                 </div>
 
                                 {/* 2-Column Grid: Left Image, Right Metric Boxes */}
@@ -502,31 +474,6 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                     </div>
                 );
             })()}
-
-            {/* Toast/Modal for Add my product */}
-            {showCustomProduct && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
-                    <div className="bg-[#111] border border-[#FF5A1F]/30 p-6 md:p-8 rounded-3xl max-w-md w-full text-center space-y-6">
-                        <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500 mx-auto">
-                            <Sparkles className="w-6 h-6 animate-pulse" />
-                        </div>
-                        <div className="space-y-2">
-                            <h4 className="text-lg font-black text-white">¡Excelente! Pronto podrás subir tu producto</h4>
-                            <p className="text-xs md:text-sm text-zinc-400 leading-relaxed">
-                                Actualmente estamos optimizando el asistente para que puedas integrar cualquier producto de Hotmart o tu propio infoproducto. 
-                                Por ahora, te recomendamos seleccionar uno de nuestros nichos validados para que experimentes el poder de la estrategia instantánea de Aprende.Marketing.
-                            </p>
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => setShowCustomProduct(false)}
-                            className="px-6 py-2.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all"
-                        >
-                            Entendido
-                        </button>
-                    </div>
-                </div>
-            )}
         </motion.div>
     );
 };
@@ -780,13 +727,6 @@ export const GenerationStep: React.FC<{
         );
     }
 
-    let displaySubtitle = "Analizamos el producto seleccionado para crear la base inicial de tu estrategia.";
-    if (isWeb) {
-        displaySubtitle = "Crearemos tu página web profesional para capturar clientes interesados.";
-    } else if (isVideo) {
-        displaySubtitle = "Estamos creando los videos para atraer tus potenciales clientes.";
-    }
-
     const getCurrentTask = () => {
         if (progress < 33) {
             return {
@@ -877,9 +817,6 @@ export const GenerationStep: React.FC<{
             {/* 2. Titles */}
             <div className="space-y-3">
                 {displayTitle}
-                <p className="text-zinc-300 text-base md:text-lg font-normal max-w-lg mx-auto leading-relaxed">
-                    {displaySubtitle}
-                </p>
             </div>
 
             {/* 3. Selected Product Card */}
