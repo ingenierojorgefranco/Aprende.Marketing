@@ -181,7 +181,6 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full items-stretch">
                 {projects.slice(0, 3).map((project, index) => {
                     const isSelected = selectedProjectId === project.id;
-                    const isRecommended = index === 0;
 
                     // Descriptions customized to match design / fallback
                     const titles = [
@@ -216,21 +215,17 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                         <motion.div 
                             key={project.id}
                             whileHover={isLocked ? {} : { y: -6 }}
-                            className={`bg-[#0b0b0c] border ${
-                                isRecommended 
-                                    ? 'border-2 border-[#FF5A1F] shadow-[0_0_30px_rgba(255,90,31,0.2)]' 
-                                    : 'border-zinc-800/80 hover:border-zinc-700'
+                            className={`bg-[#0b0b0c] border border-zinc-800/80 hover:border-2 hover:border-[#FF5A1F] hover:shadow-[0_0_30px_rgba(255,90,31,0.25)] ${
+                                isSelected ? 'border-2 border-[#FF5A1F] shadow-[0_0_30px_rgba(255,90,31,0.2)]' : ''
                             } ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-3xl overflow-hidden group cursor-pointer transition-all flex flex-col h-full relative w-full`}
                             onClick={() => !isLocked && setConfirmingProject(project)}
                         >
-                            {/* Recommended Header Bar */}
-                            {isRecommended && (
-                                <div className="py-2 bg-[#FF5A1F] text-center w-full">
-                                    <span className="text-[10px] md:text-xs font-black text-white tracking-[0.1em] uppercase flex items-center justify-center gap-1">
-                                        ★ RECOMENDADO PARA COMENZAR
-                                    </span>
-                                </div>
-                            )}
+                            {/* Hover Header Bar */}
+                            <div className="py-2 bg-transparent group-hover:bg-[#FF5A1F] text-transparent group-hover:text-white text-center w-full transition-all duration-200 min-h-[32px] flex items-center justify-center">
+                                <span className="text-[10px] md:text-xs font-black tracking-[0.1em] uppercase flex items-center justify-center gap-1">
+                                    ★ SELECCIONAR ESTE PRODUCTO
+                                </span>
+                            </div>
 
                             {/* Card Content Padding */}
                             <div className="p-4 md:p-5 flex flex-col flex-grow space-y-4 justify-between">
@@ -721,7 +716,7 @@ export const GenerationStep: React.FC<{
         );
     } else {
         displayTitle = (
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
                 Estamos <span className="text-[#FF5A1F]">preparando</span> tu proyecto
             </h2>
         );
@@ -731,42 +726,42 @@ export const GenerationStep: React.FC<{
         if (progress < 33) {
             return {
                 title: isWeb 
-                    ? "Diseñando la estructura web" 
+                    ? "Estoy diseñando tu estructura web" 
                     : isVideo 
-                    ? "Estructurando contenidos de video" 
-                    : "Analizando el producto",
+                    ? "Estoy estructurando tus contenidos de video" 
+                    : "Estoy analizando tu producto",
                 description: isWeb 
-                    ? "Generando bloques, secciones y distribución visual persuasiva." 
+                    ? "Creando los bloques, secciones y la distribución visual persuasiva de tu sitio." 
                     : isVideo 
-                    ? "Definiendo ganchos, guiones y estructura para los reels." 
-                    : "Identificando su propuesta, público y principales beneficios."
+                    ? "Definiendo ganchos, guiones y la estructura ideal para tus reels." 
+                    : "Identificando su propuesta de valor, público objetivo y principales beneficios."
             };
         }
         if (progress < 66) {
             return {
                 title: isWeb 
-                    ? "Redactando textos persuasivos" 
+                    ? "Estoy redactando tus textos persuasivos" 
                     : isVideo 
-                    ? "Generando guiones de atracción" 
-                    : "Preparando la audiencia",
+                    ? "Estoy generando tus guiones de atracción" 
+                    : "Estoy preparando el perfil de tu audiencia",
                 description: isWeb 
                     ? "Escribiendo títulos profesionales y llamados a la acción de alta conversión." 
                     : isVideo 
-                    ? "Redactando llamadas a la acción y textos de alto impacto." 
-                    : "Organizando los perfiles de cliente que podrás revisar."
+                    ? "Redactando llamadas a la acción directas y textos de alto impacto." 
+                    : "Organizando los perfiles de clientes ideales que podrás revisar."
             };
         }
         return {
             title: isWeb 
-                ? "Publicando en la nube segura" 
+                ? "Estoy publicando tu sitio en la nube segura" 
                 : isVideo 
-                ? "Finalizando la producción" 
-                : "Construyendo la estrategia inicial",
+                ? "Estoy finalizando la producción de tus videos" 
+                : "Estoy construyendo tu estrategia inicial",
             description: isWeb 
-                ? "Desplegando tu página web optimizada para capturar clientes interesados." 
+                ? "Desplegando tu página web optimizada para que comiences a capturar clientes." 
                 : isVideo 
                 ? "Optimizando y organizando todo el material listo para tu proyecto." 
-                : "Preparando dolores, deseos y posibles ángulos de venta."
+                : "Preparando dolores, deseos y posibles ángulos de venta para tu oferta."
         };
     };
 
@@ -775,86 +770,57 @@ export const GenerationStep: React.FC<{
     const productName = project?.productName || project?.name || 'Curso Profesional de Microblading de Cejas';
 
     return (
-        <div className="flex flex-col items-center justify-center px-6 space-y-8 text-center max-w-xl mx-auto py-10 font-sans">
-            {onGoToStep && (
-                <div className="flex items-center justify-center gap-2 mb-2 flex-wrap">
-                    <button
-                        type="button"
-                        onClick={() => onGoToStep(1)}
-                        className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
-                    >
-                        <span>← Step 1</span>
-                        <span className="text-[10px] opacity-75">(Bienvenida)</span>
-                    </button>
-                    <span className="text-zinc-600 font-bold">•</span>
-                    <button
-                        type="button"
-                        onClick={() => onGoToStep(2)}
-                        className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
-                    >
-                        <span>← Step 2</span>
-                        <span className="text-[10px] opacity-75">(Elegir Proyecto)</span>
-                    </button>
-                    <span className="text-zinc-600 font-bold">•</span>
-                    <div
-                        className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FF5A1F] text-white shadow-[0_0_15px_rgba(255,90,31,0.35)]"
-                    >
-                        <span>Step 3</span>
-                        <span className="text-[10px] opacity-90">(Creando Web)</span>
-                    </div>
-                </div>
-            )}
-
+        <div className="flex flex-col items-center justify-center px-4 space-y-4 sm:space-y-5 text-center max-w-lg mx-auto py-2 sm:py-4 font-sans">
             {/* 1. Header with orange glow and slow spinning settings icon */}
             <div className="relative">
-                <div className="absolute inset-x-0 -top-12 -bottom-12 bg-[#FF5A1F]/20 blur-[80px] rounded-full animate-pulse transition-all duration-1000"></div>
-                <div className="relative w-28 h-28 rounded-3xl bg-[#0A0A0A] border-2 border-[#FF5A1F]/30 flex items-center justify-center shadow-[0_15px_60px_-15px_rgba(255,90,31,0.3)] group overflow-hidden">
-                    <Settings className="w-14 h-14 text-[#FF5A1F] animate-spin-slow" />
+                <div className="absolute inset-x-0 -top-8 -bottom-8 bg-[#FF5A1F]/20 blur-[60px] rounded-full animate-pulse transition-all duration-1000"></div>
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-[#0A0A0A] border-2 border-[#FF5A1F]/30 flex items-center justify-center shadow-[0_10px_40px_-10px_rgba(255,90,31,0.3)] group overflow-hidden">
+                    <Settings className="w-8 h-8 sm:w-10 sm:h-10 text-[#FF5A1F] animate-spin-slow" />
                     <div className="absolute inset-0 bg-gradient-to-tr from-[#FF5A1F]/5 to-transparent"></div>
                 </div>
             </div>
 
             {/* 2. Titles */}
-            <div className="space-y-3">
+            <div className="space-y-1.5">
                 {displayTitle}
             </div>
 
             {/* 3. Selected Product Card */}
-            <div className="w-full bg-white/[0.02] border border-white/5 rounded-2xl p-4 sm:p-5 flex items-center gap-4 text-left max-w-lg mx-auto shadow-xl">
-                <div className="w-20 md:w-24 aspect-video rounded-lg overflow-hidden relative shrink-0 bg-zinc-900 border border-white/10 flex items-center justify-center">
+            <div className="w-full bg-white/[0.02] border border-white/5 rounded-2xl p-3 sm:p-3.5 flex items-center gap-3 text-left shadow-xl">
+                <div className="w-16 sm:w-20 aspect-video rounded-lg overflow-hidden relative shrink-0 bg-zinc-900 border border-white/10 flex items-center justify-center">
                     <img referrerPolicy="no-referrer" src={imageUrl} alt={productName} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                        <div className="w-8 h-8 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-lg">
-                            <Play className="w-4 h-4 text-white fill-current translate-x-0.5" />
+                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-lg">
+                            <Play className="w-3.5 h-3.5 text-white fill-current translate-x-0.5" />
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-col">
-                    <span className="text-xs sm:text-sm font-bold text-[#FF5A1F] uppercase tracking-[0.15em]">PRODUCTO SELECCIONADO</span>
-                    <h4 className="text-white font-extrabold text-base md:text-lg leading-snug mt-1 line-clamp-2">{productName}</h4>
+                <div className="flex flex-col min-w-0">
+                    <span className="text-[10px] sm:text-xs font-bold text-[#FF5A1F] uppercase tracking-[0.15em]">PRODUCTO SELECCIONADO</span>
+                    <h4 className="text-white font-extrabold text-sm sm:text-base leading-snug mt-0.5 line-clamp-2">{productName}</h4>
                 </div>
             </div>
 
             {/* 4. Componente Dinámico de Progreso y Tarea Actual */}
-            <div className="w-full bg-[#0d0d0e]/90 border border-zinc-800/80 rounded-2xl p-6 space-y-4 max-w-lg mx-auto text-left shadow-2xl backdrop-blur-md font-sans">
+            <div className="w-full bg-[#0d0d0e]/90 border border-zinc-800/80 rounded-2xl p-4 sm:p-5 space-y-3 text-left shadow-2xl backdrop-blur-md font-sans">
                 {/* Cabecera: Título de la acción actual + Porcentaje al lado */}
                 <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-7 h-7 rounded-full border border-[#FF5A1F] bg-[#FF5A1F]/10 flex items-center justify-center shrink-0 relative">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-[#FF5A1F] bg-[#FF5A1F]/10 flex items-center justify-center shrink-0 relative">
                             <div className="absolute inset-0 rounded-full border-2 border-t-transparent border-[#FF5A1F] animate-spin"></div>
                             <div className="w-2 h-2 rounded-full bg-[#FF5A1F] animate-ping"></div>
                         </div>
-                        <span className="text-base sm:text-lg font-extrabold text-white truncate tracking-tight">
+                        <span className="text-sm sm:text-base font-extrabold text-white truncate tracking-tight">
                             {currentTask.title}
                         </span>
                     </div>
-                    <span className="text-lg sm:text-xl font-black text-[#FF5A1F] shrink-0 font-mono">
+                    <span className="text-base sm:text-lg font-black text-[#FF5A1F] shrink-0 font-mono">
                         {Math.round(progress)}%
                     </span>
                 </div>
 
                 {/* Barra de Progreso Dinámica */}
-                <div className="w-full bg-zinc-900 h-4 rounded-full overflow-hidden border border-white/10 p-0.5 relative shadow-inner">
+                <div className="w-full bg-zinc-900 h-3.5 rounded-full overflow-hidden border border-white/10 p-0.5 relative shadow-inner">
                     <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.max(progress, 4)}%` }}
@@ -866,16 +832,16 @@ export const GenerationStep: React.FC<{
                 </div>
 
                 {/* Texto explicativo de lo que hace en este momento */}
-                <p className="text-xs sm:text-sm text-zinc-400 font-light leading-relaxed">
+                <p className="text-sm sm:text-base text-white font-semibold leading-snug">
                     {currentTask.description}
                 </p>
             </div>
 
             {/* 5. Warning badge: Do not close page */}
-            <div className="flex items-center justify-center pt-2 font-sans max-w-lg mx-auto">
-                <div className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.25)] backdrop-blur-md">
-                    <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 animate-pulse" />
-                    <span className="text-xs sm:text-sm font-extrabold tracking-wide text-amber-200">
+            <div className="flex items-center justify-center pt-1 font-sans w-full">
+                <div className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/50 text-emerald-300 shadow-[0_0_25px_rgba(16,185,129,0.35)] backdrop-blur-md">
+                    <AlertTriangle className="w-5 h-5 text-emerald-400 shrink-0 animate-pulse" />
+                    <span className="text-xs sm:text-sm font-black tracking-wide text-emerald-200">
                         Por favor, no cierres esta página. Estamos generando tu proyecto.
                     </span>
                 </div>
