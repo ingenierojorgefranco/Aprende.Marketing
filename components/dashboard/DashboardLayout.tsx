@@ -361,12 +361,14 @@ export const DashboardLayout = ({
   const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin' && !hasCompletedSurvey;
   const isSurveyPending = !hasCompletedSurvey && user.role !== 'admin';
   const isWizardRoute = location.pathname.startsWith('/wizard');
-  const showWizard = isWizardRoute || (wizardEnabled && !isSurveyPending && !isLaunchRestricted && user.role !== 'admin' && pageCount === 0) || (typeof window !== 'undefined' && (localStorage.getItem('force_wizard_step') === 'success' || localStorage.getItem('force_wizard_step') === 'welcome' || localStorage.getItem('force_wizard_step') === 'selection'));
+  const showWizard = isWizardRoute || (wizardEnabled && !isSurveyPending && !isLaunchRestricted && user.role !== 'admin' && pageCount === 0) || (typeof window !== 'undefined' && (localStorage.getItem('force_wizard_step') === 'success' || localStorage.getItem('force_wizard_step') === 'welcome' || localStorage.getItem('force_wizard_step') === 'selection' || localStorage.getItem('force_wizard_step') === 'unlock'));
 
   useEffect(() => {
     if (showWizard && location.pathname === '/dashboard' && !isSurveyPending && !isLaunchRestricted) {
       const forced = typeof window !== 'undefined' ? localStorage.getItem('force_wizard_step') : null;
-      if (forced === 'selection') {
+      if (forced === 'unlock') {
+        navigate('/wizard/step-3', { replace: true });
+      } else if (forced === 'selection') {
         navigate('/wizard/step-2', { replace: true });
       } else {
         navigate('/wizard/step-1', { replace: true });

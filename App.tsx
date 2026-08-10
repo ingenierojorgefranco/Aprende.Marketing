@@ -361,6 +361,20 @@ const App: React.FC = () => {
         />
 
         <Route 
+          path="/wizard/step-3" 
+          element={
+            <ProtectedRoute>
+              <DashboardLayout
+                user={user!}
+                onLogout={handleLogout}
+                isOffline={isOffline}
+                onUpdateUser={setUser}
+              />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
           path="/wizard" 
           element={<Navigate to="/wizard/step-1" replace />} 
         />

@@ -85,6 +85,7 @@ interface OnboardingWizardProps {
 type WizardStep =
   | "welcome"
   | "selection"
+  | "unlock"
   | "generating_strategy"
   | "strategy_ready"
   | "show_avatars"
@@ -202,6 +203,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     }
     if (typeof window !== "undefined") {
       const fullPath = window.location.pathname + window.location.hash + window.location.search;
+      if (fullPath.includes("step-3") || fullPath.includes("unlock")) {
+        return "unlock";
+      }
       if (fullPath.includes("step-2") || fullPath.includes("selection")) {
         return "selection";
       }
@@ -209,6 +213,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         return "welcome";
       }
       const forced = localStorage.getItem("force_wizard_step");
+      if (forced === "unlock") return "unlock";
       if (forced === "selection") return "selection";
       if (forced === "success") return "success";
     }
@@ -226,12 +231,22 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       setRevealedSections(["selection"]);
       localStorage.setItem("force_wizard_step", "selection");
       navigate("/wizard/step-2");
+    } else if (s === 3 || s === "unlock") {
+      setStep("unlock");
+      setRevealedSections(["unlock"]);
+      localStorage.setItem("force_wizard_step", "unlock");
+      navigate("/wizard/step-3");
     }
   };
 
   useEffect(() => {
     const fullPath = location.pathname + location.hash + location.search;
-    if (fullPath.includes("step-2") || fullPath.includes("selection")) {
+    if (fullPath.includes("step-3") || fullPath.includes("unlock")) {
+      if (step !== "unlock") {
+        setStep("unlock");
+        setRevealedSections(["unlock"]);
+      }
+    } else if (fullPath.includes("step-2") || fullPath.includes("selection")) {
       if (step !== "selection") {
         setStep("selection");
         setRevealedSections(["selection"]);
@@ -838,9 +853,21 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     }
   };
 
-  const handleProjectSelection = (project: Project) => {
+  useEffect(() => {
+    if (projects.length > 0 && !selectedProject) {
+      const storedId = typeof window !== "undefined" ? localStorage.getItem("selected_wizard_project_id") : null;
+      const found = projects.find((p) => p.id === storedId);
+      setSelectedProject(found || projects[0]);
+    }
+  }, [projects, selectedProject]);
+
+  const handleProjectSelection = async (project: Project) => {
     setSelectedProject(project);
-    if (step !== "selection") setStep("selection");
+    if (typeof window !== "undefined") {
+      localStorage.setItem("selected_wizard_project_id", project.id);
+    }
+    setStep("generating_strategy");
+    await processStrategyUnlock(project);
   };
 
   const handleUnlockConfirm = async () => {
@@ -849,15 +876,16 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     await processStrategyUnlock();
   };
 
-  const processStrategyUnlock = async () => {
-    if (!selectedProject) return;
+  const processStrategyUnlock = async (targetProject?: Project) => {
+    const proj = targetProject || selectedProject;
+    if (!proj) return;
 
     try {
       setGenerationProgress(10);
       setGenerationStatus("Estoy creando tu estrategia de Ventas");
 
       // 1. Desbloquear proyecto
-      const unlocked = await api.unlockProject(selectedProject.id, {
+      const unlocked = await api.unlockProject(proj.id, {
         registered_via: "wizard",
         initial_setup: true,
       });
@@ -865,7 +893,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       setUnlockedProject(
         fullUnlockedProject || {
           ...unlocked,
-          masterParentId: selectedProject.id,
+          masterParentId: proj.id,
         },
       );
 
@@ -880,7 +908,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       setGenerationStatus("¡Estrategia Lista!");
 
       setTimeout(() => {
-        setStep("strategy_ready");
+        handleCreateWeb();
       }, 800);
     } catch (error: any) {
       console.error("Error en desbloqueo:", error);
@@ -1935,25 +1963,39 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               isLocked={!!strategyData}
               onGoToStep={(s) => goToStep(s)}
             />
-
-            {selectedProject && (
-              <motion.div
-                ref={unlockRef}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-6xl mx-auto px-4 md:px-6 pt-8 pb-12 relative overflow-hidden"
-              >
-                <UnlockProtocolStep
-                  project={selectedProject}
-                  userData={user}
-                  onNext={handleUnlockConfirm}
-                  isStrategyGenerated={!!strategyData}
-                  onBackToSelection={() => {
-                    setSelectedProject(null);
-                    goToStep(2);
-                  }}
-                />
-              </motion.div>
+          </div>
+        ) : (step === "unlock" || step === "generating_strategy" || step === "creating_web") ? (
+          <div
+            ref={unlockRef}
+            className="w-full max-w-6xl mx-auto px-4 md:px-6 min-h-[calc(100vh-100px)] flex flex-col justify-center py-8 relative font-sans overflow-hidden"
+          >
+            {step === "generating_strategy" || step === "creating_web" ? (
+              <GenerationStep
+                progress={generationProgress}
+                status={generationStatus}
+                secondsElapsed={secondsElapsed}
+                message={
+                  step === "creating_web"
+                    ? "Crearé tu página web profesional para capturar clientes interesados."
+                    : undefined
+                }
+                project={selectedProject || unlockedProject}
+                onGoToStep={(s) => goToStep(s)}
+              />
+            ) : selectedProject ? (
+              <UnlockProtocolStep
+                project={selectedProject}
+                userData={user}
+                onNext={handleUnlockConfirm}
+                isStrategyGenerated={!!strategyData}
+                onBackToSelection={() => goToStep(2)}
+                onGoToStep={(s) => goToStep(s)}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center p-12 text-zinc-400 font-sans gap-3">
+                <div className="w-8 h-8 border-2 border-[#FF5A1F] border-t-transparent rounded-full animate-spin" />
+                <p>Cargando producto...</p>
+              </div>
             )}
           </div>
         ) : (
@@ -2016,22 +2058,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               )}
             </AnimatePresence>
 
-            {/* 3. GENERANDO ESTRATEGIA */}
-            {revealedSections.includes("generating_strategy") &&
-              step === "generating_strategy" && (
-                <div
-                  ref={strategyRef}
-                  className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
-                >
-                  <GenerationStep
-                    progress={generationProgress}
-                    status={generationStatus}
-                    secondsElapsed={secondsElapsed}
-                    project={selectedProject || unlockedProject}
-                  />
-                </div>
-              )}
-
             {/* 4. AVATARES */}
             {revealedSections.includes("strategy_ready") && (
               <div
@@ -2072,23 +2098,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                 />
               </div>
             )}
-
-            {/* 6. CREANDO WEB */}
-            {revealedSections.includes("creating_web") &&
-              step === "creating_web" && (
-                <div
-                  ref={creationRef}
-                  className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
-                >
-                  <GenerationStep
-                    progress={generationProgress}
-                    status={generationStatus}
-                    secondsElapsed={secondsElapsed}
-                    message="Crearé tu página web profesional para capturar clientes interesados."
-                    project={selectedProject || unlockedProject}
-                  />
-                </div>
-              )}
 
             {revealedSections.includes("landing_success") && (
               <div

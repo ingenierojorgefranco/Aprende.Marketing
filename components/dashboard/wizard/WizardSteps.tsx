@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink, GraduationCap, Puzzle, Clock, Crown, Download, Calendar, Check } from 'lucide-react';
+import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink, GraduationCap, Puzzle, Clock, Crown, Download, Calendar, Check, X } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface StepProps {
@@ -24,7 +24,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, o
             className="text-center space-y-8 max-w-3xl mx-auto px-4 font-sans py-4"
         >
             {/* Step Navigation Pill Bar */}
-            <div className="flex items-center justify-center gap-2 mb-2">
+            <div className="flex items-center justify-center gap-2 mb-2 flex-wrap">
                 <div
                     className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FF5A1F] text-white shadow-[0_0_15px_rgba(255,90,31,0.35)]"
                 >
@@ -39,6 +39,15 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, o
                 >
                     <span>Step 2 →</span>
                     <span className="text-[10px] opacity-75">(Elegir Proyecto)</span>
+                </button>
+                <span className="text-zinc-600 font-bold">•</span>
+                <button
+                    type="button"
+                    onClick={() => onGoToStep && onGoToStep(3)}
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
+                >
+                    <span>Step 3 →</span>
+                    <span className="text-[10px] opacity-75">(Revisar Producto)</span>
                 </button>
             </div>
 
@@ -87,6 +96,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, o
 // 2. SELECCIÓN DE PROYECTO
 export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loading: boolean, selectedProjectId?: string, isLocked?: boolean }> = ({ projects, loading, onNext, selectedProjectId, isLocked, onGoToStep }) => {
     const [showCustomProduct, setShowCustomProduct] = React.useState(false);
+    const [confirmingProject, setConfirmingProject] = React.useState<any | null>(null);
     const [activeCategory, setActiveCategory] = React.useState('Belleza');
 
     const categories = [
@@ -109,10 +119,10 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="space-y-8 font-sans max-w-[1240px] mx-auto px-2 md:px-4"
+            className="space-y-8 font-sans max-w-[1240px] mx-auto px-2 md:px-4 relative"
         >
             {/* Step Navigation Pill Bar */}
-            <div className="flex items-center justify-center gap-2 mb-2">
+            <div className="flex items-center justify-center gap-2 mb-2 flex-wrap">
                 <button
                     type="button"
                     onClick={() => onGoToStep && onGoToStep(1)}
@@ -128,6 +138,15 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                     <span>Step 2</span>
                     <span className="text-[10px] opacity-90">(Elegir Proyecto)</span>
                 </div>
+                <span className="text-zinc-600 font-bold">•</span>
+                <button
+                    type="button"
+                    onClick={() => onGoToStep && onGoToStep(3)}
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
+                >
+                    <span>Step 3 →</span>
+                    <span className="text-[10px] opacity-75">(Creando Web)</span>
+                </button>
             </div>
 
             {/* Header */}
@@ -206,7 +225,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                     ? 'border-2 border-[#FF5A1F] shadow-[0_0_30px_rgba(255,90,31,0.2)]' 
                                     : 'border-zinc-800/80 hover:border-zinc-700'
                             } ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-3xl overflow-hidden group cursor-pointer transition-all flex flex-col h-full relative w-full`}
-                            onClick={() => !isLocked && onNext(project)}
+                            onClick={() => !isLocked && setConfirmingProject(project)}
                         >
                             {/* Recommended Header Bar */}
                             {isRecommended && (
@@ -262,6 +281,10 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
 
                                     <button 
                                         type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (!isLocked) setConfirmingProject(project);
+                                        }}
                                         className="w-full py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-lg transition-all cursor-pointer"
                                     >
                                         ELEGIR ESTE PRODUCTO
@@ -286,6 +309,166 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                     O, si ya tienes uno en mente, simplemente añádelo ahora.
                 </p>
             </div>
+
+            {/* Confirmation Modal (Image 2 content) */}
+            {confirmingProject && (() => {
+                const rawCommission = confirmingProject.commissionRate || 58;
+                const displayCommission = rawCommission < 1 ? Math.round(rawCommission * 100) : Math.round(rawCommission);
+                const price = confirmingProject.price || 200;
+                const profit = Math.round((price * displayCommission) / 100);
+                const heroImage = confirmingProject.multimedia_json?.heroImages?.[0];
+                const categoryLabel = "BELLEZA Y CUIDADO PERSONAL";
+                const displayTitle = confirmingProject.name?.toLowerCase().includes("microblading") 
+                    ? "Curso Profesional de Microblading de Cejas" 
+                    : confirmingProject.name;
+                const displayDescription = confirmingProject.description || confirmingProject.shortDescription || 
+                    "Transforma tu pasión por la belleza en un negocio de alto valor dominando la técnica de microblading hiperrealista desde cero. Logra independencia financiera diseñando miradas perfectas con certificación profesional.";
+
+                return (
+                    <div 
+                        onClick={() => setConfirmingProject(null)}
+                        className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 md:p-6 z-50 overflow-y-auto animate-fade-in font-sans cursor-pointer"
+                    >
+                        <div 
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-[#0b0b0c] border border-zinc-800/90 rounded-3xl max-w-4xl w-full p-6 md:p-8 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative text-left my-auto space-y-6 cursor-default"
+                        >
+                            {/* Close X Button */}
+                            <button
+                                type="button"
+                                onClick={() => setConfirmingProject(null)}
+                                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-zinc-900/80 border border-zinc-700/60 hover:bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer z-10"
+                                title="Cerrar modal"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+
+                            {/* Header Text */}
+                            <div className="text-center space-y-1">
+                                <h2 className="text-xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">
+                                    ¿Estás seguro de elegir este producto digital?
+                                </h2>
+                                <p className="text-xs md:text-sm text-zinc-400 font-light">
+                                    Revisa el producto antes de crear tu estrategia
+                                </p>
+                            </div>
+
+                            {/* Inner Box Container */}
+                            <div className="bg-[#111113] border border-zinc-800/80 rounded-2xl p-5 md:p-7 space-y-6">
+                                {/* Category Badge & Title */}
+                                <div className="space-y-2">
+                                    <span className="px-3 py-1 bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 text-[#FF5A1F] text-[10px] md:text-xs font-black uppercase tracking-wider rounded-lg inline-block">
+                                        {categoryLabel}
+                                    </span>
+                                    <h3 className="text-2xl md:text-3xl font-extrabold text-white leading-snug">
+                                        {displayTitle}
+                                    </h3>
+                                    <p className="text-zinc-300 text-xs md:text-sm font-light leading-relaxed">
+                                        {displayDescription}
+                                    </p>
+                                </div>
+
+                                {/* 2-Column Grid: Left Image, Right Metric Boxes */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                                    {/* Left Column: Image with Play Overlay */}
+                                    <div className="relative rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800/80 aspect-video md:aspect-[4/3] flex items-center justify-center group shadow-md">
+                                        {heroImage ? (
+                                            <img 
+                                                src={heroImage} 
+                                                alt={confirmingProject.name} 
+                                                referrerPolicy="no-referrer"
+                                                className="w-full h-full object-cover" 
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-[#FF5A1F]/10 flex items-center justify-center">
+                                                <Package className="w-12 h-12 text-[#FF5A1F] opacity-40" />
+                                            </div>
+                                        )}
+                                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                            <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-[0_0_25px_rgba(255,90,31,0.6)] transform group-hover:scale-110 transition-transform cursor-pointer">
+                                                <Play className="w-7 h-7 fill-white ml-1" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Right Column: 3 Detail Metric Boxes */}
+                                    <div className="space-y-3">
+                                        {/* Box 1: Precio */}
+                                        <div className="bg-[#18181b]/90 border border-zinc-800 rounded-2xl p-4 flex items-center gap-4">
+                                            <div className="w-11 h-11 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
+                                                <Tag className="w-5 h-5 text-[#FF5A1F]" />
+                                            </div>
+                                            <div>
+                                                <span className="text-[10px] md:text-xs font-black text-zinc-400 uppercase tracking-wider block">
+                                                    PRECIO DEL PRODUCTO
+                                                </span>
+                                                <span className="text-lg md:text-xl font-extrabold text-white">
+                                                    USD {price}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Box 2: Comisión */}
+                                        <div className="bg-[#18181b]/90 border border-blue-900/40 rounded-2xl p-4 flex items-center gap-4">
+                                            <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                                                <Percent className="w-5 h-5 text-blue-400" />
+                                            </div>
+                                            <div>
+                                                <span className="text-[10px] md:text-xs font-black text-zinc-400 uppercase tracking-wider block">
+                                                    COMISIÓN QUE OBTENDRÁS
+                                                </span>
+                                                <span className="text-lg md:text-xl font-extrabold text-white">
+                                                    {displayCommission} %
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Box 3: Ganancia */}
+                                        <div className="bg-[#18181b]/90 border border-emerald-900/40 rounded-2xl p-4 flex items-center gap-4">
+                                            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                                                <TrendingUp className="w-5 h-5 text-emerald-400" />
+                                            </div>
+                                            <div>
+                                                <span className="text-[10px] md:text-xs font-black text-zinc-400 uppercase tracking-wider block">
+                                                    TU GANANCIA POR VENTA
+                                                </span>
+                                                <span className="text-lg md:text-xl font-extrabold text-white">
+                                                    USD {profit}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="space-y-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const p = confirmingProject;
+                                        setConfirmingProject(null);
+                                        onNext(p);
+                                    }}
+                                    className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_10px_30px_-5px_rgba(255,90,31,0.5)] transition-all cursor-pointer flex items-center justify-center gap-2 group"
+                                >
+                                    <span>ELEGIR ESTE PRODUCTO Y CREAR MI ESTRATEGIA</span>
+                                    <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setConfirmingProject(null)}
+                                    className="w-full py-3 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white font-bold text-xs md:text-sm uppercase tracking-wider rounded-2xl border border-zinc-800 transition-all cursor-pointer text-center"
+                                >
+                                    Elegir otro producto
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                );
+            })()}
 
             {/* Toast/Modal for Add my product */}
             {showCustomProduct && (
@@ -316,7 +499,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
 };
 
 // 2.5 SISTEMA DE DESBLOQUEO (Modal-like)
-export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategyGenerated?: boolean, onBackToSelection?: () => void }> = ({ project, onNext, isStrategyGenerated, onBackToSelection }) => {
+export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategyGenerated?: boolean, onBackToSelection?: () => void, onGoToStep?: (step: number) => void }> = ({ project, onNext, isStrategyGenerated, onBackToSelection, onGoToStep }) => {
     // Calculo de Comision que se mostrará
     const rawCommission = project.commissionRate || 80;
     const displayCommission = rawCommission < 1 ? Math.round(rawCommission * 100) : Math.round(rawCommission);
@@ -349,6 +532,34 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
             animate={{ opacity: 1, y: 0 }}
             className="space-y-4 font-sans max-w-5xl mx-auto px-4 md:px-0"
         >
+            {/* Step Navigation Pill Bar */}
+            <div className="flex items-center justify-center gap-2 mb-2 flex-wrap">
+                <button
+                    type="button"
+                    onClick={() => onGoToStep && onGoToStep(1)}
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
+                >
+                    <span>← Step 1</span>
+                    <span className="text-[10px] opacity-75">(Bienvenida)</span>
+                </button>
+                <span className="text-zinc-600 font-bold">•</span>
+                <button
+                    type="button"
+                    onClick={() => onGoToStep && onGoToStep(2)}
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
+                >
+                    <span>← Step 2</span>
+                    <span className="text-[10px] opacity-75">(Elegir Proyecto)</span>
+                </button>
+                <span className="text-zinc-600 font-bold">•</span>
+                <div
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FF5A1F] text-white shadow-[0_0_15px_rgba(255,90,31,0.35)]"
+                >
+                    <span>Step 3</span>
+                    <span className="text-[10px] opacity-90">(Revisar Producto)</span>
+                </div>
+            </div>
+
             {/* Header / Title Area compact */}
             <div className="text-center space-y-1">
                 <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">
@@ -506,7 +717,8 @@ export const GenerationStep: React.FC<{
     secondsElapsed?: number; 
     message?: string;
     project?: any;
-}> = ({ progress, status, secondsElapsed = 0, message, project }) => {
+    onGoToStep?: (step: number) => void;
+}> = ({ progress, status, secondsElapsed = 0, message, project, onGoToStep }) => {
     const isWeb = message?.toLowerCase().includes('web') || message?.toLowerCase().includes('página') || status?.toLowerCase().includes('página');
     const isVideo = message?.toLowerCase().includes('video') || message?.toLowerCase().includes('atracción') || message?.toLowerCase().includes('video') || status?.toLowerCase().includes('videos');
 
@@ -590,7 +802,36 @@ export const GenerationStep: React.FC<{
     const productName = project?.productName || project?.name || 'Curso Profesional de Microblading de Cejas';
 
     return (
-        <div className="flex flex-col items-center justify-center px-6 space-y-8 text-center max-w-xl mx-auto py-10">
+        <div className="flex flex-col items-center justify-center px-6 space-y-8 text-center max-w-xl mx-auto py-10 font-sans">
+            {onGoToStep && (
+                <div className="flex items-center justify-center gap-2 mb-2 flex-wrap">
+                    <button
+                        type="button"
+                        onClick={() => onGoToStep(1)}
+                        className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
+                    >
+                        <span>← Step 1</span>
+                        <span className="text-[10px] opacity-75">(Bienvenida)</span>
+                    </button>
+                    <span className="text-zinc-600 font-bold">•</span>
+                    <button
+                        type="button"
+                        onClick={() => onGoToStep(2)}
+                        className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
+                    >
+                        <span>← Step 2</span>
+                        <span className="text-[10px] opacity-75">(Elegir Proyecto)</span>
+                    </button>
+                    <span className="text-zinc-600 font-bold">•</span>
+                    <div
+                        className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FF5A1F] text-white shadow-[0_0_15px_rgba(255,90,31,0.35)]"
+                    >
+                        <span>Step 3</span>
+                        <span className="text-[10px] opacity-90">(Creando Web)</span>
+                    </div>
+                </div>
+            )}
+
             {/* 1. Header with orange glow and slow spinning settings icon */}
             <div className="relative">
                 <div className="absolute inset-x-0 -top-12 -bottom-12 bg-[#FF5A1F]/20 blur-[80px] rounded-full animate-pulse transition-all duration-1000"></div>
