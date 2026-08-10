@@ -1167,178 +1167,106 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
 
     return (
         <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-[1400px] mx-auto p-2 md:p-6 lg:p-8 font-sans"
-            style={{ paddingTop: 0 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center text-center space-y-6 max-w-2xl mx-auto px-4 py-8 font-sans"
         >
             {isUnlocked ? (
-                /* --- ESTADO LISTOS / ACTIVO (MENSAJE DE ÉXITO SIMPLIFICADO) --- */
-                <div className="w-full max-w-2xl mx-auto p-4 md:p-8 font-sans text-center space-y-8 my-auto">
-                    {/* Icono de éxito con resplandor */}
-                    <div className="relative inline-block">
-                        <div className="absolute inset-0 bg-[#FF5A1F]/20 blur-3xl rounded-full animate-pulse"></div>
-                        <div className="w-20 h-20 md:w-24 md:h-24 bg-[#FF5A1F]/10 border-2 border-[#FF5A1F]/30 rounded-3xl flex items-center justify-center mx-auto relative shadow-2xl shadow-[#FF5A1F]/20">
-                            <CheckCircle className="w-10 h-10 md:w-12 md:h-12 text-[#FF5A1F]" />
+                /* --- ESTADO LISTOS / ACTIVO (PANEL DE ÉXITO) --- */
+                <>
+                    {/* Icon Box */}
+                    <div className="relative">
+                        <div className="absolute inset-0 bg-[#FF5A1F]/20 blur-[50px] rounded-full animate-pulse"></div>
+                        <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#0d0d0e] border-2 border-[#FF5A1F]/40 flex items-center justify-center shadow-[0_10px_50px_-10px_rgba(255,90,31,0.35)]">
+                            <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-[#FF5A1F]" />
                         </div>
                     </div>
 
-                    <div className="space-y-4">
-                        <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
+                    {/* Titles */}
+                    <div className="space-y-3">
+                        <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
                             Tus 3 reels de atracción <span className="text-[#FF5A1F]">están listos</span>
                         </h2>
-                        <p className="text-slate-300 text-base md:text-lg max-w-xl mx-auto font-normal leading-relaxed">
+                        <p className="text-zinc-300 font-light text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
                             Tus 3 reels de atracción fueron generados con éxito para tu proyecto <span className="text-white font-bold">{project?.name || "activo"}</span>. Podrás ver los guiones, editarlos y descargarlos directamente desde tu sección del proyecto.
                         </p>
                     </div>
 
-                    <div className="bg-[#0b0b0c]/80 border border-zinc-800/60 p-6 rounded-2xl max-w-xl mx-auto space-y-3 shadow-xl">
-                        <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">Tu sistema inicial está listo</h3>
-                        <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed">
+                    {/* Card Content Box */}
+                    <div className="w-full bg-[#0d0d0e]/90 border border-zinc-800/80 rounded-3xl p-6 sm:p-8 space-y-3 text-center shadow-2xl backdrop-blur-md">
+                        <h3 className="text-white font-extrabold text-lg sm:text-xl tracking-tight">
+                            Tu sistema inicial está listo
+                        </h3>
+                        <p className="text-zinc-400 font-light text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
                             Tus 3 reels, tu página de captación y los textos para publicar ya están guardados dentro de tu proyecto.
                         </p>
                     </div>
 
-                    <div className="pt-2 max-w-md mx-auto space-y-3">
+                    {/* Action Button */}
+                    <div className="flex flex-col items-center gap-3 pt-2 w-full max-w-md">
                         <button 
+                            type="button"
                             onClick={() => onNext()}
-                            className="w-full py-4 md:py-5 px-8 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-2xl font-extrabold text-base md:text-lg uppercase tracking-wider transition-all shadow-xl shadow-[#FF5A1F]/20 active:scale-95 flex items-center justify-center gap-3 cursor-pointer"
+                            className="w-full py-4 px-8 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-black text-sm sm:text-base tracking-wide uppercase transition-all shadow-[0_10px_35px_rgba(255,90,31,0.35)] flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer"
                         >
-                            <Rocket className="w-5 h-5 text-white shrink-0" />
+                            <Rocket className="w-5 h-5 shrink-0 text-white" />
                             <span>FINALIZAR Y VER MI PROYECTO</span>
+                            <ArrowRight className="w-5 h-5 shrink-0" />
                         </button>
-                        <div className="flex items-center justify-center gap-2 text-slate-400 text-xs font-medium">
-                            <Lock className="w-3.5 h-3.5" />
+                        <div className="flex items-center justify-center gap-1.5 text-zinc-500 text-xs font-light">
+                            <Lock className="w-3.5 h-3.5 shrink-0" />
                             <span>Podrás descargar, revisar y gestionar todo desde el panel de tu proyecto.</span>
                         </div>
                     </div>
-                </div>
+                </>
             ) : (
-                /* --- ESTADO PENDIENTE / PREVIEW (ISUNLOCKED === FALSE - VISTA RESUMIDA) --- */
-                <div className="max-w-3xl mx-auto space-y-6 text-center font-sans">
-                    {/* Header */}
-                    <div className="space-y-2 max-w-2xl mx-auto">
-                        <span className="text-[#FF5A1F] text-xs font-bold uppercase tracking-wider">
-                            Paso 3 de 4 · Reels de atracción
-                        </span>
-                        <h1 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight leading-tight mt-1">
-                            Preparemos tus <span className="text-[#FF5A1F]">3 reels</span> de atracción
-                        </h1>
-                        <p className="text-zinc-300 font-light text-sm md:text-base leading-relaxed">
-                            Utilizaremos la estrategia de tu proyecto y tu página de captación para preparar contenido optimizado que dirija personas interesadas hacia tu clase gratuita.
+                /* --- ESTADO PENDIENTE / PREVIEW (SINTÉTICO Y ELEGANTE) --- */
+                <>
+                    {/* Icon Box */}
+                    <div className="relative">
+                        <div className="absolute inset-0 bg-[#FF5A1F]/20 blur-[50px] rounded-full animate-pulse"></div>
+                        <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#0d0d0e] border-2 border-[#FF5A1F]/40 flex items-center justify-center shadow-[0_10px_50px_-10px_rgba(255,90,31,0.35)]">
+                            <Film className="w-10 h-10 sm:w-12 sm:h-12 text-[#FF5A1F]" />
+                        </div>
+                    </div>
+
+                    {/* Titles */}
+                    <div className="space-y-3">
+                        <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+                            Generar <span className="text-[#FF5A1F]">Reels de Atracción</span>
+                        </h2>
+                        <p className="text-zinc-300 font-light text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
+                            Generaremos 3 reels estratégicos con guiones, textos y llamadas a la acción para atraer clientes potenciales a tu proyecto.
                         </p>
                     </div>
 
-                    {/* Tarjeta Principal Contenedora */}
-                    <div className="bg-[#0b0b0c]/85 border border-zinc-800/80 rounded-3xl p-5 md:p-8 space-y-6 text-left shadow-2xl">
-                        {/* Grid de Configuración & Beneficios */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Columna 1: Configuración recomendada */}
-                            <div className="space-y-4">
-                                <h3 className="text-[#FF5A1F] text-xs font-bold tracking-wider uppercase flex items-center gap-2">
-                                    <span className="w-1.5 h-4 bg-[#FF5A1F] rounded-full"></span>
-                                    Configuración recomendada
-                                </h3>
-                                <div className="divide-y divide-zinc-800/50 bg-[#141416]/60 border border-white/5 rounded-2xl p-4">
-                                    <div className="flex items-center justify-between py-2.5 gap-3">
-                                        <div className="flex items-center gap-2.5 text-zinc-400 text-xs md:text-sm">
-                                            <Briefcase className="w-4 h-4 text-[#FF5A1F] shrink-0" />
-                                            <span>Producto:</span>
-                                        </div>
-                                        <span className="text-white text-xs md:text-sm font-semibold truncate text-right max-w-[180px]">
-                                            {project?.name || (isManicurista ? "Curso de Manicurista" : "Curso de Microblading")}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between py-2.5 gap-3">
-                                        <div className="flex items-center gap-2.5 text-zinc-400 text-xs md:text-sm">
-                                            <Target className="w-4 h-4 text-[#FF5A1F] shrink-0" />
-                                            <span>Objetivo:</span>
-                                        </div>
-                                        <span className="text-white text-xs md:text-sm font-semibold text-right">
-                                            Llevar visitas a la clase
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between py-2.5 gap-3">
-                                        <div className="flex items-center gap-2.5 text-zinc-400 text-xs md:text-sm">
-                                            <Smartphone className="w-4 h-4 text-[#FF5A1F] shrink-0" />
-                                            <span>Canales:</span>
-                                        </div>
-                                        <span className="text-white text-xs md:text-sm font-semibold text-right">
-                                            Instagram Reels y TikTok
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between py-2.5 gap-3">
-                                        <div className="flex items-center gap-2.5 text-zinc-400 text-xs md:text-sm">
-                                            <Film className="w-4 h-4 text-[#FF5A1F] shrink-0" />
-                                            <span>Formato:</span>
-                                        </div>
-                                        <span className="text-white text-xs md:text-sm font-semibold text-right">
-                                            Sin mostrar el rostro
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Columna 2: Lo que obtendrás */}
-                            <div className="space-y-4">
-                                <h3 className="text-[#FF5A1F] text-xs font-bold tracking-wider uppercase flex items-center gap-2">
-                                    <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
-                                    Lo que obtendrás
-                                </h3>
-                                <div className="space-y-3 bg-[#141416]/60 border border-white/5 rounded-2xl p-4">
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
-                                            <Check className="w-3 h-3" />
-                                        </div>
-                                        <div className="space-y-0.5">
-                                            <p className="text-white text-xs md:text-sm font-bold">3 Guiones Estratégicos</p>
-                                            <p className="text-zinc-400 text-xs">Estructurados para captar atención en los primeros 3 segundos.</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
-                                            <Check className="w-3 h-3" />
-                                        </div>
-                                        <div className="space-y-0.5">
-                                            <p className="text-white text-xs md:text-sm font-bold">Textos y CTAs Listos</p>
-                                            <p className="text-zinc-400 text-xs">Acompañamientos optimizados para copiar y publicar.</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
-                                            <Check className="w-3 h-3" />
-                                        </div>
-                                        <div className="space-y-0.5">
-                                            <p className="text-white text-xs md:text-sm font-bold">Edición y Personalización</p>
-                                            <p className="text-zinc-400 text-xs">Podrás verlos, editarlos y gestionarlos en tu panel cuando estén creados.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Faja de Plan */}
-                        <div className="bg-orange-950/20 border border-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2 justify-center">
-                            <span>🎁 Plan gratuito · 3 reels disponibles</span>
-                        </div>
+                    {/* Card Content Box */}
+                    <div className="w-full bg-[#0d0d0e]/90 border border-zinc-800/80 rounded-3xl p-6 sm:p-8 space-y-3 text-center shadow-2xl backdrop-blur-md">
+                        <h3 className="text-white font-extrabold text-lg sm:text-xl tracking-tight">
+                            Contenido en video optimizado
+                        </h3>
+                        <p className="text-zinc-400 font-light text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
+                            Utilizaremos la estrategia de tu proyecto para crear guiones virales de menos de 1 minuto, diseñados para captar la atención en los primeros segundos y dirigir personas interesadas hacia tu página de captura.
+                        </p>
                     </div>
 
-                    {/* Botón de Acción Principal Centrado */}
-                    <div className="flex flex-col items-center gap-2 pt-1 max-w-md mx-auto">
+                    {/* Action Button */}
+                    <div className="flex flex-col items-center gap-3 pt-2 w-full max-w-md">
                         <button 
+                            type="button"
                             onClick={() => onNext()}
-                            className="w-full py-4 px-8 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-black text-sm md:text-base uppercase tracking-wider transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
+                            className="w-full py-4 px-8 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-black text-sm sm:text-base tracking-wide uppercase transition-all shadow-[0_10px_35px_rgba(255,90,31,0.35)] flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer"
                         >
-                            <Sparkles className="w-4 h-4 shrink-0 fill-white" />
-                            <span>PREPARAR MIS 3 REELS</span>
+                            <Sparkles className="w-5 h-5 shrink-0 fill-white" />
+                            <span>GENERAR REELS DE ATRACCIÓN</span>
+                            <ArrowRight className="w-5 h-5 shrink-0" />
                         </button>
-                        <p className="text-zinc-400 text-xs">
-                            Una vez generados, podrás verlos y editarlos directamente desde tu proyecto.
-                        </p>
+                        <div className="flex items-center justify-center gap-1.5 text-zinc-500 text-xs font-light">
+                            <Lock className="w-3.5 h-3.5 shrink-0" />
+                            <span>Podrás verlos, editarlos y gestionarlos en la sección de tu proyecto.</span>
+                        </div>
                     </div>
-                </div>
+                </>
             )}
 
             <UpgradeModal 
