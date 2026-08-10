@@ -908,8 +908,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       setGenerationStatus("¡Estrategia Lista!");
 
       setTimeout(() => {
-        handleCreateWeb();
-      }, 800);
+        setStep("strategy_ready");
+      }, 600);
     } catch (error: any) {
       console.error("Error en desbloqueo:", error);
       const errorMsg = error?.message || error?.toString() || "";
@@ -2066,7 +2066,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               >
                 <StrategyReadyStep
                   userData={user}
-                  project={selectedProject}
+                  project={selectedProject || unlockedProject}
                   onNext={handleCreateWeb}
                 />
               </div>

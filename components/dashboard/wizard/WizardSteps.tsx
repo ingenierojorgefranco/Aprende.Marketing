@@ -929,87 +929,57 @@ export const AvatarRevealStep: React.FC<StepProps & { avatars: any[] }> = ({ ava
 
 // 4.5 ESTRATEGIA LISTA
 export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onNext, project }) => {
+    const productName = project?.productName || project?.name || 'Curso Profesional de Microblading de Cejas';
+
     return (
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center space-y-4 md:space-y-6 max-w-4xl mx-auto px-4 font-sans"
+            className="flex flex-col items-center justify-center text-center space-y-6 max-w-2xl mx-auto px-4 py-8 font-sans"
         >
-            {/* Títulos Principales */}
-            <div className="space-y-2 max-w-2xl mx-auto">
-                <h2 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
-                    Tu estrategia inicial está lista
-                </h2>
-            </div>
-
-            {/* Tarjeta Translúcida de Progreso con Grid 2x2 */}
-            <div className="w-full max-w-3xl mx-auto bg-[#0b0b0c]/80 border border-white/5 rounded-3xl p-5 md:p-6 space-y-4 text-left shadow-2xl">
-                <p className="text-zinc-300 font-light text-xs md:text-sm leading-relaxed px-1 block">
-                    Hemos preparado la base estratégica para promocionar el{" "}
-                    <span className="text-[#FF5A1F] font-bold">
-                        {project?.name || "Certificación Expert Microblading"}
-                    </span>.
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                    {/* Columna Izquierda - Item 1 */}
-                    <div className="flex items-start gap-3 bg-[#141416]/60 border border-white/5 p-4 rounded-2xl h-full">
-                        <div className="w-10 h-10 bg-orange-500/10 border border-[#FF5A1F]/20 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5">
-                            <Package className="w-5 h-5 stroke-[2px]" />
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-white text-xs md:text-sm font-bold tracking-tight">Producto seleccionado</p>
-                            <p className="text-zinc-400 font-light text-xs leading-relaxed">{project?.name || "Curso Profesional de Microblading de Cejas"}</p>
-                        </div>
-                    </div>
-
-                    {/* Columna Derecha - Item 2 */}
-                    <div className="flex items-start gap-3 bg-[#141416]/60 border border-white/5 p-4 rounded-2xl h-full">
-                        <div className="w-10 h-10 bg-orange-500/10 border border-[#FF5A1F]/20 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5">
-                            <Users className="w-5 h-5 stroke-[2px]" />
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-white text-xs md:text-sm font-bold tracking-tight">Público y necesidades</p>
-                            <p className="text-zinc-400 font-light text-xs leading-relaxed">Audiencia, dolores, deseos y objeciones relacionados con el producto.</p>
-                        </div>
-                    </div>
-
-                    {/* Columna Izquierda - Item 3 */}
-                    <div className="flex items-start gap-3 bg-[#141416]/60 border border-white/5 p-4 rounded-2xl h-full">
-                        <div className="w-10 h-10 bg-orange-500/10 border border-[#FF5A1F]/20 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5">
-                            <Target className="w-5 h-5 stroke-[2px]" />
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-white text-xs md:text-sm font-bold tracking-tight">Estrategia de comunicación</p>
-                            <p className="text-zinc-400 font-light text-xs leading-relaxed">Ángulos de venta y mensajes iniciales para presentar la oportunidad.</p>
-                        </div>
-                    </div>
-
-                    {/* Columna Derecha - Item 4 */}
-                    <div className="flex items-start gap-3 bg-orange-500/[0.03] border border-[#FF5A1F]/30 p-4 rounded-2xl h-full shadow-[0_4px_20px_rgba(255,90,31,0.05)]">
-                        <div className="w-10 h-10 bg-orange-500/15 border border-[#FF5A1F]/30 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5">
-                            <Sparkles className="w-5 h-5 stroke-[2px]" />
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-white text-xs md:text-sm font-bold tracking-tight">Siguiente paso</p>
-                            <p className="text-zinc-300 font-light text-xs leading-relaxed">
-                                Crear tu página web de captura de clientes con textos profesionales para atraer compradores.
-                            </p>
-                        </div>
-                    </div>
+            {/* Checkmark Icon with Glowing Box */}
+            <div className="relative">
+                <div className="absolute inset-0 bg-[#FF5A1F]/20 blur-[50px] rounded-full animate-pulse"></div>
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#0d0d0e] border-2 border-[#FF5A1F]/40 flex items-center justify-center shadow-[0_10px_50px_-10px_rgba(255,90,31,0.35)]">
+                    <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-[#FF5A1F]" />
                 </div>
             </div>
 
-            {/* Botón de Acción Principal (Naranja Vibrante Centrado) */}
-            <div className="flex justify-center pt-2">
+            {/* Main Title */}
+            <div className="space-y-3">
+                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+                    Tu proyecto <span className="text-[#FF5A1F]">{productName}</span> ha sido creado con éxito
+                </h2>
+                <p className="text-zinc-300 font-light text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
+                    Hemos analizado la propuesta, tu público objetivo y estructurado la base inicial de tu estrategia. El siguiente paso para recibir prospectos es crear tu página de captura optimizada para que los usuarios se registren.
+                </p>
+            </div>
+
+            {/* Card Content Box */}
+            <div className="w-full bg-[#0d0d0e]/90 border border-zinc-800/80 rounded-3xl p-6 sm:p-8 space-y-3 text-center shadow-2xl backdrop-blur-md">
+                <h3 className="text-white font-extrabold text-lg sm:text-xl tracking-tight">
+                    Tu sistema inicial está listo
+                </h3>
+                <p className="text-zinc-400 font-light text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
+                    Tu proyecto ya ha sido creado y guardado. Ahora generaremos tu página de captura con textos persuasivos de alta conversión para comenzar a atraer clientes.
+                </p>
+            </div>
+
+            {/* Action Button */}
+            <div className="flex flex-col items-center gap-3 pt-2 w-full max-w-md">
                 <button 
+                    type="button"
                     onClick={() => onNext()}
-                    className="py-3.5 px-8 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-black text-sm md:text-base tracking-wide transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer"
+                    className="w-full py-4 px-8 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-black text-sm sm:text-base tracking-wide uppercase transition-all shadow-[0_10px_35px_rgba(255,90,31,0.35)] flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer"
                 >
                     <Rocket className="w-5 h-5 shrink-0" />
-                    <span>Crear mi página web</span>
+                    <span>CREAR MI PÁGINA DE CAPTURA</span>
                     <ArrowRight className="w-5 h-5 shrink-0" />
                 </button>
+                <div className="flex items-center justify-center gap-1.5 text-zinc-500 text-xs font-light">
+                    <Lock className="w-3.5 h-3.5 shrink-0" />
+                    <span>Podrás personalizar y gestionar todo desde el panel de tu proyecto.</span>
+                </div>
             </div>
         </motion.div>
     );
