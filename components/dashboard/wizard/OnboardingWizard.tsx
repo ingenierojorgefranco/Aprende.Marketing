@@ -2102,7 +2102,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             {revealedSections.includes("landing_success") && (
               <div
                 ref={landingSuccessRef}
-                className="w-full max-w-[1440px] mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
+                className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
               >
                 <LandingSuccessStep
                   userData={user}

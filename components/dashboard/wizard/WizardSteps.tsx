@@ -1046,45 +1046,54 @@ interface LandingSuccessProps extends StepProps {
 }
 
 export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, project }) => {
+    const productName = project?.productName || project?.name || 'Curso Profesional de Microblading de Cejas';
+
     return (
         <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-2xl mx-auto p-4 md:p-8 font-sans text-center space-y-8"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center text-center space-y-6 max-w-2xl mx-auto px-4 py-8 font-sans"
         >
-            {/* Icono de éxito con resplandor */}
-            <div className="relative inline-block">
-                <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full animate-pulse"></div>
-                <div className="w-20 h-20 md:w-24 md:h-24 bg-emerald-500/10 border-2 border-emerald-500/30 rounded-3xl flex items-center justify-center mx-auto relative shadow-2xl shadow-emerald-500/10">
-                    <CheckCircle className="w-10 h-10 md:w-12 md:h-12 text-emerald-400" />
+            {/* Checkmark Icon with Glowing Box */}
+            <div className="relative">
+                <div className="absolute inset-0 bg-[#FF5A1F]/20 blur-[50px] rounded-full animate-pulse"></div>
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#0d0d0e] border-2 border-[#FF5A1F]/40 flex items-center justify-center shadow-[0_10px_50px_-10px_rgba(255,90,31,0.35)]">
+                    <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-[#FF5A1F]" />
                 </div>
             </div>
 
-            <div className="space-y-4">
-                <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
-                    Tu página de <span className="text-emerald-400">captura de clientes</span> ha sido generada
+            {/* Main Title */}
+            <div className="space-y-3">
+                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+                    Tu página de <span className="text-[#FF5A1F]">captura de clientes</span> ha sido generada
                 </h2>
-                <p className="text-slate-300 text-base md:text-lg max-w-xl mx-auto font-normal leading-relaxed">
-                    Tu página de captura fue creada correctamente para tu proyecto <span className="text-white font-bold">{project?.name || "activo"}</span>. Podrás editarla, personalizarla y modificarla directamente desde tu sección de <span className="text-[#FF5A1F] font-semibold">Mis Proyectos</span>.
+                <p className="text-zinc-300 font-light text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
+                    Tu página de captura fue creada correctamente para tu proyecto <span className="text-white font-bold">{productName}</span>. Podrás editarla, personalizarla y modificarla directamente desde la sección del proyecto.
                 </p>
             </div>
 
-            <div className="bg-[#0b0b0c]/80 border border-zinc-800/60 p-6 rounded-2xl max-w-xl mx-auto space-y-3 shadow-xl">
-                <p className="text-white text-sm md:text-base font-medium leading-relaxed">
-                    Ahora prepararemos 3 videos de menos de un minuto (Reels) que utilizarás para atraer visitas y llevarlas hacia tu página.
+            {/* Card Content Box */}
+            <div className="w-full bg-[#0d0d0e]/90 border border-zinc-800/80 rounded-3xl p-6 sm:p-8 space-y-3 text-center shadow-2xl backdrop-blur-md">
+                <h3 className="text-white font-extrabold text-lg sm:text-xl tracking-tight">
+                    Siguiente paso: Reels de atracción
+                </h3>
+                <p className="text-zinc-400 font-light text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
+                    Ahora prepararemos 3 videos de menos de un minuto (Reels) que utilizarás para atraer visitas y llevarlas hacia tu página de captura.
                 </p>
             </div>
 
-            <div className="pt-2 max-w-md mx-auto space-y-3">
+            {/* Action Button */}
+            <div className="flex flex-col items-center gap-3 pt-2 w-full max-w-md">
                 <button 
+                    type="button"
                     onClick={() => onNext()}
-                    className="w-full py-4 md:py-5 px-8 bg-[#FF5A1F] hover:bg-[#E54E15] text-white rounded-2xl font-extrabold text-base md:text-lg uppercase tracking-wider transition-all shadow-xl shadow-[#FF5A1F]/20 active:scale-95 flex items-center justify-center gap-3 cursor-pointer"
+                    className="w-full py-4 px-8 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-black text-sm sm:text-base tracking-wide uppercase transition-all shadow-[0_10px_35px_rgba(255,90,31,0.35)] flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer"
                 >
                     <span>CONTINUAR: PREPARAR MIS 3 REELS</span>
-                    <Play className="w-5 h-5 fill-current shrink-0" />
+                    <ArrowRight className="w-5 h-5 shrink-0" />
                 </button>
-                <div className="flex items-center justify-center gap-2 text-slate-400 text-xs font-medium">
-                    <Lock className="w-3.5 h-3.5" />
+                <div className="flex items-center justify-center gap-1.5 text-zinc-500 text-xs font-light">
+                    <Lock className="w-3.5 h-3.5 shrink-0" />
                     <span>Podrás editar tu página más adelante desde la sección del proyecto.</span>
                 </div>
             </div>
