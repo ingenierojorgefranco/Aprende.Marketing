@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { User, Project, ColorPalette } from "../../../types";
 import { api } from "../../../services/api";
@@ -194,18 +194,55 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   isStandaloneDashboard = false,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState<WizardStep>(() => {
     if (isStandaloneDashboard) {
       return "success";
     }
     if (typeof window !== "undefined") {
-      const forced = localStorage.getItem("force_wizard_step");
-      if (forced === "success") {
-        return "success";
+      const fullPath = window.location.pathname + window.location.hash + window.location.search;
+      if (fullPath.includes("step-2") || fullPath.includes("selection")) {
+        return "selection";
       }
+      if (fullPath.includes("step-1") || fullPath.includes("welcome")) {
+        return "welcome";
+      }
+      const forced = localStorage.getItem("force_wizard_step");
+      if (forced === "selection") return "selection";
+      if (forced === "success") return "success";
     }
     return "welcome";
   });
+
+  const goToStep = (s: number | WizardStep) => {
+    if (s === 1 || s === "welcome") {
+      setStep("welcome");
+      setRevealedSections(["welcome"]);
+      localStorage.setItem("force_wizard_step", "welcome");
+      navigate("/wizard/step-1");
+    } else if (s === 2 || s === "selection") {
+      setStep("selection");
+      setRevealedSections(["selection"]);
+      localStorage.setItem("force_wizard_step", "selection");
+      navigate("/wizard/step-2");
+    }
+  };
+
+  useEffect(() => {
+    const fullPath = location.pathname + location.hash + location.search;
+    if (fullPath.includes("step-2") || fullPath.includes("selection")) {
+      if (step !== "selection") {
+        setStep("selection");
+        setRevealedSections(["selection"]);
+      }
+    } else if (fullPath.includes("step-1") || fullPath.includes("welcome")) {
+      if (step !== "welcome") {
+        setStep("welcome");
+        setRevealedSections(["welcome"]);
+      }
+    }
+  }, [location.pathname, location.hash, location.search]);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [userActiveProjects, setUserActiveProjects] = useState<Project[]>([]);
@@ -1872,63 +1909,55 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
             </div>
           </div>
+        ) : step === "welcome" ? (
+          <div
+            ref={welcomeRef}
+            className="w-full max-w-5xl mx-auto px-4 md:px-6 min-h-[calc(100vh-100px)] flex flex-col justify-center items-center py-8 relative font-sans"
+          >
+            <WelcomeStep
+              userData={user}
+              onNext={() => goToStep(2)}
+              onGoToStep={(s) => goToStep(s)}
+              disabled={!!strategyData}
+            />
+          </div>
+        ) : step === "selection" ? (
+          <div
+            ref={selectionRef}
+            className="w-full max-w-[1400px] mx-auto px-4 md:px-6 min-h-[calc(100vh-100px)] flex flex-col justify-center py-8 relative font-sans"
+          >
+            <ProjectSelectionStep
+              projects={projects}
+              loading={loadingProjects}
+              userData={user}
+              onNext={handleProjectSelection}
+              selectedProjectId={selectedProject?.id}
+              isLocked={!!strategyData}
+              onGoToStep={(s) => goToStep(s)}
+            />
+
+            {selectedProject && (
+              <motion.div
+                ref={unlockRef}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full max-w-6xl mx-auto px-4 md:px-6 pt-8 pb-12 relative overflow-hidden"
+              >
+                <UnlockProtocolStep
+                  project={selectedProject}
+                  userData={user}
+                  onNext={handleUnlockConfirm}
+                  isStrategyGenerated={!!strategyData}
+                  onBackToSelection={() => {
+                    setSelectedProject(null);
+                    goToStep(2);
+                  }}
+                />
+              </motion.div>
+            )}
+          </div>
         ) : (
           <div className="flex flex-col">
-            {/* 1. BIENVENIDA */}
-            <div
-              ref={welcomeRef}
-              className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
-            >
-              <WelcomeStep
-                userData={user}
-                onNext={() => {
-                  setStep("selection");
-                  scrollTo(selectionRef);
-                }}
-                disabled={!!strategyData}
-              />
-            </div>
-
-            {/* 2. SELECCIÓN DE PROYECTO */}
-            {revealedSections.includes("selection") && (
-              <>
-                <div
-                  ref={selectionRef}
-                  className="w-full max-w-[1400px] mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
-                >
-                  <ProjectSelectionStep
-                    projects={projects}
-                    loading={loadingProjects}
-                    userData={user}
-                    onNext={handleProjectSelection}
-                    selectedProjectId={selectedProject?.id}
-                    isLocked={!!strategyData}
-                  />
-                </div>
-
-                {selectedProject && (
-                  <motion.div
-                    ref={unlockRef}
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
-                  >
-                    <UnlockProtocolStep
-                      project={selectedProject}
-                      userData={user}
-                      onNext={handleUnlockConfirm}
-                      isStrategyGenerated={!!strategyData}
-                      onBackToSelection={() => {
-                        setSelectedProject(null);
-                        setStep("selection");
-                        setRevealedSections(["welcome", "selection"]);
-                        scrollTo(selectionRef);
-                      }}
-                    />
-                  </motion.div>
-                )}
-              </>
-            )}
 
             {/* Modals de Confirmación */}
             <AnimatePresence>

@@ -360,7 +360,19 @@ export const DashboardLayout = ({
 
   const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin' && !hasCompletedSurvey;
   const isSurveyPending = !hasCompletedSurvey && user.role !== 'admin';
-  const showWizard = (wizardEnabled && !isSurveyPending && !isLaunchRestricted && user.role !== 'admin' && pageCount === 0) || (typeof window !== 'undefined' && (localStorage.getItem('force_wizard_step') === 'success' || localStorage.getItem('force_wizard_step') === 'welcome'));
+  const isWizardRoute = location.pathname.startsWith('/wizard');
+  const showWizard = isWizardRoute || (wizardEnabled && !isSurveyPending && !isLaunchRestricted && user.role !== 'admin' && pageCount === 0) || (typeof window !== 'undefined' && (localStorage.getItem('force_wizard_step') === 'success' || localStorage.getItem('force_wizard_step') === 'welcome' || localStorage.getItem('force_wizard_step') === 'selection'));
+
+  useEffect(() => {
+    if (showWizard && location.pathname === '/dashboard' && !isSurveyPending && !isLaunchRestricted) {
+      const forced = typeof window !== 'undefined' ? localStorage.getItem('force_wizard_step') : null;
+      if (forced === 'selection') {
+        navigate('/wizard/step-2', { replace: true });
+      } else {
+        navigate('/wizard/step-1', { replace: true });
+      }
+    }
+  }, [showWizard, location.pathname, isSurveyPending, isLaunchRestricted, navigate]);
 
   if (loadingMode) {
       return (

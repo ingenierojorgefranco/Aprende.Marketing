@@ -10,18 +10,38 @@ interface StepProps {
     disabled?: boolean;
     onView?: () => void;
     onEdit?: () => void;
+    onGoToStep?: (step: number) => void;
 }
 
 // 1. BIENVENIDA
-export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled }) => {
+export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, onGoToStep }) => {
     const userName = userData.name?.split(' ')[0] || 'Mundo';
     
     return (
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-6 max-w-4xl mx-auto px-4 font-sans"
+            className="text-center space-y-8 max-w-3xl mx-auto px-4 font-sans py-4"
         >
+            {/* Step Navigation Pill Bar */}
+            <div className="flex items-center justify-center gap-2 mb-2">
+                <div
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FF5A1F] text-white shadow-[0_0_15px_rgba(255,90,31,0.35)]"
+                >
+                    <span>Step 1</span>
+                    <span className="text-[10px] opacity-90">(Bienvenida)</span>
+                </div>
+                <span className="text-zinc-600 font-bold">•</span>
+                <button
+                    type="button"
+                    onClick={() => onGoToStep && onGoToStep(2)}
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
+                >
+                    <span>Step 2 →</span>
+                    <span className="text-[10px] opacity-75">(Elegir Proyecto)</span>
+                </button>
+            </div>
+
             <div className="relative inline-block">
                 <div className="absolute inset-0 bg-[#FF5A1F]/30 blur-3xl opacity-30 animate-pulse rounded-full"></div>
                 <div className="w-16 h-16 bg-[#FF5A1F] rounded-2xl flex items-center justify-center mx-auto relative border border-white/15 shadow-2xl">
@@ -29,99 +49,52 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled })
                 </div>
             </div>
             
-            <div className="space-y-2">
-                <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+            <div className="space-y-4">
+                {/* Encabezado (H1) */}
+                <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
                     ¡Hola, <span className="text-[#FF5A1F]">{userName}</span>!
                 </h1>
 
-                <p className="text-white font-light text-base md:text-lg leading-relaxed max-w-2xl mx-auto animate-fade-in-up">
-                    Hemos preparado los primeros pasos de acuerdo con tu experiencia, objetivos y recursos disponibles.
+                {/* Subtítulo */}
+                <h2 className="text-xl md:text-2xl font-bold text-[#FF5A1F] tracking-tight pt-2">
+                    ¡Ya estás dentro! Vamos a dar el primer paso.
+                </h2>
+
+                {/* Mensaje de Instrucción */}
+                <p 
+                    className="max-w-2xl mx-auto leading-relaxed text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up pt-2" 
+                    style={{ fontSize: "1.2em", lineHeight: "1.4em" }}
+                >
+                    Te ayudaremos a lanzar tu primer proyecto digital de la forma más rápida. Para hacerlo muy fácil, nuestros profesionales han preconfigurado varios proyectos listos para usar. Solo tienes que elegir el que mejor se adapte a ti y nosotros haremos el trabajo pesado.
                 </p>
             </div>
 
-            <div className="bg-[#111111]/80 border border-white/5 p-5 md:p-6 rounded-[2rem] shadow-2xl relative overflow-hidden text-left">
-                <div className="text-center font-bold text-[#FF5A1F] uppercase tracking-wider text-xs md:text-sm mb-4 pb-2 border-b border-white/5">
-                    Dentro del asistente vas a:
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 relative z-10">
-                    {/* Columna Izquierda - Fila 1 */}
-                    <div className="flex items-start gap-3.5 bg-white/[0.02] p-3.5 rounded-xl border border-white/5">
-                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
-                            <Package className="w-5 h-5" />
-                        </div>
-                        <div className="space-y-1">
-                            <h3 className="font-extrabold text-white text-sm md:text-base leading-tight">
-                                Definir el producto que vas a promocionar
-                            </h3>
-                            <p className="text-zinc-300 font-light text-xs md:text-sm leading-relaxed">
-                                Selecciona cualquiera de los productos digitales que nuestros profesionales han elegido para ti
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Columna Derecha - Fila 1 */}
-                    <div className="flex items-start gap-3.5 bg-white/[0.02] p-3.5 rounded-xl border border-white/5">
-                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
-                            <FileText className="w-5 h-5" />
-                        </div>
-                        <div className="space-y-1">
-                            <h3 className="font-extrabold text-white text-sm md:text-base leading-tight">
-                                Preparar tus recursos de lanzamiento
-                            </h3>
-                            <p className="text-zinc-300 font-light text-xs md:text-sm leading-relaxed">
-                                Generaremos tu página web, el contenido inicial y los videos para atraer visitantes interesados
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Columna Izquierda - Fila 2 */}
-                    <div className="flex items-start gap-3.5 bg-white/[0.02] p-3.5 rounded-xl border border-white/5">
-                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
-                            <Target className="w-5 h-5" />
-                        </div>
-                        <div className="space-y-1">
-                            <h3 className="font-extrabold text-white text-sm md:text-base leading-tight">
-                                Construir la estrategia de tu proyecto
-                            </h3>
-                            <p className="text-zinc-300 font-light text-xs md:text-sm leading-relaxed">
-                                Definiremos tu audiencia, público objetivo y mejor estrategia de ventas para tu producto
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Columna Derecha - Fila 2 */}
-                    <div className="flex items-start gap-3.5 bg-white/[0.02] p-3.5 rounded-xl border border-white/5">
-                        <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 mt-0.5">
-                            <Rocket className="w-5 h-5" />
-                        </div>
-                        <div className="space-y-1">
-                            <h3 className="font-extrabold text-white text-sm md:text-base leading-tight">
-                                Activar tu sistema de atracción y ventas
-                            </h3>
-                            <p className="text-zinc-300 font-light text-xs md:text-sm leading-relaxed">
-                                Publica tus contenidos, atrae prospectos calificados y empieza a generar tus primeros clientes
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            {/* Botón de acción */}
+            <div className="pt-4">
+                <button 
+                    onClick={() => !disabled && onNext()}
+                    disabled={disabled}
+                    className={`group flex items-center gap-3 px-8 py-4 ${disabled ? 'bg-zinc-800 cursor-not-allowed opacity-50 text-zinc-500' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] shadow-[0_12px_30px_-5px_rgba(255,90,31,0.4)] transform hover:-translate-y-0.5 active:scale-98'} text-white rounded-2xl font-black text-base md:text-lg tracking-wide transition-all mx-auto cursor-pointer`}
+                >
+                    {disabled ? 'Configuración en proceso' : 'Elegir mi primer proyecto'}
+                    {!disabled && <ChevronRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />}
+                </button>
             </div>
-
-            <button 
-                onClick={() => !disabled && onNext()}
-                disabled={disabled}
-                className={`group flex items-center gap-3 px-8 py-4 ${disabled ? 'bg-zinc-800 cursor-not-allowed opacity-50 text-zinc-500' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] shadow-[0_12px_30px_-5px_rgba(255,90,31,0.4)] transform hover:-translate-y-0.5 active:scale-98'} text-white rounded-2xl font-black text-base md:text-lg tracking-wide transition-all mx-auto cursor-pointer`}
-            >
-                {disabled ? 'Configuración en proceso' : 'Crear mi primer proyecto'}
-                {!disabled && <ChevronRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />}
-            </button>
         </motion.div>
     );
 };
 
 // 2. SELECCIÓN DE PROYECTO
-export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loading: boolean, selectedProjectId?: string, isLocked?: boolean }> = ({ projects, loading, onNext, selectedProjectId, isLocked }) => {
+export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loading: boolean, selectedProjectId?: string, isLocked?: boolean }> = ({ projects, loading, onNext, selectedProjectId, isLocked, onGoToStep }) => {
     const [showCustomProduct, setShowCustomProduct] = React.useState(false);
+    const [activeCategory, setActiveCategory] = React.useState('Belleza');
+
+    const categories = [
+        { id: 'Belleza', label: 'Belleza', icon: '💄' },
+        { id: 'Manualidades', label: 'Manualidades', icon: '🧶' },
+        { id: 'Mascotas', label: 'Mascotas', icon: '🐾' },
+        { id: 'Negocios', label: 'Negocios', icon: '📈' },
+    ];
 
     if (loading) {
         return (
@@ -136,110 +109,162 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="space-y-10 font-sans"
+            className="space-y-8 font-sans max-w-[1240px] mx-auto px-2 md:px-4"
         >
-            <div className="text-center space-y-4">
-                <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight" style={{
-                    paddingBottom: '0.5em',
-                    paddingTop: '0em'
-                }}>
-                    Elige el producto con el que crearás tu <span className="text-[#FF5A1F]">primer proyecto</span>
-                </h2>
-                <p className="max-w-2xl mx-auto leading-relaxed text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up" style={{
-                    fontSize: '1.2em',
-                    lineHeight: '1.4em',
-                    paddingTop: 0,
-                    marginTop: 0
-                }}>
-                    Elige el producto digital que mejor encaja con tu experiencia, intereses y recursos que tienes disponibles.
-                </p>
+            {/* Step Navigation Pill Bar */}
+            <div className="flex items-center justify-center gap-2 mb-2">
+                <button
+                    type="button"
+                    onClick={() => onGoToStep && onGoToStep(1)}
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
+                >
+                    <span>← Step 1</span>
+                    <span className="text-[10px] opacity-75">(Bienvenida)</span>
+                </button>
+                <span className="text-zinc-600 font-bold">•</span>
+                <div
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FF5A1F] text-white shadow-[0_0_15px_rgba(255,90,31,0.35)]"
+                >
+                    <span>Step 2</span>
+                    <span className="text-[10px] opacity-90">(Elegir Proyecto)</span>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[1240px] mx-auto w-full">
+            {/* Header */}
+            <div className="text-center space-y-3">
+                <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                    Elige el producto con el que crearás tu <span className="text-[#FF5A1F]">primer proyecto</span>
+                </h2>
+                <p className="max-w-2xl mx-auto leading-relaxed text-zinc-300 font-light text-sm md:text-base opacity-90">
+                    Elige el producto digital que mejor encaja con tu experiencia, intereses y
+                </p>
+
+                {/* Filter Pills Bar */}
+                <div className="flex items-center justify-center gap-2 md:gap-3 flex-wrap pt-3 pb-2">
+                    {categories.map((cat) => {
+                        const isActive = activeCategory === cat.id;
+                        return (
+                            <button
+                                key={cat.id}
+                                type="button"
+                                onClick={() => setActiveCategory(cat.id)}
+                                className={`flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                                    isActive
+                                        ? 'bg-[#18181b] border-2 border-[#FF5A1F] text-white shadow-[0_0_20px_rgba(255,90,31,0.25)] scale-102'
+                                        : 'bg-[#18181b]/80 border border-zinc-800/80 text-zinc-400 hover:text-white hover:border-zinc-700'
+                                }`}
+                            >
+                                <span className="text-base">{cat.icon}</span>
+                                <span>{cat.label}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Product Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full items-stretch">
                 {projects.slice(0, 3).map((project, index) => {
                     const isSelected = selectedProjectId === project.id;
                     const isRecommended = index === 0;
 
-                    // Ideal descriptions customized elegant wording or dynamic fallback
-                    let idealForDesc = "Ideal para personas interesadas en belleza, contenido visual y aprendizaje de una habilidad profesional.";
-                    if (project.name.toLowerCase().includes("manicurista")) {
-                        idealForDesc = "Ideal para personas creativas que disfrutan del cuidado de manos y uñas y quieren profesionalizar sus servicios.";
-                    } else if (project.name.toLowerCase().includes("pestañas") || project.name.toLowerCase().includes("lashista")) {
-                        idealForDesc = "Ideal para personas apasionadas por la belleza que buscan especializarse en una técnica de alta demanda.";
-                    } else if (project.name.toLowerCase().includes("resina") || project.name.toLowerCase().includes("pisos")) {
-                        idealForDesc = "Ideal para personas interesadas en la construcción, decoración de interiores y modelado de alta rentabilidad.";
-                    } else if (project.shortDescription || project.description) {
-                        idealForDesc = project.shortDescription || project.description;
+                    // Descriptions customized to match design / fallback
+                    const titles = [
+                        "Certificación Expert Microblading",
+                        "Curso de Maquillaje Profesional",
+                        "Tratamientos Faciales Avanzados"
+                    ];
+
+                    const descriptions = [
+                        "Domina la técnica de cejas más rentable y triplica tus ingresos.",
+                        "Ideal para estilistas y personas interesadas en el arte del color.",
+                        "Técnicas de cuidado de la piel y nutrición profunda."
+                    ];
+
+                    const commissions = ["50%", "60%", "45%"];
+                    const difficulties = ["Principiante", "Principiante", "Intermedio"];
+
+                    const displayTitle = project.name?.toLowerCase().includes("microblading") 
+                        ? "Certificación Expert Microblading" 
+                        : (project.name?.toLowerCase().includes("manicurista") 
+                            ? "Curso de Maquillaje Profesional" 
+                            : (titles[index] || project.name));
+
+                    let idealForDesc = descriptions[index] || project.shortDescription || project.description;
+                    if (project.name?.toLowerCase().includes("manicurista")) {
+                        idealForDesc = "Ideal para estilistas y personas interesadas en el arte del color.";
+                    } else if (project.name?.toLowerCase().includes("microblading") || project.name?.toLowerCase().includes("cejas")) {
+                        idealForDesc = "Domina la técnica de cejas más rentable y triplica tus ingresos.";
                     }
 
                     return (
                         <motion.div 
                             key={project.id}
                             whileHover={isLocked ? {} : { y: -6 }}
-                            className={`bg-[#0F0F0F] border ${
+                            className={`bg-[#0b0b0c] border ${
                                 isRecommended 
-                                    ? 'border-[#FF5A1F] ring-1 ring-[#FF5A1F]/30 shadow-[0_15px_40px_-15px_rgba(255,90,31,0.2)]' 
-                                    : 'border-white/5 hover:border-white/10'
+                                    ? 'border-2 border-[#FF5A1F] shadow-[0_0_30px_rgba(255,90,31,0.2)]' 
+                                    : 'border-zinc-800/80 hover:border-zinc-700'
                             } ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-3xl overflow-hidden group cursor-pointer transition-all flex flex-col h-full relative w-full`}
                             onClick={() => !isLocked && onNext(project)}
                         >
-                            {/* Recommended Header Badge */}
+                            {/* Recommended Header Bar */}
                             {isRecommended && (
-                                <div className="absolute top-0 left-0 right-0 py-2 bg-[#FF5A1F] text-center z-10 rounded-t-3xl">
+                                <div className="py-2 bg-[#FF5A1F] text-center w-full">
                                     <span className="text-[10px] md:text-xs font-black text-white tracking-[0.1em] uppercase flex items-center justify-center gap-1">
                                         ★ RECOMENDADO PARA COMENZAR
                                     </span>
                                 </div>
                             )}
 
-                            {/* Image Container with floating Category badge */}
-                            <div className={`h-48 bg-zinc-900 relative overflow-hidden shrink-0 ${isRecommended ? 'pt-8' : ''}`}>
-                                {project.multimedia_json?.heroImages?.[0] ? (
-                                    <img 
-                                        src={project.multimedia_json.heroImages[0]} 
-                                        alt={project.name} 
-                                        referrerPolicy="no-referrer"
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
-                                        <Package className="w-10 h-10 text-[#FF5A1F] opacity-30" />
+                            {/* Card Content Padding */}
+                            <div className="p-4 md:p-5 flex flex-col flex-grow space-y-4 justify-between">
+                                {/* Image Container with floating Category badge */}
+                                <div className="h-44 md:h-48 bg-zinc-900 relative overflow-hidden rounded-2xl shrink-0">
+                                    {project.multimedia_json?.heroImages?.[0] ? (
+                                        <img 
+                                            src={project.multimedia_json.heroImages[0]} 
+                                            alt={project.name} 
+                                            referrerPolicy="no-referrer"
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
+                                            <Package className="w-10 h-10 text-[#FF5A1F] opacity-30" />
+                                        </div>
+                                    )}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                                    
+                                    {/* Floating category Badge */}
+                                    <div className="absolute bottom-3 left-3 z-10">
+                                        <span className="px-3 py-1 bg-black/70 backdrop-blur-md text-white text-[10px] md:text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-white/10">
+                                            <span>💄</span> Categoría: {activeCategory}
+                                        </span>
                                     </div>
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/30 to-transparent"></div>
-                                
-                                {/* Floating category Badge */}
-                                <div className="absolute bottom-3 left-4">
-                                    <span className="px-3 py-1.5 bg-black/60 backdrop-blur-md text-white text-[10px] md:text-xs font-bold uppercase rounded-xl flex items-center gap-1.5 border border-white/10">
-                                        <Flower2 className="w-3.5 h-3.5 text-[#FF5A1F]" />
-                                        {project.niche || 'Belleza y estética'}
-                                    </span>
                                 </div>
-                            </div>
 
-                            {/* Card Content */}
-                            <div className="p-6 flex flex-col flex-grow space-y-4">
-                                <h3 className={`text-xl font-black leading-snug tracking-tight ${isSelected ? 'text-[#FF5A1F]' : 'text-white'} group-hover:text-[#FF5A1F] transition-colors line-clamp-2`}>
-                                    {project.name}
-                                </h3>
+                                {/* Title & Description */}
+                                <div className="space-y-2 text-left flex-grow">
+                                    <h3 className={`text-lg md:text-xl font-extrabold leading-snug tracking-tight ${isSelected ? 'text-[#FF5A1F]' : 'text-white'} group-hover:text-[#FF5A1F] transition-colors line-clamp-2`}>
+                                        {displayTitle}
+                                    </h3>
 
-                                <p className="text-zinc-400 text-xs md:text-sm leading-relaxed line-clamp-4 min-h-[72px]" style={{
-                                    color: '#efe4e4',
-                                    fontSize: '1em',
-                                    lineHeight: '1.5em',
-                                    textAlign: 'center'
-                                }}>
-                                    {idealForDesc}
-                                </p>
+                                    <p className="text-zinc-400 text-xs md:text-sm leading-relaxed font-light line-clamp-3">
+                                        {idealForDesc}
+                                    </p>
+                                </div>
 
+                                {/* Stats & Action Button */}
+                                <div className="pt-3 border-t border-zinc-800/60 space-y-3 mt-auto">
+                                    <div className="text-zinc-400 text-xs font-medium text-center">
+                                        Comisión: <span className="text-white font-bold">{commissions[index]}</span> - Dificultad: <span className="text-white font-bold">{difficulties[index]}</span>
+                                    </div>
 
-
-                                <div className="pt-4 border-t border-white/5 flex flex-col space-y-3 mt-auto">
                                     <button 
                                         type="button"
-                                        className="w-full py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs md:text-sm uppercase tracking-wider rounded-xl shadow-lg transition-all"
+                                        className="w-full py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-lg transition-all cursor-pointer"
                                     >
-                                        Elegir este producto
+                                        ELEGIR ESTE PRODUCTO
                                     </button>
                                 </div>
                             </div>
@@ -248,18 +273,19 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                 })}
             </div>
 
-            <div className="flex justify-center mt-8">
+            {/* Footer / Add My Product */}
+            <div className="flex flex-col items-center justify-center space-y-1 pt-6 text-center">
                 <button
                     type="button"
                     onClick={() => setShowCustomProduct(true)}
-                    className="text-amber-500 hover:text-amber-400 transition-colors font-bold text-xs md:text-sm flex items-center gap-1.5 uppercase tracking-wide cursor-pointer"
+                    className="text-zinc-300 hover:text-white transition-colors font-extrabold text-xs md:text-sm flex items-center justify-center gap-1.5 uppercase tracking-wider cursor-pointer"
                 >
-                    ¿Ya tienes un producto? <span className="underline">Añadir mi producto</span>
-                    <ArrowRight className="w-4 h-4" />
+                    ¿YA TIENES UN PRODUCTO? <span className="underline text-[#FF5A1F]">AÑADIR MI PRODUCTO →</span>
                 </button>
+                <p className="text-zinc-500 text-xs font-light">
+                    O, si ya tienes uno en mente, simplemente añádelo ahora.
+                </p>
             </div>
-
-
 
             {/* Toast/Modal for Add my product */}
             {showCustomProduct && (
@@ -516,33 +542,50 @@ export const GenerationStep: React.FC<{
         displaySubtitle = "Estamos creando los videos para atraer tus potenciales clientes.";
     }
 
-    const step1State = (progress >= 33 ? 'completed' : 'active') as 'completed' | 'active' | 'pending';
-    const step2State = (progress >= 66 ? 'completed' : (progress >= 33 ? 'active' : 'pending')) as 'completed' | 'active' | 'pending';
-    const step3State = (progress >= 100 ? 'completed' : (progress >= 66 ? 'active' : 'pending')) as 'completed' | 'active' | 'pending';
-
-    const renderCircle = (state: 'completed' | 'active' | 'pending') => {
-        if (state === 'completed') {
-            return (
-                <div className="w-7 h-7 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-[0_0_12px_rgba(255,90,31,0.4)] shrink-0 mt-0.5">
-                    <svg className="w-4 h-4 text-white stroke-[3.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                </div>
-            );
+    const getCurrentTask = () => {
+        if (progress < 33) {
+            return {
+                title: isWeb 
+                    ? "Diseñando la estructura web" 
+                    : isVideo 
+                    ? "Estructurando contenidos de video" 
+                    : "Analizando el producto",
+                description: isWeb 
+                    ? "Generando bloques, secciones y distribución visual persuasiva." 
+                    : isVideo 
+                    ? "Definiendo ganchos, guiones y estructura para los reels." 
+                    : "Identificando su propuesta, público y principales beneficios."
+            };
         }
-        if (state === 'active') {
-            return (
-                <div className="w-7 h-7 rounded-full border border-[#FF5A1F] bg-[#FF5A1F]/5 flex items-center justify-center shrink-0 relative mt-0.5">
-                    <div className="absolute inset-0 rounded-full border-2 border-t-transparent border-[#FF5A1F] animate-spin"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#FF5A1F] animate-ping"></div>
-                </div>
-            );
+        if (progress < 66) {
+            return {
+                title: isWeb 
+                    ? "Redactando textos persuasivos" 
+                    : isVideo 
+                    ? "Generando guiones de atracción" 
+                    : "Preparando la audiencia",
+                description: isWeb 
+                    ? "Escribiendo títulos profesionales y llamados a la acción de alta conversión." 
+                    : isVideo 
+                    ? "Redactando llamadas a la acción y textos de alto impacto." 
+                    : "Organizando los perfiles de cliente que podrás revisar."
+            };
         }
-        return (
-            <div className="w-7 h-7 rounded-full border border-zinc-700 bg-transparent flex items-center justify-center shrink-0 mt-0.5"></div>
-        );
+        return {
+            title: isWeb 
+                ? "Publicando en la nube segura" 
+                : isVideo 
+                ? "Finalizando la producción" 
+                : "Construyendo la estrategia inicial",
+            description: isWeb 
+                ? "Desplegando tu página web optimizada para capturar clientes interesados." 
+                : isVideo 
+                ? "Optimizando y organizando todo el material listo para tu proyecto." 
+                : "Preparando dolores, deseos y posibles ángulos de venta."
+        };
     };
 
+    const currentTask = getCurrentTask();
     const imageUrl = project?.multimedia_json?.heroImages?.[0] || 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=2670&auto=format&fit=cover';
     const productName = project?.productName || project?.name || 'Curso Profesional de Microblading de Cejas';
 
@@ -581,68 +624,43 @@ export const GenerationStep: React.FC<{
                 </div>
             </div>
 
-            {/* 4. Progressive Checklist */}
-            <div className="w-full bg-[#111111]/40 border border-white/5 rounded-2xl p-6 space-y-5 max-w-lg mx-auto text-left backdrop-blur-sm shadow-xl">
-                {/* Step 1 */}
-                <div className="flex items-start gap-4 font-sans">
-                    {renderCircle(step1State)}
-                    <div className="flex flex-col">
-                        <span className={`text-base sm:text-lg font-extrabold leading-tight ${step1State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
-                            {isWeb ? "Diseñando la estructura web" : "Analizando el producto"}
-                        </span>
-                        <span className="text-sm sm:text-base text-zinc-400 mt-1 font-normal leading-normal">
-                            {isWeb ? "Generando bloques, secciones y distribución visual persuasiva." : "Identificando su propuesta, público y principales beneficios."}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Step 2 */}
-                <div className="flex items-start gap-4 font-sans">
-                    {renderCircle(step2State)}
-                    <div className="flex flex-col">
-                        <span className={`text-base sm:text-lg font-extrabold leading-tight ${step2State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
-                            {isWeb ? "Redactando textos persuasivos" : "Preparando la audiencia"}
-                        </span>
-                        <span className="text-sm sm:text-base text-zinc-400 mt-1 font-normal leading-normal">
-                            {isWeb ? "Escribiendo títulos profesionales y llamados a la acción de alta conversión." : "Organizando los perfiles de cliente que podrás revisar."}
+            {/* 4. Componente Dinámico de Progreso y Tarea Actual */}
+            <div className="w-full bg-[#0d0d0e]/90 border border-zinc-800/80 rounded-2xl p-6 space-y-4 max-w-lg mx-auto text-left shadow-2xl backdrop-blur-md font-sans">
+                {/* Cabecera: Título de la acción actual + Porcentaje al lado */}
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-7 h-7 rounded-full border border-[#FF5A1F] bg-[#FF5A1F]/10 flex items-center justify-center shrink-0 relative">
+                            <div className="absolute inset-0 rounded-full border-2 border-t-transparent border-[#FF5A1F] animate-spin"></div>
+                            <div className="w-2 h-2 rounded-full bg-[#FF5A1F] animate-ping"></div>
+                        </div>
+                        <span className="text-base sm:text-lg font-extrabold text-white truncate tracking-tight">
+                            {currentTask.title}
                         </span>
                     </div>
+                    <span className="text-lg sm:text-xl font-black text-[#FF5A1F] shrink-0 font-mono">
+                        {Math.round(progress)}%
+                    </span>
                 </div>
 
-                {/* Step 3 */}
-                <div className="flex items-start gap-4 font-sans">
-                    {renderCircle(step3State)}
-                    <div className="flex flex-col">
-                        <span className={`text-base sm:text-lg font-extrabold leading-tight ${step3State === 'pending' ? 'text-zinc-600' : 'text-white'}`}>
-                            {isWeb ? "Publicando en la nube segura" : "Construyendo la estrategia inicial"}
-                        </span>
-                        <span className="text-sm sm:text-base text-zinc-400 mt-1 font-normal leading-normal">
-                            {isWeb ? "Desplegando tu página web optimizada para capturar clientes interesados." : "Preparando dolores, deseos y posibles ángulos de venta."}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            {/* 5. Progress Bar */}
-            <div className="w-full max-w-lg space-y-2">
-                <div className="w-full bg-[#111] h-5 rounded-full overflow-hidden border border-white/10 p-1 relative shadow-inner">
+                {/* Barra de Progreso Dinámica */}
+                <div className="w-full bg-zinc-900 h-4 rounded-full overflow-hidden border border-white/10 p-0.5 relative shadow-inner">
                     <motion.div 
                         initial={{ width: 0 }}
-                        animate={{ width: `${progress}%` }}
+                        animate={{ width: `${Math.max(progress, 4)}%` }}
                         className="h-full bg-gradient-to-r from-[#FF5A1F] via-[#FF8C00] to-[#FFCD42] rounded-full relative shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
-                        transition={{ duration: 0.5, ease: "easeOut" }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
                     >
                         <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] -translate-x-full animate-[loading-shine_1.5s_infinite]"></div>
                     </motion.div>
                 </div>
-                <div className="flex justify-end pr-1">
-                    <span className="text-sm font-extrabold text-[#FF5A1F]">
-                        {Math.round(progress)}%
-                    </span>
-                </div>
+
+                {/* Texto explicativo de lo que hace en este momento */}
+                <p className="text-xs sm:text-sm text-zinc-400 font-light leading-relaxed">
+                    {currentTask.description}
+                </p>
             </div>
 
-            {/* 6. Info card footer */}
+            {/* 5. Info card footer */}
             <div className="flex items-center gap-3 justify-center text-zinc-300 text-sm md:text-base max-w-lg mx-auto pt-2 font-sans">
                 <Info className="w-6 h-6 text-[#FF5A1F] shrink-0" />
                 <div className="text-left">
