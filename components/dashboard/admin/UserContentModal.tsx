@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, UserSubscription, EmailMessage, Plan } from '../../../types';
 import { api } from '../../../services/api';
-import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone, Zap, CreditCard, Power, Edit, Check, Calendar, User as UserIcon, Shield, MapPin, Target, Award, Clock, HelpCircle, BookOpen } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone, Zap, CreditCard, Power, Edit, Check, Calendar, User as UserIcon, Shield, MapPin, Target, Award, Clock, HelpCircle, BookOpen, Megaphone } from 'lucide-react';
 
 ////////// Actualización: Creación de archivo independiente para carga dinámica - 05/06/2025 21:30 //////////
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
@@ -345,7 +345,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                             </div>
                                             <div className="flex justify-between border-b border-gray-800/80 pb-2">
                                                 <span className="text-gray-400">Cumpleaños:</span>
-                                                <span className="text-gray-200">{user.birthDate ? new Date(user.birthDate).toLocaleDateString() : 'N/A'}</span>
+                                                <span className="text-gray-200">{user.birthDate ? new Date(user.birthDate).toLocaleDateString() : 'No especificado'}</span>
                                             </div>
                                             <div className="flex justify-between pb-1">
                                                 <span className="text-gray-400">Redirección Especial:</span>
@@ -359,35 +359,46 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                         <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                             <Target className="w-4 h-4 text-purple-400" /> Datos Clave (Dashboard)
                                         </h4>
-                                        <div className="space-y-3 text-sm">
-                                            <div className="flex justify-between border-b border-gray-800/80 pb-2">
-                                                <span className="text-gray-400">Nicho:</span>
-                                                <span className="text-purple-300 font-semibold">{user.niche || 'No especificado'}</span>
-                                            </div>
-                                            <div className="flex justify-between border-b border-gray-800/80 pb-2 flex-col">
-                                                <span className="text-gray-400 text-xs mb-0.5">Objetivo Principal:</span>
-                                                <span className="text-gray-200 font-medium">{user.main_goal || 'No especificado'}</span>
-                                            </div>
-                                            <div className="flex justify-between border-b border-gray-800/80 pb-2 flex-col">
-                                                <span className="text-gray-400 text-xs mb-0.5">Obstáculo Principal:</span>
-                                                <span className="text-gray-200 font-medium">{user.main_obstacle || 'No especificado'}</span>
-                                            </div>
-                                            <div className="flex justify-between border-b border-gray-800/80 pb-2">
-                                                <span className="text-gray-400">Nivel de Experiencia:</span>
-                                                <span className="text-gray-200">{user.experience_level || 'No especificado'}</span>
-                                            </div>
-                                            <div className="flex justify-between border-b border-gray-800/80 pb-2">
-                                                <span className="text-gray-400">Nivel de Urgencia:</span>
-                                                <span className="text-gray-200">{user.urgency_level || 'No especificado'}</span>
-                                            </div>
-                                        </div>
+                                        {(() => {
+                                            const s = user.survey_json ? (typeof user.survey_json === 'string' ? JSON.parse(user.survey_json) : user.survey_json) : {};
+                                            const country = s.country || (user as any).country || 'No especificado';
+                                            const experience = s.experienceLevel || user.experience_level || 'No especificado';
+                                            const obstacle = s.mainObstacle || user.main_obstacle || 'No especificado';
+                                            const dedication = s.dedicationTime || 'No especificado';
+                                            const budget = s.budgetRange || user.budget_range || 'No especificado';
+
+                                            return (
+                                                <div className="space-y-3 text-sm">
+                                                    <div className="flex justify-between border-b border-gray-800/80 pb-2">
+                                                        <span className="text-gray-400">País:</span>
+                                                        <span className="text-purple-300 font-semibold">{country}</span>
+                                                    </div>
+                                                    <div className="flex justify-between border-b border-gray-800/80 pb-2">
+                                                        <span className="text-gray-400">Nivel de Experiencia:</span>
+                                                        <span className="text-gray-200">{experience}</span>
+                                                    </div>
+                                                    <div className="flex justify-between border-b border-gray-800/80 pb-2 flex-col">
+                                                        <span className="text-gray-400 text-xs mb-0.5">Obstáculo Principal:</span>
+                                                        <span className="text-gray-200 font-medium">{obstacle}</span>
+                                                    </div>
+                                                    <div className="flex justify-between border-b border-gray-800/80 pb-2">
+                                                        <span className="text-gray-400">Dedicación Semanal:</span>
+                                                        <span className="text-gray-200">{dedication}</span>
+                                                    </div>
+                                                    <div className="flex justify-between border-b border-gray-800/80 pb-2">
+                                                        <span className="text-gray-400">Presupuesto Mensual:</span>
+                                                        <span className="text-gray-200">{budget}</span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
 
                                 {/* Encuesta Completa de Onboarding */}
                                 <div className="bg-gray-800/30 p-5 rounded-xl border border-gray-700/50 space-y-4">
                                     <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                        <BookOpen className="w-4 h-4 text-emerald-400" /> Resultados de Encuesta de Onboarding (Completo)
+                                        <BookOpen className="w-4 h-4 text-emerald-400" /> Resultados de Encuesta de Onboarding
                                     </h4>
                                     
                                     {(!user.survey_json) ? (
@@ -396,98 +407,46 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                         </div>
                                     ) : (() => {
                                         const s = typeof user.survey_json === 'string' ? JSON.parse(user.survey_json) : user.survey_json;
+                                        const resourcesList = Array.isArray(s.currentResources) && s.currentResources.length > 0 
+                                            ? s.currentResources 
+                                            : null;
+
                                         return (
                                             <div className="space-y-6">
-                                                {/* Grid de encuesta general */}
                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                                                    <div className="p-3 bg-gray-900/50 rounded-lg space-y-1">
-                                                        <span className="text-gray-500 block uppercase font-bold tracking-wider">Contacto</span>
-                                                        <p className="text-gray-300 font-bold flex items-center gap-1">
-                                                            <Smartphone className="w-3.5 h-3.5 text-emerald-400" /> {s.whatsappIndicative || ''} {s.whatsapp || 'No proporcionado'}
-                                                        </p>
-                                                        <p className="text-gray-400 flex items-center gap-1">
-                                                            <MapPin className="w-3.5 h-3.5 text-gray-400" /> {s.city || 'Ciudad N/A'}, {s.country || 'País N/A'}
-                                                        </p>
+                                                    <div className="p-3.5 bg-gray-900/50 rounded-lg space-y-2">
+                                                        <span className="text-gray-500 block uppercase font-bold tracking-wider">Perfil Inicial</span>
+                                                        <p className="text-gray-300"><span className="text-gray-500 font-medium">País:</span> {s.country || (user as any).country || 'No especificado'}</p>
+                                                        <p className="text-gray-300"><span className="text-gray-500 font-medium">Experiencia:</span> {s.experienceLevel || user.experience_level || 'No especificado'}</p>
                                                     </div>
-                                                    <div className="p-3 bg-gray-900/50 rounded-lg space-y-1">
-                                                        <span className="text-gray-500 block uppercase font-bold tracking-wider">Disponibilidad y Presencia</span>
-                                                        <p className="text-gray-300"><span className="text-gray-500 font-medium">Dedicación:</span> {s.dedicationTime || 'N/A'}</p>
-                                                        <p className="text-gray-300"><span className="text-gray-500 font-medium">Presencia Online:</span> {s.onlinePresence || 'N/A'}</p>
+                                                    
+                                                    <div className="p-3.5 bg-gray-900/50 rounded-lg space-y-2">
+                                                        <span className="text-gray-500 block uppercase font-bold tracking-wider">Planificación</span>
+                                                        <p className="text-gray-300"><span className="text-gray-500 font-medium">Dedicación:</span> {s.dedicationTime || 'No especificado'}</p>
+                                                        <p className="text-gray-300"><span className="text-gray-500 font-medium">Presupuesto:</span> {s.budgetRange || user.budget_range || 'No especificado'}</p>
                                                     </div>
-                                                    <div className="p-3 bg-gray-900/50 rounded-lg space-y-1">
-                                                        <span className="text-gray-500 block uppercase font-bold tracking-wider">Nivel de negocio</span>
-                                                        <p className="text-gray-300"><span className="text-gray-500 font-medium">Hotmart Acc:</span> {s.hasHotmartAcc || 'N/A'}</p>
-                                                        <p className="text-gray-300"><span className="text-gray-500 font-medium">Presupuesto/Inversión:</span> {s.budgetRange || 'N/A'}</p>
+
+                                                    <div className="p-3.5 bg-gray-900/50 rounded-lg space-y-2">
+                                                        <span className="text-gray-500 block uppercase font-bold tracking-wider">Dificultad Principal</span>
+                                                        <p className="text-gray-200 font-medium">{s.mainObstacle || user.main_obstacle || 'No especificado'}</p>
                                                     </div>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                                                    {/* Áreas de Dominio (Mastery) */}
-                                                    {s.mastery && (
-                                                        <div className="p-4 bg-gray-900/50 rounded-lg space-y-3">
-                                                            <span className="text-gray-500 block uppercase font-bold tracking-wider flex items-center gap-1.5">
-                                                                <Award className="w-3.5 h-3.5 text-yellow-400" /> Niveles de Dominio Auto-evaluados
-                                                            </span>
-                                                            <div className="grid grid-cols-2 gap-3 text-gray-300">
-                                                                <div className="border border-gray-800 p-2 rounded bg-black/20">
-                                                                    <span className="text-gray-500 block text-[10px] uppercase font-bold">Embudos</span>
-                                                                    <span className="font-semibold text-gray-200 capitalize">{s.mastery.funnels || 'N/A'}</span>
-                                                                </div>
-                                                                <div className="border border-gray-800 p-2 rounded bg-black/20">
-                                                                    <span className="text-gray-500 block text-[10px] uppercase font-bold">Email Marketing</span>
-                                                                    <span className="font-semibold text-gray-200 capitalize">{s.mastery.emailMarketing || 'N/A'}</span>
-                                                                </div>
-                                                                <div className="border border-gray-800 p-2 rounded bg-black/20">
-                                                                    <span className="text-gray-500 block text-[10px] uppercase font-bold">Landing Pages</span>
-                                                                    <span className="font-semibold text-gray-200 capitalize">{s.mastery.landingPages || 'N/A'}</span>
-                                                                </div>
-                                                                <div className="border border-gray-800 p-2 rounded bg-black/20">
-                                                                    <span className="text-gray-500 block text-[10px] uppercase font-bold">IA / Autom.</span>
-                                                                    <span className="font-semibold text-gray-200 capitalize">{s.mastery.ia || 'N/A'}</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Negocio y Expectativas */}
-                                                    <div className="p-4 bg-gray-900/50 rounded-lg space-y-3">
-                                                        <span className="text-gray-500 block uppercase font-bold tracking-wider">Negocio y Redes</span>
-                                                        <div className="space-y-2 text-gray-300">
-                                                            <div>
-                                                                <span className="text-gray-500 text-[10px] block font-bold uppercase">Redes Sociales Utilizadas:</span>
-                                                                <div className="flex flex-wrap gap-1 mt-1">
-                                                                    {Array.isArray(s.useSocialMedia) && s.useSocialMedia.length > 0 ? (
-                                                                        s.useSocialMedia.map((sm: string, idx: number) => (
-                                                                            <span key={idx} className="bg-gray-800 border border-gray-700 px-1.5 py-0.5 rounded text-[10px] font-medium text-gray-300">{sm}</span>
-                                                                        ))
-                                                                    ) : (
-                                                                        <span className="text-gray-500 italic">Ninguna seleccionada</span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <span className="text-gray-500 text-[10px] block font-bold uppercase">Tipo de Negocio:</span>
-                                                                <div className="flex flex-wrap gap-1 mt-1">
-                                                                    {Array.isArray(s.businessType) && s.businessType.length > 0 ? (
-                                                                        s.businessType.map((bt: string, idx: number) => (
-                                                                            <span key={idx} className="bg-blue-950/40 border border-blue-900/50 text-blue-300 px-1.5 py-0.5 rounded text-[10px] font-medium">{bt}</span>
-                                                                        ))
-                                                                    ) : (
-                                                                        <span className="text-gray-500 italic">No especificado</span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="p-3.5 bg-gray-900/50 rounded-lg space-y-2 text-xs">
-                                                    <span className="text-gray-500 block uppercase font-bold tracking-wider flex items-center gap-1">
-                                                        <HelpCircle className="w-3.5 h-3.5 text-blue-400" /> Expectativa de la Comunidad
+                                                <div className="p-4 bg-gray-900/50 rounded-lg space-y-3 text-xs">
+                                                    <span className="text-gray-500 block uppercase font-bold tracking-wider flex items-center gap-2">
+                                                        <Megaphone className="w-4 h-4 text-orange-400" /> Canales y Recursos Actuales
                                                     </span>
-                                                    <p className="text-gray-200 italic bg-black/20 p-2.5 rounded border border-gray-800/80 leading-relaxed">
-                                                        "{s.communityExpectation || 'No especificada'}"
-                                                    </p>
+                                                    <div className="flex flex-wrap gap-2 mt-1">
+                                                        {resourcesList ? (
+                                                            resourcesList.map((res: string, idx: number) => (
+                                                                <span key={idx} className="bg-orange-500/10 border border-orange-500/30 text-orange-300 px-2.5 py-1 rounded-lg font-medium">
+                                                                    {res}
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <span className="text-gray-500 italic">No especificado / Sin recursos seleccionados</span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         );

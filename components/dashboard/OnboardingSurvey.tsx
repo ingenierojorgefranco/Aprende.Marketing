@@ -45,16 +45,11 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
         email: user.email || '',
         fullName: user.name || '',
         country: '',
-        mainGoal: '', 
         dedicationTime: '',
         experienceLevel: '', 
         budgetRange: '', 
         mainObstacle: '',
-        niche: '', 
-        howToStart: '',
-        achievementPriority: '',
         currentResources: [] as string[],
-        contentCreationPreference: '',
     });
 
     // Subir al inicio al cambiar de paso
@@ -70,12 +65,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
     const validateStep = (currentStep: number) => {
         switch (currentStep) {
             case 0: // Paso 1: Personalicemos tu experiencia
-                return !!formData.experienceLevel && !!formData.mainGoal && !!formData.country;
-            case 1: // Paso 2: Definamos qué quieres promocionar
-                return !!formData.howToStart && !!formData.niche && !!formData.achievementPriority;
-            case 2: // Paso 3: Recursos e información de canales
-                return formData.currentResources.length > 0 && !!formData.contentCreationPreference;
-            case 3: // Paso 4: Compromiso de Éxito
+                return !!formData.experienceLevel && !!formData.country;
+            case 1: // Paso 2: Recursos e información de canales
+                return formData.currentResources.length > 0;
+            case 2: // Paso 3: Compromiso de Éxito
                 return !!formData.dedicationTime && !!formData.mainObstacle;
             default:
                 return true;
@@ -114,7 +107,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
 
         setAttemptedNext(false);
         setErrorMessage("");
-        if (step < 3) {
+        if (step < 2) {
             setStep(step + 1);
         } else {
             handleSubmit();
@@ -130,7 +123,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
     };
 
     const handleSubmit = async () => {
-        const isAllValid = [0, 1, 2, 3].every(i => validateStep(i));
+        const isAllValid = [0, 1, 2].every(i => validateStep(i));
         if (!isAllValid) {
             setErrorMessage("Por favor responde a todas las preguntas obligatorias antes de comenzar.");
             return;
@@ -151,7 +144,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
         }
     };
 
-    const progressPercentages = [14, 43, 71, 100];
+    const progressPercentages = [33, 66, 100];
     const progress = progressPercentages[step];
 
     return (
@@ -193,19 +186,17 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
             >
                 <h2 className="text-3xl md:text-[36px] font-extrabold text-white leading-tight tracking-tight mb-3">
                     {step === 0 && "Personalicemos tu experiencia"}
-                    {step === 1 && "Definamos qué quieres promocionar"}
-                    {step === 2 && "Cuéntanos con qué recursos cuentas"}
-                    {step === 3 && "Preparemos un plan que puedas cumplir"}
+                    {step === 1 && "Cuéntanos con qué recursos cuentas"}
+                    {step === 2 && "Preparemos un plan que puedas cumplir"}
                 </h2>
                 <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up max-w-xl mx-auto" style={{ fontSize: '1.2rem', lineHeight: '1.5' }}>
                     {step === 0 && (
                         <>
-                            Cuéntanos cuál es tu punto de partida para recomendarte el mejor recorrido dentro de Aprende Marketing. <br /><span className="text-[#FF5A1F] font-semibold">Te tomará menos de 3 minutos</span>.
+                            Cuéntanos cuál es tu punto de partida para recomendarte el mejor recorrido dentro de Aprende Marketing. <br /><span className="text-[#FF5A1F] font-semibold">Te tomará menos de 2 minutos</span>.
                         </>
                     )}
-                    {step === 1 && "Esto nos ayudará a recomendarte productos, audiencias y estrategias relevantes."}
-                    {step === 2 && "Adaptaremos el contenido y el embudo a los canales que ya utilizas."}
-                    {step === 3 && "Ajustaremos la estrategia a tu disponibilidad, presupuesto y principal dificultad."}
+                    {step === 1 && "Adaptaremos el contenido y el embudo a los canales que ya utilizas."}
+                    {step === 2 && "Ajustaremos la estrategia a tu disponibilidad, presupuesto y principal dificultad."}
                 </p>
             </motion.div>
 
@@ -274,51 +265,6 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
-                                            <Target className="w-4.5 h-4.5" />
-                                        </div>
-                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
-                                            ¿Cuál es tu objetivo principal?
-                                        </h3>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-2">
-                                        {[
-                                            { id: "primera_venta", label: "Conseguir mi primera venta" },
-                                            { id: "sistema", label: "Crear un sistema constante de captación y ventas" },
-                                            { id: "automatizar", label: "Automatizar un negocio que ya tengo" }
-                                        ].map((opt) => {
-                                            const isSelected = formData.mainGoal === opt.label;
-                                            return (
-                                                <button
-                                                    key={opt.id}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setFormData({ ...formData, mainGoal: opt.label });
-                                                        setAttemptedNext(false);
-                                                    }}
-                                                    className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4 ${
-                                                        isSelected 
-                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
-                                                            : attemptedNext && !formData.mainGoal 
-                                                                ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
-                                                    }`}
-                                                >
-                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
-                                                    }`}>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
-                                                    </div>
-                                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-0 animate-fade-in-up" style={{ marginTop: '0', fontSize: '1rem' }}>{opt.label}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {/* Pregunta 3 */}
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
                                             <Globe className="w-4.5 h-4.5" />
                                         </div>
                                         <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
@@ -358,154 +304,8 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                         </div>
                     )}
 
-                    {/* Paso 2: Definamos qué quieres promocionar */}
+                    {/* Paso 2: Cuéntanos con qué recursos cuentas */}
                     {step === 1 && (
-                        <div className="space-y-8 relative z-10">
-                            <div className="space-y-8">
-                                {/* Pregunta 1 */}
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
-                                            <Rocket className="w-4.5 h-4.5" />
-                                        </div>
-                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
-                                            ¿Cómo quieres comenzar?
-                                        </h3>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-2">
-                                        {[
-                                            { id: "elegir", label: "Quiero elegir un producto analizado por Aprende Marketing." },
-                                            { id: "tengo", label: "Ya tengo un producto y quiero crear su estrategia." },
-                                            { id: "nose", label: "Todavía no sé cuál es la mejor opción para mí." }
-                                        ].map((opt) => {
-                                            const isSelected = formData.howToStart === opt.label;
-                                            return (
-                                                <button
-                                                    key={opt.id}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setFormData({ ...formData, howToStart: opt.label });
-                                                        setAttemptedNext(false);
-                                                    }}
-                                                    className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4 ${
-                                                        isSelected 
-                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
-                                                            : attemptedNext && !formData.howToStart 
-                                                                ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
-                                                    }`}
-                                                >
-                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
-                                                    }`}>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
-                                                    </div>
-                                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-0 animate-fade-in-up" style={{ marginTop: '0', fontSize: '1rem' }}>{opt.label}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {/* Pregunta 2 */}
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
-                                            <Tag className="w-4.5 h-4.5" />
-                                        </div>
-                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
-                                            ¿Qué temática te interesa más?
-                                        </h3>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-2">
-                                        {[
-                                            { id: "belleza", label: "Belleza y cuidado personal." },
-                                            { id: "salud", label: "Salud y bienestar." },
-                                            { id: "dinero", label: "Dinero y negocios." },
-                                            { id: "relaciones", label: "Relaciones y desarrollo personal." },
-                                            { id: "educacion", label: "Educación y habilidades." },
-                                            { id: "tech", label: "Tecnología y herramientas digitales." },
-                                            { id: "nopo", label: "Todavía no lo tengo claro." }
-                                        ].map((opt) => {
-                                            const isSelected = formData.niche === opt.label;
-                                            return (
-                                                <button
-                                                    key={opt.id}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setFormData({ ...formData, niche: opt.label });
-                                                        setAttemptedNext(false);
-                                                    }}
-                                                    className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4 ${
-                                                        isSelected 
-                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
-                                                            : attemptedNext && !formData.niche 
-                                                                ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
-                                                    }`}
-                                                >
-                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
-                                                    }`}>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
-                                                    </div>
-                                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-0 animate-fade-in-up" style={{ marginTop: '0', fontSize: '1rem' }}>{opt.label}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {/* Pregunta 3 */}
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
-                                            <Target className="w-4.5 h-4.5" />
-                                        </div>
-                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
-                                            ¿Qué quieres conseguir primero?
-                                        </h3>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-2">
-                                        {[
-                                            { id: "lanzar", label: "Lanzar mi primera estrategia y conseguir mi primera venta." },
-                                            { id: "sistema_cap", label: "Crear un sistema constante de captación y seguimiento." },
-                                            { id: "mejorar", label: "Mejorar una estrategia que ya estoy utilizando." }
-                                        ].map((opt) => {
-                                            const isSelected = formData.achievementPriority === opt.label;
-                                            return (
-                                                <button
-                                                    key={opt.id}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setFormData({ ...formData, achievementPriority: opt.label });
-                                                        setAttemptedNext(false);
-                                                    }}
-                                                    className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4 ${
-                                                        isSelected 
-                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
-                                                            : attemptedNext && !formData.achievementPriority 
-                                                                ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
-                                                    }`}
-                                                >
-                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
-                                                    }`}>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
-                                                    </div>
-                                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-0 animate-fade-in-up" style={{ marginTop: '0', fontSize: '1rem' }}>{opt.label}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Paso 3: Cuéntanos con qué recursos cuentas */}
-                    {step === 2 && (
                         <div className="space-y-8 relative z-10">
                             <div className="space-y-8">
                                 {/* Pregunta 1 */}
@@ -557,58 +357,12 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         })}
                                     </div>
                                 </div>
-
-                                {/* Pregunta 2 */}
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
-                                            <PenTool className="w-4.5 h-4.5" />
-                                        </div>
-                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
-                                            ¿Cómo te gustaría crear contenido?
-                                        </h3>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-2">
-                                        {[
-                                            { id: "camara", label: "Apareciendo frente a la cámara." },
-                                            { id: "voz", label: "Con voz, pero sin mostrar mi rostro." },
-                                            { id: "textos", label: "Con videos y textos sin utilizar mi voz." },
-                                            { id: "claro", label: "Todavía no lo tengo claro." }
-                                        ].map((opt) => {
-                                            const isSelected = formData.contentCreationPreference === opt.label;
-                                            return (
-                                                <button
-                                                    key={opt.id}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setFormData({ ...formData, contentCreationPreference: opt.label });
-                                                        setAttemptedNext(false);
-                                                    }}
-                                                    className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-4 ${
-                                                        isSelected 
-                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
-                                                            : attemptedNext && !formData.contentCreationPreference
-                                                                ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
-                                                    }`}
-                                                >
-                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                                        isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
-                                                    }`}>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
-                                                    </div>
-                                                    <span className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-0 animate-fade-in-up" style={{ marginTop: '0', fontSize: '1rem' }}>{opt.label}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     )}
 
-                    {/* Paso 4: Preparemos un plan que puedas cumplir */}
-                    {step === 3 && (
+                    {/* Paso 3: Preparemos un plan que puedas cumplir */}
+                    {step === 2 && (
                         <div className="space-y-8 relative z-10">
                             <div className="space-y-8">
                                 {/* Pregunta 1 */}
