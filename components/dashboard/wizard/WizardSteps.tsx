@@ -74,7 +74,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
         { id: 'Belleza', label: 'Belleza', icon: '💄' },
         { id: 'Manualidades', label: 'Manualidades', icon: '🧶' },
         { id: 'Mascotas', label: 'Mascotas', icon: '🐾' },
-        { id: 'Negocios', label: 'Negocios', icon: '📈' },
+        { id: 'Negocios', label: 'Negocios', icon: '💼' },
     ];
 
     if (loading) {
@@ -93,13 +93,22 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
             className="space-y-6 font-sans max-w-[1240px] mx-auto px-2 md:px-4 relative py-2"
         >
             {/* Header */}
-            <div className="text-center space-y-3">
-                <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+            <div className="text-center space-y-2.5">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
                     Elige tu <span className="text-[#FF5A1F]">Producto Digital</span>
                 </h2>
+                <p className="text-zinc-300 font-normal text-sm sm:text-base max-w-2xl mx-auto">
+                    Selecciona un proyecto listo para empezar y construye tu primer sistema digital con ayuda guiada.
+                </p>
+
+                {/* Glowing Spark Divider */}
+                <div className="relative flex justify-center items-center my-3 max-w-xs mx-auto">
+                    <div className="w-full h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent"></div>
+                    <div className="absolute w-2 h-2 rounded-full bg-[#FF5A1F] blur-[2px] shadow-[0_0_10px_#FF5A1F]"></div>
+                </div>
 
                 {/* Filter Pills Bar */}
-                <div className="flex items-center justify-center gap-2 md:gap-3 flex-wrap pt-3 pb-2">
+                <div className="flex items-center justify-center gap-2 md:gap-3 flex-wrap pt-1 pb-1">
                     {categories.map((cat) => {
                         const isActive = activeCategory === cat.id;
                         return (
@@ -107,10 +116,10 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                 key={cat.id}
                                 type="button"
                                 onClick={() => setActiveCategory(cat.id)}
-                                className={`flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                                     isActive
-                                        ? 'bg-[#18181b] border-2 border-[#FF5A1F] text-white shadow-[0_0_20px_rgba(255,90,31,0.25)] scale-102'
-                                        : 'bg-[#18181b]/80 border border-zinc-800/80 text-zinc-400 hover:text-white hover:border-zinc-700'
+                                        ? 'bg-[#121215] border border-[#FF5A1F] text-white shadow-[0_0_20px_rgba(255,90,31,0.25)] scale-102'
+                                        : 'bg-[#121215]/80 border border-zinc-800/80 text-zinc-300 hover:text-white hover:border-zinc-700'
                                 }`}
                             >
                                 <span className="text-base">{cat.icon}</span>
@@ -122,109 +131,143 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
             </div>
 
             {/* Product Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full items-stretch pt-2">
                 {projects.slice(0, 3).map((project, index) => {
                     const isSelected = selectedProjectId === project.id;
 
-                    // Descriptions customized to match design / fallback
                     const titles = [
                         "Certificación Expert Microblading",
                         "Curso de Maquillaje Profesional",
-                        "Tratamientos Faciales Avanzados"
+                        "Master en Pisos de Resina Epóxica"
                     ];
 
                     const descriptions = [
-                        "Domina la técnica de cejas más rentable y triplica tus ingresos.",
-                        "Ideal para estilistas y personas interesadas en el arte del color.",
-                        "Técnicas de cuidado de la piel y nutrición profunda."
+                        "Domina la técnica de cejas y crea un servicio rentable con alta demanda.",
+                        "Aprende maquillaje, color y técnica profesional para realzar la belleza en cualquier ocasión.",
+                        "Aprende acabados profesionales en pisos de resina y conviértelo en un servicio altamente rentable."
                     ];
-
-                    const commissions = ["50%", "60%", "45%"];
-                    const difficulties = ["Principiante", "Principiante", "Intermedio"];
 
                     const displayTitle = project.name?.toLowerCase().includes("microblading") 
                         ? "Certificación Expert Microblading" 
                         : (project.name?.toLowerCase().includes("manicurista") 
                             ? "Curso de Maquillaje Profesional" 
-                            : (titles[index] || project.name));
+                            : (project.name?.toLowerCase().includes("pisos") || project.name?.toLowerCase().includes("resina")
+                                ? "Master en Pisos de Resina Epóxica"
+                                : (titles[index] || project.name)));
 
                     let idealForDesc = descriptions[index] || project.shortDescription || project.description;
-                    if (project.name?.toLowerCase().includes("manicurista")) {
-                        idealForDesc = "Ideal para estilistas y personas interesadas en el arte del color.";
-                    } else if (project.name?.toLowerCase().includes("microblading") || project.name?.toLowerCase().includes("cejas")) {
-                        idealForDesc = "Domina la técnica de cejas más rentable y triplica tus ingresos.";
+                    if (project.name?.toLowerCase().includes("microblading") || project.name?.toLowerCase().includes("cejas")) {
+                        idealForDesc = "Domina la técnica de cejas y crea un servicio rentable con alta demanda.";
+                    } else if (project.name?.toLowerCase().includes("manicurista") || project.name?.toLowerCase().includes("maquillaje")) {
+                        idealForDesc = "Aprende maquillaje, color y técnica profesional para realzar la belleza en cualquier ocasión.";
+                    } else if (project.name?.toLowerCase().includes("pisos") || project.name?.toLowerCase().includes("resina")) {
+                        idealForDesc = "Aprende acabados profesionales en pisos de resina y conviértelo en un servicio altamente rentable.";
                     }
 
                     return (
                         <motion.div 
                             key={project.id}
                             whileHover={isLocked ? {} : { y: -6 }}
-                            className={`bg-[#0b0b0c] border border-zinc-800/80 hover:border-2 hover:border-[#FF5A1F] hover:shadow-[0_0_30px_rgba(255,90,31,0.25)] ${
-                                isSelected ? 'border-2 border-[#FF5A1F] shadow-[0_0_30px_rgba(255,90,31,0.2)]' : ''
-                            } ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-3xl overflow-hidden group cursor-pointer transition-all flex flex-col h-full relative w-full`}
+                            className={`bg-[#0b0b0d] border border-zinc-800/80 hover:border-[#FF5A1F]/60 hover:shadow-[0_0_30px_rgba(255,90,31,0.25)] ${
+                                isSelected ? 'border-2 border-[#FF5A1F] shadow-[0_0_30px_rgba(255,90,31,0.25)]' : ''
+                            } ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-3xl p-5 md:p-6 flex flex-col justify-between h-full relative w-full group cursor-pointer transition-all duration-300 space-y-4`}
                             onClick={() => !isLocked && setConfirmingProject(project)}
                         >
-                            {/* Hover Header Bar */}
-                            <div className="py-2 bg-transparent group-hover:bg-[#FF5A1F] text-transparent group-hover:text-white text-center w-full transition-all duration-200 min-h-[32px] flex items-center justify-center">
-                                <span className="text-[10px] md:text-xs font-black tracking-[0.1em] uppercase flex items-center justify-center gap-1">
-                                    ★ SELECCIONAR ESTE PRODUCTO
-                                </span>
+                            {/* Image Container with floating Category badge Top-Left */}
+                            <div className="h-44 md:h-48 bg-zinc-900 relative overflow-hidden rounded-2xl shrink-0 border border-zinc-800/50">
+                                {project.multimedia_json?.heroImages?.[0] ? (
+                                    <img 
+                                        src={project.multimedia_json.heroImages[0]} 
+                                        alt={project.name} 
+                                        referrerPolicy="no-referrer"
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
+                                        <Package className="w-10 h-10 text-[#FF5A1F] opacity-30" />
+                                    </div>
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                                
+                                {/* Floating category Badge Top-Left */}
+                                <div className="absolute top-3 left-3 z-10">
+                                    <span className="px-3 py-1 bg-black/75 backdrop-blur-md text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-white/10 shadow-sm">
+                                        <span>💄</span> Categoría: {activeCategory}
+                                    </span>
+                                </div>
                             </div>
 
-                            {/* Card Content Padding */}
-                            <div className="p-4 md:p-5 flex flex-col flex-grow space-y-4 justify-between">
-                                {/* Image Container with floating Category badge */}
-                                <div className="h-44 md:h-48 bg-zinc-900 relative overflow-hidden rounded-2xl shrink-0">
-                                    {project.multimedia_json?.heroImages?.[0] ? (
-                                        <img 
-                                            src={project.multimedia_json.heroImages[0]} 
-                                            alt={project.name} 
-                                            referrerPolicy="no-referrer"
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
-                                            <Package className="w-10 h-10 text-[#FF5A1F] opacity-30" />
-                                        </div>
-                                    )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                                    
-                                    {/* Floating category Badge */}
-                                    <div className="absolute bottom-3 left-3 z-10">
-                                        <span className="px-3 py-1 bg-black/70 backdrop-blur-md text-white text-[10px] md:text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-white/10">
-                                            <span>💄</span> Categoría: {activeCategory}
-                                        </span>
-                                    </div>
+                            {/* Content Block */}
+                            <div className="space-y-2 text-left flex-grow">
+                                <div className="flex items-center gap-1.5 text-[#FF5A1F] text-xs font-black tracking-wider uppercase pt-1">
+                                    <Star className="w-3.5 h-3.5 fill-[#FF5A1F]" />
+                                    <span>PROYECTO RECOMENDADO</span>
                                 </div>
 
-                                {/* Title & Description */}
-                                <div className="space-y-2 text-left flex-grow">
-                                    <h3 className={`text-lg md:text-xl font-extrabold leading-snug tracking-tight ${isSelected ? 'text-[#FF5A1F]' : 'text-white'} group-hover:text-[#FF5A1F] transition-colors line-clamp-2`}>
-                                        {displayTitle}
-                                    </h3>
+                                <h3 className={`text-lg md:text-xl font-extrabold leading-snug tracking-tight ${isSelected ? 'text-[#FF5A1F]' : 'text-white'} group-hover:text-[#FF5A1F] transition-colors line-clamp-2`}>
+                                    {displayTitle}
+                                </h3>
 
-                                    <p className="text-zinc-400 text-xs md:text-sm leading-relaxed font-light line-clamp-3">
-                                        {idealForDesc}
-                                    </p>
-                                </div>
+                                <p className="text-zinc-400 text-xs md:text-sm leading-relaxed font-light line-clamp-3">
+                                    {idealForDesc}
+                                </p>
+                            </div>
 
-                                {/* Stats & Action Button */}
-                                <div className="pt-3 border-t border-zinc-800/60 space-y-3 mt-auto">
-                                    <button 
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (!isLocked) setConfirmingProject(project);
-                                        }}
-                                        className="w-full py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-lg transition-all cursor-pointer"
-                                    >
-                                        ELEGIR ESTE PRODUCTO
-                                    </button>
-                                </div>
+                            {/* Action Button */}
+                            <div className="pt-2 mt-auto">
+                                <button 
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (!isLocked) setConfirmingProject(project);
+                                    }}
+                                    className="w-full py-3.5 px-5 bg-gradient-to-r from-[#FF5A1F] to-[#FF4500] hover:from-[#FF4500] hover:to-[#FF5A1F] text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(255,90,31,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+                                >
+                                    <span>ELEGIR ESTE PRODUCTO</span>
+                                    <ArrowRight className="w-4 h-4 shrink-0" />
+                                </button>
                             </div>
                         </motion.div>
                     );
                 })}
+            </div>
+
+            {/* Bottom Features Bar matching Image 2 */}
+            <div className="pt-6 border-t border-zinc-800/60 max-w-5xl mx-auto w-full">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-center text-left">
+                    {/* Feature 1 */}
+                    <div className="flex items-center gap-3.5 px-2">
+                        <div className="w-10 h-10 rounded-2xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                            <ShieldCheck className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-white font-bold text-xs sm:text-sm">Proyectos probados</p>
+                            <p className="text-zinc-400 text-[11px] sm:text-xs font-light">Enfocados en resultados reales</p>
+                        </div>
+                    </div>
+
+                    {/* Feature 2 */}
+                    <div className="flex items-center gap-3.5 px-2 md:border-l md:border-zinc-800/80">
+                        <div className="w-10 h-10 rounded-2xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                            <GraduationCap className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-white font-bold text-xs sm:text-sm">Guía paso a paso</p>
+                            <p className="text-zinc-400 text-[11px] sm:text-xs font-light">Aprende con método y claridad</p>
+                        </div>
+                    </div>
+
+                    {/* Feature 3 */}
+                    <div className="flex items-center gap-3.5 px-2 md:border-l md:border-zinc-800/80">
+                        <div className="w-10 h-10 rounded-2xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                            <Rocket className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-white font-bold text-xs sm:text-sm">Escala tu negocio</p>
+                            <p className="text-zinc-400 text-[11px] sm:text-xs font-light">Convierte tu aprendizaje en ingresos</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Confirmation Modal (Image 2 content) */}
@@ -281,7 +324,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                     >
                         <div 
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-[#0b0b0c] border border-zinc-800/90 rounded-3xl max-w-4xl w-full p-6 md:p-8 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative text-left my-auto space-y-6 cursor-default"
+                            className="bg-[#0b0b0d] border border-orange-500/20 rounded-3xl max-w-4xl w-full p-6 md:p-8 shadow-[0_0_60px_rgba(255,90,31,0.15)] relative text-left my-auto space-y-5 cursor-default"
                         >
                             {/* Close X Button */}
                             <button
@@ -294,26 +337,29 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                             </button>
 
                             {/* Header Text */}
-                            <div className="text-center space-y-1">
-                                <h2 className="text-xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">
-                                    ¿Estás seguro de elegir este producto digital?
+                            <div className="text-center space-y-1.5">
+                                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+                                    Confirma tu producto digital
                                 </h2>
+                                <p className="text-zinc-400 text-xs sm:text-sm font-normal">
+                                    Revisa los datos antes de crear tu estrategia.
+                                </p>
                             </div>
 
                             {/* Inner Box Container */}
-                            <div className="bg-[#111113] border border-zinc-800/80 rounded-2xl p-5 md:p-7 space-y-6">
+                            <div className="bg-[#101012] border border-zinc-800/80 rounded-2xl p-5 md:p-6 space-y-5">
                                 {/* Category Badge & Title */}
                                 <div className="space-y-2">
-                                    <span className="px-3 py-1 bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 text-[#FF5A1F] text-[10px] md:text-xs font-black uppercase tracking-wider rounded-lg inline-block">
+                                    <span className="px-3 py-1 bg-orange-950/50 border border-orange-500/40 text-[#FF5A1F] text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-lg inline-block">
                                         {categoryLabel}
                                     </span>
-                                    <h3 className="text-2xl md:text-3xl font-extrabold text-white leading-snug">
+                                    <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-snug">
                                         {displayTitle}
                                     </h3>
                                 </div>
 
                                 {/* 2-Column Grid: Left Image, Right Metric Boxes */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
                                     {/* Left Column: Image with Play Overlay */}
                                     <div className="relative rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800/80 aspect-video md:aspect-[4/3] flex items-center justify-center group shadow-md">
                                         {heroImage ? (
@@ -328,55 +374,55 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                                 <Package className="w-12 h-12 text-[#FF5A1F] opacity-40" />
                                             </div>
                                         )}
-                                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                                            <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-[0_0_25px_rgba(255,90,31,0.6)] transform group-hover:scale-110 transition-transform cursor-pointer">
-                                                <Play className="w-7 h-7 fill-white ml-1" />
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                            <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-black/60 border-2 border-[#FF5A1F] text-[#FF5A1F] flex items-center justify-center shadow-[0_0_25px_rgba(255,90,31,0.5)] transform group-hover:scale-110 transition-transform cursor-pointer backdrop-blur-sm">
+                                                <Play className="w-7 h-7 fill-[#FF5A1F] ml-1" />
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Right Column: 3 Detail Metric Boxes */}
                                     <div className="space-y-3">
-                                        {/* Box 1: Precio */}
-                                        <div className="bg-[#18181b]/90 border border-zinc-800 rounded-2xl p-4 flex items-center gap-4">
-                                            <div className="w-11 h-11 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
+                                        {/* Box 1: Precio de Venta */}
+                                        <div className="bg-[#141417] border border-zinc-800/90 rounded-2xl p-3.5 sm:p-4 flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
                                                 <Tag className="w-5 h-5 text-[#FF5A1F]" />
                                             </div>
                                             <div>
-                                                <span className="text-[10px] md:text-xs font-black text-zinc-400 uppercase tracking-wider block">
-                                                    PRECIO DEL PRODUCTO
+                                                <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase tracking-wider block">
+                                                    PRECIO DE VENTA
                                                 </span>
-                                                <span className="text-lg md:text-xl font-extrabold text-white">
+                                                <span className="text-base md:text-lg font-black text-white">
                                                     USD {price}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        {/* Box 2: Comisión */}
-                                        <div className="bg-[#18181b]/90 border border-blue-900/40 rounded-2xl p-4 flex items-center gap-4">
-                                            <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
-                                                <Percent className="w-5 h-5 text-blue-400" />
+                                        {/* Box 2: Tu Comisión */}
+                                        <div className="bg-[#141417] border border-zinc-800/90 rounded-2xl p-3.5 sm:p-4 flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
+                                                <Percent className="w-5 h-5 text-[#FF5A1F]" />
                                             </div>
                                             <div>
-                                                <span className="text-[10px] md:text-xs font-black text-zinc-400 uppercase tracking-wider block">
-                                                    COMISIÓN QUE OBTENDRÁS
+                                                <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase tracking-wider block">
+                                                    TU COMISIÓN
                                                 </span>
-                                                <span className="text-lg md:text-xl font-extrabold text-white">
+                                                <span className="text-base md:text-lg font-black text-white">
                                                     {displayCommission} %
                                                 </span>
                                             </div>
                                         </div>
 
-                                        {/* Box 3: Ganancia */}
-                                        <div className="bg-[#18181b]/90 border border-emerald-900/40 rounded-2xl p-4 flex items-center gap-4">
-                                            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                                                <TrendingUp className="w-5 h-5 text-emerald-400" />
+                                        {/* Box 3: Ganancia Estimada (Highlighted with Orange Border) */}
+                                        <div className="bg-[#181414] border-2 border-[#FF5A1F] shadow-[0_0_20px_rgba(255,90,31,0.2)] rounded-2xl p-3.5 sm:p-4 flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center shrink-0">
+                                                <TrendingUp className="w-5 h-5 text-[#FF5A1F]" />
                                             </div>
                                             <div>
-                                                <span className="text-[10px] md:text-xs font-black text-zinc-400 uppercase tracking-wider block">
-                                                    TU GANANCIA POR VENTA
+                                                <span className="text-[10px] md:text-xs font-bold text-zinc-300 uppercase tracking-wider block">
+                                                    GANANCIA ESTIMADA POR VENTA
                                                 </span>
-                                                <span className="text-lg md:text-xl font-extrabold text-white">
+                                                <span className="text-lg md:text-xl font-black text-white">
                                                     USD {profit}
                                                 </span>
                                             </div>
@@ -386,7 +432,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="space-y-3 pt-2">
+                            <div className="space-y-3 pt-1">
                                 <button
                                     type="button"
                                     onClick={() => {
@@ -394,19 +440,23 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                         setConfirmingProject(null);
                                         onNext(p);
                                     }}
-                                    className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_10px_30px_-5px_rgba(255,90,31,0.5)] transition-all cursor-pointer flex items-center justify-center gap-2 group"
+                                    className="w-full py-4 bg-gradient-to-r from-[#FF5A1F] via-[#FF4500] to-[#FF5A1F] hover:opacity-95 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_25px_rgba(255,90,31,0.45)] border border-orange-400/30 transition-all cursor-pointer flex items-center justify-center gap-2.5 active:scale-[0.99]"
                                 >
-                                    <span>ELEGIR ESTE PRODUCTO Y CREAR MI ESTRATEGIA</span>
-                                    <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    <span>CONFIRMAR Y CREAR MI ESTRATEGIA</span>
+                                    <ArrowRight className="w-5 h-5 shrink-0" />
                                 </button>
 
                                 <button
                                     type="button"
                                     onClick={() => setConfirmingProject(null)}
-                                    className="w-full py-3 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white font-bold text-xs md:text-sm uppercase tracking-wider rounded-2xl border border-zinc-800 transition-all cursor-pointer text-center"
+                                    className="w-full py-3.5 bg-[#121215] hover:bg-zinc-800/80 text-white font-bold text-xs sm:text-sm uppercase tracking-wider rounded-2xl border border-zinc-800 transition-all cursor-pointer text-center"
                                 >
-                                    Elegir otro producto
+                                    ELEGIR OTRO PRODUCTO
                                 </button>
+
+                                <p className="text-center text-zinc-400 text-xs font-normal tracking-wide pt-1">
+                                    Podrás cambiar de producto más adelante.
+                                </p>
                             </div>
 
                         </div>
