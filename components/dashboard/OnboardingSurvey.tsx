@@ -197,10 +197,10 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                     {step === 2 && "Cuéntanos con qué recursos cuentas"}
                     {step === 3 && "Preparemos un plan que puedas cumplir"}
                 </h2>
-                <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up max-w-xl mx-auto" style={{ fontSize: '1.2rem' }}>
+                <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up max-w-xl mx-auto" style={{ fontSize: '1.2rem', lineHeight: '1.5' }}>
                     {step === 0 && (
                         <>
-                            Cuéntanos cuál es tu punto de partida para recomendarte el mejor recorrido dentro de Aprende Marketing. Te tomará <span className="text-[#FF5A1F] font-semibold">menos de 3 minutos</span>.
+                            Cuéntanos cuál es tu punto de partida para recomendarte el mejor recorrido dentro de Aprende Marketing. <br /><span className="text-[#FF5A1F] font-semibold">Te tomará menos de 3 minutos</span>.
                         </>
                     )}
                     {step === 1 && "Esto nos ayudará a recomendarte productos, audiencias y estrategias relevantes."}
