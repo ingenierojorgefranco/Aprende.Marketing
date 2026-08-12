@@ -38,7 +38,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, o
 
                 {/* Subtítulo */}
                 <h2 className="text-xl md:text-2xl font-bold text-[#FF5A1F] tracking-tight pt-2">
-                    ¡Ya estás dentro! Vamos a dar el primer paso.
+                    ¡A continuación te ayudaré a crear tu primer proyecto digital!
                 </h2>
 
                 {/* Mensaje de Instrucción */}
@@ -46,7 +46,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, o
                     className="max-w-2xl mx-auto leading-relaxed text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up pt-2" 
                     style={{ fontSize: "1.2em", lineHeight: "1.4em", paddingTop: "1.5em" }}
                 >
-                    Te ayudaremos a lanzar tu primer proyecto digital de la forma más rápida. Para hacerlo muy fácil, nuestros profesionales han preconfigurado varios proyectos listos para usar. <br /><br />Solo tienes que elegir el que mejor se adapte a ti y nosotros haremos el trabajo pesado.
+                    Para hacerlo muy fácil, hemos seleccionado varios productos digitales que podrás elegir y usar. <br /><br />Solo tienes que elegir el que mejor se adapte a ti y nuestra inteligencia artificial creará todo lo que necesitas para convertirlo en tu primer negocio digital.
                 </p>
             </div>
 
@@ -57,7 +57,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, o
                     disabled={disabled}
                     className={`group flex items-center gap-3 px-8 py-4 ${disabled ? 'bg-zinc-800 cursor-not-allowed opacity-50 text-zinc-500' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] shadow-[0_12px_30px_-5px_rgba(255,90,31,0.4)] transform hover:-translate-y-0.5 active:scale-98'} text-white rounded-2xl font-black text-base md:text-lg tracking-wide transition-all mx-auto cursor-pointer`}
                 >
-                    {disabled ? 'Configuración en proceso' : 'Elegir mi primer proyecto'}
+                    {disabled ? 'Configuración en proceso' : 'Elegir mi Producto Digital'}
                     {!disabled && <ChevronRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />}
                 </button>
             </div>
@@ -108,7 +108,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                         color: 'white',
                     }}
                 >
-                    Selecciona un proyecto listo para empezar y construye tu primer sistema digital con ayuda guiada.
+                    Elige el Producto Digital que mejor se adapte a ti, nuestro sistema creará un sistema de ventas completo con inteligencia artificial para este producto digital
                 </p>
 
                 {/* Glowing Spark Divider */}
@@ -355,7 +355,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                     Confirma tu producto digital
                                 </h2>
                                 <p className="text-zinc-400 text-xs sm:text-sm font-normal">
-                                    Revisa los datos antes de crear tu estrategia.
+                                    Revisa y confirma la información del producto digital para crear tu proyecto
                                 </p>
                             </div>
 
@@ -403,7 +403,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                             </div>
                                             <div>
                                                 <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase tracking-wider block">
-                                                    PRECIO DE VENTA
+                                                    Precio en el que se venderá tu Producto
                                                 </span>
                                                 <span className="text-base md:text-lg font-black text-white">
                                                     USD {price}
@@ -418,7 +418,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                             </div>
                                             <div>
                                                 <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase tracking-wider block">
-                                                    TU COMISIÓN
+                                                    % de Comisión por recomendarlo
                                                 </span>
                                                 <span className="text-base md:text-lg font-black text-white">
                                                     {displayCommission} %
@@ -433,7 +433,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                             </div>
                                             <div>
                                                 <span className="text-[10px] md:text-xs font-bold text-zinc-300 uppercase tracking-wider block">
-                                                    GANANCIA ESTIMADA POR VENTA
+                                                    ¿Cuánto ganarás por cada venta?
                                                 </span>
                                                 <span className="text-lg md:text-xl font-black text-white">
                                                     USD {profit}
@@ -455,7 +455,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                     }}
                                     className="w-full py-4 bg-gradient-to-r from-[#FF5A1F] via-[#FF4500] to-[#FF5A1F] hover:opacity-95 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_25px_rgba(255,90,31,0.45)] border border-orange-400/30 transition-all cursor-pointer flex items-center justify-center gap-2.5 active:scale-[0.99]"
                                 >
-                                    <span>CONFIRMAR Y CREAR MI ESTRATEGIA</span>
+                                    <span>CONFIRMAR Y CREAR MI PROYECTO</span>
                                     <ArrowRight className="w-5 h-5 shrink-0" />
                                 </button>
 
@@ -464,11 +464,11 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                     onClick={() => setConfirmingProject(null)}
                                     className="w-full py-3.5 bg-[#121215] hover:bg-zinc-800/80 text-white font-bold text-xs sm:text-sm uppercase tracking-wider rounded-2xl border border-zinc-800 transition-all cursor-pointer text-center"
                                 >
-                                    ELEGIR OTRO PRODUCTO
+                                    ELEGIR OTRO PRODUCTO DIGITAL
                                 </button>
 
                                 <p className="text-center text-zinc-400 text-xs font-normal tracking-wide pt-1">
-                                    Podrás cambiar de producto más adelante.
+                                    Nuestra inteligencia artificial creará todo lo que necesitas para ganar dinero con este producto digital
                                 </p>
                             </div>
 
@@ -935,44 +935,16 @@ export const AvatarRevealStep: React.FC<StepProps & { avatars: any[] }> = ({ ava
 };
 
 // 4.5 ESTRATEGIA LISTA
-export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onNext, project }) => {
+export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onNext }) => {
     return (
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center text-center space-y-7 max-w-4xl mx-auto px-4 py-6 font-sans relative"
+            className="flex flex-col items-center justify-center text-center space-y-7 max-w-6xl mx-auto px-4 py-8 font-sans relative"
         >
             {/* Ambient background glowing curve */}
             <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden flex items-center justify-center">
-                <div className="w-[750px] h-[750px] rounded-full border border-orange-500/15 bg-gradient-to-b from-orange-500/5 via-transparent to-transparent blur-3xl opacity-60"></div>
-            </div>
-
-            {/* Stepper Progress Bar at Top */}
-            <div className="flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-medium text-zinc-300 pb-2">
-                <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full border border-[#FF5A1F] text-[#FF5A1F] flex items-center justify-center shrink-0 bg-[#FF5A1F]/10">
-                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                    </div>
-                    <span className="text-zinc-300 text-xs sm:text-sm">Producto seleccionado</span>
-                </div>
-
-                <div className="w-8 sm:w-12 h-[1px] bg-zinc-800"></div>
-
-                <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full border border-[#FF5A1F] text-[#FF5A1F] flex items-center justify-center shrink-0 bg-[#FF5A1F]/10">
-                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                    </div>
-                    <span className="text-zinc-300 text-xs sm:text-sm">Estrategia inicial</span>
-                </div>
-
-                <div className="w-8 sm:w-12 h-[1px] bg-zinc-800"></div>
-
-                <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-[#FF5A1F]/15 border border-[#FF5A1F] text-[#FF5A1F] font-bold flex items-center justify-center text-[11px] shrink-0">
-                        03
-                    </div>
-                    <span className="text-white font-bold text-xs sm:text-sm">Página de captura</span>
-                </div>
+                <div className="w-[850px] h-[850px] rounded-full border border-orange-500/15 bg-gradient-to-b from-orange-500/5 via-transparent to-transparent blur-3xl opacity-60"></div>
             </div>
 
             {/* Checkmark Icon with Glowing Box */}
@@ -986,8 +958,8 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
             </div>
 
             {/* Main Title & Description */}
-            <div className="space-y-4 max-w-3xl mx-auto">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight max-w-3xl mx-auto">
+            <div className="space-y-4 max-w-5xl mx-auto w-full">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight sm:whitespace-nowrap">
                     Tu proyecto está listo para <span className="text-[#FF5A1F]">empezar</span>
                 </h2>
                 <div className="space-y-1 text-zinc-300 font-normal text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
