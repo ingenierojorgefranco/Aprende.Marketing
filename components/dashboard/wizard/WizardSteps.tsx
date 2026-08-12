@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink, GraduationCap, Puzzle, Clock, Crown, Download, Calendar, Check, X, AlertTriangle } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
@@ -21,36 +21,8 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, o
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-8 max-w-3xl mx-auto px-4 font-sans py-4"
+            className="text-center space-y-8 max-w-3xl mx-auto px-4 font-sans py-8"
         >
-            {/* Step Navigation Pill Bar */}
-            <div className="flex items-center justify-center gap-2 mb-2 flex-wrap">
-                <div
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FF5A1F] text-white shadow-[0_0_15px_rgba(255,90,31,0.35)]"
-                >
-                    <span>Step 1</span>
-                    <span className="text-[10px] opacity-90">(Bienvenida)</span>
-                </div>
-                <span className="text-zinc-600 font-bold">•</span>
-                <button
-                    type="button"
-                    onClick={() => onGoToStep && onGoToStep(2)}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
-                >
-                    <span>Step 2 →</span>
-                    <span className="text-[10px] opacity-75">(Elegir Proyecto)</span>
-                </button>
-                <span className="text-zinc-600 font-bold">•</span>
-                <button
-                    type="button"
-                    onClick={() => onGoToStep && onGoToStep(3)}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
-                >
-                    <span>Step 3 →</span>
-                    <span className="text-[10px] opacity-75">(Revisar Producto)</span>
-                </button>
-            </div>
-
             <div className="relative inline-block">
                 <div className="absolute inset-0 bg-[#FF5A1F]/30 blur-3xl opacity-30 animate-pulse rounded-full"></div>
                 <div className="w-16 h-16 bg-[#FF5A1F] rounded-2xl flex items-center justify-center mx-auto relative border border-white/15 shadow-2xl">
@@ -118,36 +90,8 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="space-y-8 font-sans max-w-[1240px] mx-auto px-2 md:px-4 relative"
+            className="space-y-6 font-sans max-w-[1240px] mx-auto px-2 md:px-4 relative py-2"
         >
-            {/* Step Navigation Pill Bar */}
-            <div className="flex items-center justify-center gap-2 mb-2 flex-wrap">
-                <button
-                    type="button"
-                    onClick={() => onGoToStep && onGoToStep(1)}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
-                >
-                    <span>← Step 1</span>
-                    <span className="text-[10px] opacity-75">(Bienvenida)</span>
-                </button>
-                <span className="text-zinc-600 font-bold">•</span>
-                <div
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FF5A1F] text-white shadow-[0_0_15px_rgba(255,90,31,0.35)]"
-                >
-                    <span>Step 2</span>
-                    <span className="text-[10px] opacity-90">(Elegir Proyecto)</span>
-                </div>
-                <span className="text-zinc-600 font-bold">•</span>
-                <button
-                    type="button"
-                    onClick={() => onGoToStep && onGoToStep(3)}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
-                >
-                    <span>Step 3 →</span>
-                    <span className="text-[10px] opacity-75">(Creando Web)</span>
-                </button>
-            </div>
-
             {/* Header */}
             <div className="text-center space-y-3">
                 <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
@@ -505,36 +449,8 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
         <motion.div 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-4 font-sans max-w-5xl mx-auto px-4 md:px-0"
+            className="space-y-6 font-sans max-w-5xl mx-auto px-4 md:px-0 py-2"
         >
-            {/* Step Navigation Pill Bar */}
-            <div className="flex items-center justify-center gap-2 mb-2 flex-wrap">
-                <button
-                    type="button"
-                    onClick={() => onGoToStep && onGoToStep(1)}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
-                >
-                    <span>← Step 1</span>
-                    <span className="text-[10px] opacity-75">(Bienvenida)</span>
-                </button>
-                <span className="text-zinc-600 font-bold">•</span>
-                <button
-                    type="button"
-                    onClick={() => onGoToStep && onGoToStep(2)}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60 cursor-pointer shadow-sm"
-                >
-                    <span>← Step 2</span>
-                    <span className="text-[10px] opacity-75">(Elegir Proyecto)</span>
-                </button>
-                <span className="text-zinc-600 font-bold">•</span>
-                <div
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FF5A1F] text-white shadow-[0_0_15px_rgba(255,90,31,0.35)]"
-                >
-                    <span>Step 3</span>
-                    <span className="text-[10px] opacity-90">(Revisar Producto)</span>
-                </div>
-            </div>
-
             {/* Header / Title Area compact */}
             <div className="text-center space-y-1">
                 <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">
@@ -695,74 +611,122 @@ export const GenerationStep: React.FC<{
     onGoToStep?: (step: number) => void;
 }> = ({ progress, status, secondsElapsed = 0, message, project, onGoToStep }) => {
     const isWeb = message?.toLowerCase().includes('web') || message?.toLowerCase().includes('página') || status?.toLowerCase().includes('página');
-    const isVideo = message?.toLowerCase().includes('video') || message?.toLowerCase().includes('atracción') || message?.toLowerCase().includes('video') || status?.toLowerCase().includes('videos');
+    const isVideo = message?.toLowerCase().includes('video') || message?.toLowerCase().includes('atracción') || status?.toLowerCase().includes('videos');
+
+    const [simulatedProgress, setSimulatedProgress] = useState(6);
+
+    useEffect(() => {
+        if (progress >= 100) {
+            setSimulatedProgress(100);
+            return;
+        }
+
+        const interval = setInterval(() => {
+            setSimulatedProgress((prev) => {
+                if (prev >= 95) return prev;
+                const increment = Math.floor(Math.random() * 3) + 2;
+                return Math.min(prev + increment, 95);
+            });
+        }, 450);
+
+        return () => clearInterval(interval);
+    }, [progress]);
+
+    const activeProgress = Math.min(100, Math.max(progress, simulatedProgress));
 
     let displayTitle = (
-        <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
-            Estamos <span className="text-[#FF5A1F]">preparando</span> tu proyecto
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight sm:whitespace-nowrap">
+            Espera un momento... <span className="text-[#FF5A1F]">Estoy creando tu proyecto</span>
         </h2>
     );
     if (isWeb) {
         displayTitle = (
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight sm:whitespace-nowrap">
                 Estamos <span className="text-[#FF5A1F]">creando</span> tu página web
             </h2>
         );
     } else if (isVideo) {
         displayTitle = (
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight sm:whitespace-nowrap">
                 Estamos <span className="text-[#FF5A1F]">creando</span> tus videos
-            </h2>
-        );
-    } else {
-        displayTitle = (
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
-                Estamos <span className="text-[#FF5A1F]">preparando</span> tu proyecto
             </h2>
         );
     }
 
     const getCurrentTask = () => {
-        if (progress < 33) {
-            return {
-                title: isWeb 
-                    ? "Estoy diseñando tu estructura web" 
-                    : isVideo 
-                    ? "Estoy estructurando tus contenidos de video" 
-                    : "Estoy analizando tu producto",
-                description: isWeb 
-                    ? "Creando los bloques, secciones y la distribución visual persuasiva de tu sitio." 
-                    : isVideo 
-                    ? "Definiendo ganchos, guiones y la estructura ideal para tus reels." 
-                    : "Identificando su propuesta de valor, público objetivo y principales beneficios."
-            };
+        if (isWeb) {
+            if (activeProgress < 25) {
+                return {
+                    title: "Diseñando estructura de tu página web",
+                    description: "Creando los bloques, secciones y la distribución visual persuasiva de tu sitio."
+                };
+            } else if (activeProgress < 50) {
+                return {
+                    title: "Redactando textos persuasivos",
+                    description: "Escribiendo títulos profesionales y llamados a la acción de alta conversión."
+                };
+            } else if (activeProgress < 75) {
+                return {
+                    title: "Configurando formulario y oferta",
+                    description: "Organizando los elementos clave para capturar la atención de prospectos."
+                };
+            } else {
+                return {
+                    title: "Publicando página en la nube",
+                    description: "Desplegando tu sitio web optimizado para que comiences a capturar clientes."
+                };
+            }
+        } else if (isVideo) {
+            if (activeProgress < 25) {
+                return {
+                    title: "Estructurando contenidos de video",
+                    description: "Definiendo ganchos, guiones y la estructura ideal para tus reels."
+                };
+            } else if (activeProgress < 50) {
+                return {
+                    title: "Generando guiones de atracción viral",
+                    description: "Redactando llamadas a la acción directas y textos de alto impacto."
+                };
+            } else if (activeProgress < 75) {
+                return {
+                    title: "Optimizando ganchos iniciales",
+                    description: "Estructurando los primeros 3 segundos para maximizar la retención."
+                };
+            } else {
+                return {
+                    title: "Finalizando producción de tus videos",
+                    description: "Optimizando y organizando todo el material listo para tu proyecto."
+                };
+            }
+        } else {
+            // Project Creation
+            if (activeProgress < 20) {
+                return {
+                    title: "Estoy analizando tu producto",
+                    description: "Identificando su propuesta de valor, público objetivo y principales beneficios."
+                };
+            } else if (activeProgress < 40) {
+                return {
+                    title: "Definiendo propuesta de valor y beneficios",
+                    description: "Estructurando la promesa principal y los ganchos emocionales del producto."
+                };
+            } else if (activeProgress < 60) {
+                return {
+                    title: "Identificando dolores y deseos de tu audiencia",
+                    description: "Mapeando las necesidades, frustraciones y motivaciones de tus compradores ideales."
+                };
+            } else if (activeProgress < 80) {
+                return {
+                    title: "Estructurando estrategia de comunicación",
+                    description: "Creando ángulos de venta persuasivos para presentar la oportunidad."
+                };
+            } else {
+                return {
+                    title: "Construyendo tu estrategia inicial",
+                    description: "Finalizando la configuración de tu proyecto y preparando tu panel de control."
+                };
+            }
         }
-        if (progress < 66) {
-            return {
-                title: isWeb 
-                    ? "Estoy redactando tus textos persuasivos" 
-                    : isVideo 
-                    ? "Estoy generando tus guiones de atracción" 
-                    : "Estoy preparando el perfil de tu audiencia",
-                description: isWeb 
-                    ? "Escribiendo títulos profesionales y llamados a la acción de alta conversión." 
-                    : isVideo 
-                    ? "Redactando llamadas a la acción directas y textos de alto impacto." 
-                    : "Organizando los perfiles de clientes ideales que podrás revisar."
-            };
-        }
-        return {
-            title: isWeb 
-                ? "Estoy publicando tu sitio en la nube segura" 
-                : isVideo 
-                ? "Estoy finalizando la producción de tus videos" 
-                : "Estoy construyendo tu estrategia inicial",
-            description: isWeb 
-                ? "Desplegando tu página web optimizada para que comiences a capturar clientes." 
-                : isVideo 
-                ? "Optimizando y organizando todo el material listo para tu proyecto." 
-                : "Preparando dolores, deseos y posibles ángulos de venta para tu oferta."
-        };
     };
 
     const currentTask = getCurrentTask();
@@ -781,7 +745,7 @@ export const GenerationStep: React.FC<{
             </div>
 
             {/* 2. Titles */}
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 w-full flex justify-center">
                 {displayTitle}
             </div>
 
@@ -815,7 +779,7 @@ export const GenerationStep: React.FC<{
                         </span>
                     </div>
                     <span className="text-base sm:text-lg font-black text-[#FF5A1F] shrink-0 font-mono">
-                        {Math.round(progress)}%
+                        {Math.round(activeProgress)}%
                     </span>
                 </div>
 
@@ -823,7 +787,7 @@ export const GenerationStep: React.FC<{
                 <div className="w-full bg-zinc-900 h-3.5 rounded-full overflow-hidden border border-white/10 p-0.5 relative shadow-inner">
                     <motion.div 
                         initial={{ width: 0 }}
-                        animate={{ width: `${Math.max(progress, 4)}%` }}
+                        animate={{ width: `${Math.max(activeProgress, 4)}%` }}
                         className="h-full bg-gradient-to-r from-[#FF5A1F] via-[#FF8C00] to-[#FFCD42] rounded-full relative shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
                         transition={{ duration: 0.4, ease: "easeOut" }}
                     >
@@ -831,17 +795,17 @@ export const GenerationStep: React.FC<{
                     </motion.div>
                 </div>
 
-                {/* Texto explicativo de lo que hace en este momento */}
-                <p className="text-sm sm:text-base text-white font-semibold leading-snug">
+                {/* Texto explicativo de lo que hace en este momento (Texto normal, no negrita) */}
+                <p className="text-sm sm:text-base text-zinc-300 font-normal leading-snug">
                     {currentTask.description}
                 </p>
             </div>
 
-            {/* 5. Warning badge: Do not close page */}
+            {/* 5. Warning badge destacado en fondo naranja y una sola línea */}
             <div className="flex items-center justify-center pt-1 font-sans w-full">
-                <div className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/50 text-emerald-300 shadow-[0_0_25px_rgba(16,185,129,0.35)] backdrop-blur-md">
-                    <AlertTriangle className="w-5 h-5 text-emerald-400 shrink-0 animate-pulse" />
-                    <span className="text-xs sm:text-sm font-black tracking-wide text-emerald-200">
+                <div className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-5 sm:px-6 py-3 rounded-2xl bg-[#FF5A1F] text-white shadow-[0_4px_25px_rgba(255,90,31,0.45)] border border-orange-400/40 backdrop-blur-md sm:whitespace-nowrap">
+                    <AlertTriangle className="w-5 h-5 text-white shrink-0 animate-pulse" />
+                    <span className="text-sm sm:text-base font-extrabold tracking-tight">
                         Por favor, no cierres esta página. Estamos generando tu proyecto.
                     </span>
                 </div>
@@ -935,7 +899,7 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center text-center space-y-6 max-w-2xl mx-auto px-4 py-8 font-sans"
+            className="flex flex-col items-center justify-center text-center space-y-8 max-w-4xl mx-auto px-4 py-8 font-sans"
         >
             {/* Checkmark Icon with Glowing Box */}
             <div className="relative">
@@ -945,28 +909,21 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                 </div>
             </div>
 
-            {/* Main Title */}
-            <div className="space-y-3">
-                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+            {/* Main Title & Description */}
+            <div className="space-y-6 max-w-3xl mx-auto">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-snug sm:leading-relaxed max-w-3xl mx-auto">
                     Tu proyecto <span className="text-[#FF5A1F]">{productName}</span> ha sido creado con éxito
                 </h2>
-                <p className="text-zinc-300 font-light text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
+                <p className="text-white font-normal text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mx-auto pt-3 px-4">
                     Hemos analizado la propuesta, tu público objetivo y estructurado la base inicial de tu estrategia. El siguiente paso para recibir prospectos es crear tu página de captura optimizada para que los usuarios se registren.
                 </p>
             </div>
 
-            {/* Card Content Box */}
-            <div className="w-full bg-[#0d0d0e]/90 border border-zinc-800/80 rounded-3xl p-6 sm:p-8 space-y-3 text-center shadow-2xl backdrop-blur-md">
-                <h3 className="text-white font-extrabold text-lg sm:text-xl tracking-tight">
-                    Tu sistema inicial está listo
-                </h3>
-                <p className="text-zinc-400 font-light text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
-                    Tu proyecto ya ha sido creado y guardado. Ahora generaremos tu página de captura con textos persuasivos de alta conversión para comenzar a atraer clientes.
-                </p>
-            </div>
-
-            {/* Action Button */}
-            <div className="flex flex-col items-center gap-3 pt-2 w-full max-w-md">
+            {/* Action Button with "Siguiente Paso:" */}
+            <div className="flex flex-col items-center gap-3 pt-4 w-full max-w-md">
+                <span className="text-white font-bold text-sm sm:text-base tracking-wide">
+                    Siguiente Paso:
+                </span>
                 <button 
                     type="button"
                     onClick={() => onNext()}
@@ -976,10 +933,6 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                     <span>CREAR MI PÁGINA DE CAPTURA</span>
                     <ArrowRight className="w-5 h-5 shrink-0" />
                 </button>
-                <div className="flex items-center justify-center gap-1.5 text-zinc-500 text-xs font-light">
-                    <Lock className="w-3.5 h-3.5 shrink-0" />
-                    <span>Podrás personalizar y gestionar todo desde el panel de tu proyecto.</span>
-                </div>
             </div>
         </motion.div>
     );

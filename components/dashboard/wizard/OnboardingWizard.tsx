@@ -1998,6 +1998,57 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               </div>
             )}
           </div>
+        ) : step === "strategy_ready" ? (
+          <div
+            ref={strategyReadyRef}
+            className="w-full max-w-6xl mx-auto px-4 md:px-6 min-h-[calc(100vh-100px)] flex flex-col justify-center items-center py-8 relative font-sans overflow-hidden"
+          >
+            <StrategyReadyStep
+              userData={user}
+              project={selectedProject || unlockedProject}
+              onNext={handleCreateWeb}
+            />
+          </div>
+        ) : step === "landing_success" ? (
+          <div
+            ref={landingSuccessRef}
+            className="w-full max-w-6xl mx-auto px-4 md:px-6 min-h-[calc(100vh-100px)] flex flex-col justify-center items-center py-8 relative font-sans overflow-hidden"
+          >
+            <LandingSuccessStep
+              userData={user}
+              project={selectedProject || unlockedProject}
+              createdPageSubdomain={createdPageSubdomain}
+              onNext={() => setStep("show_hooks")}
+              onView={() => {
+                const subdomainPart = createdPageSubdomain
+                  ? createdPageSubdomain.split(".")[0]
+                  : "";
+                if (subdomainPart) {
+                  const isLocal =
+                    typeof window !== "undefined" &&
+                    (window.location.hostname === "localhost" ||
+                      window.location.hostname.includes("ais-dev"));
+                  const url = isLocal
+                    ? `/admin/lp/${subdomainPart}`
+                    : `https://aprende.marketing/admin/lp/${subdomainPart}`;
+                  window.open(url, "_blank");
+                } else if (unlockedProject) {
+                  window.open(
+                    `/dashboard/projects/${unlockedProject.id}/strategy?section=web`,
+                    "_blank",
+                  );
+                }
+              }}
+              onEdit={() => {
+                if (unlockedProject) {
+                  window.open(
+                    `/dashboard/projects/${unlockedProject.id}/strategy?section=web`,
+                    "_blank",
+                  );
+                }
+              }}
+            />
+          </div>
         ) : (
           <div className="flex flex-col">
 
