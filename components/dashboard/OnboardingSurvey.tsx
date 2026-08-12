@@ -64,11 +64,9 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
 
     const validateStep = (currentStep: number) => {
         switch (currentStep) {
-            case 0: // Paso 1: Personalicemos tu experiencia
-                return !!formData.experienceLevel && !!formData.country;
-            case 1: // Paso 2: Recursos e información de canales
-                return formData.currentResources.length > 0;
-            case 2: // Paso 3: Compromiso de Éxito
+            case 0: // Paso 1: Personalicemos tu experiencia (3 preguntas)
+                return !!formData.experienceLevel && formData.currentResources.length > 0 && !!formData.country;
+            case 1: // Paso 2: Preparemos un plan que puedas cumplir
                 return !!formData.dedicationTime && !!formData.mainObstacle;
             default:
                 return true;
@@ -107,7 +105,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
 
         setAttemptedNext(false);
         setErrorMessage("");
-        if (step < 2) {
+        if (step < 1) {
             setStep(step + 1);
         } else {
             handleSubmit();
@@ -123,7 +121,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
     };
 
     const handleSubmit = async () => {
-        const isAllValid = [0, 1, 2].every(i => validateStep(i));
+        const isAllValid = [0, 1].every(i => validateStep(i));
         if (!isAllValid) {
             setErrorMessage("Por favor responde a todas las preguntas obligatorias antes de comenzar.");
             return;
@@ -144,7 +142,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
         }
     };
 
-    const progressPercentages = [33, 66, 100];
+    const progressPercentages = [50, 100];
     const progress = progressPercentages[step];
 
     return (
@@ -186,8 +184,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
             >
                 <h2 className="text-3xl md:text-[36px] font-extrabold text-white leading-tight tracking-tight mb-3">
                     {step === 0 && "Personalicemos tu experiencia"}
-                    {step === 1 && "Cuéntanos con qué recursos cuentas"}
-                    {step === 2 && "Preparemos un plan que puedas cumplir"}
+                    {step === 1 && "Preparemos un plan que puedas cumplir"}
                 </h2>
                 <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up max-w-xl mx-auto" style={{ fontSize: '1.2rem', lineHeight: '1.5' }}>
                     {step === 0 && (
@@ -195,8 +192,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                             Cuéntanos cuál es tu punto de partida para recomendarte el mejor recorrido dentro de Aprende Marketing. <br /><span className="text-[#FF5A1F] font-semibold">Te tomará menos de 2 minutos</span>.
                         </>
                     )}
-                    {step === 1 && "Adaptaremos el contenido y el embudo a los canales que ya utilizas."}
-                    {step === 2 && "Ajustaremos la estrategia a tu disponibilidad, presupuesto y principal dificultad."}
+                    {step === 1 && "Ajustaremos la estrategia a tu disponibilidad, presupuesto y principal dificultad."}
                 </p>
             </motion.div>
 
@@ -212,7 +208,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                 >
                     <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF5A1F]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
-                    {/* Paso 1: Personalicemos tu experiencia */}
+                    {/* Paso 1: Personalicemos tu experiencia (3 preguntas) */}
                     {step === 0 && (
                         <div className="space-y-8 relative z-10">
                             <div className="space-y-8">
@@ -265,53 +261,6 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
-                                            <Globe className="w-4.5 h-4.5" />
-                                        </div>
-                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
-                                            ¿En qué país estás?
-                                        </h3>
-                                    </div>
-                                    <div className="relative">
-                                        <select 
-                                            value={formData.country}
-                                            onChange={(e) => {
-                                                setFormData({ ...formData, country: e.target.value });
-                                                setAttemptedNext(false);
-                                            }}
-                                            className={`w-full bg-[#111111]/90 border-2 rounded-2xl py-4 px-5 text-white focus:border-[#FF5A1F] focus:outline-none transition-all font-bold text-base md:text-lg appearance-none ${
-                                                attemptedNext && !formData.country 
-                                                    ? 'border-red-500/30 bg-red-500/5' 
-                                                    : 'border-white/10'
-                                            }`}
-                                        >
-                                            <option value="" className="bg-zinc-900 text-zinc-400">Selecciona tu país</option>
-                                            {countries.filter(c => c.name !== "+ Añadir País").map(c => (
-                                                <option 
-                                                    key={c.name} 
-                                                    value={c.name} 
-                                                    className="bg-zinc-900"
-                                                >
-                                                    {c.flag} {c.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">
-                                            <ChevronDown className="w-5 h-5" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Paso 2: Cuéntanos con qué recursos cuentas */}
-                    {step === 1 && (
-                        <div className="space-y-8 relative z-10">
-                            <div className="space-y-8">
-                                {/* Pregunta 1 */}
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
                                             <Megaphone className="w-4.5 h-4.5" />
                                         </div>
                                         <div className="flex flex-col">
@@ -357,12 +306,52 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         })}
                                     </div>
                                 </div>
+
+                                {/* Pregunta 3 */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                            <Globe className="w-4.5 h-4.5" />
+                                        </div>
+                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
+                                            ¿En qué país estás?
+                                        </h3>
+                                    </div>
+                                    <div className="relative">
+                                        <select 
+                                            value={formData.country}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, country: e.target.value });
+                                                setAttemptedNext(false);
+                                            }}
+                                            className={`w-full bg-[#111111]/90 border-2 rounded-2xl py-4 px-5 text-white focus:border-[#FF5A1F] focus:outline-none transition-all font-bold text-base md:text-lg appearance-none ${
+                                                attemptedNext && !formData.country 
+                                                    ? 'border-red-500/30 bg-red-500/5' 
+                                                    : 'border-white/10'
+                                            }`}
+                                        >
+                                            <option value="" className="bg-zinc-900 text-zinc-400">Selecciona tu país</option>
+                                            {countries.filter(c => c.name !== "+ Añadir País").map(c => (
+                                                <option 
+                                                    key={c.name} 
+                                                    value={c.name} 
+                                                    className="bg-zinc-900"
+                                                >
+                                                    {c.flag} {c.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">
+                                            <ChevronDown className="w-5 h-5" />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}
 
-                    {/* Paso 3: Preparemos un plan que puedas cumplir */}
-                    {step === 2 && (
+                    {/* Paso 2: Preparemos un plan que puedas cumplir */}
+                    {step === 1 && (
                         <div className="space-y-8 relative z-10">
                             <div className="space-y-8">
                                 {/* Pregunta 1 */}

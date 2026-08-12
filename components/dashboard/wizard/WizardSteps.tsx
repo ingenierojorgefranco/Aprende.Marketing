@@ -673,8 +673,23 @@ export const GeneratingStep: React.FC<{
     project?: any;
     onGoToStep?: (step: number) => void;
 }> = ({ progress, status, secondsElapsed = 0, message, project, onGoToStep }) => {
-    const isWeb = message?.toLowerCase().includes('web') || message?.toLowerCase().includes('página') || status?.toLowerCase().includes('página') || true;
-    const isVideo = message?.toLowerCase().includes('video') || message?.toLowerCase().includes('atracción') || status?.toLowerCase().includes('videos');
+    const isVideo = Boolean(
+        message?.toLowerCase().includes('video') || 
+        message?.toLowerCase().includes('atracción') || 
+        status?.toLowerCase().includes('video') ||
+        status?.toLowerCase().includes('hook')
+    );
+
+    const isWeb = Boolean(
+        !isVideo && (
+            message?.toLowerCase().includes('web') || 
+            message?.toLowerCase().includes('página') || 
+            status?.toLowerCase().includes('página') ||
+            status?.toLowerCase().includes('web')
+        )
+    );
+
+    const isProject = !isWeb && !isVideo;
 
     const [simulatedProgress, setSimulatedProgress] = useState(6);
 
@@ -748,10 +763,20 @@ export const GeneratingStep: React.FC<{
             {/* 2. Main Title and Subtitle */}
             <div className="space-y-2 text-center max-w-xl mx-auto">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
-                    Estamos <span className="text-[#FF5A1F]">creando tu página de captura</span>
+                    {isWeb && (
+                        <>Estamos <span className="text-[#FF5A1F]">creando tu página de captura</span></>
+                    )}
+                    {isVideo && (
+                        <>Estamos <span className="text-[#FF5A1F]">creando tus videos de atracción</span></>
+                    )}
+                    {isProject && (
+                        <>Estamos <span className="text-[#FF5A1F]">creando tu proyecto</span></>
+                    )}
                 </h2>
                 <p className="text-zinc-400 font-normal text-xs sm:text-sm md:text-base max-w-md mx-auto leading-relaxed">
-                    Estamos utilizando la estrategia de tu proyecto para construir<br className="hidden sm:inline" /> una página optimizada para convertir visitantes en prospectos.
+                    {isWeb && "Estamos utilizando la estrategia de tu proyecto para construir una página optimizada para convertir visitantes en prospectos."}
+                    {isVideo && "Estamos generando los guiones virales para captar la atención de tus prospectos."}
+                    {isProject && "Estamos estructurando la estrategia, la propuesta de valor y el embudo completo de tu proyecto digital."}
                 </p>
             </div>
 
@@ -778,7 +803,7 @@ export const GeneratingStep: React.FC<{
                     <div className="flex items-center gap-2.5 min-w-0">
                         <RotateCw className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF5A1F] animate-spin shrink-0" />
                         <span className="text-sm sm:text-base font-extrabold text-white truncate tracking-tight">
-                            Creando tu página
+                            {isWeb ? "Creando tu página" : isVideo ? "Creando tus videos" : "Creando tu proyecto"}
                         </span>
                     </div>
                     <span className="text-sm sm:text-base font-extrabold text-[#FF5A1F] shrink-0 font-mono">
@@ -848,7 +873,7 @@ export const GeneratingStep: React.FC<{
                     i
                 </div>
                 <span>
-                    No cierres esta ventana mientras terminamos de generar tu página.
+                    No cierres esta ventana mientras terminamos de generar {isWeb ? "tu página" : isVideo ? "tus videos" : "tu proyecto"}.
                 </span>
             </div>
         </div>
