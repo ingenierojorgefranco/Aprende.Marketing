@@ -44,9 +44,9 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, o
                 {/* Mensaje de Instrucción */}
                 <p 
                     className="max-w-2xl mx-auto leading-relaxed text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up pt-2" 
-                    style={{ fontSize: "1.2em", lineHeight: "1.4em" }}
+                    style={{ fontSize: "1.2em", lineHeight: "1.4em", paddingTop: "1.5em" }}
                 >
-                    Te ayudaremos a lanzar tu primer proyecto digital de la forma más rápida. Para hacerlo muy fácil, nuestros profesionales han preconfigurado varios proyectos listos para usar. Solo tienes que elegir el que mejor se adapte a ti y nosotros haremos el trabajo pesado.
+                    Te ayudaremos a lanzar tu primer proyecto digital de la forma más rápida. Para hacerlo muy fácil, nuestros profesionales han preconfigurado varios proyectos listos para usar. <br /><br />Solo tienes que elegir el que mejor se adapte a ti y nosotros haremos el trabajo pesado.
                 </p>
             </div>
 
@@ -90,14 +90,24 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            style={{ opacity: 1, paddingTop: "4em" }}
             className="space-y-6 font-sans max-w-[1240px] mx-auto px-2 md:px-4 relative py-2"
         >
             {/* Header */}
             <div className="text-center space-y-2.5">
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
-                    Elige tu <span className="text-[#FF5A1F]">Producto Digital</span>
+                    Selecciona tu <span className="text-[#FF5A1F]">Producto Digital</span>
                 </h2>
-                <p className="text-zinc-300 font-normal text-sm sm:text-base max-w-2xl mx-auto">
+                <p 
+                    className="text-zinc-300 font-normal text-sm sm:text-base max-w-2xl mx-auto"
+                    style={{
+                        paddingTop: '1em',
+                        paddingBottom: '1em',
+                        fontSize: '1.16em',
+                        lineHeight: '1.5em',
+                        color: 'white',
+                    }}
+                >
                     Selecciona un proyecto listo para empezar y construye tu primer sistema digital con ayuda guiada.
                 </p>
 
@@ -199,16 +209,19 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
 
                             {/* Content Block */}
                             <div className="space-y-2 text-left flex-grow">
-                                <div className="flex items-center gap-1.5 text-[#FF5A1F] text-xs font-black tracking-wider uppercase pt-1">
-                                    <Star className="w-3.5 h-3.5 fill-[#FF5A1F]" />
-                                    <span>PROYECTO RECOMENDADO</span>
-                                </div>
-
                                 <h3 className={`text-lg md:text-xl font-extrabold leading-snug tracking-tight ${isSelected ? 'text-[#FF5A1F]' : 'text-white'} group-hover:text-[#FF5A1F] transition-colors line-clamp-2`}>
                                     {displayTitle}
                                 </h3>
 
-                                <p className="text-zinc-400 text-xs md:text-sm leading-relaxed font-light line-clamp-3">
+                                <p 
+                                    className="text-zinc-400 text-xs md:text-sm leading-relaxed font-light line-clamp-3"
+                                    style={{
+                                        fontSize: '1em',
+                                        lineHeight: '1.3em',
+                                        color: 'white',
+                                        paddingTop: '0.4em'
+                                    }}
+                                >
                                     {idealForDesc}
                                 </p>
                             </div>
@@ -241,8 +254,8 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                             <ShieldCheck className="w-5 h-5" />
                         </div>
                         <div>
-                            <p className="text-white font-bold text-xs sm:text-sm">Proyectos probados</p>
-                            <p className="text-zinc-400 text-[11px] sm:text-xs font-light">Enfocados en resultados reales</p>
+                            <p className="text-white font-bold text-xs sm:text-sm" style={{ fontSize: "1em" }}>Productos probados</p>
+                            <p className="text-zinc-400 text-[11px] sm:text-xs font-light" style={{ lineHeight: "1em", paddingTop: "0.50em", fontSize: "0.90em" }}>Enfocados en resultados reales</p>
                         </div>
                     </div>
 
@@ -652,7 +665,7 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
 };
 
 // 3. GENERACIÓN (LOADING STATE)
-export const GenerationStep: React.FC<{ 
+export const GeneratingStep: React.FC<{ 
     progress: number; 
     status: string; 
     secondsElapsed?: number; 
@@ -660,7 +673,7 @@ export const GenerationStep: React.FC<{
     project?: any;
     onGoToStep?: (step: number) => void;
 }> = ({ progress, status, secondsElapsed = 0, message, project, onGoToStep }) => {
-    const isWeb = message?.toLowerCase().includes('web') || message?.toLowerCase().includes('página') || status?.toLowerCase().includes('página');
+    const isWeb = message?.toLowerCase().includes('web') || message?.toLowerCase().includes('página') || status?.toLowerCase().includes('página') || true;
     const isVideo = message?.toLowerCase().includes('video') || message?.toLowerCase().includes('atracción') || status?.toLowerCase().includes('videos');
 
     const [simulatedProgress, setSimulatedProgress] = useState(6);
@@ -684,185 +697,165 @@ export const GenerationStep: React.FC<{
 
     const activeProgress = Math.min(100, Math.max(progress, simulatedProgress));
 
-    let displayTitle = (
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight sm:whitespace-nowrap">
-            Espera un momento... <span className="text-[#FF5A1F]">Estoy creando tu proyecto</span>
-        </h2>
+    const webSteps = [
+        { title: "Analizando tu estrategia", desc: "Estamos analizando tu nicho y propuesta para estructurar la página ideal." },
+        { title: "Construyendo la estructura", desc: "Creando los bloques, secciones y la distribución visual persuasiva de tu sitio." },
+        { title: "Configurando formulario y oferta", desc: "Estamos adaptando la estructura, la oferta y el formulario a la estrategia de tu producto." },
+        { title: "Preparando tu página", desc: "Desplegando tu sitio web optimizado para que comiences a capturar clientes." }
+    ];
+
+    const videoSteps = [
+        { title: "Estructurando contenidos de video", desc: "Definiendo ganchos, guiones y la estructura ideal para tus reels." },
+        { title: "Generando guiones de atracción viral", desc: "Redactando llamadas a la acción directas y textos de alto impacto." },
+        { title: "Optimizando ganchos iniciales", desc: "Estructurando los primeros 3 segundos para maximizar la retención." },
+        { title: "Finalizando producción de tus videos", desc: "Optimizando y organizando todo el material listo para tu proyecto." }
+    ];
+
+    const projectSteps = [
+        { title: "Analizando tu producto", desc: "Identificando su propuesta de valor, público objetivo y principales beneficios." },
+        { title: "Definiendo propuesta de valor y beneficios", desc: "Estructurando la promesa principal y los ganchos emocionales del producto." },
+        { title: "Identificando dolores y deseos de tu audiencia", desc: "Mapeando las necesidades, frustraciones y motivaciones de tus compradores ideales." },
+        { title: "Construyendo tu estrategia inicial", desc: "Finalizando la configuración de tu proyecto y preparando tu panel de control." }
+    ];
+
+    const currentStepsList = isVideo ? videoSteps : (isWeb ? webSteps : projectSteps);
+
+    const activeIndex = Math.min(
+        currentStepsList.length - 1,
+        Math.floor((activeProgress / 100) * currentStepsList.length)
     );
-    if (isWeb) {
-        displayTitle = (
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight sm:whitespace-nowrap">
-                Estamos <span className="text-[#FF5A1F]">creando</span> tu página web
-            </h2>
-        );
-    } else if (isVideo) {
-        displayTitle = (
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight sm:whitespace-nowrap">
-                Estamos <span className="text-[#FF5A1F]">creando</span> tus videos
-            </h2>
-        );
-    }
 
-    const getCurrentTask = () => {
-        if (isWeb) {
-            if (activeProgress < 25) {
-                return {
-                    title: "Diseñando estructura de tu página web",
-                    description: "Creando los bloques, secciones y la distribución visual persuasiva de tu sitio."
-                };
-            } else if (activeProgress < 50) {
-                return {
-                    title: "Redactando textos persuasivos",
-                    description: "Escribiendo títulos profesionales y llamados a la acción de alta conversión."
-                };
-            } else if (activeProgress < 75) {
-                return {
-                    title: "Configurando formulario y oferta",
-                    description: "Organizando los elementos clave para capturar la atención de prospectos."
-                };
-            } else {
-                return {
-                    title: "Publicando página en la nube",
-                    description: "Desplegando tu sitio web optimizado para que comiences a capturar clientes."
-                };
-            }
-        } else if (isVideo) {
-            if (activeProgress < 25) {
-                return {
-                    title: "Estructurando contenidos de video",
-                    description: "Definiendo ganchos, guiones y la estructura ideal para tus reels."
-                };
-            } else if (activeProgress < 50) {
-                return {
-                    title: "Generando guiones de atracción viral",
-                    description: "Redactando llamadas a la acción directas y textos de alto impacto."
-                };
-            } else if (activeProgress < 75) {
-                return {
-                    title: "Optimizando ganchos iniciales",
-                    description: "Estructurando los primeros 3 segundos para maximizar la retención."
-                };
-            } else {
-                return {
-                    title: "Finalizando producción de tus videos",
-                    description: "Optimizando y organizando todo el material listo para tu proyecto."
-                };
-            }
-        } else {
-            // Project Creation
-            if (activeProgress < 20) {
-                return {
-                    title: "Estoy analizando tu producto",
-                    description: "Identificando su propuesta de valor, público objetivo y principales beneficios."
-                };
-            } else if (activeProgress < 40) {
-                return {
-                    title: "Definiendo propuesta de valor y beneficios",
-                    description: "Estructurando la promesa principal y los ganchos emocionales del producto."
-                };
-            } else if (activeProgress < 60) {
-                return {
-                    title: "Identificando dolores y deseos de tu audiencia",
-                    description: "Mapeando las necesidades, frustraciones y motivaciones de tus compradores ideales."
-                };
-            } else if (activeProgress < 80) {
-                return {
-                    title: "Estructurando estrategia de comunicación",
-                    description: "Creando ángulos de venta persuasivos para presentar la oportunidad."
-                };
-            } else {
-                return {
-                    title: "Construyendo tu estrategia inicial",
-                    description: "Finalizando la configuración de tu proyecto y preparando tu panel de control."
-                };
-            }
-        }
-    };
+    const currentTask = currentStepsList[activeIndex];
 
-    const currentTask = getCurrentTask();
     const imageUrl = project?.multimedia_json?.heroImages?.[0] || 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=2670&auto=format&fit=cover';
-    const productName = project?.productName || project?.name || 'Curso Profesional de Microblading de Cejas';
+    const productName = project?.productName || project?.name || 'Curso Profesional Certificado de Microblading de Cejas';
 
     return (
-        <div className="flex flex-col items-center justify-center px-4 space-y-4 sm:space-y-5 text-center max-w-lg mx-auto py-2 sm:py-4 font-sans">
-            {/* 1. Header with orange glow and slow spinning settings icon */}
-            <div className="relative">
-                <div className="absolute inset-x-0 -top-8 -bottom-8 bg-[#FF5A1F]/20 blur-[60px] rounded-full animate-pulse transition-all duration-1000"></div>
-                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-[#0A0A0A] border-2 border-[#FF5A1F]/30 flex items-center justify-center shadow-[0_10px_40px_-10px_rgba(255,90,31,0.3)] group overflow-hidden">
-                    <Settings className="w-8 h-8 sm:w-10 sm:h-10 text-[#FF5A1F] animate-spin-slow" />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#FF5A1F]/5 to-transparent"></div>
+        <div className="flex flex-col items-center justify-center px-4 space-y-6 text-center max-w-lg mx-auto py-4 font-sans">
+            {/* 1. Top Sparkles / Magic Wand Icon Box with Glow */}
+            <div className="relative mx-auto">
+                <div className="absolute inset-0 bg-[#FF5A1F]/25 blur-[50px] rounded-full" />
+                
+                {/* Floating particles */}
+                <div className="absolute -top-1 -left-2 w-1.5 h-1.5 rounded-full bg-[#FF5A1F] opacity-80 animate-ping" />
+                <div className="absolute -bottom-1 -right-2 w-1 h-1 rounded-full bg-orange-400 opacity-60" />
+
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#0c0c0e] border border-[#FF5A1F]/40 flex items-center justify-center shadow-[0_0_40px_rgba(255,90,31,0.25)]">
+                    <Wand2 className="w-10 h-10 sm:w-12 sm:h-12 text-[#FF5A1F]" />
                 </div>
             </div>
 
-            {/* 2. Titles */}
-            <div className="space-y-1.5 w-full flex justify-center">
-                {displayTitle}
+            {/* 2. Main Title and Subtitle */}
+            <div className="space-y-2 text-center max-w-xl mx-auto">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                    Estamos <span className="text-[#FF5A1F]">creando tu página de captura</span>
+                </h2>
+                <p className="text-zinc-400 font-normal text-xs sm:text-sm md:text-base max-w-md mx-auto leading-relaxed">
+                    Estamos utilizando la estrategia de tu proyecto para construir<br className="hidden sm:inline" /> una página optimizada para convertir visitantes en prospectos.
+                </p>
             </div>
 
             {/* 3. Selected Product Card */}
-            <div className="w-full bg-white/[0.02] border border-white/5 rounded-2xl p-3 sm:p-3.5 flex items-center gap-3 text-left shadow-xl">
-                <div className="w-16 sm:w-20 aspect-video rounded-lg overflow-hidden relative shrink-0 bg-zinc-900 border border-white/10 flex items-center justify-center">
+            <div className="w-full max-w-md mx-auto bg-[#0c0c0e]/90 border border-zinc-800/80 rounded-2xl p-3 sm:p-3.5 flex items-center gap-3.5 text-left shadow-xl">
+                <div className="w-16 sm:w-20 aspect-video rounded-xl overflow-hidden relative shrink-0 bg-zinc-900 border border-zinc-800 flex items-center justify-center">
                     <img referrerPolicy="no-referrer" src={imageUrl} alt={productName} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
                         <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-lg">
                             <Play className="w-3.5 h-3.5 text-white fill-current translate-x-0.5" />
                         </div>
                     </div>
                 </div>
                 <div className="flex flex-col min-w-0">
-                    <span className="text-[10px] sm:text-xs font-bold text-[#FF5A1F] uppercase tracking-[0.15em]">PRODUCTO SELECCIONADO</span>
-                    <h4 className="text-white font-extrabold text-sm sm:text-base leading-snug mt-0.5 line-clamp-2">{productName}</h4>
+                    <span className="text-[10px] sm:text-xs font-bold text-[#FF5A1F] uppercase tracking-wider">PRODUCTO SELECCIONADO</span>
+                    <h4 className="text-white font-extrabold text-xs sm:text-sm leading-snug mt-0.5 line-clamp-2">{productName}</h4>
                 </div>
             </div>
 
-            {/* 4. Componente Dinámico de Progreso y Tarea Actual */}
-            <div className="w-full bg-[#0d0d0e]/90 border border-zinc-800/80 rounded-2xl p-4 sm:p-5 space-y-3 text-left shadow-2xl backdrop-blur-md font-sans">
-                {/* Cabecera: Título de la acción actual + Porcentaje al lado */}
+            {/* 4. Progress and Checklist Card */}
+            <div className="w-full max-w-md mx-auto bg-[#0c0c0e]/90 border border-zinc-800/80 rounded-2xl p-5 md:p-6 space-y-4 text-left shadow-2xl backdrop-blur-md">
+                {/* Header: Rotating sync icon + title + percentage */}
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-[#FF5A1F] bg-[#FF5A1F]/10 flex items-center justify-center shrink-0 relative">
-                            <div className="absolute inset-0 rounded-full border-2 border-t-transparent border-[#FF5A1F] animate-spin"></div>
-                            <div className="w-2 h-2 rounded-full bg-[#FF5A1F] animate-ping"></div>
-                        </div>
+                        <RotateCw className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF5A1F] animate-spin shrink-0" />
                         <span className="text-sm sm:text-base font-extrabold text-white truncate tracking-tight">
-                            {currentTask.title}
+                            Creando tu página
                         </span>
                     </div>
-                    <span className="text-base sm:text-lg font-black text-[#FF5A1F] shrink-0 font-mono">
+                    <span className="text-sm sm:text-base font-extrabold text-[#FF5A1F] shrink-0 font-mono">
                         {Math.round(activeProgress)}%
                     </span>
                 </div>
 
-                {/* Barra de Progreso Dinámica */}
-                <div className="w-full bg-zinc-900 h-3.5 rounded-full overflow-hidden border border-white/10 p-0.5 relative shadow-inner">
+                {/* Progress Bar */}
+                <div className="w-full bg-zinc-900 h-2.5 sm:h-3 rounded-full overflow-hidden border border-zinc-800 p-0.5 relative shadow-inner">
                     <motion.div 
                         initial={{ width: 0 }}
-                        animate={{ width: `${Math.max(activeProgress, 4)}%` }}
-                        className="h-full bg-gradient-to-r from-[#FF5A1F] via-[#FF8C00] to-[#FFCD42] rounded-full relative shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
+                        animate={{ width: `${Math.max(activeProgress, 5)}%` }}
+                        className="h-full bg-gradient-to-r from-[#FF5A1F] via-[#FF7A00] to-[#FF8A00] rounded-full relative shadow-[0_0_12px_rgba(255,90,31,0.6)]"
                         transition={{ duration: 0.4, ease: "easeOut" }}
-                    >
-                        <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] -translate-x-full animate-[loading-shine_1.5s_infinite]"></div>
-                    </motion.div>
+                    />
                 </div>
 
-                {/* Texto explicativo de lo que hace en este momento (Texto normal, no negrita) */}
-                <p className="text-sm sm:text-base text-zinc-300 font-normal leading-snug">
-                    {currentTask.description}
+                {/* Vertical Steps Checklist */}
+                <div className="relative space-y-3 pt-2 pb-1">
+                    {/* Connector Line behind */}
+                    <div className="absolute left-[9px] top-4 bottom-4 w-[1.5px] bg-zinc-800/80 z-0" />
+
+                    {currentStepsList.map((stepItem, idx) => {
+                        const isCompleted = idx < activeIndex;
+                        const isActive = idx === activeIndex;
+
+                        return (
+                            <div key={idx} className="relative flex items-center gap-3 z-10">
+                                {isCompleted ? (
+                                    <div className="w-5 h-5 rounded-full bg-[#FF5A1F] text-black flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(255,90,31,0.5)]">
+                                        <Check className="w-3.5 h-3.5 stroke-[3] text-black" />
+                                    </div>
+                                ) : isActive ? (
+                                    <div className="w-5 h-5 rounded-full border-2 border-[#FF5A1F] bg-[#0c0c0e] flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(255,90,31,0.6)]">
+                                        <div className="w-2 h-2 rounded-full bg-[#FF5A1F] animate-pulse" />
+                                    </div>
+                                ) : (
+                                    <div className="w-5 h-5 rounded-full border border-zinc-700/80 bg-[#0c0c0e] shrink-0" />
+                                )}
+
+                                <span className={`text-xs sm:text-sm ${
+                                    isActive 
+                                        ? "text-white font-bold" 
+                                        : isCompleted 
+                                            ? "text-zinc-300 font-medium" 
+                                            : "text-zinc-500 font-normal"
+                                }`}>
+                                    {stepItem.title}
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-zinc-800/80 pt-1" />
+
+                {/* Bottom step description */}
+                <p className="text-xs sm:text-sm text-zinc-400 font-normal leading-relaxed">
+                    {currentTask.desc}
                 </p>
             </div>
 
-            {/* 5. Warning badge destacado en fondo naranja y una sola línea */}
-            <div className="flex items-center justify-center pt-1 font-sans w-full">
-                <div className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-5 sm:px-6 py-3 rounded-2xl bg-[#FF5A1F] text-white shadow-[0_4px_25px_rgba(255,90,31,0.45)] border border-orange-400/40 backdrop-blur-md sm:whitespace-nowrap">
-                    <AlertTriangle className="w-5 h-5 text-white shrink-0 animate-pulse" />
-                    <span className="text-sm sm:text-base font-extrabold tracking-tight">
-                        Por favor, no cierres esta página. Estamos generando tu proyecto.
-                    </span>
+            {/* 5. Bottom Warning Pill */}
+            <div className="w-full max-w-md mx-auto bg-[#0c0c0e]/80 border border-zinc-800/80 rounded-2xl py-3 px-4 sm:px-5 flex items-center justify-center gap-2.5 text-zinc-300 text-xs sm:text-sm font-normal text-center shadow-lg">
+                <div className="w-5 h-5 rounded-full border border-[#FF5A1F]/80 text-[#FF5A1F] flex items-center justify-center shrink-0 text-xs font-bold font-mono">
+                    i
                 </div>
+                <span>
+                    No cierres esta ventana mientras terminamos de generar tu página.
+                </span>
             </div>
         </div>
     );
 };
+
+export const GenerationStep = GeneratingStep;
 
 // 4. REVELACIÓN DE AVATARES
 export const AvatarRevealStep: React.FC<StepProps & { avatars: any[] }> = ({ avatars, onNext }) => {
@@ -943,46 +936,81 @@ export const AvatarRevealStep: React.FC<StepProps & { avatars: any[] }> = ({ ava
 
 // 4.5 ESTRATEGIA LISTA
 export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onNext, project }) => {
-    const productName = project?.productName || project?.name || 'Curso Profesional de Microblading de Cejas';
-
     return (
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center text-center space-y-8 max-w-4xl mx-auto px-4 py-8 font-sans"
+            className="flex flex-col items-center justify-center text-center space-y-7 max-w-4xl mx-auto px-4 py-6 font-sans relative"
         >
+            {/* Ambient background glowing curve */}
+            <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden flex items-center justify-center">
+                <div className="w-[750px] h-[750px] rounded-full border border-orange-500/15 bg-gradient-to-b from-orange-500/5 via-transparent to-transparent blur-3xl opacity-60"></div>
+            </div>
+
+            {/* Stepper Progress Bar at Top */}
+            <div className="flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-medium text-zinc-300 pb-2">
+                <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full border border-[#FF5A1F] text-[#FF5A1F] flex items-center justify-center shrink-0 bg-[#FF5A1F]/10">
+                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                    </div>
+                    <span className="text-zinc-300 text-xs sm:text-sm">Producto seleccionado</span>
+                </div>
+
+                <div className="w-8 sm:w-12 h-[1px] bg-zinc-800"></div>
+
+                <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full border border-[#FF5A1F] text-[#FF5A1F] flex items-center justify-center shrink-0 bg-[#FF5A1F]/10">
+                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                    </div>
+                    <span className="text-zinc-300 text-xs sm:text-sm">Estrategia inicial</span>
+                </div>
+
+                <div className="w-8 sm:w-12 h-[1px] bg-zinc-800"></div>
+
+                <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-[#FF5A1F]/15 border border-[#FF5A1F] text-[#FF5A1F] font-bold flex items-center justify-center text-[11px] shrink-0">
+                        03
+                    </div>
+                    <span className="text-white font-bold text-xs sm:text-sm">Página de captura</span>
+                </div>
+            </div>
+
             {/* Checkmark Icon with Glowing Box */}
-            <div className="relative">
-                <div className="absolute inset-0 bg-[#FF5A1F]/20 blur-[50px] rounded-full animate-pulse"></div>
-                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#0d0d0e] border-2 border-[#FF5A1F]/40 flex items-center justify-center shadow-[0_10px_50px_-10px_rgba(255,90,31,0.35)]">
-                    <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-[#FF5A1F]" />
+            <div className="relative pt-2">
+                <div className="absolute inset-0 bg-[#FF5A1F]/25 blur-[60px] rounded-full"></div>
+                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-[#0b0b0e] border border-[#FF5A1F]/40 flex items-center justify-center shadow-[0_0_50px_rgba(255,90,31,0.3)] mx-auto">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-[#FF5A1F] flex items-center justify-center text-[#FF5A1F]">
+                        <Check className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5]" />
+                    </div>
                 </div>
             </div>
 
             {/* Main Title & Description */}
-            <div className="space-y-6 max-w-3xl mx-auto">
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-snug sm:leading-relaxed max-w-3xl mx-auto">
-                    Tu proyecto <span className="text-[#FF5A1F]">{productName}</span> ha sido creado con éxito
+            <div className="space-y-4 max-w-3xl mx-auto">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight max-w-3xl mx-auto">
+                    Tu proyecto está listo para <span className="text-[#FF5A1F]">empezar</span>
                 </h2>
-                <p className="text-white font-normal text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mx-auto pt-3 px-4">
-                    Hemos analizado la propuesta, tu público objetivo y estructurado la base inicial de tu estrategia. El siguiente paso para recibir prospectos es crear tu página de captura optimizada para que los usuarios se registren.
-                </p>
+                <div className="space-y-1 text-zinc-300 font-normal text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                    <p>Ya hemos estructurado la base inicial de tu estrategia.</p>
+                    <p>Ahora vamos a crear la página que utilizarás para captar tus primeros prospectos.</p>
+                </div>
             </div>
 
-            {/* Action Button with "Siguiente Paso:" */}
-            <div className="flex flex-col items-center gap-3 pt-4 w-full max-w-md">
-                <span className="text-white font-bold text-sm sm:text-base tracking-wide">
-                    Siguiente Paso:
-                </span>
+            {/* Action Button & Note */}
+            <div className="flex flex-col items-center gap-2.5 pt-2 w-full max-w-md mx-auto">
                 <button 
                     type="button"
                     onClick={() => onNext()}
-                    className="w-full py-4 px-8 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-black text-sm sm:text-base tracking-wide uppercase transition-all shadow-[0_10px_35px_rgba(255,90,31,0.35)] flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer"
+                    className="w-full py-4 px-8 bg-gradient-to-r from-[#FF5A1F] via-[#FF4500] to-[#FF5A1F] hover:opacity-95 text-white rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase transition-all shadow-[0_8px_30px_rgba(255,90,31,0.45)] border border-orange-400/30 flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer"
                 >
                     <Rocket className="w-5 h-5 shrink-0" />
                     <span>CREAR MI PÁGINA DE CAPTURA</span>
                     <ArrowRight className="w-5 h-5 shrink-0" />
                 </button>
+
+                <p className="text-zinc-400 text-xs sm:text-sm font-normal pt-1">
+                    La IA utilizará la estrategia de tu proyecto para construirla.
+                </p>
             </div>
         </motion.div>
     );
