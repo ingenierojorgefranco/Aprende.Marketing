@@ -363,7 +363,8 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                             const s = user.survey_json ? (typeof user.survey_json === 'string' ? JSON.parse(user.survey_json) : user.survey_json) : {};
                                             const country = s.country || (user as any).country || 'No especificado';
                                             const experience = s.experienceLevel || user.experience_level || 'No especificado';
-                                            const obstacle = s.mainObstacle || user.main_obstacle || 'No especificado';
+                                            const obstacleRaw = s.mainObstacle || user.main_obstacle;
+                                            const obstacle = Array.isArray(obstacleRaw) ? obstacleRaw.join(', ') : (obstacleRaw || 'No especificado');
                                             const dedication = s.dedicationTime || 'No especificado';
                                             const budget = s.budgetRange || user.budget_range || 'No especificado';
 
@@ -428,7 +429,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
 
                                                     <div className="p-3.5 bg-gray-900/50 rounded-lg space-y-2">
                                                         <span className="text-gray-500 block uppercase font-bold tracking-wider">Dificultad Principal</span>
-                                                        <p className="text-gray-200 font-medium">{s.mainObstacle || user.main_obstacle || 'No especificado'}</p>
+                                                        <p className="text-gray-200 font-medium">{Array.isArray(s.mainObstacle) ? s.mainObstacle.join(', ') : (s.mainObstacle || user.main_obstacle || 'No especificado')}</p>
                                                     </div>
                                                 </div>
 

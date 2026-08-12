@@ -48,7 +48,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
         dedicationTime: '',
         experienceLevel: '', 
         budgetRange: '', 
-        mainObstacle: '',
+        mainObstacle: [] as string[],
         currentResources: [] as string[],
     });
 
@@ -67,7 +67,8 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
             case 0: // Paso 1: Personalicemos tu experiencia (3 preguntas)
                 return !!formData.experienceLevel && formData.currentResources.length > 0 && !!formData.country;
             case 1: // Paso 2: Preparemos un plan que puedas cumplir
-                return !!formData.dedicationTime && !!formData.mainObstacle;
+                const hasObstacle = Array.isArray(formData.mainObstacle) ? formData.mainObstacle.length > 0 : !!formData.mainObstacle;
+                return !!formData.dedicationTime && hasObstacle;
             default:
                 return true;
         }
@@ -92,6 +93,20 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                 currentResources: updated
             });
         }
+        setAttemptedNext(false);
+    };
+
+    const handleToggleObstacle = (label: string) => {
+        let updated = Array.isArray(formData.mainObstacle) ? [...formData.mainObstacle] : (formData.mainObstacle ? [formData.mainObstacle as string] : []);
+        if (updated.includes(label)) {
+            updated = updated.filter(item => item !== label);
+        } else {
+            updated.push(label);
+        }
+        setFormData({
+            ...formData,
+            mainObstacle: updated
+        });
         setAttemptedNext(false);
     };
 
@@ -406,9 +421,12 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
                                             <Target className="w-4.5 h-4.5" />
                                         </div>
-                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
-                                            ¿Cuál es el principal obstáculo que quieres resolver?
-                                        </h3>
+                                        <div className="flex flex-col">
+                                            <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
+                                                ¿Cuál es el principal obstáculo que quieres resolver?
+                                            </h3>
+                                            <span className="text-xs text-zinc-500 font-semibold uppercase tracking-wider mt-0.5">Selección múltiple</span>
+                                        </div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         {[
@@ -421,24 +439,24 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                             "Necesito una estrategia clara paso a paso.",
                                             "Quiero automatizar parte del proceso."
                                         ].map((opt) => {
-                                            const isSelected = formData.mainObstacle === opt;
+                                            const obstacleArr = Array.isArray(formData.mainObstacle) 
+                                                ? formData.mainObstacle 
+                                                : (formData.mainObstacle ? [formData.mainObstacle] : []);
+                                            const isSelected = obstacleArr.includes(opt);
                                             return (
                                                 <button
                                                     key={opt}
                                                     type="button"
-                                                    onClick={() => {
-                                                        setFormData({ ...formData, mainObstacle: opt });
-                                                        setAttemptedNext(false);
-                                                    }}
+                                                    onClick={() => handleToggleObstacle(opt)}
                                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center gap-3 ${
                                                         isSelected 
                                                             ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
-                                                            : attemptedNext && !formData.mainObstacle 
+                                                            : attemptedNext && obstacleArr.length === 0 
                                                                 ? 'border-red-500/30 bg-red-500/5' 
                                                                 : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
                                                     }`}
                                                 >
-                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                                                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
                                                         isSelected ? 'border-[#FF5A1F] bg-[#FF5A1F]' : 'border-zinc-700 bg-transparent'
                                                     }`}>
                                                         {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[4px]" />}
