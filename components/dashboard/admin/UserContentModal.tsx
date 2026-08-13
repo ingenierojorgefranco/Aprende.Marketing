@@ -408,9 +408,6 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                         </div>
                                     ) : (() => {
                                         const s = typeof user.survey_json === 'string' ? JSON.parse(user.survey_json) : user.survey_json;
-                                        const resourcesList = Array.isArray(s.currentResources) && s.currentResources.length > 0 
-                                            ? s.currentResources 
-                                            : null;
 
                                         return (
                                             <div className="space-y-6">
@@ -430,23 +427,6 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                                     <div className="p-3.5 bg-gray-900/50 rounded-lg space-y-2">
                                                         <span className="text-gray-500 block uppercase font-bold tracking-wider">Dificultad Principal</span>
                                                         <p className="text-gray-200 font-medium">{Array.isArray(s.mainObstacle) ? s.mainObstacle.join(', ') : (s.mainObstacle || user.main_obstacle || 'No especificado')}</p>
-                                                    </div>
-                                                </div>
-
-                                                <div className="p-4 bg-gray-900/50 rounded-lg space-y-3 text-xs">
-                                                    <span className="text-gray-500 block uppercase font-bold tracking-wider flex items-center gap-2">
-                                                        <Megaphone className="w-4 h-4 text-orange-400" /> Canales y Recursos Actuales
-                                                    </span>
-                                                    <div className="flex flex-wrap gap-2 mt-1">
-                                                        {resourcesList ? (
-                                                            resourcesList.map((res: string, idx: number) => (
-                                                                <span key={idx} className="bg-orange-500/10 border border-orange-500/30 text-orange-300 px-2.5 py-1 rounded-lg font-medium">
-                                                                    {res}
-                                                                </span>
-                                                            ))
-                                                        ) : (
-                                                            <span className="text-gray-500 italic">No especificado / Sin recursos seleccionados</span>
-                                                        )}
                                                     </div>
                                                 </div>
                                             </div>

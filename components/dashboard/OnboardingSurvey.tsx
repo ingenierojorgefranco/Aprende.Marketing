@@ -65,35 +65,13 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
     const validateStep = (currentStep: number) => {
         switch (currentStep) {
             case 0: // Paso 1: Personalicemos tu experiencia (3 preguntas)
-                return !!formData.experienceLevel && formData.currentResources.length > 0 && !!formData.country;
+                return !!formData.country && !!formData.experienceLevel && !!formData.dedicationTime;
             case 1: // Paso 2: Preparemos un plan que puedas cumplir
                 const hasObstacle = Array.isArray(formData.mainObstacle) ? formData.mainObstacle.length > 0 : !!formData.mainObstacle;
-                return !!formData.dedicationTime && hasObstacle;
+                return hasObstacle;
             default:
                 return true;
         }
-    };
-
-    const handleToggleResource = (label: string) => {
-        let updated = [...formData.currentResources];
-        if (label === "Todavía no tengo ninguno") {
-            setFormData({
-                ...formData,
-                currentResources: updated.includes(label) ? [] : [label]
-            });
-        } else {
-            updated = updated.filter(item => item !== "Todavía no tengo ninguno");
-            if (updated.includes(label)) {
-                updated = updated.filter(item => item !== label);
-            } else {
-                updated.push(label);
-            }
-            setFormData({
-                ...formData,
-                currentResources: updated
-            });
-        }
-        setAttemptedNext(false);
     };
 
     const handleToggleObstacle = (label: string) => {
@@ -227,7 +205,47 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                     {step === 0 && (
                         <div className="space-y-8 relative z-10">
                             <div className="space-y-8">
-                                {/* Pregunta 1 */}
+                                {/* Pregunta 1: ¿En qué país estás? */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                            <Globe className="w-4.5 h-4.5" />
+                                        </div>
+                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
+                                            ¿En qué país estás?
+                                        </h3>
+                                    </div>
+                                    <div className="relative">
+                                        <select 
+                                            value={formData.country}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, country: e.target.value });
+                                                setAttemptedNext(false);
+                                            }}
+                                            className={`w-full bg-[#111111]/90 border-2 rounded-2xl py-4 px-5 text-white focus:border-[#FF5A1F] focus:outline-none transition-all font-bold text-base md:text-lg appearance-none ${
+                                                attemptedNext && !formData.country 
+                                                    ? 'border-red-500/30 bg-red-500/5' 
+                                                    : 'border-white/10'
+                                            }`}
+                                        >
+                                            <option value="" className="bg-zinc-900 text-zinc-400">Selecciona tu país</option>
+                                            {countries.filter(c => c.name !== "+ Añadir País").map(c => (
+                                                <option 
+                                                    key={c.name} 
+                                                    value={c.name} 
+                                                    className="bg-zinc-900"
+                                                >
+                                                    {c.flag} {c.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">
+                                            <ChevronDown className="w-5 h-5" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Pregunta 2: ¿Cuánta experiencia tienes vendiendo productos digitales? */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
@@ -272,104 +290,7 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                     </div>
                                 </div>
 
-                                {/* Pregunta 2 */}
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
-                                            <Megaphone className="w-4.5 h-4.5" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
-                                                ¿Qué canales o recursos tienes actualmente?
-                                            </h3>
-                                            <span className="text-xs text-zinc-500 font-semibold uppercase tracking-wider mt-0.5">Selección múltiple</span>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                        {[
-                                            { id: "instagram", label: "Instagram", icon: Instagram },
-                                            { id: "facebook", label: "Facebook", icon: Facebook },
-                                            { id: "tiktok", label: "TikTok", icon: Music },
-                                            { id: "youtube", label: "YouTube", icon: Youtube },
-                                            { id: "web", label: "Página web o landing page", icon: Globe },
-                                            { id: "email", label: "Lista de correo", icon: Mail },
-                                            { id: "whatsapp", label: "Comunidad o grupo de WhatsApp", icon: MessageSquare },
-                                            { id: "ads", label: "Publicidad pagada", icon: TrendingUp },
-                                            { id: "none", label: "Todavía no tengo ninguno", icon: Ban }
-                                        ].map((item) => {
-                                            const isSelected = formData.currentResources.includes(item.label);
-                                            const Icon = item.icon;
-                                            return (
-                                                <button
-                                                    key={item.id}
-                                                    type="button"
-                                                    onClick={() => handleToggleResource(item.label)}
-                                                    className={`p-4 rounded-xl border transition-all duration-200 flex items-center gap-3 ${
-                                                        isSelected 
-                                                            ? 'border-[#FF5A1F]/50 bg-[#FF5A1F]/5 text-white shadow-[0_4px_25px_rgba(255,90,31,0.06)]' 
-                                                            : attemptedNext && formData.currentResources.length === 0
-                                                                ? 'border-red-500/30 bg-red-500/5' 
-                                                                : 'border-white/5 bg-[#111111]/40 text-zinc-300 hover:border-white/10 hover:bg-[#161616]/50'
-                                                    }`}
-                                                >
-                                                    <span className="text-[#FF5A1F] shrink-0">
-                                                        <Icon className="w-4.5 h-4.5" />
-                                                    </span>
-                                                    <span className="font-bold text-xs md:text-sm text-left leading-snug">{item.label}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {/* Pregunta 3 */}
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
-                                            <Globe className="w-4.5 h-4.5" />
-                                        </div>
-                                        <h3 className="font-semibold text-white text-base md:text-lg tracking-tight">
-                                            ¿En qué país estás?
-                                        </h3>
-                                    </div>
-                                    <div className="relative">
-                                        <select 
-                                            value={formData.country}
-                                            onChange={(e) => {
-                                                setFormData({ ...formData, country: e.target.value });
-                                                setAttemptedNext(false);
-                                            }}
-                                            className={`w-full bg-[#111111]/90 border-2 rounded-2xl py-4 px-5 text-white focus:border-[#FF5A1F] focus:outline-none transition-all font-bold text-base md:text-lg appearance-none ${
-                                                attemptedNext && !formData.country 
-                                                    ? 'border-red-500/30 bg-red-500/5' 
-                                                    : 'border-white/10'
-                                            }`}
-                                        >
-                                            <option value="" className="bg-zinc-900 text-zinc-400">Selecciona tu país</option>
-                                            {countries.filter(c => c.name !== "+ Añadir País").map(c => (
-                                                <option 
-                                                    key={c.name} 
-                                                    value={c.name} 
-                                                    className="bg-zinc-900"
-                                                >
-                                                    {c.flag} {c.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">
-                                            <ChevronDown className="w-5 h-5" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Paso 2: Preparemos un plan que puedas cumplir */}
-                    {step === 1 && (
-                        <div className="space-y-8 relative z-10">
-                            <div className="space-y-8">
-                                {/* Pregunta 1 */}
+                                {/* Pregunta 3: ¿Cuánto tiempo puedes dedicar semanalmente? */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">
@@ -414,8 +335,16 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
                                         })}
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    )}
 
-                                {/* Pregunta 2 */}
+                    {/* Paso 2: Preparemos un plan que puedas cumplir */}
+                    {step === 1 && (
+                        <div className="space-y-8 relative z-10">
+                            <div className="space-y-8">
+
+                                {/* Pregunta 1: ¿Cuál es el principal obstáculo que quieres resolver? */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-9 h-9 bg-orange-500/10 border border-orange-500/10 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0">

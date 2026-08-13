@@ -38,15 +38,15 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, o
 
                 {/* Subtítulo */}
                 <h2 className="text-xl md:text-2xl font-bold text-[#FF5A1F] tracking-tight pt-2">
-                    ¡A continuación te ayudaré a crear tu primer proyecto digital!
+                    ¡Soy tu Asistente Personal. A continuación te ayudaré a crear tu primer proyecto digital!
                 </h2>
 
                 {/* Mensaje de Instrucción */}
                 <p 
                     className="max-w-2xl mx-auto leading-relaxed text-white font-light text-lg md:text-xl md:leading-relaxed animate-fade-in-up pt-2" 
-                    style={{ fontSize: "1.2em", lineHeight: "1.4em", paddingTop: "1.5em" }}
+                    style={{ fontSize: "1.2em", lineHeight: "1.6em", paddingTop: "1.5em" }}
                 >
-                    Para hacerlo muy fácil, hemos seleccionado varios productos digitales que podrás elegir y usar. <br /><br />Solo tienes que elegir el que mejor se adapte a ti y nuestra inteligencia artificial creará todo lo que necesitas para convertirlo en tu primer negocio digital.
+                    Para hacerlo muy fácil para ti, nuestro equipo ha pre-seleccionado varios productos digitales que podrás usar y que tienen una alta probabilidad de generarte grandes resultados. <br /><br />Solo tienes que elegir el que mejor se adapte a ti y nuestra inteligencia artificial creará todo lo que necesitas para convertirlo en tu primer negocio digital.
                 </p>
             </div>
 
@@ -57,7 +57,7 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, o
                     disabled={disabled}
                     className={`group flex items-center gap-3 px-8 py-4 ${disabled ? 'bg-zinc-800 cursor-not-allowed opacity-50 text-zinc-500' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] shadow-[0_12px_30px_-5px_rgba(255,90,31,0.4)] transform hover:-translate-y-0.5 active:scale-98'} text-white rounded-2xl font-black text-base md:text-lg tracking-wide transition-all mx-auto cursor-pointer`}
                 >
-                    {disabled ? 'Configuración en proceso' : 'Elegir mi Producto Digital'}
+                    {disabled ? 'Configuración en proceso' : 'ELEGIR MI PRODUCTO DIGITAL'}
                     {!disabled && <ChevronRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />}
                 </button>
             </div>
@@ -104,11 +104,11 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                         paddingTop: '1em',
                         paddingBottom: '1em',
                         fontSize: '1.16em',
-                        lineHeight: '1.5em',
+                        lineHeight: '1.6em',
                         color: 'white',
                     }}
                 >
-                    Elige el Producto Digital que mejor se adapte a ti, nuestro sistema creará un sistema de ventas completo con inteligencia artificial para este producto digital
+                    Elige el Producto Digital que mejor se adapte a ti, nuestra inteligencia artificial creará un sistema de ventas completo para este producto digital
                 </p>
 
                 {/* Glowing Spark Divider */}
@@ -466,10 +466,6 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                 >
                                     ELEGIR OTRO PRODUCTO DIGITAL
                                 </button>
-
-                                <p className="text-center text-zinc-400 text-xs font-normal tracking-wide pt-1">
-                                    Nuestra inteligencia artificial creará todo lo que necesitas para ganar dinero con este producto digital
-                                </p>
                             </div>
 
                         </div>
@@ -773,11 +769,12 @@ export const GeneratingStep: React.FC<{
                         <>Estamos <span className="text-[#FF5A1F]">creando tu proyecto</span></>
                     )}
                 </h2>
-                <p className="text-zinc-400 font-normal text-xs sm:text-sm md:text-base max-w-md mx-auto leading-relaxed">
-                    {isWeb && "Estamos utilizando la estrategia de tu proyecto para construir una página optimizada para convertir visitantes en prospectos."}
-                    {isVideo && "Estamos generando los guiones virales para captar la atención de tus prospectos."}
-                    {isProject && "Estamos estructurando la estrategia, la propuesta de valor y el embudo completo de tu proyecto digital."}
-                </p>
+                {(isWeb || isVideo) && (
+                    <p className="text-zinc-400 font-normal text-xs sm:text-sm md:text-base max-w-md mx-auto leading-relaxed">
+                        {isWeb && "Estamos utilizando la estrategia de tu proyecto para construir una página optimizada para convertir visitantes en prospectos."}
+                        {isVideo && "Estamos generando los guiones virales para captar la atención de tus prospectos."}
+                    </p>
+                )}
             </div>
 
             {/* 3. Selected Product Card */}
@@ -960,7 +957,10 @@ export const AvatarRevealStep: React.FC<StepProps & { avatars: any[] }> = ({ ava
 };
 
 // 4.5 ESTRATEGIA LISTA
-export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onNext }) => {
+export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onNext, project }) => {
+    const imageUrl = project?.multimedia_json?.heroImages?.[0] || 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=2670&auto=format&fit=cover';
+    const productName = project?.productName || project?.name || 'Curso Profesional Certificado de Microblading de Cejas';
+
     return (
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
@@ -985,8 +985,25 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
             {/* Main Title & Description */}
             <div className="space-y-4 max-w-5xl mx-auto w-full">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight sm:whitespace-nowrap">
-                    Tu proyecto está listo para <span className="text-[#FF5A1F]">empezar</span>
+                    He creado tu <span className="text-[#FF5A1F]">Proyecto Digital</span>
                 </h2>
+
+                {/* Selected Product Card */}
+                <div className="w-full max-w-md mx-auto bg-[#0c0c0e]/90 border border-zinc-800/80 rounded-2xl p-3 sm:p-3.5 flex items-center gap-3.5 text-left shadow-xl my-3">
+                    <div className="w-16 sm:w-20 aspect-video rounded-xl overflow-hidden relative shrink-0 bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                        <img referrerPolicy="no-referrer" src={imageUrl} alt={productName} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-lg">
+                                <Play className="w-3.5 h-3.5 text-white fill-current translate-x-0.5" />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                        <span className="text-[10px] sm:text-xs font-bold text-[#FF5A1F] uppercase tracking-wider">PRODUCTO SELECCIONADO</span>
+                        <h4 className="text-white font-extrabold text-xs sm:text-sm leading-snug mt-0.5 line-clamp-2">{productName}</h4>
+                    </div>
+                </div>
+
                 <div className="space-y-1 text-zinc-300 font-normal text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
                     <p>Ya hemos estructurado la base inicial de tu estrategia.</p>
                     <p>Ahora vamos a crear la página que utilizarás para captar tus primeros prospectos.</p>
