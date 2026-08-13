@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import confetti from "canvas-confetti";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../../services/api";
@@ -221,11 +222,76 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     }
   };
 
+  // Confeti desde varios ángulos únicamente cuando se entra desde la pantalla de proyecto terminado
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const shouldFire = sessionStorage.getItem("trigger_project_confetti") === "true";
+      if (shouldFire) {
+        sessionStorage.removeItem("trigger_project_confetti");
+
+        const fireMultiAngleConfetti = () => {
+          // Ángulo 1: Cañón izquierdo
+          confetti({
+            particleCount: 80,
+            angle: 60,
+            spread: 75,
+            origin: { x: 0, y: 0.7 },
+            colors: ['#FF5A1F', '#FF8B1F', '#10B981', '#3B82F6', '#EC4899', '#F59E0B']
+          });
+
+          // Ángulo 2: Cañón derecho
+          confetti({
+            particleCount: 80,
+            angle: 120,
+            spread: 75,
+            origin: { x: 1, y: 0.7 },
+            colors: ['#FF5A1F', '#FF8B1F', '#10B981', '#3B82F6', '#EC4899', '#F59E0B']
+          });
+
+          // Ángulo 3: Explosión central
+          confetti({
+            particleCount: 100,
+            spread: 100,
+            origin: { x: 0.5, y: 0.55 },
+            colors: ['#FF5A1F', '#FFFFFF', '#10B981', '#F59E0B']
+          });
+
+          // Ángulo 4: Lluvia diagonal centro-izquierda
+          confetti({
+            particleCount: 60,
+            angle: 45,
+            spread: 80,
+            origin: { x: 0.25, y: 0.75 },
+            colors: ['#FF5A1F', '#FF8B1F', '#3B82F6']
+          });
+
+          // Ángulo 5: Lluvia diagonal centro-derecha
+          confetti({
+            particleCount: 60,
+            angle: 135,
+            spread: 80,
+            origin: { x: 0.75, y: 0.75 },
+            colors: ['#FF5A1F', '#10B981', '#EC4899']
+          });
+        };
+
+        fireMultiAngleConfetti();
+        const t1 = setTimeout(fireMultiAngleConfetti, 400);
+        const t2 = setTimeout(fireMultiAngleConfetti, 800);
+
+        return () => {
+          clearTimeout(t1);
+          clearTimeout(t2);
+        };
+      }
+    }
+  }, []);
+
   // Calculate earnings
   const earnings = Math.round(projectPrice * (projectCommission / 100));
 
   const stepsList = [
-    { id: 1, title: "1. Confirma tu proyecto", stage: 1, stageTitle: "ETAPA 1 — Activa tu sistema" },
+    { id: 1, title: "1. Empieza Aquí viendo este video", stage: 1, stageTitle: "ETAPA 1 — Activa tu sistema" },
     { id: 2, title: "2. Conoce a tu Comprador Ideal", stage: 1 },
     { id: 3, title: "3. Activa tu Página de Captura", stage: 1 },
     { id: 4, title: "4. Configura tus enlaces de afiliado", stage: 1 },

@@ -1587,248 +1587,125 @@ export const SuccessStep: React.FC<{
     onFinish: () => void;
     project?: any;
     createdPageSubdomain?: string;
-}> = ({ onFinish, project, createdPageSubdomain }) => {
-    const productName = project?.productName || project?.name || 'Certificación Expert Microblading';
-    const imageUrl = project?.imageUrl || 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=800&q=80';
-    const [copied, setCopied] = useState(false);
-
-    const subdomainPart = createdPageSubdomain ? createdPageSubdomain.split(".")[0] : "";
-    const pageUrl = subdomainPart ? `${subdomainPart}.aprende.marketing` : `landing-${project?.id || 'demo'}.aprende.marketing`;
-
-    const handleCopy = () => {
-        navigator.clipboard.writeText(`https://${pageUrl}`);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    };
-
+}> = ({ onFinish }) => {
     return (
         <motion.div 
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col w-full max-w-[1400px] mx-auto px-2 sm:px-6 py-2 sm:py-4 font-sans relative space-y-6 sm:space-y-8"
+            className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-4 py-8 sm:py-12 font-sans relative space-y-8 text-center"
         >
-            {/* Ambient Background Glows */}
+            {/* Ambient Background Glow */}
             <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden flex items-center justify-center">
-                <div className="w-[900px] h-[900px] rounded-full bg-emerald-500/10 blur-[150px] opacity-60"></div>
-                <div className="w-[600px] h-[600px] rounded-full bg-[#FF5A1F]/10 blur-[120px] opacity-50"></div>
+                <div className="w-[600px] h-[600px] rounded-full bg-[#FF5A1F]/10 blur-[140px] opacity-70"></div>
             </div>
 
             {/* Top Stepper Breadcrumbs */}
-            <div className="flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-medium pt-1">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#161210] border border-emerald-500/40 text-emerald-400 font-bold shadow-sm">
-                    <div className="w-4 h-4 rounded-full bg-emerald-500 text-black flex items-center justify-center text-[10px] font-bold">
-                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+            <div className="flex items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm font-semibold">
+                <div className="flex items-center gap-2 text-white">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#FF5A1F] text-black flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 stroke-[3] text-black" />
                     </div>
-                    <span>01 Proyecto creado</span>
+                    <span className="font-medium text-white">Proyecto creado</span>
                 </div>
-                <div className="w-6 sm:w-12 h-[1px] bg-emerald-500"></div>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#161210] border border-emerald-500/40 text-emerald-400 font-bold shadow-sm">
-                    <div className="w-4 h-4 rounded-full bg-emerald-500 text-black flex items-center justify-center text-[10px] font-bold">
-                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                <div className="w-10 sm:w-20 h-[2px] bg-[#FF5A1F]"></div>
+                <div className="flex items-center gap-2 text-white">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#FF5A1F] text-black flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 stroke-[3] text-black" />
                     </div>
-                    <span>02 Página de captura</span>
+                    <span className="font-medium text-white">Página de captura</span>
                 </div>
-                <div className="w-6 sm:w-12 h-[1px] bg-emerald-500"></div>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#161210] border border-emerald-500/40 text-emerald-400 font-bold shadow-[0_0_15px_rgba(16,185,129,0.25)]">
-                    <div className="w-4 h-4 rounded-full bg-emerald-500 text-black flex items-center justify-center text-[10px] font-bold">
-                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                <div className="w-10 sm:w-20 h-[2px] bg-[#FF5A1F]"></div>
+                <div className="flex items-center gap-2 text-white">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#FF5A1F] text-black flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 stroke-[3] text-black" />
                     </div>
-                    <span>03 Contenido (Reels)</span>
+                    <span className="font-medium text-white">Reels de atracción</span>
                 </div>
             </div>
 
-            {/* 2-Column Main Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14 items-center text-left pt-2 w-full">
-                {/* LEFT COLUMN: Summary & Action */}
-                <div className="lg:col-span-5 flex flex-col justify-center space-y-6 sm:space-y-7">
-                    {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#101a14] border border-emerald-500/40 text-emerald-400 text-xs font-extrabold tracking-wider uppercase self-start shadow-sm">
-                        <CheckCircle className="w-4 h-4 text-emerald-400" />
-                        <span>SISTEMA DE VENTAS COMPLETADO</span>
-                    </div>
-
-                    {/* Headline */}
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl xl:text-[3.25rem] font-black text-white tracking-tight" style={{ lineHeight: '1.15em' }}>
-                        Tu sistema de ventas ya está listo.
-                        <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] via-[#FF7A00] to-[#FFA033]">
-                            Todo guardado en tu proyecto.
-                        </span>
-                    </h2>
-
-                    {/* Description */}
-                    <p className="text-zinc-300 font-normal text-base sm:text-lg text-[1.3em] leading-[1.6em]">
-                        Hemos configurado tu estrategia de marketing, tu página de captura de clientes y tus 3 Reels de atracción para <strong className="text-white font-semibold">{productName}</strong>. Todo está listo para que empieces a captar prospectos.
-                    </p>
-
-                    {/* Consolidated Status Box */}
-                    <div className="bg-[#0e0e14]/95 border border-zinc-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl">
-                        <div className="flex items-center justify-between text-xs sm:text-sm">
-                            <div className="flex items-center gap-3 text-zinc-200 font-medium">
-                                <div className="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
-                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                </div>
-                                <span>Estrategia & Ángulos de Venta</span>
-                            </div>
-                            <span className="text-emerald-400 font-bold text-xs bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">Definido</span>
-                        </div>
-
-                        <div className="flex items-center justify-between text-xs sm:text-sm pt-2.5 border-t border-zinc-800/80">
-                            <div className="flex items-center gap-3 text-zinc-200 font-medium">
-                                <div className="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
-                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                </div>
-                                <span>Página Web de Captura</span>
-                            </div>
-                            <span className="text-emerald-400 font-bold text-xs bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">Publicada</span>
-                        </div>
-
-                        <div className="flex items-center justify-between text-xs sm:text-sm pt-2.5 border-t border-zinc-800/80">
-                            <div className="flex items-center gap-3 text-zinc-200 font-medium">
-                                <div className="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
-                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                </div>
-                                <span>3 Reels de Atracción (Guiones y Copys)</span>
-                            </div>
-                            <span className="text-emerald-400 font-bold text-xs bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">Listos</span>
-                        </div>
-                    </div>
-
-                    {/* CTA Button */}
-                    <div className="pt-2 space-y-3">
-                        <button 
-                            type="button"
-                            onClick={onFinish}
-                            className="w-full py-4.5 sm:py-5 px-8 bg-gradient-to-r from-[#FF5A1F] via-[#FF4500] to-[#FF5A1F] hover:opacity-95 text-white rounded-2xl font-black text-base sm:text-lg tracking-wider uppercase transition-all shadow-[0_12px_40px_rgba(255,90,31,0.45)] border border-orange-400/30 flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer group"
-                        >
-                            <Rocket className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 group-hover:rotate-12 transition-transform" />
-                            <span>FINALIZAR Y VER MI PROYECTO</span>
-                            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 group-hover:translate-x-1 transition-transform" />
-                        </button>
-
-                        <div className="flex items-center justify-center gap-2 text-zinc-400 text-xs sm:text-sm text-center">
-                            <Lock className="w-4 h-4 text-[#FF5A1F] shrink-0" />
-                            <span>Podrás revisar, descargar y gestionar todo desde el panel de tu proyecto.</span>
+            {/* Central Badge Icon */}
+            <div className="relative pt-4">
+                <div className="absolute inset-0 bg-[#FF5A1F]/30 blur-2xl rounded-3xl -z-10"></div>
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-[#251007] to-[#0d0704] border-2 border-[#FF5A1F]/70 flex items-center justify-center shadow-[0_0_60px_rgba(255,90,31,0.4)]">
+                    <div className="w-11 h-11 sm:w-13 sm:h-13 border-2 border-[#FF5A1F] rounded-xl flex items-center justify-center relative bg-[#FF5A1F]/10">
+                        <Check className="w-7 h-7 sm:w-8 sm:h-8 text-[#FF5A1F] stroke-[3]" />
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#FF5A1F] rounded-full flex items-center justify-center shadow">
+                            <Check className="w-2.5 h-2.5 text-black stroke-[3]" />
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {/* RIGHT COLUMN: Project Launch Hub Mockup */}
-                <div className="lg:col-span-7 relative w-full pt-2 lg:pt-0">
-                    {/* Backdrop Glow */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/15 via-[#FF5A1F]/15 to-transparent blur-3xl -z-10 rounded-3xl"></div>
+            {/* Title & Subtitle */}
+            <div className="space-y-3 max-w-3xl mx-auto">
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
+                    Tu proyecto está <span className="text-[#FF5A1F]">listo para empezar</span>
+                </h1>
+                <p className="text-zinc-300 font-normal text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
+                    He preparado la base inicial de tu sistema para que puedas comenzar a atraer prospectos y desarrollar tu estrategia desde <strong className="text-white font-semibold">Aprende</strong><strong className="text-[#FF5A1F] font-semibold">.Marketing</strong>.
+                </p>
+            </div>
 
-                    {/* Check Floating Badge */}
-                    <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-[0_0_35px_rgba(16,185,129,0.55)] z-20 border border-emerald-300/40">
-                        <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7" />
-                    </div>
+            {/* Config Box ("TU CONFIGURACIÓN INICIAL") */}
+            <div className="w-full bg-[#0a0a0c]/90 border border-zinc-800/90 rounded-2xl sm:rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl backdrop-blur-md">
+                <div className="flex items-center justify-center gap-4">
+                    <div className="h-[1px] bg-gradient-to-r from-transparent via-zinc-800 to-zinc-800 flex-1"></div>
+                    <span className="text-xs sm:text-sm font-extrabold text-zinc-300 tracking-widest uppercase px-2">
+                        TU CONFIGURACIÓN INICIAL
+                    </span>
+                    <div className="h-[1px] bg-gradient-to-l from-transparent via-zinc-800 to-zinc-800 flex-1"></div>
+                </div>
 
-                    {/* Project Studio Card Container */}
-                    <div className="bg-[#0a0a0e] border border-emerald-500/30 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.85)] relative">
-                        {/* Header Bar */}
-                        <div className="bg-[#121218] border-b border-zinc-800/80 px-5 py-3.5 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="w-3.5 h-3.5 rounded-full bg-rose-500/80"></div>
-                                <div className="w-3.5 h-3.5 rounded-full bg-amber-500/80"></div>
-                                <div className="w-3.5 h-3.5 rounded-full bg-emerald-500/80"></div>
-                            </div>
-
-                            <div className="bg-[#101f16] border border-emerald-500/40 rounded-full px-4 py-1 text-xs text-emerald-400 flex items-center gap-2 font-mono font-bold">
-                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                                <span>SISTEMA ACTIVO</span>
-                            </div>
-
-                            <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-mono">
-                                <Package className="w-4 h-4 text-emerald-400" />
-                                <span className="hidden sm:inline">Project Hub</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-zinc-800/80">
+                    {/* Item 1 */}
+                    <div className="flex flex-col items-center justify-center p-4 space-y-3 text-center">
+                        <div className="relative w-16 h-16 rounded-full bg-[#1e0e06] border border-[#FF5A1F]/40 flex items-center justify-center shadow-[0_0_20px_rgba(255,90,31,0.2)]">
+                            <Target className="w-8 h-8 text-[#FF5A1F]" />
+                            <div className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-[#10B981] flex items-center justify-center border-2 border-[#0a0a0c]">
+                                <Check className="w-3 h-3 text-black stroke-[3]" />
                             </div>
                         </div>
-
-                        {/* Content Area */}
-                        <div className="p-6 sm:p-8 bg-gradient-to-b from-[#101016] via-[#0d0d12] to-[#08080a] space-y-6 text-left">
-                            {/* Project Header Info */}
-                            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden shrink-0">
-                                        <img referrerPolicy="no-referrer" src={imageUrl} alt={productName} className="w-full h-full object-cover" />
-                                    </div>
-                                    <div>
-                                        <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block">Proyecto Listo</span>
-                                        <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight line-clamp-1">{productName}</h3>
-                                    </div>
-                                </div>
-                                <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold shrink-0">
-                                    100% Configurado
-                                </span>
-                            </div>
-
-                            {/* Link Card Component */}
-                            <div className="bg-[#14141d] border border-zinc-800 rounded-2xl p-4 space-y-2.5">
-                                <span className="text-xs font-bold text-zinc-300 flex items-center gap-2">
-                                    <Globe className="w-4 h-4 text-[#FF5A1F]" />
-                                    <span>Tu enlace público de captura:</span>
-                                </span>
-                                <div className="flex items-center gap-2 bg-[#0a0a0f] border border-zinc-800 rounded-xl p-2.5">
-                                    <span className="text-xs text-zinc-300 font-mono truncate flex-1 pl-1">
-                                        https://{pageUrl}
-                                    </span>
-                                    <button 
-                                        type="button"
-                                        onClick={handleCopy}
-                                        className="px-3 py-1.5 rounded-lg bg-[#FF5A1F] hover:bg-[#D94A1E] text-white text-xs font-bold flex items-center gap-1.5 transition-colors shrink-0"
-                                    >
-                                        {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                                        <span>{copied ? '¡Copiado!' : 'Copiar'}</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Generated Resources Summary Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div className="bg-[#14141d] border border-zinc-800 rounded-xl p-3.5 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
-                                        <Film className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <h5 className="text-xs font-bold text-white">3 Reels de Atracción</h5>
-                                        <p className="text-[11px] text-zinc-400">Guiones y copys listos</p>
-                                    </div>
-                                </div>
-
-                                <div className="bg-[#14141d] border border-zinc-800 rounded-xl p-3.5 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
-                                        <FileText className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <h5 className="text-xs font-bold text-white">Página de Captura</h5>
-                                        <p className="text-[11px] text-zinc-400">Diseñada y optimizada</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Launch Action Steps Guide */}
-                            <div className="bg-[#12121c] border border-zinc-800/80 rounded-2xl p-4 space-y-3">
-                                <span className="text-xs font-extrabold text-white uppercase tracking-wider block">
-                                    Pasos para comenzar a vender:
-                                </span>
-                                <div className="space-y-2.5 text-xs text-zinc-300">
-                                    <div className="flex items-start gap-2.5">
-                                        <span className="w-5 h-5 rounded-full bg-[#FF5A1F]/20 text-[#FF5A1F] font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">1</span>
-                                        <span>Copia tu enlace de captura y agrégalo en la biografía de tus redes sociales (Instagram / TikTok).</span>
-                                    </div>
-                                    <div className="flex items-start gap-2.5">
-                                        <span className="w-5 h-5 rounded-full bg-[#FF5A1F]/20 text-[#FF5A1F] font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">2</span>
-                                        <span>Graba o edita tus 3 Reels siguiendo las estructuras de guion preparadas.</span>
-                                    </div>
-                                    <div className="flex items-start gap-2.5">
-                                        <span className="w-5 h-5 rounded-full bg-[#FF5A1F]/20 text-[#FF5A1F] font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">3</span>
-                                        <span>Publica tus videos y empieza a recibir tus primeros clientes en tu proyecto.</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
+                        <p className="text-white font-bold text-sm sm:text-base">Estrategia preparada</p>
                     </div>
+
+                    {/* Item 2 */}
+                    <div className="flex flex-col items-center justify-center p-4 space-y-3 text-center pt-6 md:pt-4">
+                        <div className="relative w-16 h-16 rounded-full bg-[#1e0e06] border border-[#FF5A1F]/40 flex items-center justify-center shadow-[0_0_20px_rgba(255,90,31,0.2)]">
+                            <Globe className="w-8 h-8 text-[#FF5A1F]" />
+                            <div className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-[#10B981] flex items-center justify-center border-2 border-[#0a0a0c]">
+                                <Check className="w-3 h-3 text-black stroke-[3]" />
+                            </div>
+                        </div>
+                        <p className="text-white font-bold text-sm sm:text-base">Página de captura creada</p>
+                    </div>
+
+                    {/* Item 3 */}
+                    <div className="flex flex-col items-center justify-center p-4 space-y-3 text-center pt-6 md:pt-4">
+                        <div className="relative w-16 h-16 rounded-full bg-[#1e0e06] border border-[#FF5A1F]/40 flex items-center justify-center shadow-[0_0_20px_rgba(255,90,31,0.2)]">
+                            <Clapperboard className="w-8 h-8 text-[#FF5A1F]" />
+                            <div className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-[#10B981] flex items-center justify-center border-2 border-[#0a0a0c]">
+                                <Check className="w-3 h-3 text-black stroke-[3]" />
+                            </div>
+                        </div>
+                        <p className="text-white font-bold text-sm sm:text-base">3 Reels de atracción preparados</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* CTA Button & Lock Disclaimer */}
+            <div className="flex flex-col items-center gap-3 pt-2 w-full max-w-md">
+                <button 
+                    type="button"
+                    onClick={onFinish}
+                    className="w-full py-4.5 sm:py-5 px-8 bg-gradient-to-r from-[#FF5A1F] via-[#FF6A28] to-[#FF5A1F] hover:opacity-95 text-white rounded-2xl font-black text-base sm:text-lg tracking-wider uppercase transition-all shadow-[0_12px_40px_rgba(255,90,31,0.45)] border border-orange-400/30 flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer"
+                >
+                    <span>IR A MI PROYECTO</span>
+                    <ArrowRight className="w-6 h-6 stroke-[2.5]" />
+                </button>
+
+                <div className="flex items-center justify-center gap-2 text-zinc-400 text-xs sm:text-sm text-center pt-1 font-normal">
+                    <Lock className="w-4 h-4 text-zinc-400 shrink-0" />
+                    <span>Todo está guardado y podrás revisarlo, editarlo y ampliarlo desde tu proyecto.</span>
                 </div>
             </div>
         </motion.div>

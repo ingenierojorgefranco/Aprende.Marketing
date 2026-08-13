@@ -366,7 +366,7 @@ export const DashboardLayout = ({
   useEffect(() => {
     if (showWizard && location.pathname === '/dashboard' && !isSurveyPending && !isLaunchRestricted) {
       const forced = typeof window !== 'undefined' ? localStorage.getItem('force_wizard_step') : null;
-      if (forced === 'unlock') {
+      if (forced === 'success' || forced === 'unlock') {
         navigate('/wizard/step-3', { replace: true });
       } else if (forced === 'selection') {
         navigate('/wizard/step-2', { replace: true });
@@ -562,6 +562,9 @@ export const DashboardLayout = ({
                         user={effectiveUser} 
                         onComplete={(targetProjectId) => {
                             localStorage.removeItem('force_wizard_step');
+                            if (typeof window !== 'undefined') {
+                              sessionStorage.setItem('trigger_project_confetti', 'true');
+                            }
                             if (targetProjectId) {
                                 navigate(`/dashboard/projects/${targetProjectId}/strategy`);
                             } else {

@@ -1264,6 +1264,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
   const handleFinishWizard = () => {
     localStorage.removeItem("force_wizard_step");
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("trigger_project_confetti", "true");
+    }
     const targetProjectId =
       unlockedProject?.id ||
       selectedProject?.id ||
@@ -1503,7 +1506,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               </button>
             </div>
           </div>
-        ) : step === "success" ? (
+        ) : isStandaloneDashboard && step === "success" ? (
           <div className="w-full min-h-screen flex flex-col justify-center pt-28 md:pt-30 pb-16 relative z-10 font-sans">
 
             {/* NUEVA GUÍA DE IMPLEMENTACIÓN CON INTERACTIVIDAD COMPLETA */}

@@ -27,7 +27,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         {
             module: "ETAPA 1 — ACTIVA TU SISTEMA",
             items: [
-                { id: 'summary', label: '1. Confirma tu proyecto', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
+                { id: 'summary', label: '1. Empieza Aquí viendo este video', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
                 { id: 'avatar', label: '2. Conoce a tu Comprador Ideal', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto" },
                 { id: 'web', label: '3. Activa tu Página de Captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
                 { id: 'hotlinks', label: '4. Configura tus enlaces de afiliado', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado" },
