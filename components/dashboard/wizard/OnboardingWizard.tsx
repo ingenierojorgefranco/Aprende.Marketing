@@ -202,6 +202,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       return "success";
     }
     if (typeof window !== "undefined") {
+      const forced = localStorage.getItem("force_wizard_step");
+      if (forced === "success") return "success";
+      
       const fullPath = window.location.pathname + window.location.hash + window.location.search;
       if (fullPath.includes("step-3") || fullPath.includes("unlock")) {
         return "unlock";
@@ -212,10 +215,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       if (fullPath.includes("step-1") || fullPath.includes("welcome")) {
         return "welcome";
       }
-      const forced = localStorage.getItem("force_wizard_step");
       if (forced === "unlock") return "unlock";
       if (forced === "selection") return "selection";
-      if (forced === "success") return "success";
     }
     return "welcome";
   });
@@ -240,11 +241,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   };
 
   useEffect(() => {
+    if (step === "success") {
+      localStorage.setItem("force_wizard_step", "success");
+    }
+  }, [step]);
+
+  useEffect(() => {
     const fullPath = location.pathname + location.hash + location.search;
     if (fullPath.includes("step-3") || fullPath.includes("unlock")) {
-      if (step !== "unlock") {
-        setStep("unlock");
-        setRevealedSections(["unlock"]);
+      const forced = localStorage.getItem("force_wizard_step");
+      if (forced === "success" || step === "success") {
+        if (step !== "success") setStep("success");
       }
     } else if (fullPath.includes("step-2") || fullPath.includes("selection")) {
       if (step !== "selection") {
@@ -1082,7 +1089,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       }, 800);
     } catch (error) {
       console.error("Error en creación de web:", error);
-      setStep("show_hooks"); // Fallback a hooks para no romper el flujo
+      setIsLandingCreated(true);
+      setStep("landing_success");
     }
   };
 
@@ -1177,12 +1185,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           setIsHooksUnlocked(true);
 
           setTimeout(() => {
-            setStep("show_hooks");
+            localStorage.setItem("force_wizard_step", "success");
+            setStep("success");
           }, 800);
         }).catch((error) => {
           console.error("❌ Error en proceso de ganchos:", error);
           setIsHooksUnlocked(true);
-          setStep("show_hooks");
+          localStorage.setItem("force_wizard_step", "success");
+          setStep("success");
         });
       }
     }, 100);
@@ -2001,7 +2011,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         ) : step === "strategy_ready" ? (
           <div
             ref={strategyReadyRef}
-            className="w-full max-w-6xl mx-auto px-4 md:px-6 min-h-[calc(100vh-100px)] flex flex-col justify-center items-center py-8 relative font-sans overflow-hidden"
+            className="w-full max-w-[1440px] mx-auto px-4 md:px-8 min-h-[calc(100vh-100px)] flex flex-col justify-center items-center py-6 relative font-sans"
           >
             <StrategyReadyStep
               userData={user}
@@ -2012,13 +2022,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         ) : step === "landing_success" ? (
           <div
             ref={landingSuccessRef}
-            className="w-full max-w-6xl mx-auto px-4 md:px-6 min-h-[calc(100vh-100px)] flex flex-col justify-center items-center py-8 relative font-sans overflow-hidden"
+            className="w-full max-w-[1440px] mx-auto px-4 md:px-8 min-h-[calc(100vh-100px)] flex flex-col justify-center items-center py-6 relative font-sans"
           >
             <LandingSuccessStep
               userData={user}
               project={selectedProject || unlockedProject}
               createdPageSubdomain={createdPageSubdomain}
-              onNext={() => setStep("show_hooks")}
+              onNext={handleUnlockHooks}
               onView={() => {
                 const subdomainPart = createdPageSubdomain
                   ? createdPageSubdomain.split(".")[0]
@@ -2049,20 +2059,79 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               }}
             />
           </div>
+        ) : step === "show_avatars" ? (
+          <div
+            ref={avatarsRef}
+            className="w-full max-w-6xl mx-auto px-4 md:px-6 min-h-[calc(100vh-100px)] flex flex-col justify-center pt-24 pb-12 relative overflow-hidden"
+          >
+            <AvatarRevealStep
+              userData={user}
+              avatars={strategyData?.avatars || []}
+              onNext={() => setStep("show_landing_prep")}
+            />
+          </div>
+        ) : step === "show_landing_prep" ? (
+          <div
+            ref={landingPrepRef}
+            className="w-full max-w-6xl mx-auto px-4 md:px-6 min-h-[calc(100vh-100px)] flex flex-col justify-center pt-24 pb-12 relative overflow-hidden"
+          >
+            <LandingIntroStep
+              userData={user}
+              onNext={() => setShowCreateLandingConfirm(true)}
+              isCreated={isLandingCreated}
+            />
+          </div>
+        ) : step === "generating_hooks" ? (
+          <div className="w-full max-w-6xl mx-auto px-4 md:px-6 min-h-[calc(100vh-100px)] flex flex-col justify-center items-center py-8 relative font-sans overflow-hidden">
+            <GenerationStep
+              progress={generationProgress}
+              status={generationStatus}
+              secondsElapsed={secondsElapsed}
+              message="Estamos creando los videos para atraer tus potenciales clientes."
+              project={selectedProject || unlockedProject}
+            />
+          </div>
+        ) : step === "show_hooks" ? (
+          <div ref={hooksRef} className="w-full max-w-[1440px] mx-auto min-h-[calc(100vh-100px)] flex flex-col justify-center py-12 px-4 md:px-6 relative font-sans">
+            <HooksRevealStep
+              userData={user}
+              hooks={
+                unlockedHooks.length > 0
+                  ? unlockedHooks
+                  : strategyData?.modules?.hooks || []
+              }
+              isUnlocked={isHooksUnlocked}
+              projectId={unlockedProject?.id}
+              project={selectedProject || unlockedProject}
+              onNext={() => {
+                if (!isHooksUnlocked) {
+                  handleUnlockHooks();
+                } else {
+                  handleFinishWizard();
+                }
+              }}
+              hooksRef={hooksRef}
+              onOpenHookDetails={(hook) => {
+                setSelectedHookForDrawer(hook);
+                setActiveDetailsDrawer("hooks");
+              }}
+            />
+          </div>
+        ) : step === "success" ? (
+          <div
+            ref={successRef}
+            className="w-full max-w-[1440px] mx-auto px-4 md:px-6 min-h-[calc(100vh-100px)] flex flex-col justify-center py-10 relative font-sans"
+          >
+            <SuccessStep
+              onFinish={handleFinishWizard}
+              project={selectedProject || unlockedProject}
+              createdPageSubdomain={createdPageSubdomain}
+            />
+          </div>
         ) : (
           <div className="flex flex-col">
-
-            {/* Modals de Confirmación */}
+            {/* Confirmation Modals */}
             <AnimatePresence>
-              {false && showActivateConfirm && (
-                <div
-                  className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in"
-                  onClick={() => setShowActivateConfirm(false)}
-                >
-                  <motion.div>Modal</motion.div>
-                </div>
-              )}
-
               {showCreateLandingConfirm && (
                 <div
                   className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in"
@@ -2108,142 +2177,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                 </div>
               )}
             </AnimatePresence>
-
-            {/* 4. AVATARES */}
-            {revealedSections.includes("strategy_ready") && (
-              <div
-                ref={strategyReadyRef}
-                className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
-              >
-                <StrategyReadyStep
-                  userData={user}
-                  project={selectedProject || unlockedProject}
-                  onNext={handleCreateWeb}
-                />
-              </div>
-            )}
-
-            {revealedSections.includes("show_avatars") && (
-              <div
-                ref={avatarsRef}
-                className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
-              >
-                <AvatarRevealStep
-                  userData={user}
-                  avatars={strategyData?.avatars || []}
-                  onNext={() => setStep("show_landing_prep")}
-                />
-              </div>
-            )}
-
-            {/* 5. LANDING PREP */}
-            {revealedSections.includes("show_landing_prep") && (
-              <div
-                ref={landingPrepRef}
-                className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
-              >
-                <LandingIntroStep
-                  userData={user}
-                  onNext={() => setShowCreateLandingConfirm(true)}
-                  isCreated={isLandingCreated}
-                />
-              </div>
-            )}
-
-            {revealedSections.includes("landing_success") && (
-              <div
-                ref={landingSuccessRef}
-                className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
-              >
-                <LandingSuccessStep
-                  userData={user}
-                  project={selectedProject || unlockedProject}
-                  createdPageSubdomain={createdPageSubdomain}
-                  onNext={() => setStep("show_hooks")}
-                  onView={() => {
-                    const subdomainPart = createdPageSubdomain
-                      ? createdPageSubdomain.split(".")[0]
-                      : "";
-                    if (subdomainPart) {
-                      const isLocal =
-                        typeof window !== "undefined" &&
-                        (window.location.hostname === "localhost" ||
-                          window.location.hostname.includes("ais-dev"));
-                      const url = isLocal
-                        ? `/admin/lp/${subdomainPart}`
-                        : `https://aprende.marketing/admin/lp/${subdomainPart}`;
-                      window.open(url, "_blank");
-                    } else if (unlockedProject) {
-                      window.open(
-                        `/dashboard/projects/${unlockedProject.id}/strategy?section=web`,
-                        "_blank",
-                      );
-                    }
-                  }}
-                  onEdit={() => {
-                    if (unlockedProject) {
-                      window.open(
-                        `/dashboard/projects/${unlockedProject.id}/strategy?section=web`,
-                        "_blank",
-                      );
-                    }
-                  }}
-                />
-              </div>
-            )}
-
-            {/* 6.5 GENERANDO HOOKS (LOADING) */}
-            {step === "generating_hooks" && (
-              <div className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden">
-                <GenerationStep
-                  progress={generationProgress}
-                  status={generationStatus}
-                  secondsElapsed={secondsElapsed}
-                  message="Estamos creando los videos para atraer tus potenciales clientes."
-                  project={selectedProject || unlockedProject}
-                />
-              </div>
-            )}
-
-            {/* 7. HOOKS REVEAL */}
-            {revealedSections.includes("show_hooks") &&
-              step !== "generating_hooks" && (
-                <div ref={hooksRef} className="w-full max-w-[1440px] mx-auto min-h-screen flex flex-col justify-center py-20 px-4 md:px-6 snap-start snap-always relative">
-                  <HooksRevealStep
-                    userData={user}
-                    hooks={
-                      unlockedHooks.length > 0
-                        ? unlockedHooks
-                        : strategyData?.modules?.hooks || []
-                    }
-                    isUnlocked={isHooksUnlocked}
-                    projectId={unlockedProject?.id}
-                    project={selectedProject || unlockedProject}
-                    onNext={() => {
-                      if (!isHooksUnlocked) {
-                        handleUnlockHooks();
-                      } else {
-                        handleFinishWizard();
-                      }
-                    }}
-                    hooksRef={hooksRef}
-                    onOpenHookDetails={(hook) => {
-                      setSelectedHookForDrawer(hook);
-                      setActiveDetailsDrawer("hooks");
-                    }}
-                  />
-                </div>
-              )}
-
-            {/* 8. ÉXITO FINAL */}
-            {revealedSections.includes("success") && (
-              <div
-                ref={successRef}
-                className="w-full max-w-6xl mx-auto px-4 md:px-6 h-screen min-h-screen flex flex-col justify-center pt-24 pb-12 snap-start snap-always relative overflow-hidden"
-              >
-                <SuccessStep onFinish={handleFinishWizard} />
-              </div>
-            )}
           </div>
         )}
       </div>

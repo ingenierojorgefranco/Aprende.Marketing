@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink, GraduationCap, Puzzle, Clock, Crown, Download, Calendar, Check, X, AlertTriangle } from 'lucide-react';
+import { Sparkles, Target, Zap, Rocket, ChevronRight, Loader2, CheckCircle, ShieldCheck, Play, ArrowRight, MousePointer2, UserCircle2, Brain, Wand2, Quote, User, HeartPulse, MessageSquareQuote, Lock, Package, FileText, Lightbulb, Camera, BarChart2, Flower2, Star, Users, Percent, Tag, TrendingUp, Info, Mail, Link, RotateCw, Maximize2, Edit3, Smartphone, Briefcase, Film, Video, Clapperboard, Flame, Settings, Eye, ExternalLink, GraduationCap, Puzzle, Clock, Crown, Download, Calendar, Check, X, AlertTriangle, Copy, Globe } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface StepProps {
@@ -963,68 +963,179 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
 
     return (
         <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center text-center space-y-7 max-w-6xl mx-auto px-4 py-8 font-sans relative"
+            className="flex flex-col w-full max-w-[1400px] mx-auto px-2 sm:px-6 py-2 sm:py-4 font-sans relative space-y-6 sm:space-y-8"
         >
-            {/* Ambient background glowing curve */}
+            {/* Ambient Background Glows */}
             <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden flex items-center justify-center">
-                <div className="w-[850px] h-[850px] rounded-full border border-orange-500/15 bg-gradient-to-b from-orange-500/5 via-transparent to-transparent blur-3xl opacity-60"></div>
+                <div className="w-[900px] h-[900px] rounded-full bg-[#FF5A1F]/10 blur-[150px] opacity-70"></div>
             </div>
 
-            {/* Checkmark Icon with Glowing Box */}
-            <div className="relative pt-2">
-                <div className="absolute inset-0 bg-[#FF5A1F]/25 blur-[60px] rounded-full"></div>
-                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-[#0b0b0e] border border-[#FF5A1F]/40 flex items-center justify-center shadow-[0_0_50px_rgba(255,90,31,0.3)] mx-auto">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-[#FF5A1F] flex items-center justify-center text-[#FF5A1F]">
-                        <Check className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5]" />
+            {/* Top Stepper Breadcrumbs */}
+            <div className="flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-medium pt-1">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#161210] border border-[#FF5A1F]/30 text-zinc-300 shadow-sm">
+                    <div className="w-4 h-4 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center text-[10px] font-bold">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
+                    <span>01 Proyecto creado</span>
+                </div>
+                <div className="w-6 sm:w-12 h-[1px] bg-zinc-800"></div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F] text-[#FF5A1F] font-bold shadow-[0_0_15px_rgba(255,90,31,0.25)]">
+                    <span className="w-5 h-5 rounded-full border border-[#FF5A1F] flex items-center justify-center text-[10px] font-bold">02</span>
+                    <span>Página de captura</span>
+                </div>
+                <div className="w-6 sm:w-12 h-[1px] bg-zinc-800"></div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/60 border border-zinc-800 text-zinc-500">
+                    <span className="w-5 h-5 rounded-full border border-zinc-700 flex items-center justify-center text-[10px]">03</span>
+                    <span>Contenido</span>
                 </div>
             </div>
 
-            {/* Main Title & Description */}
-            <div className="space-y-4 max-w-5xl mx-auto w-full">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight sm:whitespace-nowrap">
-                    He creado tu <span className="text-[#FF5A1F]">Proyecto Digital</span>
-                </h2>
+            {/* 2-Column Main Layout (Wider, larger spacing) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14 items-center text-left pt-2 w-full">
+                {/* LEFT COLUMN: Info & CTA */}
+                <div className="lg:col-span-5 flex flex-col justify-center space-y-6 sm:space-y-7">
+                    {/* Assistant Badge */}
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#181210] border border-[#FF5A1F]/30 text-[#FF5A1F] text-xs font-extrabold tracking-wider uppercase self-start shadow-sm">
+                        <Sparkles className="w-4 h-4 text-[#FF5A1F] animate-pulse" />
+                        <span>ASISTENTE DE INTELIGENCIA ARTIFICIAL</span>
+                    </div>
 
-                {/* Selected Product Card */}
-                <div className="w-full max-w-md mx-auto bg-[#0c0c0e]/90 border border-zinc-800/80 rounded-2xl p-3 sm:p-3.5 flex items-center gap-3.5 text-left shadow-xl my-3">
-                    <div className="w-16 sm:w-20 aspect-video rounded-xl overflow-hidden relative shrink-0 bg-zinc-900 border border-zinc-800 flex items-center justify-center">
-                        <img referrerPolicy="no-referrer" src={imageUrl} alt={productName} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-lg">
-                                <Play className="w-3.5 h-3.5 text-white fill-current translate-x-0.5" />
+                    {/* Headline */}
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl xl:text-[3.25rem] font-black text-white tracking-tight leading-[1.11em]">
+                        Tu proyecto digital ya <br className="hidden sm:block" />
+                        está listo.
+                        <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] via-[#FF7A00] to-[#FFA033]">
+                            Ahora vamos a crear tu página de captura.
+                        </span>
+                    </h2>
+
+                    {/* Description */}
+                    <p className="text-zinc-300 font-normal text-base sm:text-lg text-[1.3em] leading-[1.6em]">
+                        Ya hemos definido la base inicial de tu estrategia de Marketing. El siguiente paso es construir la página que utilizarás para <strong className="text-white font-semibold underline decoration-[#FF5A1F] underline-offset-4">captar tus primeros prospectos</strong>.
+                    </p>
+
+                    {/* Selected Product Pill Box with Video Thumbnail */}
+                    <div className="bg-[#0e0e14]/95 border border-zinc-800 hover:border-zinc-700/80 rounded-2xl p-3.5 sm:p-4 flex items-center gap-4 shadow-xl transition-all">
+                        <div className="w-16 sm:w-20 aspect-video rounded-xl overflow-hidden relative shrink-0 bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                            <img referrerPolicy="no-referrer" src={imageUrl} alt={productName} className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                <div className="w-6 h-6 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-lg">
+                                    <Play className="w-3 h-3 text-white fill-current translate-x-0.5" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <span className="text-[10px] sm:text-xs font-bold text-[#FF5A1F] uppercase tracking-wider block">Producto seleccionado</span>
+                            <h4 className="text-white font-bold text-sm sm:text-base leading-snug line-clamp-2 mt-0.5">{productName}</h4>
+                        </div>
+                    </div>
+
+                    {/* CTA Button & Security Note */}
+                    <div className="space-y-3 pt-2">
+                        <button 
+                            type="button"
+                            onClick={() => onNext()}
+                            className="w-full py-4.5 sm:py-5 px-8 bg-gradient-to-r from-[#FF5A1F] via-[#FF4500] to-[#FF5A1F] hover:opacity-95 text-white rounded-2xl font-black text-base sm:text-lg tracking-wider uppercase transition-all shadow-[0_12px_40px_rgba(255,90,31,0.45)] border border-orange-400/30 flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer group"
+                        >
+                            <Rocket className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 group-hover:rotate-12 transition-transform" />
+                            <span>CREAR MI PÁGINA DE CAPTURA</span>
+                            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 group-hover:translate-x-1 transition-transform" />
+                        </button>
+
+                        <div className="flex items-center justify-center gap-2 text-zinc-400 text-xs sm:text-sm text-center">
+                            <ShieldCheck className="w-4 h-4 text-[#FF5A1F] shrink-0" />
+                            <span>Nuestra inteligencia artificial creará tu página web de captura con base en la estrategia de tu proyecto.</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* RIGHT COLUMN: Interactive Browser Preview Mockup (Expanded & Taller) */}
+                <div className="lg:col-span-7 relative w-full pt-2 lg:pt-0">
+                    {/* Glowing Backdrop */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#FF5A1F]/20 via-orange-600/10 to-transparent blur-3xl -z-10 rounded-3xl"></div>
+                    
+                    {/* Floating Wand Badge top-right */}
+                    <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#FF5A1F] to-orange-600 flex items-center justify-center text-white shadow-[0_0_35px_rgba(255,90,31,0.65)] z-20 border border-orange-300/40">
+                        <Wand2 className="w-6 h-6 sm:w-7 sm:h-7" />
+                    </div>
+
+                    {/* Browser Container */}
+                    <div className="bg-[#0a0a0e] border border-[#FF5A1F]/35 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.85)] relative">
+                        {/* Browser Top Navigation Bar */}
+                        <div className="bg-[#121218] border-b border-zinc-800/80 px-5 py-3.5 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <div className="w-3.5 h-3.5 rounded-full bg-rose-500/80"></div>
+                                <div className="w-3.5 h-3.5 rounded-full bg-amber-500/80"></div>
+                                <div className="w-3.5 h-3.5 rounded-full bg-emerald-500/80"></div>
+                            </div>
+                            
+                            <div className="bg-[#1a1a24] border border-zinc-700/50 rounded-full px-5 py-1.5 text-xs text-zinc-200 flex items-center gap-2 font-mono">
+                                <Sparkles className="w-4 h-4 text-[#FF5A1F] animate-pulse" />
+                                <span>Generando tu página de captura...</span>
+                            </div>
+
+                            <div className="w-12"></div>
+                        </div>
+
+                        {/* Browser Landing Page Content Preview */}
+                        <div className="relative p-6 sm:p-10 lg:p-12 bg-gradient-to-b from-[#101016] via-[#0d0d12] to-[#08080a] space-y-8 text-left overflow-hidden min-h-[440px] sm:min-h-[480px] flex flex-col justify-between">
+                            {/* Background Decorative Hero Image */}
+                            <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-30 pointer-events-none mix-blend-luminosity overflow-hidden">
+                                <img referrerPolicy="no-referrer" src={imageUrl} alt="" className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-[#101016] via-[#101016]/80 to-transparent"></div>
+                            </div>
+
+                            {/* Landing Hero Content */}
+                            <div className="relative z-10 max-w-xl space-y-5">
+                                <h3 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                                    Transforma miradas, <br />
+                                    transforma <span className="text-[#FF5A1F]">vidas.</span>
+                                </h3>
+                                
+                                <p className="text-xs sm:text-base text-zinc-300 leading-relaxed font-light max-w-lg">
+                                    Aprende {productName} con técnicas profesionales y conviértete en una experta certificada.
+                                </p>
+
+                                {/* Hero Buttons */}
+                                <div className="flex flex-wrap items-center gap-3 pt-1">
+                                    <div className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-[#FF5A1F] text-white text-xs sm:text-sm font-bold shadow-lg">
+                                        QUIERO MÁS INFORMACIÓN
+                                    </div>
+                                    <div className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-white/10 border border-white/20 text-white text-xs sm:text-sm font-medium backdrop-blur-sm">
+                                        VER CONTENIDO DEL CURSO
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Feature Grid inside Preview */}
+                            <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-white/10">
+                                <div className="bg-[#161620]/90 border border-white/10 rounded-2xl p-3.5 space-y-1.5 backdrop-blur-md">
+                                    <ShieldCheck className="w-5 h-5 text-[#FF5A1F]" />
+                                    <h5 className="text-xs sm:text-sm font-bold text-white">Certificación avalada</h5>
+                                    <p className="text-[10px] sm:text-xs text-zinc-400 leading-normal">Obtén tu certificado profesional.</p>
+                                </div>
+                                <div className="bg-[#161620]/90 border border-white/10 rounded-2xl p-3.5 space-y-1.5 backdrop-blur-md">
+                                    <GraduationCap className="w-5 h-5 text-[#FF5A1F]" />
+                                    <h5 className="text-xs sm:text-sm font-bold text-white">Técnicas actualizadas</h5>
+                                    <p className="text-[10px] sm:text-xs text-zinc-400 leading-normal">Métodos modernos y efectivos.</p>
+                                </div>
+                                <div className="bg-[#161620]/90 border border-white/10 rounded-2xl p-3.5 space-y-1.5 backdrop-blur-md">
+                                    <Users className="w-5 h-5 text-[#FF5A1F]" />
+                                    <h5 className="text-xs sm:text-sm font-bold text-white">Soporte personalizado</h5>
+                                    <p className="text-[10px] sm:text-xs text-zinc-400 leading-normal">Acompañamiento en tu proceso.</p>
+                                </div>
+                                <div className="bg-[#161620]/90 border border-white/10 rounded-2xl p-3.5 space-y-1.5 backdrop-blur-md">
+                                    <TrendingUp className="w-5 h-5 text-[#FF5A1F]" />
+                                    <h5 className="text-xs sm:text-sm font-bold text-white">Empieza tu negocio</h5>
+                                    <p className="text-[10px] sm:text-xs text-zinc-400 leading-normal">Convierte tu talento en ingresos.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div className="flex flex-col min-w-0">
-                        <span className="text-[10px] sm:text-xs font-bold text-[#FF5A1F] uppercase tracking-wider">PRODUCTO SELECCIONADO</span>
-                        <h4 className="text-white font-extrabold text-xs sm:text-sm leading-snug mt-0.5 line-clamp-2">{productName}</h4>
-                    </div>
                 </div>
-
-                <div className="space-y-1 text-zinc-300 font-normal text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-                    <p>Ya hemos estructurado la base inicial de tu estrategia.</p>
-                    <p>Ahora vamos a crear la página que utilizarás para captar tus primeros prospectos.</p>
-                </div>
-            </div>
-
-            {/* Action Button & Note */}
-            <div className="flex flex-col items-center gap-2.5 pt-2 w-full max-w-md mx-auto">
-                <button 
-                    type="button"
-                    onClick={() => onNext()}
-                    className="w-full py-4 px-8 bg-gradient-to-r from-[#FF5A1F] via-[#FF4500] to-[#FF5A1F] hover:opacity-95 text-white rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase transition-all shadow-[0_8px_30px_rgba(255,90,31,0.45)] border border-orange-400/30 flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer"
-                >
-                    <Rocket className="w-5 h-5 shrink-0" />
-                    <span>CREAR MI PÁGINA DE CAPTURA</span>
-                    <ArrowRight className="w-5 h-5 shrink-0" />
-                </button>
-
-                <p className="text-zinc-400 text-xs sm:text-sm font-normal pt-1">
-                    La IA utilizará la estrategia de tu proyecto para construirla.
-                </p>
             </div>
         </motion.div>
     );
@@ -1090,56 +1201,239 @@ interface LandingSuccessProps extends StepProps {
     createdPageSubdomain?: string;
 }
 
-export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, project }) => {
+export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, project, createdPageSubdomain, onView }) => {
     const productName = project?.productName || project?.name || 'Curso Profesional de Microblading de Cejas';
+    const imageUrl = project?.imageUrl || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80';
 
     return (
         <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center text-center space-y-6 max-w-2xl mx-auto px-4 py-8 font-sans"
+            className="flex flex-col w-full max-w-[1400px] mx-auto px-2 sm:px-6 py-2 sm:py-4 font-sans relative space-y-6 sm:space-y-8"
         >
-            {/* Checkmark Icon with Glowing Box */}
-            <div className="relative">
-                <div className="absolute inset-0 bg-[#FF5A1F]/20 blur-[50px] rounded-full animate-pulse"></div>
-                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#0d0d0e] border-2 border-[#FF5A1F]/40 flex items-center justify-center shadow-[0_10px_50px_-10px_rgba(255,90,31,0.35)]">
-                    <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-[#FF5A1F]" />
+            {/* Ambient Background Glows */}
+            <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden flex items-center justify-center">
+                <div className="w-[900px] h-[900px] rounded-full bg-[#FF5A1F]/10 blur-[150px] opacity-70"></div>
+            </div>
+
+            {/* Top Stepper Breadcrumbs */}
+            <div className="flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-medium pt-1">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#161210] border border-[#FF5A1F]/30 text-zinc-300 shadow-sm">
+                    <div className="w-4 h-4 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center text-[10px] font-bold">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span>01 Proyecto creado</span>
+                </div>
+                <div className="w-6 sm:w-12 h-[1px] bg-[#FF5A1F]"></div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#161210] border border-[#FF5A1F]/30 text-zinc-300 shadow-sm">
+                    <div className="w-4 h-4 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center text-[10px] font-bold">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span>02 Página de captura</span>
+                </div>
+                <div className="w-6 sm:w-12 h-[1px] bg-zinc-800"></div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F] text-[#FF5A1F] font-bold shadow-[0_0_15px_rgba(255,90,31,0.25)]">
+                    <span className="w-5 h-5 rounded-full border border-[#FF5A1F] flex items-center justify-center text-[10px] font-bold">03</span>
+                    <span>Contenido (Reels)</span>
                 </div>
             </div>
 
-            {/* Main Title */}
-            <div className="space-y-3">
-                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
-                    Tu página de <span className="text-[#FF5A1F]">captura de clientes</span> ha sido generada
-                </h2>
-                <p className="text-zinc-300 font-light text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
-                    Tu página de captura fue creada correctamente para tu proyecto <span className="text-white font-bold">{productName}</span>. Podrás editarla, personalizarla y modificarla directamente desde la sección del proyecto.
-                </p>
-            </div>
+            {/* 2-Column Main Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14 items-center text-left pt-2 w-full">
+                {/* LEFT COLUMN: Info & CTA */}
+                <div className="lg:col-span-5 flex flex-col justify-center space-y-6 sm:space-y-7">
+                    {/* Assistant Badge */}
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#181210] border border-[#FF5A1F]/30 text-[#FF5A1F] text-xs font-extrabold tracking-wider uppercase self-start shadow-sm">
+                        <Sparkles className="w-4 h-4 text-[#FF5A1F] animate-pulse" />
+                        <span>ASISTENTE DE INTELIGENCIA ARTIFICIAL</span>
+                    </div>
 
-            {/* Card Content Box */}
-            <div className="w-full bg-[#0d0d0e]/90 border border-zinc-800/80 rounded-3xl p-6 sm:p-8 space-y-3 text-center shadow-2xl backdrop-blur-md">
-                <h3 className="text-white font-extrabold text-lg sm:text-xl tracking-tight">
-                    Siguiente paso: Reels de atracción
-                </h3>
-                <p className="text-zinc-400 font-light text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
-                    Ahora prepararemos 3 videos de menos de un minuto (Reels) que utilizarás para atraer visitas y llevarlas hacia tu página de captura.
-                </p>
-            </div>
+                    {/* Headline */}
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl xl:text-[3.25rem] font-black text-white tracking-tight" style={{ lineHeight: '1.15em' }}>
+                        Tu página de captura ya está lista.
+                        <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] via-[#FF7A00] to-[#FFA033]">
+                            Ahora vamos a crear tus Reels de atracción.
+                        </span>
+                    </h2>
 
-            {/* Action Button */}
-            <div className="flex flex-col items-center gap-3 pt-2 w-full max-w-md">
-                <button 
-                    type="button"
-                    onClick={() => onNext()}
-                    className="w-full py-4 px-8 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-black text-sm sm:text-base tracking-wide uppercase transition-all shadow-[0_10px_35px_rgba(255,90,31,0.35)] flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer"
-                >
-                    <span>CONTINUAR: PREPARAR MIS 3 REELS</span>
-                    <ArrowRight className="w-5 h-5 shrink-0" />
-                </button>
-                <div className="flex items-center justify-center gap-1.5 text-zinc-500 text-xs font-light">
-                    <Lock className="w-3.5 h-3.5 shrink-0" />
-                    <span>Podrás editar tu página más adelante desde la sección del proyecto.</span>
+                    {/* Description */}
+                    <p className="text-zinc-300 font-normal text-base sm:text-lg text-[1.3em] leading-[1.6em]">
+                        Tu página de captura fue creada correctamente para tu proyecto <strong className="text-white font-semibold">{productName}</strong>. El siguiente paso es preparar 3 videos cortos de atracción (Reels) para atraer visitas hacia tu página.
+                    </p>
+
+                    {/* Product Selected Card */}
+                    <div className="bg-[#0e0e14]/95 border border-zinc-800 hover:border-zinc-700/80 rounded-2xl p-3.5 sm:p-4 flex items-center gap-4 shadow-xl transition-all">
+                        <div className="w-16 sm:w-20 aspect-video rounded-xl overflow-hidden relative shrink-0 bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                            <img referrerPolicy="no-referrer" alt={productName} className="w-full h-full object-cover" src={imageUrl} />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                <div className="w-6 h-6 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-lg">
+                                    <Play className="w-3 h-3 text-white fill-current translate-x-0.5" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <span className="text-[10px] sm:text-xs font-bold text-[#FF5A1F] uppercase tracking-wider block">Producto seleccionado</span>
+                            <h4 className="text-white font-bold text-sm sm:text-base leading-snug line-clamp-2 mt-0.5">{productName}</h4>
+                        </div>
+                    </div>
+
+                    {/* CTA Button */}
+                    <div className="pt-2">
+                        <button 
+                            type="button"
+                            onClick={() => onNext()}
+                            className="w-full py-4.5 sm:py-5 px-8 bg-gradient-to-r from-[#FF5A1F] via-[#FF4500] to-[#FF5A1F] hover:opacity-95 text-white rounded-2xl font-black text-base sm:text-lg tracking-wider uppercase transition-all shadow-[0_12px_40px_rgba(255,90,31,0.45)] border border-orange-400/30 flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer group"
+                        >
+                            <Rocket className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 group-hover:rotate-12 transition-transform" />
+                            <span>CREAR MIS REELS DE ATRACCIÓN</span>
+                            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 group-hover:translate-x-1 transition-transform" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* RIGHT COLUMN: Interactive Reels & Video Content Preview Mockup */}
+                <div className="lg:col-span-7 relative w-full pt-2 lg:pt-0">
+                    {/* Glowing Backdrop */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#FF5A1F]/20 via-orange-600/10 to-transparent blur-3xl -z-10 rounded-3xl"></div>
+                    
+                    {/* Video Icon Floating Badge */}
+                    <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#FF5A1F] to-orange-600 flex items-center justify-center text-white shadow-[0_0_35px_rgba(255,90,31,0.65)] z-20 border border-orange-300/40">
+                        <Video className="w-6 h-6 sm:w-7 sm:h-7" />
+                    </div>
+
+                    {/* Reels Studio Frame */}
+                    <div className="bg-[#0a0a0e] border border-[#FF5A1F]/35 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.85)] relative">
+                        {/* Studio Top Bar */}
+                        <div className="bg-[#121218] border-b border-zinc-800/80 px-5 py-3.5 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <div className="w-3.5 h-3.5 rounded-full bg-rose-500/80"></div>
+                                <div className="w-3.5 h-3.5 rounded-full bg-amber-500/80"></div>
+                                <div className="w-3.5 h-3.5 rounded-full bg-emerald-500/80"></div>
+                            </div>
+                            
+                            <div className="bg-[#1a1a24] border border-zinc-700/50 rounded-full px-5 py-1.5 text-xs text-zinc-200 flex items-center gap-2 font-mono">
+                                <Sparkles className="w-4 h-4 text-[#FF5A1F] animate-pulse" />
+                                <span>Generando tu contenido de Reels con IA...</span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-mono">
+                                <Film className="w-4 h-4 text-[#FF5A1F]" />
+                                <span className="hidden sm:inline">Reels Studio</span>
+                            </div>
+                        </div>
+
+                        {/* Reels Studio Content Area */}
+                        <div className="relative p-6 sm:p-8 lg:p-10 bg-gradient-to-b from-[#101016] via-[#0d0d12] to-[#08080a] space-y-6 text-left overflow-hidden min-h-[440px] sm:min-h-[480px] flex flex-col justify-between">
+                            
+                            {/* Studio Title */}
+                            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                                <div>
+                                    <span className="text-[10px] font-bold text-[#FF5A1F] uppercase tracking-widest block">Estrategia Viral de Orgánico</span>
+                                    <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2 mt-0.5">
+                                        <Flame className="w-5 h-5 text-[#FF5A1F]" />
+                                        <span>3 Reels de Atracción Listos</span>
+                                    </h3>
+                                </div>
+                                <span className="px-3 py-1 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/40 text-[#FF5A1F] text-xs font-bold">
+                                    Formatos de 9:16
+                                </span>
+                            </div>
+
+                            {/* 3 Reel Video Mockup Cards Grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-2">
+                                {/* Reel Card 1 */}
+                                <div className="bg-[#14141d] border border-zinc-800 hover:border-[#FF5A1F]/50 rounded-2xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden group transition-all shadow-lg">
+                                    <div className="aspect-[9/12] rounded-xl bg-zinc-900 border border-zinc-800 relative overflow-hidden flex items-center justify-center">
+                                        <img referrerPolicy="no-referrer" src={imageUrl} alt="Reel 1" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
+                                        
+                                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#FF5A1F] text-[9px] font-extrabold text-white uppercase">
+                                            Reel #1
+                                        </div>
+
+                                        <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                            <Play className="w-5 h-5 fill-current translate-x-0.5" />
+                                        </div>
+
+                                        <div className="absolute bottom-2 left-2 right-2 text-left">
+                                            <span className="text-[10px] font-semibold text-orange-300 block">Hook de Alta Conversión</span>
+                                            <p className="text-xs text-white font-bold line-clamp-2 leading-tight">"El secreto mejor guardado de las cejas..."</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-[#FF5A1F]" /> 0:45 min</span>
+                                        <span className="text-emerald-400 font-bold">Atracción Alta</span>
+                                    </div>
+                                </div>
+
+                                {/* Reel Card 2 */}
+                                <div className="bg-[#14141d] border border-zinc-800 hover:border-[#FF5A1F]/50 rounded-2xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden group transition-all shadow-lg">
+                                    <div className="aspect-[9/12] rounded-xl bg-zinc-900 border border-zinc-800 relative overflow-hidden flex items-center justify-center">
+                                        <img referrerPolicy="no-referrer" src={imageUrl} alt="Reel 2" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
+                                        
+                                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#FF5A1F] text-[9px] font-extrabold text-white uppercase">
+                                            Reel #2
+                                        </div>
+
+                                        <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                            <Play className="w-5 h-5 fill-current translate-x-0.5" />
+                                        </div>
+
+                                        <div className="absolute bottom-2 left-2 right-2 text-left">
+                                            <span className="text-[10px] font-semibold text-orange-300 block">Antes vs Después</span>
+                                            <p className="text-xs text-white font-bold line-clamp-2 leading-tight">"Lo que nadie te contó sobre este negocio..."</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-[#FF5A1F]" /> 0:30 min</span>
+                                        <span className="text-emerald-400 font-bold">Viralidad</span>
+                                    </div>
+                                </div>
+
+                                {/* Reel Card 3 */}
+                                <div className="bg-[#14141d] border border-zinc-800 hover:border-[#FF5A1F]/50 rounded-2xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden group transition-all shadow-lg">
+                                    <div className="aspect-[9/12] rounded-xl bg-zinc-900 border border-zinc-800 relative overflow-hidden flex items-center justify-center">
+                                        <img referrerPolicy="no-referrer" src={imageUrl} alt="Reel 3" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
+                                        
+                                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#FF5A1F] text-[9px] font-extrabold text-white uppercase">
+                                            Reel #3
+                                        </div>
+
+                                        <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                            <Play className="w-5 h-5 fill-current translate-x-0.5" />
+                                        </div>
+
+                                        <div className="absolute bottom-2 left-2 right-2 text-left">
+                                            <span className="text-[10px] font-semibold text-orange-300 block">Llamado a la Acción</span>
+                                            <p className="text-xs text-white font-bold line-clamp-2 leading-tight">"Aprende la técnica en menos de 30 días..."</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-[#FF5A1F]" /> 0:50 min</span>
+                                        <span className="text-emerald-400 font-bold">Conversión</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Audio & Script AI Indicator */}
+                            <div className="bg-[#161622]/90 border border-white/10 rounded-2xl p-3.5 flex items-center justify-between text-xs text-zinc-300">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-[#FF5A1F]/20 border border-[#FF5A1F]/40 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                        <Sparkles className="w-4 h-4 animate-pulse" />
+                                    </div>
+                                    <div>
+                                        <span className="text-white font-bold block text-xs">Guiones, Audio y Estructura Generados</span>
+                                        <span className="text-zinc-400 text-[11px]">Listos para personalizar con tus propios videos o fotos.</span>
+                                    </div>
+                                </div>
+                                <span className="text-[#FF5A1F] font-bold text-xs shrink-0 pl-2">3 Scripts Activos</span>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </motion.div>
@@ -1226,53 +1520,7 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
             className="flex flex-col items-center justify-center text-center space-y-6 max-w-2xl mx-auto px-4 py-8 font-sans"
         >
             {isUnlocked ? (
-                /* --- ESTADO LISTOS / ACTIVO (PANEL DE ÉXITO) --- */
-                <>
-                    {/* Icon Box */}
-                    <div className="relative">
-                        <div className="absolute inset-0 bg-[#FF5A1F]/20 blur-[50px] rounded-full animate-pulse"></div>
-                        <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#0d0d0e] border-2 border-[#FF5A1F]/40 flex items-center justify-center shadow-[0_10px_50px_-10px_rgba(255,90,31,0.35)]">
-                            <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-[#FF5A1F]" />
-                        </div>
-                    </div>
-
-                    {/* Titles */}
-                    <div className="space-y-3">
-                        <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
-                            Tus 3 reels de atracción <span className="text-[#FF5A1F]">están listos</span>
-                        </h2>
-                        <p className="text-zinc-300 font-light text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
-                            Tus 3 reels de atracción fueron generados con éxito para tu proyecto <span className="text-white font-bold">{project?.name || "activo"}</span>. Podrás ver los guiones, editarlos y descargarlos directamente desde tu sección del proyecto.
-                        </p>
-                    </div>
-
-                    {/* Card Content Box */}
-                    <div className="w-full bg-[#0d0d0e]/90 border border-zinc-800/80 rounded-3xl p-6 sm:p-8 space-y-3 text-center shadow-2xl backdrop-blur-md">
-                        <h3 className="text-white font-extrabold text-lg sm:text-xl tracking-tight">
-                            Tu sistema inicial está listo
-                        </h3>
-                        <p className="text-zinc-400 font-light text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
-                            Tus 3 reels, tu página de captación y los textos para publicar ya están guardados dentro de tu proyecto.
-                        </p>
-                    </div>
-
-                    {/* Action Button */}
-                    <div className="flex flex-col items-center gap-3 pt-2 w-full max-w-md">
-                        <button 
-                            type="button"
-                            onClick={() => onNext()}
-                            className="w-full py-4 px-8 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-2xl font-black text-sm sm:text-base tracking-wide uppercase transition-all shadow-[0_10px_35px_rgba(255,90,31,0.35)] flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer"
-                        >
-                            <Rocket className="w-5 h-5 shrink-0 text-white" />
-                            <span>FINALIZAR Y VER MI PROYECTO</span>
-                            <ArrowRight className="w-5 h-5 shrink-0" />
-                        </button>
-                        <div className="flex items-center justify-center gap-1.5 text-zinc-500 text-xs font-light">
-                            <Lock className="w-3.5 h-3.5 shrink-0" />
-                            <span>Podrás descargar, revisar y gestionar todo desde el panel de tu proyecto.</span>
-                        </div>
-                    </div>
-                </>
+                <SuccessStep onFinish={onNext} project={project} />
             ) : (
                 /* --- ESTADO PENDIENTE / PREVIEW (SINTÉTICO Y ELEGANTE) --- */
                 <>
@@ -1335,58 +1583,254 @@ export const HooksRevealStep: React.FC<StepProps & { hooks: any[], isUnlocked?: 
 };
 
 // 7. ÉXITO FINAL
-export const SuccessStep: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
+export const SuccessStep: React.FC<{ 
+    onFinish: () => void;
+    project?: any;
+    createdPageSubdomain?: string;
+}> = ({ onFinish, project, createdPageSubdomain }) => {
+    const productName = project?.productName || project?.name || 'Certificación Expert Microblading';
+    const imageUrl = project?.imageUrl || 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=800&q=80';
+    const [copied, setCopied] = useState(false);
+
+    const subdomainPart = createdPageSubdomain ? createdPageSubdomain.split(".")[0] : "";
+    const pageUrl = subdomainPart ? `${subdomainPart}.aprende.marketing` : `landing-${project?.id || 'demo'}.aprende.marketing`;
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(`https://${pageUrl}`);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
     return (
         <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center space-y-10 py-10"
+            className="flex flex-col w-full max-w-[1400px] mx-auto px-2 sm:px-6 py-2 sm:py-4 font-sans relative space-y-6 sm:space-y-8"
         >
-            <div className="relative inline-block">
-                <div className="absolute inset-0 bg-[#FF5A1F] blur-3xl opacity-20"></div>
-                <div className="w-24 h-24 bg-[#FF5A1F] rounded-3xl flex items-center justify-center mx-auto mb-6 relative border border-white/20 shadow-2xl">
-                    <CheckCircle className="w-12 h-12 text-white" />
+            {/* Ambient Background Glows */}
+            <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden flex items-center justify-center">
+                <div className="w-[900px] h-[900px] rounded-full bg-emerald-500/10 blur-[150px] opacity-60"></div>
+                <div className="w-[600px] h-[600px] rounded-full bg-[#FF5A1F]/10 blur-[120px] opacity-50"></div>
+            </div>
+
+            {/* Top Stepper Breadcrumbs */}
+            <div className="flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-medium pt-1">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#161210] border border-emerald-500/40 text-emerald-400 font-bold shadow-sm">
+                    <div className="w-4 h-4 rounded-full bg-emerald-500 text-black flex items-center justify-center text-[10px] font-bold">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span>01 Proyecto creado</span>
+                </div>
+                <div className="w-6 sm:w-12 h-[1px] bg-emerald-500"></div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#161210] border border-emerald-500/40 text-emerald-400 font-bold shadow-sm">
+                    <div className="w-4 h-4 rounded-full bg-emerald-500 text-black flex items-center justify-center text-[10px] font-bold">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span>02 Página de captura</span>
+                </div>
+                <div className="w-6 sm:w-12 h-[1px] bg-emerald-500"></div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#161210] border border-emerald-500/40 text-emerald-400 font-bold shadow-[0_0_15px_rgba(16,185,129,0.25)]">
+                    <div className="w-4 h-4 rounded-full bg-emerald-500 text-black flex items-center justify-center text-[10px] font-bold">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span>03 Contenido (Reels)</span>
                 </div>
             </div>
 
-            <div className="space-y-4">
-                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase">
-                    ¡TODO <span className="text-[#FF5A1F]">LISTO</span>!
-                </h2>
-                <p className="text-xl text-gray-400 max-w-2xl mx-auto font-medium">
-                    Tu primer negocio ha sido configurado. 
-                    Ya tienes tu proyecto desbloqueado, tu página de captura generada y tus hooks listos para usarse.
-                </p>
-            </div>
+            {/* 2-Column Main Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14 items-center text-left pt-2 w-full">
+                {/* LEFT COLUMN: Summary & Action */}
+                <div className="lg:col-span-5 flex flex-col justify-center space-y-6 sm:space-y-7">
+                    {/* Badge */}
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#101a14] border border-emerald-500/40 text-emerald-400 text-xs font-extrabold tracking-wider uppercase self-start shadow-sm">
+                        <CheckCircle className="w-4 h-4 text-emerald-400" />
+                        <span>SISTEMA DE VENTAS COMPLETADO</span>
+                    </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
-                <div className="bg-[#111] p-8 rounded-[2.5rem] border border-[#FF5A1F]/10 flex flex-col items-center gap-4 hover:bg-white/5 transition-colors">
-                    <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
-                        <Zap className="w-6 h-6 text-emerald-500 fill-current" />
+                    {/* Headline */}
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl xl:text-[3.25rem] font-black text-white tracking-tight" style={{ lineHeight: '1.15em' }}>
+                        Tu sistema de ventas ya está listo.
+                        <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] via-[#FF7A00] to-[#FFA033]">
+                            Todo guardado en tu proyecto.
+                        </span>
+                    </h2>
+
+                    {/* Description */}
+                    <p className="text-zinc-300 font-normal text-base sm:text-lg text-[1.3em] leading-[1.6em]">
+                        Hemos configurado tu estrategia de marketing, tu página de captura de clientes y tus 3 Reels de atracción para <strong className="text-white font-semibold">{productName}</strong>. Todo está listo para que empieces a captar prospectos.
+                    </p>
+
+                    {/* Consolidated Status Box */}
+                    <div className="bg-[#0e0e14]/95 border border-zinc-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl">
+                        <div className="flex items-center justify-between text-xs sm:text-sm">
+                            <div className="flex items-center gap-3 text-zinc-200 font-medium">
+                                <div className="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                </div>
+                                <span>Estrategia & Ángulos de Venta</span>
+                            </div>
+                            <span className="text-emerald-400 font-bold text-xs bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">Definido</span>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs sm:text-sm pt-2.5 border-t border-zinc-800/80">
+                            <div className="flex items-center gap-3 text-zinc-200 font-medium">
+                                <div className="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                </div>
+                                <span>Página Web de Captura</span>
+                            </div>
+                            <span className="text-emerald-400 font-bold text-xs bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">Publicada</span>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs sm:text-sm pt-2.5 border-t border-zinc-800/80">
+                            <div className="flex items-center gap-3 text-zinc-200 font-medium">
+                                <div className="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                </div>
+                                <span>3 Reels de Atracción (Guiones y Copys)</span>
+                            </div>
+                            <span className="text-emerald-400 font-bold text-xs bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">Listos</span>
+                        </div>
                     </div>
-                    <span className="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em]">Proyecto Desbloqueado</span>
+
+                    {/* CTA Button */}
+                    <div className="pt-2 space-y-3">
+                        <button 
+                            type="button"
+                            onClick={onFinish}
+                            className="w-full py-4.5 sm:py-5 px-8 bg-gradient-to-r from-[#FF5A1F] via-[#FF4500] to-[#FF5A1F] hover:opacity-95 text-white rounded-2xl font-black text-base sm:text-lg tracking-wider uppercase transition-all shadow-[0_12px_40px_rgba(255,90,31,0.45)] border border-orange-400/30 flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer group"
+                        >
+                            <Rocket className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 group-hover:rotate-12 transition-transform" />
+                            <span>FINALIZAR Y VER MI PROYECTO</span>
+                            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 group-hover:translate-x-1 transition-transform" />
+                        </button>
+
+                        <div className="flex items-center justify-center gap-2 text-zinc-400 text-xs sm:text-sm text-center">
+                            <Lock className="w-4 h-4 text-[#FF5A1F] shrink-0" />
+                            <span>Podrás revisar, descargar y gestionar todo desde el panel de tu proyecto.</span>
+                        </div>
+                    </div>
                 </div>
-                <div className="bg-[#111] p-8 rounded-[2.5rem] border border-[#FF5A1F]/10 flex flex-col items-center gap-4 hover:bg-white/5 transition-colors">
-                    <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
-                        <CheckCircle className="w-6 h-6 text-emerald-500" />
+
+                {/* RIGHT COLUMN: Project Launch Hub Mockup */}
+                <div className="lg:col-span-7 relative w-full pt-2 lg:pt-0">
+                    {/* Backdrop Glow */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/15 via-[#FF5A1F]/15 to-transparent blur-3xl -z-10 rounded-3xl"></div>
+
+                    {/* Check Floating Badge */}
+                    <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-[0_0_35px_rgba(16,185,129,0.55)] z-20 border border-emerald-300/40">
+                        <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7" />
                     </div>
-                    <span className="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em]">Página Configurada</span>
-                </div>
-                <div className="bg-[#111] p-8 rounded-[2.5rem] border border-[#FF5A1F]/10 flex flex-col items-center gap-4 hover:bg-white/5 transition-colors">
-                    <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
-                        <Quote className="w-6 h-6 text-emerald-500" />
+
+                    {/* Project Studio Card Container */}
+                    <div className="bg-[#0a0a0e] border border-emerald-500/30 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.85)] relative">
+                        {/* Header Bar */}
+                        <div className="bg-[#121218] border-b border-zinc-800/80 px-5 py-3.5 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <div className="w-3.5 h-3.5 rounded-full bg-rose-500/80"></div>
+                                <div className="w-3.5 h-3.5 rounded-full bg-amber-500/80"></div>
+                                <div className="w-3.5 h-3.5 rounded-full bg-emerald-500/80"></div>
+                            </div>
+
+                            <div className="bg-[#101f16] border border-emerald-500/40 rounded-full px-4 py-1 text-xs text-emerald-400 flex items-center gap-2 font-mono font-bold">
+                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                <span>SISTEMA ACTIVO</span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-mono">
+                                <Package className="w-4 h-4 text-emerald-400" />
+                                <span className="hidden sm:inline">Project Hub</span>
+                            </div>
+                        </div>
+
+                        {/* Content Area */}
+                        <div className="p-6 sm:p-8 bg-gradient-to-b from-[#101016] via-[#0d0d12] to-[#08080a] space-y-6 text-left">
+                            {/* Project Header Info */}
+                            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden shrink-0">
+                                        <img referrerPolicy="no-referrer" src={imageUrl} alt={productName} className="w-full h-full object-cover" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block">Proyecto Listo</span>
+                                        <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight line-clamp-1">{productName}</h3>
+                                    </div>
+                                </div>
+                                <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold shrink-0">
+                                    100% Configurado
+                                </span>
+                            </div>
+
+                            {/* Link Card Component */}
+                            <div className="bg-[#14141d] border border-zinc-800 rounded-2xl p-4 space-y-2.5">
+                                <span className="text-xs font-bold text-zinc-300 flex items-center gap-2">
+                                    <Globe className="w-4 h-4 text-[#FF5A1F]" />
+                                    <span>Tu enlace público de captura:</span>
+                                </span>
+                                <div className="flex items-center gap-2 bg-[#0a0a0f] border border-zinc-800 rounded-xl p-2.5">
+                                    <span className="text-xs text-zinc-300 font-mono truncate flex-1 pl-1">
+                                        https://{pageUrl}
+                                    </span>
+                                    <button 
+                                        type="button"
+                                        onClick={handleCopy}
+                                        className="px-3 py-1.5 rounded-lg bg-[#FF5A1F] hover:bg-[#D94A1E] text-white text-xs font-bold flex items-center gap-1.5 transition-colors shrink-0"
+                                    >
+                                        {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                                        <span>{copied ? '¡Copiado!' : 'Copiar'}</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Generated Resources Summary Grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div className="bg-[#14141d] border border-zinc-800 rounded-xl p-3.5 flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                        <Film className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h5 className="text-xs font-bold text-white">3 Reels de Atracción</h5>
+                                        <p className="text-[11px] text-zinc-400">Guiones y copys listos</p>
+                                    </div>
+                                </div>
+
+                                <div className="bg-[#14141d] border border-zinc-800 rounded-xl p-3.5 flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                                        <FileText className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h5 className="text-xs font-bold text-white">Página de Captura</h5>
+                                        <p className="text-[11px] text-zinc-400">Diseñada y optimizada</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Launch Action Steps Guide */}
+                            <div className="bg-[#12121c] border border-zinc-800/80 rounded-2xl p-4 space-y-3">
+                                <span className="text-xs font-extrabold text-white uppercase tracking-wider block">
+                                    Pasos para comenzar a vender:
+                                </span>
+                                <div className="space-y-2.5 text-xs text-zinc-300">
+                                    <div className="flex items-start gap-2.5">
+                                        <span className="w-5 h-5 rounded-full bg-[#FF5A1F]/20 text-[#FF5A1F] font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">1</span>
+                                        <span>Copia tu enlace de captura y agrégalo en la biografía de tus redes sociales (Instagram / TikTok).</span>
+                                    </div>
+                                    <div className="flex items-start gap-2.5">
+                                        <span className="w-5 h-5 rounded-full bg-[#FF5A1F]/20 text-[#FF5A1F] font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">2</span>
+                                        <span>Graba o edita tus 3 Reels siguiendo las estructuras de guion preparadas.</span>
+                                    </div>
+                                    <div className="flex items-start gap-2.5">
+                                        <span className="w-5 h-5 rounded-full bg-[#FF5A1F]/20 text-[#FF5A1F] font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">3</span>
+                                        <span>Publica tus videos y empieza a recibir tus primeros clientes en tu proyecto.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
-                    <span className="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em]">Biblioteca de Hooks</span>
                 </div>
             </div>
-
-            <button 
-                onClick={onFinish}
-                className="px-12 py-7 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-[2.5rem] font-black text-2xl transition-all shadow-[0_25px_60px_-15px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95 inline-flex items-center gap-4"
-            >
-                EMPEZAR A VENDER
-                <Rocket className="w-8 h-8" />
-            </button>
         </motion.div>
     );
 };
