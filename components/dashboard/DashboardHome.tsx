@@ -14,7 +14,7 @@ import {
 import { api } from '../../services/api';
 import { MOCK_NEWS } from '../../services/mockData';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { User, DashboardNews } from '../../types';
+import { User, DashboardNews, Project } from '../../types';
 import { NewsHistoryModal } from './NewsHistoryModal';
 
 interface DashboardContext {
@@ -41,6 +41,9 @@ export const DashboardHome: React.FC = () => {
       totalPages: 0,
       conversionRate: '0'
   });
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   
   ////////// Actualización: Estado para el feed de novedades real y modal de histórico - 07/06/2025 10:30 //////////
@@ -69,10 +72,11 @@ export const DashboardHome: React.FC = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [weeklyData, summary, news] = await Promise.all([
+            const [weeklyData, summary, news, userProjects] = await Promise.all([
                 api.getWeeklyAnalytics(),
                 api.getAnalyticsSummary(),
-                api.getNewsFeed()
+                api.getNewsFeed(),
+                api.getProjects()
             ]);
 
             const formatted = weeklyData.map(item => ({
@@ -83,6 +87,10 @@ export const DashboardHome: React.FC = () => {
             }));
             setAnalyticsData(formatted);
             setNewsFeed(news);
+            setProjects(userProjects || []);
+            if (userProjects && userProjects.length > 0) {
+              setActiveProject(userProjects[0]);
+            }
 
             const rate = summary.totalVisits > 0 
                 ? ((summary.totalConversions / summary.totalVisits) * 100).toFixed(1) 
@@ -117,6 +125,13 @@ export const DashboardHome: React.FC = () => {
       </div>
   );
 
+  const currentProject = selectedProjectId === 'all' 
+    ? (activeProject || projects[0] || null)
+    : projects.find(p => p.id === selectedProjectId) || activeProject || projects[0] || null;
+
+  const projectName = currentProject?.productName || currentProject?.name || "Microblading";
+  const fullProjectTitle = currentProject?.name ? `Certificación Expert ${currentProject.name}` : "Certificación Expert Microblading";
+
   if (loading) {
       return (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-[#FF5A1F]">
@@ -129,14 +144,182 @@ export const DashboardHome: React.FC = () => {
   return (
     <div className="space-y-10 text-white animate-in fade-in slide-in-from-bottom-6 duration-700 bg-[#030712] min-h-screen pb-12">
       
-      {/* Header Dinámico */}
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-l-4 border-[#FF5A1F] pl-6 py-2">
-        <div>
-            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase">HOLA, {user.name.toUpperCase()}</h1>
-        </div>
-        <div className="flex gap-3">
-        </div>
-      </header>
+      {/* ========================================================================= */}
+      {/* NUEVO PANEL PILOTO DE ACCIÓN Y EJECUCIÓN (EN LA PARTE SUPERIOR)           */}
+      {/* ========================================================================= */}
+      <div className="space-y-8 animate-in fade-in duration-500">
+          
+          {/* Título de Sección Experta y Selector Multiproyecto */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-[#FF5A1F]/10 text-[#FF5A1F] border border-[#FF5A1F]/20">
+                      <Rocket className="w-5 h-5" />
+                  </div>
+                  <div>
+                      <h2 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-2">
+                          <span>Centro de Acción</span>
+                          {selectedProjectId !== 'all' && (
+                              <span className="text-xs px-2.5 py-0.5 rounded-md bg-[#FF5A1F]/20 text-[#FF5A1F] font-bold border border-[#FF5A1F]/30 normal-case">
+                                  {projectName}
+                              </span>
+                          )}
+                      </h2>
+                      <p className="text-xs text-gray-400 font-medium">Ejecuta las acciones recomendadas para impulsar tráfico a tu embudo</p>
+                  </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 self-stretch sm:self-auto">
+                  {/* Dropdown de Selección de Proyecto */}
+                  <div className="relative flex-1 sm:flex-none">
+                      <div className="flex items-center gap-2 bg-[#0D1527] border border-slate-700/80 rounded-xl px-3.5 py-2 text-xs hover:border-[#FF5A1F]/50 transition-all shadow-md">
+                          <Folder className="w-4 h-4 text-[#FF5A1F] shrink-0" />
+                          <select 
+                              value={selectedProjectId}
+                              onChange={(e) => {
+                                  const val = e.target.value;
+                                  setSelectedProjectId(val);
+                                  if (val !== 'all') {
+                                      const found = projects.find(p => p.id === val);
+                                      if (found) setActiveProject(found);
+                                  }
+                              }}
+                              className="bg-transparent text-white font-extrabold text-xs focus:outline-none cursor-pointer pr-4 appearance-none"
+                          >
+                              <option value="all" className="bg-[#0B1120] text-white">
+                                  🌐 Vista Global (Todos los proyectos: {projects.length || 1})
+                              </option>
+                              {projects.map((p) => (
+                                  <option key={p.id} value={p.id} className="bg-[#0B1120] text-white">
+                                      📁 {p.name || p.productName || "Proyecto sin nombre"}
+                                  </option>
+                              ))}
+                          </select>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400 rotate-90 pointer-events-none absolute right-3" />
+                      </div>
+                  </div>
+
+                  <span className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistema En Vivo
+                  </span>
+              </div>
+          </div>
+
+          {/* Selector Rápido de Pestañas de Proyectos si hay más de 1 */}
+          {projects.length > 1 && (
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                  <span className="text-xs text-gray-400 font-bold uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+                      <Globe className="w-3.5 h-3.5 text-[#FF5A1F]" /> Vista:
+                  </span>
+                  <button
+                      onClick={() => setSelectedProjectId('all')}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                          selectedProjectId === 'all'
+                              ? 'bg-gradient-to-r from-[#FF5A1F] to-[#FF7A28] text-white shadow-lg shadow-[#FF5A1F]/20 border border-[#FF5A1F]'
+                              : 'bg-[#0B1120] text-gray-400 hover:text-white border border-slate-800'
+                      }`}
+                  >
+                      <span>Todas ({projects.length})</span>
+                  </button>
+                  {projects.map((p) => (
+                      <button
+                          key={p.id}
+                          onClick={() => {
+                              setSelectedProjectId(p.id);
+                              setActiveProject(p);
+                          }}
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                              selectedProjectId === p.id
+                                  ? 'bg-gradient-to-r from-[#FF5A1F] to-[#FF7A28] text-white shadow-lg shadow-[#FF5A1F]/20 border border-[#FF5A1F]'
+                                  : 'bg-[#0B1120] text-gray-400 hover:text-white border border-slate-800'
+                          }`}
+                      >
+                          <Folder className="w-3.5 h-3.5" />
+                          <span>{p.name || p.productName}</span>
+                      </button>
+                  ))}
+              </div>
+          )}
+
+          {/* 1. TARJETA PRINCIPAL: SIGUIENTE ACCIÓN RECOMENDADA */}
+          <div className="relative overflow-hidden rounded-[2rem] border border-[#FF5A1F]/30 bg-gradient-to-r from-[#0F172A] via-[#0B1120] to-[#1A0C06] p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group">
+              
+              {/* Glow de Fondo */}
+              <div className="absolute top-0 right-0 -mr-16 -mt-16 w-80 h-80 rounded-full bg-[#FF5A1F]/15 blur-3xl pointer-events-none"></div>
+              <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-amber-500/5 blur-3xl pointer-events-none"></div>
+
+              <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+                  <div className="space-y-4 max-w-2xl">
+                      
+                      {/* Badge Naranja */}
+                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 text-[#FF5A1F] text-[11px] font-black uppercase tracking-widest shadow-sm">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          SIGUIENTE ACCIÓN RECOMENDADA
+                      </div>
+
+                      {/* Titular */}
+                      <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                          Publica tu primer Reel de {projectName}
+                      </h2>
+
+                      {/* Subtítulo */}
+                      <p className="text-sm sm:text-base text-gray-300 font-normal leading-relaxed">
+                          Tu página de captura ya está activa. Utiliza uno de los 3 contenidos que preparamos para empezar a atraer visitas.
+                      </p>
+
+                      {/* Botón y Metadatos inferiores */}
+                      <div className="pt-2 flex flex-wrap items-center gap-4">
+                          <button 
+                              onClick={() => navigate(activeProject ? `/dashboard/projects/${activeProject.id}/strategy` : '/dashboard/projects')}
+                              className="bg-gradient-to-r from-[#FF5A1F] via-[#FF6A28] to-[#FF5A1F] hover:opacity-95 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider px-6 py-3.5 rounded-xl shadow-[0_0_25px_rgba(255,90,31,0.4)] hover:shadow-[0_0_35px_rgba(255,90,31,0.6)] transition-all flex items-center gap-2.5 cursor-pointer active:scale-95"
+                          >
+                              <span>VER CONTENIDOS</span>
+                              <ArrowRight className="w-4 h-4" />
+                          </button>
+
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400 font-medium">
+                              <div className="px-3.5 py-2 rounded-xl bg-[#030712]/80 border border-slate-800/80 text-gray-300 flex items-center gap-2">
+                                  <Folder className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                                  <span>Proyecto · {fullProjectTitle}</span>
+                              </div>
+                              <div className="px-3.5 py-2 rounded-xl bg-[#030712]/80 border border-slate-800/80 text-gray-300 flex items-center gap-2">
+                                  <Play className="w-3.5 h-3.5 text-[#FF5A1F] fill-[#FF5A1F]" />
+                                  <span>3 reels preparados</span>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* Ilustración Vectorial / Estrella 3D de Fondo (Imagen 1) */}
+                  <div className="hidden lg:flex items-center justify-center shrink-0 relative w-56 h-56">
+                      <div className="absolute inset-0 bg-radial from-[#FF5A1F]/30 via-transparent to-transparent rounded-full blur-2xl"></div>
+                      <div className="relative text-[#FF5A1F]/80">
+                          <svg width="180" height="180" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M100 10 C100 65, 135 100, 190 100 C135 100, 100 135, 100 190 C100 135, 65 100, 10 100 C65 100, 100 65, 100 10 Z" 
+                                    stroke="url(#sparkle_grad)" strokeWidth="3" fill="url(#sparkle_fill)" />
+                              <path d="M100 35 C100 75, 125 100, 165 100 C125 100, 100 125, 100 165 C100 125, 75 100, 35 100 C75 100, 100 75, 100 35 Z" 
+                                    stroke="#FF5A1F" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
+                              <defs>
+                                  <linearGradient id="sparkle_grad" x1="10" y1="10" x2="190" y2="190" gradientUnits="userSpaceOnUse">
+                                      <stop stopColor="#FF8B1F" />
+                                      <stop offset="0.5" stopColor="#FF5A1F" />
+                                      <stop offset="1" stopColor="#7C2D12" />
+                                  </linearGradient>
+                                  <linearGradient id="sparkle_fill" x1="100" y1="10" x2="100" y2="190" gradientUnits="userSpaceOnUse">
+                                      <stop stopColor="#FF5A1F" stopOpacity="0.15" />
+                                      <stop offset="1" stopColor="#000000" stopOpacity="0.4" />
+                                  </linearGradient>
+                              </defs>
+                          </svg>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+
+
+      </div>
+
+
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
         
@@ -188,10 +371,7 @@ export const DashboardHome: React.FC = () => {
                     <h3 className="text-4xl font-black text-white leading-none">{summaryData.conversionRate}%</h3>
                     <p className="text-white text-[1em] leading-[1rem] mt-3 font-medium">Ratio de Éxito</p>
                 </div>
-
-                {/* ////////// Eliminación de la tarjeta "Potencial Facturación" por solicitud del usuario - 01/06/2025 20:45 ////////// */}
             </div>
-            {/* ////////// Fin de actualización - 01/06/2025 20:45 ////////// */}
 
             {/* Bloque de Gráficas */}
             <div className="space-y-6">
@@ -233,7 +413,7 @@ export const DashboardHome: React.FC = () => {
                     </div>
                 </div>
 
-                {/* ////////// Gráfica 2: Leads Capturados (Nueva) - 27/05/2025 14:30 ////////// */}
+                {/* Gráfica 2: Leads Capturados */}
                 <div className="bg-[#0B1120] p-8 rounded-[2rem] border border-slate-800/80 shadow-2xl">
                     <div className="flex justify-between items-center mb-10">
                         <h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3">
@@ -271,14 +451,13 @@ export const DashboardHome: React.FC = () => {
                         </ResponsiveContainer>
                     </div>
                 </div>
-                {/* ////////// Fin de actualización - 27/05/2025 14:30 ////////// */}
             </div>
         </div>
 
         {/* COLUMNA DERECHA: CUENTA, ACCIONES Y NOVEDADES (4 Cols) */}
         <div className="xl:col-span-4 space-y-8">
             
-            {/* ////////// Actualización: Optimización de legibilidad en Estado de Cuenta - 27/05/2025 17:15 ////////// */}
+            {/* Estado de Tu Cuenta */}
             <div className="bg-[#0B1120] p-8 rounded-[2rem] border border-slate-800/80 relative group">
                 <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:rotate-12 transition-transform">
                     <ShieldCheck className="w-16 h-16 text-white" />
@@ -312,22 +491,19 @@ export const DashboardHome: React.FC = () => {
                         </p>
                     )}
 
-                    {/* ////////// Actualización: Redirección al panel de gestión de usuario en lugar de al Home - 27/05/2025 12:45 ////////// */}
                     <button 
                         onClick={() => setShowProfileModal(true)} 
-                        className="w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest bg-[#FF5A1F] border border-[#FF5A1F] text-white hover:bg-[#D94A1E] hover:border-[#D94A1E] transition-all flex items-center justify-center gap-2"
+                        className="w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest bg-[#FF5A1F] border border-[#FF5A1F] text-white hover:bg-[#D94A1E] hover:border-[#D94A1E] transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                         <Zap className="w-4 h-4 fill-current" /> Gestionar Suscripción
                     </button>
-                    {/* ////////// Fin de actualización - 27/05/2025 12:45 ////////// */}
                 </div>
             </div>
-            {/* ////////// Fin de actualización - 27/05/2025 17:15 ////////// */}
 
-            {/* ////////// Eliminación de "Top Páginas" y Rediseño de Novedades - 27/05/2025 15:00 ////////// */}
+            {/* Novedades y TIPS */}
             <div className="bg-[#0B1120] p-8 rounded-[2rem] border border-slate-800/80 relative overflow-hidden">
                 <div className="absolute -top-10 -left-10 opacity-5 pointer-events-none">
-                    < Newspaper className="w-40 h-40" />
+                    <Newspaper className="w-40 h-40" />
                 </div>
                 <h3 className="text-sm font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-8 relative z-10">Novedades y TIPS</h3>
                 <div className="space-y-10 relative z-10">
@@ -352,21 +528,19 @@ export const DashboardHome: React.FC = () => {
                 </div>
                 <button 
                     onClick={() => setShowHistoryModal(true)}
-                    className="w-full mt-10 py-4 rounded-xl border border-[#FF5A1F]/30 text-[11px] font-black uppercase tracking-[0.3em] text-white hover:bg-white/5 transition-all"
+                    className="w-full mt-10 py-4 rounded-xl border border-[#FF5A1F]/30 text-[11px] font-black uppercase tracking-[0.3em] text-white hover:bg-white/5 transition-all cursor-pointer"
                 >
                     Ver más novedades
                 </button>
             </div>
-            {/* ////////// Fin de actualización - 27/05/2025 15:00 ////////// */}
 
         </div>
       </div>
 
-      {/* ////////// Actualización: Modal de histórico de novedades - 07/06/2025 10:30 ////////// */}
+      {/* Modal de histórico de novedades */}
       {showHistoryModal && (
           <NewsHistoryModal isOpen={showHistoryModal} onClose={() => setShowHistoryModal(false)} />
       )}
-      {/* ////////// Fin de actualización - 07/06/2025 10:30 ////////// */}
 
       {/* Footer del Dashboard */}
       <footer className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-30">

@@ -769,12 +769,6 @@ export const GeneratingStep: React.FC<{
                         <>Estamos <span className="text-[#FF5A1F]">creando tu proyecto</span></>
                     )}
                 </h2>
-                {(isWeb || isVideo) && (
-                    <p className="text-zinc-400 font-normal text-xs sm:text-sm md:text-base max-w-md mx-auto leading-relaxed">
-                        {isWeb && "Estamos utilizando la estrategia de tu proyecto para construir una página optimizada para convertir visitantes en prospectos."}
-                        {isVideo && "Estamos generando los guiones virales para captar la atención de tus prospectos."}
-                    </p>
-                )}
             </div>
 
             {/* 3. Selected Product Card */}

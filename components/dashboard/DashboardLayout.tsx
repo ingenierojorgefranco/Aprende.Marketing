@@ -361,20 +361,28 @@ export const DashboardLayout = ({
   const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin' && !hasCompletedSurvey;
   const isSurveyPending = !hasCompletedSurvey && user.role !== 'admin';
   const isWizardRoute = location.pathname.startsWith('/wizard');
-  const showWizard = isWizardRoute || (wizardEnabled && !isSurveyPending && !isLaunchRestricted && user.role !== 'admin' && pageCount === 0) || (typeof window !== 'undefined' && (localStorage.getItem('force_wizard_step') === 'success' || localStorage.getItem('force_wizard_step') === 'welcome' || localStorage.getItem('force_wizard_step') === 'selection' || localStorage.getItem('force_wizard_step') === 'unlock'));
+  
+  const isWizardCompleted = typeof window !== 'undefined' && localStorage.getItem('wizard_completed') === 'true';
+  const hasUserActivity = projectCount > 0 || pageCount > 0;
+  const forcedWizardStep = typeof window !== 'undefined' ? localStorage.getItem('force_wizard_step') : null;
+
+  const showWizard = isWizardRoute || 
+    (forcedWizardStep && ['success', 'welcome', 'selection', 'unlock'].includes(forcedWizardStep)) || 
+    (wizardEnabled && !isSurveyPending && !isLaunchRestricted && user.role !== 'admin' && !isWizardCompleted && !hasUserActivity);
 
   useEffect(() => {
     if (showWizard && location.pathname === '/dashboard' && !isSurveyPending && !isLaunchRestricted) {
-      const forced = typeof window !== 'undefined' ? localStorage.getItem('force_wizard_step') : null;
-      if (forced === 'success' || forced === 'unlock') {
+      if (forcedWizardStep === 'success' || forcedWizardStep === 'unlock') {
         navigate('/wizard/step-3', { replace: true });
-      } else if (forced === 'selection') {
+      } else if (forcedWizardStep === 'selection') {
         navigate('/wizard/step-2', { replace: true });
-      } else {
+      } else if (forcedWizardStep) {
+        navigate('/wizard/step-1', { replace: true });
+      } else if (!isWizardCompleted && !hasUserActivity) {
         navigate('/wizard/step-1', { replace: true });
       }
     }
-  }, [showWizard, location.pathname, isSurveyPending, isLaunchRestricted, navigate]);
+  }, [showWizard, location.pathname, isSurveyPending, isLaunchRestricted, navigate, forcedWizardStep, isWizardCompleted, hasUserActivity]);
 
   if (loadingMode) {
       return (
@@ -562,6 +570,7 @@ export const DashboardLayout = ({
                         user={effectiveUser} 
                         onComplete={(targetProjectId) => {
                             localStorage.removeItem('force_wizard_step');
+                            localStorage.setItem('wizard_completed', 'true');
                             if (typeof window !== 'undefined') {
                               sessionStorage.setItem('trigger_project_confetti', 'true');
                             }

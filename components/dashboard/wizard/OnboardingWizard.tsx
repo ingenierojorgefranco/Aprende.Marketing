@@ -1264,6 +1264,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
   const handleFinishWizard = () => {
     localStorage.removeItem("force_wizard_step");
+    localStorage.setItem("wizard_completed", "true");
     if (typeof window !== "undefined") {
       sessionStorage.setItem("trigger_project_confetti", "true");
     }
