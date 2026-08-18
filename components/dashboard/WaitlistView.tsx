@@ -17,6 +17,7 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, 
                 <OnboardingSurvey 
                     user={user} 
                     onComplete={() => {
+                        localStorage.setItem('force_wizard_step', 'welcome');
                         if (onUpdateUser) {
                             // Sincronizar silenciosamente y recargar
                             getCurrentUser().then(updated => {

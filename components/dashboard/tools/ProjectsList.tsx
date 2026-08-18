@@ -279,274 +279,7 @@ export const ProjectsList: React.FC = () => {
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 pb-20">
             
-      {/* ========================================================================= */}
-      {/* PANEL SUPERIOR (TUS PROYECTOS)                                           */}
-      {/* ========================================================================= */}
-      <div className="space-y-8">
-        
-        {/* SECCIÓN: Tus proyectos */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">Tus proyectos</h2>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            
-            {/* Proyecto 1: Curso de Microblading */}
-            <div className="bg-[#0B1120] border-2 border-[#FF5A1F] rounded-2xl p-5 shadow-[0_0_25px_rgba(255,90,31,0.15)] relative flex flex-col justify-between space-y-5 transition-all hover:border-[#FF5A1F]">
-              <div className="space-y-4">
-                {/* Cabecera con imagen a la izquierda y título + detalles a la derecha */}
-                <div className="flex items-start gap-3.5">
-                  <img 
-                    src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=300&auto=format&fit=crop&q=80" 
-                    alt="Curso de Microblading" 
-                    className="w-28 sm:w-32 h-28 sm:h-32 rounded-xl object-cover border border-slate-700/80 shrink-0 shadow-md" 
-                  />
-                  <div className="flex-1 min-w-0 space-y-2">
-                    <div className="flex items-start justify-between gap-1.5">
-                      <div className="min-w-0">
-                        <h3 className="font-bold text-white text-base leading-tight truncate">Curso de Microblading</h3>
-                        <p className="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">Sistema generado</p>
-                      </div>
-                      <span className="bg-[#0D2818] border border-emerald-500/40 text-[#10B981] text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-md shrink-0">
-                        Activo
-                      </span>
-                    </div>
-
-                    <div className="space-y-1 text-xs text-slate-300 font-medium pt-0.5">
-                      <div className="flex items-center gap-1.5">
-                        <Rocket className="w-3.5 h-3.5 text-[#FF5A1F] shrink-0" />
-                        <span className="truncate">Implementación: 3 de 13 pasos</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        <span className="truncate">Página publicada</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Play className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                        <span className="truncate">3 reels disponibles</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                        <span className="truncate">0 registros</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 pt-1">
-                  <div className="flex justify-between text-[11px] text-slate-400 font-medium">
-                    <span>3 de 13 pasos completados</span>
-                    <span className="text-slate-200 font-bold">27%</span>
-                  </div>
-                  <div className="w-full bg-slate-800/90 h-2 rounded-full overflow-hidden">
-                    <div className="bg-[#FF5A1F] h-full rounded-full transition-all duration-500" style={{ width: '27%' }}></div>
-                  </div>
-                </div>
-
-                <div className="bg-[#060913] border border-slate-800/80 rounded-xl p-3 grid grid-cols-2 gap-2 text-center">
-                  <div className="border-r border-slate-800/60 pr-2">
-                    <div className="flex items-center justify-center gap-1.5 text-white">
-                      <Eye className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="text-sm font-bold">12</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">visitas</p>
-                  </div>
-                  <div className="pl-2">
-                    <div className="flex items-center justify-center gap-1.5 text-white">
-                      <Users className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="text-sm font-bold">0</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">registros recientes</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2 pt-1">
-                <button 
-                  onClick={() => {}}
-                  className="w-full bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-bold py-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-[#FF5A1F]/20 active:scale-95"
-                >
-                  <span>Continuar implementación</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-                <button 
-                  onClick={() => {}}
-                  className="w-full bg-slate-900/60 border border-slate-700/80 hover:bg-slate-800 text-slate-200 font-bold py-2.5 rounded-xl text-xs sm:text-sm text-center transition-all cursor-pointer"
-                >
-                  Ver resumen
-                </button>
-              </div>
-            </div>
-
-            {/* Proyecto 2: Curso de Uñas Acrílicas */}
-            <div className="bg-[#0B1120] border border-slate-800/80 rounded-2xl p-5 shadow-xl relative flex flex-col justify-between space-y-5 transition-all hover:border-slate-700">
-              <div className="space-y-4">
-                <div className="flex items-start gap-3.5">
-                  <img 
-                    src="https://images.unsplash.com/photo-1604654894610-df63bc536371?w=300&auto=format&fit=crop&q=80" 
-                    alt="Curso de Uñas Acrílicas" 
-                    className="w-28 sm:w-32 h-28 sm:h-32 rounded-xl object-cover border border-slate-700/80 shrink-0 shadow-md" 
-                  />
-                  <div className="flex-1 min-w-0 space-y-2">
-                    <div className="flex items-start justify-between gap-1.5">
-                      <div className="min-w-0">
-                        <h3 className="font-bold text-white text-base leading-tight truncate">Curso de Uñas Acrílicas</h3>
-                        <p className="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">Completado</p>
-                      </div>
-                      <span className="bg-[#0D2818] border border-emerald-500/40 text-[#10B981] text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-md shrink-0">
-                        Completado
-                      </span>
-                    </div>
-
-                    <div className="space-y-1 text-xs text-slate-300 font-medium pt-0.5">
-                      <div className="flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        <span className="truncate">Guía completada</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        <span className="truncate">Página publicada</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Play className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                        <span className="truncate">3 reels disponibles</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                        <span className="truncate">8 registros</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 pt-1">
-                  <div className="flex justify-between text-[11px] text-slate-400 font-medium">
-                    <span>13 de 13 pasos completados</span>
-                    <span className="text-emerald-400 font-bold">100%</span>
-                  </div>
-                  <div className="w-full bg-slate-800/90 h-2 rounded-full overflow-hidden">
-                    <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: '100%' }}></div>
-                  </div>
-                </div>
-
-                <div className="bg-[#060913] border border-slate-800/80 rounded-xl p-3 grid grid-cols-2 gap-2 text-center">
-                  <div className="border-r border-slate-800/60 pr-2">
-                    <div className="flex items-center justify-center gap-1.5 text-white">
-                      <Eye className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="text-sm font-bold">156</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">visitas</p>
-                  </div>
-                  <div className="pl-2">
-                    <div className="flex items-center justify-center gap-1.5 text-white">
-                      <Users className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="text-sm font-bold">8</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">registros totales</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-1">
-                <button 
-                  onClick={() => {}}
-                  className="w-full bg-slate-900/60 border border-slate-700/80 hover:bg-slate-800 text-slate-200 font-bold py-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
-                >
-                  <span>Abrir proyecto</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Proyecto 3: Curso de Maquillaje Profesional */}
-            <div className="bg-[#0B1120] border border-slate-800/80 rounded-2xl p-5 shadow-xl relative flex flex-col justify-between space-y-5 transition-all hover:border-slate-700">
-              <div className="space-y-4">
-                <div className="flex items-start gap-3.5">
-                  <img 
-                    src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&auto=format&fit=crop&q=80" 
-                    alt="Curso de Maquillaje Profesional" 
-                    className="w-28 sm:w-32 h-28 sm:h-32 rounded-xl object-cover border border-slate-700/80 shrink-0 shadow-md" 
-                  />
-                  <div className="flex-1 min-w-0 space-y-2">
-                    <div className="flex items-start justify-between gap-1.5">
-                      <div className="min-w-0">
-                        <h3 className="font-bold text-white text-base leading-tight truncate">Curso de Maquillaje</h3>
-                        <p className="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">En preparación</p>
-                      </div>
-                      <span className="bg-amber-950/80 border border-amber-500/40 text-amber-400 text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-md shrink-0">
-                        En prepar.
-                      </span>
-                    </div>
-
-                    <div className="space-y-1 text-xs text-slate-300 font-medium pt-0.5">
-                      <div className="flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                        <span className="truncate">En generación</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span className="truncate">Pendiente revisar</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Play className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                        <span className="truncate">0 reels</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                        <span className="truncate">0 registros</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 pt-1">
-                  <div className="flex justify-between text-[11px] text-slate-400 font-medium">
-                    <span>1 de 13 pasos completados</span>
-                    <span className="text-amber-400 font-bold">9%</span>
-                  </div>
-                  <div className="w-full bg-slate-800/90 h-2 rounded-full overflow-hidden">
-                    <div className="bg-[#FF5A1F] h-full rounded-full transition-all duration-500" style={{ width: '9%' }}></div>
-                  </div>
-                </div>
-
-                <div className="bg-[#060913] border border-slate-800/80 rounded-xl p-3 grid grid-cols-2 gap-2 text-center opacity-60">
-                  <div className="border-r border-slate-800/60 pr-2">
-                    <div className="flex items-center justify-center gap-1.5 text-white">
-                      <Eye className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="text-sm font-bold">0</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">visitas</p>
-                  </div>
-                  <div className="pl-2">
-                    <div className="flex items-center justify-center gap-1.5 text-white">
-                      <Users className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="text-sm font-bold">0</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">registros</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-1">
-                <button 
-                  onClick={() => {}}
-                  className="w-full bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-bold py-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-[#FF5A1F]/20 active:scale-95"
-                >
-                  <span>Continuar configuración</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-
-
-      </div>
-
-      <div className="my-10 border-t border-slate-800/80"></div>
 
             {/* HERO HEADER */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-blue-950/20 to-black border border-gray-800 shadow-2xl">
@@ -803,7 +536,18 @@ export const ProjectsList: React.FC = () => {
                             return (
                                 <div 
                                     key={item.id} 
-                                    className={`bg-[#0B0B0B] border rounded-[2.5rem] p-8 transition-all duration-500 flex flex-col group shadow-2xl relative overflow-hidden ${isAlreadyUnlocked ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-yellow-500/10 hover:border-yellow-500/40 shadow-[0_0_30px_rgba(234,179,8,0.05)]'}`}
+                                    onClick={(e) => {
+                                        if (isAlreadyUnlocked) {
+                                            const userClone = projects.find(p => String(p.masterParentId) === String(item.id));
+                                            const targetProject = userClone || item;
+                                            handleViewStrategy(e, targetProject);
+                                        } else {
+                                            if (unlockingId !== item.id) {
+                                                handleUnlock(item, e);
+                                            }
+                                        }
+                                    }}
+                                    className={`bg-[#0B0B0B] border rounded-[2.5rem] p-8 transition-all duration-500 flex flex-col group shadow-2xl relative overflow-hidden cursor-pointer ${isAlreadyUnlocked ? 'border-emerald-500/50 hover:bg-emerald-500/10 bg-emerald-500/5' : 'border-yellow-500/10 hover:border-yellow-500/40 hover:bg-yellow-500/5 shadow-[0_0_30px_rgba(234,179,8,0.05)]'}`}
                                 >
                                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover:opacity-[0.08] transition-opacity">
                                         <CornerCrown className="w-32 h-32 text-yellow-500" />
@@ -862,6 +606,7 @@ export const ProjectsList: React.FC = () => {
                                                 </div>
                                                 <button 
                                                     onClick={(e) => {
+                                                        e.stopPropagation();
                                                         const userClone = projects.find(p => String(p.masterParentId) === String(item.id));
                                                         const targetProject = userClone || item;
                                                         handleViewStrategy(e, targetProject);
@@ -874,7 +619,10 @@ export const ProjectsList: React.FC = () => {
                                         ) : (
                                             <>
                                                 <button 
-                                                    onClick={(e) => handleUnlock(item, e)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleUnlock(item, e);
+                                                    }}
                                                     disabled={unlockingId === item.id}
                                                     className="w-full py-5 bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-yellow-900/20 flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
                                                 >
