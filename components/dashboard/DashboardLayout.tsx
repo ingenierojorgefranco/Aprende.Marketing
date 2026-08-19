@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers, Rocket, Smartphone, Zap, Bell, User as UserIcon } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, ChevronLeft, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers, Rocket, Smartphone, Zap, Bell, User as UserIcon } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
 import { UpgradeModal } from './UpgradeModal';
@@ -448,9 +448,26 @@ export const DashboardLayout = ({
                         <div className="w-12 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-[#FF5A1F]/20 px-1">AM</div>
                         <h2 className="text-lg font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
                     </div>
+                 ) : isProjectDetailRoute ? (
+                    <div className="flex items-center gap-4">
+                        <button 
+                            onClick={() => navigate('/dashboard/projects')} 
+                            className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-white transition-all shadow-sm"
+                            title="Volver a Mis Proyectos"
+                        >
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-black text-white text-sm shadow-md shadow-[#FF5A1F]/20 shrink-0">AM</div>
+                            <div className="leading-tight hidden sm:block">
+                                <h2 className="text-lg font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
+                                <p className="text-[10px] text-[#808080] uppercase tracking-widest mt-0.5 font-bold">Tu Panel de Control</p>
+                            </div>
+                        </div>
+                    </div>
                  ) : (
                     <>
-                        {(!isProjectDetailRoute) && <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-[#B0B0B0]"><Menu className="w-6 h-6" /></button>}
+                        <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-[#B0B0B0]"><Menu className="w-6 h-6" /></button>
                         <h2 className="text-xl font-bold text-white hidden sm:block">Hola, {effectiveUser.name.split(' ')[0]} 👋</h2>
                     </>
                  )}
@@ -461,13 +478,15 @@ export const DashboardLayout = ({
                      {(!isSurveyPending && !showWizard) && (
                         <>
                             {/* Botón Naranja + Crear nuevo proyecto */}
-                            <button 
-                                onClick={() => navigate('/dashboard/projects/create')}
-                                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#FF5A1F]/20 transition-all active:scale-95 cursor-pointer"
-                            >
-                                <Plus className="w-4 h-4 text-white shrink-0" />
-                                <span>Crear nuevo proyecto</span>
-                            </button>
+                            {!isProjectDetailRoute && (
+                                <button 
+                                    onClick={() => navigate('/dashboard/projects/create')}
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#FF5A1F]/20 transition-all active:scale-95 cursor-pointer"
+                                >
+                                    <Plus className="w-4 h-4 text-white shrink-0" />
+                                    <span>Crear nuevo proyecto</span>
+                                </button>
+                            )}
 
                             {/* Botón Notificaciones / Novedades (Campana) */}
                             <button
