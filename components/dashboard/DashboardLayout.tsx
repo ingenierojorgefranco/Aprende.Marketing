@@ -44,6 +44,9 @@ export const DashboardLayout = ({
   const [wizardEnabled, setWizardEnabled] = useState<boolean>(true);
   const [loadingMode, setLoadingMode] = useState(true);
 
+  // Ocultar la barra lateral principal si estamos en los detalles de un proyecto
+  const isProjectDetailRoute = location.pathname.match(/^\/dashboard\/projects\/([^\/]+)(?:\/.*)?$/) && location.pathname !== '/dashboard/projects/create';
+
   /* */ /* Actualización: Mejora de la lógica de detección de categoría activa y resaltado de sub-ítems para incluir rutas de asistentes (generator, content-creator) y editores, asegurando persistencia visual en el menú lateral - 22/05/2024 11:30 */
   const getActiveMenuId = (pathname: string) => {
     if (pathname === '/dashboard') return 'dashboard';
@@ -394,7 +397,7 @@ export const DashboardLayout = ({
 
   return (
     <div className="h-screen overflow-hidden bg-[#030712] text-[#FFFFFF] flex font-sans">
-      {(!isSurveyPending && !isLaunchRestricted && !showWizard) && (
+      {(!isSurveyPending && !isLaunchRestricted && !showWizard && !isProjectDetailRoute) && (
         <aside className={`fixed md:relative top-0 left-0 h-full w-64 md:w-[17rem] shrink-0 bg-[#030712] border-r border-slate-800/60 shadow-2xl z-40 transition-all duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
           <div className="p-6 pb-5 flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -447,7 +450,7 @@ export const DashboardLayout = ({
                     </div>
                  ) : (
                     <>
-                        <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-[#B0B0B0]"><Menu className="w-6 h-6" /></button>
+                        {(!isProjectDetailRoute) && <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-[#B0B0B0]"><Menu className="w-6 h-6" /></button>}
                         <h2 className="text-xl font-bold text-white hidden sm:block">Hola, {effectiveUser.name.split(' ')[0]} 👋</h2>
                     </>
                  )}
