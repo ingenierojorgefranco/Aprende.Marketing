@@ -1076,7 +1076,9 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                              </div>
                              
                              <div className="space-y-6 mt-6">
-                                {content.whatYouWillLearn.items.map((item: any, idx: number) => (
+                                {(content.whatYouWillLearn?.items || []).map((item: any, idx: number) => {
+                                    if (!item) return null;
+                                    return (
                                     <div key={idx} className="p-4 rounded-xl border border-gray-800 bg-gray-900/40 space-y-4 relative group">
                                         <div className="flex items-center gap-3 border-b border-gray-800 pb-3 mb-3">
                                             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
@@ -1099,7 +1101,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         <div>
                                             <Label>Título Principal</Label>
                                             <Input 
-                                                value={item.title || ""} 
+                                                value={item?.title || ""} 
                                                 onChange={(e) => updateLearnItem(idx, { ...item, title: e.target.value })}
                                                 placeholder="Ej: Trabajas demasiado"
                                             />
@@ -1109,7 +1111,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                             <Label>Descripción / Párrafo</Label>
                                             <textarea 
                                                 className="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:border-primary outline-none transition"
-                                                value={item.description || ""} 
+                                                value={item?.description || ""} 
                                                 onChange={(e: any) => updateLearnItem(idx, { ...item, description: e.target.value })}
                                                 placeholder="Ej: Jornadas agotadoras sin aumento de ingresos..."
                                                 rows={2}
@@ -1119,7 +1121,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         <div>
                                             <Label>Puntos Clave (separados por coma)</Label>
                                             <Input 
-                                                value={(Array.isArray(item.points) ? item.points : (item.points ? [item.points] : [])).join(", ")} 
+                                                value={(Array.isArray(item?.points) ? item.points : (item?.points ? [item.points] : [])).join(", ")} 
                                                 onChange={(e) => {
                                                     const points = e.target.value.split(",").map(s => s.trim()).filter(s => s.length > 0);
                                                     updateLearnItem(idx, { ...item, points });
@@ -1130,10 +1132,10 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         
                                         <div>
                                             <Label>Icono</Label>
-                                            <IconPicker selected={item.icon} onChange={(icon) => updateLearnItem(idx, { ...item, icon: icon })} />
+                                            <IconPicker selected={item?.icon} onChange={(icon) => updateLearnItem(idx, { ...item, icon: icon })} />
                                         </div>
                                     </div>
-                                ))}
+                                )})}
                                 
                                 <button 
                                     onClick={() => addItem('whatYouWillLearn')} 
@@ -1150,23 +1152,25 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                             <div><Label>Título de Sección</Label><Input value={content.benefits.title} onChange={(e) => setContent({...content, benefits: {...content.benefits, title: e.target.value}})} /></div>
                             <div className="mt-3"><Label>Subtítulo de Sección</Label><Input value={content.benefits.subtitle || ''} onChange={(e) => setContent({...content, benefits: { ...content.benefits, subtitle: e.target.value }})} /></div>
                             <div className="space-y-4 mt-4">
-                                {(content.benefits.items || []).map((item, i) => (
+                                {(content.benefits?.items || []).map((item, i) => {
+                                    if (!item) return null;
+                                    return (
                                     <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
                                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition"><button onClick={() => removeItem('benefits', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
                                         <div className="flex gap-4 mb-2">
-                                            <div className="flex-1"><Label>Título del Beneficio</Label><Input value={item.title} onChange={(e) => updateBenefitItem(i, 'title', e.target.value)} /></div>
+                                            <div className="flex-1"><Label>Título del Beneficio</Label><Input value={item?.title || ''} onChange={(e) => updateBenefitItem(i, 'title', e.target.value)} /></div>
                                             <div>
                                                 <Label>Icono</Label>
-                                                <IconPicker selected={item.icon} onChange={(icon) => updateBenefitItem(i, 'icon', icon)} />
+                                                <IconPicker selected={item?.icon} onChange={(icon) => updateBenefitItem(i, 'icon', icon)} />
                                             </div>
                                         </div>
                                         <div className="mb-2">
                                             <Label>Color de Acento</Label>
-                                            <ColorPicker selected={item.color} onChange={(color) => updateBenefitItem(i, 'color', color)} />
+                                            <ColorPicker selected={item?.color} onChange={(color) => updateBenefitItem(i, 'color', color)} />
                                         </div>
-                                        <div><Label>Descripción</Label><RichTextArea value={item.description} onChange={(e) => updateBenefitItem(i, 'description', e.target.value)} className="min-h-[60px]" /></div>
+                                        <div><Label>Descripción</Label><RichTextArea value={item?.description || ''} onChange={(e) => updateBenefitItem(i, 'description', e.target.value)} className="min-h-[60px]" /></div>
                                     </div>
-                                ))}
+                                )})}
                                 <button onClick={() => addItem('benefits')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Beneficio</button>
                             </div>
                         </SectionContent>
@@ -1177,18 +1181,20 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                              <div><Label>Título de Sección</Label><Input value={content.testimonialTitle || ''} onChange={(e) => setContent({...content, testimonialTitle: e.target.value})} placeholder="Ej: Lo que dicen nuestros alumnos" /></div>
                              <div className="mt-3"><Label>Subtítulo de Sección</Label><Input value={content.testimonialSubtitle || ''} onChange={(e) => setContent({...content, testimonialSubtitle: e.target.value})} placeholder="Ej: Historias de éxito" /></div>
                              <div className="space-y-4 mt-4">
-                                {(content.testimonials || []).map((t, i) => (
+                                {(content.testimonials || []).map((t, i) => {
+                                    if (!t) return null;
+                                    return (
                                     <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
                                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition"><button onClick={() => removeItem('testimonials', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
                                         <div className="grid grid-cols-2 gap-2 mb-2">
-                                            <div><Label>Nombre</Label><Input value={t.name} onChange={(e) => updateArrayItem('testimonials', i, 'name', e.target.value)} /></div>
-                                            <div><Label>Ciudad/País</Label><Input value={t.location || ''} onChange={(e) => updateArrayItem('testimonials', i, 'location', e.target.value)} placeholder="Ej: Madrid, ES" /></div>
+                                            <div><Label>Nombre</Label><Input value={t?.name || ''} onChange={(e) => updateArrayItem('testimonials', i, 'name', e.target.value)} /></div>
+                                            <div><Label>Ciudad/País</Label><Input value={t?.location || ''} onChange={(e) => updateArrayItem('testimonials', i, 'location', e.target.value)} placeholder="Ej: Madrid, ES" /></div>
                                         </div>
                                         <div className="mb-2">
                                             <Label>Foto URL (Opcional)</Label>
                                             <div className="flex gap-2 items-center">
-                                                <Input value={t.image || ''} onChange={(e) => updateArrayItem('testimonials', i, 'image', e.target.value)} placeholder="https://..." />
-                                                {t.image && (
+                                                <Input value={t?.image || ''} onChange={(e) => updateArrayItem('testimonials', i, 'image', e.target.value)} placeholder="https://..." />
+                                                {t?.image && (
                                                     <img src={t.image} alt="Preview" className="w-8 h-8 rounded-full object-cover border border-gray-700 bg-gray-800" />
                                                 )}
                                             </div>
@@ -1198,14 +1204,14 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                             <div className="flex gap-1">
                                                 {[1,2,3,4,5].map(star => (
                                                     <button key={star} onClick={() => updateArrayItem('testimonials', i, 'rating', star)} className="focus:outline-none hover:scale-110 transition">
-                                                        <Star className={`w-5 h-5 ${star <= t.rating ? 'fill-yellow-500 text-yellow-500' : 'text-gray-600'}`} />
+                                                        <Star className={`w-5 h-5 ${star <= (t?.rating || 5) ? 'fill-yellow-500 text-yellow-500' : 'text-gray-600'}`} />
                                                     </button>
                                                 ))}
                                             </div>
                                         </div>
-                                        <div><Label>Testimonio</Label><RichTextArea value={t.text} onChange={(e) => updateArrayItem('testimonials', i, 'text', e.target.value)} className="min-h-[60px]" /></div>
+                                        <div><Label>Testimonio</Label><RichTextArea value={t?.text || ''} onChange={(e) => updateArrayItem('testimonials', i, 'text', e.target.value)} className="min-h-[60px]" /></div>
                                     </div>
-                                ))}
+                                )})}
                                 <button onClick={() => addItem('testimonials')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Testimonio</button>
                              </div>
                         </SectionContent>

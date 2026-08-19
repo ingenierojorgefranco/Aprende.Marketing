@@ -192,11 +192,11 @@ export const generateLandingPageContent = async (
   2. PROHIBIDO incluir años específicos (ej: 2024, 2025). El contenido debe ser atemporal (evergreen).
   3. Los titulares (Hero) y la descripción (Intro) deben tener un enfoque GENERAL que resuene con los 3 perfiles de avatar.
   4. IDENTIFICACIÓN DE AVATARES Y DOLORES (whatYouWillLearn): 
-     - "items": Genera 3 objetos, uno por cada avatar. Cada objeto debe tener:
-       * "title": Un título muy corto (máx 5 palabras) que identifique al avatar o su deseo principal (ej: "Quieres diferenciarte", "Temes perder dinero", "Buscas una oportunidad").
-       * "description": Un párrafo corto (máx 15 palabras) persuadiendo o empatizando con su situación actual.
-       * "points": Exactamente 2 bullet points ultra-cortos (máx 6 palabras cada uno) con beneficios directos o dolores resueltos.
-       * "icon": Asigna un nombre de icono de Lucide React (ej: "Sparkles", "ShieldAlert", "Rocket", "Target", "Zap").
+     - "items": Genera 3 perfiles basados en los AVATARES. ¡MUY IMPORTANTE! Usa un enfoque de EMPATÍA Y DOLOR, NO de promesas genéricas ni resultados finales.
+       * "title": El título DEBE reflejar una necesidad real, dolor, miedo o urgencia actual del usuario (Ej: "Temes perder dinero", "Quieres diferenciarte", "No sabes por dónde empezar", "Publicas pero nadie compra"). PROHIBIDO usar promesas como "Escala tus ingresos", "Libertad financiera", "Más ventas". Máx 5 palabras.
+       * "description": Un párrafo corto (máx 15 palabras) que empatice con su situación actual, validando su frustración, cansancio o miedo, tal como lo vive hoy. Nada de "Aprenderás a...". Todo desde el entendimiento de su problema.
+       * "points": Exactamente 2 bullet points ultra-cortos (máx 6 palabras cada uno) que actúen como el "antídoto" o alivio directo a ese dolor.
+       * "icon": Asigna un nombre de icono de Lucide React acorde al dolor/miedo (ej: "ShieldAlert", "Target", "AlertTriangle", "Zap", "TrendingDown").
   
   INSTRUCCIÓN CRÍTICA: Utiliza los detalles de la audiencia proporcionados arriba para que cada frase, beneficio y dolor resuene directamente con sus necesidades específicas. Si el contexto menciona dolores o deseos específicos, úsalos como base para el Hero y los beneficios.
   
