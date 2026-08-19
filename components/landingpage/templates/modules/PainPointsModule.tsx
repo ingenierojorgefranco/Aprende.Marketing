@@ -50,12 +50,13 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
   
   const avatars = rawItems.map((item: any, idx: number) => {
       const colors = getModuleColors(idx === 0 ? 'purple' : idx === 1 ? 'blue' : 'green');
+      const isString = typeof item === 'string';
       return {
-          title: item?.title || `Perfil ${idx + 1}`,
-          description: item?.description || '',
+          title: isString ? item : (item?.title || `Perfil ${idx + 1}`),
+          description: isString ? '' : (item?.description || ''),
           icon: getIconByName(item?.icon, idx === 0 ? <Sparkles className="w-10 h-10 text-purple-400" /> : idx === 1 ? <TrendingUp className="w-10 h-10 text-blue-400" /> : <UserCheck className="w-10 h-10 text-emerald-400" />),
           gradient: colors.bg,
-          points: Array.isArray(item?.points) ? item.points : (typeof item?.points === 'string' ? [item.points] : [])
+          points: isString ? [] : (Array.isArray(item?.points) ? item.points : (typeof item?.points === 'string' ? [item.points] : []))
       };
   });
 

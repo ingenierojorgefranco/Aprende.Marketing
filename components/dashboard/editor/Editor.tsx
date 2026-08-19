@@ -386,46 +386,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const [openSection, setOpenSection] = useState<string | null>('header');
 
   // --- INITIALIZATION SYNC FROM PROJECT ---
-  useEffect(() => {
-    if (linkedProject && linkedProject.strategy_json) {
-       const projectPains = linkedProject.strategy_json.psychology?.pains?.map((p: any) => p.text) || [];
-       const projectModules = linkedProject.strategy_json.psychology?.learningModules || [];
-
-       setContent(prev => {
-           let updated = { ...prev };
-           let changed = false;
-
-           // Sincronizar Dolores si la landing está vacía o es diferente
-           if (projectPains.length > 0 && JSON.stringify(prev.whatYouWillLearn.items) !== JSON.stringify(projectPains)) {
-               updated = {
-                   ...updated,
-                   whatYouWillLearn: { ...updated.whatYouWillLearn, items: projectPains }
-               };
-               changed = true;
-           }
-           
-           // Sincronizar Módulos/Beneficios si la landing es diferente
-           if (projectModules.length > 0) {
-               const mappedBenefits = projectModules.map((m: any) => ({
-                   title: m.title,
-                   description: m.description,
-                   icon: m.icon,
-                   color: m.color
-               }));
-               
-               if (JSON.stringify((prev.benefits?.items || []).map((b: any) => (b?.title || '') + (b?.description || ''))) !== JSON.stringify(mappedBenefits.map((b: any) => (b?.title || '') + (b?.description || '')))) {
-                   updated = {
-                       ...updated,
-                       benefits: { ...updated.benefits, items: mappedBenefits }
-                   };
-                   changed = true;
-               }
-           }
-
-           return changed ? updated : prev;
-       });
-    }
-  }, [linkedProjectId, userProjects]);
+  // Sincronización agresiva eliminada para no sobrescribir el contenido detallado (título, descripción, bullets) generado por la IA.
 
   const linkedProject = userProjects.find(p => String(p.id) === String(linkedProjectId));
   const masterProject = masterLibrary.find(p => String(p.id) === String(linkedProject?.masterParentId)) || (linkedProject?.isMaster ? linkedProject : null);
@@ -1102,8 +1063,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         <div>
                                             <Label>Título Principal</Label>
                                             <Input 
-                                                value={item?.title || ""} 
-                                                onChange={(e) => updateLearnItem(idx, { ...item, title: e.target.value })}
+                                                value={typeof item === 'string' ? item : (item?.title || "")} 
+                                                onChange={(e) => updateLearnItem(idx, typeof item === 'string' ? { title: e.target.value } : { ...item, title: e.target.value })}
                                                 placeholder="Ej: Trabajas demasiado"
                                             />
                                         </div>
@@ -1112,8 +1073,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                             <Label>Descripción / Párrafo</Label>
                                             <textarea 
                                                 className="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:border-primary outline-none transition"
-                                                value={item?.description || ""} 
-                                                onChange={(e: any) => updateLearnItem(idx, { ...item, description: e.target.value })}
+                                                value={typeof item === 'string' ? "" : (item?.description || "")} 
+                                                onChange={(e: any) => updateLearnItem(idx, typeof item === 'string' ? { title: item, description: e.target.value } : { ...item, description: e.target.value })}
                                                 placeholder="Ej: Jornadas agotadoras sin aumento de ingresos..."
                                                 rows={2}
                                             />
@@ -1122,10 +1083,10 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         <div>
                                             <Label>Puntos Clave (separados por coma)</Label>
                                             <Input 
-                                                value={(Array.isArray(item?.points) ? item.points : (item?.points ? [item.points] : [])).join(", ")} 
+                                                value={typeof item === 'string' ? "" : (Array.isArray(item?.points) ? item.points : (item?.points ? [item.points] : [])).join(", ")} 
                                                 onChange={(e) => {
                                                     const points = e.target.value.split(",").map(s => s.trim()).filter(s => s.length > 0);
-                                                    updateLearnItem(idx, { ...item, points });
+                                                    updateLearnItem(idx, typeof item === 'string' ? { title: item, points } : { ...item, points });
                                                 }}
                                                 placeholder="Ej: Poco tiempo libre, Desgaste, Estrés"
                                             />
