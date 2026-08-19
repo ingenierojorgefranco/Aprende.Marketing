@@ -703,17 +703,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
         }
     }
     
-    // 2. Limpiar WhatYouWillLearn y Benefits de la landing para forzar lectura del proyecto
     const cleanContent = {
-        ...content,
-        whatYouWillLearn: {
-            ...content.whatYouWillLearn,
-            items: [] // Vaciamos para que PainPointsModule lea del proyecto
-        },
-        benefits: {
-            ...content.benefits,
-            items: [] // También vaciamos beneficios
-        }
+        ...content
     };
 
     await onSave({
