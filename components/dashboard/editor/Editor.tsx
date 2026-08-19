@@ -491,7 +491,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
     });
   };
 
-  const updateLearnItem = (index: number, value: string) => {
+  const updateLearnItem = (index: number, value: any) => {
     setContent(prev => {
         const newItems = [...prev.whatYouWillLearn.items];
         newItems[index] = value;
@@ -518,7 +518,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
               return { ...prev, benefits: { ...prev.benefits, items: [...prev.benefits.items, { title: 'Nuevo Beneficio', description: 'Descripción corta aquí.' }] } };
           }
           if (section === 'whatYouWillLearn') {
-              return { ...prev, whatYouWillLearn: { ...prev.whatYouWillLearn, items: [...prev.whatYouWillLearn.items, 'Nuevo punto de dolor detectado'] } };
+              return { ...prev, whatYouWillLearn: { ...prev.whatYouWillLearn, items: [...prev.whatYouWillLearn.items, { title: 'Nuevo perfil', description: 'Descripción de la situación.', points: ['Dolor 1', 'Dolor 2'], icon: 'Target' }] } };
           }
           if (section === 'testimonials') {
               return { ...prev, testimonials: [...(prev.testimonials || []), { name: 'Nuevo Cliente', text: 'Excelente servicio.', rating: 5 }] };
@@ -636,14 +636,14 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
         if (!proj || !proj.strategy_json) return prev;
 
         const currentPains = proj.strategy_json.psychology?.pains || [];
-        const newPainsText = content.whatYouWillLearn.items;
         
         // Verificamos si realmente han cambiado para evitar bucles infinitos
         const currentPainsText = currentPains.map((p: any) => p.text);
-        const isPainsDifferent = JSON.stringify(currentPainsText) !== JSON.stringify(newPainsText);
+        const mappedPainsText = content.whatYouWillLearn.items.map((i: any) => i.description || i.title);
+        const isPainsDifferent = JSON.stringify(currentPainsText) !== JSON.stringify(mappedPainsText);
 
         if (isPainsDifferent) {
-          const updatedPains = newPainsText.map((text: string, idx: number) => {
+          const updatedPains = mappedPainsText.map((text: string, idx: number) => {
             const existing = currentPains[idx];
             return {
               id: existing?.id || `pain-${Date.now()}-${idx}`,
@@ -1076,51 +1076,71 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                              </div>
                              
                              <div className="space-y-6 mt-6">
-                                {[0, 1, 2].map((idx) => (
-                                    <div key={idx} className="p-4 rounded-xl border border-gray-800 bg-gray-900/40 space-y-4">
+                                {content.whatYouWillLearn.items.map((item: any, idx: number) => (
+                                    <div key={idx} className="p-4 rounded-xl border border-gray-800 bg-gray-900/40 space-y-4 relative group">
                                         <div className="flex items-center gap-3 border-b border-gray-800 pb-3 mb-3">
                                             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
                                                 Bloque {idx + 1}
                                             </div>
-                                            <h4 className="text-sm font-bold text-white uppercase tracking-widest opacity-70">Dolores de Avatar {idx + 1}</h4>
+                                            <h4 className="text-sm font-bold text-white uppercase tracking-widest opacity-70">Perfil / Situación {idx + 1}</h4>
+                                            
+                                            <button
+                                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-400 p-1"
+                                                onClick={() => {
+                                                    const newItems = [...content.whatYouWillLearn.items];
+                                                    newItems.splice(idx, 1);
+                                                    setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, items: newItems}});
+                                                }}
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
                                         </div>
                                         
                                         <div>
-                                            <Label>Título del Bloque / Avatar</Label>
+                                            <Label>Título Principal</Label>
                                             <Input 
-                                                value={content.whatYouWillLearn.avatarTitles?.[idx] || ""} 
-                                                onChange={(e) => {
-                                                    const newTitles = [...(content.whatYouWillLearn.avatarTitles || [])];
-                                                    while(newTitles.length <= idx) newTitles.push("");
-                                                    newTitles[idx] = e.target.value;
-                                                    setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, avatarTitles: newTitles}});
-                                                }}
-                                                placeholder="Ej: Si buscas crear tu propio negocio..."
+                                                value={item.title || ""} 
+                                                onChange={(e) => updateLearnItem(idx, { ...item, title: e.target.value })}
+                                                placeholder="Ej: Trabajas demasiado"
+                                            />
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Descripción / Párrafo</Label>
+                                            <textarea 
+                                                className="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:border-primary outline-none transition"
+                                                value={item.description || ""} 
+                                                onChange={(e: any) => updateLearnItem(idx, { ...item, description: e.target.value })}
+                                                placeholder="Ej: Jornadas agotadoras sin aumento de ingresos..."
+                                                rows={2}
                                             />
                                         </div>
 
-                                        <div className="space-y-3">
-                                            <Label>Dolores del Bloque</Label>
-                                            {[0, 1, 2].map((pIdx) => (
-                                                <div key={pIdx} className="flex gap-2 items-center">
-                                                    <div className="w-6 h-6 shrink-0 rounded-full bg-gray-800 flex items-center justify-center text-[10px] text-gray-400 font-bold border border-gray-700">
-                                                        {pIdx + 1}
-                                                    </div>
-                                                    <Input 
-                                                        value={content.whatYouWillLearn.items?.[idx * 3 + pIdx] || ""} 
-                                                        onChange={(e) => {
-                                                            const totalItems = [...(content.whatYouWillLearn.items || [])];
-                                                            while(totalItems.length < 9) totalItems.push("");
-                                                            totalItems[idx * 3 + pIdx] = e.target.value;
-                                                            setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, items: totalItems}});
-                                                        }}
-                                                        placeholder={`Dolor ${pIdx + 1}...`}
-                                                    />
-                                                </div>
-                                            ))}
+                                        <div>
+                                            <Label>Puntos Clave (separados por coma)</Label>
+                                            <Input 
+                                                value={(Array.isArray(item.points) ? item.points : (item.points ? [item.points] : [])).join(", ")} 
+                                                onChange={(e) => {
+                                                    const points = e.target.value.split(",").map(s => s.trim()).filter(s => s.length > 0);
+                                                    updateLearnItem(idx, { ...item, points });
+                                                }}
+                                                placeholder="Ej: Poco tiempo libre, Desgaste, Estrés"
+                                            />
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Icono</Label>
+                                            <IconPicker selected={item.icon} onChange={(icon) => updateLearnItem(idx, { ...item, icon: icon })} />
                                         </div>
                                     </div>
                                 ))}
+                                
+                                <button 
+                                    onClick={() => addItem('whatYouWillLearn')} 
+                                    className="w-full bg-[#241544] hover:bg-[#342261] border border-[#3b2a63] text-white flex items-center justify-center py-2 rounded-lg text-sm font-medium transition-colors"
+                                >
+                                    <Plus className="w-4 h-4 mr-2" /> Añadir Perfil / Situación
+                                </button>
                              </div>
                         </SectionContent>
 

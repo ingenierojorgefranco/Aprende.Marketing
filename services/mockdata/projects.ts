@@ -652,12 +652,31 @@ export const MICROBLADING_CONTENT: GeneratedPageContent = {
   // Actualización 31/12/2025 18:30 - Se reemplaza definitivamente el temario por identificación de dolores
   whatYouWillLearn: {
     title: "¿Te sientes identificada con alguna de estas situaciones?",
-    icon: "AlertTriangle",
     items: [
-      "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
-      "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación.",
-      "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola a la hora de practicar.",
-      "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium."
+      {
+        title: "Jornadas agotadoras",
+        description: "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
+        points: ["Poco tiempo libre", "Bajos ingresos"],
+        icon: "TrendingDown"
+      },
+      {
+        title: "Miedo al error",
+        description: "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación.",
+        points: ["Estrés constante", "Inseguridad"],
+        icon: "ShieldAlert"
+      },
+      {
+        title: "Cursos sin práctica",
+        description: "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola a la hora de practicar.",
+        points: ["Teoría sin práctica", "Dinero malgastado"],
+        icon: "XCircle"
+      },
+      {
+        title: "Trabajar para otros",
+        description: "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium.",
+        points: ["Falta de libertad", "Sin ingresos propios"],
+        icon: "Target"
+      }
     ]
   },
   faq: [

@@ -231,14 +231,31 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
               },
               whatYouWillLearn: {
                   title: "¿Te sientes identificada con alguna de estas situaciones?",
-                  icon: "AlertTriangle",
                   items: [
-                      "Trabajas jornadas agotadoras pero tus ingresos no aumentan.",
-                      "Te sientes perdida entre tantas herramientas técnicas complejas.",
-                      "No sabes cómo captar leads cualificados de forma constante.",
-                      "Tus páginas actuales reciben visitas pero nadie compra.",
-                      "Dependes de una sola fuente de ingresos y buscas seguridad.",
-                      "Sientes que la competencia te está dejando atrás."
+                      {
+                        title: "Trabajas demasiado",
+                        description: "Jornadas agotadoras sin aumento de ingresos.",
+                        points: ["Poco tiempo libre", "Desgaste", "Estrés"],
+                        icon: "ShieldAlert"
+                      },
+                      {
+                        title: "Te sientes perdida",
+                        description: "Mucha información y herramientas técnicas complejas.",
+                        points: ["Sobrecarga", "Confusión", "Sin rumbo"],
+                        icon: "AlertTriangle"
+                      },
+                      {
+                        title: "Falta de leads",
+                        description: "No sabes cómo captar clientes cualificados de forma constante.",
+                        points: ["Pocas ventas", "Inseguridad", "Ansiedad"],
+                        icon: "Target"
+                      },
+                      {
+                        title: "Visitas sin compras",
+                        description: "Tus páginas actuales reciben visitas pero nadie compra.",
+                        points: ["Frustración", "Desperdicio de ads", "Baja conversión"],
+                        icon: "Zap"
+                      }
                   ]
               },
               faq: [

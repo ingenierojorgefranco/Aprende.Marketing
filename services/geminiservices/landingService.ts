@@ -192,13 +192,11 @@ export const generateLandingPageContent = async (
   2. PROHIBIDO incluir años específicos (ej: 2024, 2025). El contenido debe ser atemporal (evergreen).
   3. Los titulares (Hero) y la descripción (Intro) deben tener un enfoque GENERAL que resuene con los 3 perfiles de avatar.
   4. IDENTIFICACIÓN DE AVATARES Y DOLORES (whatYouWillLearn): 
-     - "avatarTitles": Crea títulos para cards que hagan que una mujer se identifique de inmediato con el avatar. Usa lenguaje emocional, directo y cotidiano. Deben describir su situación actual y dolor presente, no deseos futuros. Máximo 16 palabras. Estructura obligatoria: “Si + situación actual + frustración”.
-     - BLUEPRINT DE EJEMPLOS PARA avatarTitles: 
-       * "Si ya trabajas en belleza, pero sientes que te esfuerzas mucho y ganas poco..."
-       * "Si necesitas ingresos extra, pero te da miedo invertir y equivocarte..."
-       * "Si estás cansada de cumplir horarios para otros y quieres algo tuyo..."
-     - ESTÁ PROHIBIDO incluir el nombre del avatar (ej: "La Soñadora") o deseos positivos en el título. El título debe servir para que el usuario se identifique con su DOLOR actual.
-     - "items": Genera 9 puntos de dolor (3 por cada avatar) que sean el problema real que esas personas están viviendo. Estos SÍ deben ser dolores directos y específicos.
+     - "items": Genera 3 objetos, uno por cada avatar. Cada objeto debe tener:
+       * "title": Un título muy corto (máx 5 palabras) que identifique al avatar o su deseo principal (ej: "Quieres diferenciarte", "Temes perder dinero", "Buscas una oportunidad").
+       * "description": Un párrafo corto (máx 15 palabras) persuadiendo o empatizando con su situación actual.
+       * "points": Exactamente 2 bullet points ultra-cortos (máx 6 palabras cada uno) con beneficios directos o dolores resueltos.
+       * "icon": Asigna un nombre de icono de Lucide React (ej: "Sparkles", "ShieldAlert", "Rocket", "Target", "Zap").
   
   INSTRUCCIÓN CRÍTICA: Utiliza los detalles de la audiencia proporcionados arriba para que cada frase, beneficio y dolor resuene directamente con sus necesidades específicas. Si el contexto menciona dolores o deseos específicos, úsalos como base para el Hero y los beneficios.
   
@@ -379,7 +377,6 @@ export const generateLandingPageContent = async (
 
             // 3. INYECCIÓN OBLIGATORIA DE IDENTIFICACIÓN DE AVATARES (ESTA CLASE ES PARA TI)
             content.whatYouWillLearn.title = "Esta clase es para ti si...";
-            content.whatYouWillLearn.avatarIcons = ["Sparkles", "TrendingUp", "UserCheck"];
 
             // 4. INYECCIÓN OBLIGATORIA DE TESTIMONIOS (ESTRATEGIA) - ELIMINADA PARA EVITAR DUPLICIDAD
             // Los testimonios ahora se extraen directamente de la estrategia en los componentes

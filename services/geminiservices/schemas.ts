@@ -79,7 +79,18 @@ export const LANDING_PAGE_SCHEMA = {
         title: { type: Type.STRING },
         items: {
             type: Type.ARRAY,
-            items: { type: Type.STRING },
+            items: { 
+                type: Type.OBJECT,
+                properties: {
+                    title: { type: Type.STRING },
+                    description: { type: Type.STRING },
+                    points: { 
+                        type: Type.ARRAY,
+                        items: { type: Type.STRING }
+                    },
+                    icon: { type: Type.STRING }
+                }
+            },
         },
         },
     },
