@@ -84,10 +84,10 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
   };
   
   const getAvatarTitle = (index: number) => {
-    // Consulta directa al título/transformación de avatar de la estrategia del proyecto
+    // Consulta directa al dolor/transformación de avatar de la estrategia del proyecto
     const realAv = strategy?.avatars?.[index];
     if (realAv) {
-      const transTitle = realAv.transformation_title || realAv.learning_hook || realAv.name;
+      const transTitle = realAv.pain || realAv.transformation_title || realAv.learning_hook;
       if (transTitle) return transTitle;
     }
 

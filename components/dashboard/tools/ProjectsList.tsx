@@ -363,152 +363,7 @@ export const ProjectsList: React.FC = () => {
                 </div>
             </div>
 
-            {/* SECCIÓN 1: MIS PROYECTOS */}
-            <div className="space-y-6">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                    <div className="flex items-center gap-4 border-l-4 border-blue-500 pl-4 py-1 pb-5">
-                        <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-500 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
-                            <Briefcase className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Proyectos</h2>
-                            <p className="text-white font-medium pt-2.5 text-[1.2em]">Encuentra aquí tu lista de Proyectos creados y Proyectos Desbloqueados</p>
-                        </div>
-                    </div>
-                </div>
-                
-                {projects.length === 0 ? (
-                    <div className="text-center py-20 bg-gray-900 rounded-[2.5rem] border border-dashed border-gray-700">
-                        <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-gray-700">
-                            <Briefcase className="w-10 h-10 text-gray-600" />
-                        </div>
-                        <h3 className="text-xl font-bold text-white mb-2">Comienza tu Estrategia</h3>
-                        <p className="text-gray-400 max-w-md mx-auto mb-8">Define tu primer proyecto o desbloquea una estrategia de la biblioteca inferior.</p>
-                        <button 
-                            onClick={() => setShowCreateOptionsModal(true)}
-                            className="text-blue-400 border border-blue-500/50 hover:bg-blue-600 hover:text-white px-6 py-2.5 rounded-lg transition font-medium"
-                        >
-                            Crear Primer Proyecto
-                        </button>
-                    </div>
-                ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <button 
-                            onClick={() => setShowCreateOptionsModal(true)}
-                            className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
-                        >
-                            <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
-                                <Plus className="w-10 h-10" />
-                            </div>
-                            <div className="text-center">
-                                <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Crear un nuevo proyecto</h4>
-                                <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Define un nuevo nicho o producto</p>
-                            </div>
-                        </button>
-                        {projects.filter(p => !p.isMaster).map((project) => {
-                            const isClonedFromMaster = !!project.masterParentId;
-                            
-                            return (
-                                <div 
-                                    key={project.id} 
-                                    onClick={() => {
-                                        if (project.isBlocked && user.role !== 'admin') {
-                                            setShowUpgradeModal(true);
-                                            return;
-                                        }
-                                        navigate(`/dashboard/projects/${project.id}/strategy`);
-                                    }}
-                                    className={`bg-[#111] rounded-[2.5rem] border transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl ${project.isBlocked && user.role !== 'admin' ? 'opacity-60 grayscale-[0.5] border-red-500/20' : isClonedFromMaster ? 'border-yellow-500/40 hover:border-yellow-500/60 shadow-yellow-500/10' : 'border-white/5 hover:border-[#FF5A1F]/30'}`}
-                                >
-                                    <div className={`absolute top-0 left-0 w-full h-1 opacity-80 ${project.isBlocked && user.role !== 'admin' ? 'bg-red-500' : isClonedFromMaster ? 'bg-gradient-to-r from-yellow-400 to-amber-600' : 'bg-gradient-to-r from-[#FF5A1F] to-orange-600'}`}></div>
-                                    
-                                    {project.isBlocked && user.role !== 'admin' && (
-                                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-                                            <div className="bg-black/80 border border-red-500/30 p-6 rounded-3xl text-center shadow-2xl transform group-hover:scale-105 transition-transform">
-                                                <Lock className="w-12 h-12 text-red-500 mx-auto mb-3" />
-                                                <p className="text-white font-black text-sm uppercase tracking-widest">Proyecto Bloqueado</p>
-                                                <p className="text-gray-400 text-[10px] mt-1 font-bold uppercase tracking-tight">Mejora tu plan para activarlo</p>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="p-8 flex-1 flex flex-col">
-                                        <div className="flex justify-between items-start mb-6">
-                                            <div className="flex flex-col gap-2">
-                                                <div className="bg-white/5 text-white text-[0.8em] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
-                                                    <Calendar className="w-3 h-3" />
-                                                    {new Date(project.createdAt).toLocaleDateString()}
-                                                </div>
-                                                <div className={`text-[10px] font-black px-3 py-1 rounded-full border uppercase tracking-widest flex items-center gap-1.5 w-fit ${project.planSlug === 'starter' ? 'bg-gray-500/10 border-gray-500/20 text-gray-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
-                                                    <Zap className="w-3 h-3 fill-current" />
-                                                    Plan: {plans.find(p => p.slug === project.planSlug)?.name || (project.planSlug === 'starter' ? 'Starter' : project.planSlug || 'Starter')}
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-2 relative z-20">
-                                                {!isClonedFromMaster && (
-                                                    <button 
-                                                        onClick={(e) => { 
-                                                            e.stopPropagation(); 
-                                                            if (project.isBlocked && user.role !== 'admin') {
-                                                                setShowUpgradeModal(true);
-                                                                return;
-                                                            }
-                                                            navigate(`/dashboard/projects/edit/${project.id}`); 
-                                                        }}
-                                                        className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
-                                                    >
-                                                        <Edit2 className="w-4 h-4" />
-                                                        <span className="text-xs font-bold">Editar</span>
-                                                    </button>
-                                                )}
-                                                <button 
-                                                    onClick={(e) => handleDelete(project, e)}
-                                                    className="flex items-center gap-2 px-3 py-2 bg-red-900/20 hover:bg-emerald-600 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                    <span className="text-xs font-bold">Borrar</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        
-                                        <h3 className={`text-2xl font-black mb-3 group-hover:text-primary transition-colors duration-300 ${isClonedFromMaster ? 'text-yellow-400' : 'text-white'}`}>{project.name}</h3>
-                                        <p className="text-[1.2rem] text-white mb-8 min-h-[56px] leading-relaxed">
-                                            {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción definida.")}
-                                        </p>
-
-                                        <div className="mt-auto space-y-4 pt-6 border-t border-white/5 relative z-20">
-                                            <button 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    if (project.isBlocked && user.role !== 'admin') {
-                                                        setShowUpgradeModal(true);
-                                                        return;
-                                                    }
-                                                    handleViewStrategy(e, project);
-                                                }}
-                                                disabled={generatingId === project.id}
-                                                className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 transform active:scale-[0.98] ${project.isBlocked && user.role !== 'admin' ? 'bg-gray-800 text-gray-500' : isClonedFromMaster ? 'bg-yellow-600 hover:bg-yellow-500 text-black shadow-yellow-900/20' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-[#FF5A1F]/20'}`}
-                                            >
-                                                {project.isBlocked && user.role !== 'admin' ? <Lock className="w-4 h-4" /> : <Zap className="w-4 h-4 fill-current" />} 
-                                                {project.isBlocked && user.role !== 'admin' ? 'Proyecto Bloqueado' : 'Ver Estrategia de Proyecto'}
-                                            </button>
-
-                                            {isClonedFromMaster && (
-                                                <div className="flex justify-center pt-2">
-                                                    <div className="bg-yellow-500/10 text-yellow-500 text-[10px] font-black px-4 py-2 rounded-full border border-yellow-500/20 font-black uppercase tracking-widest flex items-center gap-2 shadow-lg">
-                                                        <CornerCrown className="w-3.5 h-3.5 fill-current" />
-                                                        Estrategia Desbloqueada
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
+            {/* SECCIÓN REMOVIDA: MIS PROYECTOS (A PETICIÓN DEL USUARIO) */}
 
             {/* SECCIÓN 2: BIBLIOTECA DE ESTRATEGIAS MAESTRAS (NUEVA) */}
             <div id="biblioteca-maestra" className="space-y-8 pt-12 border-t border-white/5">
@@ -611,7 +466,7 @@ export const ProjectsList: React.FC = () => {
                                                         const targetProject = userClone || item;
                                                         handleViewStrategy(e, targetProject);
                                                     }}
-                                                    className="w-full py-4 bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                                                    className="w-full py-4 bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-white/10 transition-all flex items-center justify-center gap-2 pointer-events-none"
                                                 >
                                                     Ver Estrategia
                                                 </button>
@@ -624,7 +479,7 @@ export const ProjectsList: React.FC = () => {
                                                         handleUnlock(item, e);
                                                     }}
                                                     disabled={unlockingId === item.id}
-                                                    className="w-full py-5 bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-yellow-900/20 flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+                                                    className="w-full py-5 bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-yellow-900/20 flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 pointer-events-none"
                                                 >
                                                     {unlockingId === item.id ? (
                                                         <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>

@@ -732,15 +732,19 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <div className="grid grid-cols-3 gap-2 text-center">
                                     <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
                                         <div className="text-[10px] text-slate-400 font-extrabold uppercase">VISITAS</div>
-                                        <div className="text-lg font-black text-white mt-1">487</div>
+                                        <div className="text-lg font-black text-white mt-1">{linkedPages.length > 0 ? (linkedPages[0].visits || 0) : 0}</div>
                                     </div>
                                     <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
                                         <div className="text-[10px] text-slate-400 font-extrabold uppercase">REGISTROS</div>
-                                        <div className="text-lg font-black text-white mt-1">12</div>
+                                        <div className="text-lg font-black text-white mt-1">{linkedPages.length > 0 ? (linkedPages[0].conversions || 0) : 0}</div>
                                     </div>
                                     <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
                                         <div className="text-[10px] text-slate-400 font-extrabold uppercase">CONVERSIÓN</div>
-                                        <div className="text-lg font-black text-white mt-1">2,46%</div>
+                                        <div className="text-lg font-black text-white mt-1">
+                                            {linkedPages.length > 0 && linkedPages[0].visits > 0 
+                                                ? (((linkedPages[0].conversions || 0) / linkedPages[0].visits) * 100).toFixed(2).replace('.', ',') + "%" 
+                                                : "0,00%"}
+                                        </div>
                                     </div>
                                 </div>
                                 <p className="text-slate-400 text-xs text-left leading-relaxed">
@@ -959,15 +963,15 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <div className="grid grid-cols-3 gap-2 text-center">
                                     <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
                                         <div className="text-[10px] text-slate-400 font-extrabold uppercase">VISITAS</div>
-                                        <div className="text-lg font-black text-white mt-1">58</div>
+                                        <div className="text-lg font-black text-white mt-1">{linkedPages.length > 0 ? (linkedPages[0].conversions || 0) : 0}</div>
                                     </div>
                                     <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
-                                        <div className="text-[10px] text-slate-400 font-extrabold uppercase">REGISTROS</div>
+                                        <div className="text-[10px] text-slate-400 font-extrabold uppercase">CLICS VIP</div>
                                         <div className="text-lg font-black text-white mt-1">0</div>
                                     </div>
                                     <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
                                         <div className="text-[10px] text-slate-400 font-extrabold uppercase">CONVERSIÓN</div>
-                                        <div className="text-lg font-black text-white mt-1">100%</div>
+                                        <div className="text-lg font-black text-white mt-1">{linkedPages.length > 0 && (linkedPages[0].conversions || 0) > 0 ? "0,00%" : "0,00%"}</div>
                                     </div>
                                 </div>
                                 <p className="text-slate-400 text-xs text-left leading-relaxed">

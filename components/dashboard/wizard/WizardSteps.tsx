@@ -1313,7 +1313,6 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, proj
 
                             <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-mono">
                                 <Film className="w-4 h-4 text-[#FF5A1F]" />
-                                <span className="hidden sm:inline">Reels Studio</span>
                             </div>
                         </div>
 
@@ -1346,13 +1345,15 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, proj
                                             Reel #1
                                         </div>
 
-                                        <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                            <Play className="w-5 h-5 fill-current translate-x-0.5" />
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                            <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                                <Play className="w-5 h-5 fill-current translate-x-0.5" />
+                                            </div>
                                         </div>
 
                                         <div className="absolute bottom-2 left-2 right-2 text-left">
                                             <span className="text-[10px] font-semibold text-orange-300 block">Hook de Alta Conversión</span>
-                                            <p className="text-xs text-white font-bold line-clamp-2 leading-tight">"El secreto mejor guardado de las cejas..."</p>
+                                            <p className="text-xs text-white font-bold line-clamp-2 leading-tight">"El secreto mejor guardado de este negocio..."</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center justify-between text-[11px] text-zinc-400">
@@ -1371,13 +1372,15 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, proj
                                             Reel #2
                                         </div>
 
-                                        <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                            <Play className="w-5 h-5 fill-current translate-x-0.5" />
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                            <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                                <Play className="w-5 h-5 fill-current translate-x-0.5" />
+                                            </div>
                                         </div>
 
                                         <div className="absolute bottom-2 left-2 right-2 text-left">
                                             <span className="text-[10px] font-semibold text-orange-300 block">Antes vs Después</span>
-                                            <p className="text-xs text-white font-bold line-clamp-2 leading-tight">"Lo que nadie te contó sobre este negocio..."</p>
+                                            <p className="text-xs text-white font-bold line-clamp-2 leading-tight">"Lo que nadie te contó sobre estos resultados..."</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center justify-between text-[11px] text-zinc-400">
@@ -1396,8 +1399,10 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, proj
                                             Reel #3
                                         </div>
 
-                                        <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                            <Play className="w-5 h-5 fill-current translate-x-0.5" />
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                            <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                                <Play className="w-5 h-5 fill-current translate-x-0.5" />
+                                            </div>
                                         </div>
 
                                         <div className="absolute bottom-2 left-2 right-2 text-left">
