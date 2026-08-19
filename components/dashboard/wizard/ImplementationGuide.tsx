@@ -291,14 +291,14 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const earnings = Math.round(projectPrice * (projectCommission / 100));
 
   const stepsList = [
-    { id: 1, title: "1. BIENVENIDA E INTRODUCCIÓN", stage: 1, stageTitle: "ETAPA 1 — Activa tu sistema" },
-    { id: 2, title: "2. TU COMPRADOR IDEAL", stage: 1 },
-    { id: 3, title: "3. TU PÁGINA DE CAPTURA", stage: 1 },
-    { id: 4, title: "4. TUS ENLACES DE AFILIADOS", stage: 1 },
+    { id: 1, title: "1. Bienvenida e introducción", stage: 1, stageTitle: "ETAPA 1 — Activa tu sistema" },
+    { id: 2, title: "2. Tu comprador ideal", stage: 1 },
+    { id: 3, title: "3. Tu página de captura", stage: 1 },
+    { id: 4, title: "4. Tus enlaces de afiliados", stage: 1 },
     
-    { id: 5, title: "5. TUS HOOKS DE ATRACCIÓN", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)" },
-    { id: 6, title: "6. TU ESTRATEGIA DE CONTENIDOS", stage: 2 },
-    { id: 7, title: "7. TU SECUENCIA DE VENTAS", stage: 2 },
+    { id: 5, title: "5. Tus hooks de atracción", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)" },
+    { id: 6, title: "6. Tu estrategia de contenidos", stage: 2 },
+    { id: 7, title: "7. Tu secuencia de ventas", stage: 2 },
     { id: 8, title: "8. Activa tu secuencia de confianza", stage: 2 },
     { id: 9, title: "9. Configura tus mensajes de cierre", stage: 2 },
   ];

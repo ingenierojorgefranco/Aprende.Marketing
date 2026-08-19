@@ -207,7 +207,7 @@ export const Navbar = ({
             
             {!isThankYouPage && (
                 <>
-                    <div id="nav-links-desktop" className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} gap-8 text-[1.05rem] leading-[1.25rem] font-medium transition-colors duration-300 ${forcePrimaryLinks ? 'text-primary' : currentTextColor} opacity-90 flex-shrink-0`}>
+                    <div id="nav-links-desktop" className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} gap-8 text-base leading-[1.25rem] font-medium transition-colors duration-300 ${forcePrimaryLinks ? 'text-primary' : currentTextColor} opacity-90 flex-shrink-0`}>
                     {navLinks.map((link, i) => (
                         <a 
                             key={i} 

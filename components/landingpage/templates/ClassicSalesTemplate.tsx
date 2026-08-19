@@ -32,8 +32,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
 
   return (
     <div id="classic-template-root" className={`min-h-screen font-sans ${ds.selectionColor} ${ds.bg} scroll-smooth`}>
-        <UrgencyBar content={content} ds={ds} />
-        <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} hasUrgencyBar={true} />
+        <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} hasUrgencyBar={false} />
         
         <header id="hero-section" className={`relative pb-12 overflow-hidden ${ds.hero.bgGradient} ${isMobilePreview ? 'pt-28' : 'pt-24 lg:pt-36 lg:pb-20'}`}>
           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[120px] ${ds.blobOpacity} pointer-events-none ${ds.blobColor}`}></div>
@@ -41,7 +40,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
 
           <div className="w-full max-w-[81em] mx-auto px-6 relative z-10">
              <div className={`grid gap-10 lg:gap-16 items-start ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-12'}`}>
-                <div id="hero-content-left" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-7 text-left order-1'}`}>
+                <div id="hero-content-left" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-8 text-left order-1'}`}>
                     
                     <div id="hero-headlines" className="mb-10 lg:mb-12">
                         <div id="hero-tagline-wrapper" className="flex justify-start mb-6 mt-[1em] lg:mt-[2em]">
@@ -52,14 +51,14 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                         
                         {renderStyledHeadline(
                             content.hero.headline, 
-                            `font-extrabold tracking-tight mb-6 leading-[1.1] max-w-[45rem] ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-5xl lg:text-[3.5rem]'}`, 
+                            `font-extrabold tracking-tight mb-6 leading-[1.3] max-w-[45rem] ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-[2.8rem]'}`, 
                             ds.hero.highlightGradient
                         )}
                         
                         <div id="subtitulo-principal" className="max-w-[40rem]">
                             {renderRichText(
                                 content.hero.subheadline, 
-                                `font-light opacity-90 leading-relaxed text-white/90 ${isMobilePreview ? 'text-lg' : 'text-xl'}`
+                                `font-light opacity-90 leading-relaxed text-white/90 ${isMobilePreview ? 'text-lg' : 'text-[1.25rem]'}`
                             )}
                         </div>
                     </div>
@@ -70,7 +69,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                         </div>
                     </div>
                 </div>
-                <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-2 mt-4' : 'lg:col-span-5 lg:sticky lg:top-32 order-2'}`}>
+                <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-2 mt-4' : 'lg:col-span-4 lg:sticky lg:top-16 order-2'}`}>
                      <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
                 </div>
              </div>

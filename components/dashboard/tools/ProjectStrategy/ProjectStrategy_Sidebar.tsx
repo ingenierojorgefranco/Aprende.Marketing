@@ -27,10 +27,10 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         {
             module: "ETAPA 1 — ACTIVA TU SISTEMA",
             items: [
-                { id: 'summary', label: '1. BIENVENIDA E INTRODUCCIÓN', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
-                { id: 'avatar', label: '2. TU COMPRADOR IDEAL', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto" },
-                { id: 'web', label: '3. TU PÁGINA DE CAPTURA', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
-                { id: 'hotlinks', label: '4. TUS ENLACES DE AFILIADOS', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado" },
+                { id: 'summary', label: '1. Bienvenida e introducción', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
+                { id: 'avatar', label: '2. Tu comprador ideal', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto" },
+                { id: 'web', label: '3. Tu página de captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
+                { id: 'hotlinks', label: '4. Tus enlaces de afiliados', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado" },
             ]
         },
         {
@@ -40,9 +40,9 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         {
             module: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)",
             items: [
-                { id: 'hooks', label: '5. TUS HOOKS DE ATRACCIÓN', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
-                { id: 'content', label: '6. TU ESTRATEGIA DE CONTENIDOS', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
-                { id: 'email', label: '7. TU SECUENCIA DE VENTAS', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
+                { id: 'hooks', label: '5. Tus hooks de atracción', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
+                { id: 'content', label: '6. Tu estrategia de contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
+                { id: 'email', label: '7. Tu secuencia de ventas', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
                 { id: 'evergreen', label: '8. Activa tu secuencia de confianza', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
                 { id: 'whatsapp', label: '9. Configura tus mensajes de cierre', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
             ]
