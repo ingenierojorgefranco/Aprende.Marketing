@@ -291,14 +291,14 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const earnings = Math.round(projectPrice * (projectCommission / 100));
 
   const stepsList = [
-    { id: 1, title: "1. Empieza Aquí viendo este video", stage: 1, stageTitle: "ETAPA 1 — Activa tu sistema" },
-    { id: 2, title: "2. Conoce a tu Comprador Ideal", stage: 1 },
-    { id: 3, title: "3. Activa tu Página de Captura", stage: 1 },
-    { id: 4, title: "4. Configura tus enlaces de afiliado", stage: 1 },
+    { id: 1, title: "1. BIENVENIDA E INTRODUCCIÓN", stage: 1, stageTitle: "ETAPA 1 — Activa tu sistema" },
+    { id: 2, title: "2. TU COMPRADOR IDEAL", stage: 1 },
+    { id: 3, title: "3. TU PÁGINA DE CAPTURA", stage: 1 },
+    { id: 4, title: "4. TUS ENLACES DE AFILIADOS", stage: 1 },
     
-    { id: 5, title: "5. Crea tus hooks de atracción", stage: 2, stageTitle: "ETAPA 2 — Tu sistema de ventas" },
-    { id: 6, title: "6. Estrategia de Contenidos (Artículos de Blog)", stage: 2 },
-    { id: 7, title: "7. Activa tu secuencia de venta", stage: 2 },
+    { id: 5, title: "5. TUS HOOKS DE ATRACCIÓN", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)" },
+    { id: 6, title: "6. TU ESTRATEGIA DE CONTENIDOS", stage: 2 },
+    { id: 7, title: "7. TU SECUENCIA DE VENTAS", stage: 2 },
     { id: 8, title: "8. Activa tu secuencia de confianza", stage: 2 },
     { id: 9, title: "9. Configura tus mensajes de cierre", stage: 2 },
   ];
@@ -567,17 +567,6 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                         </p>
                       </div>
                     </div>
-
-                    <button
-                      onClick={() => {
-                        setSelectedCommercialOption("avatar");
-                        setIsCommercialDrawerOpen(true);
-                      }}
-                      className="px-4 py-2 bg-[#FF5D1E]/10 hover:bg-[#FF5D1E]/20 border border-[#FF5D1E]/40 text-[#FF5D1E] rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 shadow-md hover:scale-[1.02] self-start sm:self-auto"
-                    >
-                      <span>Ver mapa de ruta completo</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
                   </div>
 
                   {/* Grid de tarjetas grandes del recorrido (Pasos 1 al 11 distribuidos en filas de máximo 5 tarjetas con conectores fluidos) */}
@@ -1288,7 +1277,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
             onClick={() => setIsAnalysisDrawerOpen(false)}
           />
           
-          <div className="relative w-full max-w-2xl bg-[#0B1120] border-l border-slate-800 shadow-2xl h-full flex flex-col z-10 animate-in slide-in-from-right duration-300">
+          <div className="relative w-full md:w-1/2 lg:w-[800px] max-w-full bg-[#0B1120] border-l border-slate-800 shadow-2xl h-full flex flex-col z-10 animate-in slide-in-from-right duration-300">
             
             {/* Header del Panel */}
             <div className="p-6 sm:p-8 border-b border-slate-800 flex items-center justify-between gap-4 bg-[#0d1322]">

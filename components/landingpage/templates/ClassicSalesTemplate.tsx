@@ -40,28 +40,37 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
           {content.palette === 'minimal-mono' && <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>}
 
           <div className="w-full max-w-[81em] mx-auto px-6 relative z-10">
-             <div id="hero-headlines" className="text-center max-w-5xl mx-auto mb-10 lg:mb-16">
-                 <div id="hero-tagline-wrapper" className="flex justify-center mb-6 lg:mb-8 mt-[2em]">
-                     <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border backdrop-blur-md shadow-lg ${ds.hero.badgeBg} ${ds.hero.badgeText} ${ds.hero.badgeBorder}`}>
-                          <span className="text-xs md:text-sm font-black uppercase tracking-wider">{content.topTagline || "🔥 Oferta por tiempo limitado"}</span>
-                      </div>
-                 </div>
-                 {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.2] max-w-[65rem] mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-4xl md:text-[4rem]'}`, ds.hero.highlightGradient)}
-                 
-                 <div id="subtitulo-principal">
-                    {renderRichText(content.hero.subheadline, `font-light opacity-90 max-w-3xl mx-auto leading-[2.2rem] text-white ${isMobilePreview ? 'text-lg' : 'text-lg md:text-2xl'}`)}
-                 </div>
-             </div>
+             <div className={`grid gap-10 lg:gap-16 items-start ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-12'}`}>
+                <div id="hero-content-left" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-7 text-left order-1'}`}>
+                    
+                    <div id="hero-headlines" className="mb-10 lg:mb-12">
+                        <div id="hero-tagline-wrapper" className="flex justify-start mb-6 mt-[1em] lg:mt-[2em]">
+                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border backdrop-blur-md shadow-sm ${ds.hero.badgeBg} ${ds.hero.badgeText} ${ds.hero.badgeBorder}`}>
+                                <span className="text-xs md:text-sm font-bold uppercase tracking-wider">{content.topTagline || "🔥 Oferta por tiempo limitado"}</span>
+                            </div>
+                        </div>
+                        
+                        {renderStyledHeadline(
+                            content.hero.headline, 
+                            `font-extrabold tracking-tight mb-6 leading-[1.1] max-w-[45rem] ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-5xl lg:text-[3.5rem]'}`, 
+                            ds.hero.highlightGradient
+                        )}
+                        
+                        <div id="subtitulo-principal" className="max-w-[40rem]">
+                            {renderRichText(
+                                content.hero.subheadline, 
+                                `font-light opacity-90 leading-relaxed text-white/90 ${isMobilePreview ? 'text-lg' : 'text-xl'}`
+                            )}
+                        </div>
+                    </div>
 
-             <div className={`grid gap-8 items-start ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-12'}`}>
-                <div id="hero-content-left" className={`${isMobilePreview ? 'w-full order-2' : 'lg:col-span-8 text-left order-2 lg:order-1'}`}>
-                    <div className={`backdrop-blur-sm border rounded-2xl shadow-lg ${ds.features.cardBg} ${ds.features.cardBorder}`}>
+                    <div className={`backdrop-blur-sm border rounded-2xl shadow-xl ${ds.features.cardBg} ${ds.features.cardBorder}`}>
                         <div id="hero-video-card" className={`relative w-full aspect-video h-auto rounded-2xl overflow-hidden shadow-2xl border cursor-pointer group ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
                             <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} />
                         </div>
                     </div>
                 </div>
-                <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-4 lg:sticky lg:top-24 order-1 lg:order-2'}`}>
+                <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-2 mt-4' : 'lg:col-span-5 lg:sticky lg:top-32 order-2'}`}>
                      <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
                 </div>
              </div>
