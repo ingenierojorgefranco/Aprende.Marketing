@@ -413,7 +413,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                    color: m.color
                }));
                
-               if (JSON.stringify(prev.benefits.items.map((b: any) => b.title + b.description)) !== JSON.stringify(mappedBenefits.map((b: any) => b.title + b.description))) {
+               if (JSON.stringify((prev.benefits?.items || []).map((b: any) => (b?.title || '') + (b?.description || ''))) !== JSON.stringify(mappedBenefits.map((b: any) => (b?.title || '') + (b?.description || '')))) {
                    updated = {
                        ...updated,
                        benefits: { ...updated.benefits, items: mappedBenefits }
@@ -639,7 +639,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
         
         // Verificamos si realmente han cambiado para evitar bucles infinitos
         const currentPainsText = currentPains.map((p: any) => p.text);
-        const mappedPainsText = content.whatYouWillLearn.items.map((i: any) => i.description || i.title);
+        const mappedPainsText = (content.whatYouWillLearn?.items || []).map((i: any) => (i?.description || '') || (i?.title || ''));
         const isPainsDifferent = JSON.stringify(currentPainsText) !== JSON.stringify(mappedPainsText);
 
         if (isPainsDifferent) {
@@ -683,16 +683,17 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
         const currentModules = proj.strategy_json.psychology?.learningModules || [];
         const newModules = content.benefits.items;
         
-        const isModulesDifferent = JSON.stringify(currentModules.map((m: any) => m.title + m.description)) !== JSON.stringify(newModules.map(m => m.title + m.description));
+        const isModulesDifferent = JSON.stringify(currentModules.map((m: any) => (m?.title || '') + (m?.description || ''))) !== JSON.stringify(newModules.map(m => (m?.title || '') + (m?.description || '')));
 
         if (isModulesDifferent) {
           const updatedModules = newModules.map((m, idx) => {
+            if (!m) return null;
             const existing = currentModules[idx];
-            const color = m.color || existing?.color || 'purple';
+            const color = m?.color || existing?.color || 'purple';
             return {
-              title: m.title,
-              description: m.description,
-              icon: m.icon || existing?.icon || 'Sparkles',
+              title: m?.title || '',
+              description: m?.description || '',
+              icon: m?.icon || existing?.icon || 'Sparkles',
               color: color,
               glow: existing?.glow || (color === 'blue' ? 'hover:shadow-blue-500/20' : (color === 'emerald' || color === 'green') ? 'hover:shadow-emerald-500/40' : 'hover:shadow-purple-500/20'),
               bg: existing?.bg || (
@@ -702,7 +703,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
               ),
               border: existing?.border || 'border-white/20'
             };
-          });
+          }).filter(Boolean);
 
           return prev.map(p => {
              if (String(p.id) === String(linkedProjectId)) {
