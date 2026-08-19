@@ -109,8 +109,14 @@ export const generateLandingPageContent = async (
     "testimonialTitle": "string",
     "whatYouWillLearn": {
       "title": "string",
-      "avatarTitles": ["Si ya trabajas en el sector, pero sientes que te esfuerzas mucho y ganas poco...", "Si quieres empezar algo rentable, pero te da miedo invertir y equivocarte...", "Si estás cansada de cumplir horarios para otros y quieres algo tuyo..."],
-      "items": ["Dolor 1 Avatar 1", "Dolor 2 Avatar 1", "Dolor 3 Avatar 1", "Dolor 1 Avatar 2", "Dolor 2 Avatar 2", "Dolor 3 Avatar 2", "Dolor 1 Avatar 3", "Dolor 2 Avatar 3", "Dolor 3 Avatar 3"]
+      "items": [
+        {
+          "title": "string",
+          "description": "string",
+          "points": ["string", "string"],
+          "icon": "string"
+        }
+      ]
     },
     "hero": { "headline": "string", "subheadline": "string", "ctaText": "string" },
     "intro": { "title": "string", "description": "string" },
