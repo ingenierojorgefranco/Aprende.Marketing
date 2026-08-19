@@ -279,7 +279,7 @@ export const DashboardLayout = ({
     const isActive = activeId === item.id || (item.id === 'waitlist' && location.pathname === '/dashboard');
 
     return (
-      <div className="mb-1.5">
+      <div className="mb-3">
         <div
           onClick={() => {
             if (hasSubItems) {
@@ -288,15 +288,15 @@ export const DashboardLayout = ({
             }
             else if (item.path) { navigate(item.path); setMobileMenuOpen(false); }
           }}
-          className={`relative w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border ${
+          className={`relative w-full flex items-center justify-between px-5 py-4 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden border ${
             isActive 
               ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-semibold shadow-lg shadow-[#FF5A1F]/20 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1.5 before:bg-[#FF5A1F] before:rounded-r-full before:shadow-[0_0_8px_#FF5A1F]' 
               : 'border-transparent text-[#B0B0B0] hover:bg-gradient-to-r hover:from-[#FF5A1F]/35 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:text-white font-medium hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full'
           }`}
         >
           <div className="flex items-center gap-4 relative z-10">
-            <item.icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-[#B0B0B0]'}`} />
-            <span className="text-[15px] font-medium tracking-tight">{item.label}</span>
+            <item.icon className={`w-6 h-6 shrink-0 ${isActive ? 'text-white' : 'text-[#B0B0B0]'}`} />
+            <span className="text-[16px] font-semibold tracking-tight">{item.label}</span>
           </div>
           {hasSubItems && (isExpanded ? <ChevronDown className="w-4.5 h-4.5 opacity-50 shrink-0 relative z-10" /> : <ChevronRight className="w-4.5 h-4.5 opacity-50 shrink-0 relative z-10" />)}
         </div>
@@ -406,7 +406,7 @@ export const DashboardLayout = ({
             </div>
             <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-[#B0B0B0]"><X className="w-5 h-5" /></button>
           </div>
-          <nav className="flex-1 px-4 py-2 space-y-3 overflow-y-auto custom-scrollbar">{menuStructure.map(item => <NavItemRender key={item.id} item={item} />)}</nav>
+          <nav className="flex-1 px-4 py-4 space-y-4 overflow-y-auto custom-scrollbar">{menuStructure.map(item => <NavItemRender key={item.id} item={item} />)}</nav>
           
           {user.role === 'admin' && (
               <div className="mt-auto px-6 py-2">

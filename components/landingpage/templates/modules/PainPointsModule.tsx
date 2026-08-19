@@ -87,7 +87,7 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
     // Consulta directa al dolor/transformación de avatar de la estrategia del proyecto
     const realAv = strategy?.avatars?.[index];
     if (realAv) {
-      const transTitle = realAv.pain || realAv.transformation_title || realAv.learning_hook;
+      const transTitle = realAv.transformation_title || realAv.pain || realAv.learning_hook;
       if (transTitle) return transTitle;
     }
 
