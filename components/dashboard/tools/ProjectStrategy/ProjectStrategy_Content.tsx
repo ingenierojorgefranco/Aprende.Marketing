@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, CheckCircle2, ChevronLeft, ChevronRight, TrendingUp, Loader2, Plus, Save, Unlock, Brain, Shield, Trash2, Play } from 'lucide-react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { PlanLimits, Plan, LandingPage, Article } from '../../../../types';
@@ -64,6 +64,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const activeArticle = propActiveArticle !== undefined ? propActiveArticle : localActiveArticle;
     const setActiveArticle = propSetActiveArticle || setLocalActiveArticle;
     const [activeTab, setActiveTab] = useState<'library' | 'generated'>('library');
+    const hasInitializedTab = useRef(false);
     const navigate = useNavigate();
     const context = useOutletContext() as any;
     const user = context?.user;
@@ -168,6 +169,15 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 });
 
             setGeneratedData(generated);
+            
+            if (!hasInitializedTab.current) {
+                if (generated.length > 0) {
+                    setActiveTab('generated');
+                } else {
+                    setActiveTab('library');
+                }
+                hasInitializedTab.current = true;
+            }
 
             // 2. Biblioteca (Manuales + Sugerencias del JSON)
             const manualFromDb = projectArts
@@ -728,18 +738,37 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
                             {/* Selector de Pestañas */}
                             <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
-                                <button 
-                                    onClick={() => setActiveTab('library')}
-                                    className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-gradient-to-r from-[#FF5D1E] to-orange-600 text-white shadow-md shadow-orange-950/40' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
-                                >
-                                    Biblioteca de Contenidos
-                                </button>
-                                <button 
-                                    onClick={() => setActiveTab('generated')}
-                                    className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md' : (generatedData.length > 0 ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'text-gray-400 hover:text-white hover:bg-white/5')}`}
-                                >
-                                    Contenidos Generados
-                                </button>
+                                {generatedData.length === 0 ? (
+                                    <>
+                                        <button 
+                                            onClick={() => setActiveTab('library')}
+                                            className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-gradient-to-r from-[#FF5D1E] to-orange-600 text-white shadow-md shadow-orange-950/40' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                                        >
+                                            Biblioteca de Contenidos
+                                        </button>
+                                        <button 
+                                            onClick={() => setActiveTab('generated')}
+                                            className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                                        >
+                                            Contenidos Generados
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <button 
+                                            onClick={() => setActiveTab('generated')}
+                                            className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md' : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'}`}
+                                        >
+                                            Contenidos Generados
+                                        </button>
+                                        <button 
+                                            onClick={() => setActiveTab('library')}
+                                            className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-gradient-to-r from-[#FF5D1E] to-orange-600 text-white shadow-md shadow-orange-950/40' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                                        >
+                                            Biblioteca de Contenidos
+                                        </button>
+                                    </>
+                                )}
                             </div>
                             
                             <div id="psd-content-items-list" className="space-y-4 flex-1">

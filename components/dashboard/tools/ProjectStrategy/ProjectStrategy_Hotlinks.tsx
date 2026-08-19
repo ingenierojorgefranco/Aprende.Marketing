@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
     Link as LinkIcon, Gift, ShoppingCart as CartIcon, 
-    X, Rocket, Loader2, CheckCircle2, AlertTriangle 
+    X, Rocket, Loader2, CheckCircle2, AlertTriangle, ExternalLink, Copy 
 } from 'lucide-react';
 import { api } from '../../../../services/api';
 import { Project, AffiliateLink } from '../../../../types';
@@ -158,53 +158,67 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                     />
                 </div>
 
-                {/* BLOQUE 1: URL DE AFILIACIÓN AL PRODUCTO DIGITAL */}
-                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-5">
+                {/* BLOQUE 1: AFILIACIÓN AL PRODUCTO DIGITAL (2 PASOS) */}
+                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
                     <div className="flex items-center gap-3.5 border-b border-slate-800/80 pb-4">
                         <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
                             <Rocket className="w-5 h-5" />
                         </div>
                         <h3 className="text-base sm:text-lg font-extrabold text-white tracking-wide uppercase">
-                            URL de Afiliación al Producto Digital
+                            Afiliación al Producto Digital
                         </h3>
                     </div>
 
-                    <div className="space-y-3">
-                        <div className="relative flex flex-col sm:flex-row gap-2.5">
-                            <input 
-                                type="text" 
-                                value={form.digitalProductUrl}
-                                onChange={(e) => setForm({ ...form, digitalProductUrl: e.target.value })}
-                                placeholder="https://app-vlc.hotmart.com/affiliate-links/..."
-                                disabled={!!project?.masterParentId}
-                                className={`w-full bg-[#0d1322] border ${project?.masterParentId ? 'border-emerald-500/30 opacity-70' : 'border-slate-700/80'} rounded-xl py-3.5 px-5 text-white text-sm sm:text-base outline-none focus:border-[#FF5A1F] transition-all placeholder:text-slate-600 font-mono`}
-                            />
-                            {project?.masterParentId && (
+                    <div className="space-y-6">
+                        {/* Paso 1 */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                                <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/30">1</span>
+                                <label className="text-sm font-bold text-white uppercase tracking-wider">Abre el Mercado de Hotmart</label>
+                            </div>
+                            <p className="text-xs text-slate-400 font-medium pl-8">Haz clic en el botón para abrir el mercado de afiliación en una nueva pestaña (asegúrate de tener tu sesión iniciada).</p>
+                            <div className="pl-8">
                                 <a 
-                                    href={form.digitalProductUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="shrink-0 inline-flex items-center justify-center gap-2 text-xs font-bold text-emerald-400 uppercase bg-emerald-500/15 px-5 py-3.5 rounded-xl border border-emerald-500/30 hover:bg-emerald-500 hover:text-white transition-all cursor-pointer"
-                                >
-                                    <CheckCircle2 className="w-4 h-4" /> Afiliarme
-                                </a>
-                            )}
-                            {!project?.masterParentId && form.digitalProductUrl && (
-                                <a 
-                                    href={form.digitalProductUrl} 
+                                    href="https://app.hotmart.com/market/" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="shrink-0 inline-flex items-center justify-center text-xs font-bold text-emerald-400 uppercase bg-emerald-500/15 px-5 py-3.5 rounded-xl border border-emerald-500/30 hover:bg-emerald-500 hover:text-white transition-all cursor-pointer"
+                                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold transition-all shadow-lg shadow-orange-500/20"
                                 >
-                                    Afiliarme
+                                    Abrir Mercado de Hotmart <ExternalLink className="w-4 h-4" />
                                 </a>
-                            )}
+                            </div>
                         </div>
-                        <p className="text-xs text-slate-400 font-medium">
-                            {project?.masterParentId 
-                                ? "Este proyecto hereda automáticamente el enlace de afiliación del proyecto maestro."
-                                : "Con este enlace podrás afiliarte al producto digital en Hotmart para tener tus Enlaces de Afiliados."}
-                        </p>
+
+                        {/* Paso 2 */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                                <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/30">2</span>
+                                <label className="text-sm font-bold text-white uppercase tracking-wider">Busca y Afíliate a este Producto</label>
+                            </div>
+                            <p className="text-xs text-slate-400 font-medium pl-8">Copia el nombre exacto del producto y búscalo en el mercado de Hotmart para solicitar tu afiliación.</p>
+                            
+                            <div className="relative flex flex-col sm:flex-row gap-2.5 pl-8">
+                                <input 
+                                    type="text" 
+                                    value={form.digitalProductUrl}
+                                    onChange={(e) => setForm({ ...form, digitalProductUrl: e.target.value })}
+                                    placeholder="Nombre exacto del producto..."
+                                    disabled={!!project?.masterParentId}
+                                    className={`w-full bg-[#0d1322] border ${project?.masterParentId ? 'border-emerald-500/30 opacity-70' : 'border-slate-700/80'} rounded-xl py-3.5 px-5 text-white text-sm sm:text-base outline-none focus:border-[#FF5A1F] transition-all placeholder:text-slate-600 font-mono`}
+                                />
+                                {form.digitalProductUrl && (
+                                    <button 
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(form.digitalProductUrl);
+                                            alert("¡Nombre copiado! Ahora pégalo en el buscador de Hotmart.");
+                                        }}
+                                        className="shrink-0 inline-flex items-center justify-center gap-2 text-xs font-bold text-emerald-400 uppercase bg-emerald-500/15 px-5 py-3.5 rounded-xl border border-emerald-500/30 hover:bg-emerald-500 hover:text-white transition-all cursor-pointer"
+                                    >
+                                        <Copy className="w-4 h-4" /> Copiar Nombre
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
 

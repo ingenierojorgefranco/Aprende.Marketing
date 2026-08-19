@@ -3404,15 +3404,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                   <div className="space-y-3 max-w-2xl text-left">
                                     <div className="flex items-center gap-2">
                                       <span className="text-[10px] md:text-xs font-black tracking-widest text-[#FF5D1E] uppercase">
-                                        VIDEO HOOK #{activeHookIdx + 1}
-                                      </span>
-                                      <span className="text-[10px] md:text-xs text-zinc-500 font-bold">•</span>
-                                      <span className="text-[10px] md:text-xs font-bold tracking-widest text-zinc-300 uppercase">
-                                        {activeCategoryLabel}
+                                        VIDEO HOOK #{activeHook.id || activeHookIdx + 1}
                                       </span>
                                     </div>
                                     <h2 className="text-xl md:text-2xl font-black text-white tracking-tight leading-snug">
-                                      ¿{hTitle.replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?
+                                      {hTitle}
                                     </h2>
                                   </div>
 
@@ -4746,7 +4742,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     <div className="space-y-3.5 font-sans">
                       {[
                         { id: "avatar", title: "Avatares Psicológicos", desc: "Tus compradores ideales totalmente perfilados con sus dolores, deseos y motivaciones." },
-                        { id: "funnel", title: "Embudo de Conversión", desc: "El mapa paso a paso del viaje de tu cliente desde el descubrimiento hasta el cierre." },
                         { id: "testimonials", title: "Testimonios Persuasivos", desc: "Historias de éxito realistas y testimonios diseñados para derribar el escepticismo." },
                         { id: "objections", title: "Frustraciones del Avatar", desc: "Análisis de las barreras de compra más comunes y cómo resolverlas eficazmente." },
                         { id: "benefits", title: "Beneficios Magnéticos", desc: "Los ganchos de transformación que conectan las características con las emociones." },
@@ -4817,7 +4812,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       <div className="space-y-2">
                         {[
                           { id: "avatar", title: "Avatares Psicológicos" },
-                          { id: "funnel", title: "Embudo de Conversión" },
                           { id: "testimonials", title: "Testimonios Persuasivos" },
                           { id: "objections", title: "Frustraciones del Avatar" },
                           { id: "benefits", title: "Beneficios Magnéticos" },

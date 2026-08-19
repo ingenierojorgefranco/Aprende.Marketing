@@ -41,7 +41,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
             module: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)",
             items: [
                 { id: 'hooks', label: '5. Crea tus hooks de atracción', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
-                { id: 'content', label: '6. Prepara tu estrategia de contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
+                { id: 'content', label: '6. Estrategia de Contenidos (Artículos de Blog)', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
                 { id: 'email', label: '7. Activa tu secuencia de venta', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
                 { id: 'evergreen', label: '8. Activa tu secuencia de confianza', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
                 { id: 'whatsapp', label: '9. Configura tus mensajes de cierre', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },

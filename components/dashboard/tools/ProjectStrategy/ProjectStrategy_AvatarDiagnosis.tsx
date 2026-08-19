@@ -411,13 +411,6 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                             icon: Users,
                         },
                         {
-                            id: "funnel" as CommercialOptionId,
-                            title: "Embudo de Conversión",
-                            badge: "MAPA DEL VIAJE",
-                            desc: "El mapa paso a paso del viaje de tu cliente desde el descubrimiento hasta el cierre.",
-                            icon: Globe,
-                        },
-                        {
                             id: "testimonials" as CommercialOptionId,
                             title: "Testimonios Persuasivos",
                             badge: "PRUEBA SOCIAL",

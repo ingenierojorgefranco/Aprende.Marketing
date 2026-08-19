@@ -1140,11 +1140,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         <div className="space-y-2 text-left">
                             <div className="flex items-center gap-2">
                                 <span className="text-[10px] md:text-xs font-black tracking-widest text-[#FF5D1E] uppercase">
-                                    VIDEO HOOK #{(activeTab === 'library' ? activeLibraryHook : activeHook) + 1}
-                                </span>
-                                <span className="text-[10px] md:text-xs text-zinc-500 font-bold">•</span>
-                                <span className="text-[10px] md:text-xs font-bold tracking-widest text-zinc-300 uppercase">
-                                    {currentHook.angle || currentHook.category || "OPORTUNIDAD"}
+                                    VIDEO HOOK #{currentHook.id || (activeTab === 'library' ? activeLibraryHook : activeHook) + 1}
                                 </span>
                             </div>
                             {isRealAdmin && isEditingTitle ? (
@@ -1167,7 +1163,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                             isRealAdmin ? 'cursor-pointer hover:text-orange-400 transition-colors' : ''
                                         }`}
                                     >
-                                        <span>¿{(localTitle || currentHook.title || "").replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?</span>
+                                        <span>{localTitle || currentHook.title || ""}</span>
                                         {isRealAdmin && (
                                             <span className="opacity-0 group-hover/maintitle:opacity-100 transition-opacity text-[10px] font-medium text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded shrink-0">
                                                 Editar

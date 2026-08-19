@@ -297,7 +297,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     { id: 4, title: "4. Configura tus enlaces de afiliado", stage: 1 },
     
     { id: 5, title: "5. Crea tus hooks de atracción", stage: 2, stageTitle: "ETAPA 2 — Tu sistema de ventas" },
-    { id: 6, title: "6. Prepara tu estrategia de contenidos", stage: 2 },
+    { id: 6, title: "6. Estrategia de Contenidos (Artículos de Blog)", stage: 2 },
     { id: 7, title: "7. Activa tu secuencia de venta", stage: 2 },
     { id: 8, title: "8. Activa tu secuencia de confianza", stage: 2 },
     { id: 9, title: "9. Configura tus mensajes de cierre", stage: 2 },
