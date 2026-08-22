@@ -333,6 +333,20 @@ const App: React.FC = () => {
         {/* ////////// Fin de nuevas rutas - 27/05/2025 01:15 ////////// */}
 
         <Route 
+          path="/onboarding" 
+          element={
+            <ProtectedRoute>
+              <DashboardLayout
+                user={user!}
+                onLogout={handleLogout}
+                isOffline={isOffline}
+                onUpdateUser={setUser}
+              />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
           path="/wizard/step-1" 
           element={
             <ProtectedRoute>

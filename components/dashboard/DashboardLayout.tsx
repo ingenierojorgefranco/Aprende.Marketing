@@ -249,9 +249,9 @@ export const DashboardLayout = ({
 
     return [
         { id: 'dashboard', label: 'Panel Principal', icon: LayoutDashboard, path: '/dashboard' },
+        { id: 'training', label: 'Academia', icon: GraduationCap, path: '/dashboard/training' },
         { id: 'projects', label: 'Mis Proyectos', icon: Briefcase, path: '/dashboard/projects' },
         { id: 'crm', label: 'Contactos', icon: Users, path: '/dashboard/crm' },
-        { id: 'training', label: 'Academia', icon: GraduationCap, path: '/dashboard/training' },
         ...(SHOW_TU_SISTEMA_MENU ? [{ id: 'sistema', label: 'Tu Sistema', icon: Layers, subItems: [
             { label: 'Mis Proyectos', path: '/dashboard/projects', icon: Briefcase },
             { label: 'Hooks de Atracción', path: '/dashboard/hooks', icon: Zap },
@@ -363,7 +363,7 @@ export const DashboardLayout = ({
 
   const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin' && !hasCompletedSurvey;
   const isSurveyPending = !hasCompletedSurvey && user.role !== 'admin';
-  const isWizardRoute = location.pathname.startsWith('/wizard');
+  const isWizardRoute = location.pathname.startsWith('/wizard') || location.pathname.startsWith('/onboarding');
   
   const isWizardCompleted = typeof window !== 'undefined' && localStorage.getItem('wizard_completed') === 'true';
   const hasUserActivity = projectCount > 0 || pageCount > 0;
@@ -585,7 +585,18 @@ export const DashboardLayout = ({
                     <WaitlistView 
                         user={effectiveUser} 
                         onUpdateUser={onUpdateUser}
-                        onComplete={() => window.location.reload()} 
+                        onComplete={async () => {
+                            try {
+                                const redirectUrl = await api.getLoginRedirect();
+                                if (redirectUrl) {
+                                    window.location.href = redirectUrl;
+                                } else {
+                                    window.location.reload();
+                                }
+                            } catch (e) {
+                                window.location.reload();
+                            }
+                        }} 
                     />
                 ) : showWizard ? (
                     <OnboardingWizard 
