@@ -15,8 +15,13 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, 
     const [showSuccess, setShowSuccess] = useState(false);
 
     const handleSurveyComplete = () => {
+        // Just show success, delay user state update so the component doesn't unmount
+        setShowSuccess(true);
+    };
+
+    const handleContinue = () => {
         if (onUpdateUser) {
-            // Sincronizar silenciosamente
+            // Sincronizar silenciosamente antes de continuar
             getCurrentUser().then(updated => {
                 if (updated) {
                     const formatted: User = {
@@ -26,16 +31,13 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, 
                     };
                     onUpdateUser(formatted);
                 }
-                setShowSuccess(true);
+                if (onComplete) onComplete();
+                else window.location.reload();
             });
         } else {
-            setShowSuccess(true);
+            if (onComplete) onComplete();
+            else window.location.reload();
         }
-    };
-
-    const handleContinue = () => {
-        if (onComplete) onComplete();
-        else window.location.reload();
     };
 
     if (showSuccess) {
