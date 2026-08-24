@@ -48,9 +48,6 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, 
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     className="w-full max-w-4xl relative flex flex-col items-center text-center"
                 >
-                    <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-6 border border-green-500/20">
-                        <CheckCircle2 className="w-10 h-10 text-green-500" />
-                    </div>
                     
                     <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
                         ¡Perfecto! Ya tenemos todo para <span className="text-[#FF5A1F]">empezar</span>
@@ -64,7 +61,7 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, 
                         {/* Aquí puedes reemplazar la URL del video de YouTube por la que desees */}
                         <iframe 
                             className="w-full h-full absolute inset-0"
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0" 
+                            src="https://www.youtube.com/embed/LgxV4tS0eVs?rel=0" 
                             title="Video de Bienvenida" 
                             frameBorder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
@@ -76,7 +73,7 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, 
                         onClick={handleContinue}
                         className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-[#FF5A1F] rounded-xl hover:bg-[#E04814] hover:scale-105 hover:shadow-lg hover:shadow-[#FF5A1F]/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF5A1F] focus:ring-offset-[#030712] text-lg"
                     >
-                        Ingresar a la academia
+                        Comenzar mi Ruta de Aprendizaje
                         <ArrowRight className="ml-3 w-6 h-6 transition-transform group-hover:translate-x-1" />
                     </button>
                 </motion.div>
