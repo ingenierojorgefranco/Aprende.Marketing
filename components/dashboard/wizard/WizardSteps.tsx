@@ -1075,7 +1075,7 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                         </div>
 
                         {/* Browser Landing Page Content Preview */}
-                        <div className="relative p-6 sm:p-10 lg:p-12 bg-gradient-to-b from-[#101016] via-[#0d0d12] to-[#08080a] space-y-8 text-left overflow-hidden min-h-[440px] sm:min-h-[480px] flex flex-col justify-between">
+                        <div className="relative p-4 bg-gradient-to-b from-[#101016] via-[#0d0d12] to-[#08080a] space-y-8 text-left overflow-hidden min-h-[440px] sm:min-h-[480px] flex flex-col justify-between">
                             {/* Landing Video Preview */}
                             <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
                                 <div className="w-full max-w-3xl aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black/50">
@@ -1279,118 +1279,20 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, proj
                         </div>
 
                         {/* Reels Studio Content Area */}
-                        <div className="relative p-6 sm:p-8 lg:p-10 bg-gradient-to-b from-[#101016] via-[#0d0d12] to-[#08080a] space-y-6 text-left overflow-hidden min-h-[440px] sm:min-h-[480px] flex flex-col justify-between">
+                        <div className="relative p-4 bg-gradient-to-b from-[#101016] via-[#0d0d12] to-[#08080a] space-y-6 text-left overflow-hidden min-h-[440px] sm:min-h-[480px] flex flex-col justify-between">
                             
-                            {/* Studio Title */}
-                            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                                <div>
-                                    <span className="text-[10px] font-bold text-[#FF5A1F] uppercase tracking-widest block">Estrategia Viral de Orgánico</span>
-                                    <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2 mt-0.5">
-                                        <Flame className="w-5 h-5 text-[#FF5A1F]" />
-                                        <span>3 Reels de Atracción Listos</span>
-                                    </h3>
+                            {/* Landing Video Preview */}
+                            <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
+                                <div className="w-full max-w-3xl aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black/50">
+                                    <iframe 
+                                        className="w-full h-full"
+                                        src="https://www.youtube.com/embed/jDr8mHAgus4?rel=0" 
+                                        title="Generador de Reels" 
+                                        frameBorder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                        allowFullScreen
+                                    ></iframe>
                                 </div>
-                                <span className="px-3 py-1 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/40 text-[#FF5A1F] text-xs font-bold">
-                                    Formatos de 9:16
-                                </span>
-                            </div>
-
-                            {/* 3 Reel Video Mockup Cards Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-2">
-                                {/* Reel Card 1 */}
-                                <div className="bg-[#14141d] border border-zinc-800 hover:border-[#FF5A1F]/50 rounded-2xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden group transition-all shadow-lg">
-                                    <div className="aspect-[9/12] rounded-xl bg-zinc-900 border border-zinc-800 relative overflow-hidden flex items-center justify-center">
-                                        <img referrerPolicy="no-referrer" src={imageUrl} alt="Reel 1" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
-                                        
-                                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#FF5A1F] text-[9px] font-extrabold text-white uppercase">
-                                            Reel #1
-                                        </div>
-
-                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                            <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                                <Play className="w-5 h-5 fill-current translate-x-0.5" />
-                                            </div>
-                                        </div>
-
-                                        <div className="absolute bottom-2 left-2 right-2 text-left">
-                                            <span className="text-[10px] font-semibold text-orange-300 block">Hook de Alta Conversión</span>
-                                            <p className="text-xs text-white font-bold line-clamp-2 leading-tight">"El secreto mejor guardado de este negocio..."</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between text-[11px] text-zinc-400">
-                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-[#FF5A1F]" /> 0:45 min</span>
-                                        <span className="text-emerald-400 font-bold">Atracción Alta</span>
-                                    </div>
-                                </div>
-
-                                {/* Reel Card 2 */}
-                                <div className="bg-[#14141d] border border-zinc-800 hover:border-[#FF5A1F]/50 rounded-2xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden group transition-all shadow-lg">
-                                    <div className="aspect-[9/12] rounded-xl bg-zinc-900 border border-zinc-800 relative overflow-hidden flex items-center justify-center">
-                                        <img referrerPolicy="no-referrer" src={imageUrl} alt="Reel 2" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
-                                        
-                                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#FF5A1F] text-[9px] font-extrabold text-white uppercase">
-                                            Reel #2
-                                        </div>
-
-                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                            <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                                <Play className="w-5 h-5 fill-current translate-x-0.5" />
-                                            </div>
-                                        </div>
-
-                                        <div className="absolute bottom-2 left-2 right-2 text-left">
-                                            <span className="text-[10px] font-semibold text-orange-300 block">Antes vs Después</span>
-                                            <p className="text-xs text-white font-bold line-clamp-2 leading-tight">"Lo que nadie te contó sobre estos resultados..."</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between text-[11px] text-zinc-400">
-                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-[#FF5A1F]" /> 0:30 min</span>
-                                        <span className="text-emerald-400 font-bold">Viralidad</span>
-                                    </div>
-                                </div>
-
-                                {/* Reel Card 3 */}
-                                <div className="bg-[#14141d] border border-zinc-800 hover:border-[#FF5A1F]/50 rounded-2xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden group transition-all shadow-lg">
-                                    <div className="aspect-[9/12] rounded-xl bg-zinc-900 border border-zinc-800 relative overflow-hidden flex items-center justify-center">
-                                        <img referrerPolicy="no-referrer" src={imageUrl} alt="Reel 3" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
-                                        
-                                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#FF5A1F] text-[9px] font-extrabold text-white uppercase">
-                                            Reel #3
-                                        </div>
-
-                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                            <div className="w-10 h-10 rounded-full bg-[#FF5A1F]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                                <Play className="w-5 h-5 fill-current translate-x-0.5" />
-                                            </div>
-                                        </div>
-
-                                        <div className="absolute bottom-2 left-2 right-2 text-left">
-                                            <span className="text-[10px] font-semibold text-orange-300 block">Llamado a la Acción</span>
-                                            <p className="text-xs text-white font-bold line-clamp-2 leading-tight">"Aprende la técnica en menos de 30 días..."</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between text-[11px] text-zinc-400">
-                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-[#FF5A1F]" /> 0:50 min</span>
-                                        <span className="text-emerald-400 font-bold">Conversión</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Audio & Script AI Indicator */}
-                            <div className="bg-[#161622]/90 border border-white/10 rounded-2xl p-3.5 flex items-center justify-between text-xs text-zinc-300">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-[#FF5A1F]/20 border border-[#FF5A1F]/40 flex items-center justify-center text-[#FF5A1F] shrink-0">
-                                        <Sparkles className="w-4 h-4 animate-pulse" />
-                                    </div>
-                                    <div>
-                                        <span className="text-white font-bold block text-xs">Guiones, Audio y Estructura Generados</span>
-                                        <span className="text-zinc-400 text-[11px]">Listos para personalizar con tus propios videos o fotos.</span>
-                                    </div>
-                                </div>
-                                <span className="text-[#FF5A1F] font-bold text-xs shrink-0 pl-2">3 Scripts Activos</span>
                             </div>
 
                         </div>
