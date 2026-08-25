@@ -1047,17 +1047,26 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                 </div>
 
                 {/* RIGHT COLUMN: Interactive Browser Preview Mockup (Expanded & Taller) */}
-                <div className="lg:col-span-7 relative w-full pt-2 lg:pt-0">
+                <div className="lg:col-span-7 relative w-full pt-2 lg:pt-0 flex flex-col justify-center">
                     {/* Glowing Backdrop */}
                     <div className="absolute inset-0 bg-gradient-to-tr from-[#FF5A1F]/20 via-orange-600/10 to-transparent blur-3xl -z-10 rounded-3xl"></div>
                     
-                    {/* Floating Wand Badge top-right */}
-                    <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#FF5A1F] to-orange-600 flex items-center justify-center text-white shadow-[0_0_35px_rgba(255,90,31,0.65)] z-20 border border-orange-300/40">
-                        <Wand2 className="w-6 h-6 sm:w-7 sm:h-7" />
+                    {/* Texto llamada a la acción del video */}
+                    <div className="relative z-10 mb-4 flex items-center justify-center w-full">
+                        <p className="text-yellow-400 font-extrabold text-[13px] sm:text-[14px] flex items-center gap-2 drop-shadow-[0_2px_15px_rgba(234,179,8,0.4)] animate-pulse bg-black/50 px-5 py-2.5 rounded-full border border-yellow-500/30 backdrop-blur-md text-center max-w-md md:max-w-none">
+                            <MousePointer2 className="w-4 h-4 shrink-0" />
+                            Haz clic en el video para conocer más detalles sobre tu página de captura
+                        </p>
                     </div>
 
-                    {/* Browser Container */}
-                    <div className="bg-[#0a0a0e] border border-[#FF5A1F]/35 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.85)] relative">
+                    <div className="relative w-full">
+                        {/* Floating Wand Badge top-right */}
+                        <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#FF5A1F] to-orange-600 flex items-center justify-center text-white shadow-[0_0_35px_rgba(255,90,31,0.65)] z-20 border border-orange-300/40">
+                            <Wand2 className="w-6 h-6 sm:w-7 sm:h-7" />
+                        </div>
+
+                        {/* Browser Container */}
+                        <div className="bg-[#0a0a0e] border border-[#FF5A1F]/35 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.85)] relative">
                         {/* Browser Top Navigation Bar */}
                         <div className="bg-[#121218] border-b border-zinc-800/80 px-5 py-3.5 flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -1090,6 +1099,7 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                                 </div>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -1249,17 +1259,26 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, proj
                 </div>
 
                 {/* RIGHT COLUMN: Interactive Reels & Video Content Preview Mockup */}
-                <div className="lg:col-span-7 relative w-full pt-2 lg:pt-0">
+                <div className="lg:col-span-7 relative w-full pt-2 lg:pt-0 flex flex-col justify-center">
                     {/* Glowing Backdrop */}
                     <div className="absolute inset-0 bg-gradient-to-tr from-[#FF5A1F]/20 via-orange-600/10 to-transparent blur-3xl -z-10 rounded-3xl"></div>
                     
-                    {/* Video Icon Floating Badge */}
-                    <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#FF5A1F] to-orange-600 flex items-center justify-center text-white shadow-[0_0_35px_rgba(255,90,31,0.65)] z-20 border border-orange-300/40">
-                        <Video className="w-6 h-6 sm:w-7 sm:h-7" />
+                    {/* Texto llamada a la acción del video */}
+                    <div className="relative z-10 mb-4 flex items-center justify-center w-full">
+                        <p className="text-yellow-400 font-extrabold text-[13px] sm:text-[14px] flex items-center gap-2 drop-shadow-[0_2px_15px_rgba(234,179,8,0.4)] animate-pulse bg-black/50 px-5 py-2.5 rounded-full border border-yellow-500/30 backdrop-blur-md text-center max-w-md md:max-w-none">
+                            <MousePointer2 className="w-4 h-4 shrink-0" />
+                            Haz clic en el video para conocer sobre Reels de atracción
+                        </p>
                     </div>
 
-                    {/* Reels Studio Frame */}
-                    <div className="bg-[#0a0a0e] border border-[#FF5A1F]/35 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.85)] relative">
+                    <div className="relative w-full">
+                        {/* Video Icon Floating Badge */}
+                        <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#FF5A1F] to-orange-600 flex items-center justify-center text-white shadow-[0_0_35px_rgba(255,90,31,0.65)] z-20 border border-orange-300/40">
+                            <Video className="w-6 h-6 sm:w-7 sm:h-7" />
+                        </div>
+
+                        {/* Reels Studio Frame */}
+                        <div className="bg-[#0a0a0e] border border-[#FF5A1F]/35 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.85)] relative">
                         {/* Studio Top Bar */}
                         <div className="bg-[#121218] border-b border-zinc-800/80 px-5 py-3.5 flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -1296,6 +1315,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, proj
                             </div>
 
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>
