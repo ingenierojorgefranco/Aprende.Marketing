@@ -556,6 +556,29 @@ export const AdminCourses: React.FC = () => {
                                                                 placeholder="URL del Video (YouTube, Vimeo, MP4)"
                                                             />
                                                             
+                                                            <div className="flex flex-col sm:flex-row gap-2 mt-2">
+                                                                <div className="flex-1">
+                                                                    <label className="text-[10px] text-gray-500 uppercase font-bold">Título Botón CTA (Opcional)</label>
+                                                                    <input 
+                                                                        type="text" 
+                                                                        value={lesson.cta_title || ''} 
+                                                                        onChange={(e) => updateLesson(module.id, lesson.id, 'cta_title', e.target.value)}
+                                                                        className="w-full bg-black border border-gray-800 rounded px-3 py-2 text-xs text-white placeholder-gray-600 mt-1"
+                                                                        placeholder="Ej: Únete al grupo de WhatsApp"
+                                                                    />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <label className="text-[10px] text-gray-500 uppercase font-bold">URL Botón CTA (Opcional)</label>
+                                                                    <input 
+                                                                        type="text" 
+                                                                        value={lesson.cta_url || ''} 
+                                                                        onChange={(e) => updateLesson(module.id, lesson.id, 'cta_url', e.target.value)}
+                                                                        className="w-full bg-black border border-gray-800 rounded px-3 py-2 text-xs text-blue-400 placeholder-gray-600 mt-1"
+                                                                        placeholder="https://..."
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            
                                                             {/* Visual Editor for Description */}
                                                             <div>
                                                                 <label className="text-[10px] text-gray-500 uppercase font-bold">Contenido de la Lección (Visual)</label>

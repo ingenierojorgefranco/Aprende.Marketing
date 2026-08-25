@@ -12,6 +12,8 @@ type Lesson = {
   video_url: string;
   description: string;
   learning_points: string[];
+  cta_title?: string;
+  cta_url?: string;
   isLocked?: boolean;
 };
 
@@ -352,9 +354,20 @@ export const TrainingViewer: React.FC = () => {
           {currentLesson && (
               <div className="animate-in fade-in slide-in-from-top-4">
                   <h2 className="text-3xl font-bold text-white mb-3">{currentLesson.title}</h2>
-                  <div className="flex items-center gap-4 text-sm text-gray-400 mb-6">
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400 mb-6">
                       <span className="flex items-center gap-1.5 bg-gray-800 px-3 py-1 rounded-full"><Clock className="w-4 h-4" /> {currentLesson.duration}</span>
                       <span className="flex items-center gap-1.5"><CheckCircle className="w-4 h-4 text-green-500" /> Disponible</span>
+                      
+                      {currentLesson.cta_title && currentLesson.cta_url && (
+                          <a 
+                            href={currentLesson.cta_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-auto bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-bold py-2 px-6 rounded-xl shadow-lg shadow-[#FF5A1F]/20 transition-all hover:scale-105 active:scale-95"
+                          >
+                            {currentLesson.cta_title}
+                          </a>
+                      )}
                   </div>
                   <div className="h-px bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 w-full"></div>
               </div>

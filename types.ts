@@ -620,6 +620,8 @@ export interface CourseLesson {
   video_url: string;
   description: string;
   learning_points: string[];
+  cta_title?: string;
+  cta_url?: string;
   is_published?: boolean;
   order_index: number;
 }

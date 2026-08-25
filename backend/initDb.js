@@ -551,6 +551,8 @@ const initDb = async () => {
         await addColumnSafe(connection, 'courses', "badge_text VARCHAR(100) DEFAULT 'Certificado'");
         await addColumnSafe(connection, 'courses', "order_index INT DEFAULT 0");
         await addColumnSafe(connection, 'courses', "is_active BOOLEAN DEFAULT TRUE");
+        await addColumnSafe(connection, 'course_lessons', "cta_title VARCHAR(255)");
+        await addColumnSafe(connection, 'course_lessons', "cta_url VARCHAR(500)");
 
         ////////// Actualización: Asegurar existencia de columna synced en tabla leads para integración Systeme.io - 15/06/2025 16:30 //////////
         await addColumnSafe(connection, 'leads', "synced BOOLEAN DEFAULT FALSE");

@@ -193,8 +193,8 @@ adminRouter.post('/courses', async (req, res) => {
                 if (mod.lessons && mod.lessons.length > 0) {
                     for (const lesson of mod.lessons) {
                         await connection.query(
-                            'INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                            [moduleId, lesson.title, lesson.duration, lesson.video_url, lesson.description, JSON.stringify(lesson.learning_points || []), lesson.order_index]
+                            'INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index, cta_title, cta_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            [moduleId, lesson.title, lesson.duration, lesson.video_url, lesson.description, JSON.stringify(lesson.learning_points || []), lesson.order_index, lesson.cta_title, lesson.cta_url]
                         );
                     }
                 }
@@ -245,14 +245,14 @@ adminRouter.put('/courses/:id', async (req, res) => {
                         let lessonId = lesson.id;
                         if (typeof lessonId === 'string' && lessonId.startsWith('new-')) {
                             const [lessRes] = await connection.query(
-                                'INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                                [moduleId, lesson.title, lesson.duration, lesson.video_url, lesson.description, JSON.stringify(lesson.learning_points || []), lesson.order_index]
+                                'INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index, cta_title, cta_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                [moduleId, lesson.title, lesson.duration, lesson.video_url, lesson.description, JSON.stringify(lesson.learning_points || []), lesson.order_index, lesson.cta_title, lesson.cta_url]
                             );
                             lessonId = lessRes.insertId;
                         } else {
                             await connection.query(
-                                'UPDATE course_lessons SET title=?, duration=?, video_url=?, description=?, learning_points=?, order_index=?, module_id=? WHERE id=?',
-                                [lesson.title, lesson.duration, lesson.video_url, lesson.description, JSON.stringify(lesson.learning_points || []), lesson.order_index, moduleId, lessonId]
+                                'UPDATE course_lessons SET title=?, duration=?, video_url=?, description=?, learning_points=?, order_index=?, module_id=?, cta_title=?, cta_url=? WHERE id=?',
+                                [lesson.title, lesson.duration, lesson.video_url, lesson.description, JSON.stringify(lesson.learning_points || []), lesson.order_index, moduleId, lesson.cta_title, lesson.cta_url, lessonId]
                             );
                         }
                         validLessonIds.push(lessonId);
