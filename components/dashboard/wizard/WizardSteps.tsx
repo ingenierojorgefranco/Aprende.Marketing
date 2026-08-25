@@ -1076,55 +1076,17 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
 
                         {/* Browser Landing Page Content Preview */}
                         <div className="relative p-6 sm:p-10 lg:p-12 bg-gradient-to-b from-[#101016] via-[#0d0d12] to-[#08080a] space-y-8 text-left overflow-hidden min-h-[440px] sm:min-h-[480px] flex flex-col justify-between">
-                            {/* Background Decorative Hero Image */}
-                            <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-30 pointer-events-none mix-blend-luminosity overflow-hidden">
-                                <img referrerPolicy="no-referrer" src={imageUrl} alt="" className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-gradient-to-r from-[#101016] via-[#101016]/80 to-transparent"></div>
-                            </div>
-
-                            {/* Landing Hero Content */}
-                            <div className="relative z-10 max-w-xl space-y-5">
-                                <h3 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
-                                    Transforma miradas, <br />
-                                    transforma <span className="text-[#FF5A1F]">vidas.</span>
-                                </h3>
-                                
-                                <p className="text-xs sm:text-base text-zinc-300 leading-relaxed font-light max-w-lg">
-                                    Aprende {productName} con técnicas profesionales y conviértete en una experta certificada.
-                                </p>
-
-                                {/* Hero Buttons */}
-                                <div className="flex flex-wrap items-center gap-3 pt-1">
-                                    <div className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-[#FF5A1F] text-white text-xs sm:text-sm font-bold shadow-lg">
-                                        QUIERO MÁS INFORMACIÓN
-                                    </div>
-                                    <div className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-white/10 border border-white/20 text-white text-xs sm:text-sm font-medium backdrop-blur-sm">
-                                        VER CONTENIDO DEL CURSO
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Feature Grid inside Preview */}
-                            <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-white/10">
-                                <div className="bg-[#161620]/90 border border-white/10 rounded-2xl p-3.5 space-y-1.5 backdrop-blur-md">
-                                    <ShieldCheck className="w-5 h-5 text-[#FF5A1F]" />
-                                    <h5 className="text-xs sm:text-sm font-bold text-white">Certificación avalada</h5>
-                                    <p className="text-[10px] sm:text-xs text-zinc-400 leading-normal">Obtén tu certificado profesional.</p>
-                                </div>
-                                <div className="bg-[#161620]/90 border border-white/10 rounded-2xl p-3.5 space-y-1.5 backdrop-blur-md">
-                                    <GraduationCap className="w-5 h-5 text-[#FF5A1F]" />
-                                    <h5 className="text-xs sm:text-sm font-bold text-white">Técnicas actualizadas</h5>
-                                    <p className="text-[10px] sm:text-xs text-zinc-400 leading-normal">Métodos modernos y efectivos.</p>
-                                </div>
-                                <div className="bg-[#161620]/90 border border-white/10 rounded-2xl p-3.5 space-y-1.5 backdrop-blur-md">
-                                    <Users className="w-5 h-5 text-[#FF5A1F]" />
-                                    <h5 className="text-xs sm:text-sm font-bold text-white">Soporte personalizado</h5>
-                                    <p className="text-[10px] sm:text-xs text-zinc-400 leading-normal">Acompañamiento en tu proceso.</p>
-                                </div>
-                                <div className="bg-[#161620]/90 border border-white/10 rounded-2xl p-3.5 space-y-1.5 backdrop-blur-md">
-                                    <TrendingUp className="w-5 h-5 text-[#FF5A1F]" />
-                                    <h5 className="text-xs sm:text-sm font-bold text-white">Empieza tu negocio</h5>
-                                    <p className="text-[10px] sm:text-xs text-zinc-400 leading-normal">Convierte tu talento en ingresos.</p>
+                            {/* Landing Video Preview */}
+                            <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
+                                <div className="w-full max-w-3xl aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black/50">
+                                    <iframe 
+                                        className="w-full h-full"
+                                        src="https://www.youtube.com/embed/eer7wU3ePYQ?rel=0" 
+                                        title="Generador de página de captura" 
+                                        frameBorder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                        allowFullScreen
+                                    ></iframe>
                                 </div>
                             </div>
                         </div>
