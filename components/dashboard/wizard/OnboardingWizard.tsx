@@ -1024,11 +1024,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         selectedProject?.productName ||
           selectedProject?.name ||
           "Producto Digital",
-        "Registro a Webinar / Clase", // Forzamos objetivo de webinar
+        "Venta Directa / Carta de Ventas", // Forzamos objetivo de carta clásica
         targetAudience,
-        "Registro", // Para que coincida con la otra sección exactamente
+        "Venta / Registro", // Para que coincida con la otra sección
         randomPalette,
-        "webinar-funnel", // Forzamos estructura de webinar
+        "classic-sales", // Forzamos estructura de carta clásica
         {
           type: "form",
           url: "",

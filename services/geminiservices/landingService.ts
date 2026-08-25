@@ -59,11 +59,11 @@ export const generateLandingPageContent = async (
       // 3. Extraer Transformaciones (Lo que aprenderás) - REGLA CRÍTICA
       let extractedLearning: string[] = [];
       if (pStrategy?.psychology?.learningModules && pStrategy.psychology.learningModules.length > 0) {
-          extractedLearning = pStrategy.psychology.learningModules.map((m: any) => `${m.title}: ${m.description}`);
+          extractedLearning = pStrategy.psychology.learningModules.slice(0, 4).map((m: any) => `${m.title}: ${m.description}`);
       }
       const learningContext = (extractedLearning.length > 0)
           ? `- Transformaciones/Lo que aprenderás (COPIA ESTO EXACTAMENTE): ${extractedLearning.join(" | ")}`
-          : "";
+          : `- Transformaciones/Lo que aprenderás (Genera EXACTAMENTE 4 temas básicos y esenciales que el usuario verá al ingresar a la clase gratuita, analizando el resumen y propósito del proyecto).`;
 
       // 4. Extraer Beneficios - Prioriza psychology.solutions, sino busca en campos básicos
       let extractedBenefitsData: any[] = [];

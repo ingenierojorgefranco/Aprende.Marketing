@@ -60,7 +60,9 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
       };
   });
 
-  const benefitsGrid = (learningModules.length > 0 ? learningModules : (content.benefits?.items || [])).map((m: any, idx: number) => {
+  const benefitsGrid = (learningModules.length > 0 ? learningModules : (content.benefits?.items || []))
+      .slice(0, 4)
+      .map((m: any, idx: number) => {
       const color = m?.color || 'purple';
       const colors = getModuleColors(color);
       return {
@@ -182,96 +184,7 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
                 </button>
             </div>
         </div>
-        {/* DISEÑO QUEMADO DE PRUEBA: Lo que aprenderás en nuestra clase */}
-        <div className="max-w-6xl mx-auto px-6 text-center mt-32 mb-16">
-            <div className="mb-12">
-                <h2 className="text-4xl md:text-5xl font-['Inter'] font-extrabold mb-4 text-[#241544] leading-tight tracking-tight">
-                    Lo que aprenderás en nuestra clase
-                </h2>
-                <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
-                    Aprende las bases esenciales para realizar una aplicación de resina epóxica con mayor seguridad.
-                </p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-[#1C1239] to-[#2B1B54] rounded-[2rem] shadow-2xl relative overflow-hidden border border-white/5">
-                {/* Subtle glow inside the container */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-[100px] pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-96 h-96 bg-pink-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 relative z-10 text-left">
-                    {/* Item 1 */}
-                    <div className="p-8 md:p-12 flex gap-6 md:gap-8 hover:bg-white/5 transition-colors duration-500 md:border-r border-b border-white/10">
-                        <div className="w-20 h-20 rounded-3xl border border-white/10 bg-white/5 flex items-center justify-center shrink-0 shadow-inner">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="url(#grad1)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                        </div>
-                        <div className="flex-1 space-y-2">
-                            <div className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A00] to-[#FF0055]">
-                                01
-                            </div>
-                            <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">Preparación del suelo</h3>
-                            <p className="text-gray-400 text-sm md:text-[0.95rem] leading-relaxed pt-1">Aprende cómo preparar correctamente la superficie antes de comenzar una aplicación.</p>
-                        </div>
-                    </div>
-                    {/* Item 2 */}
-                    <div className="p-8 md:p-12 flex gap-6 md:gap-8 hover:bg-white/5 transition-colors duration-500 border-b border-white/10">
-                        <div className="w-20 h-20 rounded-3xl border border-white/10 bg-white/5 flex items-center justify-center shrink-0 shadow-inner">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="url(#grad1)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 3h15"/><path d="M6 3v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3"/><path d="M6 14h12"/></svg>
-                        </div>
-                        <div className="flex-1 space-y-2">
-                            <div className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A00] to-[#FF0055]">
-                                02
-                            </div>
-                            <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">Mezcla correcta</h3>
-                            <p className="text-gray-400 text-sm md:text-[0.95rem] leading-relaxed pt-1">Entiende las proporciones, tiempos y puntos clave para preparar la resina correctamente.</p>
-                        </div>
-                    </div>
-                    {/* Item 3 */}
-                    <div className="p-8 md:p-12 flex gap-6 md:gap-8 hover:bg-white/5 transition-colors duration-500 md:border-r border-white/10 border-b md:border-b-0">
-                        <div className="w-20 h-20 rounded-3xl border border-white/10 bg-white/5 flex items-center justify-center shrink-0 shadow-inner">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="url(#grad1)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><path d="M12 10v6"/><path d="M9 16h6"/></svg>
-                        </div>
-                        <div className="flex-1 space-y-2">
-                            <div className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A00] to-[#FF0055]">
-                                03
-                            </div>
-                            <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">Aplicación y acabado</h3>
-                            <p className="text-gray-400 text-sm md:text-[0.95rem] leading-relaxed pt-1">Descubre cómo extender el material y conseguir un acabado uniforme y profesional.</p>
-                        </div>
-                    </div>
-                    {/* Item 4 */}
-                    <div className="p-8 md:p-12 flex gap-6 md:gap-8 hover:bg-white/5 transition-colors duration-500">
-                        <div className="w-20 h-20 rounded-3xl border border-white/10 bg-white/5 flex items-center justify-center shrink-0 shadow-inner">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="url(#grad1)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-                        </div>
-                        <div className="flex-1 space-y-2">
-                            <div className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A00] to-[#FF0055]">
-                                04
-                            </div>
-                            <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">Errores que debes evitar</h3>
-                            <p className="text-gray-400 text-sm md:text-[0.95rem] leading-relaxed pt-1">Identifica los fallos más comunes que pueden hacerte perder material, tiempo y dinero.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div className="mt-12 text-center relative z-10">
-                <button 
-                    onClick={() => setShowModal(true)}
-                    className="inline-flex items-center justify-center gap-3 px-12 py-5 rounded-[2rem] bg-gradient-to-r from-[#FF7A00] via-[#FF0055] to-[#FF00AA] text-white font-bold text-lg shadow-[0_10px_30px_rgba(255,0,85,0.3)] hover:shadow-[0_15px_40px_rgba(255,0,85,0.5)] hover:scale-[1.02] active:scale-95 transition-all"
-                >
-                    QUIERO ACCEDER A LA CLASE GRATIS
-                    <ArrowRight className="w-5 h-5" />
-                </button>
-            </div>
-        </div>
-
-        <svg style={{ width: 0, height: 0, position: 'absolute' }} aria-hidden="true" focusable="false">
-          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#FF7A00" />
-            <stop offset="100%" stopColor="#FF00AA" />
-          </linearGradient>
-        </svg>
-
+        
         {showModal && <RegistrationModal content={content} ds={ds} onClose={() => setShowModal(false)} pageId={pageId} basePath={basePath} />}
     </section>
   );

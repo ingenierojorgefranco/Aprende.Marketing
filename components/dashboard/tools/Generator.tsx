@@ -53,7 +53,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
     whatsappPhone: '',
     whatsappMessage: 'Hola, quiero más información sobre...',
     palette: 'modern-blue' as ColorPalette,
-    structure: 'webinar-funnel' as StructureType
+    structure: 'classic-sales' as StructureType
   });
   const [error, setError] = useState('');
 
