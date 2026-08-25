@@ -385,12 +385,26 @@ export const ProjectsList: React.FC = () => {
                     </div>
                 ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {masterLibrary.map((item) => {
-                            const isAlreadyUnlocked = item.isUnlocked || user.role === 'admin';
+                        {(() => {
+                            const sortedMasterLibrary = [...masterLibrary].sort((a, b) => {
+                                const dateA = new Date(a.createdAt || 0).getTime();
+                                const dateB = new Date(b.createdAt || 0).getTime();
 
-                            return (
-                                <div 
-                                    key={item.id} 
+                                if (user.role === 'admin') {
+                                    return dateA - dateB;
+                                } else {
+                                    if (a.isUnlocked && !b.isUnlocked) return -1;
+                                    if (!a.isUnlocked && b.isUnlocked) return 1;
+                                    return dateA - dateB;
+                                }
+                            });
+
+                            return sortedMasterLibrary.map((item) => {
+                                const isAlreadyUnlocked = item.isUnlocked || user.role === 'admin';
+
+                                return (
+                                    <div 
+                                        key={item.id}
                                     onClick={(e) => {
                                         if (isAlreadyUnlocked) {
                                             const userClone = projects.find(p => String(p.masterParentId) === String(item.id));
@@ -495,7 +509,7 @@ export const ProjectsList: React.FC = () => {
                                     </div>
                                 </div>
                             );
-                        })}
+                        })})()}
                     </div>
                 )}
             </div>

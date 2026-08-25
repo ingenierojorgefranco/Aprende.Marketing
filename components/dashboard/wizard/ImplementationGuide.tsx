@@ -17,6 +17,7 @@ import { ProjectStrategy_WhatsApp } from "../tools/ProjectStrategy/ProjectStrate
 import { StepHeaderCard } from "./StepHeaderCard";
 import { StepVideoContainer } from "./StepVideoContainer";
 import { EstrategiaComercialDrawer, CommercialOptionId } from "./EstrategiaComercialDrawer";
+import { ImplementationGuideContext } from './ImplementationGuideContext';
 import { 
   CheckCircle, 
   ChevronRight, 
@@ -115,7 +116,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeStep, setActiveStep] = useState<number>(1);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([1]); // Default 1 completed
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [fullProject, setFullProject] = useState<any>(null);
   const [savedForLater, setSavedForLater] = useState<number[]>([]);
   const [strategyData, setStrategyData] = useState<any>(null);
   const [projectDescription, setProjectDescription] = useState<string>("");
@@ -127,14 +129,14 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
 
   useEffect(() => {
     const activeStageNum = stepsList.find(s => s.id === activeStep)?.stage || 1;
-    setOpenGuideStages([activeStageNum]);
+    setOpenGuideStages(prev => Array.from(new Set([...prev, activeStageNum])));
   }, [activeStep]);
 
   const toggleGuideStage = (stageNum: number) => {
     if (openGuideStages.includes(stageNum)) {
       setOpenGuideStages(openGuideStages.filter(s => s !== stageNum));
     } else {
-      setOpenGuideStages([stageNum]);
+      setOpenGuideStages([...openGuideStages, stageNum]);
     }
   };
 
@@ -146,12 +148,52 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
       }).catch((err: any) => console.error("Error loading strategy in ImplementationGuide", err));
 
       api.getProjectById(pid).then((proj: any) => {
-        if (proj && proj.description) {
-          setProjectDescription(proj.description);
+        if (proj) {
+          setFullProject(proj);
+          if (proj.description) setProjectDescription(proj.description);
+          
+          const storedCompletedSteps = proj.strategy_json?.completed_steps || [];
+          setCompletedSteps(storedCompletedSteps);
+          
+          if (!searchParams.get('section') && !activeStrategySection && storedCompletedSteps.length < 9) {
+            // Find first uncompleted step
+            let firstUncompleted = 1;
+            while(firstUncompleted <= 9 && storedCompletedSteps.includes(firstUncompleted)) {
+              firstUncompleted++;
+            }
+            if (firstUncompleted <= 9) {
+              setActiveStep(firstUncompleted);
+            }
+          }
         }
       }).catch((err: any) => console.error("Error loading project in ImplementationGuide", err));
     }
-  }, [projectId, searchParams]);
+  }, [projectId, searchParams, activeStrategySection]);
+
+  const handleCompleteStep = async (stepId: number) => {
+    if (completedSteps.includes(stepId)) return;
+    
+    const newCompleted = [...completedSteps, stepId];
+    setCompletedSteps(newCompleted);
+    
+    if (stepId < 9) {
+      setActiveStep(stepId + 1);
+    }
+    
+    const pid = projectId || searchParams.get('id');
+    if (pid && fullProject) {
+      try {
+        const updatedStrategyJson = {
+          ...(fullProject.strategy_json || {}),
+          completed_steps: newCompleted
+        };
+        await api.updateProject(pid, { ...fullProject, strategy_json: updatedStrategyJson });
+        setFullProject({ ...fullProject, strategy_json: updatedStrategyJson });
+      } catch (e) {
+        console.error("Error updating project completed steps", e);
+      }
+    }
+  };
 
   const fullAnalysisText = projectDescription || 
     strategyData?.meta?.shortDescription || 
@@ -333,6 +375,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const percentCompleted = Math.round((completedSteps.length / 9) * 100);
 
   return (
+    <ImplementationGuideContext.Provider value={{ completedSteps, onCompleteStep: handleCompleteStep }}>
     <div className="w-full text-slate-200 font-sans min-h-screen bg-[#060913] -mt-2 sm:-mt-4 -mx-1 sm:-mx-3">
       
       {/* Layout Grid */}
@@ -1455,5 +1498,6 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
       />
 
     </div>
+    </ImplementationGuideContext.Provider>
   );
 };

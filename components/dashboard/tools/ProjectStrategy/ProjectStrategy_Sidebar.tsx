@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { 
     LayoutDashboard, TrendingUp, Map, UserSearch, 
     Globe, FileText, Mail, Calendar, MessageCircle,
     ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity, MessageSquare,
-    Link as LinkIcon
+    Link as LinkIcon, CheckCircle2
 } from 'lucide-react';
+import { ImplementationGuideContext } from '../../wizard/ImplementationGuideContext';
 
 interface SidebarItem {
     id: string;
@@ -12,6 +13,7 @@ interface SidebarItem {
     icon: any;
     module: string;
     description?: string;
+    stepNumber?: number;
 }
 
 interface ProjectStrategy_SidebarProps {
@@ -23,28 +25,26 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
     activeSection = 'summary', 
     onSectionChange 
 }) => {
+    const { completedSteps } = useContext(ImplementationGuideContext);
+
     const menuItems: { module: string; items: SidebarItem[] }[] = [
         {
             module: "ETAPA 1 — ACTIVA TU SISTEMA",
             items: [
-                { id: 'summary', label: '1. Bienvenida e introducción', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
-                { id: 'avatar', label: '2. Tu comprador ideal', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto" },
-                { id: 'web', label: '3. Tu página de captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
-                { id: 'hotlinks', label: '4. Tus enlaces de afiliados', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado" },
+                { id: 'summary', label: '1. Bienvenida e introducción', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema", stepNumber: 1 },
+                { id: 'avatar', label: '2. Tu comprador ideal', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto", stepNumber: 2 },
+                { id: 'web', label: '3. Tu página de captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura", stepNumber: 3 },
+                { id: 'hotlinks', label: '4. Tus enlaces de afiliados', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado", stepNumber: 4 },
             ]
-        },
-        {
-            module: "ETAPA 2: TU MERCADO Y CLIENTE",
-            items: []
         },
         {
             module: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)",
             items: [
-                { id: 'hooks', label: '5. Tus hooks de atracción', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
-                { id: 'content', label: '6. Tu estrategia de contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
-                { id: 'email', label: '7. Tu secuencia de ventas', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
-                { id: 'evergreen', label: '8. Activa tu secuencia de confianza', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
-                { id: 'whatsapp', label: '9. Configura tus mensajes de cierre', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
+                { id: 'hooks', label: '5. Tus hooks de atracción', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos", stepNumber: 5 },
+                { id: 'content', label: '6. Tu estrategia de contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO", stepNumber: 6 },
+                { id: 'email', label: '7. Tu secuencia de ventas', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial", stepNumber: 7 },
+                { id: 'evergreen', label: '8. Activa tu secuencia de confianza', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo", stepNumber: 8 },
+                { id: 'whatsapp', label: '9. Configura tus mensajes de cierre', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta", stepNumber: 9 },
             ]
         }
     ].filter(group => group.items.length > 0);
@@ -126,6 +126,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                                 <div className="bg-black/20 p-2 space-y-1.5">
                                     {group.items.map((item) => {
                                         const isActive = currentSectionId === item.id || activeSection === item.id;
+                                        const isCompleted = item.stepNumber ? completedSteps.includes(item.stepNumber) : false;
                                         return (
                                             <button
                                                 key={item.id}
@@ -145,6 +146,11 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                                                         {item.label}
                                                     </p>
                                                 </div>
+                                                
+                                                {/* Check de completado */}
+                                                {isCompleted && (
+                                                    <CheckCircle2 className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-emerald-500'}`} />
+                                                )}
                                             </button>
                                         );
                                     })}

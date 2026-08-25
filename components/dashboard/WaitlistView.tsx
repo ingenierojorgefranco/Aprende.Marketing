@@ -68,7 +68,7 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, 
                         {/* Aquí puedes reemplazar la URL del video de YouTube por la que desees */}
                         <iframe 
                             className="w-full h-full absolute inset-0"
-                            src="https://www.youtube.com/embed/EQC_Hnqcq-o?rel=0" 
+                            src="https://www.youtube.com/embed/EQC_Hnqcq-o?rel=0&modestbranding=1&iv_load_policy=3&fs=0&cc_load_policy=0" 
                             title="Video de Bienvenida" 
                             frameBorder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 

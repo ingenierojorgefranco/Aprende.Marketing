@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { Check } from 'lucide-react';
+import { ImplementationGuideContext } from './ImplementationGuideContext';
 
 interface StepHeaderCardProps {
   stepNumber: number;
@@ -7,7 +9,7 @@ interface StepHeaderCardProps {
   categoryTitle?: string;
   title: string | React.ReactNode;
   description?: string | React.ReactNode;
-  completedSteps?: number;
+  completedSteps?: number; // Kept for backwards compatibility if needed
 }
 
 export const StepHeaderCard: React.FC<StepHeaderCardProps> = ({
@@ -19,9 +21,14 @@ export const StepHeaderCard: React.FC<StepHeaderCardProps> = ({
   description,
   completedSteps,
 }) => {
+  const { completedSteps: contextCompletedSteps, onCompleteStep } = useContext(ImplementationGuideContext);
+  
+  // Use context first, then prop, then default to 0 (or fallback to stepNumber if no context, though context always exists now)
+  const currentCompleted = contextCompletedSteps.length > 0 ? contextCompletedSteps.length : (completedSteps ?? stepNumber);
+  const isCompleted = contextCompletedSteps.includes(stepNumber);
+  
   // Determinar la etapa según el número de paso si no se especifica
   const computedStage = stageNumber ?? (stepNumber <= 4 ? 1 : 2);
-  const currentCompleted = completedSteps ?? stepNumber;
   const percentage = Math.min(100, Math.max(0, Math.round((currentCompleted / totalSteps) * 100)));
 
   return (
@@ -55,9 +62,25 @@ export const StepHeaderCard: React.FC<StepHeaderCardProps> = ({
             />
           </div>
 
-          <div className="text-xs text-slate-400 font-medium">
+          <div className="text-xs text-slate-400 font-medium mb-3">
             {percentage}% completado
           </div>
+          
+          <button 
+            onClick={() => onCompleteStep(stepNumber)}
+            disabled={isCompleted}
+            className={`w-full py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all mt-3 flex items-center justify-center gap-2 ${
+              isCompleted 
+                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                : 'bg-[#FF5A1F] hover:bg-[#E04814] text-white shadow-lg shadow-[#FF5A1F]/20'
+            }`}
+          >
+            {isCompleted ? (
+              <><Check className="w-4 h-4" /> Paso Completado</>
+            ) : (
+              `Completar paso ${stepNumber}`
+            )}
+          </button>
         </div>
       </div>
     </div>
