@@ -431,20 +431,6 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                             desc: "Los ganchos de transformación que conectan las características con las emociones.",
                             icon: Zap,
                         },
-                        {
-                            id: "offer" as CommercialOptionId,
-                            title: "Oferta Principal",
-                            badge: "ESTRUCTURA DE OFERTA",
-                            desc: "La estructura irresistible de tu producto o servicio con bonos y garantías.",
-                            icon: FileText,
-                        },
-                        {
-                            id: "cta" as CommercialOptionId,
-                            title: "CTA Principal",
-                            badge: "LLAMADOS A LA ACCIÓN",
-                            desc: "Llamados a la acción directos y persuasivos diseñados para maximizar la conversión.",
-                            icon: Crown,
-                        }
                     ].map((card) => {
                         const CardIcon = card.icon;
                         return (

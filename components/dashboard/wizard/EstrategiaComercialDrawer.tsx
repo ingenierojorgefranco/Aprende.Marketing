@@ -13,9 +13,7 @@ export type CommercialOptionId =
   | "objections" 
   | "benefits" 
   | "proposition" 
-  | "offer" 
-  | "funnel" 
-  | "cta";
+  | "funnel";
 
 interface EstrategiaComercialDrawerProps {
   isOpen: boolean;
@@ -129,9 +127,7 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
     { id: "avatar", title: "Avatares Psicológicos", desc: "Tus compradores ideales totalmente perfilados con sus dolores, deseos y motivaciones." },
     { id: "testimonials", title: "Testimonios Persuasivos", desc: "Historias de éxito realistas y testimonios diseñados para derribar el escepticismo." },
     { id: "objections", title: "Frustraciones del Avatar", desc: "Análisis de las barreras de compra más comunes y cómo resolverlas eficazmente." },
-    { id: "benefits", title: "Beneficios Magnéticos", desc: "Los ganchos de transformación que conectan las características con las emociones." },
-    { id: "offer", title: "Oferta Principal", desc: "La estructura irresistible de tu producto o servicio con bonos y garantías." },
-    { id: "cta", title: "CTA Principal", desc: "Llamados a la acción directos y persuasivos diseñados para maximizar la conversión." },
+    { id: "benefits", title: "Beneficios Magnéticos", desc: "Los ganchos de transformación que conectan las características con las emociones." }
   ];
 
   return (
@@ -1352,119 +1348,6 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
                       </div>
                     )}
 
-                    {/* 6. OFERTA PRINCIPAL */}
-                    {activeOption === "offer" && (() => {
-                      const comm = strategyData?.commercial || {};
-                      const recommendedPrice = comm.offer?.recommendedPrice || "297";
-                      const originalPrice = comm.offer?.originalPrice || "597";
-                      const packageItems = comm.offer?.packageItems || [
-                        { concept: "Acceso Completo al Entrenamiento en Alta Definición", cost: "Valor de $197 USD" },
-                        { concept: "Kit Integral de Micropigmentación (Zonas autorizadas)", cost: "Valor de $150 USD" },
-                        { concept: "Sesiones de Consultas Clínicas de zoom 1-a-1", cost: "Cupo Limitado ($100 USD)" },
-                        { concept: "Acceso Vitalicio + Diploma Especialización", cost: "Bono Exclusivo (Gratuito)" }
-                      ];
-                      const guaranteeTitle = comm.offer?.guaranteeTitle || "Garantía Incondicional de Satisfacción";
-                      const guaranteeDescription = comm.offer?.guaranteeDescription || "Si durante los primeros 7 días aplicas los trazos prácticos iniciales del kit y sientes que no es para ti, te devolvemos el 100% de tu dinero sin preguntas. Riesgo Cero.";
-                      
-                      return (
-                        <div className="space-y-6 text-left">
-                          <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0 shadow-lg shadow-amber-500/5">
-                              <FileText className="w-6 h-6" />
-                            </div>
-                            <div className="text-left">
-                              <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Oferta Principal</h2>
-                              <p className="text-white font-light text-sm sm:text-base leading-relaxed mt-1">
-                                Estructuración exacta del paquete para que la decisión de compra sea una obviedad irresistible para tu avatar.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="p-6 bg-white/[0.01] border border-white/[0.04] rounded-3xl relative space-y-6 pt-5">
-                            <div className="flex justify-between items-center bg-[#FF5D1E]/10 p-5 rounded-2xl border border-[#FF5D1E]/30 flex-wrap gap-4 text-left">
-                              <div className="text-left space-y-1">
-                                <span className="text-[10px] text-zinc-400 uppercase font-black tracking-wider block">Producto Recomendado</span>
-                                <h3 className="text-base sm:text-lg font-black text-white">{comm.offer?.productName || activeProjectName}</h3>
-                              </div>
-                              <div className="text-left sm:text-right">
-                                <span className="text-[10px] text-[#FF5D1E] uppercase font-black tracking-wider block">Precio Recomendado</span>
-                                <p className="text-lg sm:text-2xl font-black text-[#FF5D1E]">${recommendedPrice}.00 USD <span className="text-xs text-zinc-300 line-through">${originalPrice}.00</span></p>
-                              </div>
-                            </div>
-
-                            <div className="space-y-3.5 text-left">
-                              <span className="text-xs font-black uppercase text-amber-400 tracking-widest block font-sans">
-                                Desglose del Paquete Irresistible
-                              </span>
-                              <div className="space-y-2.5">
-                                {packageItems.map((pack: any, idx: number) => (
-                                  <div key={idx} className="flex justify-between items-center p-3.5 bg-white/[0.01] border border-white/[0.04] rounded-xl text-left gap-4 flex-wrap">
-                                    <div className="flex items-center gap-2 text-xs sm:text-sm select-none text-white font-light">
-                                      <span className="text-amber-500 font-bold">✦</span>
-                                      <span>{pack.concept || pack.item}</span>
-                                    </div>
-                                    <span className="text-[11px] font-extrabold uppercase text-amber-500 font-mono tracking-tight">{pack.cost || pack.val}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="p-4 bg-emerald-500/[0.01] border border-emerald-500/10 rounded-2xl flex gap-3 text-left">
-                              <CheckCircle className="w-5.5 h-5.5 text-emerald-400 shrink-0 mt-0.5" />
-                              <div className="space-y-1">
-                                <h4 className="text-sm font-bold text-emerald-400">{guaranteeTitle}</h4>
-                                <p className="text-white font-light text-xs sm:text-sm leading-relaxed font-sans">
-                                  {guaranteeDescription}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })()}
-
-                    {/* 8. CTA PRINCIPAL */}
-                    {activeOption === "cta" && (() => {
-                      const comm = strategyData?.commercial || {};
-                      const buttonText = comm.cta?.buttonText || "¡Quiero Especializarme e Incrementar mis Ingresos Ahora!";
-                      const safetyMicrocopy = comm.cta?.safetyMicrocopy || "Inscripción 100% segura. Accede de inmediato al kit premium de micropigmentación.";
-                      const scarcityTrigger = comm.cta?.scarcityTrigger || "Solo quedan 7 cupos con precio promocional en este lote de soporte.";
-                      const urgencyTrigger = comm.cta?.urgencyTrigger || "Oferta válida únicamente por las próximas 48 horas de calentamiento.";
-                      
-                      return (
-                        <div className="space-y-6 text-left">
-                          <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shrink-0 shadow-lg shadow-rose-500/5">
-                              <Target className="w-6 h-6 animate-pulse" />
-                            </div>
-                            <div className="text-left">
-                              <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">CTA Principal</h2>
-                              <p className="text-white font-light text-sm sm:text-base leading-relaxed mt-1">
-                                Los llamados a la acción definitivos de alta conversión configurados para incentivar decisiones de compra impulsivas.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="p-6 bg-white/[0.01] border border-white/[0.04] rounded-3xl relative space-y-6 pt-5 text-center">
-                            <div className="max-w-md mx-auto space-y-4">
-                              <span className="text-[10px] text-[#FF5D1E] font-black uppercase tracking-widest leading-none block">DISEÑO DE BOTÓN DE ALTO IMPACTO</span>
-                              
-                              <div className="p-3 bg-zinc-900 rounded-2xl border border-white/5 shadow-2xl flex justify-center">
-                                <button className="w-full bg-[#FF5D1E] hover:bg-[#FF6E33] text-white font-extrabold text-sm sm:text-base py-3.5 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-[#FF5D1E]/20 flex items-center justify-center gap-2 select-none">
-                                  {buttonText} <ChevronRight className="w-5 h-5 shrink-0" />
-                                </button>
-                              </div>
-
-                              <div className="text-white font-light text-xs sm:text-sm leading-relaxed pt-2 flex flex-col gap-1.5 list-none text-left">
-                                <li className="text-left">✦ <span className="font-black text-[#FF5D1E]">Microcopia persuasiva inferior:</span> "{safetyMicrocopy}"</li>
-                                <li className="text-left">✦ <span className="font-black text-[#FF5D1E]">Gatillo de escasez:</span> "{scarcityTrigger}"</li>
-                                <li className="text-left">✦ <span className="font-black text-[#FF5D1E]">Gatillo de urgencia:</span> "{urgencyTrigger}"</li>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })()}
 
                   </div>
                 </div>
