@@ -31,28 +31,17 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, project,
 
   return (
     <div id="minimal-template-root" className="min-h-screen font-sans flex flex-col bg-white text-slate-900 scroll-smooth">
-        <UrgencyBar content={content} ds={ds} />
-        <div className="sticky top-0 z-[60] bg-slate-900 backdrop-blur-md border-b border-slate-800 shadow-lg">
-            <Navbar 
-                content={content} 
-                ds={{
-                    ...ds, 
-                    nav: {
-                        ...ds.nav, 
-                        transparentText: 'text-white', 
-                        stickyText: 'text-white',
-                        linkHover: 'text-primary'
-                    }
-                }} 
-                isMobilePreview={isMobilePreview} 
-                pageId={pageId} 
-                basePath={basePath} 
-                hasBlogArticles={hasBlogArticles || false} 
-                hasUrgencyBar={true} 
-                forcePrimaryLinks={false} 
-                project={project}
-            />
-        </div>
+        <Navbar 
+            content={content} 
+            ds={ds} 
+            isMobilePreview={isMobilePreview} 
+            pageId={pageId} 
+            basePath={basePath} 
+            hasBlogArticles={hasBlogArticles || false} 
+            hasUrgencyBar={false} 
+            forcePrimaryLinks={false} 
+            project={project}
+        />
 
         <main className="flex-1 flex flex-col">
              {/* 1. Hero Section */}
@@ -98,28 +87,8 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                  />
              </div>
 
-             {/* 5. Intro / Detailed Section - Wider and better image */}
-             <section className="mb-24 max-w-6xl mx-auto px-6">
-                <div className="bg-slate-900 text-white rounded-[3rem] overflow-hidden shadow-2xl">
-                    <div className="flex flex-col lg:flex-row">
-                        <div className="lg:w-1/2 p-10 md:p-14">
-                            <span className="text-primary font-bold uppercase tracking-widest text-xs mb-4 block">Descubre Más</span>
-                            <h2 className="text-3xl md:text-4xl font-black mb-8 leading-tight">{content.intro.title}</h2>
-                            <div className="prose prose-invert prose-lg max-w-none opacity-90">
-                                {renderRichText(content.intro.description, "leading-relaxed")}
-                            </div>
-                        </div>
-                        <div className="lg:w-1/2 relative min-h-[500px]">
-                            <img 
-                                src={content.intro.imageUrl || "https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=800&q=80"} 
-                                className="absolute inset-0 w-full h-full object-cover" 
-                                alt="Intro" 
-                                referrerPolicy="no-referrer"
-                            />
-                        </div>
-                    </div>
-                </div>
-             </section>
+             {/* 5. Intro Module */}
+             <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
 
              <div className="max-w-3xl mx-auto px-6">
                  {/* 6. Instructor */}

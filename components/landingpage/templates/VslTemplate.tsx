@@ -39,6 +39,9 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, project, isM
             <header className={`pt-32 pb-16 px-6 ${ds.hero.bgGradient} relative overflow-hidden border-b ${ds.nav.stickyBorder}`}>
                 <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] rounded-full blur-[120px] opacity-30 pointer-events-none ${ds.blobColor}`}></div>
                 <div className="w-full max-w-[70rem] mx-auto flex flex-col items-center text-center relative z-10">
+                    <div className={`w-full aspect-video rounded-2xl shadow-2xl overflow-hidden relative border-4 mb-10 ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
+                        <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} />
+                    </div>
                     {content.topTagline && (
                         <div className="mb-6 animate-in slide-in-from-top-4 duration-500">
                              <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border backdrop-blur-md shadow-lg ${ds.hero.badgeBg} ${ds.hero.badgeText} ${ds.hero.badgeBorder}`}>
@@ -49,11 +52,8 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, project, isM
                     <div className="mb-10 space-y-6 w-[80%]">
                         {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-[1.1] ${ds.hero.titleColor} ${isMobilePreview ? 'text-3xl' : 'text-4xl md:text-[4rem]'}`, ds.hero.highlightGradient)}
                         <div id="subtitulo-principal">
-                            {renderRichText(content.hero.subheadline, `text-lg md:text-[1.5rem] font-light opacity-100 max-w-3xl mx-auto leading-[2.2rem] text-white ${isMobilePreview ? '' : 'md:text-[1.5rem]'}`)}
+                            {renderRichText(content.hero.subheadline, `text-lg md:text-[1.5rem] font-light opacity-100 max-w-3xl mx-auto leading-[2.2rem] ${ds.hero.subtitleColor || 'text-white/80'} ${isMobilePreview ? '' : 'md:text-[1.5rem]'}`)}
                         </div>
-                    </div>
-                    <div className={`w-full aspect-video rounded-2xl shadow-2xl overflow-hidden relative border-4 mb-10 ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
-                        <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} />
                     </div>
                     <div className="w-full max-w-md animate-in slide-in-from-bottom-4 duration-700 delay-300">
                         <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} sticky={false} project={project} />

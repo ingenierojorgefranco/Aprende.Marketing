@@ -33,7 +33,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
   return (
     <div id="classic-template-root" className={`min-h-screen font-sans ${ds.selectionColor} ${ds.bg} scroll-smooth`}>
         <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} hasUrgencyBar={false} />
-             <header id="hero-section" className={`relative pb-12 overflow-hidden ${ds.hero.bgGradient} ${isMobilePreview ? 'pt-28' : 'pt-24 lg:pt-16 lg:pb-20'}`}>
+             <header id="hero-section" className={`relative pb-12 overflow-hidden ${ds.hero.bgGradient} ${isMobilePreview ? 'pt-28' : 'pt-24 lg:pt-24 lg:pb-20'}`}>
           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[120px] ${ds.blobOpacity} pointer-events-none ${ds.blobColor}`}></div>
           {content.palette === 'minimal-mono' && <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>}
           <div className="w-full max-w-[81em] mx-auto px-6 relative z-10">
@@ -56,7 +56,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                         <div id="subtitulo-principal" className="max-w-[40rem]">
                             {renderRichText(
                                 content.hero.subheadline, 
-                                `font-light leading-relaxed text-white ${isMobilePreview ? 'text-lg' : 'text-[1.25rem]'}`
+                                `font-light leading-relaxed ${ds.hero.subtitleColor || 'text-white/80'} ${isMobilePreview ? 'text-lg' : 'text-[1.25rem]'}`
                             )}
                         </div>
                     </div>
@@ -68,7 +68,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                     </div>
                 </div>
                 <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-2 mt-4' : 'lg:col-span-4 lg:sticky lg:top-16 order-2'}`}>
-                     <div className="mb-6 space-y-3 bg-black/20 backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-xl">
+                     <div className="mb-10 space-y-3 bg-black/20 backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-xl">
                          <h4 className={`font-bold mb-4 flex items-center gap-2 ${ds.hero.titleColor || 'text-white'}`}>
                              <Zap className="w-5 h-5 text-yellow-400" />
                              ¿Por qué unirte hoy?
@@ -92,12 +92,6 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                                      Método práctico y directo
                                  </span>
                              </li>
-                             <li className="flex items-start gap-3">
-                                 <CheckCircle className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
-                                 <span className={`text-sm leading-relaxed ${ds.hero.subtitleColor || 'text-white/90'}`}>
-                                     Cupos estrictamente limitados
-                                 </span>
-                             </li>
                          </ul>
                      </div>
                      <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
@@ -112,7 +106,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
         <WhatsAppTestimonials 
             testimonials={content.testimonials} 
             title={content.testimonialTitle} 
-            subtitle={content.testimonialSubtitle} 
+            subtitle={"Más de 250 Alumnos registrados en los últimos 7 días"} 
             isMobilePreview={isMobilePreview} 
             ds={ds} 
             project={project}

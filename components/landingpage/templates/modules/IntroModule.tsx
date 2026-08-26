@@ -20,7 +20,7 @@ export const IntroModule: React.FC<IntroModuleProps> = ({ content, ds, isMobileP
     <section id="introduccion" className={`py-24 relative overflow-hidden ${ds.intro.sectionBg}`}>
         <div className="w-full max-w-[60em] mx-auto px-6">
             <div className="flex flex-col items-center text-center">
-                <span id="intro-badge" className={`inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider mb-6 border ${ds.intro.badgeBg} ${ds.intro.badgeText} ${ds.intro.badgeBorder}`}>Descubre Más</span>
+                <span id="intro-badge" className={`inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider mb-6 border ${ds.intro.badgeBg} ${ds.intro.badgeText} ${ds.intro.badgeBorder}`}>¿Qué es esta Oportunidad?</span>
                 <h2 id="intro-title" className={`text-3xl md:text-[3.5rem] font-black mb-12 leading-[1.2em] ${ds.intro.titleColor}`}>
                     {renderRichText(content.intro.title)}
                 </h2>
