@@ -66,6 +66,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, project, isM
             </header>
 
             <div className="pb-24">
+                <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} project={project} />
                 <PainPointsModule content={content} ds={ds} project={project} />
                 
                 <div className="flex justify-center py-10">
@@ -86,8 +87,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, project, isM
                     ds={ds} 
                     project={project}
                 />
-                <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} project={project} />
-                <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
+        <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
                 <StepsModule content={content} ds={ds} isMobilePreview={isMobilePreview} title="¿Cómo acceder al contenido?" steps={vslSteps} />
                 <FaqModule content={content} ds={ds} />
                 <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} title="¿Estás listo para dar el siguiente paso?" project={project} />

@@ -76,41 +76,41 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
   });
 
   return (
-    <section id="dolores" className="py-24 bg-[#F8F9FB]">
+    <section id="dolores" className={`py-24 ${ds.features?.sectionBg || ds.bg || 'bg-[#F8F9FB]'}`}>
         <div id="puntos-dolor-avatars" className="max-w-7xl mx-auto px-6 text-center mb-32">
-            <h2 className="text-4xl md:text-6xl font-['Inter'] font-extrabold mb-12 text-[#241544] leading-tight tracking-tight">
+            <h2 className={`text-4xl md:text-6xl font-['Inter'] font-extrabold mb-12 leading-tight tracking-tight ${ds.features?.titleColor || 'text-[#241544]'}`}>
                 {content.whatYouWillLearn?.title || "Esta clase es para ti si..."}
             </h2>
             
             <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
                 {avatars.map((avatar, idx) => (
-                    <div key={idx} className="relative p-8 md:p-10 rounded-[2rem] bg-gradient-to-b from-[#1C1239] to-[#251547] shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 hover:-translate-y-1 group overflow-hidden flex flex-col h-full border-t border-white/5">
-                        {/* Glow bottom effect like in the image */}
-                        <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-purple-500/30 to-transparent blur-3xl opacity-60"></div>
+                    <div key={idx} className={`relative p-8 md:p-10 rounded-[2rem] ${ds.steps?.cardBg || 'bg-[#1C1239]'} shadow-2xl transition-all duration-500 hover:-translate-y-1 group overflow-hidden flex flex-col h-full border ${ds.steps?.cardBorder || 'border-white/5'}`}>
+                        {/* Glow bottom effect */}
+                        <div className={`absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t ${ds.blobColor ? ds.blobColor.replace('bg-', 'from-') + '/30' : 'from-purple-500/30'} to-transparent blur-3xl opacity-60`}></div>
                         
                         <div className="relative z-10 flex-1 flex flex-col">
-                            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 shadow-inner flex items-center justify-center mb-6">
-                                {React.cloneElement(avatar.icon as any, { size: 24, className: idx === 0 ? "text-pink-400" : "text-[#FF7A00]" })}
+                            <div className={`w-14 h-14 rounded-2xl ${ds.steps?.iconContainer || 'bg-white/5'} border ${ds.steps?.cardBorder || 'border-white/10'} shadow-inner flex items-center justify-center mb-6`}>
+                                {React.cloneElement(avatar.icon as any, { size: 24, className: ds.decorations?.starColor || "text-purple-400" })}
                             </div>
                             
-                            <h3 className="text-2xl font-bold text-white leading-tight mb-3">
+                            <h3 className={`text-2xl font-bold ${ds.steps?.titleColor || 'text-white'} leading-tight mb-3`}>
                                 {avatar.title}
                             </h3>
                             
-                            <p className="text-gray-400 text-[0.95rem] leading-relaxed mb-6">
+                            <p className={`${ds.steps?.textColor || 'text-gray-400'} text-[0.95rem] leading-relaxed mb-6`}>
                                 {avatar.description}
                             </p>
                             
                             <div className="flex-1"></div>
                             
                             {avatar.points.length > 0 && (
-                                <div className="space-y-4 mt-auto pt-6 border-t border-white/10">
+                                <div className={`space-y-4 mt-auto pt-6 border-t ${ds.steps?.cardBorder || 'border-white/10'}`}>
                                     {avatar.points.map((point: string, pIdx: number) => (
                                         <div key={pIdx} className="flex gap-3 items-start">
-                                            <div className="mt-1 shrink-0 bg-[#FF5A5F] rounded-full w-5 h-5 flex items-center justify-center text-white">
+                                            <div className={`mt-1 shrink-0 ${ds.blobColor || 'bg-purple-500'} rounded-full w-5 h-5 flex items-center justify-center text-white`}>
                                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                             </div>
-                                            <p className="text-gray-300 text-sm leading-snug">{point}</p>
+                                            <p className={`${ds.steps?.textColor || 'text-gray-300'} text-sm leading-snug`}>{point}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -123,7 +123,7 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
             <div className="mt-12 text-center relative z-10">
                 <button 
                     onClick={() => setShowModal(true)}
-                    className="inline-flex items-center justify-center gap-3 px-12 py-5 rounded-[2rem] bg-gradient-to-r from-[#FF7A00] via-[#FF0055] to-[#FF00AA] text-white font-bold text-lg shadow-[0_10px_30px_rgba(255,0,85,0.3)] hover:shadow-[0_15px_40px_rgba(255,0,85,0.5)] hover:scale-[1.02] active:scale-95 transition-all"
+                    className={`inline-flex items-center justify-center gap-3 px-12 py-5 rounded-[2rem] ${ds.buttons?.primary || 'bg-purple-600 text-white'} font-bold text-lg transition-all hover:scale-[1.02] active:scale-95`}
                 >
                     {content.hero.ctaText || "QUIERO ACCEDER A LA CLASE GRATIS"}
                     <ArrowRight className="w-5 h-5" />
@@ -134,40 +134,40 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
         {/* SECCIÓN DINÁMICA: LO QUE APRENDERÁS EN NUESTRA CLASE */}
         <div id="temario-exclusivo" className="max-w-6xl mx-auto px-6 text-center mt-32 mb-16">
             <div className="mb-12">
-                <h2 id="beneficios" className="text-4xl md:text-5xl font-['Inter'] font-extrabold mb-4 text-[#241544] leading-tight tracking-tight">
+                <h2 id="beneficios" className={`text-4xl md:text-5xl font-['Inter'] font-extrabold mb-4 leading-tight tracking-tight ${ds.features?.titleColor || 'text-[#241544]'}`}>
                     {content.benefits.title || "Lo que aprenderás en nuestra clase"}
                 </h2>
                 {content.benefits.subtitle && (
-                    <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
+                    <p className={`text-lg md:text-xl max-w-2xl mx-auto leading-relaxed ${ds.features?.descColor || 'text-gray-500'}`}>
                         {content.benefits.subtitle}
                     </p>
                 )}
             </div>
             
-            <div className="bg-gradient-to-b from-[#1C1239] to-[#251547] rounded-[2rem] shadow-2xl relative overflow-hidden border border-white/5">
+            <div className={`${ds.steps?.cardBg || 'bg-[#1C1239]'} rounded-[2rem] shadow-2xl relative overflow-hidden border ${ds.steps?.cardBorder || 'border-white/5'}`}>
                 {/* Subtle glow inside the container */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-[100px] pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-96 h-96 bg-pink-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+                <div className={`absolute top-0 right-0 w-96 h-96 ${ds.blobColor ? ds.blobColor.replace('bg-', 'bg-') + '/20' : 'bg-purple-500/20'} rounded-full blur-[100px] pointer-events-none`}></div>
+                <div className={`absolute bottom-0 left-0 w-96 h-96 ${ds.blobColor ? ds.blobColor.replace('bg-', 'bg-') + '/10' : 'bg-pink-500/10'} rounded-full blur-[100px] pointer-events-none`}></div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 relative z-10 text-left">
                     {benefitsGrid.map((item: any, idx: number) => (
                         <div 
                             key={idx} 
                             className={`p-8 md:p-12 flex gap-6 md:gap-8 hover:bg-white/5 transition-colors duration-500
-                                ${idx % 2 === 0 ? 'md:border-r border-white/10' : ''} 
-                                ${idx < benefitsGrid.length - 2 ? 'md:border-b border-white/10' : ''} 
-                                ${idx < benefitsGrid.length - 1 ? 'border-b md:border-b-0 border-white/10' : ''}
+                                ${idx % 2 === 0 ? `md:border-r ${ds.steps?.cardBorder || 'border-white/10'}` : ''} 
+                                ${idx < benefitsGrid.length - 2 ? `md:border-b ${ds.steps?.cardBorder || 'border-white/10'}` : ''} 
+                                ${idx < benefitsGrid.length - 1 ? `border-b md:border-b-0 ${ds.steps?.cardBorder || 'border-white/10'}` : ''}
                             `}
                         >
-                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-[1.2rem] border border-white/10 bg-white/5 flex items-center justify-center shrink-0 shadow-inner">
-                                {React.cloneElement(item.icon as any, { size: 32, className: "text-[#FF00AA]" })}
+                            <div className={`w-16 h-16 md:w-20 md:h-20 rounded-[1.2rem] border ${ds.steps?.cardBorder || 'border-white/10'} ${ds.steps?.iconContainer || 'bg-white/5'} flex items-center justify-center shrink-0 shadow-inner`}>
+                                {React.cloneElement(item.icon as any, { size: 32, className: ds.decorations?.starColor || "text-[#FF00AA]" })}
                             </div>
                             <div className="flex-1 space-y-2">
-                                <div className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FF7A00] to-[#FF0055]">
+                                <div className={`text-3xl md:text-4xl font-black ${ds.steps?.numberColor || 'text-[#FF7A00]'}`}>
                                     0{idx + 1}
                                 </div>
-                                <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">{item.title}</h3>
-                                <p className="text-gray-400 text-sm md:text-[0.95rem] leading-relaxed pt-1">{item.desc}</p>
+                                <h3 className={`text-xl md:text-2xl font-bold ${ds.steps?.titleColor || 'text-white'} leading-snug`}>{item.title}</h3>
+                                <p className={`${ds.steps?.textColor || 'text-gray-400'} text-sm md:text-[0.95rem] leading-relaxed pt-1`}>{item.desc}</p>
                             </div>
                         </div>
                     ))}
@@ -177,7 +177,7 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
             <div className="mt-12 text-center relative z-10">
                 <button 
                     onClick={() => setShowModal(true)}
-                    className="inline-flex items-center justify-center gap-3 px-12 py-5 rounded-[2rem] bg-gradient-to-r from-[#FF7A00] via-[#FF0055] to-[#FF00AA] text-white font-bold text-lg shadow-[0_10px_30px_rgba(255,0,85,0.3)] hover:shadow-[0_15px_40px_rgba(255,0,85,0.5)] hover:scale-[1.02] active:scale-95 transition-all"
+                    className={`inline-flex items-center justify-center gap-3 px-12 py-5 rounded-[2rem] ${ds.buttons?.primary || 'bg-purple-600 text-white'} font-bold text-lg transition-all hover:scale-[1.02] active:scale-95`}
                 >
                     {content.hero.ctaText || "QUIERO ACCEDER A LA CLASE GRATIS"}
                     <ArrowRight className="w-5 h-5" />

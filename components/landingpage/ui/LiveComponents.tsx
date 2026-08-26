@@ -117,9 +117,9 @@ export const Navbar = ({
     // Menú establecido como valor establecido (Fijo)
     const navLinks = [
         { label: 'Descubre', href: '#introduccion' },
-        { label: 'Beneficios', href: '#beneficios' },
+        { label: '¿Qué aprenderás?', href: '#beneficios' },
         { label: 'Testimonios', href: '#testimonios' },
-        { label: 'Experto', href: '#instructor' }
+        { label: 'Tu Mentor', href: '#instructor' }
     ];
 
     if (hasBlogArticles) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, MoreVertical, Send, Smile, Star } from 'lucide-react';
+import { Phone, MoreVertical, Send, Smile } from 'lucide-react';
 import { renderRichText } from '../../utils';
 
 interface WhatsAppTestimonialsProps {
@@ -116,7 +116,6 @@ export const WhatsAppTestimonials: React.FC<WhatsAppTestimonialsProps> = ({
                     </div>
                     <div>
                       <h4 className="font-black text-base md:text-lg leading-tight">{t.name}</h4>
-                      <p className="text-[10px] md:text-xs opacity-80 font-medium">En línea</p>
                     </div>
                   </div>
                   <div className="flex gap-3 md:gap-4 opacity-70">
@@ -130,11 +129,6 @@ export const WhatsAppTestimonials: React.FC<WhatsAppTestimonialsProps> = ({
                   {/* Client Message */}
                   <div className="flex justify-start animate-in slide-in-from-left-6 duration-700">
                     <div className="bg-white p-3 md:p-4 rounded-2xl md:rounded-3xl rounded-tl-none shadow-sm max-w-[90%] relative border border-gray-100">
-                      <div className="flex gap-0.5 mb-2 text-yellow-500">
-                        {[...Array(5)].map((_, starI) => (
-                          <Star key={starI} className={`w-3 h-3 ${starI < t.rating ? 'fill-current' : 'text-gray-300'}`} />
-                        ))}
-                      </div>
                       <div className="text-sm md:text-[0.95rem] text-[#0B0B0B] leading-relaxed font-medium">
                         {renderRichText(t.text)}
                       </div>

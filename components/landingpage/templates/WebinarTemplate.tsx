@@ -161,6 +161,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, project,
             </div>
          </header>
 
+         <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} project={project} />
          <PainPointsModule content={content} ds={ds} project={project} />
 
          <WhatsAppTestimonials 
@@ -172,7 +173,6 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, project,
             project={project}
         />
 
-         <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} project={project} />
          <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
          
          <StepsModule content={content} ds={ds} isMobilePreview={isMobilePreview} title="Asegura tu Cupo en 3 Pasos" steps={webinarSteps} />

@@ -5,6 +5,7 @@ import { renderRichText, renderStyledHeadline, getIcon, getProjectStrategy } fro
 import { Check, ArrowRight, Star, MessageCircle, User, Target, HelpCircle, Sparkles, ShieldCheck, Zap } from 'lucide-react';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 import { PainPointsModule } from './modules/PainPointsModule';
+import { IntroModule } from './modules/IntroModule';
 
 interface TemplateProps {
   content: GeneratedPageContent;
@@ -82,6 +83,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                   </button>
              </header>
 
+             <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
              <PainPointsModule content={content} ds={ds} project={project} />
 
              <div className="w-full">
