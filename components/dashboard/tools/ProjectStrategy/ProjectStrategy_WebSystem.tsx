@@ -751,40 +751,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     Comparte el enlace o publica tu primer reel para comenzar a recibir actividad.
                                 </p>
                             </div>
-
-                            {/* Personaliza con PRO */}
-                            <div className="bg-gradient-to-b from-[#131109] to-[#0e1628] border border-amber-500/30 rounded-2xl p-5 space-y-4 text-left">
-                                <div className="flex items-center gap-2 text-amber-400 font-black text-xs uppercase tracking-wider">
-                                    <Crown className="w-4 h-4 text-amber-400" />
-                                    <span>PERSONALIZA CON PRO</span>
-                                </div>
-                                <div className="space-y-2.5 text-xs text-slate-200 font-medium">
-                                    <div className="flex items-center gap-2">
-                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
-                                        <span>Editar textos y colores</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
-                                        <span>Gestionar páginas adicionales</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
-                                        <span>Analítica avanzada</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
-                                        <span>Conectar dominio personalizado</span>
-                                    </div>
-                                </div>
-                                <button 
-                                    onClick={onUpgrade}
-                                    className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg transition"
-                                >
-                                    DESBLOQUEAR EDICIÓN AVANZADA
-                                </button>
-                            </div>
                         </div>
-
                     </div>
                 </div>
 
@@ -978,40 +945,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     Comparte el enlace o publica tu primer reel para comenzar a recibir actividad.
                                 </p>
                             </div>
-
-                            {/* Personaliza con PRO */}
-                            <div className="bg-gradient-to-b from-[#131109] to-[#0e1628] border border-amber-500/30 rounded-2xl p-5 space-y-4 text-left">
-                                <div className="flex items-center gap-2 text-amber-400 font-black text-xs uppercase tracking-wider">
-                                    <Crown className="w-4 h-4 text-amber-400" />
-                                    <span>PERSONALIZA CON PRO</span>
-                                </div>
-                                <div className="space-y-2.5 text-xs text-slate-200 font-medium">
-                                    <div className="flex items-center gap-2">
-                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
-                                        <span>Editar textos y colores</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
-                                        <span>Gestionar páginas adicionales</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
-                                        <span>Analítica avanzada</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Check className="w-4 h-4 text-amber-400 shrink-0" />
-                                        <span>Conectar dominio personalizado</span>
-                                    </div>
-                                </div>
-                                <button 
-                                    onClick={onUpgrade}
-                                    className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg transition"
-                                >
-                                    DESBLOQUEAR EDICIÓN AVANZADA
-                                </button>
-                            </div>
                         </div>
-
                     </div>
                 </div>
 

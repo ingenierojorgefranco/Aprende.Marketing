@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { GeneratedPageContent } from '../../../../types';
 import { ScanFace, Palette, Feather } from 'lucide-react';
 import { renderRichText } from '../../utils';
-import { RegistrationModal } from '../../ui/LiveComponents';
+import { RegistrationModal, HeroMedia } from '../../ui/LiveComponents';
 
 interface IntroModuleProps {
   content: GeneratedPageContent;
@@ -25,11 +25,10 @@ export const IntroModule: React.FC<IntroModuleProps> = ({ content, ds, isMobileP
                     {renderRichText(content.intro.title)}
                 </h2>
                 
-                <div id="intro-image-container" className="relative mb-16 w-full max-w-2xl">
-                     <div id="intro-blob" className={`absolute top-0 left-0 w-2/3 h-2/3 -translate-x-4 -translate-y-4 rounded-3xl ${ds.blobOpacity} ${ds.blobColor}`}></div>
-                     <div className="relative">
-                        <img id="intro-main-image" src={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} alt="Intro" className="relative z-10 rounded-3xl shadow-2xl w-full object-cover aspect-video" />
-                     </div>
+                <div className={`backdrop-blur-sm border rounded-2xl shadow-xl mb-16 w-full max-w-2xl ${ds.features.cardBg} ${ds.features.cardBorder}`}>
+                    <div id="hero-video-card" className={`relative w-full aspect-video h-auto rounded-2xl overflow-hidden shadow-2xl border cursor-pointer group ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
+                        <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} />
+                    </div>
                 </div>
 
                 <div id="intro-text-container" className="relative z-10 text-left w-full">

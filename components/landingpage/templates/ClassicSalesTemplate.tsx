@@ -1,6 +1,6 @@
 import React from 'react';
 import { GeneratedPageContent, Project } from '../../../types';
-import { PlayCircle, CheckCircle, Zap } from 'lucide-react';
+import { PlayCircle, CheckCircle, Zap, Star } from 'lucide-react';
 import { Navbar, HeroMedia, Footer, UrgencyBar } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
@@ -38,10 +38,9 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
           {content.palette === 'minimal-mono' && <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>}
           <div className="w-full max-w-[81em] mx-auto px-6 relative z-10">
              <div className={`grid gap-10 lg:gap-16 items-start ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-12'}`}>
-                <div id="hero-content-left" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-8 text-left order-1'}`}>
-                    
+                <div id="hero-content-left" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-7 text-left order-1'}`}>                    
                     <div id="hero-headlines" className="mb-8">
-                        <div id="hero-tagline-wrapper" className="flex justify-start mb-6 mt-[1em] lg:mt-[2em]">
+                        <div id="hero-tagline-wrapper" className="flex justify-start mb-6 mt-[1em] lg:mt-[4em]">
                             <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border backdrop-blur-md shadow-sm ${ds.hero.badgeBg} ${ds.hero.badgeText} ${ds.hero.badgeBorder}`}>
                                 <span className="text-xs md:text-sm font-bold uppercase tracking-wider">{content.topTagline || "🔥 Oferta por tiempo limitado"}</span>
                             </div>
@@ -49,7 +48,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                         
                         {renderStyledHeadline(
                             content.hero.headline, 
-                            `font-extrabold tracking-tight mb-6 leading-[1.3] max-w-[45rem] ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-[2.8rem]'}`, 
+                            `font-extrabold tracking-tight mb-6 leading-[1.3] max-w-[45rem] ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-[2.5rem]'}`, 
                             ds.hero.highlightGradient
                         )}
                         
@@ -61,9 +60,10 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                         </div>
                     </div>
 
-                    <div className={`backdrop-blur-sm border rounded-2xl shadow-xl ${ds.features.cardBg} ${ds.features.cardBorder}`}>
-                        <div id="hero-video-card" className={`relative w-full aspect-video h-auto rounded-2xl overflow-hidden shadow-2xl border cursor-pointer group ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
-                            <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} />
+                    <div id="intro-image-container" className="relative mt-8 w-full">
+                        <div id="intro-blob" className={`absolute top-0 left-0 w-2/3 h-2/3 -translate-x-4 -translate-y-4 rounded-3xl opacity-20 ${ds.blobColor}`}></div>
+                        <div className="relative">
+                            <img id="intro-main-image" src={content.intro?.imageUrl || content.hero?.heroImage || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} alt="Intro" className="relative z-10 rounded-3xl shadow-2xl w-full object-cover aspect-video" />
                         </div>
                     </div>
                 </div>
@@ -77,19 +77,19 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                              <li className="flex items-start gap-3">
                                  <CheckCircle className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
                                  <span className={`text-sm leading-relaxed ${ds.hero.subtitleColor || 'text-white/90'}`}>
-                                     100% Gratis y sin compromisos
+                                     Sin experiencia previa
                                  </span>
                              </li>
                              <li className="flex items-start gap-3">
                                  <CheckCircle className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
                                  <span className={`text-sm leading-relaxed ${ds.hero.subtitleColor || 'text-white/90'}`}>
-                                     Acceso online inmediato
+                                     Desde casa y a tu ritmo
                                  </span>
                              </li>
                              <li className="flex items-start gap-3">
                                  <CheckCircle className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
                                  <span className={`text-sm leading-relaxed ${ds.hero.subtitleColor || 'text-white/90'}`}>
-                                     Método práctico y directo
+                                     Certificado incluido
                                  </span>
                              </li>
                          </ul>
@@ -99,6 +99,35 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
              </div>
           </div>
         </header>
+
+        {/* Stats Bar */}
+        <div className="relative z-20 w-full max-w-[81em] mx-auto px-6 -mt-8 mb-12">
+            <div className="bg-white rounded-[2rem] shadow-2xl border border-gray-100 py-8 px-6 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-gray-200">
+                <div className="flex-1 flex flex-col items-center text-center px-4 w-full pt-4 md:pt-0">
+                    <span className="text-3xl font-black text-[#0B1120] mb-1">+2.000</span>
+                    <span className="text-sm font-medium text-slate-500">Alumnos formados</span>
+                </div>
+                <div className="flex-1 flex flex-col items-center text-center px-4 w-full pt-4 md:pt-0">
+                    <span className="text-3xl font-black text-[#0B1120] mb-2">4.8/5</span>
+                    <div className="flex items-center text-yellow-400 mb-1 gap-1">
+                        <Star className="w-4 h-4 fill-current" />
+                        <Star className="w-4 h-4 fill-current" />
+                        <Star className="w-4 h-4 fill-current" />
+                        <Star className="w-4 h-4 fill-current" />
+                        <Star className="w-4 h-4 fill-current" />
+                    </div>
+                    <span className="text-sm font-medium text-slate-500 mt-1">Valoración promedio</span>
+                </div>
+                <div className="flex-1 flex flex-col items-center text-center px-4 w-full pt-4 md:pt-0">
+                    <span className="text-3xl font-black text-[#0B1120] mb-1">100%</span>
+                    <span className="text-sm font-medium text-slate-500">Online y a tu ritmo</span>
+                </div>
+                <div className="flex-1 flex flex-col items-center text-center px-4 w-full pt-4 md:pt-0">
+                    <span className="text-3xl font-black text-[#0B1120] mb-1">Certificado</span>
+                    <span className="text-sm font-medium text-slate-500">Incluido</span>
+                </div>
+            </div>
+        </div>
 
         <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
         <PainPointsModule content={content} ds={ds} project={project} pageId={pageId} basePath={basePath} />

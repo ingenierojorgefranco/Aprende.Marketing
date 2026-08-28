@@ -338,11 +338,11 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     { id: 3, title: "3. Tu página de captura", stage: 1 },
     { id: 4, title: "4. Tus enlaces de afiliados", stage: 1 },
     
-    { id: 5, title: "5. Tus hooks de atracción", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)" },
-    { id: 6, title: "6. Tu estrategia de contenidos", stage: 2 },
-    { id: 7, title: "7. Tu secuencia de ventas", stage: 2 },
-    { id: 8, title: "8. Activa tu secuencia de confianza", stage: 2 },
-    { id: 9, title: "9. Configura tus mensajes de cierre", stage: 2 },
+    { id: 5, title: "5. Tus videos de atracción (Hooks)", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)" },
+    { id: 6, title: "6. Artículos de Blog", stage: 2 },
+    { id: 7, title: "7. Email Marketing (Conversión)", stage: 2 },
+    { id: 8, title: "8. Email Marketing (Conversión)", stage: 2 },
+    { id: 9, title: "9. Lanzamientos (Estrategia WhatsApp)", stage: 2 },
   ];
 
   const handleStepClick = (id: number) => {
