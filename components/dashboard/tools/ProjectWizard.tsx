@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp, Upload, Image } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -449,6 +449,31 @@ export const ProjectWizard: React.FC = () => {
         descriptiveImages: [],
         instructorImage: ''
     });
+    const [uploadingState, setUploadingState] = useState<{type: string, index: number} | null>(null);
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: string, index?: number) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+            setUploadingState({ type, index: index ?? -1 });
+            const url = await api.uploadImage(file);
+            if (type === "heroImages" && index !== undefined) {
+                const newImgs = [...multimedia.heroImages];
+                newImgs[index] = url;
+                setMultimedia({ ...multimedia, heroImages: newImgs });
+            } else if (type === "descriptiveImages" && index !== undefined) {
+                const newImgs = [...multimedia.descriptiveImages];
+                newImgs[index] = url;
+                setMultimedia({ ...multimedia, descriptiveImages: newImgs });
+            } else if (type === "instructorImage") {
+                setMultimedia({ ...multimedia, instructorImage: url });
+            }
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            alert("Error al subir la imagen. Intenta de nuevo.");
+        } finally {
+            setUploadingState(null);
+        }
+    };
 
     const commissionRate = fullPrice > 0 ? (commissionValue / fullPrice) * 100 : 0;
 
@@ -861,6 +886,20 @@ export const ProjectWizard: React.FC = () => {
                                                         className="flex-1 bg-black border border-gray-800 rounded-xl px-4 py-2 text-xs text-blue-300 outline-none focus:border-blue-500"
                                                         placeholder="URL de imagen hero..."
                                                     />
+                                                    <label className="p-2 bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 rounded-lg cursor-pointer transition-colors flex items-center justify-center relative">
+                                                        {uploadingState?.type === 'heroImages' && uploadingState.index === idx ? (
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                        ) : (
+                                                            <Upload className="w-4 h-4" />
+                                                        )}
+                                                        <input 
+                                                            type="file" 
+                                                            className="hidden" 
+                                                            accept="image/*"
+                                                            disabled={uploadingState !== null}
+                                                            onChange={(e) => handleImageUpload(e, 'heroImages', idx)}
+                                                        />
+                                                    </label>
                                                     <button 
                                                         onClick={() => {
                                                             const newImgs = multimedia.heroImages.filter((_, i) => i !== idx);
@@ -935,6 +974,20 @@ export const ProjectWizard: React.FC = () => {
                                                         className="flex-1 bg-black border border-gray-800 rounded-xl px-4 py-2 text-xs text-blue-300 outline-none focus:border-blue-500"
                                                         placeholder="URL de imagen descriptiva..."
                                                     />
+                                                    <label className="p-2 bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 rounded-lg cursor-pointer transition-colors flex items-center justify-center relative">
+                                                        {uploadingState?.type === 'descriptiveImages' && uploadingState.index === idx ? (
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                        ) : (
+                                                            <Upload className="w-4 h-4" />
+                                                        )}
+                                                        <input 
+                                                            type="file" 
+                                                            className="hidden" 
+                                                            accept="image/*"
+                                                            disabled={uploadingState !== null}
+                                                            onChange={(e) => handleImageUpload(e, 'descriptiveImages', idx)}
+                                                        />
+                                                    </label>
                                                     <button 
                                                         onClick={() => {
                                                             const newImgs = multimedia.descriptiveImages.filter((_, i) => i !== idx);
@@ -975,6 +1028,20 @@ export const ProjectWizard: React.FC = () => {
                                                 className="flex-1 bg-black border border-gray-800 rounded-xl px-4 py-3 text-xs text-blue-300 outline-none focus:border-blue-500"
                                                 placeholder="URL de la foto del profesor..."
                                             />
+                                            <label className="p-3 bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 rounded-xl cursor-pointer transition-colors flex items-center justify-center relative">
+                                                {uploadingState?.type === 'instructorImage' ? (
+                                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                                ) : (
+                                                    <Upload className="w-5 h-5" />
+                                                )}
+                                                <input 
+                                                    type="file" 
+                                                    className="hidden" 
+                                                    accept="image/*"
+                                                    disabled={uploadingState !== null}
+                                                    onChange={(e) => handleImageUpload(e, 'instructorImage')}
+                                                />
+                                            </label>
                                         </div>
                                         <p className="text-[10px] text-gray-500 italic">Esta imagen aparecerá en la "Biblioteca" del editor web para que el usuario pueda seleccionarla fácilmente.</p>
                                     </div>

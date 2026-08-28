@@ -173,10 +173,29 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
     }
   };
 
-  const getEmbedUrl = (url: string) => {
+  const getEmbedUrl = (url: string, autoPlay: boolean = false) => {
     if (!url) return '';
-    if (url.includes('autoplay=')) return url;
-    return `${url}${url.includes('?') ? '&' : '?'}autoplay=1`;
+    const autoplayParam = autoPlay ? '1' : '0';
+
+    // Check if it's a YouTube URL
+    const ytRegex = /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/i;
+    const ytMatch = url.match(ytRegex);
+    if (ytMatch && ytMatch[1]) {
+      return `https://www.youtube.com/embed/${ytMatch[1]}?rel=0&autoplay=${autoplayParam}`;
+    }
+    
+    // Check if it's a Vimeo URL
+    const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)([0-9]+)/i;
+    const vimeoMatch = url.match(vimeoRegex);
+    if (vimeoMatch && vimeoMatch[1]) {
+      return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=${autoplayParam}`;
+    }
+    
+    // Fallback for pre-formatted embed URLs or others
+    if (url.includes('autoplay=')) {
+      return url.replace(/autoplay=\d/, `autoplay=${autoplayParam}`);
+    }
+    return `${url}${url.includes('?') ? '&' : '?'}autoplay=${autoplayParam}`;
   };
 
   const handleScrollLeft = () => {
@@ -335,42 +354,14 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
 
         {/* Video Area */}
         <div key={activeVideo?.id} className="relative aspect-video w-full bg-black">
-          {activeVideo?.posterImage && !isPlaying ? (
-            <div 
-              onClick={async () => {
-                setIsPlaying(true);
-                setWatchedVideoIds((prev) => new Set([...Array.from(prev), activeVideo.id]));
-                try {
-                  const updated = await api.markStepVideoWatched(activeVideo.id);
-                  if (updated && Array.isArray(updated)) {
-                    setWatchedVideoIds(new Set(updated));
-                  }
-                } catch (e) {}
-              }}
-              className="relative w-full h-full cursor-pointer group"
-            >
-              <img 
-                src={activeVideo.posterImage}
-                alt={activeVideo.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20 flex items-center justify-center">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white text-[#FF5A1F] flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
-                  <Play className="w-7 h-7 sm:w-9 sm:h-9 fill-current ml-1" />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <iframe 
-              key={`iframe-${activeVideo?.id}`}
-              className="w-full h-full"
-              src={getEmbedUrl(activeVideo?.videoUrl || videoUrl)} 
-              title={activeVideo?.title || 'Video'} 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowFullScreen
-            />
-          )}
+          <iframe 
+            key={`iframe-${activeVideo?.id}`}
+            className="w-full h-full"
+            src={getEmbedUrl(activeVideo?.videoUrl || videoUrl, isPlaying)} 
+            title={activeVideo?.title || 'Video'} 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowFullScreen
+          />
         </div>
       </div>
 

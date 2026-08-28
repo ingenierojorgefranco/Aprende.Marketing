@@ -21,6 +21,7 @@ import systemRoutes from './routes/systemRoutes.js';
 import whatsappRoutes from './routes/whatsappRoutes.js';
 import hookRoutes from './routes/hookRoutes.js';
 import masterStepVideoRoutes from './routes/masterStepVideoRoutes.js';
+import uploadRoutes from "./routes/uploadRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

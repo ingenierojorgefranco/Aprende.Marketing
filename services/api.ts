@@ -2428,6 +2428,20 @@ export const api = {
         }
         return localWatched;
     },
+
+    uploadImage: async (file: File): Promise<string> => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const token = localStorage.getItem('plataformadeventacom_token');
+        const res = await fetchWithFallback("/upload", {
+            method: "POST",
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : ''
+            },
+            body: formData,
+        });
+        return res.url;
+    },
 };
   
 function safeParseJsonList(data: any): any[] {
