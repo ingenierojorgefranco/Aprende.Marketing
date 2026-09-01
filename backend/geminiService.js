@@ -1022,12 +1022,9 @@ h2:
                 }
             }
 
-            // SI EXISTE UNA ESTRATEGIA PREVIA (Misma o del Master), COPIAMOS AVATARES Y PSICOLOGÍA DIRECTAMENTE SIN PASAR POR IA
+            // SI EXISTE UNA ESTRATEGIA PREVIA (Misma o del Master), COPIAMOS PSICOLOGÍA DIRECTAMENTE SIN PASAR POR IA
+            // NOTA: Los avatares generados por IA se conservan intactos, ya que la inyección demográfica se realiza en projectRoutes.js
             if (demogSource) {
-                if (demogSource.avatars && Array.isArray(demogSource.avatars) && demogSource.avatars.length > 0) {
-                    process.stdout.write(`🧬 [PIPELINE] Copiando directamente avatares originales guardados/maestros sin intervención de IA.\n`);
-                    step1Data.avatars = demogSource.avatars;
-                }
                 if (demogSource.psychology) {
                     process.stdout.write(`🧬 [PIPELINE] Copiando psicología guardada/maestra, pero preservando dolores y soluciones nuevos de la IA.\n`);
                     
