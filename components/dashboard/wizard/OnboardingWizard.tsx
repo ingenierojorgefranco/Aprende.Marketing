@@ -852,7 +852,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     setLoadingProjects(true);
     try {
       const masterLibrary = await api.getMasterLibrary();
-      setProjects(masterLibrary);
+      setProjects(masterLibrary.slice(0, 6));
     } catch (error) {
       console.error("Error cargando libreria maestra:", error);
     } finally {

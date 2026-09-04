@@ -20,13 +20,7 @@ const getBaseUrl = () => {
 const API_URL = getBaseUrl();
 
 // --- CONFIGURACIÓN ---
-let isMockMode = typeof window !== 'undefined' && (
-    window.location.hostname === 'localhost' || 
-    window.location.hostname === '127.0.0.1' ||
-    window.location.hostname.includes('ais-dev') ||
-    window.location.hostname.includes('ais-pre') ||
-    window.location.hostname.includes('.run.app')
-);
+let isMockMode = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('ais-dev'));
 
 // --- IN-MEMORY DATA STORAGE FOR MOCK MODE ---
 let localPages: LandingPage[] = [...MOCK_PAGES];
@@ -368,7 +362,7 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
     const url = `${API_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
 
     const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Timeout: Servidor tardó demasiado")), 15000)
+        setTimeout(() => reject(new Error("Timeout: Servidor tardó demasiado")), 180000)
     );
 
     const fetchPromise = fetch(url, options);
@@ -483,7 +477,7 @@ export const api = {
   },
 
   register: async (payload: { name: string; email: string; password: string }): Promise<User> => {
-      const isLocal = isMockMode;
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname.includes('ais-dev');
       
       if (isMockMode || isLocal) {
           await new Promise(resolve => setTimeout(resolve, 800));
@@ -888,12 +882,14 @@ export const api = {
 
   getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy | null> => {
       // En modo mock o local, siempre retornamos algo para evitar pantallas en blanco
-      if (isMockMode) {
+      if (isMockMode || window.location.hostname === 'localhost' || window.location.hostname.includes('ais-dev')) {
           const proj = localProjects.find(p => String(p.id) === String(id));
           if (proj && proj.strategy_json) return Promise.resolve(proj.strategy_json as ProjectMasterStrategy);
           
-          console.log("🛠️ Inyectando MOCK_MASTER_STRATEGY por defecto para ID:", id);
-          return Promise.resolve(MOCK_MASTER_STRATEGY);
+          if (isMockMode) {
+            console.log("🛠️ Inyectando MOCK_MASTER_STRATEGY por defecto para ID:", id);
+            return Promise.resolve(MOCK_MASTER_STRATEGY);
+          }
       }
 
       if (apiCache.masterStrategies[id]) return apiCache.masterStrategies[id];

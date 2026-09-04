@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "(cd backend && BACKEND_PORT=8081 PORT=8081 npm run dev) & vite",
+    "dev": "(cd backend && npm run dev) & vite",
     "build": "tsc && vite build",
     "lint": "tsc --noEmit",
     "preview": "vite preview"
