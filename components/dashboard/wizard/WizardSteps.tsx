@@ -66,16 +66,60 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, o
 };
 
 // 2. SELECCIÓN DE PROYECTO
+const getNicheIcon = (nicheStr?: string): string => {
+    if (!nicheStr) return '📦';
+    const n = nicheStr.toLowerCase();
+    if (n.includes('belleza') || n.includes('maquillaje') || n.includes('cejas') || n.includes('uñas') || n.includes('estética') || n.includes('estetica') || n.includes('pestaña')) return '💄';
+    if (n.includes('manualidad') || n.includes('resina') || n.includes('costura') || n.includes('arte') || n.includes('crochet') || n.includes('tejido') || n.includes('joyas')) return '🧶';
+    if (n.includes('mascota') || n.includes('perro') || n.includes('canino') || n.includes('gato') || n.includes('felino') || n.includes('animal')) return '🐾';
+    if (n.includes('negocio') || n.includes('finanza') || n.includes('marketing') || n.includes('venta') || n.includes('dinero') || n.includes('emprendimiento')) return '💼';
+    if (n.includes('salud') || n.includes('fitness') || n.includes('nutricion') || n.includes('nutrición') || n.includes('cocina') || n.includes('gastronomia') || n.includes('dieta')) return '🥗';
+    if (n.includes('tecnologia') || n.includes('tecnología') || n.includes('program') || n.includes('web') || n.includes('software') || n.includes('ia') || n.includes('ai')) return '💻';
+    if (n.includes('idioma') || n.includes('ingles') || n.includes('inglés') || n.includes('educacion') || n.includes('educación')) return '📚';
+    if (n.includes('musica') || n.includes('música') || n.includes('canto') || n.includes('guitarra')) return '🎵';
+    if (n.includes('foto') || n.includes('video') || n.includes('audiovisual')) return '📸';
+    return '📦';
+};
+
 export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loading: boolean, selectedProjectId?: string, isLocked?: boolean }> = ({ projects, loading, onNext, selectedProjectId, isLocked, onGoToStep }) => {
     const [confirmingProject, setConfirmingProject] = React.useState<any | null>(null);
-    const [activeCategory, setActiveCategory] = React.useState('Belleza');
+    const [activeCategory, setActiveCategory] = React.useState('todos');
 
-    const categories = [
-        { id: 'Belleza', label: 'Belleza', icon: '💄' },
-        { id: 'Manualidades', label: 'Manualidades', icon: '🧶' },
-        { id: 'Mascotas', label: 'Mascotas', icon: '🐾' },
-        { id: 'Negocios', label: 'Negocios', icon: '💼' },
-    ];
+    // Extraer dinámicamente las categorías disponibles de los proyectos usando 'niche'
+    const categories = React.useMemo(() => {
+        const nicheMap = new Map<string, string>(); // lowercase -> display label
+        (projects || []).forEach(p => {
+            const rawNiche = (p.niche || '').trim();
+            if (rawNiche) {
+                const key = rawNiche.toLowerCase();
+                if (!nicheMap.has(key)) {
+                    nicheMap.set(key, rawNiche);
+                }
+            }
+        });
+
+        const dynamicList = Array.from(nicheMap.entries()).map(([key, label]) => ({
+            id: key,
+            label: label,
+            icon: getNicheIcon(label)
+        }));
+
+        return [
+            { id: 'todos', label: 'Todos', icon: '✨' },
+            ...dynamicList
+        ];
+    }, [projects]);
+
+    // Filtrar proyectos según la categoría activa
+    const filteredProjects = React.useMemo(() => {
+        if (activeCategory === 'todos') {
+            return projects || [];
+        }
+        return (projects || []).filter(p => {
+            const projectNiche = (p.niche || '').toLowerCase().trim();
+            return projectNiche === activeCategory || projectNiche.includes(activeCategory) || activeCategory.includes(projectNiche);
+        });
+    }, [projects, activeCategory]);
 
     if (loading) {
         return (
@@ -141,37 +185,20 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
             </div>
 
             {/* Product Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full items-stretch pt-2">
-                {projects.slice(0, 3).map((project, index) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 w-full items-stretch pt-2">
+                {filteredProjects.map((project, index) => {
                     const isSelected = selectedProjectId === project.id;
+                    const projectNiche = project.niche || 'General';
+                    const nicheIcon = getNicheIcon(projectNiche);
 
-                    const titles = [
-                        "Certificación Expert Microblading",
-                        "Curso de Maquillaje Profesional",
-                        "Master en Pisos de Resina Epóxica"
-                    ];
+                    const displayTitle = project.name || "Producto Digital";
 
-                    const descriptions = [
-                        "Domina la técnica de cejas y crea un servicio rentable con alta demanda.",
-                        "Aprende maquillaje, color y técnica profesional para realzar la belleza en cualquier ocasión.",
-                        "Aprende acabados profesionales en pisos de resina y conviértelo en un servicio altamente rentable."
-                    ];
-
-                    const displayTitle = project.name?.toLowerCase().includes("microblading") 
-                        ? "Certificación Expert Microblading" 
-                        : (project.name?.toLowerCase().includes("manicurista") 
-                            ? "Curso de Maquillaje Profesional" 
-                            : (project.name?.toLowerCase().includes("pisos") || project.name?.toLowerCase().includes("resina")
-                                ? "Master en Pisos de Resina Epóxica"
-                                : (titles[index] || project.name)));
-
-                    let idealForDesc = descriptions[index] || project.shortDescription || project.description;
-                    if (project.name?.toLowerCase().includes("microblading") || project.name?.toLowerCase().includes("cejas")) {
-                        idealForDesc = "Domina la técnica de cejas y crea un servicio rentable con alta demanda.";
-                    } else if (project.name?.toLowerCase().includes("manicurista") || project.name?.toLowerCase().includes("maquillaje")) {
-                        idealForDesc = "Aprende maquillaje, color y técnica profesional para realzar la belleza en cualquier ocasión.";
-                    } else if (project.name?.toLowerCase().includes("pisos") || project.name?.toLowerCase().includes("resina")) {
-                        idealForDesc = "Aprende acabados profesionales en pisos de resina y conviértelo en un servicio altamente rentable.";
+                    let idealForDesc = project.shortDescription || project.description || "";
+                    if (!idealForDesc && project.strategy_json) {
+                        idealForDesc = project.strategy_json.shortDescription || project.strategy_json.productDescription || project.strategy_json.summary || "";
+                    }
+                    if (!idealForDesc) {
+                        idealForDesc = "Aprende habilidades de alta demanda y conviértelo en un servicio altamente rentable.";
                     }
 
                     return (
@@ -199,10 +226,10 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                 )}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                                 
-                                {/* Floating category Badge Top-Left */}
+                                {/* Floating category Badge Top-Left displaying the project's actual niche */}
                                 <div className="absolute top-3 left-3 z-10">
                                     <span className="px-3 py-1 bg-black/75 backdrop-blur-md text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-white/10 shadow-sm">
-                                        <span>💄</span> Categoría: {activeCategory}
+                                        <span>{nicheIcon}</span> Categoría: {projectNiche}
                                     </span>
                                 </div>
                             </div>
@@ -244,6 +271,13 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                     );
                 })}
             </div>
+
+            {filteredProjects.length === 0 && (
+                <div className="py-16 text-center text-zinc-400 bg-zinc-950/40 rounded-3xl border border-zinc-800/50 my-4">
+                    <p className="text-base font-medium text-white mb-1">No hay productos en esta categoría</p>
+                    <p className="text-xs text-zinc-400">Selecciona "Todos" para ver el catálogo completo disponible.</p>
+                </div>
+            )}
 
             {/* Bottom Features Bar matching Image 2 */}
             <div className="pt-6 border-t border-zinc-800/60 max-w-5xl mx-auto w-full">
@@ -290,10 +324,8 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                 const price = confirmingProject.price || 200;
                 const profit = Math.round((price * displayCommission) / 100);
                 const heroImage = confirmingProject.multimedia_json?.heroImages?.[0];
-                const categoryLabel = "BELLEZA Y CUIDADO PERSONAL";
-                const displayTitle = confirmingProject.name?.toLowerCase().includes("microblading") 
-                    ? "Curso Profesional de Microblading de Cejas" 
-                    : confirmingProject.name;
+                const categoryLabel = (confirmingProject.niche || "PRODUCTO DIGITAL").toUpperCase();
+                const displayTitle = confirmingProject.name;
                 // Helper to extract a clean, short description from the project data
                 const getCleanShortDescription = (proj: any) => {
                     let raw = proj?.shortDescription 
@@ -306,7 +338,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                     }
 
                     if (!raw) {
-                        return "Transforma tu pasión por la belleza en un negocio de alto valor dominando la técnica con certificación profesional.";
+                        return "Transforma tus conocimientos en un negocio de alto valor dominando habilidades de alta demanda.";
                     }
 
                     // Strip any HTML tags and collapse whitespace
