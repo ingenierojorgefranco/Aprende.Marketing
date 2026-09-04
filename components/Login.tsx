@@ -66,13 +66,28 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         customRedirectUrl: (user as any).customRedirectUrl
       };
       onLogin(mappedUser);
-      if (mappedUser.customRedirectUrl && mappedUser.customRedirectUrl.trim() !== '') {
-          navigate(mappedUser.customRedirectUrl);
-      } else {
-          try {
-              const redirectUrl = await api.getLoginRedirect();
-              navigate(redirectUrl);
-          } catch (e) {
+      
+      try {
+          const projects = await api.getProjects();
+          const hasProjects = projects && projects.length > 0;
+          
+          if (hasProjects) {
+              navigate('/dashboard');
+          } else if (mappedUser.customRedirectUrl && mappedUser.customRedirectUrl.trim() !== '') {
+              navigate(mappedUser.customRedirectUrl);
+          } else {
+              try {
+                  const redirectUrl = await api.getLoginRedirect();
+                  navigate(redirectUrl);
+              } catch (e) {
+                  navigate('/dashboard');
+              }
+          }
+      } catch (err) {
+          // Fallback to custom redirect or dashboard if projects fetch fails
+          if (mappedUser.customRedirectUrl && mappedUser.customRedirectUrl.trim() !== '') {
+              navigate(mappedUser.customRedirectUrl);
+          } else {
               navigate('/dashboard');
           }
       }

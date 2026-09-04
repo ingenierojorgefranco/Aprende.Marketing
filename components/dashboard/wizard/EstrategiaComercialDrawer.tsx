@@ -476,7 +476,9 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
                               } else if (realAv?.pain) {
                                 dolores_principales = [
                                   realAv.pain,
-                                  ...(hasSavedAvatars ? [] : defaultAv.dolores_principales.slice(1))
+                                  realAv.objection || (hasSavedAvatars ? "(no definido)" : defaultAv.dolores_principales[1]),
+        realAv.daily_manifestation || realAv.manifestation || (hasSavedAvatars ? "(no definido)" : defaultAv.dolores_principales[2]),
+        hasSavedAvatars ? "(no definido)" : defaultAv.dolores_principales[3]
                                 ];
                               }
 
@@ -488,7 +490,9 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
                               } else if (realAv?.desire || realAv?.transformation_title) {
                                 deseos_principales = [
                                   realAv.desire || realAv.transformation_title,
-                                  ...(hasSavedAvatars ? [] : defaultAv.deseos_principales.slice(1))
+                                  realAv.emotional_reason || (hasSavedAvatars ? "(no definido)" : defaultAv.deseos_principales[1]),
+        hasSavedAvatars ? "(no definido)" : defaultAv.deseos_principales[2],
+        hasSavedAvatars ? "(no definido)" : defaultAv.deseos_principales[3]
                                 ];
                               }
 
@@ -497,7 +501,7 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
                                 { label: "Ocupación de Preferencia", val: realAv?.occupation || realAv?.archetype || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[1].val) },
                                 { label: "Rango de Ingresos", val: realAv?.income || realAv?.incomeRange || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[2].val) },
                                 { label: "Ubicación Geográfica", val: realAv?.location || realAv?.geographic || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[3].val) },
-                                { label: "Estado Civil", val: realAv?.civilStatus || realAv?.marital_status || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[4].val) },
+                                { label: "Estado Civil", val: realAv?.civilStatus || realAv?.marital_status || realAv?.civil_status || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[4].val) },
                                 { label: "Dispositivos de uso", val: realAv?.devices || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[5].val) },
                               ];
 

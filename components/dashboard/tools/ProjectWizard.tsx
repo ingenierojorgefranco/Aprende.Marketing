@@ -567,8 +567,8 @@ export const ProjectWizard: React.FC = () => {
                         income: masterAv.income || masterAv.incomeRange || defAv.income || '',
                         location: masterAv.location || masterAv.geographic || defAv.location || '',
                         geographic: masterAv.geographic || masterAv.location || defAv.geographic || '',
-                        civilStatus: masterAv.civilStatus || masterAv.marital_status || defAv.civilStatus || '',
-                        marital_status: masterAv.marital_status || masterAv.civilStatus || defAv.marital_status || '',
+                        civilStatus: masterAv.civilStatus || masterAv.marital_status || masterAv.civil_status || defAv.civilStatus || '',
+                        marital_status: masterAv.marital_status || masterAv.civilStatus || masterAv.civil_status || defAv.marital_status || '',
                         devices: masterAv.devices || defAv.devices || '',
                         dolores_principales: masterAv.dolores_principales || [...defAv.dolores_principales],
                         deseos_principales: masterAv.deseos_principales || [...defAv.deseos_principales],
@@ -1181,8 +1181,8 @@ export const ProjectWizard: React.FC = () => {
                                                 income: masterAv.income || masterAv.incomeRange || defAv.income || '',
                                                 location: masterAv.location || masterAv.geographic || defAv.location || '',
                                                 geographic: masterAv.geographic || masterAv.location || defAv.geographic || '',
-                                                civilStatus: masterAv.civilStatus || masterAv.marital_status || defAv.civilStatus || '',
-                                                marital_status: masterAv.marital_status || masterAv.civilStatus || defAv.marital_status || '',
+                                                civilStatus: masterAv.civilStatus || masterAv.marital_status || masterAv.civil_status || defAv.civilStatus || '',
+                                                marital_status: masterAv.marital_status || masterAv.civilStatus || masterAv.civil_status || defAv.marital_status || '',
                                                 devices: masterAv.devices || defAv.devices || '',
                                                 dolores_principales: masterAv.dolores_principales || [...defAv.dolores_principales],
                                                 deseos_principales: masterAv.deseos_principales || [...defAv.deseos_principales],
@@ -1770,10 +1770,10 @@ export const ProjectWizard: React.FC = () => {
                                                                                 <div className="space-y-1">
                                                                                     <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center justify-between">
                                                                                         <span>Barrera de Venta</span>
-                                                                                        {!av.dolores_principales?.[1] && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                        {!(av.dolores_principales?.[1] || av.objection) && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
                                                                                     </label>
                                                                                     <textarea 
-                                                                                        value={av.dolores_principales?.[1] || ''} 
+                                                                                        value={(av.dolores_principales?.[1] || av.objection) || ''} 
                                                                                         onChange={e => {
                                                                                             const copy = [...tempAvatars];
                                                                                             const currentDol = [...(copy[idx].dolores_principales || [])];
@@ -1782,7 +1782,7 @@ export const ProjectWizard: React.FC = () => {
                                                                                             copy[idx] = { ...copy[idx], dolores_principales: currentDol };
                                                                                             setTempAvatars(copy);
                                                                                         }}
-                                                                                        className={`w-full bg-zinc-950 border ${!av.dolores_principales?.[1] ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans`}
+                                                                                        className={`w-full bg-zinc-950 border ${!(av.dolores_principales?.[1] || av.objection) ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans`}
                                                                                         rows={2}
                                                                                         placeholder="Por qué no compra actualmente..."
                                                                                     />
@@ -1790,10 +1790,10 @@ export const ProjectWizard: React.FC = () => {
                                                                                 <div className="space-y-1">
                                                                                     <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center justify-between">
                                                                                         <span>Para qué Emocional</span>
-                                                                                        {!av.deseos_principales?.[1] && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                        {!(av.deseos_principales?.[1] || av.emotional_reason) && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
                                                                                     </label>
                                                                                     <textarea 
-                                                                                        value={av.deseos_principales?.[1] || ''} 
+                                                                                        value={(av.deseos_principales?.[1] || av.emotional_reason) || ''} 
                                                                                         onChange={e => {
                                                                                             const copy = [...tempAvatars];
                                                                                             const currentDes = [...(copy[idx].deseos_principales || [])];
@@ -1802,7 +1802,7 @@ export const ProjectWizard: React.FC = () => {
                                                                                             copy[idx] = { ...copy[idx], deseos_principales: currentDes };
                                                                                             setTempAvatars(copy);
                                                                                         }}
-                                                                                        className={`w-full bg-zinc-950 border ${!av.deseos_principales?.[1] ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans`}
+                                                                                        className={`w-full bg-zinc-950 border ${!(av.deseos_principales?.[1] || av.emotional_reason) ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none text-xs font-sans`}
                                                                                         rows={2}
                                                                                         placeholder="La razón subyacente o emocional de su transformación..."
                                                                                     />
@@ -2024,17 +2024,17 @@ export const ProjectWizard: React.FC = () => {
                                                                             <div>
                                                                                 <label className="block text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest mb-1.5 font-sans flex items-center justify-between">
                                                                                     <span>Estado Civil / Familia</span>
-                                                                                    {!(av.civilStatus || av.marital_status) && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
+                                                                                    {!(av.civilStatus || av.marital_status || av.civil_status || av.civil_status) && <span className="text-amber-500 lowercase italic text-[9px] font-normal">(vacío)</span>}
                                                                                 </label>
                                                                                 <input 
                                                                                     type="text" 
-                                                                                    value={av.civilStatus || av.marital_status || ''} 
+                                                                                    value={av.civilStatus || av.marital_status || av.civil_status || ''} 
                                                                                     onChange={e => {
                                                                                         const copy = [...tempAvatars];
                                                                                         copy[idx] = { ...copy[idx], civilStatus: e.target.value, marital_status: e.target.value };
                                                                                         setTempAvatars(copy);
                                                                                     }}
-                                                                                    className={`w-full bg-zinc-950 border ${!(av.civilStatus || av.marital_status) ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans`} 
+                                                                                    className={`w-full bg-zinc-950 border ${!(av.civilStatus || av.marital_status || av.civil_status || av.civil_status) ? 'border-amber-500/20 bg-amber-500/5' : 'border-zinc-800'} rounded-xl px-4 py-2.5 text-white focus:border-orange-500 outline-none transition-all text-xs font-sans`} 
                                                                                     placeholder="Ej: Soltera o casada con hijos pequeños" 
                                                                                 />
                                                                             </div>
