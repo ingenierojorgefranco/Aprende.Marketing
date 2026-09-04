@@ -307,21 +307,27 @@ const getProcessedAvatars = (rawAvatars: any[]): any[] => {
     ];
 
     let dolores_ocultos = hasSavedAvatars ? [] : defaultAv.dolores_ocultos;
-    if (realAv.dolores_ocultos && Array.isArray(realAv.dolores_ocultos)) {
+    if (realAv.hidden_pains && Array.isArray(realAv.hidden_pains)) {
+      dolores_ocultos = realAv.hidden_pains;
+    } else if (realAv.dolores_ocultos && Array.isArray(realAv.dolores_ocultos)) {
       dolores_ocultos = realAv.dolores_ocultos;
     } else if (realAv.pains_hidden && Array.isArray(realAv.pains_hidden)) {
       dolores_ocultos = realAv.pains_hidden;
     }
 
     let deseos_motivaciones = hasSavedAvatars ? [] : defaultAv.deseos_motivaciones;
-    if (realAv.deseos_motivaciones && Array.isArray(realAv.deseos_motivaciones)) {
+    if (realAv.hidden_desires && Array.isArray(realAv.hidden_desires)) {
+      deseos_motivaciones = realAv.hidden_desires;
+    } else if (realAv.deseos_motivaciones && Array.isArray(realAv.deseos_motivaciones)) {
       deseos_motivaciones = realAv.deseos_motivaciones;
     } else if (realAv.motivations_detail && Array.isArray(realAv.motivations_detail)) {
       deseos_motivaciones = realAv.motivations_detail;
     }
 
     let comportamientos = hasSavedAvatars ? [] : defaultAv.comportamientos;
-    if (realAv.comportamientos && Array.isArray(realAv.comportamientos)) {
+    if (realAv.behaviors_list && Array.isArray(realAv.behaviors_list)) {
+      comportamientos = realAv.behaviors_list;
+    } else if (realAv.comportamientos && Array.isArray(realAv.comportamientos)) {
       comportamientos = realAv.comportamientos;
     } else if (realAv.behaviors && Array.isArray(realAv.behaviors)) {
       comportamientos = realAv.behaviors;

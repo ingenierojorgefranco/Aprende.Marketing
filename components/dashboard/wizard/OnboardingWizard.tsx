@@ -5437,7 +5437,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                                         Hábitos de consumo diario y canales donde captar su atención
                                                       </p>
                                                     </div>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
                                                       {av.comportamientos.map((item: string, dIdx: number) => (
                                                         <div key={dIdx} className="p-4 bg-white/[0.01] border border-white/[0.04] rounded-xl flex gap-3 text-xs sm:text-[13px] text-zinc-400 hover:text-zinc-200 transition-colors font-medium font-sans leading-relaxed items-start">
                                                           <span className="text-[#FF5D1E] font-extrabold shrink-0">✓</span>

@@ -68,7 +68,8 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                     </div>
                 </div>
                 <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-2 mt-4' : 'lg:col-span-4 lg:sticky lg:top-16 order-2'}`}>
-                     <div className="mb-10 space-y-3 bg-black/20 backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-xl">
+                     <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
+                     <div className="mt-8 mb-10 space-y-3 bg-black/20 backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-xl">
                          <h4 className={`font-bold mb-4 flex items-center gap-2 ${ds.hero.titleColor || 'text-white'}`}>
                              <Zap className="w-5 h-5 text-yellow-400" />
                              ¿Por qué unirte hoy?
@@ -94,7 +95,6 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                              </li>
                          </ul>
                      </div>
-                     <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
                 </div>
              </div>
           </div>

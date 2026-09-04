@@ -142,27 +142,35 @@ const DEFAULT_AVATARS_DATA = [
       { title: "CLIENTELA INESTABLE", text: "No tiene suficientes clientes estables, lo que le genera una alta incertidumbre mensual sobre la facturación de su negocio." },
       { title: "TRABAJO DESVALORADO", text: "Siente que su trabajo no es valorado como debería y que las clientas siempre buscan la opción más barata regateando precios." },
       { title: "MARKETING INVISIBLE", text: "Le cuesta diferenciarse en un mercado saturado de profesionales independientes ofreciendo lo mismo a precios muy bajos." },
-      { title: "INVERSIÓN SIN RETORNO", text: "Miedo a invertir en formación y no ver resultados, perdiendo sus recursos en teoría aburrida que no puede aplicar en la práctica real." }
+      { title: "INVERSIÓN SIN RETORNO", text: "Miedo a invertir en formación y no ver resultados, perdiendo sus recursos en teoría aburrida que no puede aplicar en la práctica real." },
+      { title: "DESGASTE FÍSICO", text: "Siente que trabaja demasiadas horas al día arriesgando su salud por un margen de ganancia muy pequeño." },
+      { title: "MIEDO A LA COMPETENCIA", text: "Teme que centros de belleza más grandes o con mayor presupuesto la desplacen de su nicho de mercado." }
     ],
     // Deseos y motivaciones Tab
     deseos_motivaciones: [
       { title: "AGENDA LLENA", text: "Tener más clientes y la agenda completamente llena con meses de anticipación sin tener que regatear tarifas." },
       { title: "EXPERTA RECONOCIDA", text: "Ser reconocida formalmente como una de las mejores expertas referentes en su área y ciudad." },
       { title: "INDEPENDENCIA FINANCIERA", text: "Lograr verdadera estabilidad e independencia económica para tomar decisiones con libertad." },
-      { title: "FLEXIBILIDAD ABSOLUTA", text: "Tener control total de sus propios horarios de atención y la flexibilidad de tiempo y ubicación que siempre soñó." }
+      { title: "FLEXIBILIDAD ABSOLUTA", text: "Tener control total de sus propios horarios de atención y la flexibilidad de tiempo y ubicación que siempre soñó." },
+      { title: "LIBERTAD CREATIVA", text: "Poder elegir con qué clientes trabajar y enfocarse en técnicas que realmente disfruta realizar." },
+      { title: "LEGADO FAMILIAR", text: "Construir un negocio tan sólido que pueda heredar a sus hijos o que le permita pagar su educación." }
     ],
     // Comportamientos Tab
     comportamientos: [
       "Sigue activamente cuentas de gurús de belleza y marketing estético en Instagram y TikTok.",
       "Paga pequeños talleres o webinars rápidos de $20 a $50 USD buscando secretos aplicables.",
       "Pregunta constantemente en grupos de Facebook qué marcas de pigmentos o inductores son mejores.",
-      "Consume video tutoriales rápidos por las noches antes de dormir buscando perfeccionar trazo de cejas."
+      "Consume video tutoriales rápidos por las noches antes de dormir buscando perfeccionar trazo de cejas.",
+      "Guarda referencias de diseños y técnicas en tableros organizados de Pinterest.",
+      "Participa en ferias o congresos locales de belleza para conocer proveedores."
     ],
     behaviors: [
       "Sigue activamente cuentas de gurús de belleza y marketing estético en Instagram y TikTok.",
       "Paga pequeños talleres o webinars rápidos de $20 a $50 USD buscando secretos aplicables.",
       "Pregunta constantemente en grupos de Facebook qué marcas de pigmentos o inductores son mejores.",
-      "Consume video tutoriales rápidos por las noches antes de dormir buscando perfeccionar trazo de cejas."
+      "Consume video tutoriales rápidos por las noches antes de dormir buscando perfeccionar trazo de cejas.",
+      "Guarda referencias de diseños y técnicas en tableros organizados de Pinterest.",
+      "Participa en ferias o congresos locales de belleza para conocer proveedores."
     ],
     motivations: {
       dinero: "Retorno de inversión garantizado con su primer set de clientas.",
@@ -210,26 +218,34 @@ const DEFAULT_AVATARS_DATA = [
     dolores_ocultos: [
       { title: "El miedo al estancamiento profesional", text: "Teme trabajar como empleada toda su vida sin ver su propio crecimiento financiero." },
       { title: "Falta de credibilidad", text: "Le preocupa que las clientas no confíen en ella por verse muy joven o no tener certificación reconocida de alta gama." },
-      { title: "Inestabilidad emocional", text: "La baja remuneración genera que dude de su propia pasión por la belleza y estética profesional." }
+      { title: "Inestabilidad emocional", text: "La baja remuneración genera que dude de su propia pasión por la belleza y estética profesional." },
+      { title: "PREOCUPACIÓN FUTURA", text: "Siente estrés ante la incertidumbre económica y busca opciones seguras." },
+      { title: "FALTA DE CONFIANZA", text: "Teme fracasar si lo intenta porque no confía plenamente en sus habilidades actuales." }
     ],
     // Deseos y motivaciones Tab
     deseos_motivaciones: [
       { title: "Reconocimiento y Estatus", text: "Ser la especialista de referencia a la que las clientas agendan con semanas de anticipación corporativa." },
       { title: "Aumentar Tarifas", text: "Pasar de cobrar servicios baratos de $15 a tratamientos premium de más de text de forma segura." },
-      { title: "Estilo de Vida Independiente", text: "Crear una marca personal respetada con identidad visual propia en redes sociales." }
+      { title: "Estilo de Vida Independiente", text: "Crear una marca personal respetada con identidad visual propia en redes sociales." },
+      { title: "CRECIMIENTO ACELERADO", text: "Desea ver resultados tangibles y rápidos tras implementar el programa." },
+      { title: "COMUNIDAD Y SOPORTE", text: "Ansía pertenecer a una comunidad donde reciba retroalimentación constante." }
     ],
     // Comportamientos Tab
     comportamientos: [
       "Guarda tableros de fotos de cejas perfectas y estética minimalista en Pinterest.",
       "Sigue tendencias de micropigmentación internacionales de Europa y Brasil.",
       "Compara activamente los precios de academias en línea para decidir su inversión.",
-      "Práctica exhaustivamente en látex para perfeccionar la precisión de sus trazos."
+      "Práctica exhaustivamente en látex para perfeccionar la precisión de sus trazos.",
+      "Utiliza WhatsApp para interactuar y cerrar ventas con prospectos.",
+      "Busca tutoriales paso a paso en YouTube antes de realizar compras grandes."
     ],
     behaviors: [
       "Guarda tableros de fotos de cejas perfectas y estética minimalista en Pinterest.",
       "Sigue tendencias de micropigmentación internacionales de Europa y Brasil.",
       "Compara activamente los precios de academias en línea para decidir su inversión.",
-      "Práctica exhaustivamente en látex para perfeccionar la precisión de sus trazos."
+      "Práctica exhaustivamente en látex para perfeccionar la precisión de sus trazos.",
+      "Utiliza WhatsApp para interactuar y cerrar ventas con prospectos.",
+      "Busca tutoriales paso a paso en YouTube antes de realizar compras grandes."
     ],
     motivations: {
       dinero: "Garantía de reembolso o método blindado para proteger su capital y no desperdiciar ni un dólar más.",
@@ -277,26 +293,34 @@ const DEFAULT_AVATARS_DATA = [
     dolores_ocultos: [
       { title: "La barrera del aprendizaje técnico", text: "Duda de su capacidad para asimilar conceptos modernos o dominar herramientas de alta precisión." },
       { title: "Miedo al rechazo comercial", text: "Le aterra el proceso de vender o hablar con clientas desconocidas sobre precios y retornos." },
-      { title: "El síndrome de la impostora tardía", text: "Siente que el mercado es para jóvenes influencers de belleza y le cuesta encajar visualmente." }
+      { title: "El síndrome de la impostora tardía", text: "Siente que el mercado es para jóvenes influencers de belleza y le cuesta encajar visualmente." },
+      { title: "PREOCUPACIÓN FUTURA", text: "Siente estrés ante la incertidumbre económica y busca opciones seguras." },
+      { title: "FALTA DE CONFIANZA", text: "Teme fracasar si lo intenta porque no confía plenamente en sus habilidades actuales." }
     ],
     // Deseos y motivaciones Tab
     deseos_motivaciones: [
       { title: "Seguridad Financiera Post-Jubilación", text: "Construir un activo rentable y duradero que le dé tranquilidad a mediano-largo plazo." },
       { title: "Empoderamiento Familiar", text: "Aportar económicamente al hogar disminuyendo la presión financiera sobre su cónyuge." },
-      { title: "Autorealización Personal", text: "Desarrollar un oficio creativo e inspirador que llene su tiempo de valor y orgullo propio." }
+      { title: "Autorealización Personal", text: "Desarrollar un oficio creativo e inspirador que llene su tiempo de valor y orgullo propio." },
+      { title: "CRECIMIENTO ACELERADO", text: "Desea ver resultados tangibles y rápidos tras implementar el programa." },
+      { title: "COMUNIDAD Y SOPORTE", text: "Ansía pertenecer a una comunidad donde reciba retroalimentación constante." }
     ],
     // Comportamientos Tab
     comportamientos: [
       "Sigue grupos comunitarios locales de emprendedores locales y negocios pymes.",
       "Prefiere cursos con soporte personalizado, llamadas en vivo o grupos cerrados de ayuda.",
       "Busca recomendaciones de boca en boca para evaluar la seriedad de una propuesta.",
-      "Toma notas escritas detalladas en cuadernos físicos durante las clases teóricas."
+      "Toma notas escritas detalladas en cuadernos físicos durante las clases teóricas.",
+      "Utiliza WhatsApp para interactuar y cerrar ventas con prospectos.",
+      "Busca tutoriales paso a paso en YouTube antes de realizar compras grandes."
     ],
     behaviors: [
       "Sigue grupos comunitarios locales de emprendedores locales y negocios pymes.",
       "Prefiere cursos con soporte personalizado, llamadas en vivo o grupos cerrados de ayuda.",
       "Busca recomendaciones de boca en boca para evaluar la seriedad de una propuesta.",
-      "Toma notas escritas detalladas en cuadernos físicos durante las clases teóricas."
+      "Toma notas escritas detalladas en cuadernos físicos durante las clases teóricas.",
+      "Utiliza WhatsApp para interactuar y cerrar ventas con prospectos.",
+      "Busca tutoriales paso a paso en YouTube antes de realizar compras grandes."
     ],
     motivations: {
       dinero: "Generar ingresos estables desde casa para lograr libertad financiera real.",
@@ -335,16 +359,20 @@ const getBlankAvatar = (idx: number) => ({
       { title: "", text: "" },
       { title: "", text: "" },
       { title: "", text: "" },
+      { title: "", text: "" },
+      { title: "", text: "" },
       { title: "", text: "" }
     ],
     deseos_motivaciones: [
       { title: "", text: "" },
       { title: "", text: "" },
       { title: "", text: "" },
+      { title: "", text: "" },
+      { title: "", text: "" },
       { title: "", text: "" }
     ],
-    comportamientos: ["", "", "", ""],
-    behaviors: ["", "", "", ""],
+    comportamientos: ["", "", "", "", "", ""],
+    behaviors: ["", "", "", "", "", ""],
     motivations: { dinero: "", tiempo: "", estatus: "", seguridad: "" }
 });
 
@@ -573,9 +601,9 @@ export const ProjectWizard: React.FC = () => {
                         dolores_principales: masterAv.dolores_principales || [...defAv.dolores_principales],
                         deseos_principales: masterAv.deseos_principales || [...defAv.deseos_principales],
                         quote: masterAv.quote || defAv.quote || '',
-                        dolores_ocultos: masterAv.dolores_ocultos || [...defAv.dolores_ocultos],
-                        deseos_motivaciones: masterAv.deseos_motivaciones || [...defAv.deseos_motivaciones],
-                        comportamientos: masterAv.comportamientos || [...defAv.comportamientos],
+                        dolores_ocultos: masterAv.hidden_pains || masterAv.dolores_ocultos || [...defAv.dolores_ocultos],
+                        deseos_motivaciones: masterAv.hidden_desires || masterAv.deseos_motivaciones || [...defAv.deseos_motivaciones],
+                        comportamientos: masterAv.behaviors_list || masterAv.comportamientos || [...defAv.comportamientos],
                         behaviors: masterAv.behaviors || [...defAv.behaviors],
                         motivations: healedMotivations
                     };
@@ -1187,9 +1215,9 @@ export const ProjectWizard: React.FC = () => {
                                                 dolores_principales: masterAv.dolores_principales || [...defAv.dolores_principales],
                                                 deseos_principales: masterAv.deseos_principales || [...defAv.deseos_principales],
                                                 quote: masterAv.quote || defAv.quote || '',
-                                                dolores_ocultos: masterAv.dolores_ocultos || [...defAv.dolores_ocultos],
-                                                deseos_motivaciones: masterAv.deseos_motivaciones || [...defAv.deseos_motivaciones],
-                                                comportamientos: masterAv.comportamientos || [...defAv.comportamientos],
+                                                dolores_ocultos: masterAv.hidden_pains || masterAv.dolores_ocultos || [...defAv.dolores_ocultos],
+                                                deseos_motivaciones: masterAv.hidden_desires || masterAv.deseos_motivaciones || [...defAv.deseos_motivaciones],
+                                                comportamientos: masterAv.behaviors_list || masterAv.comportamientos || [...defAv.comportamientos],
                                                 behaviors: masterAv.behaviors || [...defAv.behaviors],
                                                 motivations: healedMotivations
                                             };
@@ -2061,7 +2089,7 @@ export const ProjectWizard: React.FC = () => {
                                                                     {/* SUBTAB: DOLORES Y MIEDOS */}
                                                                     {modalSubTab === 'dolores' && (
                                                                         <div className="grid gap-4">
-                                                                            {Array.from({ length: 4 }).map((_, di) => {
+                                                                            {Array.from({ length: 6 }).map((_, di) => {
                                                                                 const dolor = av.dolores_ocultos?.[di] || { title: '', text: '' };
                                                                                 return (
                                                                                     <div key={di} className="bg-zinc-950/40 p-4 rounded-2xl border border-zinc-800/60 space-y-3">
@@ -2111,7 +2139,7 @@ export const ProjectWizard: React.FC = () => {
                                                                     {/* SUBTAB: DESEOS Y MOTIVACIONES */}
                                                                     {modalSubTab === 'deseos' && (
                                                                         <div className="grid gap-4">
-                                                                            {Array.from({ length: 4 }).map((_, di) => {
+                                                                            {Array.from({ length: 6 }).map((_, di) => {
                                                                                 const deseo = av.deseos_motivaciones?.[di] || { title: '', text: '' };
                                                                                 return (
                                                                                     <div key={di} className="bg-zinc-950/40 p-4 rounded-2xl border border-zinc-800/60 space-y-3">
