@@ -65,17 +65,90 @@ export const WelcomeStep: React.FC<StepProps> = ({ onNext, userData, disabled, o
     );
 };
 
+// Helper for category icons
+const getCategoryIcon = (category?: string) => {
+    if (!category) return '🏷️';
+    const lower = category.toLowerCase().trim();
+    if (lower === 'all' || lower === 'todos') return '🌐';
+    if (lower.includes('belleza') || lower.includes('estética') || lower.includes('estetica') || lower.includes('maquillaje') || lower.includes('cejas') || lower.includes('uña') || lower.includes('microblading')) return '💄';
+    if (lower.includes('manualidad') || lower.includes('resina') || lower.includes('arte') || lower.includes('artesan')) return '🧶';
+    if (lower.includes('mascota') || lower.includes('canin') || lower.includes('felin') || lower.includes('perro') || lower.includes('gato')) return '🐾';
+    if (lower.includes('negocio') || lower.includes('finanza') || lower.includes('emprend') || lower.includes('marketing') || lower.includes('venta')) return '💼';
+    if (lower.includes('salud') || lower.includes('fitness') || lower.includes('deporte') || lower.includes('bienestar') || lower.includes('nutrici')) return '💪';
+    if (lower.includes('cocina') || lower.includes('gastronom') || lower.includes('reposter') || lower.includes('pasteler')) return '🍳';
+    if (lower.includes('tecnolog') || lower.includes('program') || lower.includes('digital') || lower.includes('software')) return '💻';
+    if (lower.includes('educaci') || lower.includes('idioma') || lower.includes('curso') || lower.includes('academia')) return '📚';
+    if (lower.includes('musica') || lower.includes('canto') || lower.includes('audio')) return '🎵';
+    if (lower.includes('desarrollo personal') || lower.includes('espiritual') || lower.includes('mindfulness')) return '✨';
+    return '🏷️';
+};
+
 // 2. SELECCIÓN DE PROYECTO
 export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loading: boolean, selectedProjectId?: string, isLocked?: boolean }> = ({ projects, loading, onNext, selectedProjectId, isLocked, onGoToStep }) => {
     const [confirmingProject, setConfirmingProject] = React.useState<any | null>(null);
-    const [activeCategory, setActiveCategory] = React.useState('Belleza');
+    const [activeCategory, setActiveCategory] = React.useState('all');
 
-    const categories = [
-        { id: 'Belleza', label: 'Belleza', icon: '💄' },
-        { id: 'Manualidades', label: 'Manualidades', icon: '🧶' },
-        { id: 'Mascotas', label: 'Mascotas', icon: '🐾' },
-        { id: 'Negocios', label: 'Negocios', icon: '💼' },
-    ];
+    // Categorías dinámicas extraídas de los proyectos disponibles
+    const categories = React.useMemo(() => {
+        const rawNiches = projects
+            .map(p => (p.niche || '').trim())
+            .filter(n => n.length > 0);
+
+        // Obtener nichos únicos sin duplicados respetando mayúsculas/minúsculas
+        const uniqueNiches: string[] = [];
+        rawNiches.forEach(niche => {
+            const exists = uniqueNiches.some(n => n.toLowerCase() === niche.toLowerCase());
+            if (!exists) {
+                uniqueNiches.push(niche);
+            }
+        });
+
+        // Ordenar para que 'Belleza' aparezca primero tras 'Todos' si existe en la base de datos
+        const sortedNiches = [...uniqueNiches].sort((a, b) => {
+            const aIsBelleza = a.toLowerCase().includes('belleza');
+            const bIsBelleza = b.toLowerCase().includes('belleza');
+            if (aIsBelleza && !bIsBelleza) return -1;
+            if (!aIsBelleza && bIsBelleza) return 1;
+            return a.localeCompare(b, 'es', { sensitivity: 'base' });
+        });
+
+        const allCategory = {
+            id: 'all',
+            label: 'Todos',
+            icon: getCategoryIcon('all')
+        };
+
+        if (sortedNiches.length === 0) {
+            return [
+                allCategory,
+                { id: 'Belleza', label: 'Belleza', icon: '💄' },
+                { id: 'Manualidades', label: 'Manualidades', icon: '🧶' },
+                { id: 'Mascotas', label: 'Mascotas', icon: '🐾' },
+                { id: 'Negocios', label: 'Negocios', icon: '💼' },
+            ];
+        }
+
+        return [
+            allCategory,
+            ...sortedNiches.map(niche => ({
+                id: niche,
+                label: niche,
+                icon: getCategoryIcon(niche)
+            }))
+        ];
+    }, [projects]);
+
+    // Filtrar proyectos según la categoría activa seleccionada
+    const filteredProjects = React.useMemo(() => {
+        if (activeCategory === 'all') {
+            return projects;
+        }
+        const catLower = activeCategory.toLowerCase().trim();
+        return projects.filter(p => {
+            const nicheLower = (p.niche || '').toLowerCase().trim();
+            return nicheLower === catLower || nicheLower.includes(catLower) || catLower.includes(nicheLower);
+        });
+    }, [projects, activeCategory]);
 
     if (loading) {
         return (
@@ -141,108 +214,116 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
             </div>
 
             {/* Product Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full items-stretch pt-2">
-                {projects.slice(0, 3).map((project, index) => {
-                    const isSelected = selectedProjectId === project.id;
-
-                    const titles = [
-                        "Certificación Expert Microblading",
-                        "Curso de Maquillaje Profesional",
-                        "Master en Pisos de Resina Epóxica"
-                    ];
-
-                    const descriptions = [
-                        "Domina la técnica de cejas y crea un servicio rentable con alta demanda.",
-                        "Aprende maquillaje, color y técnica profesional para realzar la belleza en cualquier ocasión.",
-                        "Aprende acabados profesionales en pisos de resina y conviértelo en un servicio altamente rentable."
-                    ];
-
-                    const displayTitle = project.name?.toLowerCase().includes("microblading") 
-                        ? "Certificación Expert Microblading" 
-                        : (project.name?.toLowerCase().includes("manicurista") 
-                            ? "Curso de Maquillaje Profesional" 
-                            : (project.name?.toLowerCase().includes("pisos") || project.name?.toLowerCase().includes("resina")
-                                ? "Master en Pisos de Resina Epóxica"
-                                : (titles[index] || project.name)));
-
-                    let idealForDesc = descriptions[index] || project.shortDescription || project.description;
-                    if (project.name?.toLowerCase().includes("microblading") || project.name?.toLowerCase().includes("cejas")) {
-                        idealForDesc = "Domina la técnica de cejas y crea un servicio rentable con alta demanda.";
-                    } else if (project.name?.toLowerCase().includes("manicurista") || project.name?.toLowerCase().includes("maquillaje")) {
-                        idealForDesc = "Aprende maquillaje, color y técnica profesional para realzar la belleza en cualquier ocasión.";
-                    } else if (project.name?.toLowerCase().includes("pisos") || project.name?.toLowerCase().includes("resina")) {
-                        idealForDesc = "Aprende acabados profesionales en pisos de resina y conviértelo en un servicio altamente rentable.";
-                    }
-
-                    return (
-                        <motion.div 
-                            key={project.id}
-                            whileHover={isLocked ? {} : { y: -6 }}
-                            className={`bg-[#0b0b0d] border border-zinc-800/80 hover:border-[#FF5A1F]/60 hover:shadow-[0_0_30px_rgba(255,90,31,0.25)] ${
-                                isSelected ? 'border-2 border-[#FF5A1F] shadow-[0_0_30px_rgba(255,90,31,0.25)]' : ''
-                            } ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-3xl p-5 md:p-6 flex flex-col justify-between h-full relative w-full group cursor-pointer transition-all duration-300 space-y-4`}
-                            onClick={() => !isLocked && setConfirmingProject(project)}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 w-full items-stretch pt-2">
+                {filteredProjects.length === 0 ? (
+                    <div className="col-span-full py-16 text-center space-y-3 bg-[#0e0e11] border border-zinc-800/80 rounded-3xl p-8">
+                        <Package className="w-12 h-12 text-zinc-600 mx-auto" />
+                        <p className="text-zinc-300 font-semibold text-base">No hay productos disponibles en esta categoría por ahora.</p>
+                        <p className="text-zinc-500 text-xs">Puedes seleccionar otra categoría o ver todos los productos disponibles.</p>
+                        <button 
+                            type="button" 
+                            onClick={() => setActiveCategory('all')} 
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#FF5A1F] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#FF4500] transition-colors cursor-pointer mt-2"
                         >
-                            {/* Image Container with floating Category badge Top-Left */}
-                            <div className="h-44 md:h-48 bg-zinc-900 relative overflow-hidden rounded-2xl shrink-0 border border-zinc-800/50">
-                                {project.multimedia_json?.heroImages?.[0] ? (
-                                    <img 
-                                        src={project.multimedia_json.heroImages[0]} 
-                                        alt={project.name} 
-                                        referrerPolicy="no-referrer"
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
-                                        <Package className="w-10 h-10 text-[#FF5A1F] opacity-30" />
+                            Ver todos los productos
+                        </button>
+                    </div>
+                ) : (
+                    filteredProjects.map((project, index) => {
+                        const isSelected = selectedProjectId === project.id;
+
+                        const displayTitle = project.name?.toLowerCase().includes("microblading") 
+                            ? "Certificación Expert Microblading" 
+                            : (project.name?.toLowerCase().includes("manicurista") 
+                                ? "Curso de Maquillaje Profesional" 
+                                : (project.name?.toLowerCase().includes("pisos") || project.name?.toLowerCase().includes("resina")
+                                    ? "Master en Pisos de Resina Epóxica"
+                                    : (project.name || "Producto Digital")));
+
+                        let idealForDesc = project.shortDescription || project.description;
+                        if (project.name?.toLowerCase().includes("microblading") || project.name?.toLowerCase().includes("cejas")) {
+                            idealForDesc = "Domina la técnica de cejas y crea un servicio rentable con alta demanda.";
+                        } else if (project.name?.toLowerCase().includes("manicurista") || project.name?.toLowerCase().includes("maquillaje")) {
+                            idealForDesc = "Aprende maquillaje, color y técnica profesional para realzar la belleza en cualquier ocasión.";
+                        } else if (project.name?.toLowerCase().includes("pisos") || project.name?.toLowerCase().includes("resina")) {
+                            idealForDesc = "Aprende acabados profesionales en pisos de resina y conviértelo en un servicio altamente rentable.";
+                        } else if (!idealForDesc) {
+                            idealForDesc = project.strategy_json?.shortDescription || project.strategy_json?.productDescription || "Aprende una habilidad de alta demanda y conviértela en un negocio rentable.";
+                        }
+
+                        const projectCategory = project.niche || "General";
+                        const projectCategoryIcon = getCategoryIcon(projectCategory);
+
+                        return (
+                            <motion.div 
+                                key={project.id}
+                                whileHover={isLocked ? {} : { y: -6 }}
+                                className={`bg-[#0b0b0d] border border-zinc-800/80 hover:border-[#FF5A1F]/60 hover:shadow-[0_0_30px_rgba(255,90,31,0.25)] ${
+                                    isSelected ? 'border-2 border-[#FF5A1F] shadow-[0_0_30px_rgba(255,90,31,0.25)]' : ''
+                                } ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-3xl p-5 md:p-6 flex flex-col justify-between h-full relative w-full group cursor-pointer transition-all duration-300 space-y-4`}
+                                onClick={() => !isLocked && setConfirmingProject(project)}
+                            >
+                                {/* Image Container with floating Category badge Top-Left */}
+                                <div className="h-44 md:h-48 bg-zinc-900 relative overflow-hidden rounded-2xl shrink-0 border border-zinc-800/50">
+                                    {project.multimedia_json?.heroImages?.[0] ? (
+                                        <img 
+                                            src={project.multimedia_json.heroImages[0]} 
+                                            alt={project.name} 
+                                            referrerPolicy="no-referrer"
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-[#FF5A1F]/10">
+                                            <Package className="w-10 h-10 text-[#FF5A1F] opacity-30" />
+                                        </div>
+                                    )}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                                    
+                                    {/* Floating category Badge Top-Left */}
+                                    <div className="absolute top-3 left-3 z-10">
+                                        <span className="px-3 py-1 bg-black/75 backdrop-blur-md text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-white/10 shadow-sm">
+                                            <span>{projectCategoryIcon}</span> Categoría: {projectCategory}
+                                        </span>
                                     </div>
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                                
-                                {/* Floating category Badge Top-Left */}
-                                <div className="absolute top-3 left-3 z-10">
-                                    <span className="px-3 py-1 bg-black/75 backdrop-blur-md text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-white/10 shadow-sm">
-                                        <span>💄</span> Categoría: {activeCategory}
-                                    </span>
                                 </div>
-                            </div>
 
-                            {/* Content Block */}
-                            <div className="space-y-2 text-left flex-grow">
-                                <h3 className={`text-lg md:text-xl font-extrabold leading-snug tracking-tight ${isSelected ? 'text-[#FF5A1F]' : 'text-white'} group-hover:text-[#FF5A1F] transition-colors line-clamp-2`}>
-                                    {displayTitle}
-                                </h3>
+                                {/* Content Block */}
+                                <div className="space-y-2 text-left flex-grow">
+                                    <h3 className={`text-lg md:text-xl font-extrabold leading-snug tracking-tight ${isSelected ? 'text-[#FF5A1F]' : 'text-white'} group-hover:text-[#FF5A1F] transition-colors line-clamp-2`}>
+                                        {displayTitle}
+                                    </h3>
 
-                                <p 
-                                    className="text-zinc-400 text-xs md:text-sm leading-relaxed font-light line-clamp-3"
-                                    style={{
-                                        fontSize: '1em',
-                                        lineHeight: '1.3em',
-                                        color: 'white',
-                                        paddingTop: '0.4em'
-                                    }}
-                                >
-                                    {idealForDesc}
-                                </p>
-                            </div>
+                                    <p 
+                                        className="text-zinc-400 text-xs md:text-sm leading-relaxed font-light line-clamp-3"
+                                        style={{
+                                            fontSize: '1em',
+                                            lineHeight: '1.3em',
+                                            color: 'white',
+                                            paddingTop: '0.4em'
+                                        }}
+                                    >
+                                        {idealForDesc}
+                                    </p>
+                                </div>
 
-                            {/* Action Button */}
-                            <div className="pt-2 mt-auto">
-                                <button 
-                                    type="button"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (!isLocked) setConfirmingProject(project);
-                                    }}
-                                    className="w-full py-3.5 px-5 bg-gradient-to-r from-[#FF5A1F] to-[#FF4500] hover:from-[#FF4500] hover:to-[#FF5A1F] text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(255,90,31,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
-                                >
-                                    <span>ELEGIR ESTE PRODUCTO</span>
-                                    <ArrowRight className="w-4 h-4 shrink-0" />
-                                </button>
-                            </div>
-                        </motion.div>
-                    );
-                })}
+                                {/* Action Button */}
+                                <div className="pt-2 mt-auto">
+                                    <button 
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (!isLocked) setConfirmingProject(project);
+                                        }}
+                                        className="w-full py-3.5 px-5 bg-gradient-to-r from-[#FF5A1F] to-[#FF4500] hover:from-[#FF4500] hover:to-[#FF5A1F] text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(255,90,31,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+                                    >
+                                        <span>ELEGIR ESTE PRODUCTO</span>
+                                        <ArrowRight className="w-4 h-4 shrink-0" />
+                                    </button>
+                                </div>
+                            </motion.div>
+                        );
+                    })
+                )}
             </div>
 
             {/* Bottom Features Bar matching Image 2 */}
@@ -290,7 +371,9 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                 const price = confirmingProject.price || 200;
                 const profit = Math.round((price * displayCommission) / 100);
                 const heroImage = confirmingProject.multimedia_json?.heroImages?.[0];
-                const categoryLabel = "BELLEZA Y CUIDADO PERSONAL";
+                const categoryLabel = confirmingProject.niche 
+                    ? confirmingProject.niche.toUpperCase() 
+                    : "PRODUCTO DIGITAL";
                 const displayTitle = confirmingProject.name?.toLowerCase().includes("microblading") 
                     ? "Curso Profesional de Microblading de Cejas" 
                     : confirmingProject.name;
