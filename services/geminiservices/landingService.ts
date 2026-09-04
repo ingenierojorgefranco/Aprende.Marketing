@@ -223,6 +223,7 @@ export const generateLandingPageContent = async (
 
   Instrucciones de contenido:
   1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
+     - REGLA SUBTÍTULO ("hero.subheadline"): Longitud concisa entre 110 y 140 caracteres. Debe confirmar y reforzar el título principal destacando un beneficio motivador de la clase gratuita. PROHIBIDO terminantemente mencionar nombres de cursos de pago o marcas de proyectos (como 'Manicurista Profesional® Premium').
   2. Intro: Carta de ventas poderosa (descrita arriba).
   3. FAQ: 4 preguntas que maten objeciones.
   4. Instructor: Nombre y biografía.

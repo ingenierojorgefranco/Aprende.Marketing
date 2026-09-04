@@ -30,6 +30,20 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
     { num: 3, title: "Acceso Instantáneo", text: "Recibirás el acceso a la clase y a tu E-book de regalo de inmediato. ¡Aprende a tu ritmo!" }
   ];
 
+  // Sanitizador para evitar nombres de proyectos o copys sobrecargados en el subtítulo
+  const cleanSubheadline = (sub?: string): string => {
+      if (!sub) return "Accede a la clase gratuita y descubre el paso a paso para dominar técnicas profesionales y crear un negocio rentable desde cero.";
+      const lower = sub.toLowerCase();
+      if (
+          lower.includes('manicurista profesional') || 
+          lower.includes('manicurista premium') || 
+          lower.includes('acabados de alta gama sin necesidad')
+      ) {
+          return "Accede a la clase gratuita y descubre el paso a paso para dominar técnicas profesionales y crear un negocio rentable desde cero.";
+      }
+      return sub;
+  };
+
   return (
     <div id="classic-template-root" className={`min-h-screen font-sans ${ds.selectionColor} ${ds.bg} scroll-smooth`}>
         <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} hasUrgencyBar={false} />
@@ -54,7 +68,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                         
                         <div id="subtitulo-principal" className="max-w-[40rem]">
                             {renderRichText(
-                                content.hero.subheadline, 
+                                cleanSubheadline(content.hero.subheadline), 
                                 `font-light leading-relaxed ${ds.hero.subtitleColor || 'text-white/80'} ${isMobilePreview ? 'text-lg' : 'text-[1.25rem]'}`
                             )}
                         </div>
@@ -68,8 +82,8 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                     </div>
                 </div>
                 <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-2 mt-4' : 'lg:col-span-4 lg:sticky lg:top-16 order-2'}`}>
-                     <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
-                     <div className="mt-8 mb-10 space-y-3 bg-black/20 backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-xl">
+                     <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} sticky={false} />
+                     <div id="why-join-today-block" className="mt-6 mb-10 space-y-3 bg-black/20 backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-xl">
                          <h4 className={`font-bold mb-4 flex items-center gap-2 ${ds.hero.titleColor || 'text-white'}`}>
                              <Zap className="w-5 h-5 text-yellow-400" />
                              ¿Por qué unirte hoy?

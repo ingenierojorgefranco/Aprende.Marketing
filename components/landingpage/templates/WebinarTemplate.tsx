@@ -46,6 +46,19 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, project,
     { num: 3, title: "Conéctate en Vivo", text: "Asiste a la hora indicada y aprende." }
   ];
 
+  const cleanSubheadline = (sub?: string): string => {
+      if (!sub) return "Accede a la clase gratuita y descubre el paso a paso para dominar técnicas profesionales y crear un negocio rentable desde cero.";
+      const lower = sub.toLowerCase();
+      if (
+          lower.includes('manicurista profesional') || 
+          lower.includes('manicurista premium') || 
+          lower.includes('acabados de alta gama sin necesidad')
+      ) {
+          return "Accede a la clase gratuita y descubre el paso a paso para dominar técnicas profesionales y crear un negocio rentable desde cero.";
+      }
+      return sub;
+  };
+
   return (
     <div id="webinar-template-root" className={`min-h-screen font-sans ${ds.bg} scroll-smooth`}>
          <UrgencyBar content={content} ds={ds} />
@@ -68,7 +81,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, project,
                      {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-[1.2] font-['Verdana'] ${ds.hero.titleColor} ${isMobilePreview ? 'text-2xl md:text-4xl' : 'text-3xl md:text-[3.8rem]'}`, ds.hero.highlightGradient)}
                      
                      <div id="subtitulo-principal">
-                        {renderRichText(content.hero.subheadline, `text-white font-normal mt-4 md:mt-[1.2em] text-lg md:text-[1.6em] leading-relaxed md:leading-[1.4em] max-w-[54rem] mx-auto`)}
+                        {renderRichText(cleanSubheadline(content.hero.subheadline), `text-white font-normal mt-4 md:mt-[1.2em] text-lg md:text-[1.6em] leading-relaxed md:leading-[1.4em] max-w-[54rem] mx-auto`)}
                      </div>
                  </div>
                 

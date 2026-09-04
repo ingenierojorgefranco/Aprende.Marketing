@@ -394,6 +394,15 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
     let cardDesc = capture.cardDesc || "Accede al método exclusivo.";
     let helpText = capture.helpText || "";
     
+    // Sanitizar cardDesc si contiene menciones de proyectos específicos o texto sobrecargado
+    if (
+        cardDesc.toLowerCase().includes('manicurista profesional') || 
+        cardDesc.toLowerCase().includes('manicurista premium') || 
+        cardDesc.toLowerCase().includes('acabados de alta gama sin necesidad')
+    ) {
+        cardDesc = "Accede a la clase gratuita y descubre el paso a paso para dominar técnicas profesionales y crear un negocio rentable desde cero.";
+    }
+    
     if (!capture.cardTitle) {
         if (dest.type === 'whatsapp') {
             cardTitle = "Únete al Grupo VIP";
@@ -468,33 +477,33 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
         </div>
 
         {/* Social Proof */}
-        <div className="mt-8 flex items-center justify-center gap-5 animate-in fade-in slide-in-from-bottom-2 duration-700">
-            <div className="flex -space-x-4">
+        <div id="smart-cta-social-proof-block" className="mt-6 mb-2 py-3 px-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 flex items-center justify-center gap-4 shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-700">
+            <div className="flex -space-x-3">
                 {(strategy?.modules?.testimonials && strategy.modules.testimonials.length > 0) ? (
                     strategy.modules.testimonials.slice(0, 3).map((t: any, i: number) => (
-                        <img key={i} src={t.image} alt={t.name} title={t.name} className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />
+                        <img key={i} src={t.image} alt={t.name} title={t.name} className="w-12 h-12 rounded-full border-2 border-white object-cover shadow-md" referrerPolicy="no-referrer" />
                     ))
                 ) : (strategy?.testimonials && strategy.testimonials.length > 0) ? (
                     strategy.testimonials.slice(0, 3).map((t: any, i: number) => (
-                        <img key={i} src={t.image} alt={t.name} title={t.name} className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />
+                        <img key={i} src={t.image} alt={t.name} title={t.name} className="w-12 h-12 rounded-full border-2 border-white object-cover shadow-md" referrerPolicy="no-referrer" />
                     ))
                 ) : (strategy?.avatars && strategy.avatars.length > 0) ? (
                     strategy.avatars.slice(0, 3).map((a: any, i: number) => (
-                        <img key={i} src={a.image} alt={a.name} title={a.name} className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />
+                        <img key={i} src={a.image} alt={a.name} title={a.name} className="w-12 h-12 rounded-full border-2 border-white object-cover shadow-md" referrerPolicy="no-referrer" />
                     ))
                 ) : (content.avatarImages && content.avatarImages.length > 0) ? (
                     content.avatarImages.slice(0, 3).map((img, i) => (
-                        <img key={i} src={img} alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />
+                        <img key={i} src={img} alt="User" className="w-12 h-12 rounded-full border-2 border-white object-cover shadow-md" referrerPolicy="no-referrer" />
                     ))
                 ) : (
-                    [1,2,3].map(i => <img key={i} src={`https://randomuser.me/api/portraits/thumb/women/${i+20}.jpg`} alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />)
+                    [1,2,3].map(i => <img key={i} src={`https://randomuser.me/api/portraits/thumb/women/${i+20}.jpg`} alt="User" className="w-12 h-12 rounded-full border-2 border-white object-cover shadow-md" referrerPolicy="no-referrer" />)
                 )}
             </div>
             <div className="text-left">
-                <div id="smart-cta-social-proof" className="flex items-center gap-2 font-black text-2xl text-white">
-                        <CheckCircle className={`w-6 h-6 ${ds.decorations.checkColor} fill-current`} /> {content.hero.socialProofCount || "2,458+"}
+                <div id="smart-cta-social-proof" className="flex items-center gap-2 font-black text-xl md:text-2xl text-white">
+                        <CheckCircle className={`w-5 h-5 md:w-6 md:h-6 ${ds.decorations.checkColor} fill-current`} /> {content.hero.socialProofCount || "2,458+"}
                 </div>
-                <p className="text-[11px] text-gray-400 font-bold uppercase tracking-[0.2em] leading-none mt-1">{capture.socialProofLabel || "Alumnos registrados"}</p>
+                <p className="text-[10px] md:text-[11px] text-gray-300 font-bold uppercase tracking-[0.2em] leading-none mt-1">{capture.socialProofLabel || "Alumnos registrados"}</p>
             </div>
         </div>
       </div>

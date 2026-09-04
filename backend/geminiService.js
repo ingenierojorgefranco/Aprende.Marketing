@@ -505,11 +505,10 @@ h1:
 - debe tener una longitud de 100 caracteres
 
 h2:
-- debe tener una longitud de Entre 200 y 240 caracteres.
-- Debe hacer la promesa más creíble.
-- Debe reducir dudas internas y miedo al fracaso.
-- Debe explicar cómo el Lead Magnet (${leadMagnetType}) transforma la situación actual del usuario.
-- Debe aumentar el deseo inmediato por acceder al regalo.
+- Debe tener una longitud concisa y directa de Entre 110 y 140 caracteres.
+- Debe confirmar y reforzar el título principal (h1) comunicando un beneficio claro de la clase gratuita o entrenamiento.
+- Debe motivar a la persona a registrarse inmediatamente sin rodeos.
+- REGLA ESTRICTA: PROHIBIDO incluir nombres de proyectos, productos de pago o cursos de marca registrada (como 'Manicurista Profesional® Premium' o nombres comerciales similares). Solo hablar del beneficio y la clase o sesión gratuita.
 - Debes incluir el nombre exacto del nicho, por ejemplo si es Microblading de Cejas ponerlo igual no microblading pelo a pelo, si es Resina Epoxica en Suelos ponerlo asi y no ponerlo Resina para pisos espejo etc
 
 

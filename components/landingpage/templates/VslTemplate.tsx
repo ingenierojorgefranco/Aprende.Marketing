@@ -31,6 +31,19 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, project, isM
     { num: 3, title: "Empieza", text: "Accede a la plataforma y comienza tu transformación." }
   ];
 
+  const cleanSubheadline = (sub?: string): string => {
+      if (!sub) return "Accede a la clase gratuita y descubre el paso a paso para dominar técnicas profesionales y crear un negocio rentable desde cero.";
+      const lower = sub.toLowerCase();
+      if (
+          lower.includes('manicurista profesional') || 
+          lower.includes('manicurista premium') || 
+          lower.includes('acabados de alta gama sin necesidad')
+      ) {
+          return "Accede a la clase gratuita y descubre el paso a paso para dominar técnicas profesionales y crear un negocio rentable desde cero.";
+      }
+      return sub;
+  };
+
   return (
         <div id="vsl-template-root" className={`min-h-screen font-sans ${ds.bg} scroll-smooth`}>
             <UrgencyBar content={content} ds={ds} />
@@ -52,7 +65,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, project, isM
                     <div className="mb-10 space-y-6 w-[80%]">
                         {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-[1.1] ${ds.hero.titleColor} ${isMobilePreview ? 'text-3xl' : 'text-4xl md:text-[4rem]'}`, ds.hero.highlightGradient)}
                         <div id="subtitulo-principal">
-                            {renderRichText(content.hero.subheadline, `text-lg md:text-[1.5rem] font-light opacity-100 max-w-3xl mx-auto leading-[2.2rem] ${ds.hero.subtitleColor || 'text-white/80'} ${isMobilePreview ? '' : 'md:text-[1.5rem]'}`)}
+                            {renderRichText(cleanSubheadline(content.hero.subheadline), `text-lg md:text-[1.5rem] font-light opacity-100 max-w-3xl mx-auto leading-[2.2rem] ${ds.hero.subtitleColor || 'text-white/80'} ${isMobilePreview ? '' : 'md:text-[1.5rem]'}`)}
                         </div>
                     </div>
                     <div className="w-full max-w-md animate-in slide-in-from-bottom-4 duration-700 delay-300">

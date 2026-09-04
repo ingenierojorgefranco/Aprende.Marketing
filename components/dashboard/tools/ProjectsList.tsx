@@ -1,12 +1,29 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { Project, User, AffiliateLink, Plan } from '../../../types';
-import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check, Gift, ShoppingCart as CartIcon, Info, Crown as CornerCrown, Settings, FileText, Star, Play, Users, Eye, ChevronRight, Clock, Activity, Folder, Globe, Award, Compass, GraduationCap } from 'lucide-react';
+import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check, Gift, ShoppingCart as CartIcon, Info, Crown as CornerCrown, Settings, FileText, Star, Play, Users, Eye, ChevronRight, Clock, Activity, Folder, Globe, Award, Compass, GraduationCap, ShieldCheck, Package } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 import confetti from 'canvas-confetti';
+
+const getCategoryIcon = (category?: string) => {
+    if (!category) return '🏷️';
+    const lower = category.toLowerCase().trim();
+    if (lower === 'all' || lower === 'todos') return '🌐';
+    if (lower.includes('belleza') || lower.includes('estética') || lower.includes('estetica') || lower.includes('maquillaje') || lower.includes('cejas') || lower.includes('uña') || lower.includes('microblading')) return '💄';
+    if (lower.includes('manualidad') || lower.includes('resina') || lower.includes('arte') || lower.includes('artesan')) return '🧶';
+    if (lower.includes('mascota') || lower.includes('canin') || lower.includes('felin') || lower.includes('perro') || lower.includes('gato')) return '🐾';
+    if (lower.includes('negocio') || lower.includes('finanza') || lower.includes('emprend') || lower.includes('marketing') || lower.includes('venta') || lower.includes('construcci') || lower.includes('interior')) return '💼';
+    if (lower.includes('salud') || lower.includes('fitness') || lower.includes('deporte') || lower.includes('bienestar') || lower.includes('nutrici')) return '💪';
+    if (lower.includes('cocina') || lower.includes('gastronom') || lower.includes('reposter') || lower.includes('pasteler')) return '🍳';
+    if (lower.includes('tecnolog') || lower.includes('program') || lower.includes('digital') || lower.includes('software')) return '💻';
+    if (lower.includes('educaci') || lower.includes('idioma') || lower.includes('curso') || lower.includes('academia')) return '📚';
+    if (lower.includes('musica') || lower.includes('canto') || lower.includes('audio')) return '🎵';
+    if (lower.includes('desarrollo personal') || lower.includes('espiritual') || lower.includes('mindfulness')) return '✨';
+    return '🏷️';
+};
 
 interface DashboardContext {
   user: User;
@@ -72,6 +89,118 @@ export const ProjectsList: React.FC = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const [activeOnboardingCategory, setActiveOnboardingCategory] = useState('all');
+
+    const onboardingCategories = useMemo(() => {
+        const rawNiches = masterLibrary
+            .map(p => (p.niche || '').trim())
+            .filter(n => n.length > 0);
+
+        const uniqueNiches: string[] = [];
+        rawNiches.forEach(niche => {
+            const exists = uniqueNiches.some(n => n.toLowerCase() === niche.toLowerCase());
+            if (!exists) {
+                uniqueNiches.push(niche);
+            }
+        });
+
+        const sortedNiches = [...uniqueNiches].sort((a, b) => {
+            const aIsBelleza = a.toLowerCase().includes('belleza');
+            const bIsBelleza = b.toLowerCase().includes('belleza');
+            if (aIsBelleza && !bIsBelleza) return -1;
+            if (!aIsBelleza && bIsBelleza) return 1;
+            return a.localeCompare(b, 'es', { sensitivity: 'base' });
+        });
+
+        const allCategory = {
+            id: 'all',
+            label: 'Todos',
+            icon: getCategoryIcon('all')
+        };
+
+        if (sortedNiches.length === 0) {
+            return [
+                allCategory,
+                { id: 'Belleza / Estética y Emprendimiento', label: 'Belleza / Estética y Emprendimiento', icon: '💄' },
+                { id: 'Belleza y Estética Profesional', label: 'Belleza y Estética Profesional', icon: '💄' },
+                { id: 'Emprendimiento, Construcción y Diseño de Interiores', label: 'Emprendimiento, Construcción y Diseño de Interiores', icon: '💼' },
+            ];
+        }
+
+        return [
+            allCategory,
+            ...sortedNiches.map(niche => ({
+                id: niche,
+                label: niche,
+                icon: getCategoryIcon(niche)
+            }))
+        ];
+    }, [masterLibrary]);
+
+    const filteredOnboardingProjects = useMemo(() => {
+        let list = masterLibrary;
+        if (activeOnboardingCategory !== 'all') {
+            const catLower = activeOnboardingCategory.toLowerCase().trim();
+            list = masterLibrary.filter(p => {
+                const nicheLower = (p.niche || '').toLowerCase().trim();
+                return nicheLower === catLower || nicheLower.includes(catLower) || catLower.includes(nicheLower);
+            });
+        }
+        return [...list].sort((a, b) => {
+            const dateA = new Date(a.createdAt || 0).getTime();
+            const dateB = new Date(b.createdAt || 0).getTime();
+            if (user.role === 'admin') {
+                return dateA - dateB;
+            } else {
+                if (a.isUnlocked && !b.isUnlocked) return -1;
+                if (!a.isUnlocked && b.isUnlocked) return 1;
+                return dateA - dateB;
+            }
+        });
+    }, [masterLibrary, activeOnboardingCategory, user.role]);
+
+    const getOnboardingCardImage = (project: Project) => {
+        let mm: any = project.multimedia_json;
+        if (typeof mm === 'string') {
+            try { mm = JSON.parse(mm); } catch { mm = null; }
+        }
+        if (mm?.heroImages?.[0]) return mm.heroImages[0];
+        if ((project as any).image) return (project as any).image;
+        const lower = (project.name || '').toLowerCase();
+        if (lower.includes('microblading') || lower.includes('cejas')) {
+            return 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=800&q=80';
+        }
+        if (lower.includes('manicurista') || lower.includes('uñas') || lower.includes('maquillaje')) {
+            return 'https://images.unsplash.com/photo-1596951053942-862d31980696?auto=format&fit=crop&w=800&q=80';
+        }
+        if (lower.includes('resina') || lower.includes('pisos')) {
+            return 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80';
+        }
+        return null;
+    };
+
+    const getOnboardingCardTitle = (project: Project) => {
+        const nameLower = (project.name || '').toLowerCase();
+        if (nameLower.includes("microblading")) return "Certificación Expert Microblading";
+        if (nameLower.includes("manicurista")) return "Curso de Maquillaje Profesional";
+        if (nameLower.includes("pisos") || nameLower.includes("resina")) return "Master en Pisos de Resina Epóxica";
+        return project.name || "Producto Digital";
+    };
+
+    const getOnboardingCardDesc = (project: Project) => {
+        const nameLower = (project.name || '').toLowerCase();
+        if (nameLower.includes("microblading") || nameLower.includes("cejas")) {
+            return "Domina la técnica de cejas y crea un servicio rentable con alta demanda.";
+        }
+        if (nameLower.includes("manicurista") || nameLower.includes("maquillaje")) {
+            return "Aprende maquillaje, color y técnica profesional para realzar la belleza en cualquier ocasión.";
+        }
+        if (nameLower.includes("pisos") || nameLower.includes("resina")) {
+            return "Aprende acabados profesionales en pisos de resina y conviértelo en un servicio altamente rentable.";
+        }
+        return project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Aprende una habilidad de alta demanda y conviértela en un negocio rentable.");
     };
 
     const handleDelete = async (project: Project, e: React.MouseEvent) => {
@@ -512,6 +641,230 @@ export const ProjectsList: React.FC = () => {
                         })})()}
                     </div>
                 )}
+            </div>
+
+            {/* --- SECCIÓN 3: SELECTOR DE PRODUCTOS DIGITALES (ESTILO ONBOARDING) --- */}
+            <div id="seleccion-productos-onboarding" className="space-y-8 pt-16 border-t border-white/10">
+                {/* Header matching Image 2 */}
+                <div className="text-center space-y-3">
+                    <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
+                        Selecciona tu <span className="text-[#FF5A1F]">Producto Digital</span>
+                    </h2>
+                    <p className="text-zinc-300 font-normal text-sm sm:text-base max-w-3xl mx-auto leading-relaxed pt-1">
+                        Elige el Producto Digital que mejor se adapte a ti, nuestra inteligencia artificial creará un sistema de ventas completo para este producto digital
+                    </p>
+
+                    {/* Glowing Spark Divider */}
+                    <div className="relative flex justify-center items-center my-4 max-w-xs mx-auto">
+                        <div className="w-full h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent"></div>
+                        <div className="absolute w-2.5 h-2.5 rounded-full bg-[#FF5A1F] blur-[2px] shadow-[0_0_12px_#FF5A1F]"></div>
+                    </div>
+
+                    {/* Filter Pills Bar */}
+                    <div className="flex items-center justify-center gap-2 md:gap-3 flex-wrap pt-2 pb-2">
+                        {onboardingCategories.map((cat) => {
+                            const isActive = activeOnboardingCategory === cat.id;
+                            return (
+                                <button
+                                    key={cat.id}
+                                    type="button"
+                                    onClick={() => setActiveOnboardingCategory(cat.id)}
+                                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                                        isActive
+                                            ? 'bg-[#121215] border border-[#FF5A1F] text-white shadow-[0_0_20px_rgba(255,90,31,0.25)] scale-105'
+                                            : 'bg-[#121215]/80 border border-zinc-800/80 text-zinc-300 hover:text-white hover:border-zinc-700'
+                                    }`}
+                                >
+                                    <span className="text-base">{cat.icon}</span>
+                                    <span>{cat.label}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Cards Grid */}
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                        <Loader2 className="w-10 h-10 animate-spin text-[#FF5A1F]" />
+                        <p className="text-zinc-400 text-sm mt-4 font-medium">Cargando productos de la base de datos...</p>
+                    </div>
+                ) : filteredOnboardingProjects.length === 0 ? (
+                    <div className="p-12 text-center bg-[#121215]/60 border border-zinc-800 rounded-3xl max-w-xl mx-auto">
+                        <Package className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+                        <p className="text-zinc-300 font-bold">No hay productos en esta categoría</p>
+                        <p className="text-zinc-500 text-xs mt-1">Prueba seleccionando otra categoría o la opción "Todos".</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                        {filteredOnboardingProjects.map((project) => {
+                            const isAlreadyUnlocked = project.isUnlocked || user.role === 'admin';
+                            const projectImg = getOnboardingCardImage(project);
+                            const title = getOnboardingCardTitle(project);
+                            const desc = getOnboardingCardDesc(project);
+                            const category = project.niche || "General";
+                            const catIcon = getCategoryIcon(category);
+
+                            return (
+                                <div
+                                    key={`onboarding-card-${project.id}`}
+                                    onClick={(e) => {
+                                        if (isAlreadyUnlocked) {
+                                            const userClone = projects.find(p => String(p.masterParentId) === String(project.id));
+                                            handleViewStrategy(e, userClone || project);
+                                        } else {
+                                            if (unlockingId !== project.id) {
+                                                handleUnlock(project, e);
+                                            }
+                                        }
+                                    }}
+                                    className={`group rounded-3xl p-5 md:p-6 flex flex-col justify-between h-full relative w-full cursor-pointer transition-all duration-300 space-y-4 ${
+                                        isAlreadyUnlocked
+                                            ? 'bg-gradient-to-b from-[#0c1a14]/90 to-[#07130e]/95 border-2 border-emerald-500/70 shadow-[0_0_30px_rgba(16,185,129,0.18)] hover:shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:border-emerald-400'
+                                            : 'bg-gradient-to-b from-[#181409]/90 to-[#100e06]/95 border-2 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.12)] hover:shadow-[0_0_40px_rgba(234,179,8,0.22)] hover:border-yellow-400'
+                                    }`}
+                                >
+                                    {/* Image Container with Floating Badges */}
+                                    <div className="h-44 md:h-48 bg-zinc-900 relative overflow-hidden rounded-2xl shrink-0 border border-zinc-800/60">
+                                        {/* Floating Category Badge Top-Left */}
+                                        <div className="absolute top-3 left-3 z-10">
+                                            <span className={`px-3 py-1 bg-black/80 backdrop-blur-md text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border ${isAlreadyUnlocked ? 'border-emerald-500/40' : 'border-yellow-500/40'} shadow-md`}>
+                                                <span>{catIcon}</span> Categoría: {category}
+                                            </span>
+                                        </div>
+
+                                        {/* Floating Status Badge Top-Right */}
+                                        <div className="absolute top-3 right-3 z-10">
+                                            {isAlreadyUnlocked ? (
+                                                <span className="px-3 py-1 bg-emerald-500/25 text-emerald-300 text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-emerald-500/60 backdrop-blur-md shadow-lg">
+                                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Desbloqueado
+                                                </span>
+                                            ) : (
+                                                <span className="px-3 py-1 bg-yellow-500/25 text-yellow-300 text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-yellow-500/50 backdrop-blur-md shadow-lg">
+                                                    <Lock className="w-3.5 h-3.5 text-yellow-400" /> Bloqueado
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {/* Cover Image */}
+                                        {projectImg ? (
+                                            <img
+                                                src={projectImg}
+                                                alt={title}
+                                                referrerPolicy="no-referrer"
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center bg-zinc-900">
+                                                <Package className="w-10 h-10 text-zinc-700" />
+                                            </div>
+                                        )}
+
+                                        {/* Dark overlay gradient */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none"></div>
+                                    </div>
+
+                                    {/* Text Content */}
+                                    <div className="flex-1 flex flex-col justify-between space-y-2">
+                                        <div>
+                                            <h3 className={`text-xl font-bold line-clamp-2 transition-colors duration-200 ${
+                                                isAlreadyUnlocked ? 'text-white group-hover:text-emerald-400' : 'text-white group-hover:text-yellow-400'
+                                            }`}>
+                                                {title}
+                                            </h3>
+                                            <p className="text-zinc-400 text-sm mt-2 line-clamp-3 leading-relaxed font-light">
+                                                {desc}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="pt-2">
+                                        {isAlreadyUnlocked ? (
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const userClone = projects.find(p => String(p.masterParentId) === String(project.id));
+                                                    handleViewStrategy(e, userClone || project);
+                                                }}
+                                                className="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(16,185,129,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+                                            >
+                                                <span>VER PROYECTO</span>
+                                                <ArrowRight className="w-4 h-4 shrink-0" />
+                                            </button>
+                                        ) : (
+                                            <>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleUnlock(project, e);
+                                                    }}
+                                                    disabled={unlockingId === project.id}
+                                                    className="w-full py-3.5 px-5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(234,179,8,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98] disabled:opacity-50"
+                                                >
+                                                    {unlockingId === project.id ? (
+                                                        <>
+                                                            <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                                                            <span>PROCESANDO...</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Unlock className="w-4 h-4 shrink-0" />
+                                                            <span>DESBLOQUEAR PROYECTO</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                                <p className="text-center text-[10px] text-zinc-500 font-bold uppercase tracking-widest pt-2">
+                                                    Consume 1 cupo de proyecto en tu plan
+                                                </p>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {/* Bottom Features Bar matching Image 2 */}
+                <div className="pt-8 border-t border-zinc-800/60 max-w-5xl mx-auto w-full">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-center text-left">
+                        {/* Feature 1 */}
+                        <div className="flex items-center gap-3.5 px-2">
+                            <div className="w-10 h-10 rounded-2xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                <ShieldCheck className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-white font-bold text-sm">Productos probados</p>
+                                <p className="text-zinc-400 text-xs font-light pt-1">Enfocados en resultados reales</p>
+                            </div>
+                        </div>
+
+                        {/* Feature 2 */}
+                        <div className="flex items-center gap-3.5 px-2 md:border-l md:border-zinc-800/80">
+                            <div className="w-10 h-10 rounded-2xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                <GraduationCap className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-white font-bold text-sm">Guía paso a paso</p>
+                                <p className="text-zinc-400 text-xs font-light pt-1">Aprende con método y claridad</p>
+                            </div>
+                        </div>
+
+                        {/* Feature 3 */}
+                        <div className="flex items-center gap-3.5 px-2 md:border-l md:border-zinc-800/80">
+                            <div className="w-10 h-10 rounded-2xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                <Rocket className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-white font-bold text-sm">Escala tu negocio</p>
+                                <p className="text-zinc-400 text-xs font-light pt-1">Convierte tu aprendizaje en ingresos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* --- PROTOCOLO DE DESBLOQUEO MAESTRO (MODAL INTERCEPTOR REDISEÑADO) --- */}

@@ -51,6 +51,31 @@ const logCRMActivity = async (contactId, type, content) => {
     }
 };
 
+const sanitizeLandingContent = (content) => {
+    if (!content) return content;
+    if (content.hero && content.hero.subheadline) {
+        const sub = String(content.hero.subheadline).toLowerCase();
+        if (
+            sub.includes('manicurista profesional') || 
+            sub.includes('manicurista premium') || 
+            sub.includes('acabados de alta gama sin necesidad')
+        ) {
+            content.hero.subheadline = "Accede a la clase gratuita y descubre el paso a paso para dominar técnicas profesionales y crear un negocio rentable desde cero.";
+        }
+    }
+    if (content.capture && content.capture.cardDesc) {
+        const desc = String(content.capture.cardDesc).toLowerCase();
+        if (
+            desc.includes('manicurista profesional') || 
+            desc.includes('manicurista premium') || 
+            desc.includes('acabados de alta gama sin necesidad')
+        ) {
+            content.capture.cardDesc = "Accede a la clase gratuita y descubre el paso a paso para dominar técnicas profesionales y crear un negocio rentable desde cero.";
+        }
+    }
+    return content;
+};
+
 // ======================================================
 //  RUTAS PRIVADAS (Gestiòn de Páginas)
 // ======================================================
@@ -67,6 +92,7 @@ router.get('/pages', authMiddleware, async (req, res) => {
     
     rows.forEach(page => {
         if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
+        page.content = sanitizeLandingContent(page.content);
         if (page.thankyoupage_json) {
             const tyData = typeof page.thankyoupage_json === 'string' ? JSON.parse(page.thankyoupage_json) : page.thankyoupage_json;
             if (!page.content) page.content = {};
@@ -206,6 +232,7 @@ router.get('/public/pages/by-domain', async (req, res) => {
     const page = rows[0];
     if (!isAdminRequest(req)) { await recordVisit(page.id); }
     if (typeof page.content === 'string') { try { page.content = JSON.parse(page.content); } catch {} }
+    page.content = sanitizeLandingContent(page.content);
     if (page.thankyoupage_json) {
         const tyData = typeof page.thankyoupage_json === 'string' ? JSON.parse(page.thankyoupage_json) : page.thankyoupage_json;
         if (!page.content) page.content = {};
@@ -239,6 +266,7 @@ router.get('/public/pages/by-user/:userSlug/:slug', async (req, res) => {
     const page = rows[0];
     if (!isAdminRequest(req)) { await recordVisit(page.id); }
     if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
+    page.content = sanitizeLandingContent(page.content);
     if (page.thankyoupage_json) {
         const tyData = typeof page.thankyoupage_json === 'string' ? JSON.parse(page.thankyoupage_json) : page.thankyoupage_json;
         if (!page.content) page.content = {};
@@ -282,6 +310,7 @@ router.get('/public/pages/:slug', async (req, res) => {
     const page = rows[0];
     if (!isAdminRequest(req)) { await recordVisit(page.id); }
     if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
+    page.content = sanitizeLandingContent(page.content);
     if (page.thankyoupage_json) {
         const tyData = typeof page.thankyoupage_json === 'string' ? JSON.parse(page.thankyoupage_json) : page.thankyoupage_json;
         if (!page.content) page.content = {};
