@@ -999,6 +999,101 @@ h2:
                 if (!avatar.image || !avatar.image.includes('randomuser.me')) {
                     avatar.image = `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
                 }
+
+                // Normalización de Dolores Ocultos / Hidden Pains (Exactamente 6 elementos en formato { title, text })
+                let pains = Array.isArray(avatar.hidden_pains) && avatar.hidden_pains.length > 0
+                    ? avatar.hidden_pains
+                    : (Array.isArray(avatar.dolores_ocultos) && avatar.dolores_ocultos.length > 0 ? avatar.dolores_ocultos : []);
+                
+                if (pains.length === 0 && avatar.pain) {
+                    pains.push({ title: "CLIENTELA INESTABLE", text: avatar.pain });
+                }
+
+                pains = pains.map((p, pIdx) => ({
+                    title: (typeof p === 'string' ? `FRUSTRACIÓN OCULTA ${pIdx + 1}` : (p.title || `FRUSTRACIÓN OCULTA ${pIdx + 1}`)).toUpperCase(),
+                    text: typeof p === 'string' ? p : (p.text || p.title || "")
+                }));
+
+                const defaultNichePains = [
+                    { title: "CLIENTELA INESTABLE", text: "Incertidumbre constante por no tener un flujo predecible de clientes cada mes." },
+                    { title: "TRABAJO DESVALORADO", text: "Frustración al ver que los clientes regatean precios y no valoran la calidad del servicio." },
+                    { title: "MARKETING INVISIBLE", text: "Dificultad extrema para destacar frente a una competencia saturada en redes sociales." },
+                    { title: "INVERSIÓN SIN RETORNO", text: "Miedo a gastar tiempo y dinero en cursos o herramientas sin obtener resultados reales." },
+                    { title: "SÍNDROME DEL IMPOSTOR", text: "Inseguridad y dudas sobre si sus habilidades técnicas son suficientes para cobrar tarifas altas." },
+                    { title: "DEPENDENCIA Y AGOTAMIENTO", text: "Cansancio físico y mental por trabajar demasiadas horas sin lograr libertad financiera." }
+                ];
+
+                while (pains.length < 6) {
+                    const fallback = defaultNichePains[pains.length % defaultNichePains.length];
+                    pains.push({
+                        title: fallback.title,
+                        text: fallback.text
+                    });
+                }
+
+                avatar.hidden_pains = pains.slice(0, 6);
+                avatar.dolores_ocultos = pains.slice(0, 6);
+
+                // Normalización de Deseos / Motivaciones (Exactamente 6 elementos)
+                let desires = Array.isArray(avatar.hidden_desires) && avatar.hidden_desires.length > 0
+                    ? avatar.hidden_desires
+                    : (Array.isArray(avatar.deseos_motivaciones) && avatar.deseos_motivaciones.length > 0 ? avatar.deseos_motivaciones : []);
+
+                if (desires.length === 0 && (avatar.desire || avatar.transformation_title)) {
+                    desires.push({ title: "AGENDA LLENA", text: avatar.desire || avatar.transformation_title });
+                }
+
+                desires = desires.map((d, dIdx) => ({
+                    title: (typeof d === 'string' ? `ANHELO PROFUNDO ${dIdx + 1}` : (d.title || `ANHELO PROFUNDO ${dIdx + 1}`)).toUpperCase(),
+                    text: typeof d === 'string' ? d : (d.text || d.title || "")
+                }));
+
+                const defaultNicheDesires = [
+                    { title: "AGENDA LLENA Y PREDECIBLE", text: "Tener clientes reservando con semanas de anticipación a precios premium sin objeciones." },
+                    { title: "AUTORIDAD Y RECONOCIMIENTO", text: "Posicionarse como la referencia indiscutible y experta respetada en su nicho y ciudad." },
+                    { title: "INDEPENDENCIA FINANCIERA", text: "Generar ingresos estables y crecientes que le permitan vivir con total tranquilidad económica." },
+                    { title: "LIBERTAD DE TIEMPO", text: "Controlar sus propios horarios y disfrutar de más tiempo de calidad con su familia." },
+                    { title: "NEGOCIO ESCALABLE", text: "Construir una marca propia sólida que no dependa únicamente de intercambiar horas por dinero." },
+                    { title: "CONFIANZA PROFESIONAL TOTAL", text: "Dominar una metodología infalible que garantiza resultados impecables en cada trabajo." }
+                ];
+
+                while (desires.length < 6) {
+                    const fallback = defaultNicheDesires[desires.length % defaultNicheDesires.length];
+                    desires.push({
+                        title: fallback.title,
+                        text: fallback.text
+                    });
+                }
+
+                avatar.hidden_desires = desires.slice(0, 6);
+                avatar.deseos_motivaciones = desires.slice(0, 6);
+
+                // Normalización de Comportamientos (Exactamente 6 elementos)
+                let behaviors = Array.isArray(avatar.behaviors_list) && avatar.behaviors_list.length > 0
+                    ? avatar.behaviors_list
+                    : (Array.isArray(avatar.comportamientos) && avatar.comportamientos.length > 0 ? avatar.comportamientos : []);
+
+                if (behaviors.length === 0 && avatar.behavior) {
+                    behaviors.push(avatar.behavior);
+                }
+
+                behaviors = behaviors.map(b => typeof b === 'string' ? b : (b.text || b.title || String(b)));
+
+                const defaultNicheBehaviors = [
+                    "Consume activamente tutoriales, reels y contenido de expertos en Instagram y TikTok buscando mejorar su técnica.",
+                    "Busca recomendaciones y opiniones en grupos especializados antes de invertir en nuevos programas.",
+                    "Guarda publicaciones y capturas de pantalla de marcas referentes para inspirarse en sus propuestas.",
+                    "Suele dudar al comprar por miedo a elegir un método desactualizado o sin soporte personalizado.",
+                    "Prefiere canales de comunicación directos como WhatsApp para resolver dudas antes de comprar.",
+                    "Compara precios constantemente pero termina eligiendo a quien le transmite mayor seguridad y autoridad."
+                ];
+
+                while (behaviors.length < 6) {
+                    behaviors.push(defaultNicheBehaviors[behaviors.length % defaultNicheBehaviors.length]);
+                }
+
+                avatar.behaviors_list = behaviors.slice(0, 6);
+                avatar.comportamientos = behaviors.slice(0, 6);
             });
         }
 

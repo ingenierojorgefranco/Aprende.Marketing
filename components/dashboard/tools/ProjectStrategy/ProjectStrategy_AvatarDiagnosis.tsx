@@ -74,23 +74,29 @@ const getProcessedAvatars = (rawAvatars: any[]): any[] => {
         { label: "Dispositivos de uso", val: "Smartphone de gama media-alta, Instagram, WhatsApp" }
       ],
       dolores_ocultos: [
-        { title: "CLIENTELA INESTABLE", text: "No tiene suficientes clientes estables, lo que le genera una alta incertidumbre mensual sobre la facturación de su negocio." },
-        { title: "TRABAJO DESVALORADO", text: "Siente que su trabajo no es valorado como debería y que las clientas siempre buscan la opción más barata regateando precios." },
-        { title: "MARKETING INVISIBLE", text: "Le cuesta diferenciarse en un mercado saturado de profesionales independientes ofreciendo lo mismo a precios muy bajos." },
-        { title: "INVERSIÓN SIN RETORNO", text: "Miedo a invertir en formación y no ver resultados, perdiendo sus recursos en teoría aburrida que no puede aplicar en la práctica real." }
-      ],
+                                  { title: "CLIENTELA INESTABLE", text: "No tiene suficientes clientes estables, lo que le genera una alta incertidumbre mensual sobre la facturación de su negocio." },
+                                  { title: "TRABAJO DESVALORADO", text: "Siente que su trabajo no es valorado como debería y que las clientas siempre buscan la opción más barata regateando precios." },
+                                  { title: "MARKETING INVISIBLE", text: "Le cuesta diferenciarse en un mercado saturado de profesionales independientes ofreciendo lo mismo a precios muy bajos." },
+                                  { title: "INVERSIÓN SIN RETORNO", text: "Miedo a invertir en formación y no ver resultados, perdiendo sus recursos en teoría aburrida que no puede aplicar en la práctica real." },
+                                  { title: "SÍNDROME DEL IMPOSTOR", text: "Inseguridad constante sobre si sus habilidades técnicas son verdaderamente suficientes para cobrar tarifas de alto valor." },
+                                  { title: "AGOTAMIENTO Y SIN HORARIOS", text: "Trabaja jornadas interminables atendiendo citas sin orden, terminando agotada sin ver crecer su rentabilidad neta." }
+                                ],
       deseos_motivaciones: [
-        { title: "AGENDA LLENA", text: "Tener más clientes y la agenda completamente llena con meses de anticipación sin tener que regatear tarifas." },
-        { title: "EXPERTA RECONOCIDA", text: "Ser reconocida formalmente como una de las mejores expertas referentes en su área y ciudad." },
-        { title: "INDEPENDENCIA FINANCIERA", text: "Lograr verdadera estabilidad e independencia económica para tomar decisiones con libertad." },
-        { title: "FLEXIBILIDAD ABSOLUTA", text: "Tener control total de sus propios horarios de atención y la flexibilidad de tiempo y ubicación que siempre soñó." }
-      ],
+                                  { title: "AGENDA LLENA Y PREDECIBLE", text: "Tener más clientes y la agenda completamente llena con semanas de anticipación sin tener que regatear tarifas." },
+                                  { title: "EXPERTA RECONOCIDA", text: "Ser reconocida formalmente como una de las mejores expertas referentes en su área y ciudad." },
+                                  { title: "INDEPENDENCIA FINANCIERA", text: "Lograr verdadera estabilidad e independencia económica para tomar decisiones con libertad y tranquilidad." },
+                                  { title: "FLEXIBILIDAD ABSOLUTA", text: "Tener control total de sus propios horarios de atención y la flexibilidad de tiempo y ubicación que siempre soñó." },
+                                  { title: "CLIENTELA VIP FIDELIZADA", text: "Construir una base de clientas recurrentes que pagan tarifas premium con gusto y recomiendan su trabajo." },
+                                  { title: "ESTUDIO O CABINA PROPIA", text: "Consolidar un espacio profesional propio con acabados de alta gama y proyección de marca respetada." }
+                                ],
       comportamientos: [
-        "Sigue activamente cuentas de gurús de belleza y marketing estético en Instagram y TikTok.",
-        "Paga pequeños talleres o webinars rápidos de $20 a $50 USD buscando secretos aplicables.",
-        "Pregunta constantemente en grupos de Facebook qué marcas de pigmentos o inductores son mejores.",
-        "Consume video tutoriales rápidos por las noches antes de dormir buscando perfeccionar trazo de cejas."
-      ]
+                                  "Sigue activamente cuentas de referentes del sector y marketing en Instagram y TikTok buscando ideas y tendencias.",
+                                  "Paga pequeños talleres o webinars rápidos de $20 a $50 USD buscando secretos prácticos aplicables de inmediato.",
+                                  "Pregunta constantemente en grupos y comunidades digitales qué marcas, herramientas o insumos son mejores.",
+                                  "Consume tutoriales prácticos por las noches antes de dormir buscando perfeccionar sus técnicas y detalles.",
+                                  "Revisa con frecuencia los perfiles de su competencia local para analizar qué servicios ofrecen y a qué precios.",
+                                  "Prefiere comunicarse por WhatsApp de forma ágil y directa para coordinar compras, citas y consultas técnicas."
+                                ]
     },
     {
       id: "valeria-mendoza",
@@ -130,21 +136,29 @@ const getProcessedAvatars = (rawAvatars: any[]): any[] => {
         { label: "Dispositivos de uso", val: "iPhone/Android de última generación, TikTok, Pinterest" }
       ],
       dolores_ocultos: [
-        { title: "El miedo al estancamiento profesional", text: "Teme trabajar como empleada toda su vida sin ver su propio crecimiento financiero." },
-        { title: "Falta de credibilidad", text: "Le preocupa que las clientas no confíen en ella por verse muy joven o no tener certificación reconocida de alta gama." },
-        { title: "Inestabilidad emocional", text: "La baja remuneración genera que dude de su propia pasión por la belleza y estética profesional." }
-      ],
+                                  { title: "ESTANCAMIENTO PROFESIONAL", text: "Teme quedarse estancada como ayudante o empleada toda su vida sin ver un crecimiento financiero real." },
+                                  { title: "FALTA DE CREDIBILIDAD", text: "Le preocupa que los clientes duden de ella por verse joven o no contar con una certificación de prestigio reconocida." },
+                                  { title: "INESTABILIDAD EMOCIONAL", text: "La baja remuneración genera que dude de su propia vocación y sienta desánimo al terminar cada jornada." },
+                                  { title: "TEMOR A COMETER ERRORES", text: "Miedo a fallar en un procedimiento delicado y arruinar la experiencia de un cliente o su reputación." },
+                                  { title: "FALTA DE CONTACTOS", text: "No sabe cómo empezar a captar clientas por su cuenta sin depender de un local o negocio ajeno." },
+                                  { title: "PRESUPUESTO LIMITADO", text: "Duda de poder adquirir insumos profesionales y herramientas necesarias sin endeudarse en exceso." }
+                                ],
       deseos_motivaciones: [
-        { title: "Reconocimiento y Estatus", text: "Ser la especialista de referencia a la que las clientas agendan con semanas de anticipación corporativa." },
-        { title: "Aumentar Tarifas", text: "Pasar de cobrar servicios baratos de $15 a tratamientos premium de más de $150 de forma segura." },
-        { title: "Estilo de Vida Independiente", text: "Crear una marca personal respetada con identidad visual propia en redes sociales." }
-      ],
+                                  { title: "RECONOCIMIENTO Y ESTATUS", text: "Ser la especialista de referencia a la que las clientas agendan con semanas de anticipación corporativa." },
+                                  { title: "AUMENTAR TARIFAS", text: "Pasar de cobrar servicios básicos de bajo costo a tratamientos premium con márgenes de alta rentabilidad." },
+                                  { title: "ESTILO DE VIDA INDEPENDIENTE", text: "Crear una marca personal respetada con identidad visual propia en redes sociales." },
+                                  { title: "DOMINIO TÉCNICO TOTAL", text: "Sentir absoluta seguridad en cada trazo, procedimiento y atención al cliente con técnicas de vanguardia." },
+                                  { title: "PORTAFOLIO DE IMPACTO", text: "Exhibir resultados antes/después impecables que atraigan miradas de admiración y ventas inmediatas." },
+                                  { title: "PRIMERA CABINA PRIVADA", text: "Montar su propio espacio independiente en los próximos 6 a 12 meses con clientela fiel." }
+                                ],
       comportamientos: [
-        "Guarda tableros de fotos de cejas perfectas y estética minimalista en Pinterest.",
-        "Sigue tendencias de micropigmentación internacionales de Europa y Brasil.",
-        "Compara activamente los precios de academias en línea para decidir su inversión.",
-        "Práctica exhaustivamente en látex para perfeccionar la precisión de sus trazos."
-      ]
+                                  "Guarda tableros de fotos estéticas y trabajos de alta calidad en Pinterest e Instagram para inspirarse.",
+                                  "Sigue tendencias y técnicas internacionales de creadores en Europa, Brasil y Estados Unidos.",
+                                  "Compara activamente los precios y programas de academias en línea para decidir su próxima formación.",
+                                  "Practica exhaustivamente en simuladores o modelos de prueba para perfeccionar la precisión de sus resultados.",
+                                  "Interactúa frecuentemente en historias y directos haciendo preguntas técnicas a expertos del sector.",
+                                  "Usa activamente su smartphone para editar fotos y videos buscando mejorar la presentación de su trabajo."
+                                ]
     },
     {
       id: "monica-silva",
@@ -184,21 +198,29 @@ const getProcessedAvatars = (rawAvatars: any[]): any[] => {
         { label: "Dispositivos de uso", val: "Tablet, Facebook, canales de YouTube educativos" }
       ],
       dolores_ocultos: [
-        { title: "La barrera del aprendizaje técnico", text: "Duda de su capacidad para asimilar conceptos modernos o dominar herramientas de alta precisión." },
-        { title: "Miedo al rechazo comercial", text: "Le aterra el proceso de vender o hablar con clientas desconocidas sobre precios y retornos." },
-        { title: "El síndrome de la impostora tardía", text: "Siente que el mercado es para jóvenes influencers de belleza y le cuesta encajar visualmente." }
-      ],
+                                  { title: "BARRERA DEL APRENDIZAJE", text: "Duda de su capacidad para asimilar conceptos modernos o dominar herramientas de alta precisión a su edad." },
+                                  { title: "MIEDO AL RECHAZO COMERCIAL", text: "Le aterra el proceso de vender o hablar con clientas desconocidas sobre precios y cotizaciones." },
+                                  { title: "SÍNDROME DE IMPOSTORA TARDÍA", text: "Siente que el mercado es solo para jóvenes influencers y le cuesta proyectar seguridad en el medio." },
+                                  { title: "RIESGO AL FRACASO FAMILIAR", text: "Teme gastar ahorros familiares en una aventura que no rinda frutos y decepcionar a su círculo cercano." },
+                                  { title: "DESORIENTACIÓN DIGITAL", text: "Se siente abrumada por la complejidad de las redes sociales, algoritmos y herramientas tecnológicas." },
+                                  { title: "FALTA DE TIEMPO PROPIO", text: "Tiene responsabilidades del hogar que compiten por su tiempo disponible para estudiar y practicar." }
+                                ],
       deseos_motivaciones: [
-        { title: "Seguridad Financiera Post-Jubilación", text: "Construir un activo rentable y duradero que le dé tranquilidad a mediano-largo plazo." },
-        { title: "Empoderamiento Familiar", text: "Aportar económicamente al hogar disminuyendo la presión financiera sobre su cónyuge." },
-        { title: "Autorealización Personal", text: "Desarrollar un oficio creativo e inspirador que llene su tiempo de valor y orgullo propio." }
-      ],
+                                  { title: "SEGURIDAD Y TRANQUILIDAD", text: "Construir un activo rentable y duradero que le brinde estabilidad económica a mediano y largo plazo." },
+                                  { title: "EMPODERAMIENTO FAMILIAR", text: "Aportar activamente ingresos al hogar disminuyendo la presión financiera sobre su cónyuge o familia." },
+                                  { title: "AUTORREALIZACIÓN PERSONAL", text: "Desarrollar un oficio creativo, valioso y respetado que llene sus días de propósito y orgullo." },
+                                  { title: "CONTROL DE SUS INGRESOS", text: "No tener que pedir dinero a nadie y disponer de recursos propios para sus proyectos y gustos personales." },
+                                  { title: "COMUNIDAD DE APOYO REAL", text: "Pertenecer a una red donde pueda resolver dudas sin sentirse juzgada y celebrar cada logro." },
+                                  { title: "REINVENCIÓN EXITOSA", text: "Demostrarse a sí misma y a su entorno que nunca es tarde para emprender y triunfar con excelencia." }
+                                ],
       comportamientos: [
-        "Sigue grupos comunitarios locales de emprendedores locales y negocios pymes.",
-        "Prefiere cursos con soporte personalizado, llamadas en vivo o grupos cerrados de ayuda.",
-        "Busca recomendaciones de boca en boca para evaluar la seriedad de una propuesta.",
-        "Toma notas escritas detalladas en cuadernos físicos durante las clases teóricas."
-      ]
+                                  "Sigue grupos comunitarios y foros locales de emprendimiento buscando testimonios de personas similares.",
+                                  "Prefiere cursos y programas con acompañamiento personalizado, sesiones en vivo y soporte paso a paso.",
+                                  "Busca recomendaciones de boca en boca y reseñas reales antes de tomar cualquier decisión de compra.",
+                                  "Toma notas detalladas a mano en cuadernos físicos mientras repasa lecciones y capacitaciones.",
+                                  "Consume contenido en YouTube en su tablet o televisor con tranquilidad durante sus momentos libres.",
+                                  "Aprecia enormemente el trato cercano, cálido y paciente por canales de mensajería como WhatsApp."
+                                ]
     }
   ];
 
@@ -306,32 +328,76 @@ const getProcessedAvatars = (rawAvatars: any[]): any[] => {
       { label: "Dispositivos de uso", val: realAv.devices || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[5].val) },
     ];
 
-    let dolores_ocultos = hasSavedAvatars ? [] : defaultAv.dolores_ocultos;
-    if (realAv.hidden_pains && Array.isArray(realAv.hidden_pains)) {
-      dolores_ocultos = realAv.hidden_pains;
-    } else if (realAv.dolores_ocultos && Array.isArray(realAv.dolores_ocultos)) {
-      dolores_ocultos = realAv.dolores_ocultos;
-    } else if (realAv.pains_hidden && Array.isArray(realAv.pains_hidden)) {
-      dolores_ocultos = realAv.pains_hidden;
-    }
+    let rawDolores = (realAv.dolores_ocultos && Array.isArray(realAv.dolores_ocultos) && realAv.dolores_ocultos.length > 0)
+      ? realAv.dolores_ocultos
+      : (realAv.hidden_pains && Array.isArray(realAv.hidden_pains) && realAv.hidden_pains.length > 0)
+        ? realAv.hidden_pains
+        : (realAv.pains_hidden && Array.isArray(realAv.pains_hidden) && realAv.pains_hidden.length > 0)
+          ? realAv.pains_hidden
+          : (realAv.detailed_pains && Array.isArray(realAv.detailed_pains) && realAv.detailed_pains.length > 0)
+            ? realAv.detailed_pains
+            : (realAv.pain)
+              ? [{ title: defaultAv.dolores_ocultos[0]?.title || "DOLOR IDENTIFICADO", text: realAv.pain }]
+              : [...defaultAv.dolores_ocultos];
 
-    let deseos_motivaciones = hasSavedAvatars ? [] : defaultAv.deseos_motivaciones;
-    if (realAv.hidden_desires && Array.isArray(realAv.hidden_desires)) {
-      deseos_motivaciones = realAv.hidden_desires;
-    } else if (realAv.deseos_motivaciones && Array.isArray(realAv.deseos_motivaciones)) {
-      deseos_motivaciones = realAv.deseos_motivaciones;
-    } else if (realAv.motivations_detail && Array.isArray(realAv.motivations_detail)) {
-      deseos_motivaciones = realAv.motivations_detail;
-    }
+    let dolores_ocultos = rawDolores.map((item: any, dIdx: number) => ({
+      title: (typeof item === 'string' ? (defaultAv.dolores_ocultos[dIdx % defaultAv.dolores_ocultos.length]?.title || ("FRUSTRACIÓN OCULTA " + (dIdx + 1))) : (item.title || defaultAv.dolores_ocultos[dIdx % defaultAv.dolores_ocultos.length]?.title || ("FRUSTRACIÓN OCULTA " + (dIdx + 1)))).toUpperCase(),
+      text: typeof item === 'string' ? item : (item.text || item.title || "")
+    }));
 
-    let comportamientos = hasSavedAvatars ? [] : defaultAv.comportamientos;
-    if (realAv.behaviors_list && Array.isArray(realAv.behaviors_list)) {
-      comportamientos = realAv.behaviors_list;
-    } else if (realAv.comportamientos && Array.isArray(realAv.comportamientos)) {
-      comportamientos = realAv.comportamientos;
-    } else if (realAv.behaviors && Array.isArray(realAv.behaviors)) {
-      comportamientos = realAv.behaviors;
+    while (dolores_ocultos.length < 6) {
+      const fallback = defaultAv.dolores_ocultos[dolores_ocultos.length % defaultAv.dolores_ocultos.length];
+      dolores_ocultos.push({
+        title: fallback.title.toUpperCase(),
+        text: fallback.text
+      });
     }
+    dolores_ocultos = dolores_ocultos.slice(0, 6);
+
+    let rawDeseos = (realAv.deseos_motivaciones && Array.isArray(realAv.deseos_motivaciones) && realAv.deseos_motivaciones.length > 0)
+      ? realAv.deseos_motivaciones
+      : (realAv.hidden_desires && Array.isArray(realAv.hidden_desires) && realAv.hidden_desires.length > 0)
+        ? realAv.hidden_desires
+        : (realAv.motivations_detail && Array.isArray(realAv.motivations_detail) && realAv.motivations_detail.length > 0)
+          ? realAv.motivations_detail
+          : (realAv.desires && Array.isArray(realAv.desires) && realAv.desires.length > 0)
+            ? realAv.desires
+            : (realAv.drivers && Array.isArray(realAv.drivers) && realAv.drivers.length > 0)
+              ? realAv.drivers
+              : (realAv.decisionDrivers && Array.isArray(realAv.decisionDrivers) && realAv.decisionDrivers.length > 0)
+                ? realAv.decisionDrivers
+                : (realAv.desire || realAv.transformation_title)
+                  ? [{ title: defaultAv.deseos_motivaciones[0]?.title || "ANHELO PROFUNDO", text: realAv.desire || realAv.transformation_title }]
+                  : [...defaultAv.deseos_motivaciones];
+
+    let deseos_motivaciones = rawDeseos.map((item: any, dIdx: number) => ({
+      title: (typeof item === 'string' ? (defaultAv.deseos_motivaciones[dIdx % defaultAv.deseos_motivaciones.length]?.title || ("ANHELO PROFUNDO " + (dIdx + 1))) : (item.title || defaultAv.deseos_motivaciones[dIdx % defaultAv.deseos_motivaciones.length]?.title || ("ANHELO PROFUNDO " + (dIdx + 1)))).toUpperCase(),
+      text: typeof item === 'string' ? item : (item.text || item.title || "")
+    }));
+
+    while (deseos_motivaciones.length < 6) {
+      const fallback = defaultAv.deseos_motivaciones[deseos_motivaciones.length % defaultAv.deseos_motivaciones.length];
+      deseos_motivaciones.push({
+        title: fallback.title.toUpperCase(),
+        text: fallback.text
+      });
+    }
+    deseos_motivaciones = deseos_motivaciones.slice(0, 6);
+
+    let rawComportamientos = (realAv.comportamientos && Array.isArray(realAv.comportamientos) && realAv.comportamientos.length > 0)
+      ? realAv.comportamientos
+      : (realAv.behaviors_list && Array.isArray(realAv.behaviors_list) && realAv.behaviors_list.length > 0)
+        ? realAv.behaviors_list
+        : (realAv.behaviors && Array.isArray(realAv.behaviors) && realAv.behaviors.length > 0)
+          ? realAv.behaviors
+          : [...defaultAv.comportamientos];
+
+    let comportamientos = rawComportamientos.map((b: any) => typeof b === 'string' ? b : (b.text || b.title || String(b)));
+
+    while (comportamientos.length < 6) {
+      comportamientos.push(defaultAv.comportamientos[comportamientos.length % defaultAv.comportamientos.length]);
+    }
+    comportamientos = comportamientos.slice(0, 6);
 
     let motivations = defaultMotivationsForIdx;
     if (realAv.motivations && typeof realAv.motivations === "object") {

@@ -38,10 +38,11 @@ router.get('/project/:projectId', async (req, res) => {
             );
 
             // Traer ganchos del maestro que no han sido clonados todavía
-            // Si es starter, limitamos a 15 aleatorios
+            // Si es starter, limitamos a 15 aleatorios; admin puede ver todos incluidos inactivos para gestionarlos
+            const activeCondition = req.user.role === 'admin' ? '' : 'AND is_active = 1';
             const masterQuery = `SELECT * FROM project_hooks 
                  WHERE project_id = ? 
-                 AND is_active = 1
+                 ${activeCondition}
                  AND id NOT IN (SELECT master_hook_id FROM project_hooks WHERE project_id = ? AND master_hook_id IS NOT NULL)
                  ${isStarter ? 'ORDER BY RAND() LIMIT 15' : 'ORDER BY created_at ASC'}`;
 
@@ -173,8 +174,16 @@ router.get('/library', async (req, res) => {
  * Desbloquea un gancho individual desde la biblioteca maestra (Copia física)
  */
 router.post('/unlock-single', async (req, res) => {
-    const { projectId, masterHookId, isGenerated } = req.body;
+    let { projectId, masterHookId, isGenerated } = req.body;
     if (!projectId || !masterHookId) return res.status(400).json({ error: "Faltan parámetros" });
+
+    if (typeof masterHookId === 'string' && masterHookId.startsWith('available-')) {
+        masterHookId = masterHookId.replace('available-', '');
+    }
+    const cleanMasterHookId = parseInt(masterHookId, 10);
+    if (isNaN(cleanMasterHookId)) {
+        return res.status(400).json({ error: "ID de gancho maestro inválido" });
+    }
 
     try {
         const effectiveLimits = await getEffectiveLimits(req.user.id);
@@ -192,7 +201,7 @@ router.post('/unlock-single', async (req, res) => {
             }
         }
 
-        const [masterRows] = await pool.query('SELECT * FROM project_hooks WHERE id = ?', [masterHookId]);
+        const [masterRows] = await pool.query('SELECT * FROM project_hooks WHERE id = ?', [cleanMasterHookId]);
         if (masterRows.length === 0) return res.status(404).json({ error: "Hook maestro no encontrado" });
         const master = masterRows[0];
 
@@ -219,6 +228,17 @@ router.post('/unlock-multiple', async (req, res) => {
         return res.status(400).json({ error: "Faltan parámetros o formato inválido" });
     }
 
+    const cleanMasterHookIds = masterHookIds.map(id => {
+        if (typeof id === 'string' && id.startsWith('available-')) {
+            return parseInt(id.replace('available-', ''), 10);
+        }
+        return parseInt(id, 10);
+    }).filter(id => !isNaN(id));
+
+    if (cleanMasterHookIds.length === 0) {
+        return res.status(400).json({ error: "No hay IDs válidos para desbloquear" });
+    }
+
     try {
         const effectiveLimits = await getEffectiveLimits(req.user.id);
         const maxAllowed = effectiveLimits.maxHooks;
@@ -230,12 +250,12 @@ router.post('/unlock-multiple', async (req, res) => {
                 WHERE project_id = ?
             `, [projectId]);
             
-            if (countRows[0].total + masterHookIds.length > maxAllowed) {
+            if (countRows[0].total + cleanMasterHookIds.length > maxAllowed) {
                 return res.status(403).json({ error: `Esta acción superaría el límite de ${maxAllowed} ganchos para este proyecto.` });
             }
         }
 
-        const [masterRows] = await pool.query('SELECT * FROM project_hooks WHERE id IN (?)', [masterHookIds]);
+        const [masterRows] = await pool.query('SELECT * FROM project_hooks WHERE id IN (?)', [cleanMasterHookIds]);
         if (masterRows.length === 0) return res.status(404).json({ error: "Ganchos maestros no encontrados" });
 
         const results = [];
@@ -317,9 +337,27 @@ router.post('/unlock-more/:projectId', async (req, res) => {
  * Actualiza la información de un gancho
  */
 router.put('/:id', async (req, res) => {
-    const { id } = req.params;
+    let { id } = req.params;
+    if (typeof id === 'string' && id.startsWith('available-')) {
+        id = id.replace('available-', '');
+    }
+    const cleanId = parseInt(id, 10);
+    if (isNaN(cleanId)) {
+        return res.status(400).json({ error: "ID de gancho inválido" });
+    }
+
     const { landingPageUrl, isGenerated, contentJson, title, psychologicalStrategy, psychological_strategy, isActive } = req.body;
     const finalStrategy = psychological_strategy || psychologicalStrategy;
+    
+    // Normalizar valores booleanos para MySQL
+    const normalizedIsActive = typeof isActive === 'boolean' 
+        ? (isActive ? 1 : 0) 
+        : (isActive !== undefined && isActive !== null ? (Number(isActive) ? 1 : 0) : null);
+
+    const normalizedIsGenerated = typeof isGenerated === 'boolean'
+        ? (isGenerated ? 1 : 0)
+        : (isGenerated !== undefined && isGenerated !== null ? (Number(isGenerated) ? 1 : 0) : null);
+
     try {
         await pool.query(
             `UPDATE project_hooks SET 
@@ -330,10 +368,18 @@ router.put('/:id', async (req, res) => {
                 psychological_strategy = COALESCE(?, psychological_strategy),
                 is_active = COALESCE(?, is_active)
              WHERE id = ?`,
-            [landingPageUrl, isGenerated, contentJson ? (typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson)) : null, title, finalStrategy, isActive, id]
+            [
+                landingPageUrl || null, 
+                normalizedIsGenerated, 
+                contentJson ? (typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson)) : null, 
+                title || null, 
+                finalStrategy || null, 
+                normalizedIsActive, 
+                cleanId
+            ]
         );
         
-        res.json({ success: true });
+        res.json({ success: true, id: cleanId, isActive: normalizedIsActive });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -376,9 +422,16 @@ router.post('/', async (req, res) => {
  * Elimina un gancho
  */
 router.delete('/:id', async (req, res) => {
-    const { id } = req.params;
+    let { id } = req.params;
+    if (typeof id === 'string' && id.startsWith('available-')) {
+        id = id.replace('available-', '');
+    }
+    const cleanId = parseInt(id, 10);
+    if (isNaN(cleanId)) {
+        return res.status(400).json({ error: "ID de gancho inválido" });
+    }
     try {
-        await pool.query('DELETE FROM project_hooks WHERE id = ?', [id]);
+        await pool.query('DELETE FROM project_hooks WHERE id = ?', [cleanId]);
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });

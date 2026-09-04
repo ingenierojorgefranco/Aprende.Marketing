@@ -521,9 +521,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     try {
         await api.updateProjectHook(targetId, { [field]: value });
         
+        const cleanTargetId = String(targetId).replace('available-', '');
+
         // Actualizar en el estado de ganchos del proyecto
         setHooks(prev => prev.map(h => {
-            if (h.id === targetId) {
+            const isMatch = h.id === targetId || 
+                            String(h.id) === String(targetId) || 
+                            String(h.id) === cleanTargetId || 
+                            (h.masterHookId && String(h.masterHookId) === cleanTargetId);
+            if (isMatch) {
                 const updated = { ...h, [field]: value };
                 if (field === 'psychological_strategy') {
                     (updated as any).psychologicalStrategy = value;
@@ -535,7 +541,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
         // También actualizar en el estado de la biblioteca si existe allí
         setLibraryHooks(prev => prev.map(h => {
-            if (h.id === targetId) {
+            const isMatch = h.id === targetId || 
+                            String(h.id) === String(targetId) || 
+                            String(h.id) === cleanTargetId || 
+                            (h.masterHookId && String(h.masterHookId) === cleanTargetId);
+            if (isMatch) {
                 const updated = { ...h, [field]: value };
                 if (field === 'psychological_strategy') {
                     (updated as any).psychologicalStrategy = value;
@@ -1001,23 +1011,24 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
               ) : paginatedHooks.length > 0 ? (
                 paginatedHooks.map((hook: ProjectHook, idxInPage: number) => {
                   const globalIdx = (activeTab === 'library' ? (libraryPage - 1) * itemsPerPage : (currentPage - 1) * itemsPerPage) + idxInPage;
-                  const isActive = activeTab === 'library' ? activeLibraryHook === globalIdx : activeHook === globalIdx;
+                  const isCardSelected = activeTab === 'library' ? activeLibraryHook === globalIdx : activeHook === globalIdx;
                   const isUnlocked = (hook as any).isUnlocked || activeTab === 'generated';
                   const isGenerated = hook.isGenerated;
+                  const isHookActive = hook.isActive !== false && (hook.isActive as any) !== 0;
 
                   return (
                     <div 
                       key={hook.id} 
                       onClick={() => activeTab === 'library' ? setActiveLibraryHook(globalIdx) : setActiveHook(globalIdx)}
                       className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${
-                        isActive 
+                        isCardSelected 
                           ? (activeTab === 'library' ? 'bg-orange-900/40 border-orange-500/50' : 'bg-emerald-900/40 border-emerald-500/50') 
                           : 'bg-black/20 border-gray-800 hover:border-gray-700'
-                      } ${isActive ? 'translate-x-2' : ''} ${(!isUnlocked && (hook as any).masterHookId) ? 'opacity-60 grayscale' : ''}`}
+                      } ${isCardSelected ? 'translate-x-2' : ''} ${(!isUnlocked && (hook as any).masterHookId) ? 'opacity-60 grayscale' : ''}`}
                     >
                       <div className="flex-1">
                         <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${
-                          isActive 
+                          isCardSelected 
                             ? (activeTab === 'library' ? 'text-orange-300' : 'text-emerald-300') 
                             : 'text-white group-hover:text-white'
                         } flex items-center gap-2`}>
@@ -1034,17 +1045,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         onClick={(e) => {
                           e.stopPropagation();
                           if (isRealAdmin) {
-                            handleUpdateMessage('isActive', hook.isActive === false ? true : false, hook.id);
+                            handleUpdateMessage('isActive', !isHookActive, hook.id);
                           }
                         }}
-                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                        hook.isActive !== false
-                          ? (isActive ? 'bg-emerald-500 border-emerald-500' : 'bg-emerald-500/20 border-emerald-500/40')
-                          : 'border-gray-800 bg-black/40'
-                      } ${isRealAdmin ? 'cursor-pointer hover:scale-110' : ''}`}>
-                        {hook.isActive !== false && (
-                          <Check className={`w-4 h-4 font-bold ${isActive ? 'text-white' : 'text-emerald-500'}`} />
-                        )}
+                        title={isRealAdmin ? (isHookActive ? "Hook habilitado (clic para deshabilitar)" : "Hook inhabilitado (clic para habilitar)") : undefined}
+                        className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300 grayscale-0 ${
+                          isHookActive
+                            ? 'bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-500/20'
+                            : 'border-zinc-600 bg-zinc-900/80 hover:border-zinc-400 text-transparent'
+                        } ${isRealAdmin ? 'cursor-pointer hover:scale-110 active:scale-95' : ''}`}>
+                        <Check className={`w-4 h-4 font-bold stroke-[3] transition-opacity ${isHookActive ? 'text-white opacity-100' : 'opacity-0'}`} />
                       </div>
                     </div>
                   );

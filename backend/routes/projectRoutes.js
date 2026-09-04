@@ -170,6 +170,33 @@ router.post('/unlock/:id', async (req, res) => {
                     devices: masterAvatar.devices || strategyJson.avatars[0].devices
                 };
             }
+
+            if (strategyJson.avatars && Array.isArray(strategyJson.avatars)) {
+                strategyJson.avatars.forEach((avatar, aIdx) => {
+                    const masterAv = masterStrategy?.avatars?.[aIdx];
+                    const pains = (masterAv && (masterAv.dolores_ocultos || masterAv.hidden_pains)) 
+                        ? (masterAv.dolores_ocultos || masterAv.hidden_pains) 
+                        : (avatar.dolores_ocultos || avatar.hidden_pains);
+                    if (pains && Array.isArray(pains) && pains.length > 0) {
+                        avatar.dolores_ocultos = pains;
+                        avatar.hidden_pains = pains;
+                    }
+                    const desires = (masterAv && (masterAv.deseos_motivaciones || masterAv.hidden_desires))
+                        ? (masterAv.deseos_motivaciones || masterAv.hidden_desires)
+                        : (avatar.deseos_motivaciones || avatar.hidden_desires);
+                    if (desires && Array.isArray(desires) && desires.length > 0) {
+                        avatar.deseos_motivaciones = desires;
+                        avatar.hidden_desires = desires;
+                    }
+                    const behaviors = (masterAv && (masterAv.comportamientos || masterAv.behaviors_list))
+                        ? (masterAv.comportamientos || masterAv.behaviors_list)
+                        : (avatar.comportamientos || avatar.behaviors_list);
+                    if (behaviors && Array.isArray(behaviors) && behaviors.length > 0) {
+                        avatar.comportamientos = behaviors;
+                        avatar.behaviors_list = behaviors;
+                    }
+                });
+            }
             
             await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), newProjectId]);
         } catch (genError) {

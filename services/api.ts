@@ -2195,19 +2195,21 @@ export const api = {
 
     unlockSingleHook: async (projectId: string, masterHookId: string, isGenerated?: boolean): Promise<{ id: string }> => {
         if (isMockMode) return { id: `unlocked-${Date.now()}` };
+        const cleanMasterId = String(masterHookId).replace('available-', '');
         return await fetchWithFallback('/hooks/unlock-single', {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ projectId, masterHookId, isGenerated })
+            body: JSON.stringify({ projectId, masterHookId: cleanMasterId, isGenerated })
         });
     },
 
     unlockMultipleHooks: async (projectId: string, masterHookIds: string[], isGenerated?: boolean): Promise<{ success: boolean; results: any[] }> => {
         if (isMockMode) return { success: true, results: masterHookIds.map(id => ({ id: `unlocked-${id}-${Date.now()}` })) };
+        const cleanIds = masterHookIds.map(id => String(id).replace('available-', ''));
         return await fetchWithFallback('/hooks/unlock-multiple', {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ projectId, masterHookIds, isGenerated })
+            body: JSON.stringify({ projectId, masterHookIds: cleanIds, isGenerated })
         });
     },
 
@@ -2222,7 +2224,8 @@ export const api = {
 
     updateProjectHook: async (hookId: string, data: Partial<ProjectHook>): Promise<void> => {
         if (isMockMode) return;
-        await fetchWithFallback(`/hooks/${hookId}`, {
+        const cleanId = String(hookId).replace('available-', '');
+        await fetchWithFallback(`/hooks/${cleanId}`, {
             method: 'PUT',
             headers: getAuthHeaders(),
             body: JSON.stringify(data)
@@ -2241,7 +2244,8 @@ export const api = {
 
     deleteProjectHook: async (hookId: string): Promise<void> => {
         if (isMockMode) return;
-        await fetchWithFallback(`/hooks/${hookId}`, {
+        const cleanId = String(hookId).replace('available-', '');
+        await fetchWithFallback(`/hooks/${cleanId}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
         });
