@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { 
-    ChevronRight, ArrowRight, Play, Users, 
+    ChevronRight, ArrowRight, Play, Users, PlayCircle, Clock, Award, 
     CreditCard, Folder, CheckCircle2, Bot,
     ShieldCheck, Smartphone, Zap, Sparkles, Image as ImageIcon
 } from 'lucide-react';
@@ -28,6 +28,7 @@ export const DashboardHome: React.FC = () => {
       conversionRate: '0'
   });
   const [projects, setProjects] = useState<Project[]>([]);
+  const [academyCourses, setAcademyCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
 
@@ -35,12 +36,14 @@ export const DashboardHome: React.FC = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [summary, userProjects] = await Promise.all([
+            const [summary, userProjects, courses] = await Promise.all([
                 api.getAnalyticsSummary(),
-                api.getProjects()
+                api.getProjects(),
+                api.getCoursesList()
             ]);
 
             setProjects(userProjects || []);
+            setAcademyCourses((courses || []).slice(0, 3));
 
             const rate = summary.totalVisits > 0 
                 ? ((summary.totalConversions / summary.totalVisits) * 100).toFixed(1) 
@@ -67,13 +70,7 @@ export const DashboardHome: React.FC = () => {
   const isFree = planName.toLowerCase() === 'starter' || planName.toLowerCase() === 'gratis';
   const maxProjects = user?.planLimits?.maxProjects || 3;
   
-  // Mock data for academy
-  const academyCourses = [
-      { id: 1, title: 'Estrategias de Escalado para E-commerce', level: 'Intermedio', duration: '32 min', isNew: true, isUpdate: false },
-      { id: 2, title: 'Automatizaciones con Make para Marketers', level: 'Intermedio', duration: '41 min', isNew: true, isUpdate: false },
-      { id: 3, title: 'Creatividades que Venden en Meta Ads', level: 'Básico', duration: '28 min', isNew: true, isUpdate: false },
-      { id: 4, title: 'Tracking Avanzado en Google Analytics 4', level: 'Intermedio', duration: '36 min', isNew: false, isUpdate: true }
-  ];
+  
 
   return (
     <div className="space-y-8 text-white animate-in fade-in slide-in-from-bottom-6 duration-700 bg-[#030712] min-h-screen pb-12">
@@ -108,7 +105,7 @@ export const DashboardHome: React.FC = () => {
       </div>
 
       {/* 2. STATS ROW (4 Columns) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           
           {/* PLAN ACTUAL */}
           <div className="bg-[#0B1120] p-6 rounded-2xl border border-slate-800 hover:border-[#FF5A1F]/30 transition-colors flex flex-col justify-between h-full group">
@@ -275,31 +272,70 @@ export const DashboardHome: React.FC = () => {
                       <h2 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">
                           <Zap className="w-4 h-4 text-[#FF5A1F]" /> Novedades de la academia
                       </h2>
-                      <button className="text-[#FF5A1F] text-xs font-bold flex items-center gap-1 hover:underline">
+                      <button onClick={() => navigate('/dashboard/training')} className="text-[#FF5A1F] text-xs font-bold flex items-center gap-1 hover:underline">
                           Ver todas <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      {academyCourses.map(course => (
-                          <div key={course.id} className="bg-slate-900/50 rounded-xl overflow-hidden border border-slate-800 group cursor-pointer hover:border-slate-600 transition-colors">
-                              <div className="h-28 bg-slate-800 relative flex items-center justify-center">
-                                  <div className="absolute top-2 left-2 z-10">
-                                      {course.isNew && (
-                                          <span className="bg-[#FF5A1F] text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Nuevo</span>
-                                      )}
-                                      {course.isUpdate && (
-                                          <span className="bg-blue-500 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Actualizado</span>
-                                      )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {academyCourses.map((course) => {
+                          const thumbnail = course.thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80";
+                          return (
+                              <div
+                                  key={course.id || course.slug}
+                                  onClick={() => navigate(`/dashboard/training/${course.slug}`)}
+                                  className="group relative bg-slate-900/80 border border-slate-800 hover:border-[#FF5A1F]/50 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-[#FF5A1F]/10 transition-all duration-300 flex flex-col cursor-pointer transform hover:-translate-y-1"
+                              >
+                                  {/* Image & Badge Header */}
+                                  <div className="relative h-48 w-full overflow-hidden bg-slate-950">
+                                      <img
+                                          src={thumbnail}
+                                          alt={course.title}
+                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+                                      />
+                                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+                                      
+                                      {/* Badge */}
+                                      <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md border border-white/10 px-3 py-1 rounded-full text-[11px] font-bold text-[#FF5A1F] flex items-center gap-1.5 uppercase tracking-wider">
+                                          <Award className="w-3.5 h-3.5" />
+                                          <span>{course.badge_text || course.subtitle || "Curso"}</span>
+                                      </div>
+
+                                      {/* Play Overlay Icon */}
+                                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-xs">
+                                          <div className="w-14 h-14 bg-[#FF5A1F] rounded-full flex items-center justify-center text-white shadow-lg shadow-[#FF5A1F]/40 transform group-hover:scale-110 transition-transform">
+                                              <PlayCircle className="w-8 h-8 ml-0.5" />
+                                          </div>
+                                      </div>
                                   </div>
-                                  <Play className="w-8 h-8 text-white/50 group-hover:text-white transition-colors" />
+
+                                  {/* Content */}
+                                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                                      <div className="space-y-2">
+                                          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                                              <Clock className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                                              <span>{course.subtitle || "Entrenamiento Paso a Paso"}</span>
+                                          </div>
+                                          <h2 className="text-xl font-extrabold text-white group-hover:text-[#FF5A1F] transition-colors leading-snug">
+                                              {course.title}
+                                          </h2>
+                                          {course.description && (
+                                              <p className="text-slate-400 text-xs md:text-sm line-clamp-3 leading-relaxed font-normal">
+                                                  {course.description}
+                                              </p>
+                                          )}
+                                      </div>
+                                      {/* Footer Action */}
+                                      <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-[#FF5A1F] group-hover:text-white transition-colors">
+                                          <span className="flex items-center gap-1.5">
+                                              <PlayCircle className="w-4 h-4 text-[#FF5A1F]" /> Acceder al Curso
+                                          </span>
+                                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                      </div>
+                                  </div>
                               </div>
-                              <div className="p-4">
-                                  <h3 className="text-sm font-bold text-white mb-2 line-clamp-2 leading-tight">{course.title}</h3>
-                                  <p className="text-[11px] text-gray-500">{course.level} · {course.duration}</p>
-                              </div>
-                          </div>
-                      ))}
+                          );
+                      })}
                   </div>
               </div>
 

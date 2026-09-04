@@ -98,6 +98,7 @@ app.use('/api', systemRoutes);
 app.use('/api/whatsapp-launch', whatsappRoutes);
 app.use('/api/hooks', hookRoutes);
 app.use('/api/master-step-videos', masterStepVideoRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // ======================================================
 //  STATIC FILES & SPA FALLBACK
