@@ -572,13 +572,16 @@ export const ProjectWizard: React.FC = () => {
             const fileName = file.name.replace(/\.[^/.]+$/, "");
             if (index !== undefined && index >= 0 && index < currentList.length) {
                 currentList[index] = {
+                    ...currentList[index],
                     name: currentList[index].name && currentList[index].name.trim() !== '' ? currentList[index].name : fileName,
                     url: result.url
                 };
             } else {
                 currentList.push({
                     name: fileName || 'Guía o Recurso PDF',
-                    url: result.url
+                    url: result.url,
+                    imageUrl: '',
+                    description: ''
                 });
             }
 
@@ -594,6 +597,30 @@ export const ProjectWizard: React.FC = () => {
         } finally {
             setUploadingState(null);
             e.target.value = '';
+        }
+    };
+
+    const handleDeleteLeadMagnetPdf = async (index: number) => {
+        const currentList = multimedia.leadMagnets ? [...multimedia.leadMagnets] : [];
+        const item = currentList[index];
+        if (!item || !item.url) return;
+
+        const urlToDelete = item.url.trim();
+        try {
+            setUploadingState({ type: 'deleteLeadMagnetPdf', index });
+            if (urlToDelete && urlToDelete.includes('storage.googleapis.com')) {
+                await api.deleteFile(urlToDelete);
+            }
+            currentList[index] = {
+                ...currentList[index],
+                url: ''
+            };
+            setMultimedia(prev => ({ ...prev, leadMagnets: currentList }));
+        } catch (error) {
+            console.error("Error al eliminar archivo PDF:", error);
+            alert("Error al eliminar el archivo PDF del servidor. Inténtalo de nuevo.");
+        } finally {
+            setUploadingState(null);
         }
     };
 
@@ -631,6 +658,30 @@ export const ProjectWizard: React.FC = () => {
         } finally {
             setUploadingState(null);
             e.target.value = '';
+        }
+    };
+
+    const handleDeleteLeadMagnetImage = async (index: number) => {
+        const currentList = multimedia.leadMagnets ? [...multimedia.leadMagnets] : [];
+        const item = currentList[index];
+        if (!item || !item.imageUrl) return;
+
+        const urlToDelete = item.imageUrl.trim();
+        try {
+            setUploadingState({ type: 'deleteLeadMagnetImage', index });
+            if (urlToDelete && urlToDelete.includes('storage.googleapis.com')) {
+                await api.deleteFile(urlToDelete);
+            }
+            currentList[index] = {
+                ...currentList[index],
+                imageUrl: ''
+            };
+            setMultimedia(prev => ({ ...prev, leadMagnets: currentList }));
+        } catch (error) {
+            console.error("Error al eliminar imagen de portada:", error);
+            alert("Error al eliminar la imagen de portada del servidor. Inténtalo de nuevo.");
+        } finally {
+            setUploadingState(null);
         }
     };
 
@@ -1413,6 +1464,21 @@ export const ProjectWizard: React.FC = () => {
                                                                         <ExternalLink className="w-4 h-4" />
                                                                     </a>
                                                                 )}
+                                                                {lm.url && (
+                                                                    <button 
+                                                                        type="button"
+                                                                        onClick={() => handleDeleteLeadMagnetPdf(idx)}
+                                                                        disabled={uploadingState !== null}
+                                                                        className="p-2 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
+                                                                        title="Eliminar archivo PDF del servidor"
+                                                                    >
+                                                                        {uploadingState?.type === 'deleteLeadMagnetPdf' && uploadingState.index === idx ? (
+                                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                                        ) : (
+                                                                            <Trash2 className="w-4 h-4" />
+                                                                        )}
+                                                                    </button>
+                                                                )}
                                                             </div>
                                                         </div>
 
@@ -1471,6 +1537,21 @@ export const ProjectWizard: React.FC = () => {
                                                                     >
                                                                         <ExternalLink className="w-4 h-4" />
                                                                     </a>
+                                                                )}
+                                                                {lm.imageUrl && (
+                                                                    <button 
+                                                                        type="button"
+                                                                        onClick={() => handleDeleteLeadMagnetImage(idx)}
+                                                                        disabled={uploadingState !== null}
+                                                                        className="p-2 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
+                                                                        title="Eliminar imagen de portada del servidor"
+                                                                    >
+                                                                        {uploadingState?.type === 'deleteLeadMagnetImage' && uploadingState.index === idx ? (
+                                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                                        ) : (
+                                                                            <Trash2 className="w-4 h-4" />
+                                                                        )}
+                                                                    </button>
                                                                 )}
                                                             </div>
                                                         </div>
