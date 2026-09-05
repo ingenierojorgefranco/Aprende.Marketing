@@ -588,6 +588,8 @@ export interface Project {
   leadMagnetType?: string;
   leadMagnetUrl?: string; // */ Se añade para almacenar el enlace del regalo - 11/03/2025 15:45
   digitalProductUrl?: string; // Nuevo: URL del producto digital de Hotmart
+  whatsappGroupUrl?: string; // Nuevo: Enlace del grupo de WhatsApp para la página de gracias
+  whatsapp_group_url?: string;
   
   // Strategy Assets
   mainGoal: string; // "Venta Directa"
@@ -608,6 +610,7 @@ export interface Project {
     videoUrls?: string[];
     descriptiveImages?: string[];
     instructorImage?: string;
+    whatsappGroupUrl?: string;
     leadMagnets?: { 
       name: string; 
       url: string; 

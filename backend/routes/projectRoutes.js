@@ -103,8 +103,8 @@ router.post('/unlock/:id', async (req, res) => {
         const finalAffiliateLinks = (affiliateLinks && affiliateLinks.length > 0) ? affiliateLinks : DEFAULT_AFFILIATE_LINKS;
 
         const [result] = await pool.query(
-            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, is_master, master_parent_id, digital_product_url, plan_id, plan_slug, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, NOW(), NOW())`,
+            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, is_master, master_parent_id, digital_product_url, whatsapp_group_url, plan_id, plan_slug, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, NOW(), NOW())`,
             [
                 req.user.id, 
                 master.name, 
@@ -124,6 +124,7 @@ router.post('/unlock/:id', async (req, res) => {
                 master.sales_page_url, 
                 master.id,
                 null, // No guardamos la URL en el duplicado, se heredará dinámicamente
+                master.whatsapp_group_url || null,
                 planId,
                 planSlug
             ]
@@ -290,6 +291,7 @@ router.get('/', async (req, res) => {
       SELECT p.*, parent.digital_product_url as parent_digital_product_url,
              parent.multimedia_json as parent_multimedia_json,
              parent.lead_magnet_url as parent_lead_magnet_url,
+             parent.whatsapp_group_url as parent_whatsapp_group_url,
              (p.user_id = ?) as is_owner,
              EXISTS(SELECT 1 FROM unlocked_projects up WHERE up.project_id = p.id AND up.user_id = ?) as is_unlocked
       FROM projects p 
@@ -322,6 +324,8 @@ router.get('/', async (req, res) => {
             multimedia_json: childMm,
             lead_magnet_url: p.lead_magnet_url || (p.master_parent_id ? p.parent_lead_magnet_url : undefined),
             digital_product_url: p.master_parent_id ? p.parent_digital_product_url : p.digital_product_url,
+            whatsappGroupUrl: p.whatsapp_group_url || (p.master_parent_id ? p.parent_whatsapp_group_url : undefined),
+            whatsapp_group_url: p.whatsapp_group_url || (p.master_parent_id ? p.parent_whatsapp_group_url : undefined),
             planId: p.plan_id ? String(p.plan_id) : undefined,
             planSlug: status.planName,
             isBlocked: status.isBlocked,
@@ -341,6 +345,7 @@ router.get('/:id', async (req, res) => {
         SELECT p.*, parent.digital_product_url as parent_digital_product_url,
                parent.multimedia_json as parent_multimedia_json,
                parent.lead_magnet_url as parent_lead_magnet_url,
+               parent.whatsapp_group_url as parent_whatsapp_group_url,
                (p.user_id = ?) as is_owner
         FROM projects p 
         LEFT JOIN projects parent ON p.master_parent_id = parent.id
@@ -369,6 +374,8 @@ router.get('/:id', async (req, res) => {
     if (!project.lead_magnet_url && project.parent_lead_magnet_url) {
         project.lead_magnet_url = project.parent_lead_magnet_url;
     }
+    project.whatsappGroupUrl = project.whatsapp_group_url || (project.master_parent_id ? project.parent_whatsapp_group_url : undefined);
+    project.whatsapp_group_url = project.whatsappGroupUrl;
     project.multimedia_json = childMm;
 
     project.planId = project.plan_id ? String(project.plan_id) : undefined;
@@ -412,7 +419,7 @@ router.patch('/:id/toggle-active', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, leadMagnetUrl, salesPageUrl, digitalProductUrl, isMaster } = req.body;
+  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, leadMagnetUrl, salesPageUrl, digitalProductUrl, whatsappGroupUrl, whatsapp_group_url, isMaster } = req.body;
   try {
     // Verificar límites del usuario de forma dinámica
     const [userProjects] = await pool.query('SELECT id FROM projects WHERE user_id = ? AND is_master = 0', [req.user.id]);
@@ -431,11 +438,12 @@ router.post('/', async (req, res) => {
     const planSlug = starterPlan[0]?.slug || 'starter';
 
     const finalAffiliateLinks = (affiliateLinks && affiliateLinks.length > 0) ? affiliateLinks : DEFAULT_AFFILIATE_LINKS;
+    const finalWhatsappGroupUrl = whatsappGroupUrl !== undefined ? whatsappGroupUrl : (whatsapp_group_url || '');
 
     const [result] = await pool.query(
-      `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, multimedia_json, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, digital_product_url, is_master, plan_id, plan_slug, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-      [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(finalAffiliateLinks), strategy_json ? JSON.stringify(strategy_json) : null, req.body.multimedia_json ? JSON.stringify(req.body.multimedia_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', digitalProductUrl || '', isMasterFinal, planId, planSlug]
+      `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, multimedia_json, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, digital_product_url, whatsapp_group_url, is_master, plan_id, plan_slug, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(finalAffiliateLinks), strategy_json ? JSON.stringify(strategy_json) : null, req.body.multimedia_json ? JSON.stringify(req.body.multimedia_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', digitalProductUrl || '', finalWhatsappGroupUrl, isMasterFinal, planId, planSlug]
     );
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name });
     clearLimitsCache(req.user.id);
@@ -474,6 +482,9 @@ router.put('/:id', async (req, res) => {
     const leadMagnetType = body.leadMagnetType !== undefined ? body.leadMagnetType : existing.lead_magnet_type;
     const leadMagnetUrl = body.leadMagnetUrl !== undefined ? body.leadMagnetUrl : existing.lead_magnet_url;
     const salesPageUrl = body.salesPageUrl !== undefined ? body.salesPageUrl : existing.sales_page_url;
+    const whatsappGroupUrl = body.whatsappGroupUrl !== undefined 
+        ? body.whatsappGroupUrl 
+        : (body.whatsapp_group_url !== undefined ? body.whatsapp_group_url : existing.whatsapp_group_url);
     
     const isMasterFinal = (req.user.role === 'admin' && body.isMaster !== undefined) ? (body.isMaster ? 1 : 0) : (existing.is_master ? 1 : 0);
     const isActiveFinal = (req.user.role === 'admin' && body.isActive !== undefined) ? (body.isActive ? 1 : 0) : (existing.is_active === 0 ? 0 : 1);
@@ -483,9 +494,25 @@ router.put('/:id', async (req, res) => {
     console.log(`[PROJECT UPDATE] ID: ${id}, Role: ${req.user.role}, Incoming isActive: ${body.isActive}, Final is_active: ${isActiveFinal}`);
 
     await pool.query(
-      `UPDATE projects SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, multimedia_json=?, full_price=?, commission_rate=?, lead_magnet_type=?, lead_magnet_url=?, sales_page_url=?, digital_product_url=?, is_master=?, is_active=?, updated_at=NOW() WHERE id=?`,
-      [name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, multimedia_json, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', finalDigitalProductUrl, isMasterFinal, isActiveFinal, id]
+      `UPDATE projects SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, multimedia_json=?, full_price=?, commission_rate=?, lead_magnet_type=?, lead_magnet_url=?, sales_page_url=?, digital_product_url=?, whatsapp_group_url=?, is_master=?, is_active=?, updated_at=NOW() WHERE id=?`,
+      [name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, multimedia_json, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', finalDigitalProductUrl, whatsappGroupUrl || '', isMasterFinal, isActiveFinal, id]
     );
+
+    // Si se actualizó el enlace de whatsapp, sincronizarlo automáticamente con thankyoupage_json de las páginas del proyecto
+    if (whatsappGroupUrl !== undefined && whatsappGroupUrl !== null) {
+      try {
+        const [lps] = await pool.query('SELECT id, thankyoupage_json FROM landing_pages WHERE project_id = ?', [id]);
+        for (const lp of lps) {
+          const ty = safeParseJson(lp.thankyoupage_json);
+          if (ty) {
+            ty.ctaLink = whatsappGroupUrl;
+            await pool.query('UPDATE landing_pages SET thankyoupage_json = ? WHERE id = ?', [JSON.stringify(ty), lp.id]);
+          }
+        }
+      } catch (e) {
+        console.warn('Error syncing landing_pages thankyoupage_json ctaLink:', e);
+      }
+    }
     res.json({ message: 'Actualizado' });
   } catch (error) { 
     console.error("[Update Project Error]", error);

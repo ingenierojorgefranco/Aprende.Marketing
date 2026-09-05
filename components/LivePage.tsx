@@ -65,16 +65,23 @@ export const LivePage: React.FC<LivePageProps> = ({
         api.getProjectById(projectId).then(async p => {
             if (p) {
                 const currentLMs = p.multimedia_json?.leadMagnets;
-                if (p.masterParentId && (!Array.isArray(currentLMs) || currentLMs.length === 0)) {
+                if (p.masterParentId) {
                     try {
                         const master = await api.getProjectById(p.masterParentId);
-                        if (master?.multimedia_json?.leadMagnets && master.multimedia_json.leadMagnets.length > 0) {
+                        if (master) {
+                            const masterLMs = master.multimedia_json?.leadMagnets;
+                            const hasChildLMs = Array.isArray(currentLMs) && currentLMs.length > 0;
+                            const resolvedWhatsapp = p.whatsappGroupUrl || p.whatsapp_group_url || (p.multimedia_json as any)?.whatsappGroupUrl || master.whatsappGroupUrl || master.whatsapp_group_url || (master.multimedia_json as any)?.whatsappGroupUrl;
+                            
                             p = {
                                 ...p,
                                 leadMagnetUrl: p.leadMagnetUrl || master.leadMagnetUrl,
+                                whatsappGroupUrl: resolvedWhatsapp,
+                                whatsapp_group_url: resolvedWhatsapp,
                                 multimedia_json: {
                                     ...(p.multimedia_json || {}),
-                                    leadMagnets: master.multimedia_json.leadMagnets
+                                    whatsappGroupUrl: resolvedWhatsapp,
+                                    leadMagnets: hasChildLMs ? currentLMs : (masterLMs || [])
                                 }
                             };
                         }

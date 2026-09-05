@@ -62,7 +62,8 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
       setOpenFaq(openFaq === index ? null : index);
   };
 
-  const whatsappLink = tyConfig.ctaLink || "#";
+  const rawWhatsapp = tyConfig.ctaLink || project?.whatsappGroupUrl || project?.whatsapp_group_url || (project?.multimedia_json as any)?.whatsappGroupUrl;
+  const whatsappLink = (rawWhatsapp && rawWhatsapp.trim() !== '' && rawWhatsapp !== '#') ? rawWhatsapp : "#";
 
   // Obtener lead magnet seleccionado o predeterminado del proyecto
   const projectLeadMagnets = project?.multimedia_json?.leadMagnets || [];
@@ -76,12 +77,17 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   // Registrar clic en el botón de WhatsApp
   const handleWhatsAppClick = () => {
       if (pageId) {
-          fetch(`/api/public/pages/${pageId}/whatsapp-click`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' }
-          }).catch((err) => {
-              console.warn('[Analytics] Error al registrar clic de WhatsApp:', err);
-          });
+          try {
+              fetch(`/api/public/pages/${pageId}/whatsapp-click`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  keepalive: true
+              }).catch((err) => {
+                  console.warn('[Analytics] Error al registrar clic de WhatsApp:', err);
+              });
+          } catch (e) {
+              console.warn('[Analytics] Error al enviar evento de WhatsApp:', e);
+          }
       }
   };
 

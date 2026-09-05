@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
     Link as LinkIcon, Gift, ShoppingCart as CartIcon, 
-    X, Rocket, Loader2, CheckCircle2, AlertTriangle, ExternalLink, Copy 
+    X, Rocket, Loader2, CheckCircle2, AlertTriangle, ExternalLink, Copy, MessageCircle 
 } from 'lucide-react';
 import { api } from '../../../../services/api';
 import { Project, AffiliateLink } from '../../../../types';
@@ -19,8 +19,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
     const [saving, setSaving] = useState(false);
     const [project, setProject] = useState<Project | null>(null);
     const [form, setForm] = useState({
-        leadMagnetType: 'Ebook / Guía PDF',
-        leadMagnetUrl: '',
+        whatsappGroupUrl: '',
         digitalProductUrl: '',
         affiliateLinks: [
             { label: 'Checkout Principal', url: '' },
@@ -42,8 +41,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                 if (data) {
                     setProject(data);
                     setForm({
-                        leadMagnetType: data.leadMagnetType || 'Ebook / Guía PDF',
-                        leadMagnetUrl: data.leadMagnetUrl || '',
+                        whatsappGroupUrl: data.whatsappGroupUrl || data.whatsapp_group_url || (data.multimedia_json as any)?.whatsappGroupUrl || '',
                         digitalProductUrl: data.digitalProductUrl || '',
                         affiliateLinks: data.affiliateLinks && data.affiliateLinks.length > 0 
                             ? data.affiliateLinks 
@@ -91,13 +89,10 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
         if (!project || !projectId) return;
 
         const newErrors: Record<string, string> = {};
-        if (!form.leadMagnetUrl.trim()) {
-            newErrors.leadMagnetUrl = "Este campo es obligatorio para que la IA genere tu estrategia";
-        }
         
         const hasAtLeastOneLink = form.affiliateLinks.some(l => l.url.trim() !== '');
         if (!hasAtLeastOneLink) {
-            newErrors.affiliateLinks = "Este campo es obligatorio para que la IA genere tu estrategia";
+            newErrors.affiliateLinks = "Debes ingresar al menos un enlace de afiliado";
         }
 
         if (Object.keys(newErrors).length > 0) {
@@ -109,8 +104,8 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
         try {
             await api.updateProject(projectId, {
                 ...project,
-                leadMagnetType: form.leadMagnetType,
-                leadMagnetUrl: form.leadMagnetUrl,
+                whatsappGroupUrl: form.whatsappGroupUrl.trim(),
+                whatsapp_group_url: form.whatsappGroupUrl.trim(),
                 digitalProductUrl: project.masterParentId ? undefined : form.digitalProductUrl,
                 affiliateLinks: form.affiliateLinks
             } as any);
@@ -222,49 +217,68 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                     </div>
                 </div>
 
-                {/* BLOQUE 2: REGALO / LEAD MAGNET */}
+                {/* BLOQUE 2: ENLACE DEL GRUPO DE WHATSAPP (PÁGINA DE GRACIAS) */}
                 <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
                     <div className="flex items-center gap-3.5 border-b border-slate-800/80 pb-4">
-                        <div className="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-400 flex items-center justify-center shrink-0">
-                            <Gift className="w-5 h-5" />
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+                            <MessageCircle className="w-5 h-5" />
                         </div>
-                        <h3 className="text-base sm:text-lg font-extrabold text-white tracking-wide uppercase">
-                            ¿Qué vas a regalar para atraer clientes? (Regalo / Lead Magnet)
-                        </h3>
+                        <div>
+                            <h3 className="text-base sm:text-lg font-extrabold text-white tracking-wide uppercase">
+                                Enlace de tu Grupo de WhatsApp (Página de Gracias)
+                            </h3>
+                            <p className="text-xs text-slate-400 mt-0.5">
+                                Este enlace se vinculará directamente al botón de la página de gracias para que tus prospectos se unan al grupo donde les entregarás su regalo manualmente.
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                         <div className="space-y-2.5">
-                            <select 
-                                value={form.leadMagnetType} 
-                                onChange={(e) => setForm({ ...form, leadMagnetType: e.target.value })}
-                                className="w-full bg-[#0d1322] border border-slate-700/80 rounded-xl py-3.5 px-5 text-white text-sm sm:text-base outline-none focus:border-[#FF5A1F] transition-all cursor-pointer font-medium"
-                            >
-                                <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
-                                <option value="Clase Gratis / VSL">Clase Gratis / Carta de Ventas en Video</option>
-                                <option value="Masterclass en Vivo">Masterclass en Vivo</option>
-                                <option value="Plantilla / Checklist">Plantilla / Checklist</option>
-                            </select>
-                        </div>
-
-                        <div className="space-y-2.5">
-                            <div className="flex items-center gap-2">
-                                <Gift className="w-4 h-4 text-sky-400" />
-                                <span className="text-sm font-bold text-slate-200">URL de tu {form.leadMagnetType}</span>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <MessageCircle className="w-4 h-4 text-emerald-400" />
+                                    <span className="text-sm font-bold text-slate-200">URL de Invitación a tu Grupo de WhatsApp</span>
+                                </div>
+                                {form.whatsappGroupUrl && (
+                                    <a
+                                        href={form.whatsappGroupUrl.startsWith('http') ? form.whatsappGroupUrl : `https://${form.whatsappGroupUrl}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-xs text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 hover:underline"
+                                    >
+                                        Probar enlace <ExternalLink className="w-3.5 h-3.5" />
+                                    </a>
+                                )}
                             </div>
                             <input 
                                 type="text" 
-                                value={form.leadMagnetUrl}
-                                onChange={(e) => setForm({ ...form, leadMagnetUrl: e.target.value })}
-                                placeholder="https://pega-aqui-tu-link-de-google-drive-o-clase.com"
-                                className={`w-full bg-[#0d1322] border ${errors.leadMagnetUrl ? 'border-red-500/60' : 'border-slate-700/80'} rounded-xl py-3.5 px-5 text-white text-sm sm:text-base outline-none focus:border-[#FF5A1F] transition-all placeholder:text-slate-600 font-mono`}
+                                value={form.whatsappGroupUrl}
+                                onChange={(e) => {
+                                    setForm({ ...form, whatsappGroupUrl: e.target.value });
+                                    if (errors.whatsappGroupUrl) {
+                                        setErrors(prev => {
+                                            const updated = { ...prev };
+                                            delete updated.whatsappGroupUrl;
+                                            return updated;
+                                        });
+                                    }
+                                }}
+                                placeholder="https://chat.whatsapp.com/AbCdEfGhIjK123456"
+                                className={`w-full bg-[#0d1322] border ${errors.whatsappGroupUrl ? 'border-red-500/60' : 'border-slate-700/80'} rounded-xl py-3.5 px-5 text-white text-sm sm:text-base outline-none focus:border-emerald-500 transition-all placeholder:text-slate-600 font-mono`}
                             />
-                            {errors.leadMagnetUrl && (
+                            {errors.whatsappGroupUrl && (
                                 <p className="text-red-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 mt-1">
                                     <AlertTriangle className="w-4 h-4 shrink-0" />
-                                    <span>{errors.leadMagnetUrl}</span>
+                                    <span>{errors.whatsappGroupUrl}</span>
                                 </p>
                             )}
+                            <div className="flex items-start gap-2.5 bg-emerald-950/25 border border-emerald-900/40 rounded-xl p-3.5 text-xs text-emerald-300/90 leading-relaxed">
+                                <span className="text-emerald-400 font-bold text-sm">💡</span>
+                                <span>
+                                    <strong>¿Cómo funciona?</strong> Al registrarse en tu landing page, los prospectos llegan a la página de gracias donde se les invita a unirse a este grupo de WhatsApp para recibir su material de preparación gratuito. Cada vez que alguien hace clic en el botón de WhatsApp, el sistema contabiliza automáticamente el clic en tus analíticas.
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>

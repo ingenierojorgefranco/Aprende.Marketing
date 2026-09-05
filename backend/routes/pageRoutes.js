@@ -64,25 +64,37 @@ const safeParseJson = (str, fallback = null) => {
 };
 
 const attachProjectData = (page) => {
-    if (page.project_strategy || page.project_multimedia || page.master_multimedia || page.master_strategy) {
+    if (page.project_strategy || page.project_multimedia || page.master_multimedia || page.master_strategy || page.project_whatsapp_group_url || page.master_whatsapp_group_url) {
         const projMm = safeParseJson(page.project_multimedia, {}) || {};
         const mastMm = safeParseJson(page.master_multimedia, {}) || {};
 
         const childLeadMagnets = Array.isArray(projMm.leadMagnets) && projMm.leadMagnets.length > 0 ? projMm.leadMagnets : [];
         const masterLeadMagnets = Array.isArray(mastMm.leadMagnets) && mastMm.leadMagnets.length > 0 ? mastMm.leadMagnets : [];
         const leadMagnets = childLeadMagnets.length > 0 ? childLeadMagnets : masterLeadMagnets;
+        const resolvedWhatsappUrl = page.project_whatsapp_group_url || page.master_whatsapp_group_url || projMm.whatsappGroupUrl || mastMm.whatsappGroupUrl || "";
 
         page.project = {
             id: page.project_id,
             masterParentId: page.master_parent_id,
             leadMagnetUrl: page.project_lead_magnet_url || page.master_lead_magnet_url || "",
+            whatsappGroupUrl: resolvedWhatsappUrl,
+            whatsapp_group_url: resolvedWhatsappUrl,
             strategy_json: safeParseJson(page.project_strategy) || safeParseJson(page.master_strategy),
             multimedia_json: {
                 ...mastMm,
                 ...projMm,
+                whatsappGroupUrl: resolvedWhatsappUrl,
                 leadMagnets
             }
         };
+
+        if (resolvedWhatsappUrl) {
+            if (page.content && page.content.thankYouPage) {
+                if (!page.content.thankYouPage.ctaLink || page.content.thankYouPage.ctaLink === '#' || page.content.thankYouPage.ctaLink === 'https://chat.whatsapp.com/demo') {
+                    page.content.thankYouPage.ctaLink = resolvedWhatsappUrl;
+                }
+            }
+        }
     }
 };
 
@@ -152,12 +164,12 @@ router.post('/pages', authMiddleware, async (req, res) => {
     let tyPage = content ? content.thankYouPage : null;
     if (content && content.thankYouPage) { delete content.thankYouPage; }
 
-    // Auto-asignar Lead Magnet si no está especificado en tyPage
-    if (projectId && (!tyPage || !tyPage.leadMagnetUrl || !tyPage.leadMagnetName)) {
+    // Auto-asignar Lead Magnet y WhatsApp si no está especificado en tyPage
+    if (projectId) {
         try {
             const [projRows] = await pool.query(
-              `SELECT p.multimedia_json, p.lead_magnet_url, p.master_parent_id, 
-                      m.multimedia_json as master_multimedia, m.lead_magnet_url as master_lead_magnet_url 
+              `SELECT p.multimedia_json, p.lead_magnet_url, p.master_parent_id, p.whatsapp_group_url,
+                      m.multimedia_json as master_multimedia, m.lead_magnet_url as master_lead_magnet_url, m.whatsapp_group_url as master_whatsapp_group_url 
                FROM projects p 
                LEFT JOIN projects m ON p.master_parent_id = m.id 
                WHERE p.id = ?`, 
@@ -174,14 +186,20 @@ router.post('/pages', authMiddleware, async (req, res) => {
                     allLMs = [{ name: 'Libro Digital', url: pRow.lead_magnet_url || pRow.master_lead_magnet_url }];
                 }
 
-                if (allLMs.length > 0) {
+                if (!tyPage) tyPage = {};
+
+                const groupWhatsappUrl = pRow.whatsapp_group_url || pRow.master_whatsapp_group_url || pMm.whatsappGroupUrl || mMm.whatsappGroupUrl;
+                if (groupWhatsappUrl && (!tyPage.ctaLink || tyPage.ctaLink === '#' || tyPage.ctaLink === 'https://chat.whatsapp.com/demo')) {
+                    tyPage.ctaLink = groupWhatsappUrl;
+                }
+
+                if (allLMs.length > 0 && (!tyPage.leadMagnetUrl || !tyPage.leadMagnetName)) {
                     const userPlan = req.user.plan || req.user.planSlug || 'starter';
                     const isBasic = req.user.role !== 'admin' && userPlan === 'starter';
                     let chosenLM = allLMs[0];
                     if (isBasic && allLMs.length > 1) {
                         chosenLM = allLMs[Math.floor(Math.random() * allLMs.length)];
                     }
-                    if (!tyPage) tyPage = {};
                     if (!tyPage.leadMagnetName) tyPage.leadMagnetName = chosenLM.name;
                     if (!tyPage.leadMagnetUrl) tyPage.leadMagnetUrl = chosenLM.url;
                     if (!tyPage.leadMagnetImageUrl && chosenLM.imageUrl) tyPage.leadMagnetImageUrl = chosenLM.imageUrl;
@@ -193,7 +211,7 @@ router.post('/pages', authMiddleware, async (req, res) => {
                 }
             }
         } catch (errLM) {
-            console.error('Error auto-asignando lead magnet en POST /pages:', errLM);
+            console.error('Error auto-asignando lead magnet y whatsapp en POST /pages:', errLM);
         }
     }
 
@@ -303,8 +321,8 @@ router.get('/public/pages/by-domain', async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT lp.*, lp.thankyoupage_json, 
-              pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.master_parent_id,
-              pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url
+              pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
+              pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url
        FROM landing_pages lp
        LEFT JOIN projects pr ON lp.project_id = pr.id
        LEFT JOIN projects pm ON pr.master_parent_id = pm.id
@@ -334,8 +352,8 @@ router.get('/public/pages/by-user/:userSlug/:slug', async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT lp.*, lp.thankyoupage_json, 
-              pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.master_parent_id,
-              pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url
+              pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
+              pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url
        FROM landing_pages lp
        INNER JOIN users u ON u.id = lp.user_id
        LEFT JOIN projects pr ON lp.project_id = pr.id
@@ -368,8 +386,8 @@ router.get('/public/pages/:slug', async (req, res) => {
     if (/^\d+$/.test(slug)) {
        [rows] = await pool.query(`
          SELECT lp.*, lp.thankyoupage_json, 
-                pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.master_parent_id,
-                pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url
+                pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
+                pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url
          FROM landing_pages lp 
          LEFT JOIN projects pr ON lp.project_id = pr.id
          LEFT JOIN projects pm ON pr.master_parent_id = pm.id
@@ -379,8 +397,8 @@ router.get('/public/pages/:slug', async (req, res) => {
     if (rows.length === 0) {
         [rows] = await pool.query(`
           SELECT lp.*, lp.thankyoupage_json, 
-                 pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.master_parent_id,
-                 pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url
+                 pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
+                 pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url
           FROM landing_pages lp 
           LEFT JOIN projects pr ON lp.project_id = pr.id
           LEFT JOIN projects pm ON pr.master_parent_id = pm.id

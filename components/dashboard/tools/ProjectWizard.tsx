@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp, Upload, Image, FileText, FileUp, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp, Upload, Image, FileText, FileUp, ExternalLink, MessageCircle } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -441,6 +441,7 @@ export const ProjectWizard: React.FC = () => {
     const [commissionValue, setCommissionValue] = useState<number>(0);
     const [leadMagnetType, setLeadMagnetType] = useState('');
     const [leadMagnetUrl, setLeadMagnetUrl] = useState('');
+    const [whatsappGroupUrl, setWhatsappGroupUrl] = useState('');
     const [digitalProductUrl, setDigitalProductUrl] = useState('');
     const [salesPageUrl, setSalesPageUrl] = useState('');
     const [isMaster, setIsMaster] = useState(false);
@@ -772,6 +773,7 @@ export const ProjectWizard: React.FC = () => {
                 }
                 setLeadMagnetType(proj.leadMagnetType || '');
                 setLeadMagnetUrl(proj.leadMagnetUrl || '');
+                setWhatsappGroupUrl(proj.whatsappGroupUrl || proj.whatsapp_group_url || (proj.multimedia_json as any)?.whatsappGroupUrl || '');
                 setDigitalProductUrl(proj.digitalProductUrl || '');
                 setSalesPageUrl(proj.salesPageUrl || '');
                 setNiche(proj.niche || '');
@@ -914,8 +916,6 @@ export const ProjectWizard: React.FC = () => {
             const newErrors: Record<string, string> = {};
             if (!name.trim()) newErrors.name = "Este campo es obligatorio para que la IA genere tu estrategia";
             if (!productName.trim()) newErrors.productName = "Este campo es obligatorio para que la IA genere tu estrategia";
-            if (!leadMagnetType) newErrors.leadMagnetType = "Este campo es obligatorio para que la IA genere tu estrategia";
-            if (leadMagnetType && !(leadMagnetUrl || '').trim()) newErrors.leadMagnetUrl = "Este campo es obligatorio para que la IA genere tu estrategia";
             
             if (Object.keys(newErrors).length > 0) {
                 setErrors(newErrors);
@@ -947,6 +947,8 @@ export const ProjectWizard: React.FC = () => {
             commissionRate: fullPrice > 0 ? commissionValue / fullPrice : 0,
             leadMagnetType,
             leadMagnetUrl: leadMagnetUrl || firstLeadMagnetUrl || '',
+            whatsappGroupUrl: whatsappGroupUrl.trim(),
+            whatsapp_group_url: whatsappGroupUrl.trim(),
             salesPageUrl,
             digitalProductUrl: masterParentId ? undefined : digitalProductUrl,
             niche: niche || name, 
@@ -956,7 +958,9 @@ export const ProjectWizard: React.FC = () => {
             keyBenefits: keyBenefits,
             affiliateLinks: affiliateLinks.filter(l => (l.url || '').trim() !== ''),
             isMaster: (user.role === 'admin' && !isSimulating) ? isMaster : false,
-            multimedia_json: (user.role === 'admin' && !isSimulating) ? multimedia : undefined,
+            multimedia_json: (user.role === 'admin' && !isSimulating) 
+                ? { ...multimedia, whatsappGroupUrl: whatsappGroupUrl.trim() } 
+                : undefined,
             strategy_json: currentStrategy
         };
 
@@ -1617,29 +1621,44 @@ export const ProjectWizard: React.FC = () => {
                                     placeholder="Describe brevemente de qué trata para que la IA genere el copy..."
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Lead Magnet (Regalo)</label>
-                                <select value={leadMagnetType} onChange={e => setLeadMagnetType(e.target.value)} className={`w-full bg-black border ${errors.leadMagnetType ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all appearance-none cursor-pointer mb-4`}>
-                                    <option value="">Selecciona tu Lead Magnet</option>
-                                    <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
-                                    <option value="Clase Gratis / VSL">Clase Gratis / Carta de Ventas en Video</option>
-                                    <option value="Masterclass en Vivo">Masterclass en Vivo</option>
-                                    <option value="Plantilla / Checklist">Plantilla / Checklist</option>
-                                </select>
-                                {errors.leadMagnetType && <p className="text-red-500 text-xs mt-0 mb-4 font-medium">{errors.leadMagnetType}</p>}
-                                {leadMagnetType && (
-                                    <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Enlace de la {leadMagnetType}</label>
-                                        <input 
-                                            type="text" 
-                                            value={leadMagnetUrl} 
-                                            onChange={(e) => setLeadMagnetUrl(e.target.value)} 
-                                            className={`w-full bg-black border ${errors.leadMagnetUrl ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-blue-400 focus:border-primary outline-none transition-all placeholder:text-gray-700`} 
-                                            placeholder="https://..." 
-                                        />
-                                        {errors.leadMagnetUrl && <p className="text-red-500 text-xs mt-2 font-medium">{errors.leadMagnetUrl}</p>}
+                            <div className="bg-[#0B1120] border border-slate-800/80 rounded-2xl p-5 sm:p-6 space-y-4">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+                                            <MessageCircle className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-white uppercase tracking-wide">
+                                                Enlace del Grupo de WhatsApp (Página de Gracias)
+                                            </label>
+                                            <p className="text-xs text-slate-400 mt-0.5">
+                                                Enlace donde tus prospectos se unirán desde la página de gracias para entregarles su recurso o regalo manualmente.
+                                            </p>
+                                        </div>
                                     </div>
-                                )}
+                                    {whatsappGroupUrl && (
+                                        <a
+                                            href={whatsappGroupUrl.startsWith('http') ? whatsappGroupUrl : `https://${whatsappGroupUrl}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-xs text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 hover:underline shrink-0"
+                                        >
+                                            Probar enlace <ExternalLink className="w-3.5 h-3.5" />
+                                        </a>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <input 
+                                        type="text" 
+                                        value={whatsappGroupUrl} 
+                                        onChange={(e) => setWhatsappGroupUrl(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-emerald-400 focus:border-emerald-500 outline-none transition-all placeholder:text-gray-600 font-mono text-sm" 
+                                        placeholder="https://chat.whatsapp.com/..." 
+                                    />
+                                    <p className="text-xs text-slate-500">
+                                        💡 Los usuarios que se registren en tu landing page verán el botón directo a este enlace en la página de agradecimiento y el sistema registrará los clics automáticamente.
+                                    </p>
+                                </div>
                             </div>
 
                             <div className="border border-gray-800 rounded-2xl p-6 bg-zinc-950/40 flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
