@@ -31,15 +31,30 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
       showSocials: true,
       ctaLink: "#",
       // Hero
-      progressBarText: "¡ESPERA! SÓLO TE FALTA...",
-      greenBadgeText: "RECIBE NUESTRO LIBRO...",
-      headline: "PERFECTO, YA TIENES EL ACCESO...",
-      subheadline: content.thankYouMessage || "Sigue los pasos...",
+      progressBarText: "¡PERO ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR.",
+      greenBadgeText: "",
+      headline: "Perfecto, hemos enviado el acceso a la clase gratuita a tu correo electrónico",
+      subheadline: content.thankYouMessage || "Únete a nuestro grupo privado de Whatsapp para acceder a nuestras mentorías y recibir tu material de preparación gratuito.",
       // Fallback
       step1Title: "Revisa tu Correo",
-      step2Title: "Grupo VIP",
+      step2Title: "Únete a nuestro grupo de Whatsapp y descarga nuestro libro gratuito",
       ctaButtonText: "UNIRME AL GRUPO"
   };
+
+  const rawHeadline = tyConfig.headline || "";
+  const resolvedHeadline = (!rawHeadline || rawHeadline.toUpperCase().includes("PERFECTO, YA TIENES EL ACCESO"))
+      ? "Perfecto, hemos enviado el acceso a la clase gratuita a tu correo electrónico"
+      : rawHeadline;
+
+  const rawProgressBarText = tyConfig.progressBarText || "";
+  const resolvedProgressBarText = (!rawProgressBarText || rawProgressBarText.includes("¡ESPERA! SÓLO TE FALTA"))
+      ? "¡PERO ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR."
+      : rawProgressBarText;
+
+  const rawSubheadline = tyConfig.subheadline || content.thankYouMessage || "";
+  const resolvedSubheadline = (!rawSubheadline || rawSubheadline.includes("Sigue estos 2 pasos sencillos") || rawSubheadline.includes("Sigue los pasos"))
+      ? "Únete a nuestro grupo privado de Whatsapp para acceder a nuestras mentorías y recibir tu material de preparación gratuito."
+      : rawSubheadline;
 
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
@@ -91,12 +106,27 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
               <div className="relative z-10 max-w-5xl mx-auto text-center">
                   
-                      {/* 1. PROGRESS BAR */}
+                      {/* 1. H1 HEADLINE (Placed before progress bar per request) */}
+                      <h1 
+                          className={`text-4xl md:text-6xl font-black mb-10 pt-4 leading-snug tracking-wide drop-shadow-xl ${ds.hero.titleColor}`}
+                          style={{
+                              fontSize: '2.75rem',
+                              lineHeight: 1.2,
+                              width: '80%',
+                              margin: '0 auto',
+                              paddingBottom: '1em',
+                              paddingTop: '1em',
+                          }}
+                      >
+                          {resolvedHeadline}
+                      </h1>
+
+                      {/* 2. PROGRESS BAR (Placed after H1 per request) */}
                       <div className="max-w-2xl mx-auto w-full mb-12 bg-gray-900/80 backdrop-blur-md p-6 rounded-2xl border border-yellow-500/30 shadow-2xl relative overflow-hidden group">
                         <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500"></div>
                         <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-3 gap-2">
                             <span className="text-yellow-400 font-bold flex items-center gap-2 text-sm md:text-base animate-pulse">
-                                <AlertTriangle className="w-5 h-5" /> {tyConfig.progressBarText || "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR."}
+                                <AlertTriangle className="w-5 h-5" /> {resolvedProgressBarText}
                             </span>
                             <span className="text-white font-mono font-bold text-lg">80%</span>
                         </div>
@@ -109,21 +139,6 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                         </div>
                       </div>
 
-                      <h1 className={`text-4xl md:text-6xl font-black mb-10 pt-4 leading-snug tracking-wide drop-shadow-xl ${ds.hero.titleColor}`}>
-                          {tyConfig.headline}
-                      </h1>
-
-                      <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-3xl max-w-3xl mx-auto mb-12 shadow-2xl relative group overflow-hidden">
-                          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
-                          <p className={`text-xl md:text-2xl font-light leading-relaxed text-white/90`} dangerouslySetInnerHTML={{ __html: tyConfig.subheadline || "" }}>
-                          </p>
-                      </div>
-
-                      {/* 2. GREEN STATUS BADGE */}
-                      <div className="inline-flex items-center gap-2 bg-green-500 text-black px-8 py-3 rounded-full text-base font-black uppercase mt-4 mb-20 shadow-xl shadow-green-500/20 transform hover:scale-105 transition-all animate-bounce border-2 border-green-400/50">
-                          {tyConfig.greenBadgeText || "ESPERA, AÚN FALTA UN ÚLTIMO PASO"}
-                      </div>
-
                       <div className="max-w-3xl mx-auto">
                           {/* STEP 2 CARD (Highlight) */}
                           <div className="bg-white rounded-[2.5rem] p-10 md:p-14 shadow-2xl border-4 border-green-500 relative overflow-hidden z-20 group">
@@ -132,14 +147,38 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                               
                               <div className="mb-8 relative z-10">
                                   <span className="inline-block bg-green-600 text-white px-6 py-2.5 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg animate-pulse">
-                                      PASO 2
+                                      SOLO POR HOY: LIBRO DIGITAL 100% GRATIS
                                   </span>
                               </div>
 
-                              <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-8 relative z-10 leading-tight">Únete a nuestro Grupo VIP + Regalo</h3>
+                              <h3 
+                                  className="text-4xl md:text-5xl font-black text-gray-900 mb-8 relative z-10 leading-tight"
+                                  style={{ lineHeight: '1.12em' }}
+                              >
+                                  Únete a nuestro grupo de Whatsapp y descarga nuestro libro gratuito
+                              </h3>
+
+                              <p 
+                                  className="leading-relaxed text-gray-600" 
+                                  style={{
+                                      fontSize: '1.3em',
+                                      lineHeight: '1.5em',
+                                      paddingBottom: '1.5em',
+                                  }}
+                              >
+                                  Únete a nuestro grupo privado de Whatsapp para acceder a nuestras mentorías y recibir tu material de preparación gratuito.
+                              </p>
+
+                              {/* Pantallazo del PDF del Lead Magnet */}
+                              <div className="w-full flex justify-center pb-6">
+                                  <img 
+                                      src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80" 
+                                      alt="Pantallazo Lead Magnet" 
+                                      className="rounded-2xl shadow-xl max-h-80 w-auto object-cover border border-slate-200"
+                                  />
+                              </div>
                               
                               <div className="space-y-8 text-gray-700 text-xl font-medium relative z-10">
-                                  <p className="leading-relaxed text-gray-600">Únete al grupo de WhatsApp para recibir la mentoría y tu regalo de bienvenida.</p>
                                   
                                   <div className="flex flex-col md:flex-row items-center gap-6 bg-green-50 p-8 rounded-3xl border border-green-200 transition-all group-hover:bg-green-100/50 group-hover:border-green-300">
                                       <div className="bg-white p-5 rounded-2xl shadow-md shrink-0">
@@ -147,21 +186,15 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                                       </div>
                                       <div className="text-center md:text-left flex-1">
                                           <p className="font-black text-gray-900 text-2xl mb-1">{displayLeadMagnetName}</p>
-                                          <p className="text-lg text-gray-400 line-through font-bold">Precio Regular: $27 USD</p>
-                                          {displayLeadMagnetUrl && (
-                                              <a 
-                                                  href={displayLeadMagnetUrl}
-                                                  target="_blank"
-                                                  rel="noopener noreferrer"
-                                                  className="inline-flex items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-900 underline mt-2"
-                                              >
-                                                  <Download className="w-4 h-4 text-emerald-600" />
-                                                  <span>Descargar PDF del Lead Magnet</span>
-                                              </a>
-                                          )}
+                                          <div 
+                                              className="text-red-500 text-lg font-bold line-through decoration-black-500 decoration-2" 
+                                              style={{ fontSize: '1.1em' }}
+                                          >
+                                              Precio Regular: $27 USD
+                                          </div>
                                       </div>
                                       <div className="bg-green-600 text-white font-black px-4 py-2 rounded-lg shadow-sm">
-                                          GRATIS
+                                          HOY GRATIS
                                       </div>
                                   </div>
 
@@ -183,110 +216,6 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                       </div>
                   </div>
               </section>
-
-          {/* 3. THE OFFER (BOOK MOCKUP & SALES COPY) */}
-          <section className="py-20 px-6 bg-gradient-to-b from-gray-900 to-black relative border-t border-white/10">
-              <div className="max-w-6xl mx-auto">
-                  {/* HEADER */}
-                  {tyConfig.offerTopTitle && (
-                      <h2 className="text-3xl md:text-4xl font-black text-white text-center mb-12 tracking-wide leading-tight">
-                          {tyConfig.offerTopTitle}
-                      </h2>
-                  )}
-
-                  <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row relative">
-                      
-                      {/* LEFT: VISUAL (Mockup) */}
-                      <div className="md:w-2/5 bg-gray-100 relative p-12 flex flex-col items-center justify-center overflow-hidden">
-                          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-400 via-gray-100 to-white"></div>
-                          
-                          {/* CSS 3D Book */}
-                          <div className="relative w-56 aspect-[3/4.2] perspective-1000 group cursor-pointer hover:scale-105 transition-transform duration-500 z-10">
-                              <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 to-purple-900 rounded-r-lg shadow-[20px_20px_40px_rgba(0,0,0,0.4)] transform rotate-y-[-15deg] border-l-8 border-white/10 flex flex-col items-center p-6 text-center text-white">
-                                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-6 backdrop-blur-sm border border-white/30">
-                                      <BookOpen className="w-8 h-8 text-white" />
-                                  </div>
-                                  <h4 className="font-serif font-bold text-xl uppercase tracking-wider mb-1 line-clamp-2">{displayLeadMagnetName}</h4>
-                                  <div className="h-0.5 w-12 bg-white/50 mb-1"></div>
-                                  <p className="text-xs font-light tracking-wide opacity-90">{tyConfig.bookSubtitle || "GUIA GRATIS"}</p>
-                                  <div className="mt-auto text-[10px] opacity-60">{tyConfig.bookFooter}</div>
-                              </div>
-                              {/* Book Pages Effect */}
-                              <div className="absolute top-2 bottom-2 left-0 w-4 bg-white rounded-l-sm transform rotate-y-[-15deg] origin-right translate-x-[-1px] translate-z-[-2px] shadow-inner"></div>
-                          </div>
-
-                          <div className="mt-12 text-center relative z-10 flex flex-col items-center gap-4">
-                              {tyConfig.offerBadge && (
-                                  <span className="bg-red-500 text-white px-4 py-1.5 rounded-lg text-sm font-black shadow-lg transform -rotate-2 inline-block tracking-wide">
-                                      {tyConfig.offerBadge}
-                                  </span>
-                              )}
-                              {tyConfig.offerPriceRegular && (
-                                  <div className="text-gray-500 text-lg font-bold line-through decoration-red-500 decoration-4">
-                                      {tyConfig.offerPriceRegular}
-                                  </div>
-                              )}
-                              {tyConfig.offerPriceFree && (
-                                  <div className="text-green-600 font-black text-4xl tracking-tighter drop-shadow-sm mt-1">
-                                      {tyConfig.offerPriceFree}
-                                  </div>
-                              )}
-                          </div>
-                      </div>
-
-                      {/* RIGHT: COPY & CTA */}
-                      <div className="md:w-3/5 p-8 md:p-16 flex flex-col justify-center bg-white relative">
-                          <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-                              <BookOpen className="w-40 h-40 text-gray-900" />
-                          </div>
-
-                          <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-6 leading-tight" dangerouslySetInnerHTML={{ __html: tyConfig.offerHeadline || "Descarga tu Guía" }}></h2>
-                          
-                          <p className="text-lg font-medium text-gray-600 mb-8 leading-relaxed" dangerouslySetInnerHTML={{ __html: tyConfig.offerDescription || "" }}></p>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-                              {(tyConfig.offerBullets || []).map((item, i) => (
-                                  <div key={i} className="flex items-start gap-3">
-                                      <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                                      <span className="text-lg font-medium text-gray-700">{item}</span>
-                                  </div>
-                              ))}
-                          </div>
-
-                          <a 
-                              href={whatsappLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={handleWhatsAppClick}
-                              className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-5 px-8 rounded-2xl font-bold text-xl shadow-xl shadow-green-500/30 flex items-center justify-center gap-3 transition-transform hover:scale-[1.02] group relative overflow-hidden cursor-pointer"
-                          >
-                              <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
-                              <MessageCircle className="w-7 h-7 fill-white/20" />
-                              <span className="relative z-10">{tyConfig.ctaButtonText || "DESCARGAR AHORA"}</span>
-                          </a>
-
-                          {displayLeadMagnetUrl && (
-                              <div className="mt-3 text-center">
-                                  <a 
-                                      href={displayLeadMagnetUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 underline transition"
-                                  >
-                                      <Download className="w-3.5 h-3.5 text-emerald-600" />
-                                      <span>Descargar PDF ({displayLeadMagnetName})</span>
-                                  </a>
-                              </div>
-                          )}
-                          
-                          <div className="mt-4 flex items-center justify-center gap-4 text-xs text-gray-400">
-                              <span className="flex items-center gap-1"><Lock className="w-3 h-3"/> Acceso Seguro</span>
-                              <span className="flex items-center gap-1"><Clock className="w-3 h-3"/> Oferta Limitada</span>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </section>
 
           {/* 4. WHAT YOU WILL LEARN */}
           {(tyConfig.learningItems && tyConfig.learningItems.length > 0) && (

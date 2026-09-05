@@ -355,8 +355,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
           securityText: "Acceso Inmediato & Garantizado"
       },
       thankYouPage: page.content.thankYouPage || {
-          headline: "PERFECTO, YA TIENES EL ACCESO...",
-          subheadline: "Sigue los pasos a continuación...",
+          headline: "Perfecto, hemos enviado el acceso a la clase gratuita a tu correo electrónico",
+          subheadline: "Únete a nuestro grupo privado de Whatsapp para acceder a nuestras mentorías y recibir tu material de preparación gratuito.",
           ctaLink: "#",
           showSocials: true
       }

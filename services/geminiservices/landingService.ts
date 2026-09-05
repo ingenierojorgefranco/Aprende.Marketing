@@ -229,16 +229,16 @@ export const generateLandingPageContent = async (
   4. Instructor: Nombre y biografía.
   5. Footer: Copyright y contacto.
   9. BLUEPRINT DE PÁGINA DE GRACIAS (Usa estos valores como base y adáptalos sutilmente al nicho):
-     - headline: "PERFECTO, YA TIENES EL ACCESO A LA CLASE DE ... (Añade aquí la Clase)"
-     - subheadline: "Sigue estos 2 pasos sencillos para asegurar tu cupo y recibir tu material de preparación gratuito."
-     - progressBarText: "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR."
-     - greenBadgeText: "RECIBE TU REGALO 100% GRATIS"
+     - headline: "Perfecto, hemos enviado el acceso a la clase gratuita a tu correo electrónico"
+     - subheadline: "Únete a nuestro grupo privado de Whatsapp para acceder a nuestras mentorías y recibir tu material de preparación gratuito."
+     - progressBarText: "¡PERO ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR."
+     - greenBadgeText: ""
      - step1Title: "Revisa tu Correo Electrónico"
      - step1Desc: "Hemos enviado el enlace de acceso a la clase y tu regalo a tu correo electrónico."
      - step1Warning: "Importante: Si no ves el mensaje en tu correo, verifica tu bandeja de SPAM o Promociones."
-     - step2Title: "Únete a nuestro Grupo VIP + Regalo"
-     - step2Desc: "Únete al grupo de WhatsApp para recibir la mentoría y tu regalo de bienvenida.."
-     - step2Badge: "¡ACCIÓN REQUERIDA!"
+     - step2Title: "Únete a nuestro grupo de Whatsapp y descarga nuestro libro gratuito"
+     - step2Desc: ""
+     - step2Badge: "SOLO POR HOY: LIBRO DIGITAL 100% GRATIS"
      - step2BonusTitle: "Libro Digital GRATIS" 
      - step2BonusValue: "Precio Regular: $27 USD"  
      - offerTopTitle: "UNETE A NUESTRO GRUPO Y DESCARGA EL LIBRO GRATUITO" 
