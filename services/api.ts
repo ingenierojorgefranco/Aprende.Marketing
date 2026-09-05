@@ -2433,9 +2433,15 @@ export const api = {
         return localWatched;
     },
 
-    uploadImage: async (file: File): Promise<string> => {
+    uploadFile: async (file: File, options?: { projectId?: string | number; folderType?: 'images' | 'leadmagnets' }): Promise<{ url: string; fileName: string }> => {
         const formData = new FormData();
         formData.append("file", file);
+        if (options?.projectId) {
+            formData.append("projectId", String(options.projectId));
+        }
+        if (options?.folderType) {
+            formData.append("folderType", options.folderType);
+        }
         const token = localStorage.getItem('plataformadeventacom_token');
         const res = await fetchWithFallback("/upload", {
             method: "POST",
@@ -2444,7 +2450,34 @@ export const api = {
             },
             body: formData,
         });
+        return { url: res.url, fileName: res.fileName || file.name };
+    },
+
+    uploadImage: async (file: File, options?: { projectId?: string | number; folderType?: 'images' | 'leadmagnets' }): Promise<string> => {
+        const res = await api.uploadFile(file, { projectId: options?.projectId, folderType: options?.folderType || 'images' });
         return res.url;
+    },
+
+    deleteFile: async (url: string): Promise<{ success: boolean; deleted?: boolean; message?: string }> => {
+        if (!url || typeof url !== 'string') return { success: false };
+        const token = localStorage.getItem('plataformadeventacom_token');
+        try {
+            return await fetchWithFallback("/upload/delete", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : ''
+                },
+                body: JSON.stringify({ url: url.trim() }),
+            });
+        } catch (e) {
+            console.warn("Error eliminando archivo de almacenamiento:", e);
+            return { success: false };
+        }
+    },
+
+    deleteImage: async (url: string): Promise<{ success: boolean; deleted?: boolean; message?: string }> => {
+        return api.deleteFile(url);
     },
 };
   

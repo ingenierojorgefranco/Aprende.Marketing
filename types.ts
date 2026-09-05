@@ -600,6 +600,7 @@ export interface Project {
     videoUrls: string[];
     descriptiveImages: string[];
     instructorImage?: string;
+    leadMagnets?: { name: string; url: string }[];
   };
   
   createdAt: Date;

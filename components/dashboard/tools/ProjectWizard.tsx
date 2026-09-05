@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp, Upload, Image } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp, Upload, Image, FileText, FileUp, ExternalLink } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -471,19 +471,37 @@ export const ProjectWizard: React.FC = () => {
         { label: 'Hotlink con Descuento', url: '' }
     ]);
     const [originalStrategyJson, setOriginalStrategyJson] = useState<any>(null);
-    const [multimedia, setMultimedia] = useState<{ heroImages: string[], videoUrls: string[], descriptiveImages: string[], instructorImage?: string }>({
+    const [multimedia, setMultimedia] = useState<{ 
+        heroImages: string[], 
+        videoUrls: string[], 
+        descriptiveImages: string[], 
+        instructorImage?: string,
+        leadMagnets?: { name: string; url: string }[] 
+    }>({
         heroImages: [],
         videoUrls: [],
         descriptiveImages: [],
-        instructorImage: ''
+        instructorImage: '',
+        leadMagnets: []
     });
     const [uploadingState, setUploadingState] = useState<{type: string, index: number} | null>(null);
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: string, index?: number) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        let previousUrl = '';
+        if (type === "heroImages" && index !== undefined) {
+            previousUrl = multimedia.heroImages[index] || '';
+        } else if (type === "descriptiveImages" && index !== undefined) {
+            previousUrl = multimedia.descriptiveImages[index] || '';
+        } else if (type === "instructorImage") {
+            previousUrl = multimedia.instructorImage || '';
+        }
+
         try {
             setUploadingState({ type, index: index ?? -1 });
-            const url = await api.uploadImage(file);
+            // Guardar en Proyect/{id}/images/
+            const url = await api.uploadImage(file, { projectId: id || 'temp', folderType: 'images' });
             if (type === "heroImages" && index !== undefined) {
                 const newImgs = [...multimedia.heroImages];
                 newImgs[index] = url;
@@ -495,12 +513,119 @@ export const ProjectWizard: React.FC = () => {
             } else if (type === "instructorImage") {
                 setMultimedia({ ...multimedia, instructorImage: url });
             }
+
+            // Si reemplazó una imagen previa alojada en el bucket, borrar la física anterior para ahorrar espacio
+            if (previousUrl && previousUrl.includes('storage.googleapis.com')) {
+                api.deleteFile(previousUrl).catch(err => console.warn('No se pudo eliminar imagen reemplazada de GCS:', err));
+            }
         } catch (error) {
             console.error("Error uploading image:", error);
             alert("Error al subir la imagen. Intenta de nuevo.");
         } finally {
             setUploadingState(null);
+            e.target.value = '';
         }
+    };
+
+    const handleDeleteImage = async (type: 'heroImages' | 'descriptiveImages' | 'instructorImage', index?: number) => {
+        let urlToDelete = '';
+        if (type === 'heroImages' && index !== undefined) {
+            urlToDelete = multimedia.heroImages[index];
+            const newImgs = multimedia.heroImages.filter((_, i) => i !== index);
+            setMultimedia(prev => ({ ...prev, heroImages: newImgs }));
+        } else if (type === 'descriptiveImages' && index !== undefined) {
+            urlToDelete = multimedia.descriptiveImages[index];
+            const newImgs = multimedia.descriptiveImages.filter((_, i) => i !== index);
+            setMultimedia(prev => ({ ...prev, descriptiveImages: newImgs }));
+        } else if (type === 'instructorImage') {
+            urlToDelete = multimedia.instructorImage || '';
+            setMultimedia(prev => ({ ...prev, instructorImage: '' }));
+        }
+
+        if (urlToDelete && urlToDelete.trim()) {
+            try {
+                await api.deleteFile(urlToDelete.trim());
+            } catch (err) {
+                console.warn("No se pudo eliminar el archivo del bucket de almacenamiento:", err);
+            }
+        }
+    };
+
+    const handleLeadMagnetUpload = async (e: React.ChangeEvent<HTMLInputElement>, index?: number) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        let previousUrl = '';
+        const currentList = multimedia.leadMagnets ? [...multimedia.leadMagnets] : [];
+        if (index !== undefined && currentList[index]) {
+            previousUrl = currentList[index].url || '';
+        }
+
+        try {
+            setUploadingState({ type: 'leadMagnet', index: index ?? -1 });
+            // Guardar en Proyect/{id}/leadmagnets/
+            const result = await api.uploadFile(file, { 
+                projectId: id || 'temp', 
+                folderType: 'leadmagnets' 
+            });
+
+            const fileName = file.name.replace(/\.[^/.]+$/, "");
+            if (index !== undefined && index >= 0 && index < currentList.length) {
+                currentList[index] = {
+                    name: currentList[index].name && currentList[index].name.trim() !== '' ? currentList[index].name : fileName,
+                    url: result.url
+                };
+            } else {
+                currentList.push({
+                    name: fileName || 'Guía o Recurso PDF',
+                    url: result.url
+                });
+            }
+
+            setMultimedia(prev => ({ ...prev, leadMagnets: currentList }));
+
+            // Si reemplazó un PDF previo alojado en el bucket, borrar el anterior físicamente
+            if (previousUrl && previousUrl.includes('storage.googleapis.com')) {
+                api.deleteFile(previousUrl).catch(err => console.warn('No se pudo eliminar PDF anterior de GCS:', err));
+            }
+        } catch (error) {
+            console.error("Error uploading lead magnet:", error);
+            alert("Error al subir el archivo PDF del Lead Magnet. Intenta de nuevo.");
+        } finally {
+            setUploadingState(null);
+            e.target.value = '';
+        }
+    };
+
+    const handleDeleteLeadMagnet = async (index: number) => {
+        const currentList = multimedia.leadMagnets ? [...multimedia.leadMagnets] : [];
+        const itemToDelete = currentList[index];
+        if (!itemToDelete) return;
+
+        const updated = currentList.filter((_, i) => i !== index);
+        setMultimedia(prev => ({ ...prev, leadMagnets: updated }));
+
+        if (itemToDelete.url && itemToDelete.url.trim()) {
+            try {
+                await api.deleteFile(itemToDelete.url.trim());
+            } catch (err) {
+                console.warn("No se pudo eliminar el archivo PDF del bucket:", err);
+            }
+        }
+    };
+
+    const handleUpdateLeadMagnet = (index: number, field: 'name' | 'url', value: string) => {
+        const currentList = multimedia.leadMagnets ? [...multimedia.leadMagnets] : [];
+        if (currentList[index]) {
+            currentList[index] = { ...currentList[index], [field]: value };
+            setMultimedia(prev => ({ ...prev, leadMagnets: currentList }));
+        }
+    };
+
+    const handleAddLeadMagnet = () => {
+        const currentList = multimedia.leadMagnets ? [...multimedia.leadMagnets] : [];
+        currentList.push({ name: '', url: '' });
+        setMultimedia(prev => ({ ...prev, leadMagnets: currentList }));
     };
 
     const commissionRate = fullPrice > 0 ? (commissionValue / fullPrice) * 100 : 0;
@@ -640,7 +765,18 @@ export const ProjectWizard: React.FC = () => {
                         heroImages: proj.multimedia_json.heroImages || [],
                         videoUrls: proj.multimedia_json.videoUrls || ((proj.multimedia_json as any).videoUrl ? [(proj.multimedia_json as any).videoUrl] : []),
                         descriptiveImages: proj.multimedia_json.descriptiveImages || [],
-                        instructorImage: proj.multimedia_json.instructorImage || ''
+                        instructorImage: proj.multimedia_json.instructorImage || '',
+                        leadMagnets: Array.isArray((proj.multimedia_json as any).leadMagnets)
+                            ? (proj.multimedia_json as any).leadMagnets.map((lm: any) => typeof lm === 'string' ? { name: 'Lead Magnet', url: lm } : lm)
+                            : (proj.leadMagnetUrl ? [{ name: 'Lead Magnet Principal', url: proj.leadMagnetUrl }] : [])
+                    });
+                } else if (proj.leadMagnetUrl) {
+                    setMultimedia({
+                        heroImages: [],
+                        videoUrls: [],
+                        descriptiveImages: [],
+                        instructorImage: '',
+                        leadMagnets: [{ name: 'Lead Magnet Principal', url: proj.leadMagnetUrl }]
                     });
                 }
             }
@@ -703,6 +839,10 @@ export const ProjectWizard: React.FC = () => {
         currentStrategy.avatars = tempAvatars;
         currentStrategy.commercial = tempCommercial; // Persistencia de datos del modal comercial
         
+        const firstLeadMagnetUrl = (multimedia.leadMagnets && multimedia.leadMagnets.length > 0)
+            ? multimedia.leadMagnets.find(lm => lm.url && lm.url.trim() !== '')?.url
+            : '';
+        
         const projectData: any = {
             name,
             productName,
@@ -711,7 +851,7 @@ export const ProjectWizard: React.FC = () => {
             fullPrice,
             commissionRate: fullPrice > 0 ? commissionValue / fullPrice : 0,
             leadMagnetType,
-            leadMagnetUrl,
+            leadMagnetUrl: leadMagnetUrl || firstLeadMagnetUrl || '',
             salesPageUrl,
             digitalProductUrl: masterParentId ? undefined : digitalProductUrl,
             niche: niche || name, 
@@ -929,11 +1069,10 @@ export const ProjectWizard: React.FC = () => {
                                                         />
                                                     </label>
                                                     <button 
-                                                        onClick={() => {
-                                                            const newImgs = multimedia.heroImages.filter((_, i) => i !== idx);
-                                                            setMultimedia({ ...multimedia, heroImages: newImgs });
-                                                        }}
+                                                        type="button"
+                                                        onClick={() => handleDeleteImage('heroImages', idx)}
                                                         className="p-2 text-gray-500 hover:text-red-500 transition-colors"
+                                                        title="Eliminar imagen"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
@@ -1017,11 +1156,10 @@ export const ProjectWizard: React.FC = () => {
                                                         />
                                                     </label>
                                                     <button 
-                                                        onClick={() => {
-                                                            const newImgs = multimedia.descriptiveImages.filter((_, i) => i !== idx);
-                                                            setMultimedia({ ...multimedia, descriptiveImages: newImgs });
-                                                        }}
+                                                        type="button"
+                                                        onClick={() => handleDeleteImage('descriptiveImages', idx)}
                                                         className="p-2 text-gray-500 hover:text-red-500 transition-colors"
+                                                        title="Eliminar imagen"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
@@ -1070,6 +1208,16 @@ export const ProjectWizard: React.FC = () => {
                                                     onChange={(e) => handleImageUpload(e, 'instructorImage')}
                                                 />
                                             </label>
+                                            {multimedia.instructorImage && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDeleteImage('instructorImage')}
+                                                    className="p-3 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-xl cursor-pointer transition-colors"
+                                                    title="Eliminar foto del profesor"
+                                                >
+                                                    <Trash2 className="w-5 h-5" />
+                                                </button>
+                                            )}
                                         </div>
                                         <p className="text-[10px] text-gray-500 italic">Esta imagen aparecerá en la "Biblioteca" del editor web para que el usuario pueda seleccionarla fácilmente.</p>
                                     </div>
@@ -1099,6 +1247,108 @@ export const ProjectWizard: React.FC = () => {
                                                 ? "Este proyecto es un duplicado. La URL se hereda automáticamente del proyecto maestro y no puede modificarse aquí."
                                                 : "Enlace de reclutamiento de Hotmart para que los usuarios se afilien."}
                                         </p>
+                                    </div>
+
+                                    {/* LEAD MAGNETS / RECURSOS GRATUITOS (PDFs para la página de gracias) */}
+                                    <div className="space-y-4 pt-4 border-t border-blue-500/10">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                                    <FileText className="w-4 h-4 text-emerald-400" /> Lead Magnets / Recursos Gratuitos (PDFs)
+                                                </label>
+                                                <p className="text-[10px] text-gray-500 italic mt-0.5">
+                                                    Sube uno o varios archivos PDF. Se guardarán organizados en <span className="text-emerald-400/90 font-mono">Proyect/{id || 'temp'}/leadmagnets/</span> del bucket para la página de gracias.
+                                                </p>
+                                            </div>
+                                            <button 
+                                                type="button"
+                                                onClick={handleAddLeadMagnet}
+                                                className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-3 py-1.5 rounded-lg transition-all"
+                                            >
+                                                <Plus className="w-3.5 h-3.5" /> Añadir Lead Magnet
+                                            </button>
+                                        </div>
+
+                                        {(!multimedia.leadMagnets || multimedia.leadMagnets.length === 0) ? (
+                                            <div className="p-4 rounded-xl border border-dashed border-gray-800 bg-black/40 text-center">
+                                                <p className="text-xs text-gray-500 mb-2">No has subido ningún Lead Magnet en PDF aún.</p>
+                                                <label className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-400 rounded-xl cursor-pointer text-xs font-medium transition-colors">
+                                                    <FileUp className="w-4 h-4" />
+                                                    <span>Subir primer PDF al Bucket</span>
+                                                    <input 
+                                                        type="file" 
+                                                        className="hidden" 
+                                                        accept=".pdf,application/pdf"
+                                                        disabled={uploadingState !== null}
+                                                        onChange={(e) => handleLeadMagnetUpload(e)}
+                                                    />
+                                                </label>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                {multimedia.leadMagnets.map((lm, idx) => (
+                                                    <div key={idx} className="p-3 bg-black/60 border border-gray-800 rounded-xl space-y-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 text-emerald-400">
+                                                                <FileText className="w-4 h-4" />
+                                                            </div>
+                                                            <input 
+                                                                type="text" 
+                                                                value={lm.name || ''} 
+                                                                onChange={(e) => handleUpdateLeadMagnet(idx, 'name', e.target.value)}
+                                                                placeholder="Nombre del Lead Magnet (ej: Guía Paso a Paso Resina Epóxica)"
+                                                                className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-emerald-500"
+                                                            />
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <input 
+                                                                type="text" 
+                                                                value={lm.url || ''} 
+                                                                onChange={(e) => handleUpdateLeadMagnet(idx, 'url', e.target.value)}
+                                                                placeholder="URL del archivo PDF en el Bucket..."
+                                                                className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-emerald-300 font-mono outline-none focus:border-emerald-500"
+                                                            />
+                                                            <label 
+                                                                className={`p-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 rounded-lg cursor-pointer transition-colors flex items-center justify-center ${uploadingState?.type === 'leadMagnet' && uploadingState.index === idx ? 'opacity-50 pointer-events-none' : ''}`}
+                                                                title="Subir archivo PDF al bucket"
+                                                            >
+                                                                {uploadingState?.type === 'leadMagnet' && uploadingState.index === idx ? (
+                                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                                ) : (
+                                                                    <FileUp className="w-4 h-4" />
+                                                                )}
+                                                                <input 
+                                                                    type="file" 
+                                                                    className="hidden" 
+                                                                    accept=".pdf,application/pdf"
+                                                                    disabled={uploadingState !== null}
+                                                                    onChange={(e) => handleLeadMagnetUpload(e, idx)}
+                                                                />
+                                                            </label>
+                                                            {lm.url && (
+                                                                <a 
+                                                                    href={lm.url} 
+                                                                    target="_blank" 
+                                                                    rel="noopener noreferrer" 
+                                                                    className="p-2 bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors flex items-center justify-center"
+                                                                    title="Ver/Descargar PDF"
+                                                                >
+                                                                    <ExternalLink className="w-4 h-4" />
+                                                                </a>
+                                                            )}
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => handleDeleteLeadMagnet(idx)}
+                                                                className="p-2 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors flex items-center justify-center"
+                                                                title="Eliminar y borrar físicamente del bucket"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}
