@@ -340,6 +340,8 @@ export interface ThankYouPageConfig {
   // Lead Magnet específico seleccionado para la página de gracias
   leadMagnetName?: string;
   leadMagnetUrl?: string;
+  leadMagnetImageUrl?: string;
+  leadMagnetDescription?: string;
   
   // Legacy fields fallback
   ctaText?: string; 
@@ -606,7 +608,13 @@ export interface Project {
     videoUrls?: string[];
     descriptiveImages?: string[];
     instructorImage?: string;
-    leadMagnets?: { name: string; url: string }[];
+    leadMagnets?: { 
+      name: string; 
+      url: string; 
+      imageUrl?: string; 
+      description?: string; 
+      fromMaster?: boolean;
+    }[];
   };
   
   createdAt: Date;

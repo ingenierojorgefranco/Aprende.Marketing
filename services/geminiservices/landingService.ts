@@ -101,6 +101,74 @@ export const generateLandingPageContent = async (
       `;
   }
 
+  // --- GESTIÓN Y ASIGNACIÓN DE LEAD MAGNET (BÁSICO VS PRO) ---
+  const mmRaw = projectContext?.multimedia_json || (projectContext?.strategy_json as any)?.multimedia_json;
+  const parsedMM = typeof mmRaw === 'string'
+      ? (() => { try { return JSON.parse(mmRaw); } catch { return null; } })()
+      : mmRaw;
+
+  let leadMagnetsPool: any[] = [];
+  if (Array.isArray(parsedMM?.leadMagnets) && parsedMM.leadMagnets.length > 0) {
+      leadMagnetsPool = parsedMM.leadMagnets.filter((lm: any) => lm && (lm.name || lm.url));
+  } else if (projectContext?.leadMagnetUrl) {
+      leadMagnetsPool = [{
+          name: projectContext.name ? `Guía de ${projectContext.name}` : 'Libro Digital Exclusivo',
+          url: projectContext.leadMagnetUrl,
+          imageUrl: '',
+          description: projectContext.description || ''
+      }];
+  }
+
+  // Si es usuario básico solo podrá tener 1 lead magnet desbloqueado. Si hay más de 1, se le asigna aleatoriamente uno generado.
+  const userPlanSlug = (projectContext as any)?.userPlanSlug || projectContext?.planSlug || 'starter';
+  const isUserAdmin = (projectContext as any)?.userRole === 'admin';
+  const isBasicUser = !isUserAdmin && userPlanSlug === 'starter';
+
+  let assignedLeadMagnet: any = null;
+  if (leadMagnetsPool.length > 0) {
+      if (isBasicUser && leadMagnetsPool.length > 1) {
+          const randIdx = Math.floor(Math.random() * leadMagnetsPool.length);
+          assignedLeadMagnet = leadMagnetsPool[randIdx];
+      } else {
+          assignedLeadMagnet = leadMagnetsPool[0];
+      }
+  }
+
+  let leadMagnetContext = "";
+  if (assignedLeadMagnet) {
+      const lmTitle = assignedLeadMagnet.name || "Guía Práctica Digital";
+      const lmDesc = assignedLeadMagnet.description || "Esta guía práctica revela el paso a paso exacto, errores a evitar y estrategias probadas para lograr resultados profesionales.";
+      const lmUrl = assignedLeadMagnet.url || "";
+      const lmImage = assignedLeadMagnet.imageUrl || "";
+
+      leadMagnetContext = `
+      --- LEAD MAGNET ASIGNADO (USO OBLIGATORIO PARA LA PÁGINA DE GRACIAS): ---
+      * Título del Lead Magnet: "${lmTitle}"
+      * Descripción del Lead Magnet: "${lmDesc}"
+      * URL del PDF: "${lmUrl}"
+      * Imagen de Portada: "${lmImage}"
+
+      REGLAS ESTRICTAS PARA CONSTRUIR "thankYouPage":
+      La inteligencia artificial debe usar el TÍTULO ("${lmTitle}") y la DESCRIPCIÓN ("${lmDesc}") para que todo el contenido de la página de gracias esté estrechamente relacionado con este Lead Magnet:
+      1. "leadMagnetName": "${lmTitle}"
+      2. "leadMagnetUrl": "${lmUrl}"
+      3. "leadMagnetImageUrl": "${lmImage}"
+      4. "leadMagnetDescription": "${lmDesc}"
+      5. "bookTitle": "${lmTitle}"
+      6. "offerHeadline": "Descarga: ${lmTitle}"
+      7. "offerDescription": "${lmDesc}"
+      8. "step2BonusTitle": "${lmTitle}"
+      9. "learningTitle": "Lo que aprenderás con esta Guía"
+      10. "learningSubtitle": "Descubre las claves prácticas que transformarás tus resultados:"
+      11. "learningItems": Genera EXACTAMENTE 6 puntos clave de aprendizaje directamente relacionados con "${lmTitle}" y "${lmDesc}".
+      12. "socialTitle": "Comunidad Élite"
+      13. "socialSubtitle": "Lo que dicen los miembros que ya accedieron al material:"
+      14. "socialItems": Genera EXACTAMENTE 4 testimonios realistas (con nombre, ciudad y reseña) donde cada persona hable con entusiasmo sobre lo que aprendió específicamente leyendo "${lmTitle}" y aplicando "${lmDesc}".
+      15. "faqTitle": "¿Tienes dudas sobre la Guía?"
+      16. "faqItems": Genera EXACTAMENTE 5 preguntas frecuentes y respuestas sobre "${lmTitle}" y su aplicación práctica.
+      `;
+  }
+
   // JSON Template Prompting: Definición compacta de la estructura requerida para reducir tokens - 01/01/2026 14:25
   const jsonStructureTemplate = `{
     "brandName": "string",
@@ -160,7 +228,11 @@ export const generateLandingPageContent = async (
       "socialCountText": "string",
       "socialItems": [{"name": "string", "location": "string", "text": "string"}],
       "faqTitle": "string",
-      "faqItems": [{"question": "string", "answer": "string"}]
+      "faqItems": [{"question": "string", "answer": "string"}],
+      "leadMagnetName": "string",
+      "leadMagnetUrl": "string",
+      "leadMagnetImageUrl": "string",
+      "leadMagnetDescription": "string"
     }
   }`;
 
@@ -192,6 +264,8 @@ export const generateLandingPageContent = async (
   ${ctaContext}
   
   ${projectStrategy}
+
+  ${leadMagnetContext}
 
   INSTRUCCIONES DE CONTROL DE DATOS (MÁXIMA PRIORIDAD):
   1. SECCIONES ELIMINADAS: NO GENERES NI INCLUYAS las secciones "testimonials" ni "benefits" en tu respuesta. Han sido eliminadas del esquema para evitar redundancia. Céntrate únicamente en el Hero, la Intro, el FAQ y la Identificación de Dolores (whatYouWillLearn).
@@ -228,7 +302,7 @@ export const generateLandingPageContent = async (
   3. FAQ: 4 preguntas que maten objeciones.
   4. Instructor: Nombre y biografía.
   5. Footer: Copyright y contacto.
-  9. BLUEPRINT DE PÁGINA DE GRACIAS (Usa estos valores como base y adáptalos sutilmente al nicho):
+  9. BLUEPRINT DE PÁGINA DE GRACIAS (Usa estos valores como base y adáptalos al nicho y al Lead Magnet asignado):
      - headline: "Perfecto, hemos enviado el acceso a la clase gratuita a tu correo electrónico"
      - subheadline: "Únete a nuestro grupo privado de Whatsapp para acceder a nuestras mentorías y recibir tu material de preparación gratuito."
      - progressBarText: "¡PERO ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR."
@@ -239,21 +313,24 @@ export const generateLandingPageContent = async (
      - step2Title: "Únete a nuestro grupo de Whatsapp y descarga nuestro libro gratuito"
      - step2Desc: ""
      - step2Badge: "SOLO POR HOY: LIBRO DIGITAL 100% GRATIS"
-     - step2BonusTitle: "Libro Digital GRATIS" 
+     - step2BonusTitle: "${assignedLeadMagnet?.name || "Libro Digital GRATIS"}"
      - step2BonusValue: "Precio Regular: $27 USD"  
      - offerTopTitle: "UNETE A NUESTRO GRUPO Y DESCARGA EL LIBRO GRATUITO" 
-     - offerHeadline: "Descarga: y luego añade aqui el libro digital relacionado con el producto digital en la clase"
-     - offerDescription: "Esta guía nace de la experiencia de profesionales del sector. Te compartimos los fallos más frecuentes y cómo prevenirlos paso a paso para resultados perfectos."
-     - bookTitle: "Titulo del Libro"
+     - offerHeadline: "Descarga: ${assignedLeadMagnet?.name || "Libro Digital"}"
+     - offerDescription: "${assignedLeadMagnet?.description || "Esta guía nace de la experiencia de profesionales del sector. Te compartimos los fallos más frecuentes y cómo prevenirlos paso a paso para resultados perfectos."}"
+     - bookTitle: "${assignedLeadMagnet?.name || "Titulo del Libro"}"
      - bookSubtitle: "Lo que Siempre Quisiste Saber!!!"
      - bookFooter: "¡OFERTA FLASH!"
      - offerPriceRegular: "Precio Regular: $27 USD"
      - offerPriceFree: "HOY: $0.00 GRATIS"
      - ctaButtonText: "UNIRME AL GRUPO Y DESCARGAR"
      - learningTitle: "Lo que aprenderás con esta Guía"
-     - learningItems: Genera EXACTAMENTE 6 puntos clave de aprendizaje sobre el libro digital.
-     - socialItems: Genera EXACTAMENTE 4 testimonios realistas de personas que ya leyeron la guía/libro.
-     - faqItems: Genera EXACTAMENTE 5 preguntas frecuentes con sus respuestas. Cada respuesta debe ser de un párrafo (no corto) y estar relacionada específicamente con el libro digital (formato, acceso, contenido, etc).
+     - learningItems: Genera EXACTAMENTE 6 puntos clave de aprendizaje directamente derivados del Lead Magnet ("${assignedLeadMagnet?.name || "la Guía"}").
+     - socialTitle: "Comunidad Élite"
+     - socialSubtitle: "Lo que dicen los miembros que ya accedieron al material:"
+     - socialItems: Genera EXACTAMENTE 4 testimonios realistas de personas que ya leyeron y aplicaron la guía/libro ("${assignedLeadMagnet?.name || "la Guía"}").
+     - faqTitle: "¿Tienes dudas sobre la Guía?"
+     - faqItems: Genera EXACTAMENTE 5 preguntas frecuentes con sus respuestas (cada respuesta de un párrafo) relacionadas con el libro digital.
   
   Responde ÚNICAMENTE con el objeto JSON válido.`;
 
@@ -400,6 +477,23 @@ export const generateLandingPageContent = async (
         if (content.instructor && (!content.instructor.imageUrl || content.instructor.imageUrl.includes('unsplash.com') || content.instructor.imageUrl === "")) {
           // Intentar un placeholder más profesional de instructor si no hay nada
           content.instructor.imageUrl = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&h=400&auto=format&fit=crop";
+        }
+
+        // --- INYECCIÓN Y ASIGNACIÓN DE LEAD MAGNET EN THANK YOU PAGE ---
+        const ty = content.thankYouPage || ({} as any);
+        content.thankYouPage = ty;
+
+        if (assignedLeadMagnet) {
+            ty.leadMagnetName = assignedLeadMagnet.name || ty.leadMagnetName || "Guía Práctica Digital";
+            ty.leadMagnetUrl = assignedLeadMagnet.url || ty.leadMagnetUrl || "";
+            ty.leadMagnetImageUrl = assignedLeadMagnet.imageUrl || ty.leadMagnetImageUrl || "";
+            ty.leadMagnetDescription = assignedLeadMagnet.description || ty.leadMagnetDescription || "";
+            if (!ty.bookTitle) ty.bookTitle = (assignedLeadMagnet.name || "Guía Práctica Digital").toUpperCase();
+            if (!ty.step2BonusTitle) ty.step2BonusTitle = assignedLeadMagnet.name || "Libro Digital GRATIS";
+            if (!ty.offerHeadline) ty.offerHeadline = `Descarga: ${assignedLeadMagnet.name || "Libro Digital"}`;
+            if (!ty.offerDescription && assignedLeadMagnet.description) ty.offerDescription = assignedLeadMagnet.description;
+            if (!ty.socialTitle) ty.socialTitle = "Comunidad Élite";
+            if (!ty.learningTitle) ty.learningTitle = "Lo que aprenderás con esta Guía";
         }
 
         return content;

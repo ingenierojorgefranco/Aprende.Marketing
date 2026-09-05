@@ -316,6 +316,24 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                   faqItems: [{ question: "¿Es gratis?", answer: "Sí, por tiempo limitado." }]
               }
           };
+
+          // Soporte Lead Magnet en Mock
+          const mockMm = projectContext?.multimedia_json;
+          const mockLMs = Array.isArray(mockMm?.leadMagnets) && mockMm.leadMagnets.length > 0 ? mockMm.leadMagnets : [];
+          const isBasicMock = user?.role !== 'admin' && (user?.planSlug === 'starter' || !user?.planSlug);
+          const chosenMockLM = mockLMs.length > 0 
+            ? (isBasicMock && mockLMs.length > 1 ? mockLMs[Math.floor(Math.random() * mockLMs.length)] : mockLMs[0])
+            : null;
+          if (chosenMockLM && content.thankYouPage) {
+              content.thankYouPage.leadMagnetName = chosenMockLM.name || "Libro Digital";
+              content.thankYouPage.leadMagnetUrl = chosenMockLM.url || "";
+              content.thankYouPage.leadMagnetImageUrl = chosenMockLM.imageUrl || "";
+              content.thankYouPage.leadMagnetDescription = chosenMockLM.description || "";
+              content.thankYouPage.bookTitle = chosenMockLM.name || "Libro Digital";
+              content.thankYouPage.step2BonusTitle = chosenMockLM.name || "Libro Digital GRATIS";
+              content.thankYouPage.offerHeadline = `Descarga: "${chosenMockLM.name || "Libro Digital"}"`;
+              if (chosenMockLM.description) content.thankYouPage.offerDescription = chosenMockLM.description;
+          }
       } else {
           // Producción: Gemini Real
           content = await generateLandingPageContent(
@@ -326,7 +344,11 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
             formData.palette,
             formData.structure,
             destinationConfig,
-            projectContext 
+            {
+              ...projectContext,
+              userPlanSlug: user?.planSlug || projectContext?.planSlug || 'starter',
+              userRole: user?.role
+            } 
           );
       }
 

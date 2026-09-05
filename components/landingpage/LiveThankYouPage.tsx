@@ -70,6 +70,8 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
   const displayLeadMagnetName = tyConfig.leadMagnetName || defaultLeadMagnet?.name || tyConfig.bookTitle || "Libro Digital GRATIS";
   const displayLeadMagnetUrl = tyConfig.leadMagnetUrl || defaultLeadMagnet?.url || project?.leadMagnetUrl || "";
+  const displayLeadMagnetImage = tyConfig.leadMagnetImageUrl || defaultLeadMagnet?.imageUrl || (tyConfig as any).bookImageUrl || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80";
+  const displayLeadMagnetDescription = tyConfig.leadMagnetDescription || defaultLeadMagnet?.description || "Únete a nuestro grupo privado de Whatsapp para acceder a nuestras mentorías y recibir tu material de preparación gratuito.";
 
   // Registrar clic en el botón de WhatsApp
   const handleWhatsAppClick = () => {
@@ -166,14 +168,14 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                                       paddingBottom: '1.5em',
                                   }}
                               >
-                                  Únete a nuestro grupo privado de Whatsapp para acceder a nuestras mentorías y recibir tu material de preparación gratuito.
+                                  {displayLeadMagnetDescription}
                               </p>
 
                               {/* Pantallazo del PDF del Lead Magnet */}
                               <div className="w-full flex justify-center pb-6">
                                   <img 
-                                      src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80" 
-                                      alt="Pantallazo Lead Magnet" 
+                                      src={displayLeadMagnetImage} 
+                                      alt={displayLeadMagnetName} 
                                       className="rounded-2xl shadow-xl max-h-80 w-auto object-cover border border-slate-200"
                                   />
                               </div>
@@ -249,8 +251,8 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                   <div className="max-w-5xl mx-auto relative z-10">
                       <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-12 border-b border-gray-800 pb-8">
                           <div>
-                              <h2 className="text-3xl md:text-4xl font-black mb-2 tracking-wide leading-tight">{tyConfig.socialTitle}</h2>
-                              <p className="text-lg font-medium text-gray-400">{tyConfig.socialSubtitle}</p>
+                              <h2 className="text-3xl md:text-4xl font-black mb-2 tracking-wide leading-tight">{tyConfig.socialTitle || "Comunidad Élite"}</h2>
+                              <p className="text-lg font-medium text-gray-400">{tyConfig.socialSubtitle || "Lo que dicen los miembros que ya accedieron al material:"}</p>
                           </div>
                           {tyConfig.socialCountText && (
                               <div className="bg-white/10 px-6 py-3 rounded-full flex items-center gap-3 backdrop-blur-md border border-white/20">

@@ -476,7 +476,7 @@ export const ProjectWizard: React.FC = () => {
         videoUrls: string[], 
         descriptiveImages: string[], 
         instructorImage?: string,
-        leadMagnets?: { name: string; url: string }[] 
+        leadMagnets?: { name: string; url: string; imageUrl?: string; description?: string; fromMaster?: boolean; }[] 
     }>({
         heroImages: [],
         videoUrls: [],
@@ -597,6 +597,43 @@ export const ProjectWizard: React.FC = () => {
         }
     };
 
+    const handleLeadMagnetImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        let previousUrl = '';
+        const currentList = multimedia.leadMagnets ? [...multimedia.leadMagnets] : [];
+        if (currentList[index]) {
+            previousUrl = currentList[index].imageUrl || '';
+        }
+
+        try {
+            setUploadingState({ type: 'leadMagnetImage', index });
+            const url = await api.uploadImage(file, { 
+                projectId: id || 'temp', 
+                folderType: 'leadmagnets' 
+            });
+
+            if (currentList[index]) {
+                currentList[index] = {
+                    ...currentList[index],
+                    imageUrl: url
+                };
+                setMultimedia(prev => ({ ...prev, leadMagnets: currentList }));
+            }
+
+            if (previousUrl && previousUrl.includes('storage.googleapis.com')) {
+                api.deleteFile(previousUrl).catch(err => console.warn('No se pudo eliminar imagen anterior de GCS:', err));
+            }
+        } catch (error) {
+            console.error("Error uploading lead magnet image:", error);
+            alert("Error al subir la imagen de portada del Lead Magnet. Intenta de nuevo.");
+        } finally {
+            setUploadingState(null);
+            e.target.value = '';
+        }
+    };
+
     const handleDeleteLeadMagnet = async (index: number) => {
         const currentList = multimedia.leadMagnets ? [...multimedia.leadMagnets] : [];
         const itemToDelete = currentList[index];
@@ -612,9 +649,16 @@ export const ProjectWizard: React.FC = () => {
                 console.warn("No se pudo eliminar el archivo PDF del bucket:", err);
             }
         }
+        if (itemToDelete.imageUrl && itemToDelete.imageUrl.trim() && itemToDelete.imageUrl.includes('storage.googleapis.com')) {
+            try {
+                await api.deleteFile(itemToDelete.imageUrl.trim());
+            } catch (err) {
+                console.warn("No se pudo eliminar la imagen de portada del bucket:", err);
+            }
+        }
     };
 
-    const handleUpdateLeadMagnet = (index: number, field: 'name' | 'url', value: string) => {
+    const handleUpdateLeadMagnet = (index: number, field: 'name' | 'url' | 'imageUrl' | 'description', value: string) => {
         const currentList = multimedia.leadMagnets ? [...multimedia.leadMagnets] : [];
         if (currentList[index]) {
             currentList[index] = { ...currentList[index], [field]: value };
@@ -624,7 +668,7 @@ export const ProjectWizard: React.FC = () => {
 
     const handleAddLeadMagnet = () => {
         const currentList = multimedia.leadMagnets ? [...multimedia.leadMagnets] : [];
-        currentList.push({ name: '', url: '' });
+        currentList.push({ name: '', url: '', imageUrl: '', description: '' });
         setMultimedia(prev => ({ ...prev, leadMagnets: currentList }));
     };
 
@@ -1287,63 +1331,162 @@ export const ProjectWizard: React.FC = () => {
                                         ) : (
                                             <div className="space-y-3">
                                                 {multimedia.leadMagnets.map((lm, idx) => (
-                                                    <div key={idx} className="p-3 bg-black/60 border border-gray-800 rounded-xl space-y-2">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 text-emerald-400">
-                                                                <FileText className="w-4 h-4" />
+                                                    <div key={idx} className="p-3.5 bg-black/60 border border-gray-800 rounded-xl space-y-3">
+                                                        {/* Header con número y botón de borrar */}
+                                                        <div className="flex items-center justify-between gap-2 border-b border-gray-800/80 pb-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-bold">
+                                                                    {idx + 1}
+                                                                </div>
+                                                                <span className="text-xs font-bold text-gray-300">
+                                                                    {lm.name?.trim() ? lm.name : `Lead Magnet #${idx + 1}`}
+                                                                </span>
                                                             </div>
-                                                            <input 
-                                                                type="text" 
-                                                                value={lm.name || ''} 
-                                                                onChange={(e) => handleUpdateLeadMagnet(idx, 'name', e.target.value)}
-                                                                placeholder="Nombre del Lead Magnet (ej: Guía Paso a Paso Resina Epóxica)"
-                                                                className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-emerald-500"
-                                                            />
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <input 
-                                                                type="text" 
-                                                                value={lm.url || ''} 
-                                                                onChange={(e) => handleUpdateLeadMagnet(idx, 'url', e.target.value)}
-                                                                placeholder="URL del archivo PDF en el Bucket..."
-                                                                className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-emerald-300 font-mono outline-none focus:border-emerald-500"
-                                                            />
-                                                            <label 
-                                                                className={`p-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 rounded-lg cursor-pointer transition-colors flex items-center justify-center ${uploadingState?.type === 'leadMagnet' && uploadingState.index === idx ? 'opacity-50 pointer-events-none' : ''}`}
-                                                                title="Subir archivo PDF al bucket"
-                                                            >
-                                                                {uploadingState?.type === 'leadMagnet' && uploadingState.index === idx ? (
-                                                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                                                ) : (
-                                                                    <FileUp className="w-4 h-4" />
-                                                                )}
-                                                                <input 
-                                                                    type="file" 
-                                                                    className="hidden" 
-                                                                    accept=".pdf,application/pdf"
-                                                                    disabled={uploadingState !== null}
-                                                                    onChange={(e) => handleLeadMagnetUpload(e, idx)}
-                                                                />
-                                                            </label>
-                                                            {lm.url && (
-                                                                <a 
-                                                                    href={lm.url} 
-                                                                    target="_blank" 
-                                                                    rel="noopener noreferrer" 
-                                                                    className="p-2 bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors flex items-center justify-center"
-                                                                    title="Ver/Descargar PDF"
-                                                                >
-                                                                    <ExternalLink className="w-4 h-4" />
-                                                                </a>
-                                                            )}
                                                             <button 
                                                                 type="button"
                                                                 onClick={() => handleDeleteLeadMagnet(idx)}
-                                                                className="p-2 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors flex items-center justify-center"
-                                                                title="Eliminar y borrar físicamente del bucket"
+                                                                className="p-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg transition-colors flex items-center gap-1 text-[11px] font-medium"
+                                                                title="Eliminar Lead Magnet y sus archivos del bucket"
                                                             >
-                                                                <Trash2 className="w-4 h-4" />
+                                                                <Trash2 className="w-3.5 h-3.5" />
+                                                                <span>Eliminar</span>
                                                             </button>
+                                                        </div>
+
+                                                        {/* 1. Título del Lead Magnet */}
+                                                        <div>
+                                                            <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                                Título del Lead Magnet
+                                                            </label>
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 text-emerald-400">
+                                                                    <FileText className="w-4 h-4" />
+                                                                </div>
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={lm.name || ''} 
+                                                                    onChange={(e) => handleUpdateLeadMagnet(idx, 'name', e.target.value)}
+                                                                    placeholder="Ej: Guía de Microblading: Domina los Trazos Perfectos"
+                                                                    className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-emerald-500"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* 2. Archivo PDF (URL + Subida) */}
+                                                        <div>
+                                                            <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                                Archivo PDF descargable
+                                                            </label>
+                                                            <div className="flex items-center gap-2">
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={lm.url || ''} 
+                                                                    onChange={(e) => handleUpdateLeadMagnet(idx, 'url', e.target.value)}
+                                                                    placeholder="URL del archivo PDF en el Bucket..."
+                                                                    className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-emerald-300 font-mono outline-none focus:border-emerald-500"
+                                                                />
+                                                                <label 
+                                                                    className={`p-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 rounded-lg cursor-pointer transition-colors flex items-center justify-center ${uploadingState?.type === 'leadMagnet' && uploadingState.index === idx ? 'opacity-50 pointer-events-none' : ''}`}
+                                                                    title="Subir archivo PDF al bucket"
+                                                                >
+                                                                    {uploadingState?.type === 'leadMagnet' && uploadingState.index === idx ? (
+                                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                                    ) : (
+                                                                        <FileUp className="w-4 h-4" />
+                                                                    )}
+                                                                    <input 
+                                                                        type="file" 
+                                                                        className="hidden" 
+                                                                        accept=".pdf,application/pdf"
+                                                                        disabled={uploadingState !== null}
+                                                                        onChange={(e) => handleLeadMagnetUpload(e, idx)}
+                                                                    />
+                                                                </label>
+                                                                {lm.url && (
+                                                                    <a 
+                                                                        href={lm.url} 
+                                                                        target="_blank" 
+                                                                        rel="noopener noreferrer" 
+                                                                        className="p-2 bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors flex items-center justify-center"
+                                                                        title="Ver/Descargar PDF"
+                                                                    >
+                                                                        <ExternalLink className="w-4 h-4" />
+                                                                    </a>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* 3. Imagen de Portada / Pantallazo del Lead Magnet */}
+                                                        <div>
+                                                            <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                                Imagen de Portada o Pantallazo (se mostrará en la Página de Gracias)
+                                                            </label>
+                                                            <div className="flex items-center gap-2">
+                                                                {lm.imageUrl ? (
+                                                                    <a 
+                                                                        href={lm.imageUrl} 
+                                                                        target="_blank" 
+                                                                        rel="noopener noreferrer" 
+                                                                        className="w-10 h-10 rounded-lg border border-gray-700 bg-gray-900 overflow-hidden shrink-0 flex items-center justify-center group relative hover:opacity-80 transition"
+                                                                        title="Ver imagen completa"
+                                                                    >
+                                                                        <img src={lm.imageUrl} alt="Portada Lead Magnet" className="w-full h-full object-cover" />
+                                                                    </a>
+                                                                ) : (
+                                                                    <div className="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 text-indigo-400">
+                                                                        <Image className="w-5 h-5" />
+                                                                    </div>
+                                                                )}
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={lm.imageUrl || ''} 
+                                                                    onChange={(e) => handleUpdateLeadMagnet(idx, 'imageUrl', e.target.value)}
+                                                                    placeholder="URL de la imagen de portada o mockup..."
+                                                                    className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
+                                                                />
+                                                                <label 
+                                                                    className={`p-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20 rounded-lg cursor-pointer transition-colors flex items-center justify-center ${uploadingState?.type === 'leadMagnetImage' && uploadingState.index === idx ? 'opacity-50 pointer-events-none' : ''}`}
+                                                                    title="Subir imagen de portada al bucket"
+                                                                >
+                                                                    {uploadingState?.type === 'leadMagnetImage' && uploadingState.index === idx ? (
+                                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                                    ) : (
+                                                                        <Upload className="w-4 h-4" />
+                                                                    )}
+                                                                    <input 
+                                                                        type="file" 
+                                                                        className="hidden" 
+                                                                        accept="image/*"
+                                                                        disabled={uploadingState !== null}
+                                                                        onChange={(e) => handleLeadMagnetImageUpload(e, idx)}
+                                                                    />
+                                                                </label>
+                                                                {lm.imageUrl && (
+                                                                    <a 
+                                                                        href={lm.imageUrl} 
+                                                                        target="_blank" 
+                                                                        rel="noopener noreferrer" 
+                                                                        className="p-2 bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors flex items-center justify-center"
+                                                                        title="Ver Imagen en pestaña nueva"
+                                                                    >
+                                                                        <ExternalLink className="w-4 h-4" />
+                                                                    </a>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* 4. Descripción del Lead Magnet */}
+                                                        <div>
+                                                            <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                                Descripción del Lead Magnet (para la Página de Gracias y la IA)
+                                                            </label>
+                                                            <textarea
+                                                                value={lm.description || ''}
+                                                                onChange={(e) => handleUpdateLeadMagnet(idx, 'description', e.target.value)}
+                                                                placeholder="Describe el contenido de este libro o guía (qué aprenderá el lector, fallos que previene, beneficios clave). La IA generará los testimonios y los puntos de aprendizaje basándose en esta descripción."
+                                                                rows={2}
+                                                                className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500 resize-y"
+                                                            />
                                                         </div>
                                                     </div>
                                                 ))}

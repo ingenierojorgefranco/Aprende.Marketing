@@ -695,6 +695,38 @@ export const api = {
                     page.content.intro.imageUrl = validDescs[Math.floor(Math.random() * validDescs.length)];
                 }
             }
+
+            // 4. Lead Magnet asignado a Thank You Page
+            const ty = page.content.thankYouPage || ({} as any);
+            page.content.thankYouPage = ty;
+            if (!ty.leadMagnetUrl || !ty.leadMagnetName) {
+                const lms = Array.isArray(mm.leadMagnets) && mm.leadMagnets.length > 0 ? mm.leadMagnets : [];
+                if (lms.length > 0) {
+                    const projId = page.projectId || multimediaSource.id;
+                    const assignedKey = projId ? `assigned_lm_${projId}` : null;
+                    let chosenLM: any = null;
+                    if (assignedKey) {
+                        try {
+                            const stored = localStorage.getItem(assignedKey);
+                            if (stored) chosenLM = JSON.parse(stored);
+                        } catch {}
+                    }
+                    if (!chosenLM) {
+                        chosenLM = lms[0];
+                    }
+
+                    if (chosenLM) {
+                        ty.leadMagnetName = chosenLM.name || ty.leadMagnetName || "Guía Práctica Digital";
+                        ty.leadMagnetUrl = chosenLM.url || ty.leadMagnetUrl || "";
+                        ty.leadMagnetImageUrl = chosenLM.imageUrl || ty.leadMagnetImageUrl || "";
+                        ty.leadMagnetDescription = chosenLM.description || ty.leadMagnetDescription || "";
+                        if (!ty.bookTitle) ty.bookTitle = chosenLM.name;
+                        if (!ty.step2BonusTitle) ty.step2BonusTitle = chosenLM.name || "Libro Digital GRATIS";
+                        if (!ty.offerHeadline) ty.offerHeadline = `Descarga: ${chosenLM.name || "Libro Digital"}`;
+                        if (!ty.offerDescription && chosenLM.description) ty.offerDescription = chosenLM.description;
+                    }
+                }
+            }
         }
     } catch (err) {
         console.error("Error auto-asignando multimedia:", err);

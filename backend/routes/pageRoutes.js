@@ -149,8 +149,53 @@ router.post('/pages', authMiddleware, async (req, res) => {
         return res.status(403).json({ error: `Has alcanzado el límite de almacenamiento de ${maxLandings} páginas.` });
     }
     
-    const tyPage = content.thankYouPage;
-    if (tyPage) { delete content.thankYouPage; }
+    let tyPage = content ? content.thankYouPage : null;
+    if (content && content.thankYouPage) { delete content.thankYouPage; }
+
+    // Auto-asignar Lead Magnet si no está especificado en tyPage
+    if (projectId && (!tyPage || !tyPage.leadMagnetUrl || !tyPage.leadMagnetName)) {
+        try {
+            const [projRows] = await pool.query(
+              `SELECT p.multimedia_json, p.lead_magnet_url, p.master_parent_id, 
+                      m.multimedia_json as master_multimedia, m.lead_magnet_url as master_lead_magnet_url 
+               FROM projects p 
+               LEFT JOIN projects m ON p.master_parent_id = m.id 
+               WHERE p.id = ?`, 
+              [projectId]
+            );
+            if (projRows.length > 0) {
+                const pRow = projRows[0];
+                const pMm = safeParseJson(pRow.multimedia_json, {}) || {};
+                const mMm = safeParseJson(pRow.master_multimedia, {}) || {};
+                const childLMs = Array.isArray(pMm.leadMagnets) && pMm.leadMagnets.length > 0 ? pMm.leadMagnets : [];
+                const masterLMs = Array.isArray(mMm.leadMagnets) && mMm.leadMagnets.length > 0 ? mMm.leadMagnets : [];
+                let allLMs = childLMs.length > 0 ? childLMs : masterLMs;
+                if (allLMs.length === 0 && (pRow.lead_magnet_url || pRow.master_lead_magnet_url)) {
+                    allLMs = [{ name: 'Libro Digital', url: pRow.lead_magnet_url || pRow.master_lead_magnet_url }];
+                }
+
+                if (allLMs.length > 0) {
+                    const userPlan = req.user.plan || req.user.planSlug || 'starter';
+                    const isBasic = req.user.role !== 'admin' && userPlan === 'starter';
+                    let chosenLM = allLMs[0];
+                    if (isBasic && allLMs.length > 1) {
+                        chosenLM = allLMs[Math.floor(Math.random() * allLMs.length)];
+                    }
+                    if (!tyPage) tyPage = {};
+                    if (!tyPage.leadMagnetName) tyPage.leadMagnetName = chosenLM.name;
+                    if (!tyPage.leadMagnetUrl) tyPage.leadMagnetUrl = chosenLM.url;
+                    if (!tyPage.leadMagnetImageUrl && chosenLM.imageUrl) tyPage.leadMagnetImageUrl = chosenLM.imageUrl;
+                    if (!tyPage.leadMagnetDescription && chosenLM.description) tyPage.leadMagnetDescription = chosenLM.description;
+                    if (!tyPage.bookTitle) tyPage.bookTitle = chosenLM.name;
+                    if (!tyPage.step2BonusTitle) tyPage.step2BonusTitle = chosenLM.name || 'Libro Digital GRATIS';
+                    if (!tyPage.offerHeadline) tyPage.offerHeadline = `Descarga: ${chosenLM.name || 'Libro Digital'}`;
+                    if (!tyPage.offerDescription && chosenLM.description) tyPage.offerDescription = chosenLM.description;
+                }
+            }
+        } catch (errLM) {
+            console.error('Error auto-asignando lead magnet en POST /pages:', errLM);
+        }
+    }
 
     // SE ACTUALIZA IS_PUBLISHED A 1 (PUBLICADA) POR DEFECTO SEGÚN REQUERIMIENTO
     const [resDb] = await pool.query(
