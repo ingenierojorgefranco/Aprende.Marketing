@@ -288,6 +288,8 @@ router.get('/', async (req, res) => {
   try {
     let query = `
       SELECT p.*, parent.digital_product_url as parent_digital_product_url,
+             parent.multimedia_json as parent_multimedia_json,
+             parent.lead_magnet_url as parent_lead_magnet_url,
              (p.user_id = ?) as is_owner,
              EXISTS(SELECT 1 FROM unlocked_projects up WHERE up.project_id = p.id AND up.user_id = ?) as is_unlocked
       FROM projects p 
@@ -303,12 +305,22 @@ router.get('/', async (req, res) => {
 
     const projects = rows.map(p => {
         const status = projectStatusMap[p.id] || { planName: p.plan_slug || 'starter', isBlocked: false };
+        const childMm = safeParseJson(p.multimedia_json) || {};
+        const parentMm = safeParseJson(p.parent_multimedia_json) || {};
+
+        if ((!childMm.leadMagnets || !Array.isArray(childMm.leadMagnets) || childMm.leadMagnets.length === 0) &&
+            (parentMm.leadMagnets && Array.isArray(parentMm.leadMagnets) && parentMm.leadMagnets.length > 0)) {
+            childMm.leadMagnets = parentMm.leadMagnets;
+        }
+
         return {
             ...p,
             pain_points: safeParseJson(p.pain_points),
             key_benefits: safeParseJson(p.key_benefits),
             affiliate_links: safeParseJson(p.affiliate_links),
             strategy_json: safeParseJson(p.strategy_json),
+            multimedia_json: childMm,
+            lead_magnet_url: p.lead_magnet_url || (p.master_parent_id ? p.parent_lead_magnet_url : undefined),
             digital_product_url: p.master_parent_id ? p.parent_digital_product_url : p.digital_product_url,
             planId: p.plan_id ? String(p.plan_id) : undefined,
             planSlug: status.planName,
@@ -327,6 +339,8 @@ router.get('/:id', async (req, res) => {
   try {
     const [rows] = await pool.query(`
         SELECT p.*, parent.digital_product_url as parent_digital_product_url,
+               parent.multimedia_json as parent_multimedia_json,
+               parent.lead_magnet_url as parent_lead_magnet_url,
                (p.user_id = ?) as is_owner
         FROM projects p 
         LEFT JOIN projects parent ON p.master_parent_id = parent.id
@@ -344,6 +358,19 @@ router.get('/:id', async (req, res) => {
     project.affiliate_links = safeParseJson(project.affiliate_links);
     project.strategy_json = safeParseJson(project.strategy_json);
     project.digital_product_url = project.master_parent_id ? project.parent_digital_product_url : project.digital_product_url;
+
+    // Manejar multimedia_json heredando del proyecto maestro si el hijo no tiene leadMagnets
+    const childMm = safeParseJson(project.multimedia_json) || {};
+    const parentMm = safeParseJson(project.parent_multimedia_json) || {};
+    if ((!childMm.leadMagnets || !Array.isArray(childMm.leadMagnets) || childMm.leadMagnets.length === 0) &&
+        (parentMm.leadMagnets && Array.isArray(parentMm.leadMagnets) && parentMm.leadMagnets.length > 0)) {
+        childMm.leadMagnets = parentMm.leadMagnets;
+    }
+    if (!project.lead_magnet_url && project.parent_lead_magnet_url) {
+        project.lead_magnet_url = project.parent_lead_magnet_url;
+    }
+    project.multimedia_json = childMm;
+
     project.planId = project.plan_id ? String(project.plan_id) : undefined;
     project.planSlug = status.planName;
     project.isBlocked = status.isBlocked;

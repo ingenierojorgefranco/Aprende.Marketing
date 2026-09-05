@@ -51,6 +51,41 @@ const logCRMActivity = async (contactId, type, content) => {
     }
 };
 
+const safeParseJson = (str, fallback = null) => {
+    if (!str) return fallback;
+    if (typeof str === 'object') return str;
+    try {
+        let parsed = JSON.parse(str);
+        if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+        return parsed;
+    } catch {
+        return fallback;
+    }
+};
+
+const attachProjectData = (page) => {
+    if (page.project_strategy || page.project_multimedia || page.master_multimedia || page.master_strategy) {
+        const projMm = safeParseJson(page.project_multimedia, {}) || {};
+        const mastMm = safeParseJson(page.master_multimedia, {}) || {};
+
+        const childLeadMagnets = Array.isArray(projMm.leadMagnets) && projMm.leadMagnets.length > 0 ? projMm.leadMagnets : [];
+        const masterLeadMagnets = Array.isArray(mastMm.leadMagnets) && mastMm.leadMagnets.length > 0 ? mastMm.leadMagnets : [];
+        const leadMagnets = childLeadMagnets.length > 0 ? childLeadMagnets : masterLeadMagnets;
+
+        page.project = {
+            id: page.project_id,
+            masterParentId: page.master_parent_id,
+            leadMagnetUrl: page.project_lead_magnet_url || page.master_lead_magnet_url || "",
+            strategy_json: safeParseJson(page.project_strategy) || safeParseJson(page.master_strategy),
+            multimedia_json: {
+                ...mastMm,
+                ...projMm,
+                leadMagnets
+            }
+        };
+    }
+};
+
 const sanitizeLandingContent = (content) => {
     if (!content) return content;
     if (content.hero && content.hero.subheadline) {
@@ -222,9 +257,12 @@ router.get('/public/pages/by-domain', async (req, res) => {
   if (host.startsWith('www.')) host = host.slice(4);
   try {
     const [rows] = await pool.query(
-      `SELECT lp.*, lp.thankyoupage_json, pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia
+      `SELECT lp.*, lp.thankyoupage_json, 
+              pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.master_parent_id,
+              pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url
        FROM landing_pages lp
        LEFT JOIN projects pr ON lp.project_id = pr.id
+       LEFT JOIN projects pm ON pr.master_parent_id = pm.id
        WHERE lp.custom_domain = ? AND lp.is_published = 1 LIMIT 1`,
       [host]
     );
@@ -239,14 +277,8 @@ router.get('/public/pages/by-domain', async (req, res) => {
         page.content.thankYouPage = tyData;
     }
     
-    // Adjuntar datos del proyecto si existen
-    if (page.project_strategy) {
-        page.project = {
-            id: page.project_id,
-            strategy_json: typeof page.project_strategy === 'string' ? JSON.parse(page.project_strategy) : page.project_strategy,
-            multimedia_json: typeof page.project_multimedia === 'string' ? JSON.parse(page.project_multimedia) : page.project_multimedia
-        };
-    }
+    // Adjuntar datos del proyecto heredando de proyecto maestro si es necesario
+    attachProjectData(page);
     
     res.json(page);
   } catch (error) { res.status(500).json({ error: 'Error interno' }); }
@@ -256,9 +288,13 @@ router.get('/public/pages/by-user/:userSlug/:slug', async (req, res) => {
   const { userSlug, slug } = req.params;
   try {
     const [rows] = await pool.query(
-      `SELECT lp.*, lp.thankyoupage_json, pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia FROM landing_pages lp
+      `SELECT lp.*, lp.thankyoupage_json, 
+              pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.master_parent_id,
+              pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url
+       FROM landing_pages lp
        INNER JOIN users u ON u.id = lp.user_id
        LEFT JOIN projects pr ON lp.project_id = pr.id
+       LEFT JOIN projects pm ON pr.master_parent_id = pm.id
        WHERE u.public_subdomain = ? AND lp.subdomain = ? AND lp.is_published = 1 LIMIT 1`,
       [userSlug, slug]
     );
@@ -273,14 +309,8 @@ router.get('/public/pages/by-user/:userSlug/:slug', async (req, res) => {
         page.content.thankYouPage = tyData;
     }
 
-    // Adjuntar datos del proyecto si existen
-    if (page.project_strategy) {
-        page.project = {
-            id: page.project_id,
-            strategy_json: typeof page.project_strategy === 'string' ? JSON.parse(page.project_strategy) : page.project_strategy,
-            multimedia_json: typeof page.project_multimedia === 'string' ? JSON.parse(page.project_multimedia) : page.project_multimedia
-        };
-    }
+    // Adjuntar datos del proyecto heredando de proyecto maestro si es necesario
+    attachProjectData(page);
 
     res.json(page);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -292,17 +322,23 @@ router.get('/public/pages/:slug', async (req, res) => {
     let rows = [];
     if (/^\d+$/.test(slug)) {
        [rows] = await pool.query(`
-         SELECT lp.*, lp.thankyoupage_json, pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia 
+         SELECT lp.*, lp.thankyoupage_json, 
+                pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.master_parent_id,
+                pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url
          FROM landing_pages lp 
          LEFT JOIN projects pr ON lp.project_id = pr.id
+         LEFT JOIN projects pm ON pr.master_parent_id = pm.id
          WHERE lp.id = ? AND lp.is_published = 1 LIMIT 1
        `, [slug]);
     }
     if (rows.length === 0) {
         [rows] = await pool.query(`
-          SELECT lp.*, lp.thankyoupage_json, pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia 
+          SELECT lp.*, lp.thankyoupage_json, 
+                 pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.master_parent_id,
+                 pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url
           FROM landing_pages lp 
           LEFT JOIN projects pr ON lp.project_id = pr.id
+          LEFT JOIN projects pm ON pr.master_parent_id = pm.id
           WHERE (lp.subdomain = ? OR lp.subdomain LIKE ?) AND lp.is_published = 1 LIMIT 1
         `, [slug, `${slug}.%`]);
     }
@@ -317,14 +353,8 @@ router.get('/public/pages/:slug', async (req, res) => {
         page.content.thankYouPage = tyData;
     }
 
-    // Adjuntar datos del proyecto si existen
-    if (page.project_strategy) {
-        page.project = {
-            id: page.project_id,
-            strategy_json: typeof page.project_strategy === 'string' ? JSON.parse(page.project_strategy) : page.project_strategy,
-            multimedia_json: typeof page.project_multimedia === 'string' ? JSON.parse(page.project_multimedia) : page.project_multimedia
-        };
-    }
+    // Adjuntar datos del proyecto heredando de proyecto maestro si es necesario
+    attachProjectData(page);
 
     res.json(page);
   } catch (e) { res.status(500).json({ error: e.message }); }

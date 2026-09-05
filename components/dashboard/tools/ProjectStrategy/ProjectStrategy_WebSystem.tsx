@@ -61,16 +61,42 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [selectedLeadMagnetIndex, setSelectedLeadMagnetIndex] = useState<number>(0);
     const [isSavingLeadMagnet, setIsSavingLeadMagnet] = useState(false);
     const [iframeKey, setIframeKey] = useState(0);
+    const [masterProjectData, setMasterProjectData] = useState<Project | null>(null);
 
-    // Obtener los lead magnets disponibles del proyecto
+    // Obtener los lead magnets disponibles del proyecto o de su Proyecto Maestro
     const multimedia = typeof projectData?.multimedia_json === 'string'
         ? (() => { try { return JSON.parse(projectData.multimedia_json); } catch { return {}; } })()
         : (projectData?.multimedia_json || {});
 
-    const availableLeadMagnets: { name: string; url: string }[] =
+    const masterMultimedia = typeof masterProjectData?.multimedia_json === 'string'
+        ? (() => { try { return JSON.parse(masterProjectData.multimedia_json); } catch { return {}; } })()
+        : (masterProjectData?.multimedia_json || {});
+
+    const projectLMs: { name: string; url: string; fromMaster?: boolean }[] =
         Array.isArray(multimedia?.leadMagnets) && multimedia.leadMagnets.length > 0
             ? multimedia.leadMagnets
             : (projectData?.leadMagnetUrl ? [{ name: 'Lead Magnet Principal', url: projectData.leadMagnetUrl }] : []);
+
+    const masterLMs: { name: string; url: string; fromMaster?: boolean }[] =
+        Array.isArray(masterMultimedia?.leadMagnets) && masterMultimedia.leadMagnets.length > 0
+            ? masterMultimedia.leadMagnets.map((lm: any) => ({ ...lm, fromMaster: true }))
+            : (masterProjectData?.leadMagnetUrl ? [{ name: 'Lead Magnet Maestro', url: masterProjectData.leadMagnetUrl, fromMaster: true }] : []);
+
+    // Si el proyecto actual tiene lead magnets propios se usan; de lo contrario o combinados, se heredan del maestro
+    const availableLeadMagnets: { name: string; url: string; fromMaster?: boolean }[] = (() => {
+        if (projectLMs.length > 0 && masterLMs.length > 0) {
+            const seen = new Set(projectLMs.map(lm => lm.url));
+            const merged = [...projectLMs];
+            masterLMs.forEach(lm => {
+                if (!seen.has(lm.url)) {
+                    merged.push(lm);
+                }
+            });
+            return merged;
+        }
+        if (projectLMs.length > 0) return projectLMs;
+        return masterLMs;
+    })();
 
     // Sincronizar selección inicial de lead magnet con la configuración guardada de la página de gracias
     useEffect(() => {
@@ -320,6 +346,15 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 setDomainCount(pages.filter(p => !!p.customDomain).length);
                 setStrategy(strategyData);
                 setProjectData(project);
+
+                if (project?.masterParentId) {
+                    try {
+                        const master = await api.getProjectById(project.masterParentId);
+                        if (master) setMasterProjectData(master);
+                    } catch (err) {
+                        console.warn("No se pudo cargar el proyecto maestro para lead magnets:", err);
+                    }
+                }
             } catch (e) {
                 console.error(e);
             } finally {
@@ -1057,7 +1092,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                                 >
                                                     {availableLeadMagnets.map((lm, idx) => (
                                                         <option key={idx} value={idx} className="bg-slate-900 text-white py-2">
-                                                            {`Leadmagnet ${idx + 1}: ${lm.name || 'Sin título'}`}
+                                                            {`Leadmagnet ${idx + 1}: ${lm.name || 'Sin título'}${lm.fromMaster ? ' (Proyecto Maestro)' : ''}`}
                                                         </option>
                                                     ))}
                                                 </select>
@@ -1070,9 +1105,16 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                             <div className="bg-[#080d18] border border-slate-800/90 rounded-xl p-3.5 space-y-2">
                                                 <div className="flex items-start justify-between gap-2">
                                                     <div className="min-w-0 flex-1">
-                                                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 inline-block mb-1">
-                                                            {`Leadmagnet ${selectedLeadMagnetIndex + 1}`}
-                                                        </span>
+                                                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                                                            <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 inline-block">
+                                                                {`Leadmagnet ${selectedLeadMagnetIndex + 1}`}
+                                                            </span>
+                                                            {availableLeadMagnets[selectedLeadMagnetIndex].fromMaster && (
+                                                                <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 inline-block">
+                                                                    Proyecto Maestro
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         <h5 className="text-xs font-bold text-white truncate" title={availableLeadMagnets[selectedLeadMagnetIndex].name}>
                                                             {availableLeadMagnets[selectedLeadMagnetIndex].name}
                                                         </h5>
@@ -1100,7 +1142,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     <div className="bg-[#080d18] border border-dashed border-slate-800 rounded-xl p-4 text-center space-y-2">
                                         <FileText className="w-6 h-6 text-slate-500 mx-auto" />
                                         <p className="text-xs text-slate-400">
-                                            Aún no has subido Lead Magnets en este proyecto.
+                                            Aún no has subido Lead Magnets en este proyecto ni en su Proyecto Maestro.
                                         </p>
                                         <p className="text-[11px] text-slate-500">
                                             Sube tus PDFs en "Administrador de Proyectos" para poder seleccionarlos aquí.

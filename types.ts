@@ -602,9 +602,9 @@ export interface Project {
   
   strategy_json?: StrategyJSON | any; // Updated to accept both types
   multimedia_json?: {
-    heroImages: string[];
-    videoUrls: string[];
-    descriptiveImages: string[];
+    heroImages?: string[];
+    videoUrls?: string[];
+    descriptiveImages?: string[];
     instructorImage?: string;
     leadMagnets?: { name: string; url: string }[];
   };

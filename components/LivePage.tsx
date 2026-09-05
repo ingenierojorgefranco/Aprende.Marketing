@@ -40,13 +40,48 @@ export const LivePage: React.FC<LivePageProps> = ({
         if (project?.id !== initialProject.id) {
           setProject(initialProject);
         }
+        // Si el proyecto tiene masterParentId y no tiene leadMagnets locales, buscar en el maestro
+        const currentLMs = initialProject.multimedia_json?.leadMagnets;
+        if (initialProject.masterParentId && (!Array.isArray(currentLMs) || currentLMs.length === 0)) {
+            api.getProjectById(initialProject.masterParentId).then(master => {
+                if (master?.multimedia_json?.leadMagnets && master.multimedia_json.leadMagnets.length > 0) {
+                    const masterLMs = master.multimedia_json.leadMagnets;
+                    setProject(prev => prev ? {
+                        ...prev,
+                        leadMagnetUrl: prev.leadMagnetUrl || master.leadMagnetUrl,
+                        multimedia_json: {
+                            ...(prev.multimedia_json || {}),
+                            leadMagnets: masterLMs
+                        }
+                    } : prev);
+                }
+            }).catch(() => {});
+        }
         return;
     } 
     
     // Si solo tenemos el ID y NO tenemos el objeto cargado aún
     if (projectId && (!project || String(project.id) !== String(projectId))) {
-        api.getProjectById(projectId).then(p => {
-            if (p) setProject(p);
+        api.getProjectById(projectId).then(async p => {
+            if (p) {
+                const currentLMs = p.multimedia_json?.leadMagnets;
+                if (p.masterParentId && (!Array.isArray(currentLMs) || currentLMs.length === 0)) {
+                    try {
+                        const master = await api.getProjectById(p.masterParentId);
+                        if (master?.multimedia_json?.leadMagnets && master.multimedia_json.leadMagnets.length > 0) {
+                            p = {
+                                ...p,
+                                leadMagnetUrl: p.leadMagnetUrl || master.leadMagnetUrl,
+                                multimedia_json: {
+                                    ...(p.multimedia_json || {}),
+                                    leadMagnets: master.multimedia_json.leadMagnets
+                                }
+                            };
+                        }
+                    } catch {}
+                }
+                setProject(p || undefined);
+            }
         }).catch(err => {
             // Silenciamos errores en producción para vistas públicas si falla el fetch adicional
             if (projectId) {
