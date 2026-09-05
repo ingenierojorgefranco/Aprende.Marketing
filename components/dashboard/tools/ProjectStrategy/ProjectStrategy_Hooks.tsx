@@ -217,14 +217,28 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     return `Hace ${diffInDays} ${diffInDays === 1 ? 'día' : 'días'}`;
   };
 
+  const getHookNumericId = (h: any): number => {
+    if (h.masterHookId) {
+      const n = parseInt(String(h.masterHookId).replace(/\D+/g, ''), 10);
+      if (!isNaN(n) && n > 0) return n;
+    }
+    if (h.id) {
+      const n = parseInt(String(h.id).replace(/\D+/g, ''), 10);
+      if (!isNaN(n) && n > 0) return n;
+    }
+    return 0;
+  };
+
   const loadLibrary = async (page: number, masterId?: string | null) => {
     if (!projectId) return;
     setLoadingLibrary(true);
     try {
         // Pedimos un lote grande (pool) para evitar huecos en la paginación local
-        const res = await api.getHooksLibrary(1, 80, masterId || undefined, projectId);
-        setLibraryHooks(res.hooks);
-        setLibraryTotal(res.total);
+        const limit = isRealAdmin ? 1000 : 80;
+        const res = await api.getHooksLibrary(1, limit, masterId || undefined, projectId);
+        const fetched = res.hooks || (res as any).data || [];
+        setLibraryHooks(fetched);
+        setLibraryTotal(res.total || fetched.length);
     } catch (e) {
         console.error("Error cargando biblioteca:", e);
     } finally {
@@ -241,7 +255,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         // Filtramos cualquier gancho que ya exista en el proyecto (sea manual, desbloqueado o generado)
         const alreadyInProject = hooks.some(h => 
             String(h.id) === String(lh.id) || 
-            (h.masterHookId && String(h.masterHookId) === String(lh.id))
+            (h.masterHookId && String(h.masterHookId) === String(lh.id)) ||
+            String(h.id).replace('available-', '') === String(lh.id).replace('available-', '')
         );
         return !alreadyInProject;
     });
@@ -253,13 +268,20 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     console.log("Total hooks en biblioteca maestra (No desbloqueados):", libraryPool.length);
 
     if (isRealAdmin) {
-        // Admin: Ve solo los ganchos del proyecto en orden cronológico
-        console.log("Admin detectado: Mostrando solo ganchos del proyecto.");
-        return projectHooks.sort((a, b) => {
-            const dateA = new Date((a as any).createdAt || 0).getTime();
-            const dateB = new Date((b as any).createdAt || 0).getTime();
-            return dateB - dateA;
-        });
+        // Admin: Ve TODOS los ganchos (del proyecto y de la biblioteca maestra), deduplicados y ordenados por ID numérico ascendente
+        const combined = [...projectHooks];
+        for (const lh of libraryPool) {
+            const lhClean = String(lh.id).replace('available-', '');
+            const exists = combined.some(ch => {
+                const chClean = String(ch.id).replace('available-', '');
+                const chMaster = ch.masterHookId ? String(ch.masterHookId).replace('available-', '') : null;
+                return chClean === lhClean || chMaster === lhClean;
+            });
+            if (!exists) {
+                combined.push(lh);
+            }
+        }
+        return combined.sort((a, b) => getHookNumericId(a) - getHookNumericId(b));
     }
 
     // Usuario Normal:
@@ -367,7 +389,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     } as ProjectHook;
   }, [filteredHooks, activeTab, activeLibraryHook, activeHook]);
 
-  const isCurrentUnlocked = (currentHook as any).isUnlocked || !(currentHook as any).masterHookId;
+  const isCurrentUnlocked = isRealAdmin || (currentHook as any).isUnlocked || !(currentHook as any).masterHookId;
   const canGenerate = isCurrentUnlocked && !currentHook.isGenerated && !isRealAdmin;
 
   useEffect(() => {
@@ -518,44 +540,52 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const handleUpdateMessage = async (field: string, value: any, hookIdOverride?: string) => {
     const targetId = hookIdOverride || currentHook.id;
     if (!targetId) return;
+
+    const previousHooks = [...hooks];
+    const previousLibraryHooks = [...libraryHooks];
+    const cleanTargetId = String(targetId).replace('available-', '');
+
+    // Actualización optimista inmediata en la UI
+    setHooks(prev => prev.map(h => {
+        const isMatch = h.id === targetId || 
+                        String(h.id) === String(targetId) || 
+                        String(h.id) === cleanTargetId || 
+                        String(h.id).replace('available-', '') === cleanTargetId ||
+                        (h.masterHookId && String(h.masterHookId).replace('available-', '') === cleanTargetId);
+        if (isMatch) {
+            const updated = { ...h, [field]: value };
+            if (field === 'psychological_strategy') {
+                (updated as any).psychologicalStrategy = value;
+            }
+            return updated;
+        }
+        return h;
+    }));
+
+    setLibraryHooks(prev => prev.map(h => {
+        const isMatch = h.id === targetId || 
+                        String(h.id) === String(targetId) || 
+                        String(h.id) === cleanTargetId || 
+                        String(h.id).replace('available-', '') === cleanTargetId ||
+                        (h.masterHookId && String(h.masterHookId).replace('available-', '') === cleanTargetId);
+        if (isMatch) {
+            const updated = { ...h, [field]: value };
+            if (field === 'psychological_strategy') {
+                (updated as any).psychologicalStrategy = value;
+            }
+            return updated;
+        }
+        return h;
+    }));
+
     try {
         await api.updateProjectHook(targetId, { [field]: value });
-        
-        const cleanTargetId = String(targetId).replace('available-', '');
-
-        // Actualizar en el estado de ganchos del proyecto
-        setHooks(prev => prev.map(h => {
-            const isMatch = h.id === targetId || 
-                            String(h.id) === String(targetId) || 
-                            String(h.id) === cleanTargetId || 
-                            (h.masterHookId && String(h.masterHookId) === cleanTargetId);
-            if (isMatch) {
-                const updated = { ...h, [field]: value };
-                if (field === 'psychological_strategy') {
-                    (updated as any).psychologicalStrategy = value;
-                }
-                return updated;
-            }
-            return h;
-        }));
-
-        // También actualizar en el estado de la biblioteca si existe allí
-        setLibraryHooks(prev => prev.map(h => {
-            const isMatch = h.id === targetId || 
-                            String(h.id) === String(targetId) || 
-                            String(h.id) === cleanTargetId || 
-                            (h.masterHookId && String(h.masterHookId) === cleanTargetId);
-            if (isMatch) {
-                const updated = { ...h, [field]: value };
-                if (field === 'psychological_strategy') {
-                    (updated as any).psychologicalStrategy = value;
-                }
-                return updated;
-            }
-            return h;
-        }));
-    } catch (e) {
+    } catch (e: any) {
         console.error("Error updating hook:", e);
+        // Rollback
+        setHooks(previousHooks);
+        setLibraryHooks(previousLibraryHooks);
+        alert("Error al actualizar gancho: " + (e.message || "Error desconocido"));
     }
   };
 
@@ -1024,7 +1054,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         isCardSelected 
                           ? (activeTab === 'library' ? 'bg-orange-900/40 border-orange-500/50' : 'bg-emerald-900/40 border-emerald-500/50') 
                           : 'bg-black/20 border-gray-800 hover:border-gray-700'
-                      } ${isCardSelected ? 'translate-x-2' : ''} ${(!isUnlocked && (hook as any).masterHookId) ? 'opacity-60 grayscale' : ''}`}
+                      } ${isCardSelected ? 'translate-x-2' : ''} ${(!isRealAdmin && !isUnlocked && (hook as any).masterHookId) ? 'opacity-60 grayscale' : ''}`}
                     >
                       <div className="flex-1">
                         <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${
@@ -1032,8 +1062,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             ? (activeTab === 'library' ? 'text-orange-300' : 'text-emerald-300') 
                             : 'text-white group-hover:text-white'
                         } flex items-center gap-2`}>
-                            {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
-                            {isRealAdmin && hook.id && `${hook.id} - `}{hook.title}
+                            {!isRealAdmin && !isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
+                            {isRealAdmin && `${getHookNumericId(hook) || String(hook.id).replace('available-', '')} - `}{hook.title}
                         </h4>
                         {isGenerated && activeTab === 'generated' && (
                           <span className="text-[10px] text-emerald-500/60 font-medium uppercase tracking-wider">
@@ -1074,7 +1104,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
-                  Pág. {activeTab === 'library' ? libraryPage : currentPage}
+                  Pág. {activeTab === 'library' ? libraryPage : currentPage} de {totalPages}
                 </span>
                 <button 
                   disabled={activeTab === 'library' ? libraryPage === totalPages : currentPage === totalPages} 

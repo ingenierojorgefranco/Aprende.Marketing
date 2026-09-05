@@ -23,28 +23,31 @@ const safeParseJson = (data) => {
 router.get('/project/:projectId', async (req, res) => {
     const { projectId } = req.params;
     try {
-        const [proj] = await pool.query('SELECT master_parent_id FROM projects WHERE id = ?', [projectId]);
+        const [proj] = await pool.query('SELECT master_parent_id, is_master FROM projects WHERE id = ?', [projectId]);
         const masterParentId = proj[0]?.master_parent_id;
+        const isMaster = !!proj[0]?.is_master;
+        const isAdmin = req.user && req.user.role === 'admin';
 
         let hooks = [];
         if (masterParentId) {
             const effectiveLimits = await getEffectiveLimits(req.user.id);
-            const isStarter = effectiveLimits.planName === 'starter';
+            const isStarter = !isAdmin && effectiveLimits.planName === 'starter';
 
             // Traer ganchos reales del usuario (clonados o manuales)
             const [userRows] = await pool.query(
-                'SELECT * FROM project_hooks WHERE project_id = ? ORDER BY created_at ASC',
+                `SELECT * FROM project_hooks WHERE project_id = ? ORDER BY ${isAdmin ? 'id ASC' : 'created_at ASC'}`,
                 [projectId]
             );
 
             // Traer ganchos del maestro que no han sido clonados todavía
             // Si es starter, limitamos a 15 aleatorios; admin puede ver todos incluidos inactivos para gestionarlos
-            const activeCondition = req.user.role === 'admin' ? '' : 'AND is_active = 1';
+            const activeCondition = isAdmin ? '' : 'AND is_active = 1';
+            const orderClause = isAdmin ? 'ORDER BY id ASC' : (isStarter ? 'ORDER BY RAND() LIMIT 15' : 'ORDER BY id ASC');
             const masterQuery = `SELECT * FROM project_hooks 
                  WHERE project_id = ? 
                  ${activeCondition}
                  AND id NOT IN (SELECT master_hook_id FROM project_hooks WHERE project_id = ? AND master_hook_id IS NOT NULL)
-                 ${isStarter ? 'ORDER BY RAND() LIMIT 15' : 'ORDER BY created_at ASC'}`;
+                 ${orderClause}`;
 
             const [masterRows] = await pool.query(masterQuery, [masterParentId, projectId]);
             
@@ -71,13 +74,16 @@ router.get('/project/:projectId', async (req, res) => {
                 contentJson: null,
                 isUnlocked: false,
                 isActive: !!h.is_active,
-                isGenerated: false
+                isGenerated: false,
+                createdAt: h.created_at,
+                updatedAt: h.updated_at
             }));
 
             hooks = [...userHooks, ...availableHooks];
         } else {
+            const activeCondition = isAdmin ? '' : 'AND is_active = 1';
             const [rows] = await pool.query(
-                'SELECT * FROM project_hooks WHERE project_id = ? ORDER BY created_at ASC',
+                `SELECT * FROM project_hooks WHERE project_id = ? ${activeCondition} ORDER BY ${isAdmin ? 'id ASC' : 'created_at ASC'}`,
                 [projectId]
             );
             hooks = rows.map(h => ({
@@ -113,17 +119,20 @@ router.get('/library', async (req, res) => {
     const offset = (page - 1) * limit;
 
     try {
+        const isAdmin = req.user && req.user.role === 'admin';
+        const activeCondition = isAdmin ? '' : 'AND ph.is_active = 1';
+
         let countQuery = `
             SELECT COUNT(*) as total 
             FROM project_hooks ph
             JOIN projects p ON ph.project_id = p.id
-            WHERE p.is_master = 1 AND ph.is_active = 1
+            WHERE p.is_master = 1 ${activeCondition}
         `;
         let dataQuery = `
             SELECT ph.*, p.name as project_name 
             FROM project_hooks ph
             JOIN projects p ON ph.project_id = p.id
-            WHERE p.is_master = 1 AND ph.is_active = 1
+            WHERE p.is_master = 1 ${activeCondition}
         `;
         const params = [];
 
@@ -133,14 +142,15 @@ router.get('/library', async (req, res) => {
             params.push(masterProjectId);
         }
 
-        if (projectId) {
+        if (projectId && !isAdmin) {
             const filterClause = ` AND ph.id NOT IN (SELECT master_hook_id FROM project_hooks WHERE project_id = ? AND master_hook_id IS NOT NULL)`;
             countQuery += filterClause;
             dataQuery += filterClause;
             params.push(projectId);
         }
 
-        dataQuery += ` ORDER BY ph.created_at DESC LIMIT ? OFFSET ?`;
+        const orderClause = isAdmin ? 'ORDER BY ph.id ASC' : 'ORDER BY ph.created_at DESC';
+        dataQuery += ` ${orderClause} LIMIT ? OFFSET ?`;
         const dataParams = [...params, limit, offset];
 
         // Contar total de ganchos maestros filtrados
@@ -150,7 +160,7 @@ router.get('/library', async (req, res) => {
         // Obtener ganchos maestros paginados
         const [rows] = await pool.query(dataQuery, dataParams);
 
-            const hooks = rows.map(h => ({
+        const hooks = rows.map(h => ({
             id: String(h.id),
             masterHookId: String(h.id),
             title: h.title,
@@ -164,7 +174,7 @@ router.get('/library', async (req, res) => {
             updatedAt: h.updated_at
         }));
 
-        res.json({ hooks, total });
+        res.json({ hooks, total, data: hooks });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -352,32 +362,62 @@ router.put('/:id', async (req, res) => {
     // Normalizar valores booleanos para MySQL
     const normalizedIsActive = typeof isActive === 'boolean' 
         ? (isActive ? 1 : 0) 
-        : (isActive !== undefined && isActive !== null ? (Number(isActive) ? 1 : 0) : null);
+        : (isActive !== undefined && isActive !== null ? (Number(isActive) ? 1 : 0) : undefined);
 
     const normalizedIsGenerated = typeof isGenerated === 'boolean'
         ? (isGenerated ? 1 : 0)
-        : (isGenerated !== undefined && isGenerated !== null ? (Number(isGenerated) ? 1 : 0) : null);
+        : (isGenerated !== undefined && isGenerated !== null ? (Number(isGenerated) ? 1 : 0) : undefined);
 
     try {
-        await pool.query(
-            `UPDATE project_hooks SET 
-                landing_page_url = COALESCE(?, landing_page_url),
-                is_generated = COALESCE(?, is_generated),
-                content_json = COALESCE(?, content_json),
-                title = COALESCE(?, title),
-                psychological_strategy = COALESCE(?, psychological_strategy),
-                is_active = COALESCE(?, is_active)
-             WHERE id = ?`,
-            [
-                landingPageUrl || null, 
-                normalizedIsGenerated, 
-                contentJson ? (typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson)) : null, 
-                title || null, 
-                finalStrategy || null, 
-                normalizedIsActive, 
-                cleanId
-            ]
-        );
+        const fields = [];
+        const values = [];
+
+        if (landingPageUrl !== undefined) {
+            fields.push('landing_page_url = ?');
+            values.push(landingPageUrl || null);
+        }
+        if (normalizedIsGenerated !== undefined) {
+            fields.push('is_generated = ?');
+            values.push(normalizedIsGenerated);
+        }
+        if (contentJson !== undefined) {
+            fields.push('content_json = ?');
+            values.push(contentJson ? (typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson)) : null);
+        }
+        if (title !== undefined) {
+            fields.push('title = ?');
+            values.push(title || null);
+        }
+        if (finalStrategy !== undefined) {
+            fields.push('psychological_strategy = ?');
+            values.push(finalStrategy || null);
+        }
+        if (normalizedIsActive !== undefined) {
+            fields.push('is_active = ?');
+            values.push(normalizedIsActive);
+        }
+
+        if (fields.length > 0) {
+            let masterHookId = null;
+            const [existing] = await pool.query('SELECT id, master_hook_id FROM project_hooks WHERE id = ?', [cleanId]);
+            if (existing.length > 0 && existing[0].master_hook_id) {
+                masterHookId = existing[0].master_hook_id;
+            }
+
+            if (masterHookId) {
+                // Sincronizar gancho clonado, gancho maestro y otros clones del mismo gancho
+                await pool.query(
+                    `UPDATE project_hooks SET ${fields.join(', ')} WHERE id = ? OR id = ? OR master_hook_id = ?`,
+                    [...values, cleanId, masterHookId, masterHookId]
+                );
+            } else {
+                // Sincronizar gancho maestro y todos los clones que apunten a él
+                await pool.query(
+                    `UPDATE project_hooks SET ${fields.join(', ')} WHERE id = ? OR master_hook_id = ?`,
+                    [...values, cleanId, cleanId]
+                );
+            }
+        }
         
         res.json({ success: true, id: cleanId, isActive: normalizedIsActive });
     } catch (e) {
