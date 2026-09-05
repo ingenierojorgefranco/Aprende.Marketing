@@ -241,10 +241,18 @@ export const AdminCourses: React.FC = () => {
             id: `new-mod-${Date.now()}`,
             title: 'Nuevo Módulo',
             order_index: (editingCourse.modules?.length || 0) + 1,
+            is_expanded_default: false,
             lessons: []
         };
         setEditingCourse(prev => ({ ...prev, modules: [...(prev.modules || []), newModule] }));
         setExpandedModules(prev => [...prev, newModule.id]);
+    };
+
+    const toggleModuleDefaultExpanded = (id: string) => {
+        setEditingCourse(prev => ({
+            ...prev,
+            modules: prev.modules?.map(m => m.id === id ? { ...m, is_expanded_default: !m.is_expanded_default } : m)
+        }));
     };
 
     const updateModule = (id: string, title: string) => {
@@ -519,8 +527,26 @@ export const AdminCourses: React.FC = () => {
                                                     placeholder="Título del Módulo"
                                                 />
                                             </div>
-                                            <div className="flex items-center gap-2">
-                                                <button onClick={(e) => { e.stopPropagation(); deleteModule(module.id); }} className="p-2 text-gray-500 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                                            <div className="flex items-center gap-2.5">
+                                                {/* Toggle: Expandido por defecto en el acordeón */}
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleModuleDefaultExpanded(module.id);
+                                                    }}
+                                                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border ${
+                                                        module.is_expanded_default
+                                                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
+                                                            : 'bg-gray-800/80 text-gray-400 border-gray-700 hover:text-gray-300 hover:border-gray-600'
+                                                    }`}
+                                                    title={module.is_expanded_default ? 'Este módulo iniciará abierto por defecto en el acordeón del curso' : 'Este módulo iniciará cerrado (no expandido) por defecto'}
+                                                >
+                                                    <span className={`w-2 h-2 rounded-full ${module.is_expanded_default ? 'bg-emerald-400 animate-pulse' : 'bg-gray-500'}`}></span>
+                                                    <span>{module.is_expanded_default ? 'Expandido al inicio' : 'Cerrado al inicio'}</span>
+                                                </button>
+
+                                                <button onClick={(e) => { e.stopPropagation(); deleteModule(module.id); }} className="p-2 text-gray-500 hover:text-red-500 transition-colors" title="Eliminar módulo"><Trash2 className="w-4 h-4" /></button>
                                                 {expandedModules.includes(module.id) ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
                                             </div>
                                         </div>

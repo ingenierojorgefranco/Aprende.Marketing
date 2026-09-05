@@ -36,6 +36,7 @@ studentRouter.get('/courses/:slug', authMiddleware, async (req, res) => {
         const modulesSimple = modules.map(mod => ({
             ...mod,
             id: mod.id.toString(),
+            is_expanded_default: !!mod.is_expanded_default,
             lessons: [] 
         }));
 
@@ -142,7 +143,11 @@ adminRouter.get('/courses', async (req, res) => {
                     ...l,
                     learning_points: typeof l.learning_points === 'string' ? JSON.parse(l.learning_points) : (l.learning_points || [])
                 }));
-                return { ...mod, lessons: lessonsParsed };
+                return { 
+                    ...mod, 
+                    is_expanded_default: !!mod.is_expanded_default,
+                    lessons: lessonsParsed 
+                };
             }));
             return {
                 ...c,
@@ -186,8 +191,8 @@ adminRouter.post('/courses', async (req, res) => {
         if (modules && modules.length > 0) {
             for (const mod of modules) {
                 const [modRes] = await connection.query(
-                    'INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)',
-                    [courseId, mod.title, mod.order_index]
+                    'INSERT INTO course_modules (course_id, title, order_index, is_expanded_default) VALUES (?, ?, ?, ?)',
+                    [courseId, mod.title, mod.order_index, mod.is_expanded_default ? 1 : 0]
                 );
                 const moduleId = modRes.insertId;
                 if (mod.lessons && mod.lessons.length > 0) {
@@ -228,14 +233,14 @@ adminRouter.put('/courses/:id', async (req, res) => {
                 let moduleId = mod.id;
                 if (typeof moduleId === 'string' && moduleId.startsWith('new-')) {
                     const [modRes] = await connection.query(
-                        'INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)',
-                        [id, mod.title, mod.order_index]
+                        'INSERT INTO course_modules (course_id, title, order_index, is_expanded_default) VALUES (?, ?, ?, ?)',
+                        [id, mod.title, mod.order_index, mod.is_expanded_default ? 1 : 0]
                     );
                     moduleId = modRes.insertId;
                 } else {
                     await connection.query(
-                        'UPDATE course_modules SET title=?, order_index=? WHERE id=?',
-                        [mod.title, mod.order_index, moduleId]
+                        'UPDATE course_modules SET title=?, order_index=?, is_expanded_default=? WHERE id=?',
+                        [mod.title, mod.order_index, mod.is_expanded_default ? 1 : 0, moduleId]
                     );
                 }
                 validModuleIds.push(moduleId);

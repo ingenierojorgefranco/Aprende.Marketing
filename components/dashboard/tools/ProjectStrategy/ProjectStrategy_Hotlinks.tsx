@@ -88,17 +88,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
     const handleSave = async () => {
         if (!project || !projectId) return;
 
-        const newErrors: Record<string, string> = {};
-        
-        const hasAtLeastOneLink = form.affiliateLinks.some(l => l.url.trim() !== '');
-        if (!hasAtLeastOneLink) {
-            newErrors.affiliateLinks = "Debes ingresar al menos un enlace de afiliado";
-        }
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            return;
-        }
+        setErrors({});
 
         setSaving(true);
         try {

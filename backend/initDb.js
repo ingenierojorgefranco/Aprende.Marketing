@@ -130,6 +130,7 @@ const initDb = async () => {
             course_id INT NOT NULL,
             title VARCHAR(255) NOT NULL,
             order_index INT DEFAULT 0,
+            is_expanded_default BOOLEAN DEFAULT FALSE,
             FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
 
@@ -484,6 +485,7 @@ const initDb = async () => {
         ////////// Fin de actualización - 05/03/2025 10:00 //////////
         await addColumnSafe(connection, 'projects', "digital_product_url VARCHAR(500)");
         await addColumnSafe(connection, 'projects', "whatsapp_group_url VARCHAR(500)");
+        await addColumnSafe(connection, 'course_modules', "is_expanded_default BOOLEAN DEFAULT FALSE");
         
         /* */ /* Actualización: Eliminación de la creación de la columna redundante short_description en la tabla projects, centralizando su almacenamiento dentro de strategy_json - 25/06/2024 11:30 */
         // await addColumnSafe(connection, 'projects', "short_description VARCHAR(255)");

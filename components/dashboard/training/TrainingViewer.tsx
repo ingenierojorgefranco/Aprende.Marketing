@@ -20,6 +20,7 @@ type Lesson = {
 type Module = {
   id: string;
   title: string;
+  is_expanded_default?: boolean;
   lessons: Lesson[];
 };
 
@@ -49,7 +50,7 @@ export const TrainingViewer: React.FC = () => {
   const [loading, setLoading] = useState(true);
   
   // State
-  const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
+  const [expandedModuleIds, setExpandedModuleIds] = useState<string[]>([]);
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   
   // Lazy Loading States
@@ -71,21 +72,52 @@ export const TrainingViewer: React.FC = () => {
                   const data = await api.getCourseBySlug(moduleId);
                   setCourseData(data);
                   
-                  // Automatically load and expand the first module
+                  // Modules are not expanded by default, unless configured as is_expanded_default by admin
                   if (data && data.modules.length > 0) {
-                      const firstMod = data.modules[0];
-                      // Fetch lessons for first module immediately
-                      const lessons = await api.getModuleLessons(firstMod.id);
-                      
-                      // Update data with lessons locally
-                      firstMod.lessons = lessons; 
-                      
-                      setCourseData({...data}); 
-                      setActiveModuleId(firstMod.id);
-                      setLoadedModuleIds([firstMod.id]);
-                      
-                      if (lessons.length > 0) {
-                          setCurrentLesson(lessons[0]);
+                      const defaultExpanded = (data.modules as Module[]).filter((m: Module) => !!m.is_expanded_default);
+                      const initialExpandedIds = defaultExpanded.map((m: Module) => m.id);
+
+                      if (defaultExpanded.length > 0) {
+                          const updatedModules = [...data.modules];
+                          let firstLessonToPlay: Lesson | null = null;
+                          
+                          for (const defMod of defaultExpanded) {
+                              try {
+                                  const lessons = await api.getModuleLessons(defMod.id);
+                                  const targetIndex = updatedModules.findIndex((m: Module) => m.id === defMod.id);
+                                  if (targetIndex !== -1) {
+                                      updatedModules[targetIndex] = { ...updatedModules[targetIndex], lessons };
+                                  }
+                                  if (!firstLessonToPlay && lessons.length > 0) {
+                                      firstLessonToPlay = lessons[0];
+                                  }
+                              } catch (err) {
+                                  console.warn("Error loading default expanded module lessons:", err);
+                              }
+                          }
+                          
+                          setCourseData({ ...data, modules: updatedModules });
+                          setExpandedModuleIds(initialExpandedIds);
+                          setLoadedModuleIds(initialExpandedIds);
+                          if (firstLessonToPlay) {
+                              setCurrentLesson(firstLessonToPlay);
+                          }
+                      } else {
+                          // Default behavior: NO modules expanded in the accordion
+                          setCourseData({ ...data });
+                          setExpandedModuleIds([]);
+                          
+                          // Preload the first lesson for video player preview without expanding the accordion
+                          try {
+                              const firstLessons = await api.getModuleLessons(data.modules[0].id);
+                              data.modules[0].lessons = firstLessons;
+                              setLoadedModuleIds([data.modules[0].id]);
+                              if (firstLessons.length > 0) {
+                                  setCurrentLesson(firstLessons[0]);
+                              }
+                          } catch (err) {
+                              console.warn("Error loading initial lesson:", err);
+                          }
                       }
                   }
               } catch (error) {
@@ -117,14 +149,16 @@ export const TrainingViewer: React.FC = () => {
   }, [currentLesson]);
 
   const toggleModule = async (id: string) => {
-      if (activeModuleId === id) {
-          setActiveModuleId(null);
+      const isExpanded = expandedModuleIds.includes(id);
+
+      if (isExpanded) {
+          setExpandedModuleIds(prev => prev.filter(mId => mId !== id));
           return;
       }
 
       // Check if module needs loading
       const module = courseData?.modules.find(m => m.id === id);
-      const isLoaded = loadedModuleIds.includes(id) || (module && module.lessons.length > 0);
+      const isLoaded = loadedModuleIds.includes(id) || (module && module.lessons && module.lessons.length > 0);
 
       if (!isLoaded) {
           setLoadingModuleId(id);
@@ -139,14 +173,14 @@ export const TrainingViewer: React.FC = () => {
                   };
               });
               setLoadedModuleIds(prev => [...prev, id]);
+              setExpandedModuleIds(prev => [...prev, id]);
           } catch(e) {
               console.error("Error loading module lessons:", e);
           } finally {
               setLoadingModuleId(null);
-              setActiveModuleId(id);
           }
       } else {
-          setActiveModuleId(id);
+          setExpandedModuleIds(prev => [...prev, id]);
       }
   };
 
@@ -284,17 +318,17 @@ export const TrainingViewer: React.FC = () => {
                             <div key={module.id} className="border border-gray-800 rounded-xl overflow-hidden bg-gray-900 shadow-sm">
                                 <button 
                                     onClick={() => toggleModule(module.id)}
-                                    className={`w-full flex items-center justify-between p-5 hover:bg-gray-800 transition text-left ${activeModuleId === module.id ? 'bg-gray-800' : ''}`}
+                                    className={`w-full flex items-center justify-between p-5 hover:bg-gray-800 transition text-left ${expandedModuleIds.includes(module.id) ? 'bg-gray-800' : ''}`}
                                 >
                                     <span className="font-bold text-gray-200 text-lg">{module.title}</span>
                                     {loadingModuleId === module.id ? (
                                         <Loader2 className="w-5 h-5 animate-spin text-primary" />
                                     ) : (
-                                        activeModuleId === module.id ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />
+                                        expandedModuleIds.includes(module.id) ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />
                                     )}
                                 </button>
                                 
-                                {activeModuleId === module.id && (
+                                {expandedModuleIds.includes(module.id) && (
                                     <div className="bg-black/40 border-t border-gray-800 animate-in slide-in-from-top-2">
                                         {module.lessons.map((lesson) => (
                                             <button 

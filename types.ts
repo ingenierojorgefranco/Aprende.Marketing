@@ -648,6 +648,7 @@ export interface CourseModule {
   id: string;
   title: string;
   order_index: number;
+  is_expanded_default?: boolean;
   lessons: CourseLesson[];
 }
 
