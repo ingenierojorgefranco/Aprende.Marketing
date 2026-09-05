@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp, Save, Play, Copy } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp, Save, Play, Copy, FileText } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan, Project } from '../../../../types';
 import { Generator } from '../Generator';
@@ -56,6 +56,76 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [domainCount, setDomainCount] = useState(0);
     const [strategy, setStrategy] = useState<ProjectMasterStrategy | null>(null);
     const [projectData, setProjectData] = useState<Project | null>(null);
+
+    // Estados para Lead Magnet de invitación en página de gracias
+    const [selectedLeadMagnetIndex, setSelectedLeadMagnetIndex] = useState<number>(0);
+    const [isSavingLeadMagnet, setIsSavingLeadMagnet] = useState(false);
+    const [iframeKey, setIframeKey] = useState(0);
+
+    // Obtener los lead magnets disponibles del proyecto
+    const multimedia = typeof projectData?.multimedia_json === 'string'
+        ? (() => { try { return JSON.parse(projectData.multimedia_json); } catch { return {}; } })()
+        : (projectData?.multimedia_json || {});
+
+    const availableLeadMagnets: { name: string; url: string }[] =
+        Array.isArray(multimedia?.leadMagnets) && multimedia.leadMagnets.length > 0
+            ? multimedia.leadMagnets
+            : (projectData?.leadMagnetUrl ? [{ name: 'Lead Magnet Principal', url: projectData.leadMagnetUrl }] : []);
+
+    // Sincronizar selección inicial de lead magnet con la configuración guardada de la página de gracias
+    useEffect(() => {
+        if (linkedPages.length > 0 && availableLeadMagnets.length > 0) {
+            const ty = linkedPages[0].content?.thankYouPage;
+            if (ty?.leadMagnetUrl) {
+                const foundIdx = availableLeadMagnets.findIndex(lm => lm.url === ty.leadMagnetUrl);
+                if (foundIdx !== -1) {
+                    setSelectedLeadMagnetIndex(foundIdx);
+                    return;
+                }
+            }
+            if (ty?.leadMagnetName) {
+                const foundIdx = availableLeadMagnets.findIndex(lm => lm.name === ty.leadMagnetName);
+                if (foundIdx !== -1) {
+                    setSelectedLeadMagnetIndex(foundIdx);
+                    return;
+                }
+            }
+        }
+    }, [linkedPages, availableLeadMagnets.length]);
+
+    const handleSelectLeadMagnet = async (index: number) => {
+        setSelectedLeadMagnetIndex(index);
+        const chosen = availableLeadMagnets[index];
+        if (!chosen) return;
+
+        if (linkedPages.length > 0) {
+            setIsSavingLeadMagnet(true);
+            try {
+                const currentPage = linkedPages[0];
+                const updatedThankYou = {
+                    ...(currentPage.content?.thankYouPage || {}),
+                    leadMagnetName: chosen.name,
+                    leadMagnetUrl: chosen.url,
+                    bookTitle: chosen.name.toUpperCase(),
+                    bookSubtitle: "Guía práctica en PDF descargable"
+                };
+                const updatedPage: LandingPage = {
+                    ...currentPage,
+                    content: {
+                        ...currentPage.content,
+                        thankYouPage: updatedThankYou
+                    }
+                };
+                await api.updatePage(updatedPage);
+                setLinkedPages(prev => prev.map((p, i) => i === 0 ? updatedPage : p));
+                setIframeKey(k => k + 1);
+            } catch (err) {
+                console.error("Error al actualizar lead magnet de la página de gracias:", err);
+            } finally {
+                setIsSavingLeadMagnet(false);
+            }
+        }
+    };
     
     // Estado para el control de acordeón en el modal de dominios
     const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
@@ -793,6 +863,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
                             {linkedPages.length > 0 ? (
                                 <iframe 
+                                    key={iframeKey}
                                     src={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`} 
                                     className="w-full h-[580px] border-0 bg-white"
                                     title="Vista previa página de gracias"
@@ -831,15 +902,29 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                             <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
                                                 <Gift className="w-5 h-5" />
                                             </div>
-                                            <div>
-                                                <h5 className="text-xs font-bold text-white">Bono de Bienvenida</h5>
+                                            <div className="min-w-0">
+                                                <h5 className="text-xs font-bold text-white truncate">
+                                                    {availableLeadMagnets[selectedLeadMagnetIndex]?.name || "Bono de Bienvenida"}
+                                                </h5>
                                                 <p className="text-[11px] text-slate-400">Guía práctica en PDF</p>
                                             </div>
                                         </div>
-                                        <button className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold py-2 px-3 rounded-lg border border-slate-700 flex items-center gap-1.5 shrink-0 transition">
-                                            <Download className="w-3.5 h-3.5" />
-                                            <span>Descargar</span>
-                                        </button>
+                                        {availableLeadMagnets[selectedLeadMagnetIndex]?.url ? (
+                                            <a 
+                                                href={availableLeadMagnets[selectedLeadMagnetIndex].url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold py-2 px-3 rounded-lg border border-slate-700 flex items-center gap-1.5 shrink-0 transition"
+                                            >
+                                                <Download className="w-3.5 h-3.5" />
+                                                <span>Descargar</span>
+                                            </a>
+                                        ) : (
+                                            <button className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold py-2 px-3 rounded-lg border border-slate-700 flex items-center gap-1.5 shrink-0 transition">
+                                                <Download className="w-3.5 h-3.5" />
+                                                <span>Descargar</span>
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -891,16 +976,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                                 <span>EDITAR PÁGINA</span>
                                                 <Wand2 className="w-4 h-4 stroke-[2.5]" />
                                             </button>
-
-                                            {!linkedPages[0].customDomain && (
-                                                <button 
-                                                    onClick={() => setShowDomainModal(true)}
-                                                    className="w-full bg-[#3B82F6] hover:bg-blue-600 text-white font-black py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg shadow-blue-500/20 cursor-pointer transform hover:scale-[1.01] active:scale-95"
-                                                >
-                                                    <Globe className="w-4 h-4" />
-                                                    <span>ASIGNAR DOMINIO</span>
-                                                </button>
-                                            )}
                                         </div>
                                     </>
                                 ) : (
@@ -927,23 +1002,111 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest text-left">
                                     RENDIMIENTO
                                 </h4>
-                                <div className="grid grid-cols-3 gap-2 text-center">
-                                    <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
-                                        <div className="text-[10px] text-slate-400 font-extrabold uppercase">VISITAS</div>
-                                        <div className="text-lg font-black text-white mt-1">{linkedPages.length > 0 ? (linkedPages[0].conversions || 0) : 0}</div>
+                                <div className="grid grid-cols-2 gap-3 text-center">
+                                    <div className="bg-[#080d18] p-3.5 rounded-xl border border-slate-800/80">
+                                        <div className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wide">VISITAS</div>
+                                        <div className="text-xl font-black text-white mt-1">
+                                            {linkedPages.length > 0 ? (linkedPages[0].conversions || linkedPages[0].visits || 0) : 0}
+                                        </div>
                                     </div>
-                                    <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
-                                        <div className="text-[10px] text-slate-400 font-extrabold uppercase">CLICS VIP</div>
-                                        <div className="text-lg font-black text-white mt-1">0</div>
-                                    </div>
-                                    <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800/80">
-                                        <div className="text-[10px] text-slate-400 font-extrabold uppercase">CONVERSIÓN</div>
-                                        <div className="text-lg font-black text-white mt-1">{linkedPages.length > 0 && (linkedPages[0].conversions || 0) > 0 ? "0,00%" : "0,00%"}</div>
+                                    <div className="bg-[#080d18] p-3.5 rounded-xl border border-slate-800/80">
+                                        <div className="text-[10px] text-emerald-400 font-extrabold uppercase tracking-wide flex items-center justify-center gap-1">
+                                            <MessageCircle className="w-3 h-3 text-emerald-400" />
+                                            <span>CLIC WHATSAPP</span>
+                                        </div>
+                                        <div className="text-xl font-black text-white mt-1">
+                                            {linkedPages.length > 0 ? ((linkedPages[0] as any).whatsapp_clicks ?? (linkedPages[0] as any).whatsappClicks ?? 0) : 0}
+                                        </div>
                                     </div>
                                 </div>
                                 <p className="text-slate-400 text-xs text-left leading-relaxed">
-                                    Comparte el enlace o publica tu primer reel para comenzar a recibir actividad.
+                                    Contabiliza los usuarios que llegaron a la página de gracias y los que hicieron clic en el botón de WhatsApp.
                                 </p>
+                            </div>
+
+                            {/* Lead Magnet de Invitación */}
+                            <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-5 space-y-4 text-left shadow-lg">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                        <Gift className="w-4 h-4 text-amber-400" />
+                                        <span>LEADMAGNET DE INVITACIÓN</span>
+                                    </h4>
+                                    {isSavingLeadMagnet && (
+                                        <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-medium">
+                                            <Loader2 className="w-3 h-3 animate-spin" /> Guardando...
+                                        </span>
+                                    )}
+                                </div>
+
+                                <p className="text-xs text-slate-300 leading-relaxed">
+                                    Selecciona cuál de los Lead Magnets subidos al proyecto se mostrará y entregará a los usuarios en esta página de gracias.
+                                </p>
+
+                                {availableLeadMagnets.length > 0 ? (
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1.5">
+                                                Seleccionar Lead Magnet
+                                            </label>
+                                            <div className="relative">
+                                                <select
+                                                    value={selectedLeadMagnetIndex}
+                                                    onChange={(e) => handleSelectLeadMagnet(Number(e.target.value))}
+                                                    disabled={isSavingLeadMagnet}
+                                                    className="w-full bg-[#080d18] border border-slate-700 hover:border-slate-600 text-white rounded-xl px-3.5 py-2.5 text-xs font-medium focus:outline-none focus:border-amber-500 appearance-none cursor-pointer pr-9 transition"
+                                                >
+                                                    {availableLeadMagnets.map((lm, idx) => (
+                                                        <option key={idx} value={idx} className="bg-slate-900 text-white py-2">
+                                                            {`Leadmagnet ${idx + 1}: ${lm.name || 'Sin título'}`}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                            </div>
+                                        </div>
+
+                                        {/* Ficha informativa del Lead Magnet seleccionado */}
+                                        {availableLeadMagnets[selectedLeadMagnetIndex] && (
+                                            <div className="bg-[#080d18] border border-slate-800/90 rounded-xl p-3.5 space-y-2">
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="min-w-0 flex-1">
+                                                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 inline-block mb-1">
+                                                            {`Leadmagnet ${selectedLeadMagnetIndex + 1}`}
+                                                        </span>
+                                                        <h5 className="text-xs font-bold text-white truncate" title={availableLeadMagnets[selectedLeadMagnetIndex].name}>
+                                                            {availableLeadMagnets[selectedLeadMagnetIndex].name}
+                                                        </h5>
+                                                    </div>
+                                                    {availableLeadMagnets[selectedLeadMagnetIndex].url && (
+                                                        <a
+                                                            href={availableLeadMagnets[selectedLeadMagnetIndex].url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition shrink-0 cursor-pointer"
+                                                            title="Abrir / Descargar PDF"
+                                                        >
+                                                            <Download className="w-3.5 h-3.5 text-emerald-400" />
+                                                        </a>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[11px] text-slate-400 pt-1 border-t border-slate-800/60">
+                                                    <FileText className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                                    <span className="truncate">Activo en la página de gracias</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="bg-[#080d18] border border-dashed border-slate-800 rounded-xl p-4 text-center space-y-2">
+                                        <FileText className="w-6 h-6 text-slate-500 mx-auto" />
+                                        <p className="text-xs text-slate-400">
+                                            Aún no has subido Lead Magnets en este proyecto.
+                                        </p>
+                                        <p className="text-[11px] text-slate-500">
+                                            Sube tus PDFs en "Administrador de Proyectos" para poder seleccionarlos aquí.
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

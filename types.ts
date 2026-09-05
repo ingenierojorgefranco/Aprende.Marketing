@@ -287,14 +287,14 @@ export interface DestinationConfig {
 
 export interface ThankYouPageConfig {
   // General
-  showSocials: boolean;
-  ctaLink: string;
+  showSocials?: boolean;
+  ctaLink?: string;
 
   // Hero
   progressBarText?: string;
   greenBadgeText?: string;
-  headline: string;
-  subheadline: string;
+  headline?: string;
+  subheadline?: string;
 
   // Step 1
   step1Title?: string;
@@ -336,6 +336,10 @@ export interface ThankYouPageConfig {
   
   faqTitle?: string;
   faqItems?: Array<{ question: string; answer: string }>;
+
+  // Lead Magnet específico seleccionado para la página de gracias
+  leadMagnetName?: string;
+  leadMagnetUrl?: string;
   
   // Legacy fields fallback
   ctaText?: string; 
@@ -460,6 +464,8 @@ export interface LandingPage {
   createdAt: Date;
   visits: number;
   conversions: number;
+  whatsappClicks?: number;
+  whatsapp_clicks?: number;
   user_id?: string;
 }
 

@@ -560,6 +560,8 @@ const initDb = async () => {
 
         // NEW: THANK YOU PAGE JSON COLUMN
         await addColumnSafe(connection, 'landing_pages', "thankyoupage_json JSON");
+        await addColumnSafe(connection, 'landing_pages', "whatsapp_clicks INT DEFAULT 0");
+        await addColumnSafe(connection, 'landing_pages', "selected_lead_magnet JSON NULL");
 
         // NEW: PROJECT ID IN LANDING PAGES
         await addColumnSafe(connection, 'landing_pages', "project_id INT NULL");

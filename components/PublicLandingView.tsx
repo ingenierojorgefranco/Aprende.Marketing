@@ -155,6 +155,8 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
           project: data.project, // Capturamos el proyecto
           visits: data.visits ?? 0,
           conversions: data.conversions ?? 0,
+          whatsappClicks: data.whatsapp_clicks ?? data.whatsappClicks ?? 0,
+          whatsapp_clicks: data.whatsapp_clicks ?? data.whatsappClicks ?? 0,
           createdAt: data.created_at ? new Date(data.created_at) : new Date(),
           content:
             typeof data.content === "string"

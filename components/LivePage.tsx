@@ -127,7 +127,7 @@ export const LivePage: React.FC<LivePageProps> = ({
 
   // --- THANK YOU PAGE RENDER ---
   if (viewMode === 'thank-you') {
-      return <LiveThankYouPage content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />;
+      return <LiveThankYouPage content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />;
   }
 
   // --- LEGAL PAGES RENDER ---

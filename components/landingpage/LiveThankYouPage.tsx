@@ -5,7 +5,7 @@ import { Navbar, Footer } from './ui/LiveComponents';
 import {
     CheckCircle, MessageCircle, Mail,
     Star, ChevronDown, ChevronUp, AlertTriangle,
-    BookOpen, Gift, Lock, Clock, ShieldCheck, Check
+    BookOpen, Gift, Lock, Clock, ShieldCheck, Check, Download
 } from 'lucide-react';
 
 interface LiveThankYouPageProps {
@@ -14,6 +14,7 @@ interface LiveThankYouPageProps {
   isMobilePreview: boolean;
   pageId?: string;
   basePath?: string;
+  project?: any;
 }
 
 export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
@@ -21,7 +22,8 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   ds,
   isMobilePreview,
   pageId,
-  basePath
+  basePath,
+  project
 }) => {
   // Use config with fallback to defaults or legacy data
   const tyConfig: ThankYouPageConfig = content.thankYouPage || {
@@ -46,6 +48,25 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   };
 
   const whatsappLink = tyConfig.ctaLink || "#";
+
+  // Obtener lead magnet seleccionado o predeterminado del proyecto
+  const projectLeadMagnets = project?.multimedia_json?.leadMagnets || [];
+  const defaultLeadMagnet = projectLeadMagnets.length > 0 ? projectLeadMagnets[0] : null;
+
+  const displayLeadMagnetName = tyConfig.leadMagnetName || defaultLeadMagnet?.name || tyConfig.bookTitle || "Libro Digital GRATIS";
+  const displayLeadMagnetUrl = tyConfig.leadMagnetUrl || defaultLeadMagnet?.url || project?.leadMagnetUrl || "";
+
+  // Registrar clic en el botón de WhatsApp
+  const handleWhatsAppClick = () => {
+      if (pageId) {
+          fetch(`/api/public/pages/${pageId}/whatsapp-click`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' }
+          }).catch((err) => {
+              console.warn('[Analytics] Error al registrar clic de WhatsApp:', err);
+          });
+      }
+  };
 
   return (
     <div className={`min-h-screen font-sans ${ds.bg} flex flex-col selection:bg-green-200 selection:text-green-900`}>
@@ -94,7 +115,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
                       <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-3xl max-w-3xl mx-auto mb-12 shadow-2xl relative group overflow-hidden">
                           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
-                          <p className={`text-xl md:text-2xl font-light leading-relaxed text-white/90`} dangerouslySetInnerHTML={{ __html: tyConfig.subheadline }}>
+                          <p className={`text-xl md:text-2xl font-light leading-relaxed text-white/90`} dangerouslySetInnerHTML={{ __html: tyConfig.subheadline || "" }}>
                           </p>
                       </div>
 
@@ -125,8 +146,19 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                                           <Gift className="w-12 h-12 text-green-600 animate-pulse" />
                                       </div>
                                       <div className="text-center md:text-left flex-1">
-                                          <p className="font-black text-gray-900 text-2xl mb-1">Libro Digital GRATIS</p>
+                                          <p className="font-black text-gray-900 text-2xl mb-1">{displayLeadMagnetName}</p>
                                           <p className="text-lg text-gray-400 line-through font-bold">Precio Regular: $27 USD</p>
+                                          {displayLeadMagnetUrl && (
+                                              <a 
+                                                  href={displayLeadMagnetUrl}
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  className="inline-flex items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-900 underline mt-2"
+                                              >
+                                                  <Download className="w-4 h-4 text-emerald-600" />
+                                                  <span>Descargar PDF del Lead Magnet</span>
+                                              </a>
+                                          )}
                                       </div>
                                       <div className="bg-green-600 text-white font-black px-4 py-2 rounded-lg shadow-sm">
                                           GRATIS
@@ -138,7 +170,8 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                                           href={whatsappLink}
                                           target="_blank"
                                           rel="noopener noreferrer"
-                                          className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-6 px-10 rounded-2xl font-black text-2xl shadow-2xl shadow-green-500/40 flex items-center justify-center gap-4 transition-all hover:scale-[1.03] active:scale-95 group relative overflow-hidden"
+                                          onClick={handleWhatsAppClick}
+                                          className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-6 px-10 rounded-2xl font-black text-2xl shadow-2xl shadow-green-500/40 flex items-center justify-center gap-4 transition-all hover:scale-[1.03] active:scale-95 group relative overflow-hidden cursor-pointer"
                                       >
                                           <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
                                           <MessageCircle className="w-8 h-8 fill-white/20" />
@@ -173,7 +206,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                                   <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-6 backdrop-blur-sm border border-white/30">
                                       <BookOpen className="w-8 h-8 text-white" />
                                   </div>
-                                  <h4 className="font-serif font-bold text-2xl uppercase tracking-widest mb-1">{tyConfig.bookTitle || "EBOOK"}</h4>
+                                  <h4 className="font-serif font-bold text-xl uppercase tracking-wider mb-1 line-clamp-2">{displayLeadMagnetName}</h4>
                                   <div className="h-0.5 w-12 bg-white/50 mb-1"></div>
                                   <p className="text-xs font-light tracking-wide opacity-90">{tyConfig.bookSubtitle || "GUIA GRATIS"}</p>
                                   <div className="mt-auto text-[10px] opacity-60">{tyConfig.bookFooter}</div>
@@ -224,12 +257,27 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                               href={whatsappLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-5 px-8 rounded-2xl font-bold text-xl shadow-xl shadow-green-500/30 flex items-center justify-center gap-3 transition-transform hover:scale-[1.02] group relative overflow-hidden"
+                              onClick={handleWhatsAppClick}
+                              className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-5 px-8 rounded-2xl font-bold text-xl shadow-xl shadow-green-500/30 flex items-center justify-center gap-3 transition-transform hover:scale-[1.02] group relative overflow-hidden cursor-pointer"
                           >
                               <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
                               <MessageCircle className="w-7 h-7 fill-white/20" />
                               <span className="relative z-10">{tyConfig.ctaButtonText || "DESCARGAR AHORA"}</span>
                           </a>
+
+                          {displayLeadMagnetUrl && (
+                              <div className="mt-3 text-center">
+                                  <a 
+                                      href={displayLeadMagnetUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 underline transition"
+                                  >
+                                      <Download className="w-3.5 h-3.5 text-emerald-600" />
+                                      <span>Descargar PDF ({displayLeadMagnetName})</span>
+                                  </a>
+                              </div>
+                          )}
                           
                           <div className="mt-4 flex items-center justify-center gap-4 text-xs text-gray-400">
                               <span className="flex items-center gap-1"><Lock className="w-3 h-3"/> Acceso Seguro</span>
@@ -341,7 +389,8 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                   href={whatsappLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full bg-[#25D366] text-white py-4 rounded-full font-bold shadow-2xl flex items-center justify-center gap-2 animate-pulse border-2 border-white/20"
+                  onClick={handleWhatsAppClick}
+                  className="w-full bg-[#25D366] text-white py-4 rounded-full font-bold shadow-2xl flex items-center justify-center gap-2 animate-pulse border-2 border-white/20 cursor-pointer"
               >
                   <MessageCircle className="w-6 h-6" /> Unirme al Grupo WhatsApp
               </a>

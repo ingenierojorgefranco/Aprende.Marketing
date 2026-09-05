@@ -594,6 +594,8 @@ export const api = {
             projectId: p.project_id ? String(p.project_id) : undefined,
             projectName: p.project_name,
             content: content,
+            whatsappClicks: p.whatsapp_clicks ?? p.whatsappClicks ?? 0,
+            whatsapp_clicks: p.whatsapp_clicks ?? p.whatsappClicks ?? 0,
             createdAt: new Date(p.created_at || p.createdAt)
         };
     });
@@ -633,6 +635,8 @@ export const api = {
               subdomain: data.subdomain || slug,
               visits: data.visits ?? 0,
               conversions: data.conversions ?? 0,
+              whatsappClicks: data.whatsapp_clicks ?? data.whatsappClicks ?? 0,
+              whatsapp_clicks: data.whatsapp_clicks ?? data.whatsappClicks ?? 0,
               projectId: data.project_id?.toString(),
               project: data.project, // Incluimos el objeto proyecto si viene
               createdAt: data.created_at ? new Date(data.created_at) : new Date(),
@@ -751,6 +755,18 @@ export const api = {
     clearCache('pageDetails', id);
     clearCache('userUsageStats');
     clearCache('publicPages');
+  },
+
+  recordWhatsAppClick: async (pageId: string): Promise<void> => {
+    try {
+      await fetch(`/api/public/pages/${pageId}/whatsapp-click`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      clearCache('pages');
+    } catch (e) {
+      console.warn('Error recording WhatsApp click:', e);
+    }
   },
 
   getProjects: async (): Promise<Project[]> => {

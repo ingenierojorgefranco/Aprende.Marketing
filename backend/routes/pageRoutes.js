@@ -410,4 +410,18 @@ router.post('/public/leads/submit', async (req, res) => {
     }
 });
 
+router.post('/public/pages/:pageId/whatsapp-click', async (req, res) => {
+    const { pageId } = req.params;
+    try {
+        await pool.query(
+            'UPDATE landing_pages SET whatsapp_clicks = COALESCE(whatsapp_clicks, 0) + 1 WHERE id = ?',
+            [pageId]
+        );
+        res.json({ success: true });
+    } catch (e) {
+        console.error('[Analytics] Error registrando clic WhatsApp:', e.message);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 export default router;
