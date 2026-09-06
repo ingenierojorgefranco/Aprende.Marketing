@@ -168,6 +168,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [tempAds, setTempAds] = useState("");
   const [tempPinnedComment, setTempPinnedComment] = useState("");
   const [tempReelTitle, setTempReelTitle] = useState("");
+  const [localVideoUrl, setLocalVideoUrl] = useState("");
+  const [savingVideoUrl, setSavingVideoUrl] = useState(false);
+  const [savedVideoUrlFeedback, setSavedVideoUrlFeedback] = useState(false);
 
   const handleDownloadVideo = () => {
     const videoUrl = (currentKit?.downloadUrl || currentKit?.videoUrl || "").trim();
@@ -401,6 +404,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         setIsEditingTitle(false);
         setIsEditingScript(false);
         setIsEditingAds(false);
+        const vUrl = (currentHook.contentJson && typeof currentHook.contentJson === 'object')
+            ? ((currentHook.contentJson as any).downloadUrl || (currentHook.contentJson as any).download_url || (currentHook.contentJson as any).videoUrl || (currentHook.contentJson as any).video_url || "")
+            : "";
+        setLocalVideoUrl(vUrl);
+        setSavedVideoUrlFeedback(false);
     }
   }, [currentHook]);
 
@@ -624,15 +632,77 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const hasVideoUrl = Boolean((currentKit?.downloadUrl || currentKit?.videoUrl || "").trim());
 
+  const handleSaveVideoUrl = async (urlToSave?: string) => {
+    if (!currentHook.id) return;
+    const value = (urlToSave !== undefined ? urlToSave : localVideoUrl).trim();
+    setSavingVideoUrl(true);
+    setSavedVideoUrlFeedback(false);
+    try {
+        const cleanTargetId = String(currentHook.id).replace('available-', '');
+        const updatedKit = { 
+            ...currentKit, 
+            downloadUrl: value,
+            videoUrl: value,
+            download_url: value,
+            video_url: value
+        };
+        await api.updateProjectHook(currentHook.id, { contentJson: updatedKit });
+        
+        const updateHookMatch = (h: ProjectHook) => {
+            const isMatch = h.id === currentHook.id || 
+                            String(h.id) === String(currentHook.id) || 
+                            String(h.id) === cleanTargetId || 
+                            String(h.id).replace('available-', '') === cleanTargetId ||
+                            (h.masterHookId && String(h.masterHookId).replace('available-', '') === cleanTargetId);
+            if (isMatch) {
+                return { ...h, contentJson: updatedKit };
+            }
+            return h;
+        };
+
+        setHooks(prev => prev.map(updateHookMatch));
+        setLibraryHooks(prev => prev.map(updateHookMatch));
+        setLocalVideoUrl(value);
+        setSavedVideoUrlFeedback(true);
+        setTimeout(() => setSavedVideoUrlFeedback(false), 3500);
+    } catch (e: any) {
+        console.error("Error updating video URL:", e);
+        alert("Error al guardar URL del video: " + (e.message || "Error desconocido"));
+    } finally {
+        setSavingVideoUrl(false);
+    }
+  };
+
   const handleUpdateKitJson = async (field: string, value: any) => {
     if (!currentHook.id) return;
     try {
-        const updatedKit = { ...currentKit, [field]: value };
+        const cleanTargetId = String(currentHook.id).replace('available-', '');
+        let updatedKit = { ...currentKit, [field]: value };
+        if (field === 'downloadUrl' || field === 'videoUrl') {
+            updatedKit.downloadUrl = value;
+            updatedKit.videoUrl = value;
+            updatedKit.download_url = value;
+            updatedKit.video_url = value;
+        }
         await api.updateProjectHook(currentHook.id, { contentJson: updatedKit });
-        setHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
-        setLibraryHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
-    } catch (e) {
+        
+        const updateHookMatch = (h: ProjectHook) => {
+            const isMatch = h.id === currentHook.id || 
+                            String(h.id) === String(currentHook.id) || 
+                            String(h.id) === cleanTargetId || 
+                            String(h.id).replace('available-', '') === cleanTargetId ||
+                            (h.masterHookId && String(h.masterHookId).replace('available-', '') === cleanTargetId);
+            if (isMatch) {
+                return { ...h, contentJson: updatedKit };
+            }
+            return h;
+        };
+
+        setHooks(prev => prev.map(updateHookMatch));
+        setLibraryHooks(prev => prev.map(updateHookMatch));
+    } catch (e: any) {
         console.error("Error updating kit json:", e);
+        alert("Error al actualizar contenido: " + (e.message || "Error de red"));
     }
   };
 
@@ -640,10 +710,24 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (!currentHook.id) return;
     setSaving(true);
     try {
+        const cleanTargetId = String(currentHook.id).replace('available-', '');
         const updatedKit = { ...currentKit, script: tempScript };
         await api.updateProjectHook(currentHook.id, { contentJson: updatedKit });
-        setHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
-        setLibraryHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
+
+        const updateHookMatch = (h: ProjectHook) => {
+            const isMatch = h.id === currentHook.id || 
+                            String(h.id) === String(currentHook.id) || 
+                            String(h.id) === cleanTargetId || 
+                            String(h.id).replace('available-', '') === cleanTargetId ||
+                            (h.masterHookId && String(h.masterHookId).replace('available-', '') === cleanTargetId);
+            if (isMatch) {
+                return { ...h, contentJson: updatedKit };
+            }
+            return h;
+        };
+
+        setHooks(prev => prev.map(updateHookMatch));
+        setLibraryHooks(prev => prev.map(updateHookMatch));
         setIsEditingScript(false);
     } catch (e) {
         alert("Error al guardar el guion");
@@ -656,10 +740,24 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (!currentHook.id) return;
     setSaving(true);
     try {
+        const cleanTargetId = String(currentHook.id).replace('available-', '');
         const updatedKit = { ...currentKit, ads: tempAds, pinnedComment: tempPinnedComment, reelTitle: tempReelTitle };
         await api.updateProjectHook(currentHook.id, { contentJson: updatedKit });
-        setHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
-        setLibraryHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
+
+        const updateHookMatch = (h: ProjectHook) => {
+            const isMatch = h.id === currentHook.id || 
+                            String(h.id) === String(currentHook.id) || 
+                            String(h.id) === cleanTargetId || 
+                            String(h.id).replace('available-', '') === cleanTargetId ||
+                            (h.masterHookId && String(h.masterHookId).replace('available-', '') === cleanTargetId);
+            if (isMatch) {
+                return { ...h, contentJson: updatedKit };
+            }
+            return h;
+        };
+
+        setHooks(prev => prev.map(updateHookMatch));
+        setLibraryHooks(prev => prev.map(updateHookMatch));
         setIsEditingAds(false);
     } catch (e) {
         alert("Error al guardar los cambios");
@@ -1369,18 +1467,66 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 {/* Campo URL de Video para Administrador */}
                                 {isRealAdmin && (
                                     <div className="pt-4 border-t border-white/[0.06] space-y-2">
-                                        <label className="text-[10px] text-[#FF5D1E] font-black uppercase tracking-widest flex items-center gap-1.5 ml-1">
-                                            <Video className="w-3.5 h-3.5 text-[#FF5D1E]" />
-                                            <span>URL del Video a Descargar (Solo Admin)</span>
-                                        </label>
-                                        <div className="flex items-center gap-2 bg-black/60 border border-white/10 rounded-xl px-3.5 py-2.5 focus-within:border-[#FF5D1E] transition-all">
-                                            <input 
-                                                type="text"
-                                                value={currentKit?.downloadUrl || ''}
-                                                onChange={(e) => handleUpdateKitJson('downloadUrl', e.target.value)}
-                                                placeholder="https://..."
-                                                className="w-full bg-transparent text-white text-xs md:text-sm font-mono outline-none"
-                                            />
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-[10px] text-[#FF5D1E] font-black uppercase tracking-widest flex items-center gap-1.5 ml-1">
+                                                <Video className="w-3.5 h-3.5 text-[#FF5D1E]" />
+                                                <span>URL del Video a Descargar (Solo Admin)</span>
+                                            </label>
+                                            {savedVideoUrlFeedback && (
+                                                <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1 animate-pulse">
+                                                    <Check className="w-3 h-3 stroke-[3]" />
+                                                    ¡Guardado en base de datos!
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex-1 flex items-center gap-2 bg-black/60 border border-white/10 rounded-xl px-3.5 py-2.5 focus-within:border-[#FF5D1E] transition-all">
+                                                <input 
+                                                    type="text"
+                                                    value={localVideoUrl}
+                                                    onChange={(e) => {
+                                                        setLocalVideoUrl(e.target.value);
+                                                        setSavedVideoUrlFeedback(false);
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            e.preventDefault();
+                                                            handleSaveVideoUrl();
+                                                        }
+                                                    }}
+                                                    onBlur={() => {
+                                                        const currentSaved = (currentKit?.downloadUrl || currentKit?.videoUrl || '').trim();
+                                                        if (localVideoUrl.trim() !== currentSaved) {
+                                                            handleSaveVideoUrl();
+                                                        }
+                                                    }}
+                                                    placeholder="https://drive.google.com/... o enlace de video"
+                                                    className="w-full bg-transparent text-white text-xs md:text-sm font-mono outline-none"
+                                                />
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleSaveVideoUrl()}
+                                                disabled={savingVideoUrl || localVideoUrl.trim() === (currentKit?.downloadUrl || currentKit?.videoUrl || '').trim()}
+                                                className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-md ${
+                                                    localVideoUrl.trim() !== (currentKit?.downloadUrl || currentKit?.videoUrl || '').trim()
+                                                        ? 'bg-[#FF5D1E] hover:bg-orange-600 text-white cursor-pointer hover:scale-105 active:scale-95'
+                                                        : 'bg-zinc-800 text-zinc-500 cursor-default'
+                                                } disabled:opacity-50`}
+                                                title={localVideoUrl.trim() !== (currentKit?.downloadUrl || currentKit?.videoUrl || '').trim() ? "Guardar URL en la base de datos" : "Sin cambios por guardar"}
+                                            >
+                                                {savingVideoUrl ? (
+                                                    <>
+                                                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                                        <span>Guardando...</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Check className="w-3.5 h-3.5" />
+                                                        <span>Guardar</span>
+                                                    </>
+                                                )}
+                                            </button>
                                         </div>
                                     </div>
                                 )}

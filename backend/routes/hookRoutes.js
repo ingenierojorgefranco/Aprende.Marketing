@@ -71,7 +71,7 @@ router.get('/project/:projectId', async (req, res) => {
                 projectId: String(projectId),
                 title: h.title,
                 psychologicalStrategy: h.psychological_strategy,
-                contentJson: null,
+                contentJson: safeParseJson(h.content_json),
                 isUnlocked: false,
                 isActive: !!h.is_active,
                 isGenerated: false,
@@ -400,7 +400,10 @@ router.put('/:id', async (req, res) => {
         if (fields.length > 0) {
             let masterHookId = null;
             const [existing] = await pool.query('SELECT id, master_hook_id FROM project_hooks WHERE id = ?', [cleanId]);
-            if (existing.length > 0 && existing[0].master_hook_id) {
+            if (existing.length === 0) {
+                return res.status(404).json({ error: `Gancho con ID ${cleanId} no encontrado en la base de datos` });
+            }
+            if (existing[0].master_hook_id) {
                 masterHookId = existing[0].master_hook_id;
             }
 
