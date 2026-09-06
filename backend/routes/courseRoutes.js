@@ -298,6 +298,57 @@ adminRouter.delete('/courses/:id', async (req, res) => {
     }
 });
 
+// Actualizar estado de acordeón por defecto de un módulo (abierto/cerrado)
+const handleToggleModuleExpanded = async (req, res) => {
+    const { moduleId, courseId } = req.params;
+    const { is_expanded_default } = req.body;
+    try {
+        // Garantizar existencia de la columna is_expanded_default en course_modules
+        try {
+            await pool.query('SELECT is_expanded_default FROM course_modules LIMIT 1');
+        } catch (_) {
+            try {
+                await pool.query('ALTER TABLE course_modules ADD COLUMN is_expanded_default BOOLEAN DEFAULT FALSE');
+            } catch (__) {}
+        }
+
+        const cleanId = String(moduleId).replace(/^new-mod-/, '');
+        
+        let targetValue;
+        if (typeof is_expanded_default === 'boolean' || typeof is_expanded_default === 'number') {
+            targetValue = is_expanded_default ? 1 : 0;
+        } else {
+            const [current] = await pool.query('SELECT is_expanded_default FROM course_modules WHERE id = ?', [cleanId]);
+            if (current.length === 0) {
+                return res.status(404).json({ error: 'Módulo no encontrado' });
+            }
+            targetValue = current[0].is_expanded_default ? 0 : 1;
+        }
+
+        await pool.query('UPDATE course_modules SET is_expanded_default = ? WHERE id = ?', [targetValue, cleanId]);
+
+        // Registrar auditoría si es posible
+        try {
+            const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user?.id]);
+            await logSystemActivity(req.user?.id, admin[0]?.name, 'UPDATE_MODULE_EXPANDED', 'course_module', cleanId, { is_expanded_default: !!targetValue });
+        } catch (_) {}
+
+        res.json({
+            success: true,
+            moduleId: cleanId,
+            is_expanded_default: !!targetValue
+        });
+    } catch (e) {
+        console.error('[CourseModules] Error updating default expanded state:', e);
+        res.status(500).json({ error: e.message });
+    }
+};
+
+adminRouter.patch('/modules/:moduleId/toggle-expanded', handleToggleModuleExpanded);
+adminRouter.put('/modules/:moduleId/toggle-expanded', handleToggleModuleExpanded);
+adminRouter.patch('/courses/:courseId/modules/:moduleId/toggle-expanded', handleToggleModuleExpanded);
+adminRouter.put('/courses/:courseId/modules/:moduleId/toggle-expanded', handleToggleModuleExpanded);
+
 adminRouter.get('/comments', async (req, res) => {
     try {
         const [comments] = await pool.query(`

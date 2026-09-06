@@ -27,7 +27,34 @@ let localPages: LandingPage[] = [...MOCK_PAGES];
 let localArticles: Article[] = [...MOCK_ARTICLES];
 let localProjects: Project[] = [...MOCK_PROJECTS];
 let localLeads: Lead[] = [...MOCK_LEADS];
-let localCourses: Course[] = [...MOCK_COURSES];
+
+const getStoredCourses = (): Course[] => {
+    if (typeof window !== 'undefined') {
+        try {
+            const stored = localStorage.getItem('plataformadeventacom_courses');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            }
+        } catch (e) {
+            console.warn('Error al leer cursos de localStorage:', e);
+        }
+    }
+    return [...MOCK_COURSES];
+};
+
+let localCourses: Course[] = getStoredCourses();
+
+const persistLocalCourses = () => {
+    if (typeof window !== 'undefined') {
+        try {
+            localStorage.setItem('plataformadeventacom_courses', JSON.stringify(localCourses));
+        } catch (e) {
+            console.warn('Error al guardar cursos en localStorage:', e);
+        }
+    }
+};
+
 let localComments: Comment[] = [...MOCK_COMMENTS];
 let localCrmContacts: CRMContact[] = [...MOCK_CRM_CONTACTS];
 let localCrmActivities: CRMActivity[] = [...MOCK_CRM_ACTIVITIES];
@@ -1562,26 +1589,89 @@ export const api = {
   
     getAdminCourses: async (): Promise<Course[]> => {
         if (isMockMode) return Promise.resolve(localCourses);
-        return await fetchWithFallback('/admin/courses', { headers: getAuthHeaders() });
+        const courses = await fetchWithFallback('/admin/courses', { headers: getAuthHeaders() });
+        if (Array.isArray(courses) && courses.length > 0) {
+            localCourses = courses;
+            persistLocalCourses();
+        }
+        return courses;
     },
   
     saveCourse: async (course: Course): Promise<Course> => {
         if (isMockMode) {
             if (course.id) {
                 localCourses = localCourses.map(c => c.id === course.id ? course : c);
+                persistLocalCourses();
                 return Promise.resolve(course);
             } else {
                 const newCourse = { ...course, id: `new-${Date.now()}` };
                 localCourses.push(newCourse);
+                persistLocalCourses();
                 return Promise.resolve(newCourse);
             }
         }
         const method = course.id ? 'PUT' : 'POST';
         const endpoint = course.id ? `/admin/courses/${course.id}` : '/admin/courses';
         const res = await fetchWithFallback(endpoint, { method: method, headers: getAuthHeaders(), body: JSON.stringify(course) });
+        
+        // Mantener sincronizado localCourses y localStorage
+        if (course.id) {
+            localCourses = localCourses.map(c => c.id === course.id ? course : c);
+        } else if (res?.id) {
+            localCourses.push({ ...course, id: res.id.toString() });
+        }
+        persistLocalCourses();
+
         clearCache('courses');
         if (course.slug) clearCache('courseDetails', course.slug);
         return res;
+    },
+
+    toggleModuleDefaultExpanded: async (courseId: string, moduleId: string, isExpanded?: boolean): Promise<{ success: boolean; is_expanded_default: boolean }> => {
+        // 1. Actualizar estado en memoria y persistir en localStorage inmediatamente
+        let newStatus = isExpanded;
+        localCourses = localCourses.map(c => {
+            if (String(c.id) === String(courseId) && c.modules) {
+                return {
+                    ...c,
+                    modules: c.modules.map(m => {
+                        if (String(m.id) === String(moduleId)) {
+                            newStatus = isExpanded !== undefined ? isExpanded : !m.is_expanded_default;
+                            return { ...m, is_expanded_default: newStatus };
+                        }
+                        return m;
+                    })
+                };
+            }
+            return c;
+        });
+        persistLocalCourses();
+
+        // 2. Limpiar cachés
+        clearCache('courses');
+        const course = localCourses.find(c => String(c.id) === String(courseId));
+        if (course?.slug) clearCache('courseDetails', course.slug);
+
+        if (isMockMode) {
+            return Promise.resolve({ success: true, is_expanded_default: !!newStatus });
+        }
+
+        // 3. Persistir en base de datos vía API
+        try {
+            const res = await fetchWithFallback(`/admin/modules/${moduleId}/toggle-expanded`, {
+                method: 'PATCH',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ is_expanded_default: newStatus, courseId })
+            });
+            return res;
+        } catch (err) {
+            console.warn('[API] PATCH /modules/:moduleId/toggle-expanded falló, aplicando guardado completo de curso como respaldo:', err);
+            if (course) {
+                await api.saveCourse(course);
+                return { success: true, is_expanded_default: !!newStatus };
+            }
+            throw err;
+        }
     },
   
     reorderCourses: async (orderedIds: string[]): Promise<void> => {
@@ -1593,9 +1683,12 @@ export const api = {
     deleteCourse: async (id: string): Promise<void> => {
         if (isMockMode) {
             localCourses = localCourses.filter(c => c.id !== id);
+            persistLocalCourses();
             return Promise.resolve();
         }
         await fetchWithFallback(`/admin/courses/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+        localCourses = localCourses.filter(c => c.id !== id);
+        persistLocalCourses();
         clearCache('courses');
     },
   

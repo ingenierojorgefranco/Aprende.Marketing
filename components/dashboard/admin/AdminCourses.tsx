@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Course, CourseModule, CourseLesson } from '../../../types';
 import { api } from '../../../services/api';
-import { Video, Plus, Edit, Trash2, Save, ArrowLeft, ChevronDown, ChevronUp, Loader2, GripVertical, Image as ImageIcon, Bold, Italic, List, Code, Type, AlignLeft, AlignCenter, AlignRight, Underline, Palette, Eye, EyeOff } from 'lucide-react';
+import { Video, Plus, Edit, Trash2, Save, ArrowLeft, ChevronDown, ChevronUp, Loader2, GripVertical, Image as ImageIcon, Bold, Italic, List, Code, Type, AlignLeft, AlignCenter, AlignRight, Underline, Palette, Eye, EyeOff, Check } from 'lucide-react';
 
 // --- VISUAL EDITOR COMPONENT (WYSIWYG) ---
 interface VisualEditorProps {
@@ -124,6 +124,8 @@ export const AdminCourses: React.FC = () => {
     const [editingCourse, setEditingCourse] = useState<Partial<Course>>({});
     const [activeTab, setActiveTab] = useState<'general' | 'curriculum'>('general');
     const [expandedModules, setExpandedModules] = useState<string[]>([]);
+    const [savingModuleId, setSavingModuleId] = useState<string | null>(null);
+    const [savedModuleId, setSavedModuleId] = useState<string | null>(null);
     
     // Drag & Drop State
     const [draggedCourseIndex, setDraggedCourseIndex] = useState<number | null>(null);
@@ -137,6 +139,23 @@ export const AdminCourses: React.FC = () => {
         try {
             const data = await api.getAdminCourses();
             setCourses(data);
+
+            // Si el usuario estaba editando un curso antes de recargar la página (F5)
+            const savedCourseId = sessionStorage.getItem('admin_editing_course_id');
+            const savedTab = (sessionStorage.getItem('admin_editing_course_tab') as 'general' | 'curriculum') || 'general';
+            if (savedCourseId) {
+                const targetCourse = data.find(c => String(c.id) === String(savedCourseId));
+                if (targetCourse) {
+                    setEditingCourse({ ...targetCourse });
+                    // Cargar módulos expandidos por defecto
+                    const defaultExpanded = (targetCourse.modules || [])
+                        .filter(m => !!m.is_expanded_default)
+                        .map(m => m.id);
+                    setExpandedModules(defaultExpanded);
+                    setView('editor');
+                    setActiveTab(savedTab);
+                }
+            }
         } catch (e) {
             console.error("Failed to load courses");
         } finally {
@@ -155,20 +174,37 @@ export const AdminCourses: React.FC = () => {
             is_active: true, // Default active
             modules: []
         });
+        setExpandedModules([]);
         setView('editor');
         setActiveTab('general');
+        try {
+            sessionStorage.removeItem('admin_editing_course_id');
+            sessionStorage.setItem('admin_editing_course_tab', 'general');
+        } catch (_) {}
     };
 
     const handleEdit = (course: Course) => {
         setEditingCourse({ ...course });
+        // Expandir por defecto los módulos que tienen is_expanded_default activo
+        const defaultExpanded = (course.modules || [])
+            .filter(m => !!m.is_expanded_default)
+            .map(m => m.id);
+        setExpandedModules(defaultExpanded);
         setView('editor');
         setActiveTab('general');
+        try {
+            sessionStorage.setItem('admin_editing_course_id', course.id);
+            sessionStorage.setItem('admin_editing_course_tab', 'general');
+        } catch (_) {}
     };
 
     const handleDelete = async (id: string) => {
         if (confirm("¿Eliminar este curso? Esta acción no se puede deshacer.")) {
             await api.deleteCourse(id);
             setCourses(courses.filter(c => c.id !== id));
+            if (sessionStorage.getItem('admin_editing_course_id') === id) {
+                sessionStorage.removeItem('admin_editing_course_id');
+            }
         }
     };
 
@@ -194,6 +230,7 @@ export const AdminCourses: React.FC = () => {
         setLoading(true);
         try {
             await api.saveCourse(editingCourse as Course);
+            sessionStorage.removeItem('admin_editing_course_id');
             await loadCourses();
             setView('list');
         } catch (e) {
@@ -248,11 +285,58 @@ export const AdminCourses: React.FC = () => {
         setExpandedModules(prev => [...prev, newModule.id]);
     };
 
-    const toggleModuleDefaultExpanded = (id: string) => {
-        setEditingCourse(prev => ({
-            ...prev,
-            modules: prev.modules?.map(m => m.id === id ? { ...m, is_expanded_default: !m.is_expanded_default } : m)
-        }));
+    const toggleModuleDefaultExpanded = async (id: string) => {
+        const targetMod = editingCourse.modules?.find(m => m.id === id);
+        if (!targetMod) return;
+
+        const nextStatus = !targetMod.is_expanded_default;
+
+        // 1. Actualización optimista del estado del curso en edición
+        const updatedModules = (editingCourse.modules || []).map(m => 
+            m.id === id ? { ...m, is_expanded_default: nextStatus } : m
+        );
+        const updatedCourse = {
+            ...editingCourse,
+            modules: updatedModules
+        };
+        setEditingCourse(updatedCourse);
+
+        // 2. Sincronizar el acordeón visual en el editor de inmediato
+        if (nextStatus) {
+            setExpandedModules(prev => prev.includes(id) ? prev : [...prev, id]);
+        } else {
+            setExpandedModules(prev => prev.filter(mId => mId !== id));
+        }
+
+        // 3. Persistir de inmediato en la base de datos y caché
+        setSavingModuleId(id);
+        try {
+            if (editingCourse.id) {
+                await api.toggleModuleDefaultExpanded(editingCourse.id, id, nextStatus);
+                // Sincronizar también la lista principal de cursos
+                setCourses(prev => prev.map(c => String(c.id) === String(editingCourse.id) ? (updatedCourse as Course) : c));
+            }
+            setSavedModuleId(id);
+            setTimeout(() => {
+                setSavedModuleId(curr => curr === id ? null : curr);
+            }, 2500);
+        } catch (err) {
+            console.error("Error guardando estado de acordeón en base de datos:", err);
+            // Intento de respaldo: guardar el curso completo
+            if (editingCourse.id) {
+                try {
+                    await api.saveCourse(updatedCourse as Course);
+                    setSavedModuleId(id);
+                    setTimeout(() => {
+                        setSavedModuleId(curr => curr === id ? null : curr);
+                    }, 2500);
+                } catch (fallbackErr) {
+                    console.error("Error en respaldo saveCourse:", fallbackErr);
+                }
+            }
+        } finally {
+            setSavingModuleId(curr => curr === id ? null : curr);
+        }
     };
 
     const updateModule = (id: string, title: string) => {
@@ -400,7 +484,7 @@ export const AdminCourses: React.FC = () => {
     return (
         <div className="max-w-5xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
-                <button onClick={() => setView('list')} className="text-gray-400 hover:text-white flex items-center gap-2">
+                <button onClick={() => { setView('list'); sessionStorage.removeItem('admin_editing_course_id'); }} className="text-gray-400 hover:text-white flex items-center gap-2">
                     <ArrowLeft className="w-4 h-4" /> Volver
                 </button>
                 <div className="flex gap-4">
@@ -422,13 +506,13 @@ export const AdminCourses: React.FC = () => {
             <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
                 <div className="flex border-b border-gray-800">
                     <button 
-                        onClick={() => setActiveTab('general')}
+                        onClick={() => { setActiveTab('general'); sessionStorage.setItem('admin_editing_course_tab', 'general'); }}
                         className={`flex-1 py-4 text-sm font-bold text-center border-b-2 transition ${activeTab === 'general' ? 'border-primary text-white bg-gray-800' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
                     >
                         Información General
                     </button>
                     <button 
-                        onClick={() => setActiveTab('curriculum')}
+                        onClick={() => { setActiveTab('curriculum'); sessionStorage.setItem('admin_editing_course_tab', 'curriculum'); }}
                         className={`flex-1 py-4 text-sm font-bold text-center border-b-2 transition ${activeTab === 'curriculum' ? 'border-primary text-white bg-gray-800' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
                     >
                         Plan de Estudios (Temario)
@@ -535,15 +619,29 @@ export const AdminCourses: React.FC = () => {
                                                         e.stopPropagation();
                                                         toggleModuleDefaultExpanded(module.id);
                                                     }}
+                                                    disabled={savingModuleId === module.id}
                                                     className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border ${
                                                         module.is_expanded_default
                                                             ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
                                                             : 'bg-gray-800/80 text-gray-400 border-gray-700 hover:text-gray-300 hover:border-gray-600'
-                                                    }`}
+                                                    } ${savingModuleId === module.id ? 'opacity-70 cursor-wait' : ''}`}
                                                     title={module.is_expanded_default ? 'Este módulo iniciará abierto por defecto en el acordeón del curso' : 'Este módulo iniciará cerrado (no expandido) por defecto'}
                                                 >
-                                                    <span className={`w-2 h-2 rounded-full ${module.is_expanded_default ? 'bg-emerald-400 animate-pulse' : 'bg-gray-500'}`}></span>
-                                                    <span>{module.is_expanded_default ? 'Expandido al inicio' : 'Cerrado al inicio'}</span>
+                                                    {savingModuleId === module.id ? (
+                                                        <Loader2 className="w-3 h-3 animate-spin text-emerald-400" />
+                                                    ) : savedModuleId === module.id ? (
+                                                        <Check className="w-3 h-3 text-emerald-400" />
+                                                    ) : (
+                                                        <span className={`w-2 h-2 rounded-full ${module.is_expanded_default ? 'bg-emerald-400 animate-pulse' : 'bg-gray-500'}`}></span>
+                                                    )}
+                                                    <span>
+                                                        {savingModuleId === module.id 
+                                                            ? 'Guardando...' 
+                                                            : savedModuleId === module.id 
+                                                                ? (module.is_expanded_default ? '¡Guardado! (Expandido)' : '¡Guardado! (Cerrado)')
+                                                                : (module.is_expanded_default ? 'Expandido al inicio' : 'Cerrado al inicio')
+                                                        }
+                                                    </span>
                                                 </button>
 
                                                 <button onClick={(e) => { e.stopPropagation(); deleteModule(module.id); }} className="p-2 text-gray-500 hover:text-red-500 transition-colors" title="Eliminar módulo"><Trash2 className="w-4 h-4" /></button>
