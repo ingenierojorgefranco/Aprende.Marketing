@@ -74,6 +74,28 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   const displayLeadMagnetImage = tyConfig.leadMagnetImageUrl || defaultLeadMagnet?.imageUrl || (tyConfig as any).bookImageUrl || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80";
   const displayLeadMagnetDescription = tyConfig.leadMagnetDescription || defaultLeadMagnet?.description || "Únete a nuestro grupo privado de Whatsapp para acceder a nuestras mentorías y recibir tu material de preparación gratuito.";
 
+  // Formatear descripción preservando espaciado de párrafos y etiquetas HTML
+  const formatLeadMagnetHtml = (text: string): string => {
+      if (!text) return '';
+      // Si ya contiene etiquetas HTML de bloque como <p>, <br>, <div>
+      if (/<[a-z][\s\S]*>/i.test(text)) {
+          return text;
+      }
+      // Si viene como texto plano con saltos de línea (\n\n o \n), crear párrafos con espaciado
+      const paragraphs = text
+          .split(/\n\s*\n/)
+          .map(p => p.trim())
+          .filter(Boolean);
+
+      if (paragraphs.length > 0) {
+          return paragraphs
+              .map(p => `<p class="leading-relaxed text-gray-600 mb-4 last:mb-0">${p.replace(/\n/g, '<br />')}</p>`)
+              .join('');
+      }
+
+      return `<p class="leading-relaxed text-gray-600">${text}</p>`;
+  };
+
   // Registrar clic en el botón de WhatsApp
   const handleWhatsAppClick = () => {
       if (pageId) {
@@ -166,17 +188,6 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                                   Únete a nuestro grupo de Whatsapp y descarga nuestro libro gratuito
                               </h3>
 
-                              <p 
-                                  className="leading-relaxed text-gray-600" 
-                                  style={{
-                                      fontSize: '1.3em',
-                                      lineHeight: '1.5em',
-                                      paddingBottom: '1.5em',
-                                  }}
-                              >
-                                  {displayLeadMagnetDescription}
-                              </p>
-
                               {/* Pantallazo del PDF del Lead Magnet */}
                               <div className="w-full flex justify-center pb-6">
                                   <img 
@@ -219,6 +230,31 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                                           <span className="relative z-10">{tyConfig.ctaButtonText || "UNIRME AL GRUPO VIP"}</span>
                                       </a>
                                   </div>
+
+                                  {/* SECCIÓN DESCRIPTIVA DEL EBOOK (MÁS ABAJO DEL BOTÓN DE DESCARGA) */}
+                                  {displayLeadMagnetDescription && (
+                                      <div className="pt-8 border-t border-gray-100 text-left">
+                                          <div className="flex items-center gap-3 mb-6">
+                                              <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shrink-0 border border-green-200">
+                                                  <BookOpen className="w-5 h-5" />
+                                              </div>
+                                              <h4 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-snug">
+                                                  {tyConfig.leadMagnetDescriptionTitle || "¿De qué trata nuestro Ebook Digital Gratuito?"}
+                                              </h4>
+                                          </div>
+
+                                          <div 
+                                              className="leading-relaxed text-gray-600 text-base sm:text-lg [&>p]:mb-5 [&>p:last-child]:mb-0 font-normal"
+                                              style={{
+                                                  fontSize: '1.2em',
+                                                  lineHeight: '1.65em',
+                                              }}
+                                              dangerouslySetInnerHTML={{
+                                                  __html: formatLeadMagnetHtml(displayLeadMagnetDescription)
+                                              }}
+                                          />
+                                      </div>
+                                  )}
                               </div>
                           </div>
                       </div>

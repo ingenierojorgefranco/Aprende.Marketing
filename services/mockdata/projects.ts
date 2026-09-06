@@ -742,6 +742,8 @@ export const MICROBLADING_CONTENT: GeneratedPageContent = {
           "Elección incorrecta de aguja."
       ],
       ctaButtonText: "UNIRME AL GRUPO Y DESCARGAR",
+      leadMagnetDescriptionTitle: "¿De qué trata nuestro Ebook Digital Gratuito?",
+      leadMagnetDescription: `<p>Este ebook es una guía visual sobre los mejores acabados en microblading de cejas y muestra, mediante comparaciones de antes y después, cómo un diseño bien realizado puede aportar mayor definición, estructura, simetría, equilibrio y armonía al rostro sin perder naturalidad.</p><p>A lo largo de los diferentes casos se explica cómo pequeños ajustes en la forma, el arco, la dirección, la densidad y la cola de la ceja pueden transformar la expresión general y conseguir resultados más favorecedores.</p><p>También aprenderás que un acabado profesional no depende únicamente de rellenar la ceja, sino de combinar análisis del rostro, diseño, mapping, proporción, técnica, dirección de los trazos y criterio estético.</p><p>La guía ayuda a comprender qué elementos hay detrás de un resultado natural y equilibrado, y por qué la formación, la práctica guiada y el dominio de la técnica son fundamentales para pasar de un trabajo básico a un acabado realmente profesional.</p>`,
       
       // Extra
       learningTitle: "Lo que aprenderás con esta Guía",
@@ -792,7 +794,15 @@ export const MOCK_PROJECTS: Project[] = [
     multimedia_json: {
         heroImages: ["https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=800&q=80"],
         videoUrls: [],
-        descriptiveImages: []
+        descriptiveImages: [],
+        leadMagnets: [
+            {
+                name: "Ebook Digital Gratuito: Guía Visual de Acabados en Microblading",
+                url: "https://canva.link/jm7lbazd212a86j",
+                imageUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80",
+                description: `<p>Este ebook es una guía visual sobre los mejores acabados en microblading de cejas y muestra, mediante comparaciones de antes y después, cómo un diseño bien realizado puede aportar mayor definición, estructura, simetría, equilibrio y armonía al rostro sin perder naturalidad.</p><p>A lo largo de los diferentes casos se explica cómo pequeños ajustes en la forma, el arco, la dirección, la densidad y la cola de la ceja pueden transformar la expresión general y conseguir resultados más favorecedores.</p><p>También aprenderás que un acabado profesional no depende únicamente de rellenar la ceja, sino de combinar análisis del rostro, diseño, mapping, proporción, técnica, dirección de los trazos y criterio estético.</p><p>La guía ayuda a comprender qué elementos hay detrás de un resultado natural y equilibrado, y por qué la formación, la práctica guiada y el dominio de la técnica son fundamentales para pasar de un trabajo básico a un acabado realmente profesional.</p>`
+            }
+        ]
     }
   },
   {

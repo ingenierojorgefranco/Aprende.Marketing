@@ -342,6 +342,7 @@ export interface ThankYouPageConfig {
   leadMagnetUrl?: string;
   leadMagnetImageUrl?: string;
   leadMagnetDescription?: string;
+  leadMagnetDescriptionTitle?: string;
   
   // Legacy fields fallback
   ctaText?: string; 
