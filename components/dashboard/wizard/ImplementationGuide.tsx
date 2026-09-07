@@ -341,7 +341,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     { id: 5, title: "5. Tus videos de atracción (Hooks)", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)" },
     { id: 6, title: "6. Artículos de Blog", stage: 2 },
     { id: 7, title: "7. Email Marketing (Conversión)", stage: 2 },
-    { id: 8, title: "8. Email Marketing (Conversión)", stage: 2 },
+    { id: 8, title: "8. Email Marketing (Nutrición)", stage: 2 },
     { id: 9, title: "9. Lanzamientos (Estrategia WhatsApp)", stage: 2 },
   ];
 

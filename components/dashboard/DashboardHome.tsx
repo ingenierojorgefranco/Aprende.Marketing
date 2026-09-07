@@ -1,14 +1,57 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { 
     ChevronRight, ArrowRight, Play, Users, PlayCircle, Clock, Award, 
     CreditCard, Folder, CheckCircle2, Bot,
     ShieldCheck, Smartphone, Zap, Sparkles, Image as ImageIcon,
-    BookOpen, HelpCircle, Video, Compass, Crown
+    BookOpen, HelpCircle, Video, Compass, Crown, Lock, Unlock, Package
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { User, Project } from '../../types';
 import { NewsHistoryModal } from './NewsHistoryModal';
+
+const getOnboardingCardImage = (project: Project) => {
+    let mm: any = project.multimedia_json;
+    if (typeof mm === 'string') {
+        try { mm = JSON.parse(mm); } catch { mm = null; }
+    }
+    if (mm?.heroImages?.[0]) return mm.heroImages[0];
+    if ((project as any).image) return (project as any).image;
+    if (project.strategy_json?.visualIdentity?.logoUrl) return project.strategy_json.visualIdentity.logoUrl;
+    const lower = (project.name || '').toLowerCase();
+    if (lower.includes('microblading') || lower.includes('cejas')) {
+        return 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=800&q=80';
+    }
+    if (lower.includes('manicurista') || lower.includes('uñas') || lower.includes('maquillaje')) {
+        return 'https://images.unsplash.com/photo-1596951053942-862d31980696?auto=format&fit=crop&w=800&q=80';
+    }
+    if (lower.includes('resina') || lower.includes('pisos')) {
+        return 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80';
+    }
+    return null;
+};
+
+const getOnboardingCardTitle = (project: Project) => {
+    const nameLower = (project.name || '').toLowerCase();
+    if (nameLower.includes("microblading")) return "Certificación Expert Microblading";
+    if (nameLower.includes("manicurista")) return "Curso de Maquillaje Profesional";
+    if (nameLower.includes("pisos") || nameLower.includes("resina")) return "Master en Pisos de Resina Epóxica";
+    return project.name || "Producto Digital";
+};
+
+const getOnboardingCardDesc = (project: Project) => {
+    const nameLower = (project.name || '').toLowerCase();
+    if (nameLower.includes("microblading") || nameLower.includes("cejas")) {
+        return "Domina la técnica de cejas y crea un servicio rentable con alta demanda.";
+    }
+    if (nameLower.includes("manicurista") || nameLower.includes("maquillaje")) {
+        return "Aprende maquillaje, color y técnica profesional para realzar la belleza en cualquier ocasión.";
+    }
+    if (nameLower.includes("pisos") || nameLower.includes("resina")) {
+        return "Aprende acabados profesionales en pisos de resina y conviértelo en un servicio altamente rentable.";
+    }
+    return project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Aprende una habilidad de alta demanda y conviértela en un negocio rentable.");
+};
 
 interface DashboardContext {
     user: User;
@@ -16,11 +59,12 @@ interface DashboardContext {
     projectCount: number;
     articleCount: number;
     setShowProfileModal: (show: boolean) => void;
+    setShowUpgradeModal?: (show: boolean) => void;
 }
 
 export const DashboardHome: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setShowProfileModal, projectCount } = useOutletContext() as DashboardContext;
+  const { user, setShowProfileModal, setShowUpgradeModal, projectCount } = useOutletContext() as DashboardContext;
 
   const [summaryData, setSummaryData] = useState({
       totalVisits: 0,
@@ -29,6 +73,7 @@ export const DashboardHome: React.FC = () => {
       conversionRate: '0'
   });
   const [projects, setProjects] = useState<Project[]>([]);
+  const [masterLibrary, setMasterLibrary] = useState<Project[]>([]);
   const [academyCourses, setAcademyCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -37,13 +82,15 @@ export const DashboardHome: React.FC = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [summary, userProjects, courses] = await Promise.all([
+            const [summary, userProjects, courses, library] = await Promise.all([
                 api.getAnalyticsSummary(),
                 api.getProjects(),
-                api.getCoursesList()
+                api.getCoursesList(),
+                api.getMasterLibrary().catch(() => [])
             ]);
 
             setProjects(userProjects || []);
+            setMasterLibrary(library || []);
             setAcademyCourses((courses || []).slice(0, 3));
 
             const rate = summary.totalVisits > 0 
@@ -63,9 +110,27 @@ export const DashboardHome: React.FC = () => {
             setLoading(false);
         }
     };
-
     fetchData();
   }, []);
+
+  const lockedLibraryProjects = useMemo(() => {
+      const unlockedIds = new Set(
+          projects.map(p => String(p.masterParentId || p.id))
+      );
+
+      const locked = masterLibrary.filter(p => {
+          const isUnlocked = Boolean(p.isUnlocked) || unlockedIds.has(String(p.id));
+          return !isUnlocked;
+      });
+
+      const listToSort = locked.length > 0 ? locked : masterLibrary;
+
+      return [...listToSort].sort((a, b) => {
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          return dateB - dateA;
+      });
+  }, [masterLibrary, projects]);
 
   const planName = user?.planLimits?.planName || 'Starter';
   const isFree = planName.toLowerCase() === 'starter' || planName.toLowerCase() === 'gratis';
@@ -206,7 +271,13 @@ export const DashboardHome: React.FC = () => {
                       </p>
 
                       <button 
-                          onClick={() => setShowProfileModal(true)} 
+                          onClick={() => {
+                              if (setShowUpgradeModal) {
+                                  setShowUpgradeModal(true);
+                              } else {
+                                  setShowProfileModal(true);
+                              }
+                          }} 
                           className="w-full py-3.5 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-[#FF5A1F] via-[#FF6E2B] to-[#FF853A] text-white hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-[0_5px_20px_rgba(255,90,31,0.35)] cursor-pointer uppercase tracking-wider"
                       >
                           <Zap className="w-4 h-4 fill-current" /> Mejorar a Pro
@@ -246,9 +317,14 @@ export const DashboardHome: React.FC = () => {
                   </div>
 
                   <div>
-                      <button className="w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm bg-[#25D366] hover:bg-[#20bd5a] text-white transition-colors flex items-center justify-center gap-2 shadow-[0_4px_14px_rgba(37,211,102,0.25)] cursor-pointer">
+                      <a 
+                          href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm bg-[#25D366] hover:bg-[#20bd5a] text-white transition-colors flex items-center justify-center gap-2 shadow-[0_4px_14px_rgba(37,211,102,0.25)] cursor-pointer"
+                      >
                           <Smartphone className="w-4 h-4" /> Unirme al grupo VIP
-                      </button>
+                      </a>
                   </div>
               </div>
 
@@ -269,74 +345,129 @@ export const DashboardHome: React.FC = () => {
                           Biblioteca <span className="text-gray-500">/ Últimos cursos añadidos</span>
                       </h2>
                       <button onClick={() => navigate('/dashboard/projects')} className="text-[#FF5A1F] text-xs font-bold flex items-center gap-1 hover:underline">
-                          Ver todos mis proyectos <ArrowRight className="w-3.5 h-3.5" />
+                          Ver todos los proyectos <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                   </div>
 
-                  {projects.length === 0 && !loading ? (
+                  {lockedLibraryProjects.length === 0 && !loading ? (
                       <div className="py-12 flex flex-col items-center justify-center text-center">
                           <Folder className="w-16 h-16 text-slate-700 mb-4" />
-                          <h3 className="text-lg font-bold text-white mb-2">Aún no tienes proyectos</h3>
-                          <p className="text-gray-500 text-sm mb-6">Crea tu primer proyecto para empezar a generar embudos y reels.</p>
-                          <button onClick={() => navigate('/dashboard/projects/new')} className="bg-[#FF5A1F] hover:bg-[#E04D1A] text-white px-6 py-2 rounded-xl text-sm font-bold transition-colors">
-                              Crear mi primer proyecto
+                          <h3 className="text-lg font-bold text-white mb-2">No hay proyectos pendientes por desbloquear</h3>
+                          <p className="text-gray-500 text-sm mb-6">Todos los proyectos de la biblioteca están desbloqueados.</p>
+                          <button onClick={() => navigate('/dashboard/projects')} className="bg-[#FF5A1F] hover:bg-[#E04D1A] text-white px-6 py-2 rounded-xl text-sm font-bold transition-colors">
+                              Ver mis proyectos
                           </button>
                       </div>
                   ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                          {projects.slice(0, 3).map((project, idx) => {
-                              const progress = idx === 0 ? 85 : idx === 1 ? 62 : 92; // Mock progress for UI
-                              const isReview = idx === 1; // Mock status
-                              
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {lockedLibraryProjects.slice(0, 3).map((project) => {
+                              const isAlreadyUnlocked = Boolean(project.isUnlocked) || projects.some(p => String(p.masterParentId) === String(project.id));
+                              const projectImg = getOnboardingCardImage(project);
+                              const title = getOnboardingCardTitle(project);
+                              const desc = getOnboardingCardDesc(project);
+
                               return (
-                                  <div key={project.id || idx} className="bg-[#0F172A]/50 rounded-2xl border border-slate-800 overflow-hidden group flex flex-col">
-                                      {/* Project Cover */}
-                                      <div className="h-32 bg-slate-800 relative flex items-center justify-center overflow-hidden">
-                                          {project.strategy_json?.visualIdentity?.logoUrl ? (
-                                              <img src={project.strategy_json.visualIdentity.logoUrl} alt="Logo" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
-                                          ) : (
-                                              <ImageIcon className="w-10 h-10 text-slate-600" />
-                                          )}
-                                          <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] to-transparent"></div>
-                                      </div>
-                                      
-                                      <div className="p-5 flex-1 flex flex-col">
-                                          <h3 className="font-bold text-white text-base truncate mb-1">{project.name || project.productName}</h3>
-                                          <p className="text-xs text-gray-500 truncate mb-3">{project.niche || 'Marketing'}</p>
-                                          
-                                          {/* Status Badge */}
-                                          <div className="mb-4">
-                                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${
-                                                  isReview ? 'bg-blue-500/10 text-blue-400' : 'bg-emerald-500/10 text-emerald-400'
-                                              }`}>
-                                                  {isReview ? 'En revisión' : 'En línea'}
+                                  <div
+                                      key={`library-card-${project.id}`}
+                                      onClick={() => {
+                                          if (isAlreadyUnlocked) {
+                                              const userClone = projects.find(p => String(p.masterParentId) === String(project.id));
+                                              navigate(`/dashboard/projects/${userClone?.id || project.id}/strategy`);
+                                          } else {
+                                              navigate('/dashboard/projects');
+                                          }
+                                      }}
+                                      className={`group rounded-3xl p-5 md:p-6 flex flex-col justify-between h-full relative w-full cursor-pointer transition-all duration-300 space-y-4 ${
+                                          isAlreadyUnlocked
+                                              ? 'bg-gradient-to-b from-[#0c1a14]/90 to-[#07130e]/95 border-2 border-emerald-500/70 shadow-[0_0_30px_rgba(16,185,129,0.18)] hover:shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:border-emerald-400'
+                                              : 'bg-gradient-to-b from-[#181409]/90 to-[#100e06]/95 border-2 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.12)] hover:shadow-[0_0_40px_rgba(234,179,8,0.22)] hover:border-yellow-400'
+                                      }`}
+                                  >
+                                      {/* Header Badge: Estado (sin categoría, como se solicitó) */}
+                                      <div className="flex items-center justify-end">
+                                          {isAlreadyUnlocked ? (
+                                              <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-emerald-500/50">
+                                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Desbloqueado
                                               </span>
+                                          ) : (
+                                              <span className="px-3 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-yellow-500/50">
+                                                  <Lock className="w-3.5 h-3.5 text-yellow-400" /> Bloqueado
+                                              </span>
+                                          )}
+                                      </div>
+
+                                      {/* Cover Image Container */}
+                                      <div className="h-40 sm:h-44 bg-zinc-900 relative overflow-hidden rounded-2xl shrink-0 border border-zinc-800/60">
+                                          {projectImg ? (
+                                              <img
+                                                  src={projectImg}
+                                                  alt={title}
+                                                  referrerPolicy="no-referrer"
+                                                  onError={(e) => {
+                                                      const target = e.currentTarget;
+                                                      target.onerror = null;
+                                                      const fallback = title.toLowerCase().includes('resina')
+                                                          ? 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80'
+                                                          : 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=800&q=80';
+                                                      target.src = fallback;
+                                                  }}
+                                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                              />
+                                          ) : (
+                                              <div className="w-full h-full flex items-center justify-center bg-zinc-900">
+                                                  <Package className="w-10 h-10 text-zinc-700" />
+                                              </div>
+                                          )}
+                                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
+                                      </div>
+
+                                      {/* Text Content */}
+                                      <div className="flex-1 flex flex-col justify-between space-y-2">
+                                          <div>
+                                              <h3 className={`text-base sm:text-lg font-bold line-clamp-2 transition-colors duration-200 ${
+                                                  isAlreadyUnlocked ? 'text-white group-hover:text-emerald-400' : 'text-white group-hover:text-yellow-400'
+                                              }`}>
+                                                  {title}
+                                              </h3>
+                                              <p className="text-zinc-300 text-xs sm:text-sm mt-2 leading-relaxed font-normal line-clamp-3">
+                                                  {desc}
+                                              </p>
                                           </div>
-                                          
-                                          <div className="mt-auto">
-                                              <div className="flex justify-between items-end mb-2">
-                                                  <span className="text-[10px] text-gray-400 uppercase tracking-wider">Progreso de implementación</span>
-                                                  <span className="text-xs font-bold text-white">{progress}%</span>
-                                              </div>
-                                              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden mb-4">
-                                                  <div className="h-full bg-[#FF5A1F] rounded-full" style={{ width: `${progress}%` }}></div>
-                                              </div>
-                                              
-                                              <div className="flex justify-between items-center mb-4 text-xs">
-                                                  <span className="text-gray-500">Estado de página</span>
-                                                  <span className="flex items-center gap-1.5 font-medium text-gray-300">
-                                                      <span className={`w-2 h-2 rounded-full ${isReview ? 'bg-blue-500' : 'bg-emerald-500'}`}></span>
-                                                      {isReview ? 'En revisión' : 'Activa'}
-                                                  </span>
-                                              </div>
-                                              
-                                              <button 
-                                                  onClick={() => navigate(`/dashboard/projects/${project.id}/strategy`)}
-                                                  className="w-full py-2.5 rounded-xl border border-slate-700 hover:border-[#FF5A1F] text-gray-300 hover:text-[#FF5A1F] text-xs font-bold transition-colors flex items-center justify-center gap-2"
+                                      </div>
+
+                                      {/* Action Buttons */}
+                                      <div className="pt-2">
+                                          {isAlreadyUnlocked ? (
+                                              <button
+                                                  type="button"
+                                                  onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      const userClone = projects.find(p => String(p.masterParentId) === String(project.id));
+                                                      navigate(`/dashboard/projects/${userClone?.id || project.id}/strategy`);
+                                                  }}
+                                                  className="w-full py-3 px-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(16,185,129,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
                                               >
-                                                  Ver proyecto <ArrowRight className="w-3.5 h-3.5" />
+                                                  <span>VER PROYECTO</span>
+                                                  <ArrowRight className="w-4 h-4 shrink-0" />
                                               </button>
-                                          </div>
+                                          ) : (
+                                              <>
+                                                  <button
+                                                      type="button"
+                                                      onClick={(e) => {
+                                                          e.stopPropagation();
+                                                          navigate('/dashboard/projects');
+                                                      }}
+                                                      className="w-full py-3 px-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(234,179,8,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+                                                  >
+                                                      <Unlock className="w-4 h-4 shrink-0" />
+                                                      <span>DESBLOQUEAR PROYECTO</span>
+                                                  </button>
+                                                  <p className="text-center text-[10px] text-zinc-500 font-bold uppercase tracking-widest pt-2">
+                                                      Consume 1 cupo de proyecto en tu plan
+                                                  </p>
+                                              </>
+                                          )}
                                       </div>
                                   </div>
                               );
@@ -432,7 +563,7 @@ export const DashboardHome: React.FC = () => {
 
                   <div className="space-y-3">
                       <button 
-                          onClick={() => navigate('/dashboard/projects/create')}
+                          onClick={() => navigate('/dashboard/projects')}
                           className="w-full p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-[#FF5A1F]/40 transition-all flex items-center justify-between text-left group cursor-pointer"
                       >
                           <div className="flex items-center gap-3">
