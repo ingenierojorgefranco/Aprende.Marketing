@@ -87,6 +87,32 @@ const getCategoryIcon = (category?: string) => {
 export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loading: boolean, selectedProjectId?: string, isLocked?: boolean }> = ({ projects, loading, onNext, selectedProjectId, isLocked, onGoToStep }) => {
     const [confirmingProject, setConfirmingProject] = React.useState<any | null>(null);
     const [activeCategory, setActiveCategory] = React.useState('all');
+    const lastHandledTargetIdRef = React.useRef<string | null>(null);
+
+    // Auto-abrir modal de confirmación si viene un proyecto preseleccionado desde URL o ProjectsList
+    React.useEffect(() => {
+        if (!projects || projects.length === 0) return;
+
+        let targetId: string | null = null;
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            targetId = params.get('projectId') || localStorage.getItem('preselect_wizard_project_id');
+        }
+        if (!targetId && selectedProjectId) {
+            targetId = selectedProjectId;
+        }
+
+        if (targetId && targetId !== lastHandledTargetIdRef.current) {
+            const found = projects.find(p => p.id === targetId || String(p.id) === String(targetId));
+            if (found) {
+                setConfirmingProject(found);
+                lastHandledTargetIdRef.current = targetId;
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('preselect_wizard_project_id');
+                }
+            }
+        }
+    }, [projects, selectedProjectId]);
 
     // Categorías dinámicas extraídas de los proyectos disponibles
     const categories = React.useMemo(() => {

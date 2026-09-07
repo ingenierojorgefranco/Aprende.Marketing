@@ -203,19 +203,19 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       return "success";
     }
     if (typeof window !== "undefined") {
-      const forced = localStorage.getItem("force_wizard_step");
-      if (forced === "success") return "success";
-      
       const fullPath = window.location.pathname + window.location.hash + window.location.search;
-      if (fullPath.includes("step-3") || fullPath.includes("unlock")) {
-        return "unlock";
-      }
       if (fullPath.includes("step-2") || fullPath.includes("selection")) {
         return "selection";
       }
       if (fullPath.includes("step-1") || fullPath.includes("welcome")) {
         return "welcome";
       }
+      if (fullPath.includes("step-3") || fullPath.includes("unlock")) {
+        return "unlock";
+      }
+
+      const forced = localStorage.getItem("force_wizard_step");
+      if (forced === "success") return "success";
       if (forced === "unlock") return "unlock";
       if (forced === "selection") return "selection";
     }
@@ -870,10 +870,21 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   };
 
   useEffect(() => {
-    if (projects.length > 0 && !selectedProject) {
-      const storedId = typeof window !== "undefined" ? localStorage.getItem("selected_wizard_project_id") : null;
-      const found = projects.find((p) => p.id === storedId);
-      setSelectedProject(found || projects[0]);
+    if (projects.length > 0) {
+      const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+      const targetId = params?.get("projectId") || (typeof window !== "undefined" ? (localStorage.getItem("preselect_wizard_project_id") || localStorage.getItem("selected_wizard_project_id")) : null);
+      if (targetId) {
+        const found = projects.find((p) => p.id === targetId || String(p.id) === String(targetId));
+        if (found) {
+          if (selectedProject?.id !== found.id) {
+            setSelectedProject(found);
+          }
+          return;
+        }
+      }
+      if (!selectedProject) {
+        setSelectedProject(projects[0]);
+      }
     }
   }, [projects, selectedProject]);
 

@@ -243,6 +243,30 @@ export const ProjectsList: React.FC = () => {
         setUnlockStep('confirm');
     };
 
+    const handleAcceptAndContinueToWizard = () => {
+        if (!selectedMasterProject) return;
+        
+        const isRealAdmin = user.role === 'admin' && !isSimulating;
+        const maxProjectsCalculated = user.planLimits?.maxProjects || 1;
+        const totalActive = projects.length;
+
+        if (totalActive >= maxProjectsCalculated && !isRealAdmin) {
+            setShowUnlockProtocol(false);
+            setShowUpgradeModal(true);
+            return;
+        }
+
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('preselect_wizard_project_id', selectedMasterProject.id);
+            localStorage.setItem('selected_wizard_project_id', selectedMasterProject.id);
+            localStorage.setItem('force_wizard_step', 'selection');
+            localStorage.removeItem('wizard_dismissed');
+        }
+
+        setShowUnlockProtocol(false);
+        navigate(`/wizard/step-2?projectId=${selectedMasterProject.id}`);
+    };
+
     const handleFinalGeneration = async () => {
         if (!selectedMasterProject) return;
         
@@ -803,7 +827,7 @@ export const ProjectsList: React.FC = () => {
                                     </div>
                                     <div className="space-y-2">
                                         <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirmar Consumo de Créditos</h3>
-                                        <p className="text-white text-lg leading-relaxed font-medium max-w-xl">Al crear una nueva estrategia de consumirás 1 cupo de proyecto disponble de tu plan actual.</p>
+                                        <p className="text-white text-lg leading-relaxed font-medium max-w-xl">Al crear una nueva estrategia consumirás 1 cupo de proyecto disponible de tu plan actual.</p>
                                     </div>
                                 </div>
 
@@ -832,7 +856,7 @@ export const ProjectsList: React.FC = () => {
                                     {isAtLimit ? (
                                         <button onClick={() => { setShowUnlockProtocol(false); setShowUpgradeModal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase shadow-xl transform hover:scale-[1.02] transition-all">Actualizar Plan Pro <ArrowRight className="w-5 h-5" /></button>
                                     ) : (
-                                        <button onClick={handleFinalGeneration} className="flex-1 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-emerald-900/20 transform hover:scale-[1.02] active:scale-95 transition-all">Aceptar y Continuar</button>
+                                        <button onClick={handleAcceptAndContinueToWizard} className="flex-1 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-emerald-900/20 transform hover:scale-[1.02] active:scale-95 transition-all">Aceptar y Continuar</button>
                                     )}
                                 </div>
                             </div>
