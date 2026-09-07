@@ -381,27 +381,39 @@ export const DashboardLayout = ({
   const isSurveyPending = !hasCompletedSurvey && user.role !== 'admin';
   const isWizardRoute = location.pathname.startsWith('/wizard') || location.pathname.startsWith('/onboarding');
   
-  const isWizardCompleted = typeof window !== 'undefined' && localStorage.getItem('wizard_completed') === 'true';
+  const isWizardCompleted = typeof window !== 'undefined' && (
+    localStorage.getItem('wizard_completed') === 'true' ||
+    localStorage.getItem('wizard_dismissed') === 'true'
+  );
+  const isWizardDismissed = typeof window !== 'undefined' && localStorage.getItem('wizard_dismissed') === 'true';
   const hasUserActivity = projectCount > 0 || pageCount > 0;
-  const forcedWizardStep = typeof window !== 'undefined' ? localStorage.getItem('force_wizard_step') : null;
 
-  const showWizard = isWizardRoute || 
-    (forcedWizardStep && ['success', 'welcome', 'selection', 'unlock'].includes(forcedWizardStep)) || 
-    (wizardEnabled && !isSurveyPending && !isLaunchRestricted && user.role !== 'admin' && !isWizardCompleted && !hasUserActivity);
+  // showWizard SOLO debe ser true si la ruta actual es una ruta de wizard (/wizard/* o /onboarding)
+  const showWizard = isWizardRoute;
 
   useEffect(() => {
-    if (showWizard && location.pathname === '/dashboard' && !isSurveyPending && !isLaunchRestricted) {
-      if (forcedWizardStep === 'success' || forcedWizardStep === 'unlock') {
-        navigate('/wizard/step-3', { replace: true });
-      } else if (forcedWizardStep === 'selection') {
-        navigate('/wizard/step-2', { replace: true });
-      } else if (forcedWizardStep) {
-        navigate('/wizard/step-1', { replace: true });
-      } else if (!isWizardCompleted && !hasUserActivity) {
-        navigate('/wizard/step-1', { replace: true });
+    // Si el usuario navegó intencionalmente a cualquier ruta del dashboard, limpiar force_wizard_step
+    if (location.pathname.startsWith('/dashboard') && typeof window !== 'undefined') {
+      const forced = localStorage.getItem('force_wizard_step');
+      if (forced && forced !== 'success') {
+        localStorage.removeItem('force_wizard_step');
       }
     }
-  }, [showWizard, location.pathname, isSurveyPending, isLaunchRestricted, navigate, forcedWizardStep, isWizardCompleted, hasUserActivity]);
+
+    // Solo si es un usuario totalmente nuevo en /dashboard que nunca ha descartado el wizard, no tiene proyectos y está habilitado
+    if (
+      location.pathname === '/dashboard' &&
+      wizardEnabled &&
+      !isSurveyPending &&
+      !isLaunchRestricted &&
+      user.role !== 'admin' &&
+      !isWizardCompleted &&
+      !isWizardDismissed &&
+      !hasUserActivity
+    ) {
+      navigate('/wizard/step-1', { replace: true });
+    }
+  }, [location.pathname, isSurveyPending, isLaunchRestricted, navigate, isWizardCompleted, isWizardDismissed, hasUserActivity, wizardEnabled, user.role]);
 
   if (loadingMode) {
       return (

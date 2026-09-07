@@ -362,6 +362,24 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                         </div>
                     </div>
                 </div>
+
+                {/* Opción para explorar el dashboard directamente */}
+                <div className="flex justify-center pt-6 pb-2">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            if (typeof window !== "undefined") {
+                                localStorage.removeItem("force_wizard_step");
+                                localStorage.setItem("wizard_dismissed", "true");
+                            }
+                            window.location.href = "/dashboard";
+                        }}
+                        className="text-xs text-zinc-400 hover:text-[#FF5A1F] transition-colors flex items-center gap-1.5 cursor-pointer py-2 px-4 rounded-xl hover:bg-white/[0.04]"
+                    >
+                        <span>¿Prefieres explorar la plataforma primero?</span>
+                        <span className="font-bold text-zinc-300 hover:text-[#FF5A1F] underline">Ir al Panel de Control &rarr;</span>
+                    </button>
+                </div>
             </div>
 
             {/* Confirmation Modal (Image 2 content) */}

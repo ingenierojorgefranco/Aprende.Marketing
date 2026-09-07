@@ -23,6 +23,7 @@ import {
   ShieldCheck,
   Crown,
   Shield,
+  LayoutDashboard,
   X,
   Copy,
   ArrowLeft,
@@ -238,6 +239,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       localStorage.setItem("force_wizard_step", "unlock");
       navigate("/wizard/step-3");
     }
+  };
+
+  const handleExitToDashboard = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("force_wizard_step");
+      localStorage.setItem("wizard_dismissed", "true");
+    }
+    navigate("/dashboard");
   };
 
   useEffect(() => {
@@ -1298,7 +1307,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         {step === "success" ? (
           <>
             {/* Cabecera Premium en viewport principal */}
-            <div className="flex items-center gap-3">
+            <div 
+              onClick={handleExitToDashboard}
+              className="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity"
+              title="Ir al Panel Principal"
+            >
               <div className="bg-[#FF5A1F] h-9 w-[38px] rounded-lg flex items-center justify-center font-black text-white text-sm shadow-md shadow-[#FF5A1F]/20 select-none">
                 AM
               </div>
@@ -1307,7 +1320,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               </span>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 md:gap-4">
+              {/* Botón Ir al Dashboard */}
+              <button
+                onClick={handleExitToDashboard}
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-[#FF5A1F]/20 border border-white/10 hover:border-[#FF5A1F]/40 text-xs font-bold text-white transition-all cursor-pointer shadow-sm"
+                title="Volver al panel principal"
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                <span className="hidden sm:inline">Ir al Dashboard</span>
+              </button>
+
               {/* Notificaciones */}
               <button className="relative w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center hover:bg-white/[0.08] transition-all group">
                 <Bell className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" />
@@ -1331,7 +1354,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         ) : (
           <>
             {/* Logo a la izquierda */}
-            <div className="flex items-center gap-3">
+            <div 
+              onClick={handleExitToDashboard}
+              className="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity"
+              title="Ir al Panel Principal"
+            >
               <div className="bg-[#FF5A1F] rounded-lg flex items-center justify-center font-black text-white text-[11px] shadow-lg shadow-[#FF5A1F]/20 px-2 py-1 select-none">
                 AM
               </div>
@@ -1341,7 +1368,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             </div>
 
             {/* Perfil del Usuario en Cabecera (sin fondo, flotando) */}
-            <div className="flex items-center gap-3 sm:gap-4 z-10 font-sans">
+            <div className="flex items-center gap-2 sm:gap-3 z-10 font-sans">
+              {/* Botón Ir al Dashboard */}
+              <button
+                onClick={handleExitToDashboard}
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-[#FF5A1F]/20 border border-white/10 hover:border-[#FF5A1F]/40 text-xs font-bold text-white transition-all cursor-pointer shadow-sm"
+                title="Volver al panel principal"
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                <span className="hidden sm:inline">Ir al Dashboard</span>
+              </button>
+
               <div
                 className="flex items-center gap-2 sm:gap-3 pl-2 pr-1 py-1.5 rounded-full select-none"
               >
