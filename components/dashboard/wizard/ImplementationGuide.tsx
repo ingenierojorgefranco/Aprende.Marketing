@@ -1495,6 +1495,9 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
         activeOption={selectedCommercialOption}
         setActiveOption={setSelectedCommercialOption}
         strategyData={strategyData}
+        projectId={projectId || fullProject?.id}
+        projectUrl={projectUrl}
+        fullProject={fullProject}
       />
 
     </div>

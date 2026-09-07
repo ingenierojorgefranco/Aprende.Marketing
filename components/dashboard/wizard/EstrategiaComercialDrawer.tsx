@@ -6,6 +6,7 @@ import {
   CheckCircle, Globe, PenTool, FileText, Clapperboard, PlayCircle, ShoppingCart, Film, ArrowRight
 } from 'lucide-react';
 import { ProjectStrategy_Blueprint } from '../tools/ProjectStrategy/ProjectStrategy_Blueprint';
+import { api } from '../../../services/api';
 
 export type CommercialOptionId = 
   | "avatar" 
@@ -21,6 +22,9 @@ interface EstrategiaComercialDrawerProps {
   activeOption: CommercialOptionId | null;
   setActiveOption: (opt: CommercialOptionId | null) => void;
   strategyData?: any;
+  projectId?: string;
+  projectUrl?: string;
+  fullProject?: any;
 }
 
 const getSystemAvatars = (strategyData: any) => {
@@ -84,10 +88,14 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
   activeOption,
   setActiveOption,
   strategyData,
+  projectId,
+  projectUrl,
+  fullProject,
 }) => {
   const [avatarSubTab, setAvatarSubTab] = useState<"resumen" | "demografico" | "dolores" | "deseos" | "comportamientos">("resumen");
   const [activeAvatarIndex, setActiveAvatarIndex] = useState<number | null>(null);
   const [activeTestimonialIndex, setActiveTestimonialIndex] = useState<number>(-1);
+  const [resolvedSubdomain, setResolvedSubdomain] = useState<string>("");
 
   useEffect(() => {
     setActiveAvatarIndex(null);
@@ -95,6 +103,82 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
   const [editingTestimonialIndex, setEditingTestimonialIndex] = useState<number>(-1);
   const [editingTestimonialText, setEditingTestimonialText] = useState<string>("");
   const [isSavingTestimonial, setIsSavingTestimonial] = useState<boolean>(false);
+
+  // Determinar projectId efectivo
+  const effectiveProjectId = projectId || fullProject?.id || strategyData?.meta?.projectId || strategyData?.projectId || strategyData?.id || (() => {
+    if (typeof window !== "undefined") {
+      const match = window.location.hash.match(/projects\/([^\/\?#]+)/);
+      return match ? match[1] : "";
+    }
+    return "";
+  })();
+
+  // Cargar landing pages para encontrar el subdominio real del proyecto
+  useEffect(() => {
+    if (!isOpen) return;
+    let isMounted = true;
+
+    const loadPageSubdomain = async () => {
+      try {
+        const pages = await api.getPages();
+        if (!isMounted || !pages || pages.length === 0) return;
+
+        let found = null;
+        if (effectiveProjectId) {
+          found = pages.find((p: any) => String(p.projectId) === String(effectiveProjectId));
+        }
+        if (!found && fullProject?.subdomain) {
+          setResolvedSubdomain(fullProject.subdomain);
+          return;
+        }
+        if (!found && strategyData?.meta?.projectName) {
+          const pName = strategyData.meta.projectName.toLowerCase();
+          found = pages.find((p: any) => 
+            (p.name && p.name.toLowerCase().includes(pName)) ||
+            (p.title && p.title.toLowerCase().includes(pName))
+          );
+        }
+        if (!found && pages.length > 0) {
+          found = pages[0];
+        }
+
+        if (found && found.subdomain) {
+          setResolvedSubdomain(found.subdomain);
+        }
+      } catch (err) {
+        console.error("Error loading landing pages in EstrategiaComercialDrawer:", err);
+      }
+    };
+
+    loadPageSubdomain();
+    return () => { isMounted = false; };
+  }, [isOpen, effectiveProjectId, strategyData, fullProject]);
+
+  const getTestimonialPageUrl = () => {
+    if (projectUrl && projectUrl.trim()) {
+      const cleanUrl = projectUrl.replace(/\/$/, "");
+      return `${cleanUrl}#testimonios`;
+    }
+
+    const sub = resolvedSubdomain || fullProject?.subdomain || strategyData?.meta?.subdomain;
+    if (sub) {
+      const subdomainPart = sub.split(".")[0];
+      const isLocal =
+        typeof window !== "undefined" &&
+        (window.location.hostname === "localhost" ||
+          window.location.hostname.includes("ais-dev") ||
+          window.location.hostname.includes("run.app"));
+      const base = isLocal
+        ? `/admin/lp/${subdomainPart}`
+        : `https://aprende.marketing/admin/lp/${subdomainPart}`;
+      return `${base}#testimonios`;
+    }
+
+    if (effectiveProjectId) {
+      return `/#/dashboard/projects/${effectiveProjectId}/strategy?section=web#testimonios`;
+    }
+    return `https://aprende.marketing#testimonios`;
+  };
 
   const handleStartEditTestimonial = (idx: number, currentText: string) => {
     setEditingTestimonialIndex(idx);
@@ -106,19 +190,46 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
     setEditingTestimonialText("");
   };
 
-  const handleSaveTestimonial = (idx: number) => {
+  const handleSaveTestimonial = async (idx: number) => {
+    if (!editingTestimonialText.trim()) return;
     setIsSavingTestimonial(true);
-    setTimeout(() => {
-      if (strategyData?.modules?.testimonials && strategyData.modules.testimonials[idx]) {
-        strategyData.modules.testimonials[idx].text = editingTestimonialText;
-        strategyData.modules.testimonials[idx].quote = editingTestimonialText;
-      } else if (strategyData?.testimonials && strategyData.testimonials[idx]) {
-        strategyData.testimonials[idx].text = editingTestimonialText;
-        strategyData.testimonials[idx].quote = editingTestimonialText;
+    try {
+      const rawTestimonials = [
+        ...(strategyData?.modules?.testimonials ||
+          strategyData?.testimonials ||
+          [])
+      ];
+
+      if (rawTestimonials[idx]) {
+        if (typeof rawTestimonials[idx] === 'string') {
+          rawTestimonials[idx] = editingTestimonialText;
+        } else {
+          rawTestimonials[idx] = {
+            ...rawTestimonials[idx],
+            text: editingTestimonialText,
+            msg: editingTestimonialText,
+            quote: editingTestimonialText
+          };
+        }
+      } else {
+        rawTestimonials[idx] = { text: editingTestimonialText, msg: editingTestimonialText, quote: editingTestimonialText };
       }
-      setIsSavingTestimonial(false);
+
+      if (strategyData) {
+        if (!strategyData.modules) strategyData.modules = {};
+        strategyData.modules.testimonials = rawTestimonials;
+        strategyData.testimonials = rawTestimonials;
+      }
+
+      if (effectiveProjectId) {
+        await api.updateProjectTestimonials(effectiveProjectId, rawTestimonials);
+      }
       setEditingTestimonialIndex(-1);
-    }, 400);
+    } catch (err) {
+      console.error("Error saving testimonial in EstrategiaComercialDrawer:", err);
+    } finally {
+      setIsSavingTestimonial(false);
+    }
   };
 
   const activeProjectName = strategyData?.meta?.projectName || "Curso Profesional";
@@ -1078,6 +1189,14 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
                                                 >
                                                   <PenTool className="w-4 h-4" /> Editar
                                                 </button>
+                                                <a
+                                                  href={getTestimonialPageUrl()}
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  className="flex items-center gap-2 px-4 py-2.5 text-xs md:text-sm text-[#FF5D1E] hover:text-[#ff743c] bg-[#FF5D1E]/10 hover:bg-[#FF5D1E]/20 border border-[#FF5D1E]/30 hover:border-[#FF5D1E]/50 rounded-xl transition-all font-bold cursor-pointer"
+                                                >
+                                                  <Globe className="w-4 h-4" /> Ver testimonio
+                                                </a>
                                               </div>
                                             )}
                                           </div>

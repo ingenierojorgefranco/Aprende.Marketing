@@ -63,6 +63,25 @@ export const TrainingViewer: React.FC = () => {
   const [loadingComments, setLoadingComments] = useState(false);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
+  // Projects State to determine if user already created projects
+  const [hasProjects, setHasProjects] = useState<boolean>(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const checkUserProjects = async () => {
+      try {
+        const projects = await api.getProjects();
+        if (isMounted && Array.isArray(projects)) {
+          setHasProjects(projects.length > 0);
+        }
+      } catch (err) {
+        console.error("Error loading projects in TrainingViewer:", err);
+      }
+    };
+    checkUserProjects();
+    return () => { isMounted = false; };
+  }, []);
+
   // Load Course Data
   useEffect(() => {
       if (moduleId) {
@@ -387,8 +406,42 @@ export const TrainingViewer: React.FC = () => {
           {/* Current Lesson Info */}
           {currentLesson && (
               <div className="animate-in fade-in slide-in-from-top-4 mt-6">
-                  {currentLesson.cta_title && currentLesson.cta_url && (
-                      <div className="flex justify-center mb-8">
+                  {currentLesson.cta_title && currentLesson.cta_url && (() => {
+                      const isOnboardingOrProjectCta = 
+                        currentLesson.cta_url.includes("onboarding") || 
+                        currentLesson.cta_title.toLowerCase().includes("primer proyecto") ||
+                        currentLesson.cta_title.toLowerCase().includes("crea tu");
+
+                      if (isOnboardingOrProjectCta) {
+                        if (hasProjects) {
+                          return (
+                            <div className="flex justify-center mb-8">
+                              <Link
+                                to="/dashboard/projects"
+                                className="bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-black py-4 px-10 rounded-2xl shadow-xl shadow-[#FF5A1F]/20 transition-all hover:scale-105 active:scale-95 text-lg sm:text-xl text-center w-full sm:w-auto"
+                              >
+                                Ver mis proyectos
+                              </Link>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="flex justify-center mb-8">
+                            <a 
+                              href={currentLesson.cta_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-black py-4 px-10 rounded-2xl shadow-xl shadow-[#FF5A1F]/20 transition-all hover:scale-105 active:scale-95 text-lg sm:text-xl text-center w-full sm:w-auto"
+                            >
+                              {currentLesson.cta_title}
+                            </a>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="flex justify-center mb-8">
                           <a 
                             href={currentLesson.cta_url}
                             target="_blank"
@@ -397,8 +450,9 @@ export const TrainingViewer: React.FC = () => {
                           >
                             {currentLesson.cta_title}
                           </a>
-                      </div>
-                  )}
+                        </div>
+                      );
+                  })()}
 
                   <h2 className="text-3xl font-bold text-white mb-3">{currentLesson.title}</h2>
                   <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400 mb-6">

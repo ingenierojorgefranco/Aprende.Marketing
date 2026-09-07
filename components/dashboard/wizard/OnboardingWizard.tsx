@@ -5681,20 +5681,20 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                                 </div>
                                               ) : (
                                                 <div className="flex items-center gap-3 flex-wrap">
-                                                  <a
-                                                    href={`${getPageUrl()}#testimonios`}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="flex items-center gap-2 px-4 py-2.5 text-xs md:text-sm text-[#FF5D1E] hover:text-[#ff743c] bg-[#FF5D1E]/5 hover:bg-[#FF5D1E]/10 border border-[#FF5D1E]/30 hover:border-[#FF5D1E]/50 rounded-xl transition-all font-bold cursor-pointer"
-                                                  >
-                                                    <Globe className="w-4 h-4" /> Ver en la web
-                                                  </a>
                                                   <button
                                                     onClick={() => handleStartEditTestimonial(idx, textMsg)}
                                                     className="flex items-center gap-2 px-4 py-2.5 text-xs md:text-sm text-zinc-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 hover:border-white/15 rounded-xl transition-all font-bold cursor-pointer"
                                                   >
                                                     <PenTool className="w-4 h-4" /> Editar
                                                   </button>
+                                                  <a
+                                                    href={`${getPageUrl()}#testimonios`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="flex items-center gap-2 px-4 py-2.5 text-xs md:text-sm text-[#FF5D1E] hover:text-[#ff743c] bg-[#FF5D1E]/10 hover:bg-[#FF5D1E]/20 border border-[#FF5D1E]/30 hover:border-[#FF5D1E]/50 rounded-xl transition-all font-bold cursor-pointer"
+                                                  >
+                                                    <Globe className="w-4 h-4" /> Ver testimonio
+                                                  </a>
                                                 </div>
                                               )}
                                             </div>

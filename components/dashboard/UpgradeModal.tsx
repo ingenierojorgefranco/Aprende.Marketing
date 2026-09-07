@@ -61,11 +61,31 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
     }
   }, [isOpen]);
 
-  const handleUpgrade = async (plan: Plan) => {
-    setProcessing(plan.slug);
-    console.log(`[UpgradeModal] Iniciando proceso de pago para plan: ${plan.slug} vía ${activePaymentMethod}`);
+  const handleUpgrade = async (planOrSlug: Plan | string) => {
+    const slug = typeof planOrSlug === 'string' ? planOrSlug : planOrSlug.slug;
+    setProcessing(slug);
+    console.log(`[UpgradeModal] Iniciando proceso de pago para plan: ${slug} vía ${activePaymentMethod}`);
 
     try {
+      let plan: Plan | undefined = typeof planOrSlug === 'object' 
+        ? planOrSlug 
+        : plans.find(p => p.slug === slug || p.slug.includes(slug));
+
+      if (!plan) {
+        plan = {
+          id: slug,
+          slug: slug,
+          name: slug === 'max' || slug === 'plan-max' ? 'Plan Max' : (slug === 'pro' || slug === 'plan-pro' ? 'Plan Pro' : 'Plan'),
+          priceMonthly: slug === 'max' || slug === 'plan-max' ? 49 : 29,
+          currency: 'USD',
+          description: '',
+          limitsConfig: {} as any,
+          uiFeatures: [],
+          isActive: true,
+          isRecommended: slug.includes('max')
+        } as unknown as Plan;
+      }
+
       if (activePaymentMethod === 'hotmart') {
         if (plan.hotmartId) {
           const finalUserId = user?.id || userId || localStorage.getItem('plataformadeventacom_user_id') || '0';
@@ -120,13 +140,13 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
         id="upgrade-modal-overlay"
       />
 
-      {/* Main Slide-over Panel pulling from the right */}
+      {/* Main Slide-over Panel pulling from the right - Widened for 3-plan Ecomhunt layout */}
       <motion.div
         initial={{ x: '100%', opacity: 0.8 }}
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: '100%', opacity: 0.8 }}
         transition={{ type: 'spring', damping: 30, stiffness: 180 }}
-        className="relative w-full max-w-[95vw] md:max-w-[85vw] lg:max-w-[75vw] xl:max-w-[65vw] h-full bg-[#050505] text-white flex flex-col border-l border-white/5 overflow-y-auto custom-scrollbar z-10 shadow-2xl"
+        className="relative w-full max-w-[98vw] lg:max-w-[95vw] xl:max-w-[92vw] 2xl:max-w-[1600px] h-full bg-[#050505] text-white flex flex-col border-l border-white/5 overflow-y-auto custom-scrollbar z-10 shadow-2xl"
         id="upgrade-modal-panel"
       >
         {/* Sticky Header styled after Image 2 */}
@@ -155,7 +175,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
         </header>
 
         {/* Content Container */}
-        <main className="max-w-7xl mx-auto w-full px-4 md:px-8 py-8 md:py-12 flex-1 flex flex-col gap-12">
+        <main className="max-w-[1500px] mx-auto w-full px-4 md:px-8 py-8 md:py-12 flex-1 flex flex-col gap-10">
           
           {loading ? (
             <div className="flex-1 flex items-center justify-center text-gray-500 flex-col gap-4 py-20">
@@ -164,282 +184,373 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             </div>
           ) : (
             <>
-              {/* Dual Column Layout: Left Overview + Right Focus Panel */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
-                
-                {/* 1. Left Column: Account Details & Limits */}
-                <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
-                  
-                  {/* Item 1: Lo que ya construiste */}
-                  <div className="bg-[#0c0c0e] border border-white/5 p-6 rounded-3xl space-y-4 shadow-xl">
-                    <h3 className="text-white text-base font-extrabold tracking-tight">Lo que ya construiste</h3>
-                    
-                    <div className="flex gap-4 p-4 bg-white/[0.02] border border-white/5 rounded-2xl items-center">
-                      <div className="w-12 h-12 bg-[#FF5A1F]/10 rounded-xl border border-[#FF5A1F]/20 flex items-center justify-center font-bold text-[#FF5A1F] shrink-0">
-                        <BookOpen className="w-6 h-6" />
-                      </div>
-                      <div className="overflow-hidden">
-                        <h4 className="text-white text-sm font-extrabold tracking-tight truncate">
-                          {project?.name || "Curso Profesional de Microblading de Cejas"}
-                        </h4>
-                        <div className="flex items-center gap-1.5 mt-1.5">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                          <span className="text-emerald-400 text-[11px] font-bold">Página publicada</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <ul className="space-y-3.5">
-                      {[
-                        "Estrategia preparada",
-                        "Página de captación publicada",
-                        "3 de 3 reels utilizados",
-                        "1 proyecto activo"
-                      ].map((item, idx) => (
-                        <li key={idx} className="flex gap-3 text-sm items-center text-gray-300 font-semibold">
-                          <div className="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/10">
-                            <Check className="w-3.5 h-3.5" />
-                          </div>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
+              {/* Context Banner: Estado de tu cuenta y proyecto actual */}
+              <div className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 bg-[#FF5A1F]/10 rounded-xl border border-[#FF5A1F]/20 flex items-center justify-center font-bold text-[#FF5A1F] shrink-0">
+                    <BookOpen className="w-5 h-5" />
                   </div>
-
-                  {/* Item 2: Límites del plan gratuito */}
-                  <div className="bg-[#0c0c0e] border border-white/5 p-6 rounded-3xl space-y-4 shadow-xl">
-                    <h3 className="text-white text-base font-extrabold tracking-tight">Has alcanzado los límites de tu plan gratuito</h3>
-                    <div className="space-y-1">
-                      {[
-                        { name: 'Proyectos activos', val: '1 de 1', accent: true },
-                        { name: 'Reels utilizados', val: '3 de 3', accent: true },
-                        { name: 'Artículos disponibles este mes', val: '1 de 1', accent: true },
-                        { name: 'Email marketing', val: 'No incluido', accent: false },
-                        { name: 'Secuencias de WhatsApp', val: 'No incluido', accent: false }
-                      ].map((lim, idx) => (
-                        <div key={idx} className="flex justify-between items-center text-sm py-3 border-b border-white/[0.03] last:border-0">
-                          <span className="text-gray-300 flex items-center gap-2.5">
-                            <Lock className="w-4 h-4 text-gray-600 shrink-0" />
-                            {lim.name}
-                          </span>
-                          <span className={`${lim.accent ? 'text-amber-500 font-extrabold' : 'text-gray-600 hover:text-gray-500 transition-colors'}`}>{lim.val}</span>
-                        </div>
-                      ))}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-white text-sm font-extrabold tracking-tight truncate max-w-md">
+                        {project?.name || "Curso Profesional"}
+                      </h4>
+                      <span className="flex items-center gap-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Página activa
+                      </span>
                     </div>
+                    <p className="text-xs text-gray-400 mt-0.5 font-medium">
+                      Plan actual: <span className="text-gray-200 font-bold">Free (1 proyecto activo)</span> · 3 reels utilizados
+                    </p>
                   </div>
-
-                  {/* Item 3: Tu siguiente oportunidad */}
-                  <div className="relative overflow-hidden bg-gradient-to-br from-[#121215] to-[#08080a] border border-white/5 p-6 rounded-3xl shadow-xl">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF5A1F]/5 blur-3xl rounded-full pointer-events-none"></div>
-                    <div className="flex gap-4 relative z-10">
-                      <div className="w-10 h-10 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 rounded-xl flex items-center justify-center text-[#FF5A1F] shrink-0 mt-0.5 shadow-md">
-                        <Zap className="w-5 h-5 fill-[#FF5A1F]/10" />
-                      </div>
-                      <div className="space-y-1.5 flex-1">
-                        <h4 className="text-sm font-extrabold text-white tracking-tight">Tu siguiente oportunidad</h4>
-                        <p className="text-xs text-gray-400 leading-relaxed font-semibold">
-                          Tu página ya puede captar registros. Con Pro podrás hacer seguimiento automático a esas personas y convertirlas en clientes con emails, WhatsApp y automatizaciones.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
 
-                {/* 2. Right Column: Plan conversion center card */}
-                <div className="lg:col-span-8 bg-[#0c0c0e] border-2 border-[#FF5A1F]/30 rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden flex flex-col gap-8 shadow-2xl shadow-[#FF5A1F]/5">
-                  {/* Recommended Ribbon */}
-                  <div className="text-center">
-                    <span className="bg-[#FF5A1F] text-white text-[10px] font-black px-4.5 py-1.5 rounded-full uppercase tracking-widest inline-block shadow-md shadow-[#FF5A1F]/20 border border-white/10 font-mono">
-                      RECOMENDADO PARA CONTINUAR
+                <div className="flex items-center gap-2 text-xs text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-3.5 py-2 rounded-xl">
+                  <Lock className="w-4 h-4 shrink-0" />
+                  <span>Has alcanzado el límite de 1 proyecto del plan gratuito</span>
+                </div>
+              </div>
+
+              {/* Heading & Billing Switch (Ecomhunt style) */}
+              <div className="text-center space-y-4 max-w-3xl mx-auto">
+                <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
+                  Elige el plan ideal para ti
+                </h2>
+                <p className="text-gray-400 text-sm md:text-base font-semibold">
+                  Escala tu negocio digital con las herramientas adecuadas. Cancela o cambia de plan en cualquier momento.
+                </p>
+
+                {/* Switch Mensual vs Anual */}
+                <div className="pt-2 flex items-center justify-center">
+                  <div className="p-1 bg-zinc-900/90 border border-zinc-800 rounded-2xl inline-flex items-center shadow-inner">
+                    <button
+                      type="button"
+                      onClick={() => setBillingPeriod('monthly')}
+                      className={`py-2 px-5 rounded-xl text-sm font-extrabold transition-all duration-200 cursor-pointer ${billingPeriod === 'monthly' ? 'bg-[#FF5A1F] text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
+                    >
+                      Mensual
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBillingPeriod('yearly')}
+                      className={`py-2 px-5 rounded-xl text-sm font-extrabold transition-all duration-200 flex items-center gap-2 cursor-pointer ${billingPeriod === 'yearly' ? 'bg-[#FF5A1F] text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
+                    >
+                      <span>Anual</span>
+                      <span className="bg-emerald-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        Ahorra 2 meses
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3 Plan Cards Grid (Ecomhunt style) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch w-full">
+                
+                {/* 1. PLAN FREE */}
+                <div className="bg-[#0c0c0e] border border-white/5 rounded-3xl p-6 sm:p-8 flex flex-col justify-between gap-6 shadow-xl relative hover:border-white/10 transition-colors">
+                  <div className="space-y-5">
+                    <div className="border-b border-white/5 pb-5">
+                      <span className="text-xs font-mono font-black text-gray-400 uppercase tracking-widest">Plan Básico</span>
+                      <h3 className="text-2xl font-black text-white mt-1">FREE</h3>
+                      <div className="flex items-baseline gap-1 mt-3">
+                        <span className="text-4xl font-black text-white">$0</span>
+                        <span className="text-sm font-bold text-gray-500">/mes</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1 font-medium">Totalmente gratuito para siempre</p>
+                    </div>
+
+                    <p className="text-xs text-gray-400 font-medium leading-relaxed">
+                      Diseñado para probar la plataforma y poner en marcha tu primer proyecto.
+                    </p>
+
+                    <div className="space-y-3 pt-2">
+                      <p className="text-[11px] font-black text-gray-400 uppercase tracking-wider font-mono">Incluye:</p>
+                      <ul className="space-y-2.5 text-xs text-gray-300 font-medium">
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong>1 proyecto</strong> activo</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong>3 reels</strong> al mes con IA</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong>1 artículo</strong> mensual de blog</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>Página de captación publicada</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>Acceso a la Academia básica</span>
+                        </li>
+                        <li className="flex items-center gap-2.5 text-gray-600">
+                          <X className="w-4 h-4 text-gray-600 shrink-0" />
+                          <span className="line-through">Email marketing y secuencias</span>
+                        </li>
+                        <li className="flex items-center gap-2.5 text-gray-600">
+                          <X className="w-4 h-4 text-gray-600 shrink-0" />
+                          <span className="line-through">Secuencias de WhatsApp</span>
+                        </li>
+                        <li className="flex items-center gap-2.5 text-gray-600">
+                          <X className="w-4 h-4 text-gray-600 shrink-0" />
+                          <span className="line-through">Múltiples proyectos</span>
+                        </li>
+                        <li className="flex items-center gap-2.5 text-gray-600">
+                          <X className="w-4 h-4 text-gray-600 shrink-0" />
+                          <span className="line-through">Mentorías grupales</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/5">
+                    <button
+                      type="button"
+                      disabled
+                      className="w-full py-3.5 px-4 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-500 font-bold text-sm cursor-not-allowed text-center"
+                    >
+                      Tu Plan Actual
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. PLAN PRO ($29/mes - 1 proyecto) */}
+                <div className="bg-[#0c0c0e] border border-white/10 rounded-3xl p-6 sm:p-8 flex flex-col justify-between gap-6 shadow-xl relative hover:border-white/20 transition-all group">
+                  <div className="space-y-5">
+                    <div className="border-b border-white/5 pb-5">
+                      <span className="text-xs font-mono font-black text-[#FF5A1F] uppercase tracking-widest">Automatización Total</span>
+                      <h3 className="text-2xl font-black text-white mt-1">PRO</h3>
+                      <div className="flex items-baseline gap-1 mt-3">
+                        <span className="text-4xl font-black text-white">
+                          {billingPeriod === 'monthly' ? '$29' : '$24'}
+                        </span>
+                        <span className="text-sm font-bold text-gray-500">/mes</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1 font-medium">
+                        {billingPeriod === 'monthly' ? 'Facturado $29 al mes' : 'Facturado $290 al año (Ahorra $58)'}
+                      </p>
+                    </div>
+
+                    <p className="text-xs text-gray-300 font-medium leading-relaxed">
+                      Admite <strong className="text-white">1 proyecto</strong> con todas las automatizaciones de ventas, correos y contenidos.
+                    </p>
+
+                    <div className="space-y-3 pt-2">
+                      <p className="text-[11px] font-black text-[#FF5A1F] uppercase tracking-wider font-mono">Todo lo de Free, más:</p>
+                      <ul className="space-y-2.5 text-xs text-gray-200 font-medium">
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong>1 proyecto</strong> con acceso completo</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong>30 reels mensuales</strong> con hooks y guiones</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong>15 artículos mensuales</strong> para SEO</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong>Email marketing automatizado</strong> (nutrición y venta)</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong>Secuencias de WhatsApp</strong> para lanzamientos</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong>Páginas de captación ilimitadas</strong> x proyecto</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>Integración con Systeme.io y Webhooks</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>Soporte prioritario por chat</span>
+                        </li>
+                        <li className="flex items-center gap-2.5 text-gray-600">
+                          <X className="w-4 h-4 text-gray-600 shrink-0" />
+                          <span className="line-through">Múltiples proyectos (solo 1 proyecto)</span>
+                        </li>
+                        <li className="flex items-center gap-2.5 text-gray-600">
+                          <X className="w-4 h-4 text-gray-600 shrink-0" />
+                          <span className="line-through">Mentorías grupales</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/5">
+                    <button
+                      type="button"
+                      onClick={() => handleUpgrade('pro')}
+                      disabled={processing === 'pro'}
+                      className="w-full py-3.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-black text-sm transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 group-hover:border group-hover:border-white/20 active:scale-[0.98]"
+                    >
+                      {processing === 'pro' ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Procesando...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Elegir Plan Pro</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3. PLAN MAX ($49/mes - Múltiples proyectos ilimitados + mentorías) - RECOMENDADO */}
+                <div className="bg-gradient-to-b from-[#1b120c] via-[#0f0c0a] to-[#070708] border-2 border-[#FF5A1F] rounded-3xl p-6 sm:p-8 flex flex-col justify-between gap-6 shadow-[0_0_40px_rgba(255,90,31,0.18)] relative transition-all duration-300 hover:shadow-[0_0_50px_rgba(255,90,31,0.28)]">
+                  {/* Badge Popular / Recomendado */}
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
+                    <span className="bg-emerald-500 text-black text-[10px] font-black px-4 py-1 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1 font-mono">
+                      ★ POPULAR & RECOMENDADO
                     </span>
                   </div>
 
-                  {/* Title and pitch */}
-                  <div className="text-center space-y-4">
-                    <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
-                      Aprende Marketing <span className="text-[#FF5A1F]">Pro</span>
-                    </h2>
-                    <p className="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed font-semibold">
-                      Automatiza el seguimiento, mantén tu contenido activo y gestiona hasta tres proyectos desde una sola plataforma.
-                    </p>
-                  </div>
-
-                  {/* Switch Monthly vs Yearly */}
-                  <div className="space-y-6">
-                    <div className="p-1.5 bg-black/50 border border-white/5 rounded-2xl grid grid-cols-2 max-w-md mx-auto relative shadow-inner">
-                      <button 
-                        type="button"
-                        onClick={() => setBillingPeriod('monthly')}
-                        className={`py-3.5 px-4 rounded-xl flex flex-col items-center justify-center transition-all duration-300 ${billingPeriod === 'monthly' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/[0.02]'}`}
-                      >
-                        <span className="text-sm font-bold tracking-tight">Mensual</span>
-                        <span className={`text-xs mt-0.5 font-semibold ${billingPeriod === 'monthly' ? 'text-white/80' : 'text-gray-500'}`}>USD 39 / mes</span>
-                      </button>
-                      <button 
-                        type="button"
-                        onClick={() => setBillingPeriod('yearly')}
-                        className={`py-3.5 px-4 rounded-xl flex flex-col items-center justify-center transition-all duration-300 relative ${billingPeriod === 'yearly' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/[0.02]'}`}
-                      >
-                        <span className="absolute -top-3.5 right-2 bg-emerald-500 text-black text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md">
-                          Ahorra 2 meses
+                  <div className="space-y-5">
+                    <div className="border-b border-white/10 pb-5 pt-1">
+                      <span className="text-xs font-mono font-black text-[#FF5A1F] uppercase tracking-widest flex items-center gap-1">
+                        <Crown className="w-3.5 h-3.5 text-[#FF5A1F]" /> Acceso Completo VIP
+                      </span>
+                      <h3 className="text-2xl font-black text-white mt-1 flex items-center gap-2">
+                        MAX <Sparkles className="w-5 h-5 text-[#FF5A1F]" />
+                      </h3>
+                      <div className="flex items-baseline gap-1 mt-3">
+                        <span className="text-4xl font-black text-white">
+                          {billingPeriod === 'monthly' ? '$49' : '$39'}
                         </span>
-                        <span className="text-sm font-bold tracking-tight">Anual</span>
-                        <span className={`text-xs mt-0.5 font-semibold ${billingPeriod === 'yearly' ? 'text-white/80' : 'text-gray-500'}`}>USD 390 / año</span>
-                      </button>
-                    </div>
-
-                    {/* Prominent Pricing display */}
-                    <div className="text-center space-y-1">
-                      <div className="flex items-baseline justify-center gap-1.5">
-                        <span className="text-5xl md:text-6xl font-black text-white tracking-tighter">
-                          {billingPeriod === 'monthly' ? 'USD 39' : 'USD 390'}
-                        </span>
-                        <span className="text-lg text-gray-400 font-bold uppercase tracking-wider">/{billingPeriod === 'monthly' ? 'mes' : 'año'}</span>
+                        <span className="text-sm font-bold text-gray-400">/mes</span>
                       </div>
-                      <p className="text-xs text-gray-500 font-semibold tracking-wide">Cancela en cualquier momento.</p>
+                      <p className="text-xs text-gray-400 mt-1 font-medium">
+                        {billingPeriod === 'monthly' ? 'Facturado $49 al mes' : 'Facturado $490 al año (Ahorra $98)'}
+                      </p>
+                    </div>
+
+                    <p className="text-xs text-gray-200 font-medium leading-relaxed">
+                      Crea <strong className="text-[#FF5A1F]">múltiples proyectos ilimitadamente</strong> y participa en <strong className="text-white">mentorías grupales en vivo</strong>.
+                    </p>
+
+                    <div className="space-y-3 pt-2">
+                      <p className="text-[11px] font-black text-[#FF5A1F] uppercase tracking-wider font-mono">Todo lo de Pro, más:</p>
+                      <ul className="space-y-2.5 text-xs text-white font-medium">
+                        <li className="flex items-center gap-2.5 bg-[#FF5A1F]/10 p-2 rounded-xl border border-[#FF5A1F]/20">
+                          <Rocket className="w-4 h-4 text-[#FF5A1F] shrink-0" />
+                          <span><strong className="text-[#FF5A1F]">Proyectos ILIMITADOS</strong> (crea sin límites)</span>
+                        </li>
+                        <li className="flex items-center gap-2.5 bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20">
+                          <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong className="text-emerald-400">Mentorías grupales en vivo</strong> todas las semanas</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong>Reels y artículos ILIMITADOS</strong> para todos tus proyectos</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong>Email marketing y secuencias ilimitadas</strong></span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong>Lanzamientos y secuencias de WhatsApp avanzadas</strong></span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>Páginas de captación ilimitadas en todos tus proyectos</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>Plantillas y funnels premium desbloqueados</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong>Soporte VIP prioritario 1 a 1</strong></span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>Acceso anticipado a nuevas herramientas de IA</span>
+                        </li>
+                      </ul>
                     </div>
                   </div>
 
-                  {/* Circular Icon cards rows */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-                    {[
-                      {
-                        title: "Haz seguimiento a cada registro",
-                        desc: "Secuencia de conversión, correos de nutrición, mensajes de WhatsApp e integración con Systeme.io.",
-                        icon: Mail,
-                      },
-                      {
-                        title: "Mantén activo tu tráfico",
-                        desc: "Hasta 30 reels y 15 artículos mensuales adaptados a tus proyectos. Hooks, guiones, textos y CTA listos para publicar.",
-                        icon: Video,
-                      },
-                      {
-                        title: "Amplía tu operación",
-                        desc: "Hasta 3 proyectos activos, gestión y segmentación de contactos, automatizaciones avanzadas y más.",
-                        icon: Layers,
-                      }
-                    ].map((ben, idx) => {
-                      const BenIcon = ben.icon;
-                      return (
-                        <div key={idx} className="bg-white/[0.02] border border-white/5 p-5 rounded-3xl flex flex-col gap-4 text-center items-center shadow-lg hover:border-white/10 transition-colors">
-                          <div className="w-12 h-12 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-full flex items-center justify-center shadow-inner">
-                            <BenIcon className="w-5 h-5" />
-                          </div>
-                          <div className="space-y-1.5">
-                            <h4 className="text-sm font-extrabold text-white tracking-tight">{ben.title}</h4>
-                            <p className="text-xs text-gray-400 leading-relaxed font-medium">{ben.desc}</p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Immediate values checklist */}
-                  <div className="p-6 bg-black/40 border border-white/5 rounded-3xl space-y-4">
-                    <h4 className="text-xs font-black text-[#FF5A1F] uppercase tracking-wider">Al activar Pro hoy:</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {[
-                        "Activarás el seguimiento automático de tu proyecto actual.",
-                        "Tendrás acceso a las secuencias de conversión y nutrición.",
-                        "Podrás preparar hasta 30 reels durante el mes.",
-                        "Podrás crear hasta 15 artículos durante el mes.",
-                        "Podrás crear 2 proyectos adicionales asociados."
-                      ].map((chk, idx) => (
-                        <div key={idx} className="flex gap-3 text-sm items-start font-semibold text-gray-300">
-                          <div className="w-5 h-5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                            <Check className="w-3.5 h-3.5" />
-                          </div>
-                          <span className="leading-snug">{chk}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Primary CTA Orange Button */}
-                  <div className="pt-4 space-y-4">
+                  <div className="pt-4 border-t border-white/10">
                     <button
-                      onClick={() => {
-                        // Selección de plan premium de forma inteligente
-                        const targetPlan = plans.find(p => p.slug !== 'starter' && p.slug.includes('pro')) || 
-                                           plans.find(p => p.slug !== 'starter' && p.isRecommended) ||
-                                           plans.find(p => p.slug !== 'starter') || 
-                                           plans[0];
-                        if (targetPlan) {
-                          handleUpgrade(targetPlan);
-                        }
-                      }}
-                      disabled={!!processing}
-                      className="w-full bg-[#FF5A1F] hover:bg-[#E54E18] active:scale-[0.99] font-black text-lg py-5 px-8 rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/15 flex items-center justify-center gap-3 disabled:opacity-50 text-white"
+                      type="button"
+                      onClick={() => handleUpgrade('max')}
+                      disabled={processing === 'max'}
+                      className="w-full py-4 px-6 rounded-xl bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-black text-base transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 shadow-xl shadow-[#FF5A1F]/30 hover:scale-[1.02] active:scale-[0.98]"
                     >
-                      {processing ? (
+                      {processing === 'max' ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
                           <span>Procesando pago seguro...</span>
                         </>
                       ) : (
                         <>
-                          <span>Activar Pro por {billingPeriod === 'monthly' ? 'USD 39 al mes' : 'USD 390 al año'}</span>
+                          <span>Elegir Plan Max</span>
                           <ArrowRight className="w-5 h-5" />
                         </>
                       )}
                     </button>
-
-                    {/* Sello de confianza */}
-                    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-gray-500 font-bold uppercase tracking-wider font-mono">
-                      <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-500" /> Activación inmediata</span>
-                      <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-500" /> Cancela cuando quieras</span>
-                      <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-500" /> Pago seguro</span>
-                    </div>
                   </div>
-
-                  {/* Link alternative cancel button */}
-                  <div className="text-center pt-2">
-                    <button 
-                      type="button"
-                      onClick={onClose}
-                      className="text-gray-500 hover:text-gray-300 text-sm font-bold tracking-tight underline cursor-pointer transition-colors"
-                    >
-                      Seguir con el plan gratuito
-                    </button>
-                    <p className="text-[10px] text-gray-600 mt-1.5 font-medium">Puedes cambiar de plan en cualquier momento.</p>
-                  </div>
-
                 </div>
 
               </div>
 
-              {/* 3. Bottom comparative table */}
-              <div className="border border-white/5 bg-[#0c0c0e]/50 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-10 space-y-8 shadow-xl">
-                <div className="space-y-2">
-                  <span className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.3em]">CONOCE LA DIFERENCIA</span>
-                  <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">Gratis vs Pro</h3>
+              {/* Sello de confianza */}
+              <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-gray-400 font-bold uppercase tracking-wider font-mono pt-2">
+                <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-400" /> Activación inmediata</span>
+                <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-400" /> Cancela en cualquier momento</span>
+                <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-400" /> Pago 100% cifrado y seguro</span>
+              </div>
+
+              {/* Detailed Comparison Table (Ecomhunt style) */}
+              <div className="border border-white/5 bg-[#0c0c0e]/60 backdrop-blur-xl rounded-[2rem] p-6 md:p-10 space-y-6 shadow-xl">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.25em] font-mono">COMPARATIVA DETALLADA</span>
+                  <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">Comparativa de Funcionalidades</h3>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[500px]">
+                  <table className="w-full text-left border-collapse min-w-[650px]">
                     <thead>
-                      <tr className="border-b border-white/5 text-gray-500 text-xs font-black uppercase tracking-wider">
-                        <th className="pb-4 font-mono">Funcionalidad</th>
-                        <th className="pb-4 font-mono">Gratis</th>
-                        <th className="pb-4 text-[#FF5A1F] font-mono">Pro</th>
+                      <tr className="border-b border-white/10 text-gray-400 text-xs font-black uppercase tracking-wider">
+                        <th className="pb-4 font-mono w-2/5">Funcionalidad</th>
+                        <th className="pb-4 font-mono text-center">FREE</th>
+                        <th className="pb-4 font-mono text-center text-[#FF5A1F]">PRO ($29)</th>
+                        <th className="pb-4 font-mono text-center text-emerald-400">MAX ($49) ★</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/[0.03] text-sm">
+                    <tbody className="divide-y divide-white/[0.04] text-sm">
                       {[
-                        { feature: "Proyectos activos", free: "1", pro: "Hasta 3" },
-                        { feature: "Reels al mes", free: "3", pro: "Hasta 30" },
-                        { feature: "Artículos al mes", free: "1", pro: "Hasta 15" },
-                        { feature: "Email marketing", free: "No incluido", pro: "Conversión y nutrición" },
-                        { feature: "Secuencias de WhatsApp", free: "No incluido", pro: "Secuencias de lanzamiento" },
-                        { feature: "Automatizaciones", free: "No incluidas", pro: "Incluidas" },
-                        { feature: "Integración con Systeme.io", free: "No incluida", pro: "Incluida" },
-                        { feature: "Soporte prioritario", free: "No incluido", pro: "Incluido" }
+                        { feature: "Proyectos activos permitidos", free: "1 proyecto", pro: "1 proyecto", max: "Ilimitados" },
+                        { feature: "Mentorías grupales en vivo", free: "—", pro: "—", max: "Semanales en vivo" },
+                        { feature: "Reels con IA al mes", free: "3", pro: "30", max: "Ilimitados" },
+                        { feature: "Artículos de blog al mes", free: "1", pro: "15", max: "Ilimitados" },
+                        { feature: "Hooks y guiones persuasivos", free: "Básicos", pro: "Completos", max: "Ilimitados VIP" },
+                        { feature: "Email marketing automatizado", free: "—", pro: "Nutrición y venta", max: "Avanzado e Ilimitado" },
+                        { feature: "Secuencias de WhatsApp", free: "—", pro: "Lanzamientos", max: "Ilimitadas" },
+                        { feature: "Páginas de captación publicadas", free: "1", pro: "Ilimitadas x proyecto", max: "Ilimitadas" },
+                        { feature: "Integración Systeme.io y Webhooks", free: "—", pro: "Incluida", max: "Incluida" },
+                        { feature: "Plantillas y funnels premium", free: "Básicas", pro: "Estándar", max: "Todas desbloqueadas" },
+                        { feature: "Nivel de soporte", free: "Comunidad", pro: "Prioritario por chat", max: "VIP 1 a 1 prioritario" }
                       ].map((row, idx) => (
                         <tr key={idx} className="hover:bg-white/[0.01] transition-colors">
                           <td className="py-4 font-bold text-gray-300">{row.feature}</td>
-                          <td className="py-4 text-gray-500 font-semibold">{row.free}</td>
-                          <td className="py-4 text-white font-black">{row.pro}</td>
+                          <td className="py-4 text-center text-gray-500 font-semibold">{row.free}</td>
+                          <td className="py-4 text-center text-white font-bold">{row.pro}</td>
+                          <td className="py-4 text-center text-emerald-400 font-black">{row.max}</td>
                         </tr>
                       ))}
                     </tbody>

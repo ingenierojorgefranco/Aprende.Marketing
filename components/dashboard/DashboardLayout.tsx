@@ -596,6 +596,16 @@ export const DashboardLayout = ({
                              <ChevronRight className="w-4 h-4 text-yellow-400/80 group-hover:text-yellow-300 group-hover:translate-x-0.5 transition-all relative z-10" />
                          </button>
                      )}
+
+                     <button
+                         id="btn-header-logout"
+                         onClick={onLogout}
+                         className="flex items-center gap-2 py-2 px-3 sm:px-4 rounded-xl bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#FF5A1F]/20 hover:shadow-lg hover:shadow-[#FF5A1F]/30 transition-all duration-200 active:scale-[0.98] cursor-pointer whitespace-nowrap"
+                         title="Cerrar sesión"
+                     >
+                         <LogOut className="w-4 h-4 shrink-0" />
+                         <span>Cerrar sesión</span>
+                     </button>
                  </div>
              )}
         </header>

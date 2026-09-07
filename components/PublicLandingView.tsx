@@ -176,6 +176,19 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
     fetchPage();
   }, [activeSlug, userSlug, forcedSlug]);
 
+  useEffect(() => {
+    if (!loading && page && typeof window !== 'undefined' && window.location.hash) {
+      const rawHash = window.location.hash.replace('#', '');
+      const timer = setTimeout(() => {
+        const el = document.getElementById(rawHash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, page]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
