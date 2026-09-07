@@ -16,6 +16,15 @@ interface IntroModuleProps {
 export const IntroModule: React.FC<IntroModuleProps> = ({ content, ds, isMobilePreview, pageId, basePath, project }) => {
   const [showModal, setShowModal] = useState(false);
 
+  const descText = (content.intro?.description || '').toLowerCase();
+  const hasButtonCta = descText.includes('siguiente botón') || 
+                       descText.includes('botón de abajo') || 
+                       descText.includes('haz clic en el botón') ||
+                       descText.includes('da clic en el botón') ||
+                       descText.includes('haz clic abajo') ||
+                       descText.includes('da clic abajo') ||
+                       descText.includes('botón que verás');
+
   return (
     <section id="introduccion" className={`pt-[3rem] pb-24 relative overflow-hidden ${ds.intro.sectionBg}`}>
         <div className="w-full max-w-[60em] mx-auto px-6">
@@ -34,9 +43,20 @@ export const IntroModule: React.FC<IntroModuleProps> = ({ content, ds, isMobileP
                 <div id="intro-text-container" className="relative z-10 text-left w-full">
                     <div id="intro-description" className={`space-y-8 text-[1.4em] leading-[1.8em] ${ds.intro.textColor} sales-letter-body`}>
                         {renderRichText(content.intro.description)}
+
+                        {!hasButtonCta && (
+                            <div className="mt-8 space-y-6 pt-4 border-t border-gray-100/60 dark:border-white/10">
+                                <p>
+                                    No tienes que recorrer este camino sola ni arriesgar tu dinero sin una guía clara. He preparado una <mark>clase gratuita reveladora</mark> donde te mostraré el método exacto paso a paso para dominar esta técnica y alcanzar tus metas.
+                                </p>
+                                <p className="font-semibold text-gray-900 dark:text-white">
+                                    Tu futuro y tu transformación comienzan hoy: <mark>haz clic en el siguiente botón</mark> para registrarte ahora mismo y asegurar tu cupo gratuito a la clase antes de que se agoten los accesos.
+                                </p>
+                            </div>
+                        )}
                     </div>
                     
-                    <div className="mt-20 flex justify-center">
+                    <div className="mt-12 sm:mt-14 flex justify-center">
                         <button 
                             onClick={() => setShowModal(true)}
                             className={`px-10 py-5 rounded-full text-xl font-black uppercase tracking-wide shadow-xl transition-all hover:scale-105 active:scale-95 text-center ${ds.buttons.primary}`}

@@ -432,16 +432,20 @@ export const DashboardLayout = ({
           )}
 
           {!isLaunchRestricted && (
-              <div className="border-t border-slate-800/60 bg-[#030712] px-4 py-4 mt-auto">
+              <div className="border-t border-slate-800/60 bg-[#030712] px-3.5 py-4 mt-auto">
                   <button 
                       onClick={() => setShowUpgradeModal(true)} 
-                      className="relative overflow-hidden w-full flex items-center justify-between py-3 px-3.5 rounded-xl text-gray-300 hover:text-white transition-all duration-200 group cursor-pointer border border-transparent hover:bg-gradient-to-r hover:from-[#FF5A1F]/30 hover:via-[#FF5A1F]/10 hover:to-transparent hover:border-[#FF5A1F]/30 hover:before:absolute hover:before:left-0 hover:before:top-2 hover:before:bottom-2 hover:before:w-1 hover:before:bg-[#FF5A1F]/70 hover:before:rounded-r-full"
+                      className="relative overflow-hidden w-full flex items-center justify-between py-3 px-3 rounded-xl bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-600/20 border border-yellow-500/50 hover:border-yellow-400 text-yellow-300 transition-all duration-300 group cursor-pointer shadow-[0_0_20px_rgba(234,179,8,0.15)] hover:shadow-[0_0_25px_rgba(234,179,8,0.3)] active:scale-[0.98]"
                   >
-                      <div className="flex items-center gap-3 relative z-10">
-                          <Settings className="w-5 h-5 text-gray-400 group-hover:text-[#FF5A1F] transition-colors" />
-                          <span className="text-sm font-medium tracking-tight text-gray-200 group-hover:text-white">Plan y configuración</span>
+                      <div className="flex items-center gap-2.5 relative z-10">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 flex items-center justify-center shadow-md shadow-amber-950/40 shrink-0 group-hover:scale-110 transition-transform">
+                              <Crown className="w-4 h-4 text-black fill-black/20" />
+                          </div>
+                          <span className="text-xs font-black tracking-wider uppercase text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-amber-300 to-yellow-400 group-hover:from-white group-hover:to-yellow-200">
+                              ACTUALIZA A PRO
+                          </span>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-all relative z-10" />
+                      <ChevronRight className="w-4 h-4 text-yellow-400/80 group-hover:text-yellow-300 group-hover:translate-x-1 transition-all relative z-10" />
                   </button>
               </div>
           )}

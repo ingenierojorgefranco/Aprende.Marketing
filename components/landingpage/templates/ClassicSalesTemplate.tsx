@@ -47,7 +47,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
   return (
     <div id="classic-template-root" className={`min-h-screen font-sans ${ds.selectionColor} ${ds.bg} scroll-smooth`}>
         <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} hasUrgencyBar={false} />
-             <header id="hero-section" className={`relative pb-12 overflow-hidden ${ds.hero.bgGradient} ${isMobilePreview ? 'pt-28' : 'pt-24 lg:pt-24 lg:pb-20'}`}>
+        <header id="hero-section" className={`relative pb-12 overflow-hidden ${ds.hero.bgGradient} ${isMobilePreview ? 'pt-28' : 'pt-28 lg:pt-32 lg:pb-20'}`}>
           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[120px] ${ds.blobOpacity} pointer-events-none ${ds.blobColor}`}></div>
           {content.palette === 'minimal-mono' && <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>}
           <div className="w-full max-w-[81em] mx-auto px-6 relative z-10">
@@ -81,7 +81,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                         </div>
                     </div>
                 </div>
-                <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-2 mt-4' : 'lg:col-span-4 lg:sticky lg:top-16 order-2'}`}>
+                <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-2 mt-8 pt-4' : 'lg:col-span-4 lg:sticky lg:top-28 order-2 pt-6 lg:pt-14'}`}>
                      <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} sticky={false} />
                      <div id="why-join-today-block" className="mt-6 mb-10 space-y-3 bg-black/20 backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-xl">
                          <h4 className={`font-bold mb-4 flex items-center gap-2 ${ds.hero.titleColor || 'text-white'}`}>

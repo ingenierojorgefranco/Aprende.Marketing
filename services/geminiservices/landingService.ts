@@ -289,6 +289,10 @@ export const generateLandingPageContent = async (
   - Usa etiquetas <mark> para resaltar las frases o palabras más importantes en el cuerpo de la carta (se verán con fondo amarillo).
   - Toca dolores profundos, muestra empatía y presenta la solución como la oportunidad definitiva.
   - Debe ser extensa y persuasiva, llevando al usuario de la mano hacia el deseo.
+  - ENFOQUE FINAL Y CIERRE CON CTA (MÁXIMA PRIORIDAD):
+    Los párrafos finales de "intro.description" DEBEN estar 100% enfocados en conectar profundamente con la persona y MOTIVARLA con fuerza a ingresar a la CLASE GRATUITA ahora mismo:
+    * Penúltimo párrafo (Conexión y tranquilidad): Recuérdale con empatía que no tiene nada que perder ni arriesgar porque se ha preparado una <mark>clase gratuita exclusiva</mark> donde se revela el método exacto paso a paso para dominar este sector y transformar su vida.
+    * Último párrafo (Llamado a la Acción claro hacia el botón): Debe animarla con entusiasmo a dar el paso ya: "Tu momento de dar el salto es hoy. <mark>Haz clic en el siguiente botón</mark> para registrarte ahora mismo y acceder gratis a la clase antes de que se cierren los cupos disponibles."
 
   REQUERIMIENTO DE VELOCIDAD: No generes código SVG para logos. Solo genera los textos persuasivos.
   

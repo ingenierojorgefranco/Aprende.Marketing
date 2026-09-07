@@ -479,167 +479,13 @@ export const ProjectsList: React.FC = () => {
                 </div>
             </div>
 
-            {/* SECCIÓN REMOVIDA: MIS PROYECTOS (A PETICIÓN DEL USUARIO) */}
-
-            {/* SECCIÓN 2: BIBLIOTECA DE ESTRATEGIAS MAESTRAS (NUEVA) */}
-            <div id="biblioteca-maestra" className="space-y-8 pt-12 border-t border-white/5">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                    <div className="flex items-center gap-4 border-l-4 border-yellow-500 pl-4 py-1 pb-5">
-                        <div className="p-3 bg-yellow-500/10 rounded-2xl text-yellow-500 border border-yellow-500/20 shadow-[0_0_20px_rgba(234,179,8,0.1)]">
-                            <Library className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Biblioteca Maestra</h2>
-                            <p className="text-white font-medium pt-2.5 text-[1.2em]">Optimiza tu tiempo y gana dinero copiando nuestra estrategia maestra</p>
-                        </div>
-                    </div>
-                </div>
-
-                {masterLibrary.length === 0 ? (
-                    <div className="p-12 bg-white/5 rounded-[2.5rem] border border-white/5 text-center">
-                        <p className="text-gray-500 italic">No hay nuevas estrategias maestras disponibles en este momento.</p>
-                    </div>
-                ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {(() => {
-                            const sortedMasterLibrary = [...masterLibrary].sort((a, b) => {
-                                const dateA = new Date(a.createdAt || 0).getTime();
-                                const dateB = new Date(b.createdAt || 0).getTime();
-
-                                if (user.role === 'admin') {
-                                    return dateA - dateB;
-                                } else {
-                                    if (a.isUnlocked && !b.isUnlocked) return -1;
-                                    if (!a.isUnlocked && b.isUnlocked) return 1;
-                                    return dateA - dateB;
-                                }
-                            });
-
-                            return sortedMasterLibrary.map((item) => {
-                                const isAlreadyUnlocked = item.isUnlocked || user.role === 'admin';
-
-                                return (
-                                    <div 
-                                        key={item.id}
-                                    onClick={(e) => {
-                                        if (isAlreadyUnlocked) {
-                                            const userClone = projects.find(p => String(p.masterParentId) === String(item.id));
-                                            const targetProject = userClone || item;
-                                            handleViewStrategy(e, targetProject);
-                                        } else {
-                                            if (unlockingId !== item.id) {
-                                                handleUnlock(item, e);
-                                            }
-                                        }
-                                    }}
-                                    className={`bg-[#0B0B0B] border rounded-[2.5rem] p-8 transition-all duration-500 flex flex-col group shadow-2xl relative overflow-hidden cursor-pointer ${isAlreadyUnlocked ? 'border-emerald-500/50 hover:bg-emerald-500/10 bg-emerald-500/5' : 'border-yellow-500/10 hover:border-yellow-500/40 hover:bg-yellow-500/5 shadow-[0_0_30px_rgba(234,179,8,0.05)]'}`}
-                                >
-                                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover:opacity-[0.08] transition-opacity">
-                                        <CornerCrown className="w-32 h-32 text-yellow-500" />
-                                    </div>
-                                    
-                                    <div className="flex justify-between items-start mb-8 relative z-10">
-                                        <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 ${isAlreadyUnlocked ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-emerald-900/10' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500 shadow-yellow-900/10'}`}>
-                                            <Sparkles className="w-8 h-8" />
-                                        </div>
-                                        {user.role === 'admin' ? (
-                                            <div className="flex gap-2">
-                                                <button 
-                                                    onClick={(e) => handleToggleActive(item, e)}
-                                                    className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all shadow-lg ${item.isActive ? 'bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500/30' : 'bg-gray-500/20 text-gray-500 hover:bg-gray-500/30'}`}
-                                                    title={item.isActive ? "Desactivar" : "Activar"}
-                                                >
-                                                    <div className={`w-2 h-2 rounded-full ${item.isActive ? 'bg-emerald-500' : 'bg-gray-500'} animate-pulse`}></div>
-                                                    <span className="text-xs font-bold">{item.isActive ? 'Activo' : 'Inactivo'}</span>
-                                                </button>
-                                                <button 
-                                                    onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/projects/edit/${item.id}`); }}
-                                                    className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
-                                                >
-                                                    <Edit2 className="w-4 h-4" />
-                                                    <span className="text-xs font-bold">Editar</span>
-                                                </button>
-                                                <button 
-                                                    onClick={(e) => handleDelete(item, e)}
-                                                    className="flex items-center gap-2 px-3 py-2 bg-red-900/20 hover:bg-emerald-600 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                    <span className="text-xs font-bold">Borrar</span>
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center gap-1.5 px-3 py-1 bg-black/60 rounded-full border border-white/10 text-[9px] font-black text-gray-500 uppercase tracking-widest">
-                                                <Target className="w-3 h-3" /> {item.niche}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="flex-1 space-y-4 relative z-10">
-                                        <h4 className={`text-2xl font-black tracking-tight leading-tight transition-colors ${isAlreadyUnlocked ? 'text-emerald-400' : 'text-white group-hover:text-yellow-400'}`}>
-                                            {item.name}
-                                        </h4>
-                                        <p className="text-[1.2rem] text-white mb-8 min-h-[56px] leading-relaxed">
-                                            {item.shortDescription || (item.description ? item.description.replace(/<[^>]*>?/gm, '') : "Estrategia validada para lanzamientos.")}
-                                        </p>
-                                    </div>
-
-                                    <div className="mt-10 pt-8 border-t border-white/5 relative z-10">
-                                        {isAlreadyUnlocked ? (
-                                            <div className="space-y-4">
-                                                <div className="flex items-center justify-center gap-2 text-emerald-400 font-black uppercase text-xs tracking-widest">
-                                                    <CheckCircle2 className="w-5 h-5 text-emerald-500" /> {user.role === 'admin' ? 'Acceso Admin' : 'Desbloqueado'}
-                                                </div>
-                                                <button 
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        const userClone = projects.find(p => String(p.masterParentId) === String(item.id));
-                                                        const targetProject = userClone || item;
-                                                        handleViewStrategy(e, targetProject);
-                                                    }}
-                                                    className="w-full py-4 bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-white/10 transition-all flex items-center justify-center gap-2 pointer-events-none"
-                                                >
-                                                    Ver Estrategia
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <button 
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleUnlock(item, e);
-                                                    }}
-                                                    disabled={unlockingId === item.id}
-                                                    className="w-full py-5 bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-yellow-900/20 flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 pointer-events-none"
-                                                >
-                                                    {unlockingId === item.id ? (
-                                                        <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>
-                                                    ) : (
-                                                        <><Unlock className="w-4 h-4" /> DESBLOQUEAR PROYECTO</>
-                                                    )}
-                                                </button>
-                                                <p className="text-center text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-4">
-                                                    Consume 1 cupo de proyecto en tu plan
-                                                </p>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })})()}
-                    </div>
-                )}
-            </div>
-
-            {/* --- SECCIÓN 3: SELECTOR DE PRODUCTOS DIGITALES (ESTILO ONBOARDING) --- */}
-            <div id="seleccion-productos-onboarding" className="space-y-10 pt-20 pb-16 sm:pt-24 sm:pb-20 border-t border-white/10">
+            {/* --- SECCIÓN: SELECTOR DE PRODUCTOS DIGITALES --- */}
+            <div id="seleccion-productos-onboarding" className="space-y-10 pt-14 pb-16 sm:pt-16 sm:pb-20 border-t border-white/10">
                 {/* Header matching Image 2 */}
                 <div className="text-center space-y-4 max-w-3xl mx-auto px-4">
                     <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
                         Selecciona tu <span className="text-[#FF5A1F]">Producto Digital</span>
                     </h2>
-                    <p className="text-zinc-300 font-normal text-sm sm:text-base max-w-2xl mx-auto leading-relaxed pt-2 pb-1">
-                        Elige el Producto Digital que mejor se adapte a ti, nuestra inteligencia artificial creará un sistema de ventas completo para este producto digital
-                    </p>
 
                     {/* Glowing Spark Divider */}
                     <div className="relative flex justify-center items-center my-6 max-w-xs mx-auto">
@@ -683,7 +529,7 @@ export const ProjectsList: React.FC = () => {
                         <p className="text-zinc-500 text-xs mt-1">Prueba seleccionando otra categoría o la opción "Todos".</p>
                     </div>
                 ) : (
-                    <div className="w-full lg:max-w-[82%] 2xl:max-w-[80%] mx-auto px-2 sm:px-4">
+                    <div className="w-full max-w-[90%] mx-auto px-2 sm:px-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
                             {filteredOnboardingProjects.map((project) => {
                                 const isAlreadyUnlocked = project.isUnlocked || user.role === 'admin';
@@ -764,7 +610,7 @@ export const ProjectsList: React.FC = () => {
                                                 }`}>
                                                     {title}
                                                 </h3>
-                                                <p className="text-zinc-400 text-sm mt-2 line-clamp-3 leading-relaxed font-light">
+                                                <p className="text-white text-[1.15rem] sm:text-[1.2rem] mt-2.5 leading-relaxed font-normal">
                                                     {desc}
                                                 </p>
                                             </div>
