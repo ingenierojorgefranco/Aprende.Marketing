@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { 
     ChevronRight, ArrowRight, Play, Users, PlayCircle, Clock, Award, 
     CreditCard, Folder, CheckCircle2, Bot,
-    ShieldCheck, Smartphone, Zap, Sparkles, Image as ImageIcon
+    ShieldCheck, Smartphone, Zap, Sparkles, Image as ImageIcon,
+    BookOpen, HelpCircle, Video, Compass, Crown
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { useNavigate, useOutletContext } from 'react-router-dom';
@@ -104,75 +105,153 @@ export const DashboardHome: React.FC = () => {
           </div>
       </div>
 
-      {/* 2. STATS ROW (4 Columns) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* 2. VIDEO INTRODUCTORIO + TU SUSCRIPCIÓN (BLOQUES LADO A LADO) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           
-          {/* PLAN ACTUAL */}
-          <div className="bg-[#0B1120] p-6 rounded-2xl border border-slate-800 hover:border-[#FF5A1F]/30 transition-colors flex flex-col justify-between h-full group">
-              <div className="flex items-start gap-4 mb-4">
-                  <div className="p-3 bg-slate-800/50 rounded-xl text-gray-400 group-hover:text-[#FF5A1F] transition-colors">
-                      <CreditCard className="w-6 h-6" />
+          {/* BLOQUE DE VIDEO (Izquierda / Principal) */}
+          <div className="lg:col-span-7 xl:col-span-8 bg-[#0B1120] p-6 sm:p-8 rounded-[2rem] border border-slate-800 shadow-xl flex flex-col justify-between group">
+              <div>
+                  <div className="flex items-center justify-between gap-4 mb-4">
+                      <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-bold uppercase tracking-wider">
+                          <PlayCircle className="w-4 h-4" />
+                          <span>Tour de la Plataforma</span>
+                      </div>
+                      <span className="text-xs text-gray-400 font-medium hidden sm:inline-flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5 text-[#FF5A1F]" /> 4:36 min
+                      </span>
                   </div>
-                  <div>
-                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Plan Actual</p>
-                      <h3 className="text-xl font-bold text-white capitalize leading-none mb-1">{planName}</h3>
-                      <p className="text-xs text-gray-400">{isFree ? 'Versión gratuita' : 'Plan Premium'}</p>
-                  </div>
+                  
+                  <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mb-2">
+                      Aprende a dominar tu panel y acelerar tus resultados
+                  </h2>
+                  <p className="text-sm sm:text-base text-gray-300 leading-relaxed mb-6">
+                      Mira este breve recorrido guiado para aprender a estructurar proyectos, generar reels con IA y activar tus páginas de captación.
+                  </p>
               </div>
-              <button onClick={() => setShowProfileModal(true)} className="text-[#FF5A1F] text-xs font-bold flex items-center gap-1 hover:gap-2 transition-all mt-2 w-fit">
-                  Ver detalles <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+
+              {/* Video Embed */}
+              <div className="w-full aspect-video rounded-2xl overflow-hidden border border-slate-800 shadow-2xl relative bg-black">
+                  <iframe 
+                      className="w-full h-full absolute inset-0"
+                      src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&modestbranding=1&controls=1" 
+                      title="Tour de la Plataforma Aprende.Marketing" 
+                      frameBorder="0" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                      allowFullScreen
+                  ></iframe>
+              </div>
           </div>
 
-          {/* PROYECTOS ACTIVOS */}
-          <div className="bg-[#0B1120] p-6 rounded-2xl border border-slate-800 hover:border-[#FF5A1F]/30 transition-colors flex flex-col justify-between h-full group">
-              <div className="flex items-start gap-4 mb-4">
-                  <div className="p-3 bg-slate-800/50 rounded-xl text-gray-400 group-hover:text-[#FF5A1F] transition-colors">
-                      <Folder className="w-6 h-6" />
+          {/* BLOQUE DERECHA: TU SUSCRIPCIÓN + COMUNIDAD WHATSAPP APILADOS Y EQUILIBRADOS */}
+          <div className="lg:col-span-5 xl:col-span-4 flex flex-col justify-between gap-6">
+              
+              {/* 1. TU SUSCRIPCIÓN (Espaciado natural y compacto sin huecos vacíos) */}
+              <div className="bg-gradient-to-br from-[#0F172A] via-[#0B1120] to-[#180D06] p-6 sm:p-7 rounded-[2rem] border border-[#FF5A1F]/30 hover:border-[#FF5A1F]/50 transition-all shadow-2xl relative overflow-hidden flex flex-col">
+                  <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#FF5A1F]/15 rounded-full blur-3xl pointer-events-none"></div>
+                  <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none text-[#FF5A1F]">
+                      <Crown className="w-28 h-28" />
                   </div>
-                  <div>
-                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Proyectos Activos</p>
-                      <h3 className="text-xl font-bold text-white leading-none mb-1">{projects.length}</h3>
-                      <p className="text-xs text-gray-400">de {maxProjects} permitidos</p>
-                  </div>
-              </div>
-              <button onClick={() => navigate('/dashboard/projects')} className="text-[#FF5A1F] text-xs font-bold flex items-center gap-1 hover:gap-2 transition-all mt-2 w-fit">
-                  Ver mis proyectos <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-          </div>
+                  
+                  <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                              <div className="p-1.5 rounded-lg bg-[#FF5A1F]/15 border border-[#FF5A1F]/30">
+                                  <Crown className="w-4 h-4 text-[#FF5A1F]" />
+                              </div>
+                              <h2 className="text-xs font-black text-white uppercase tracking-widest">Tu Suscripción</h2>
+                          </div>
+                          <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+                              Activo
+                          </span>
+                      </div>
+                      
+                      <div>
+                          <div className="flex items-baseline justify-between mb-3.5">
+                              <div>
+                                  <h3 className="text-2xl sm:text-3xl font-black text-white capitalize">{planName}</h3>
+                                  <p className="text-xs text-gray-400 mt-1">{isFree ? 'Versión gratuita' : 'Plan Premium'}</p>
+                              </div>
+                              <span className="px-2.5 py-1 rounded-lg bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 text-[#FF5A1F] text-xs font-bold uppercase tracking-wider">
+                                  {planName}
+                              </span>
+                          </div>
+                          
+                          {/* CARACTERÍSTICAS DISPONIBLES (Filas con espaciado equilibrado) */}
+                          <div className="space-y-2">
+                              {/* Proyectos permitidos */}
+                              <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-800/90 text-xs sm:text-sm hover:border-[#FF5A1F]/30 transition-colors">
+                                  <span className="text-gray-300 font-medium">Proyectos permitidos:</span>
+                                  <span className="font-bold text-white">{projects.length} / {maxProjects}</span>
+                              </div>
 
-          {/* REELS DISPONIBLES */}
-          <div className="bg-[#0B1120] p-6 rounded-2xl border border-slate-800 hover:border-[#FF5A1F]/30 transition-colors flex flex-col justify-between h-full group">
-              <div className="flex items-start gap-4 mb-4">
-                  <div className="p-3 bg-slate-800/50 rounded-xl text-gray-400 group-hover:text-[#FF5A1F] transition-colors">
-                      <Play className="w-6 h-6" />
-                  </div>
-                  <div>
-                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Reels Disponibles</p>
-                      <h3 className="text-xl font-bold text-white leading-none mb-1">27</h3>
-                      <p className="text-xs text-gray-400">de 30 este mes</p>
-                  </div>
-              </div>
-              <button onClick={() => navigate('/dashboard/projects')} className="text-[#FF5A1F] text-xs font-bold flex items-center gap-1 hover:gap-2 transition-all mt-2 w-fit">
-                  Gestionar reels <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-          </div>
+                              {/* Reels disponibles */}
+                              <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-800/90 text-xs sm:text-sm hover:border-[#FF5A1F]/30 transition-colors">
+                                  <span className="text-gray-300 font-medium">Reels disponibles:</span>
+                                  <span className="font-bold text-white">27 / 30</span>
+                              </div>
 
-          {/* REGISTROS GENERADOS */}
-          <div className="bg-[#0B1120] p-6 rounded-2xl border border-slate-800 hover:border-[#FF5A1F]/30 transition-colors flex flex-col justify-between h-full group">
-              <div className="flex items-start gap-4 mb-4">
-                  <div className="p-3 bg-slate-800/50 rounded-xl text-gray-400 group-hover:text-[#FF5A1F] transition-colors">
-                      <Users className="w-6 h-6" />
+                              {/* Registros generados */}
+                              <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-800/90 text-xs sm:text-sm hover:border-[#FF5A1F]/30 transition-colors">
+                                  <span className="text-gray-300 font-medium">Registros generados:</span>
+                                  <span className="font-bold text-white">{summaryData.totalConversions || 85}</span>
+                              </div>
+                          </div>
+                      </div>
                   </div>
+
+                  {/* SECCIÓN INFERIOR: TEXTO MOTIVACIONAL + BOTÓN (Conectado sin gran espacio vacío) */}
+                  <div className="relative z-10 mt-4 space-y-3">
+                      <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
+                          Mejora tu suscripción y obtén las mejores características para tener mejores resultados
+                      </p>
+
+                      <button 
+                          onClick={() => setShowProfileModal(true)} 
+                          className="w-full py-3.5 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-[#FF5A1F] via-[#FF6E2B] to-[#FF853A] text-white hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-[0_5px_20px_rgba(255,90,31,0.35)] cursor-pointer uppercase tracking-wider"
+                      >
+                          <Zap className="w-4 h-4 fill-current" /> Mejorar a Pro
+                      </button>
+                  </div>
+              </div>
+
+              {/* 2. COMUNIDAD DE WHATSAPP (Aumentada en presencia y altura para equilibrio proporcional) */}
+              <div className="bg-[#0B1120] p-6 sm:p-7 rounded-[2rem] border border-slate-800 shadow-xl relative overflow-hidden flex flex-col justify-between flex-1">
                   <div>
-                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Registros Generados</p>
-                      <h3 className="text-xl font-bold text-white leading-none mb-1">{summaryData.totalConversions}</h3>
-                      <p className="text-xs text-gray-400">este mes</p>
+                      <div className="flex items-center justify-between mb-3.5">
+                          <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-[#25D366] rounded-xl flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(37,211,102,0.3)]">
+                                  <Smartphone className="w-5 h-5 text-white" />
+                              </div>
+                              <div>
+                                  <h2 className="text-xs font-black text-white uppercase tracking-wider leading-none">Comunidad WhatsApp</h2>
+                                  <p className="text-[11px] text-[#25D366] font-bold mt-1">Grupo Exclusivo VIP</p>
+                              </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-full border border-slate-800">
+                              <div className="flex -space-x-1.5">
+                                  {[1,2,3].map(i => (
+                                      <div key={i} className="w-5 h-5 rounded-full border border-[#0B1120] bg-slate-700 flex items-center justify-center text-[8px] text-gray-300">
+                                          <Users className="w-2.5 h-2.5" />
+                                      </div>
+                                  ))}
+                              </div>
+                              <span className="text-[10px] text-gray-400 font-bold">+236</span>
+                          </div>
+                      </div>
+                      
+                      <p className="text-sm sm:text-base text-gray-300 leading-relaxed mb-4">
+                          Conecta con otros creadores, comparte tus lanzamientos y recibe soporte directo en tiempo real.
+                      </p>
+                  </div>
+
+                  <div>
+                      <button className="w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm bg-[#25D366] hover:bg-[#20bd5a] text-white transition-colors flex items-center justify-center gap-2 shadow-[0_4px_14px_rgba(37,211,102,0.25)] cursor-pointer">
+                          <Smartphone className="w-4 h-4" /> Unirme al grupo VIP
+                      </button>
                   </div>
               </div>
-              <div className="text-emerald-500 text-xs font-bold flex items-center gap-1 mt-2">
-                  +18% <span className="text-gray-500 font-medium">vs mes anterior</span>
-              </div>
+
           </div>
       </div>
 
@@ -341,71 +420,68 @@ export const DashboardHome: React.FC = () => {
 
           </div>
 
-          {/* RIGHT COLUMN (Subscription & Community) */}
+          {/* RIGHT COLUMN (Quick Resources & Support) */}
           <div className="xl:col-span-4 space-y-6">
               
-              {/* TU SUSCRIPCIÓN */}
-              <div className="bg-[#0B1120] p-6 sm:p-8 rounded-[2rem] border border-slate-800 shadow-xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
-                      <ShieldCheck className="w-24 h-24 text-white" />
-                  </div>
-                  
-                  <h2 className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-6 relative z-10">Tu Suscripción</h2>
-                  
-                  <div className="relative z-10">
-                      <h3 className="text-2xl font-bold text-white capitalize mb-1">{planName}</h3>
-                      <p className="text-sm text-gray-400 mb-8">{isFree ? 'Versión gratuita' : 'Plan Premium'}</p>
-                      
-                      <div className="mb-8">
-                          <div className="flex justify-between items-end mb-2">
-                              <span className="text-xs text-gray-400">Reels restantes: <span className="font-bold text-white">27</span> / 30</span>
+              {/* ACCESOS RÁPIDOS & ACCIONES */}
+              <div className="bg-[#0B1120] p-6 sm:p-8 rounded-[2rem] border border-slate-800 shadow-xl">
+                  <h2 className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-5 flex items-center gap-2">
+                      <Compass className="w-4 h-4 text-[#FF5A1F]" />
+                      Accesos Rápidos
+                  </h2>
+
+                  <div className="space-y-3">
+                      <button 
+                          onClick={() => navigate('/dashboard/projects/create')}
+                          className="w-full p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-[#FF5A1F]/40 transition-all flex items-center justify-between text-left group cursor-pointer"
+                      >
+                          <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-[#FF5A1F]/10 text-[#FF5A1F] flex items-center justify-center font-bold">
+                                  <Folder className="w-4 h-4" />
+                              </div>
+                              <div>
+                                  <p className="text-xs font-bold text-white group-hover:text-[#FF5A1F] transition-colors">Crear Proyecto</p>
+                                  <p className="text-[11px] text-gray-500">Nuevo embudo y contenidos</p>
+                              </div>
                           </div>
-                          <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                              <div className="h-full bg-[#FF5A1F] rounded-full" style={{ width: '90%' }}></div>
-                          </div>
-                      </div>
+                          <ArrowRight className="w-4 h-4 text-gray-500 group-hover:text-[#FF5A1F] group-hover:translate-x-1 transition-all" />
+                      </button>
 
                       <button 
-                          onClick={() => setShowProfileModal(true)} 
-                          className="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#FF5A1F] to-[#FF7A28] text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-[0_5px_20px_rgba(255,90,31,0.2)]"
+                          onClick={() => navigate('/dashboard/training')}
+                          className="w-full p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-[#FF5A1F]/40 transition-all flex items-center justify-between text-left group cursor-pointer"
                       >
-                          <Zap className="w-4 h-4 fill-current" /> Gestionar suscripción
+                          <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold">
+                                  <BookOpen className="w-4 h-4" />
+                              </div>
+                              <div>
+                                  <p className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors">Ver Academia</p>
+                                  <p className="text-[11px] text-gray-500">Clases y rutas de aprendizaje</p>
+                              </div>
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-gray-500 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+                      </button>
+
+                      <button 
+                          onClick={() => setShowProfileModal(true)}
+                          className="w-full p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-[#FF5A1F]/40 transition-all flex items-center justify-between text-left group cursor-pointer"
+                      >
+                          <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+                                  <HelpCircle className="w-4 h-4" />
+                              </div>
+                              <div>
+                                  <p className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">Ayuda y Ajustes</p>
+                                  <p className="text-[11px] text-gray-500">Perfil, planes y soporte</p>
+                              </div>
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-gray-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
                       </button>
                   </div>
               </div>
 
-              {/* COMUNIDAD DE WHATSAPP */}
-              <div className="bg-[#0B1120] p-6 sm:p-8 rounded-[2rem] border border-slate-800 shadow-xl">
-                  <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 bg-[#25D366] rounded-full flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(37,211,102,0.3)]">
-                          <Smartphone className="w-6 h-6 text-white" />
-                      </div>
-                      <h2 className="text-[11px] font-black text-white uppercase tracking-widest">Comunidad de Whatsapp</h2>
-                  </div>
-                  
-                  <p className="text-sm text-gray-400 leading-relaxed mb-6">
-                      Conecta con otros miembros, comparte resultados y recibe soporte en tiempo real.
-                  </p>
-                  
-                  <div className="flex items-center gap-3 mb-6">
-                      <div className="flex -space-x-3">
-                          {[1,2,3].map(i => (
-                              <div key={i} className="w-8 h-8 rounded-full border-2 border-[#0B1120] bg-slate-700 flex items-center justify-center overflow-hidden">
-                                  <Users className="w-4 h-4 text-slate-400" />
-                              </div>
-                          ))}
-                      </div>
-                      <span className="text-xs text-gray-500 font-medium">+236</span>
-                  </div>
 
-                  <button className="w-full py-3.5 rounded-xl font-bold text-sm bg-[#25D366] text-white hover:bg-[#20bd5a] transition-colors flex items-center justify-center gap-2 mb-4">
-                      Unirme al grupo
-                  </button>
-                  
-                  <div className="text-center">
-                      <button className="text-[#FF5A1F] text-xs font-bold hover:underline">Ver más comunidades</button>
-                  </div>
-              </div>
 
           </div>
       </div>

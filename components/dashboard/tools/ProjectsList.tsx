@@ -415,7 +415,7 @@ export const ProjectsList: React.FC = () => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 
                 <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div className="flex-1 space-y-6 text-center md:text-left">
+                    <div className="flex-1 space-y-4 text-center md:text-left">
                         <div>
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/30 border border-blue-800 text-xs font-bold text-blue-300 uppercase tracking-wider mb-3 shadow-sm">
                                 <Briefcase className="w-3 h-3 text-blue-400" /> Estrategia & Nichos
@@ -424,51 +424,38 @@ export const ProjectsList: React.FC = () => {
                                 Gestiona tus Proyectos <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">y Copia Nuestras Estrategias</span>
                             </h1>
                             <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-relaxed">
-                                Los Proyectos son el centro de tu estrategia de Ventas. Define tu nicho, audiencia y enlaces de afiliado. Nuestro sistema usará Inteligencia Artificial para generar contenido que te genere grandes resultados.
+                                Los Proyectos son el centro de tu estrategia de Ventas. Define tu nicho, audiencia y enlaces de afiliado.
                             </p>
                         </div>
-                        
-                        {/* Plan Usage Bar */}
-                        <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
-                            <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Páginas (Superusuario)' : 'Proyectos Activos/Desbloqueados'}</span>
-                                <span className="text-white font-bold">{currentCount} / {isRealAdmin ? '∞' : maxProjects}</span>
+                    </div>
+
+                    <div className="flex flex-col gap-4 shrink-0 w-full md:w-[380px] lg:w-[420px]">
+                        {/* Plan Usage Bar (Contador y barra de progreso ubicado donde estaba el video) */}
+                        <div className="bg-black/40 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-inner w-full">
+                            <div className="flex justify-between items-center mb-2.5 text-sm">
+                                <span className="text-gray-300 font-medium text-[0.95rem]">{isRealAdmin ? 'Páginas (Superusuario)' : 'Proyectos Activos/Desbloqueados'}</span>
+                                <span className="text-white font-bold text-base">{currentCount} / {isRealAdmin ? '∞' : maxProjects}</span>
                             </div>
-                            <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
+                            <div className="w-full bg-gray-700/80 h-2.5 rounded-full overflow-hidden shadow-inner">
                                 <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (currentCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                             </div>
                             {isAtLimit && (
                                 <div 
                                     onClick={() => setShowUpgradeModal(true)}
-                                    className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30 cursor-pointer hover:bg-yellow-900/30 transition-all"
+                                    className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-3 rounded-xl border border-yellow-700/30 cursor-pointer hover:bg-yellow-900/30 transition-all"
                                 >
-                                    <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
-                                    <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
+                                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                                    <span>Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
                                 </div>
                             )}
                         </div>
-                    </div>
 
-                    <div className="flex flex-col gap-6 shrink-0 w-full md:w-[400px]">
-                        {/* Contenedor de Video Interactivo (Embebido directamente) */}
-                        <div 
-                            className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
-                        >
-                            <iframe 
-                                className="w-full h-full rounded-2xl"
-                                src="https://www.youtube.com/embed/2yez3O8ibzA?rel=0&controls=1&showinfo=0" 
-                                title="Video Tutorial" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-
-                        {/* Botones centrados debajo del video */}
-                        <div className="flex flex-col gap-3">
+                        {/* Botón Nuevo Proyecto centrado y con estilo limpio */}
+                        <div className="w-full">
                             {isAtLimit ? (
                                 <button
                                     onClick={() => setShowUpgradeModal(true)}
-                                    className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20 w-full"
+                                    className="group relative px-6 py-3.5 rounded-xl font-bold text-base shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20 w-full"
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-2">
                                         <CornerCrown className="w-5 h-5 fill-current" /> 
@@ -478,7 +465,7 @@ export const ProjectsList: React.FC = () => {
                             ) : (
                                 <button
                                     onClick={() => setShowCreateOptionsModal(true)}
-                                    className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 hover:-translate-y-1 w-full"
+                                    className="group relative px-6 py-3.5 rounded-xl font-bold text-base shadow-lg transition-all overflow-hidden bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 hover:-translate-y-0.5 w-full cursor-pointer"
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-2">
                                         <Plus className="w-5 h-5" /> 
@@ -644,24 +631,24 @@ export const ProjectsList: React.FC = () => {
             </div>
 
             {/* --- SECCIÓN 3: SELECTOR DE PRODUCTOS DIGITALES (ESTILO ONBOARDING) --- */}
-            <div id="seleccion-productos-onboarding" className="space-y-8 pt-16 border-t border-white/10">
+            <div id="seleccion-productos-onboarding" className="space-y-10 pt-20 pb-16 sm:pt-24 sm:pb-20 border-t border-white/10">
                 {/* Header matching Image 2 */}
-                <div className="text-center space-y-3">
+                <div className="text-center space-y-4 max-w-3xl mx-auto px-4">
                     <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
                         Selecciona tu <span className="text-[#FF5A1F]">Producto Digital</span>
                     </h2>
-                    <p className="text-zinc-300 font-normal text-sm sm:text-base max-w-3xl mx-auto leading-relaxed pt-1">
+                    <p className="text-zinc-300 font-normal text-sm sm:text-base max-w-2xl mx-auto leading-relaxed pt-2 pb-1">
                         Elige el Producto Digital que mejor se adapte a ti, nuestra inteligencia artificial creará un sistema de ventas completo para este producto digital
                     </p>
 
                     {/* Glowing Spark Divider */}
-                    <div className="relative flex justify-center items-center my-4 max-w-xs mx-auto">
+                    <div className="relative flex justify-center items-center my-6 max-w-xs mx-auto">
                         <div className="w-full h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent"></div>
                         <div className="absolute w-2.5 h-2.5 rounded-full bg-[#FF5A1F] blur-[2px] shadow-[0_0_12px_#FF5A1F]"></div>
                     </div>
 
                     {/* Filter Pills Bar */}
-                    <div className="flex items-center justify-center gap-2 md:gap-3 flex-wrap pt-2 pb-2">
+                    <div className="flex items-center justify-center gap-2 md:gap-3 flex-wrap pt-3 pb-4">
                         {onboardingCategories.map((cat) => {
                             const isActive = activeOnboardingCategory === cat.id;
                             return (
@@ -696,135 +683,141 @@ export const ProjectsList: React.FC = () => {
                         <p className="text-zinc-500 text-xs mt-1">Prueba seleccionando otra categoría o la opción "Todos".</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                        {filteredOnboardingProjects.map((project) => {
-                            const isAlreadyUnlocked = project.isUnlocked || user.role === 'admin';
-                            const projectImg = getOnboardingCardImage(project);
-                            const title = getOnboardingCardTitle(project);
-                            const desc = getOnboardingCardDesc(project);
-                            const category = project.niche || "General";
-                            const catIcon = getCategoryIcon(category);
+                    <div className="w-full lg:max-w-[82%] 2xl:max-w-[80%] mx-auto px-2 sm:px-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
+                            {filteredOnboardingProjects.map((project) => {
+                                const isAlreadyUnlocked = project.isUnlocked || user.role === 'admin';
+                                const projectImg = getOnboardingCardImage(project);
+                                const title = getOnboardingCardTitle(project);
+                                const desc = getOnboardingCardDesc(project);
+                                const category = project.niche || "General";
+                                const catIcon = getCategoryIcon(category);
 
-                            return (
-                                <div
-                                    key={`onboarding-card-${project.id}`}
-                                    onClick={(e) => {
-                                        if (isAlreadyUnlocked) {
-                                            const userClone = projects.find(p => String(p.masterParentId) === String(project.id));
-                                            handleViewStrategy(e, userClone || project);
-                                        } else {
-                                            if (unlockingId !== project.id) {
-                                                handleUnlock(project, e);
+                                return (
+                                    <div
+                                        key={`onboarding-card-${project.id}`}
+                                        onClick={(e) => {
+                                            if (isAlreadyUnlocked) {
+                                                const userClone = projects.find(p => String(p.masterParentId) === String(project.id));
+                                                handleViewStrategy(e, userClone || project);
+                                            } else {
+                                                if (unlockingId !== project.id) {
+                                                    handleUnlock(project, e);
+                                                }
                                             }
-                                        }
-                                    }}
-                                    className={`group rounded-3xl p-5 md:p-6 flex flex-col justify-between h-full relative w-full cursor-pointer transition-all duration-300 space-y-4 ${
-                                        isAlreadyUnlocked
-                                            ? 'bg-gradient-to-b from-[#0c1a14]/90 to-[#07130e]/95 border-2 border-emerald-500/70 shadow-[0_0_30px_rgba(16,185,129,0.18)] hover:shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:border-emerald-400'
-                                            : 'bg-gradient-to-b from-[#181409]/90 to-[#100e06]/95 border-2 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.12)] hover:shadow-[0_0_40px_rgba(234,179,8,0.22)] hover:border-yellow-400'
-                                    }`}
-                                >
-                                    {/* Image Container with Floating Badges */}
-                                    <div className="h-44 md:h-48 bg-zinc-900 relative overflow-hidden rounded-2xl shrink-0 border border-zinc-800/60">
-                                        {/* Floating Category Badge Top-Left */}
-                                        <div className="absolute top-3 left-3 z-10">
-                                            <span className={`px-3 py-1 bg-black/80 backdrop-blur-md text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border ${isAlreadyUnlocked ? 'border-emerald-500/40' : 'border-yellow-500/40'} shadow-md`}>
+                                        }}
+                                        className={`group rounded-3xl p-5 md:p-6 flex flex-col justify-between h-full relative w-full cursor-pointer transition-all duration-300 space-y-4 ${
+                                            isAlreadyUnlocked
+                                                ? 'bg-gradient-to-b from-[#0c1a14]/90 to-[#07130e]/95 border-2 border-emerald-500/70 shadow-[0_0_30px_rgba(16,185,129,0.18)] hover:shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:border-emerald-400'
+                                                : 'bg-gradient-to-b from-[#181409]/90 to-[#100e06]/95 border-2 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.12)] hover:shadow-[0_0_40px_rgba(234,179,8,0.22)] hover:border-yellow-400'
+                                        }`}
+                                    >
+                                        {/* Header Badges: Categoría y Estado encima de la imagen (sin taparla) */}
+                                        <div className="flex items-center justify-between gap-2">
+                                            <span className={`px-3 py-1.5 bg-black/60 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border ${isAlreadyUnlocked ? 'border-emerald-500/40 text-emerald-300' : 'border-yellow-500/40 text-yellow-300'} shadow-sm`}>
                                                 <span>{catIcon}</span> Categoría: {category}
                                             </span>
-                                        </div>
 
-                                        {/* Floating Status Badge Top-Right */}
-                                        <div className="absolute top-3 right-3 z-10">
                                             {isAlreadyUnlocked ? (
-                                                <span className="px-3 py-1 bg-emerald-500/25 text-emerald-300 text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-emerald-500/60 backdrop-blur-md shadow-lg">
+                                                <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-emerald-500/50">
                                                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Desbloqueado
                                                 </span>
                                             ) : (
-                                                <span className="px-3 py-1 bg-yellow-500/25 text-yellow-300 text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-yellow-500/50 backdrop-blur-md shadow-lg">
+                                                <span className="px-3 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-yellow-500/50">
                                                     <Lock className="w-3.5 h-3.5 text-yellow-400" /> Bloqueado
                                                 </span>
                                             )}
                                         </div>
 
-                                        {/* Cover Image */}
-                                        {projectImg ? (
-                                            <img
-                                                src={projectImg}
-                                                alt={title}
-                                                referrerPolicy="no-referrer"
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-zinc-900">
-                                                <Package className="w-10 h-10 text-zinc-700" />
-                                            </div>
-                                        )}
+                                        {/* Cover Image Container (limpio, sin elementos sobre la imagen) */}
+                                        <div className="h-44 md:h-48 bg-zinc-900 relative overflow-hidden rounded-2xl shrink-0 border border-zinc-800/60">
+                                            {projectImg ? (
+                                                <img
+                                                    src={projectImg}
+                                                    alt={title}
+                                                    referrerPolicy="no-referrer"
+                                                    onError={(e) => {
+                                                        const target = e.currentTarget;
+                                                        target.onerror = null;
+                                                        const fallback = category.toLowerCase().includes('resina') || title.toLowerCase().includes('resina')
+                                                            ? 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80'
+                                                            : 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=800&q=80';
+                                                        target.src = fallback;
+                                                    }}
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-zinc-900">
+                                                    <Package className="w-10 h-10 text-zinc-700" />
+                                                </div>
+                                            )}
 
-                                        {/* Dark overlay gradient */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none"></div>
-                                    </div>
-
-                                    {/* Text Content */}
-                                    <div className="flex-1 flex flex-col justify-between space-y-2">
-                                        <div>
-                                            <h3 className={`text-xl font-bold line-clamp-2 transition-colors duration-200 ${
-                                                isAlreadyUnlocked ? 'text-white group-hover:text-emerald-400' : 'text-white group-hover:text-yellow-400'
-                                            }`}>
-                                                {title}
-                                            </h3>
-                                            <p className="text-zinc-400 text-sm mt-2 line-clamp-3 leading-relaxed font-light">
-                                                {desc}
-                                            </p>
+                                            {/* Dark overlay gradient */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
                                         </div>
-                                    </div>
 
-                                    {/* Action Buttons */}
-                                    <div className="pt-2">
-                                        {isAlreadyUnlocked ? (
-                                            <button
-                                                type="button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    const userClone = projects.find(p => String(p.masterParentId) === String(project.id));
-                                                    handleViewStrategy(e, userClone || project);
-                                                }}
-                                                className="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(16,185,129,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
-                                            >
-                                                <span>VER PROYECTO</span>
-                                                <ArrowRight className="w-4 h-4 shrink-0" />
-                                            </button>
-                                        ) : (
-                                            <>
+                                        {/* Text Content */}
+                                        <div className="flex-1 flex flex-col justify-between space-y-2">
+                                            <div>
+                                                <h3 className={`text-xl font-bold line-clamp-2 transition-colors duration-200 ${
+                                                    isAlreadyUnlocked ? 'text-white group-hover:text-emerald-400' : 'text-white group-hover:text-yellow-400'
+                                                }`}>
+                                                    {title}
+                                                </h3>
+                                                <p className="text-zinc-400 text-sm mt-2 line-clamp-3 leading-relaxed font-light">
+                                                    {desc}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Buttons */}
+                                        <div className="pt-2">
+                                            {isAlreadyUnlocked ? (
                                                 <button
                                                     type="button"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        handleUnlock(project, e);
+                                                        const userClone = projects.find(p => String(p.masterParentId) === String(project.id));
+                                                        handleViewStrategy(e, userClone || project);
                                                     }}
-                                                    disabled={unlockingId === project.id}
-                                                    className="w-full py-3.5 px-5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(234,179,8,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98] disabled:opacity-50"
+                                                    className="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(16,185,129,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
                                                 >
-                                                    {unlockingId === project.id ? (
-                                                        <>
-                                                            <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                                                            <span>PROCESANDO...</span>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Unlock className="w-4 h-4 shrink-0" />
-                                                            <span>DESBLOQUEAR PROYECTO</span>
-                                                        </>
-                                                    )}
+                                                    <span>VER PROYECTO</span>
+                                                    <ArrowRight className="w-4 h-4 shrink-0" />
                                                 </button>
-                                                <p className="text-center text-[10px] text-zinc-500 font-bold uppercase tracking-widest pt-2">
-                                                    Consume 1 cupo de proyecto en tu plan
-                                                </p>
-                                            </>
-                                        )}
+                                            ) : (
+                                                <>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleUnlock(project, e);
+                                                        }}
+                                                        disabled={unlockingId === project.id}
+                                                        className="w-full py-3.5 px-5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(234,179,8,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98] disabled:opacity-50"
+                                                    >
+                                                        {unlockingId === project.id ? (
+                                                            <>
+                                                                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                                                                <span>PROCESANDO...</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Unlock className="w-4 h-4 shrink-0" />
+                                                                <span>DESBLOQUEAR PROYECTO</span>
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                    <p className="text-center text-[10px] text-zinc-500 font-bold uppercase tracking-widest pt-2">
+                                                        Consume 1 cupo de proyecto en tu plan
+                                                    </p>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                     </div>
                 )}
 

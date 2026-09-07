@@ -27,6 +27,7 @@ type MenuItem = {
   label: string;
   icon: any;
   path?: string;
+  onClick?: () => void;
   subItems?: { label: string; path: string; icon?: any }[];
   adminOnly?: boolean;
 };
@@ -249,9 +250,10 @@ export const DashboardLayout = ({
 
     return [
         { id: 'dashboard', label: 'Panel Principal', icon: LayoutDashboard, path: '/dashboard' },
+        { id: 'projects', label: 'Proyectos', icon: Briefcase, path: '/dashboard/projects' },
         { id: 'training', label: 'Academia', icon: GraduationCap, path: '/dashboard/training' },
-        { id: 'projects', label: 'Mis Proyectos', icon: Briefcase, path: '/dashboard/projects' },
-        { id: 'crm', label: 'Contactos', icon: Users, path: '/dashboard/crm' },
+        { id: 'crm', label: 'Leads Capturados', icon: Users, path: '/dashboard/crm' },
+        { id: 'account', label: 'Mi cuenta', icon: UserIcon, onClick: () => setShowProfileModal(true) },
         ...(SHOW_TU_SISTEMA_MENU ? [{ id: 'sistema', label: 'Tu Sistema', icon: Layers, subItems: [
             { label: 'Mis Proyectos', path: '/dashboard/projects', icon: Briefcase },
             { label: 'Hooks de Atracción', path: '/dashboard/hooks', icon: Zap },
@@ -279,13 +281,19 @@ export const DashboardLayout = ({
     const hasSubItems = !!item.subItems && item.subItems.length > 0; 
     const isExpanded = item.id === 'sistema' ? true : expandedMenu === item.id;
     const activeId = getActiveMenuId(location.pathname);
-    const isActive = activeId === item.id || (item.id === 'waitlist' && location.pathname === '/dashboard');
+    const isActive = item.id === 'account' 
+      ? showProfileModal 
+      : (activeId === item.id || (item.id === 'waitlist' && location.pathname === '/dashboard'));
 
     return (
       <div className="mb-3">
         <div
           onClick={() => {
-            if (hasSubItems) {
+            if (item.onClick) {
+              item.onClick();
+              setMobileMenuOpen(false);
+            }
+            else if (hasSubItems) {
               if (item.id === 'sistema') return;
               setExpandedMenu(isExpanded ? null : item.id);
             }
@@ -475,30 +483,6 @@ export const DashboardLayout = ({
              
              {!isWizardGenerating && (
                  <div className="flex items-center gap-2.5 sm:gap-4">
-                     {(!isSurveyPending && !showWizard) && (
-                        <>
-                            {/* Botón Naranja + Crear nuevo proyecto */}
-                            {!isProjectDetailRoute && (
-                                <button 
-                                    onClick={() => navigate('/dashboard/projects/create')}
-                                    className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#FF5A1F]/20 transition-all active:scale-95 cursor-pointer"
-                                >
-                                    <Plus className="w-4 h-4 text-white shrink-0" />
-                                    <span>Crear nuevo proyecto</span>
-                                </button>
-                            )}
-
-                            {/* Botón Notificaciones / Novedades (Campana) */}
-                            <button
-                                onClick={() => setShowNewsModal(true)}
-                                className="relative p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition flex items-center justify-center cursor-pointer"
-                                title="Novedades y Notificaciones"
-                            >
-                                <Bell className="w-5 h-5" />
-                                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#FF5A1F] ring-2 ring-[#030712] animate-pulse"></span>
-                            </button>
-                        </>
-                     )}
 
                      {/* Botón de Perfil con Submenú desplegable que incluye Salir */}
                      <div className="relative" ref={userMenuRef}>
