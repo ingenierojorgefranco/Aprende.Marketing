@@ -1812,57 +1812,61 @@ export const api = {
             const mockPlans: Plan[] = [
                 { 
                   id: 'starter', 
-                  name: 'Plan 1 (Starter)', 
+                  name: 'Plan Gratuito', 
                   slug: 'starter', 
-                  description: 'Plan base para todos los proyectos.', 
+                  description: 'Plan base para probar la plataforma y crear tu primer proyecto.', 
                   priceMonthly: 0, 
-                  currency: 'EUR', 
+                  currency: 'USD', 
                   limitsConfig: { 
                     planName: 'starter', 
                     maxProjects: 1, 
-                    maxLandings: 2, 
-                    maxArticles: 2, 
+                    maxLandings: 1, 
+                    maxArticles: 1, 
                     maxDomains: 0, 
-                    maxEmailSequences: 1,
-                    maxEmailSequencesNurturing: 15,
-                    maxWhatsAppLaunches: 1, 
-                    maxHooks: 10,
+                    maxEmailSequences: 0,
+                    maxEmailSequencesNurturing: 0,
+                    maxWhatsAppLaunches: 0, 
+                    maxHooks: 3,
                     features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } 
                   }, 
-                  uiFeatures: ['1 Proyecto Activo', 'Contenidos Limitados', 'Sin Dominio Propio', 'Marca de Agua'], 
+                  uiFeatures: ['1 Proyecto Activo', '1 Página de Captación', '3 Reels al mes con IA', 'Sin Dominio Propio'], 
                   isActive: true, 
                   isRecommended: false 
+                },
+                {
+                  id: 'pro',
+                  name: 'Plan Pro All-Access',
+                  slug: 'pro',
+                  description: 'Todo ilimitado: proyectos, reels con IA, páginas, dominios propios y soporte VIP.',
+                  priceMonthly: 79,
+                  currency: 'USD',
+                  stripePriceId: 'price_1SdGwIRJVKdziYWKRDtjacOl',
+                  limitsConfig: {
+                    planName: 'pro',
+                    maxProjects: 9999,
+                    maxLandings: 9999,
+                    maxArticles: 9999,
+                    maxDomains: 9999,
+                    maxEmailSequences: 9999,
+                    maxEmailSequencesNurturing: 9999,
+                    maxWhatsAppLaunches: 9999,
+                    maxHooks: 9999,
+                    features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: true }
+                  },
+                  uiFeatures: [
+                    'Proyectos y Productos Ilimitados',
+                    'Reels con IA Ilimitados',
+                    'Páginas de Captación y Embudos Ilimitados',
+                    'Dominios Personalizados Ilimitados',
+                    'Email Marketing Automatizado Ilimitado',
+                    'Secuencias de WhatsApp Ilimitadas',
+                    'Mentorías Grupales Semanales',
+                    'Soporte Prioritario VIP 1 a 1'
+                  ],
+                  isActive: true,
+                  isRecommended: true
                 }
             ];
-
-            for (let i = 2; i <= 10; i++) {
-                mockPlans.push({
-                    id: `plan-${i}`,
-                    name: `Plan ${i} (Proyecto ${i})`,
-                    slug: `plan-${i}`,
-                    description: `Desbloquea el proyecto ${i} con todas las funciones profesionales.`,
-                    priceMonthly: 19.99,
-                    currency: 'EUR',
-                    hotmartId: '2983743',
-                    hotmartOffer: `OFF_PLAN_${i}`,
-                    hotmartCheckoutMode: 'standard',
-                    limitsConfig: {
-                        planName: `plan-${i}`,
-                        maxProjects: 1,
-                        maxLandings: 20,
-                        maxArticles: 20,
-                        maxDomains: 3,
-                        maxEmailSequences: 5,
-                        maxEmailSequencesNurturing: 20,
-                        maxWhatsAppLaunches: 5,
-                        maxHooks: 50,
-                        features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: true }
-                    },
-                    uiFeatures: [`Proyecto ${i} Desbloqueado`, 'Dominios Personalizados', 'Sin Marca de Agua', 'IA Avanzada'],
-                    isActive: true,
-                    isRecommended: i === 2
-                });
-            }
             return Promise.resolve(mockPlans);
         }
         if (apiCache.publicPlans) return apiCache.publicPlans;

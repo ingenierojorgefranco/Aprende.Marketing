@@ -325,21 +325,21 @@ export const TrainingViewer: React.FC = () => {
         {/* LEFT COLUMN: MENU (Sticky & Scrollable) - (5 cols) */}
         <div className="lg:col-span-5 order-2 lg:order-1">
             <div className="sticky top-6">
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden flex flex-col max-h-[calc(100vh-100px)]">
-                    <div className="p-5 border-b border-gray-800 bg-gray-900 sticky top-0 z-10">
+                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden flex flex-col max-h-[850px] lg:max-h-[920px] xl:max-h-[1050px] 2xl:max-h-none shadow-xl">
+                    <div className="py-4 px-5 border-b border-gray-800 bg-gray-900 sticky top-0 z-10">
                         <h3 className="text-white font-bold text-lg flex items-center gap-2">
                             <PlayCircle className="w-5 h-5 text-primary" /> Temario del Curso
                         </h3>
                     </div>
                     
-                    <div className="overflow-y-auto p-3 space-y-3 custom-scrollbar">
+                    <div className="overflow-y-auto p-3 space-y-2.5 custom-scrollbar">
                         {courseData.modules.map((module) => (
                             <div key={module.id} className="border border-gray-800 rounded-xl overflow-hidden bg-gray-900 shadow-sm">
                                 <button 
                                     onClick={() => toggleModule(module.id)}
-                                    className={`w-full flex items-center justify-between p-5 hover:bg-gray-800 transition text-left ${expandedModuleIds.includes(module.id) ? 'bg-gray-800' : ''}`}
+                                    className={`w-full flex items-center justify-between py-3.5 px-4 sm:px-5 hover:bg-gray-800 transition text-left ${expandedModuleIds.includes(module.id) ? 'bg-gray-800' : ''}`}
                                 >
-                                    <span className="font-bold text-gray-200 text-lg">{module.title}</span>
+                                    <span className="font-bold text-gray-200 text-base sm:text-lg">{module.title}</span>
                                     {loadingModuleId === module.id ? (
                                         <Loader2 className="w-5 h-5 animate-spin text-primary" />
                                     ) : (
@@ -348,24 +348,24 @@ export const TrainingViewer: React.FC = () => {
                                 </button>
                                 
                                 {expandedModuleIds.includes(module.id) && (
-                                    <div className="bg-black/40 border-t border-gray-800 animate-in slide-in-from-top-2">
+                                    <div className="bg-black/40 border-t border-gray-800 animate-in slide-in-from-top-2 divide-y divide-gray-800/50">
                                         {module.lessons.map((lesson) => (
                                             <button 
                                                 key={lesson.id}
                                                 onClick={() => setCurrentLesson(lesson)}
-                                                className={`w-full flex items-center gap-4 p-5 text-base transition text-left border-l-4 group ${currentLesson?.id === lesson.id ? 'bg-primary/10 border-primary text-white' : 'border-transparent text-gray-400 hover:bg-white/5 hover:text-gray-200'}`}
+                                                className={`w-full flex items-center gap-3.5 py-3 px-4 text-base transition text-left border-l-4 group ${currentLesson?.id === lesson.id ? 'bg-primary/10 border-primary text-white' : 'border-transparent text-gray-400 hover:bg-white/5 hover:text-gray-200'}`}
                                             >
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition ${currentLesson?.id === lesson.id ? 'bg-primary text-white scale-110 shadow-lg shadow-primary/30' : 'bg-gray-800 text-gray-500 group-hover:bg-gray-700'}`}>
-                                                    <Play className="w-4 h-4 ml-0.5" />
+                                                <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition ${currentLesson?.id === lesson.id ? 'bg-primary text-white scale-105 shadow-lg shadow-primary/30' : 'bg-gray-800 text-gray-500 group-hover:bg-gray-700'}`}>
+                                                    <Play className="w-3.5 h-3.5 ml-0.5" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className={`font-medium line-clamp-2 leading-snug ${currentLesson?.id === lesson.id ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'}`}>{lesson.title}</p>
-                                                    <span className="text-sm opacity-60 font-mono mt-1.5 block">{lesson.duration}</span>
+                                                    <p className={`font-medium line-clamp-2 leading-snug text-sm sm:text-base ${currentLesson?.id === lesson.id ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'}`}>{lesson.title}</p>
+                                                    <span className="text-xs opacity-60 font-mono mt-1 block">{lesson.duration}</span>
                                                 </div>
                                             </button>
                                         ))}
                                         {module.lessons.length === 0 && (
-                                            <div className="p-5 text-sm text-gray-500 italic text-center">No hay lecciones en este módulo.</div>
+                                            <div className="p-4 text-sm text-gray-500 italic text-center">No hay lecciones en este módulo.</div>
                                         )}
                                     </div>
                                 )}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext, Link } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { LandingPage, User, Project } from '../../../types';
-import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase, ChevronDown, ChevronUp, Info, Plus, ArrowLeft, ChevronRight } from 'lucide-react';
+import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase, ChevronDown, ChevronUp, Info, Plus, ArrowLeft, ChevronRight, Lock } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 
@@ -428,7 +428,12 @@ export const MyPages: React.FC = () => {
                                             }`}
                                         >
                                             {page.customDomain ? <CheckCircle className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
-                                            {page.customDomain ? "Ver Dominio" : "Añadir Dominio"}
+                                            <span>{page.customDomain ? "Ver Dominio" : "Añadir Dominio"}</span>
+                                            {!page.customDomain && !isRealAdmin && (projects.find(p => p.id === page.projectId)?.planSlug || user.planLimits?.planName) === 'starter' && (
+                                                <span className="inline-flex items-center gap-1 bg-amber-400 text-black text-[9px] font-black px-2 py-0.5 rounded-md shadow-sm ml-1">
+                                                    <Lock className="w-2.5 h-2.5" /> PRO
+                                                </span>
+                                            )}
                                         </button>
 
                                         <div className="flex gap-2">

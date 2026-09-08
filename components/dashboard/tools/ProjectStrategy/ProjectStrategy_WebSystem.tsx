@@ -51,6 +51,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showDomainModal, setShowDomainModal] = useState(false);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [domainCount, setDomainCount] = useState(0);
@@ -100,6 +101,18 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     const isRealAdmin = (planLimits?.planName === 'admin' || userRole === 'admin') && !isSimulating;
     const isPro = isRealAdmin || (planLimits?.planName !== 'starter' && planLimits?.planName !== 'free' && (!projectData?.planSlug || projectData?.planSlug !== 'starter'));
+
+    const handleOpenDomainModal = () => {
+        if (!isPro) {
+            if (onUpgrade) {
+                onUpgrade();
+            } else {
+                setShowUpgradeModal(true);
+            }
+            return;
+        }
+        setShowDomainModal(true);
+    };
 
     // Sincronizar selección inicial de lead magnet con la configuración guardada de la página de gracias
     useEffect(() => {
@@ -825,11 +838,16 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
                                             {!linkedPages[0].customDomain && (
                                                 <button 
-                                                    onClick={() => setShowDomainModal(true)}
-                                                    className="w-full bg-[#3B82F6] hover:bg-blue-600 text-white font-black py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg shadow-blue-500/20 cursor-pointer transform hover:scale-[1.01] active:scale-95"
+                                                    onClick={handleOpenDomainModal}
+                                                    className="w-full bg-[#3B82F6] hover:bg-blue-600 text-white font-black py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg shadow-blue-500/20 cursor-pointer transform hover:scale-[1.01] active:scale-95 relative overflow-hidden group"
                                                 >
                                                     <Globe className="w-4 h-4" />
                                                     <span>ASIGNAR DOMINIO</span>
+                                                    {!isPro && (
+                                                        <span className="inline-flex items-center gap-1 bg-amber-400 text-black text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm ml-1">
+                                                            <Lock className="w-2.5 h-2.5" /> PRO
+                                                        </span>
+                                                    )}
                                                 </button>
                                             )}
                                         </div>
@@ -1255,7 +1273,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         <PenTool className="w-5 h-5" /> Editar Página de Captura
                                     </a>
                                     <button 
-                                        onClick={() => setShowDomainModal(true)} 
+                                        onClick={handleOpenDomainModal} 
                                         className={`flex-1 py-4 rounded-2xl font-black flex items-center justify-center gap-3 transition border shadow-xl transform hover:scale-[1.03] ${
                                             linkedPages.length > 0 && linkedPages[0].customDomain 
                                             ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-white" 
@@ -1263,7 +1281,12 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         }`}
                                     >
                                         {linkedPages.length > 0 && linkedPages[0].customDomain ? <CheckCircle2 className="w-5 h-5" /> : <Globe className="w-5 h-5" />}
-                                        {linkedPages.length > 0 && linkedPages[0].customDomain ? "Ver Dominio" : "Asignar Dominio"}
+                                        <span>{linkedPages.length > 0 && linkedPages[0].customDomain ? "Ver Dominio" : "Asignar Dominio"}</span>
+                                        {!isPro && (!linkedPages.length || !linkedPages[0].customDomain) && (
+                                            <span className="inline-flex items-center gap-1 bg-amber-400 text-black text-[9px] font-black px-2 py-0.5 rounded-md shadow-sm ml-1">
+                                                <Lock className="w-3 h-3" /> PRO
+                                            </span>
+                                        )}
                                     </button>
                                 </div>
                             </div>
@@ -1540,6 +1563,23 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* UPGRADE MODAL PARA FEATURE GATE DE DOMINIO */}
+            {showUpgradeModal && (
+                <UpgradeModal 
+                    isOpen={showUpgradeModal} 
+                    onClose={() => setShowUpgradeModal(false)} 
+                    user={{
+                        id: (strategy as any)?.userId || '',
+                        role: userRole || 'user',
+                        planLimits: planLimits
+                    } as any}
+                    currentPlan={projectData?.planSlug || planLimits?.planName || 'starter'}
+                    projectId={projectId}
+                    userId={(strategy as any)?.userId || ''}
+                    reason="El plan Starter no incluye dominios personalizados. Actualiza a Pro para conectar tu propio dominio y profesionalizar tu marca."
+                />
             )}
         </>
     );

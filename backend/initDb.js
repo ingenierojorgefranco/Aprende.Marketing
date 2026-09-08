@@ -726,6 +726,97 @@ const initDb = async () => {
             await connection.query(`UPDATE plans SET stripe_price_id = 'price_1SdGwIRJVKdziYWKRDtjacOl' WHERE slug = 'max' AND (stripe_price_id IS NULL OR stripe_price_id = '')`);
         }
 
+        ////////// Migración y Configuración del Modelo Free + Pro ($79/mes Ilimitado) //////////
+        const proLimits = JSON.stringify({
+            planName: 'pro',
+            maxProjects: 9999,
+            maxLandings: 9999,
+            maxArticles: 9999,
+            maxDomains: 9999,
+            maxEmailSequences: 9999,
+            maxEmailSequencesNurturing: 9999,
+            maxWhatsAppLaunches: 9999,
+            maxHooks: 9999,
+            features: {
+                whatsappBot: true,
+                blogGenerator: true,
+                emailMarketing: true,
+                removeBranding: true,
+                emailStrategy: true,
+                evergreenStrategy: true
+            }
+        });
+
+        const proUiFeatures = JSON.stringify([
+            'Proyectos y Productos Ilimitados',
+            'Reels con IA Ilimitados',
+            'Páginas de Captación y Embudos Ilimitados',
+            'Dominios Personalizados Ilimitados',
+            'Email Marketing y Secuencias Ilimitadas',
+            'Secuencias y Lanzamientos WhatsApp Ilimitados',
+            'Mentorías Grupales en Vivo Semanales',
+            'Soporte Prioritario VIP 1 a 1'
+        ]);
+
+        const [proPlanExists] = await connection.query("SELECT id FROM plans WHERE slug = 'pro'");
+        if (proPlanExists.length === 0) {
+            await connection.query(
+                `INSERT INTO plans (name, slug, description, price_monthly, currency, stripe_price_id, limits_config, ui_features, is_active, is_recommended)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, 1)`,
+                [
+                    'Plan Pro All-Access',
+                    'pro',
+                    'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.',
+                    79.00,
+                    'USD',
+                    'price_1SdGwIRJVKdziYWKRDtjacOl',
+                    proLimits,
+                    proUiFeatures
+                ]
+            );
+        } else {
+            await connection.query(
+                `UPDATE plans SET name = 'Plan Pro All-Access', price_monthly = 79.00, currency = 'USD', description = 'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.', limits_config = ?, ui_features = ?, is_active = 1, is_recommended = 1 WHERE slug = 'pro'`,
+                [proLimits, proUiFeatures]
+            );
+        }
+
+        // Actualizar el plan Starter para reflejar el plan gratuito
+        const freeLimits = JSON.stringify({
+            planName: 'starter',
+            maxProjects: 1,
+            maxLandings: 1,
+            maxArticles: 1,
+            maxDomains: 0,
+            maxEmailSequences: 0,
+            maxEmailSequencesNurturing: 0,
+            maxWhatsAppLaunches: 0,
+            maxHooks: 3,
+            features: {
+                whatsappBot: false,
+                blogGenerator: false,
+                emailMarketing: false,
+                removeBranding: false,
+                emailStrategy: false,
+                evergreenStrategy: false
+            }
+        });
+        const freeUiFeatures = JSON.stringify([
+            '1 Proyecto Activo',
+            '1 Página de Captación',
+            '3 Reels de Prueba al mes con IA',
+            '1 Artículo Mensual de Blog',
+            'Sin Dominio Propio'
+        ]);
+        await connection.query(
+            `UPDATE plans SET name = 'Plan Gratuito', price_monthly = 0, currency = 'USD', description = 'Plan base para probar la plataforma y crear tu primer proyecto.', limits_config = ?, ui_features = ?, is_active = 1, is_recommended = 0 WHERE slug = 'starter'`,
+            [freeLimits, freeUiFeatures]
+        );
+
+        // Desactivar planes que no sean starter ni pro para mantener el modelo limpio de 2 planes
+        await connection.query(`UPDATE plans SET is_active = 0 WHERE slug NOT IN ('starter', 'pro')`);
+        ////////// Fin de configuración de planes //////////
+
         // --- DATOS SEMILLA (SEED DATA) ---
         const [existingCourses] = await connection.query("SELECT id FROM courses LIMIT 1");
         if (existingCourses.length === 0) {

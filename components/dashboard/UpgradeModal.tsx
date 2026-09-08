@@ -75,14 +75,14 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
         plan = {
           id: slug,
           slug: slug,
-          name: slug === 'max' || slug === 'plan-max' ? 'Plan Max' : (slug === 'pro' || slug === 'plan-pro' ? 'Plan Pro' : 'Plan'),
-          priceMonthly: slug === 'max' || slug === 'plan-max' ? 49 : 29,
+          name: 'Plan Pro All-Access',
+          priceMonthly: billingPeriod === 'monthly' ? 79 : 59,
           currency: 'USD',
-          description: '',
+          description: 'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.',
           limitsConfig: {} as any,
           uiFeatures: [],
           isActive: true,
-          isRecommended: slug.includes('max')
+          isRecommended: true
         } as unknown as Plan;
       }
 
@@ -245,14 +245,14 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 </div>
               </div>
 
-              {/* 3 Plan Cards Grid (Ecomhunt style) */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch w-full">
+              {/* 2 Plan Cards Grid (Free vs Pro $79 All-Access) */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch w-full max-w-5xl mx-auto">
                 
                 {/* 1. PLAN FREE */}
                 <div className="bg-[#0c0c0e] border border-white/5 rounded-3xl p-6 sm:p-8 flex flex-col justify-between gap-6 shadow-xl relative hover:border-white/10 transition-colors">
                   <div className="space-y-5">
                     <div className="border-b border-white/5 pb-5">
-                      <span className="text-xs font-mono font-black text-gray-400 uppercase tracking-widest">Plan Básico</span>
+                      <span className="text-xs font-mono font-black text-gray-400 uppercase tracking-widest">Plan Básico Inicial</span>
                       <h3 className="text-2xl font-black text-white mt-1">FREE</h3>
                       <div className="flex items-baseline gap-1 mt-3">
                         <span className="text-4xl font-black text-white">$0</span>
@@ -262,7 +262,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                     </div>
 
                     <p className="text-xs text-gray-400 font-medium leading-relaxed">
-                      Diseñado para probar la plataforma y poner en marcha tu primer proyecto.
+                      Diseñado para probar la plataforma y poner en marcha tu primer proyecto de marketing digital.
                     </p>
 
                     <div className="space-y-3 pt-2">
@@ -274,15 +274,15 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                         </li>
                         <li className="flex items-center gap-2.5">
                           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span><strong>3 reels</strong> al mes con IA</span>
+                          <span><strong>1 página de captación</strong> publicada</span>
                         </li>
                         <li className="flex items-center gap-2.5">
                           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span><strong>1 artículo</strong> mensual de blog</span>
+                          <span><strong>3 reels al mes</strong> con IA (prueba de hooks y guiones)</span>
                         </li>
                         <li className="flex items-center gap-2.5">
                           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Página de captación publicada</span>
+                          <span><strong>1 artículo mensual</strong> de blog con IA</span>
                         </li>
                         <li className="flex items-center gap-2.5">
                           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -290,19 +290,27 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                         </li>
                         <li className="flex items-center gap-2.5 text-gray-600">
                           <X className="w-4 h-4 text-gray-600 shrink-0" />
-                          <span className="line-through">Email marketing y secuencias</span>
+                          <span className="line-through">Dominios personalizados propios</span>
                         </li>
                         <li className="flex items-center gap-2.5 text-gray-600">
                           <X className="w-4 h-4 text-gray-600 shrink-0" />
-                          <span className="line-through">Secuencias de WhatsApp</span>
+                          <span className="line-through">Email marketing y secuencias automatizadas</span>
                         </li>
                         <li className="flex items-center gap-2.5 text-gray-600">
                           <X className="w-4 h-4 text-gray-600 shrink-0" />
-                          <span className="line-through">Múltiples proyectos</span>
+                          <span className="line-through">Secuencias y lanzamientos de WhatsApp</span>
                         </li>
                         <li className="flex items-center gap-2.5 text-gray-600">
                           <X className="w-4 h-4 text-gray-600 shrink-0" />
-                          <span className="line-through">Mentorías grupales</span>
+                          <span className="line-through">Múltiples proyectos y productos</span>
+                        </li>
+                        <li className="flex items-center gap-2.5 text-gray-600">
+                          <X className="w-4 h-4 text-gray-600 shrink-0" />
+                          <span className="line-through">Mentorías grupales semanales</span>
+                        </li>
+                        <li className="flex items-center gap-2.5 text-gray-600">
+                          <X className="w-4 h-4 text-gray-600 shrink-0" />
+                          <span className="line-through">Soporte VIP prioritario 1 a 1</span>
                         </li>
                       </ul>
                     </div>
@@ -312,173 +320,100 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                     <button
                       type="button"
                       disabled
-                      className="w-full py-3.5 px-4 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-500 font-bold text-sm cursor-not-allowed text-center"
+                      className="w-full py-4 px-4 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-500 font-bold text-sm cursor-not-allowed text-center"
                     >
                       Tu Plan Actual
                     </button>
                   </div>
                 </div>
 
-                {/* 2. PLAN PRO ($29/mes - 1 proyecto) */}
-                <div className="bg-[#0c0c0e] border border-white/10 rounded-3xl p-6 sm:p-8 flex flex-col justify-between gap-6 shadow-xl relative hover:border-white/20 transition-all group">
-                  <div className="space-y-5">
-                    <div className="border-b border-white/5 pb-5">
-                      <span className="text-xs font-mono font-black text-[#FF5A1F] uppercase tracking-widest">Automatización Total</span>
-                      <h3 className="text-2xl font-black text-white mt-1">PRO</h3>
-                      <div className="flex items-baseline gap-1 mt-3">
-                        <span className="text-4xl font-black text-white">
-                          {billingPeriod === 'monthly' ? '$29' : '$24'}
-                        </span>
-                        <span className="text-sm font-bold text-gray-500">/mes</span>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1 font-medium">
-                        {billingPeriod === 'monthly' ? 'Facturado $29 al mes' : 'Facturado $290 al año (Ahorra $58)'}
-                      </p>
-                    </div>
-
-                    <p className="text-xs text-gray-300 font-medium leading-relaxed">
-                      Admite <strong className="text-white">1 proyecto</strong> con todas las automatizaciones de ventas, correos y contenidos.
-                    </p>
-
-                    <div className="space-y-3 pt-2">
-                      <p className="text-[11px] font-black text-[#FF5A1F] uppercase tracking-wider font-mono">Todo lo de Free, más:</p>
-                      <ul className="space-y-2.5 text-xs text-gray-200 font-medium">
-                        <li className="flex items-center gap-2.5">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span><strong>1 proyecto</strong> con acceso completo</span>
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span><strong>30 reels mensuales</strong> con hooks y guiones</span>
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span><strong>15 artículos mensuales</strong> para SEO</span>
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span><strong>Email marketing automatizado</strong> (nutrición y venta)</span>
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span><strong>Secuencias de WhatsApp</strong> para lanzamientos</span>
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span><strong>Páginas de captación ilimitadas</strong> x proyecto</span>
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Integración con Systeme.io y Webhooks</span>
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Soporte prioritario por chat</span>
-                        </li>
-                        <li className="flex items-center gap-2.5 text-gray-600">
-                          <X className="w-4 h-4 text-gray-600 shrink-0" />
-                          <span className="line-through">Múltiples proyectos (solo 1 proyecto)</span>
-                        </li>
-                        <li className="flex items-center gap-2.5 text-gray-600">
-                          <X className="w-4 h-4 text-gray-600 shrink-0" />
-                          <span className="line-through">Mentorías grupales</span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-white/5">
-                    <button
-                      type="button"
-                      onClick={() => handleUpgrade('pro')}
-                      disabled={processing === 'pro'}
-                      className="w-full py-3.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-black text-sm transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 group-hover:border group-hover:border-white/20 active:scale-[0.98]"
-                    >
-                      {processing === 'pro' ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Procesando...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Elegir Plan Pro</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* 3. PLAN MAX ($49/mes - Múltiples proyectos ilimitados + mentorías) - RECOMENDADO */}
-                <div className="bg-gradient-to-b from-[#1b120c] via-[#0f0c0a] to-[#070708] border-2 border-[#FF5A1F] rounded-3xl p-6 sm:p-8 flex flex-col justify-between gap-6 shadow-[0_0_40px_rgba(255,90,31,0.18)] relative transition-all duration-300 hover:shadow-[0_0_50px_rgba(255,90,31,0.28)]">
+                {/* 2. PLAN PRO ($79/mes - Todo Ilimitado) - RECOMENDADO & POPULAR */}
+                <div className="bg-gradient-to-b from-[#1c120c] via-[#100d0a] to-[#070708] border-2 border-[#FF5A1F] rounded-3xl p-6 sm:p-8 flex flex-col justify-between gap-6 shadow-[0_0_50px_rgba(255,90,31,0.22)] relative transition-all duration-300 hover:shadow-[0_0_60px_rgba(255,90,31,0.32)]">
                   {/* Badge Popular / Recomendado */}
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
-                    <span className="bg-emerald-500 text-black text-[10px] font-black px-4 py-1 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1 font-mono">
-                      ★ POPULAR & RECOMENDADO
+                    <span className="bg-gradient-to-r from-amber-500 to-[#FF5A1F] text-white text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1.5 font-mono">
+                      <Sparkles className="w-3.5 h-3.5 fill-current" /> ★ ACCESO TOTAL ILIMITADO
                     </span>
                   </div>
 
                   <div className="space-y-5">
-                    <div className="border-b border-white/10 pb-5 pt-1">
-                      <span className="text-xs font-mono font-black text-[#FF5A1F] uppercase tracking-widest flex items-center gap-1">
-                        <Crown className="w-3.5 h-3.5 text-[#FF5A1F]" /> Acceso Completo VIP
-                      </span>
-                      <h3 className="text-2xl font-black text-white mt-1 flex items-center gap-2">
-                        MAX <Sparkles className="w-5 h-5 text-[#FF5A1F]" />
-                      </h3>
-                      <div className="flex items-baseline gap-1 mt-3">
-                        <span className="text-4xl font-black text-white">
-                          {billingPeriod === 'monthly' ? '$49' : '$39'}
+                    <div className="border-b border-white/10 pb-5 pt-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-mono font-black text-[#FF5A1F] uppercase tracking-widest flex items-center gap-1">
+                          <Crown className="w-3.5 h-3.5 text-[#FF5A1F]" /> Plan Pro All-Access
                         </span>
-                        <span className="text-sm font-bold text-gray-400">/mes</span>
+                        <span className="text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+                          Sin Restricciones
+                        </span>
+                      </div>
+
+                      <h3 className="text-2xl sm:text-3xl font-black text-white mt-1 flex items-center gap-2">
+                        PRO ILIMITADO <Sparkles className="w-5 h-5 text-[#FF5A1F]" />
+                      </h3>
+
+                      <div className="flex items-baseline gap-1 mt-3">
+                        <span className="text-4xl sm:text-5xl font-black text-white">
+                          {billingPeriod === 'monthly' ? '$79' : '$59'}
+                        </span>
+                        <span className="text-base font-bold text-gray-400">/mes</span>
                       </div>
                       <p className="text-xs text-gray-400 mt-1 font-medium">
-                        {billingPeriod === 'monthly' ? 'Facturado $49 al mes' : 'Facturado $490 al año (Ahorra $98)'}
+                        {billingPeriod === 'monthly' 
+                          ? 'Facturado $79 al mes · Cancela cuando quieras' 
+                          : 'Facturado $708 al año · ¡Ahorras $240 (2 meses gratis)!'}
                       </p>
                     </div>
 
-                    <p className="text-xs text-gray-200 font-medium leading-relaxed">
-                      Crea <strong className="text-[#FF5A1F]">múltiples proyectos ilimitadamente</strong> y participa en <strong className="text-white">mentorías grupales en vivo</strong>.
+                    <p className="text-xs sm:text-sm text-gray-200 font-medium leading-relaxed">
+                      Desbloquea todo el poder de la plataforma sin límites: crea <strong className="text-[#FF5A1F]">productos ilimitados, reels ilimitados y páginas ilimitadas</strong> para escalar al máximo.
                     </p>
 
                     <div className="space-y-3 pt-2">
-                      <p className="text-[11px] font-black text-[#FF5A1F] uppercase tracking-wider font-mono">Todo lo de Pro, más:</p>
-                      <ul className="space-y-2.5 text-xs text-white font-medium">
-                        <li className="flex items-center gap-2.5 bg-[#FF5A1F]/10 p-2 rounded-xl border border-[#FF5A1F]/20">
+                      <p className="text-[11px] font-black text-[#FF5A1F] uppercase tracking-wider font-mono">Todo lo que incluye sin límites:</p>
+                      <ul className="space-y-2.5 text-xs sm:text-sm text-white font-medium">
+                        <li className="flex items-center gap-2.5 bg-[#FF5A1F]/10 p-2.5 rounded-xl border border-[#FF5A1F]/20">
                           <Rocket className="w-4 h-4 text-[#FF5A1F] shrink-0" />
-                          <span><strong className="text-[#FF5A1F]">Proyectos ILIMITADOS</strong> (crea sin límites)</span>
+                          <span><strong className="text-white">Proyectos y Productos ILIMITADOS</strong> (crea sin límites)</span>
                         </li>
-                        <li className="flex items-center gap-2.5 bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20">
-                          <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span><strong className="text-emerald-400">Mentorías grupales en vivo</strong> todas las semanas</span>
+                        <li className="flex items-center gap-2.5 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
+                          <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                          <span><strong className="text-white">Reels con IA ILIMITADOS</strong> (guiones, hooks y llamadas a la acción)</span>
+                        </li>
+                        <li className="flex items-center gap-2.5 bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span><strong className="text-white">Páginas de Captación y Embudos ILIMITADOS</strong></span>
                         </li>
                         <li className="flex items-center gap-2.5">
                           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span><strong>Reels y artículos ILIMITADOS</strong> para todos tus proyectos</span>
+                          <span><strong>Dominios Personalizados ILIMITADOS</strong> (conecta tus propios dominios)</span>
                         </li>
                         <li className="flex items-center gap-2.5">
                           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span><strong>Email marketing y secuencias ilimitadas</strong></span>
+                          <span><strong>Artículos de Blog para SEO ILIMITADOS</strong></span>
                         </li>
                         <li className="flex items-center gap-2.5">
                           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span><strong>Lanzamientos y secuencias de WhatsApp avanzadas</strong></span>
+                          <span><strong>Email Marketing Automatizado ILIMITADO</strong> (nutrición y venta)</span>
                         </li>
                         <li className="flex items-center gap-2.5">
                           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Páginas de captación ilimitadas en todos tus proyectos</span>
+                          <span><strong>Secuencias y Lanzamientos de WhatsApp ILIMITADOS</strong></span>
                         </li>
                         <li className="flex items-center gap-2.5">
                           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Plantillas y funnels premium desbloqueados</span>
+                          <span><strong>Mentorías grupales en vivo</strong> todas las semanas</span>
                         </li>
                         <li className="flex items-center gap-2.5">
                           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span><strong>Soporte VIP prioritario 1 a 1</strong></span>
+                          <span><strong>Sin marca de agua</strong> en todas tus páginas y embudos</span>
                         </li>
                         <li className="flex items-center gap-2.5">
                           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Acceso anticipado a nuevas herramientas de IA</span>
+                          <span><strong>Soporte Prioritario VIP 1 a 1</strong> por chat y WhatsApp</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>Acceso anticipado a todas las nuevas herramientas de IA</span>
                         </li>
                       </ul>
                     </div>
@@ -487,18 +422,18 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                   <div className="pt-4 border-t border-white/10">
                     <button
                       type="button"
-                      onClick={() => handleUpgrade('max')}
-                      disabled={processing === 'max'}
-                      className="w-full py-4 px-6 rounded-xl bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-black text-base transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 shadow-xl shadow-[#FF5A1F]/30 hover:scale-[1.02] active:scale-[0.98]"
+                      onClick={() => handleUpgrade('pro')}
+                      disabled={processing === 'pro'}
+                      className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-[#ff7e47] hover:from-[#E04E1A] hover:to-[#FF5A1F] text-white font-black text-base transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 shadow-xl shadow-[#FF5A1F]/30 hover:scale-[1.02] active:scale-[0.98]"
                     >
-                      {processing === 'max' ? (
+                      {processing === 'pro' ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
                           <span>Procesando pago seguro...</span>
                         </>
                       ) : (
                         <>
-                          <span>Elegir Plan Max</span>
+                          <span>Desbloquear Plan Pro Ilimitado</span>
                           <ArrowRight className="w-5 h-5" />
                         </>
                       )}
@@ -515,42 +450,41 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-400" /> Pago 100% cifrado y seguro</span>
               </div>
 
-              {/* Detailed Comparison Table (Ecomhunt style) */}
-              <div className="border border-white/5 bg-[#0c0c0e]/60 backdrop-blur-xl rounded-[2rem] p-6 md:p-10 space-y-6 shadow-xl">
+              {/* Detailed Comparison Table (2-Column Free vs Pro $79) */}
+              <div className="border border-white/5 bg-[#0c0c0e]/60 backdrop-blur-xl rounded-[2rem] p-6 md:p-10 space-y-6 shadow-xl max-w-5xl mx-auto w-full">
                 <div className="space-y-1">
                   <span className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.25em] font-mono">COMPARATIVA DETALLADA</span>
-                  <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">Comparativa de Funcionalidades</h3>
+                  <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">Plan Gratuito vs. Plan Pro All-Access</h3>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[650px]">
+                  <table className="w-full text-left border-collapse min-w-[550px]">
                     <thead>
                       <tr className="border-b border-white/10 text-gray-400 text-xs font-black uppercase tracking-wider">
-                        <th className="pb-4 font-mono w-2/5">Funcionalidad</th>
-                        <th className="pb-4 font-mono text-center">FREE</th>
-                        <th className="pb-4 font-mono text-center text-[#FF5A1F]">PRO ($29)</th>
-                        <th className="pb-4 font-mono text-center text-emerald-400">MAX ($49) ★</th>
+                        <th className="pb-4 font-mono w-1/2">Funcionalidad</th>
+                        <th className="pb-4 font-mono text-center w-1/4">PLAN FREE ($0)</th>
+                        <th className="pb-4 font-mono text-center w-1/4 text-[#FF5A1F]">PLAN PRO ($79/mes) ★</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/[0.04] text-sm">
                       {[
-                        { feature: "Proyectos activos permitidos", free: "1 proyecto", pro: "1 proyecto", max: "Ilimitados" },
-                        { feature: "Mentorías grupales en vivo", free: "—", pro: "—", max: "Semanales en vivo" },
-                        { feature: "Reels con IA al mes", free: "3", pro: "30", max: "Ilimitados" },
-                        { feature: "Artículos de blog al mes", free: "1", pro: "15", max: "Ilimitados" },
-                        { feature: "Hooks y guiones persuasivos", free: "Básicos", pro: "Completos", max: "Ilimitados VIP" },
-                        { feature: "Email marketing automatizado", free: "—", pro: "Nutrición y venta", max: "Avanzado e Ilimitado" },
-                        { feature: "Secuencias de WhatsApp", free: "—", pro: "Lanzamientos", max: "Ilimitadas" },
-                        { feature: "Páginas de captación publicadas", free: "1", pro: "Ilimitadas x proyecto", max: "Ilimitadas" },
-                        { feature: "Integración Systeme.io y Webhooks", free: "—", pro: "Incluida", max: "Incluida" },
-                        { feature: "Plantillas y funnels premium", free: "Básicas", pro: "Estándar", max: "Todas desbloqueadas" },
-                        { feature: "Nivel de soporte", free: "Comunidad", pro: "Prioritario por chat", max: "VIP 1 a 1 prioritario" }
+                        { feature: "Proyectos y Productos activos", free: "1 proyecto", pro: "ILIMITADOS" },
+                        { feature: "Páginas de captación y embudos", free: "1 página activa", pro: "ILIMITADAS" },
+                        { feature: "Dominios propios personalizados", free: "Subdominio compartido", pro: "ILIMITADOS con SSL" },
+                        { feature: "Reels con IA generados al mes", free: "3 de prueba", pro: "ILIMITADOS (Uso Justo)" },
+                        { feature: "Artículos de blog para SEO", free: "1 al mes", pro: "ILIMITADOS" },
+                        { feature: "Hooks y guiones persuasivos", free: "Básicos", pro: "ILIMITADOS VIP" },
+                        { feature: "Email marketing automatizado", free: "—", pro: "Secuencias Ilimitadas" },
+                        { feature: "Secuencias y lanzamientos WhatsApp", free: "—", pro: "Lanzamientos Ilimitados" },
+                        { feature: "Mentorías grupales en vivo", free: "—", pro: "Semanales en vivo" },
+                        { feature: "Sin marca de agua en páginas", free: "Marca visible", pro: "100% Marca Blanca" },
+                        { feature: "Integración Systeme.io y Webhooks", free: "—", pro: "Totalmente incluida" },
+                        { feature: "Nivel de soporte técnico", free: "Comunidad", pro: "VIP Prioritario 1 a 1" }
                       ].map((row, idx) => (
                         <tr key={idx} className="hover:bg-white/[0.01] transition-colors">
                           <td className="py-4 font-bold text-gray-300">{row.feature}</td>
                           <td className="py-4 text-center text-gray-500 font-semibold">{row.free}</td>
-                          <td className="py-4 text-center text-white font-bold">{row.pro}</td>
-                          <td className="py-4 text-center text-emerald-400 font-black">{row.max}</td>
+                          <td className="py-4 text-center text-[#FF5A1F] font-black text-base">{row.pro}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -565,20 +499,20 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
                     { 
+                      q: "¿Qué incluye exactamente el acceso Ilimitado?", 
+                      a: "Con el Plan Pro de $79/mes puedes crear proyectos y productos ilimitados, embudos y páginas ilimitadas, dominios propios ilimitados y generación de reels con IA sin bloqueos de cuota, bajo una política de uso justo." 
+                    },
+                    { 
                       q: "¿Perderé mi proyecto actual?", 
-                      a: "No. Tu estrategia, página, reels y contactos permanecerán en tu cuenta." 
+                      a: "No. Tu estrategia, página, reels y contactos permanecerán en tu cuenta y se desbloquearán todas las funciones Pro." 
                     },
                     { 
                       q: "¿Puedo cancelar cuando quiera?", 
-                      a: "Sí. Mantendrás las funciones Pro hasta finalizar el período que ya hayas pagado." 
+                      a: "Sí, sin compromisos ni contratos de permanencia. Mantendrás las funciones Pro hasta finalizar el período que ya hayas pagado." 
                     },
                     { 
                       q: "¿Necesito conocimientos técnicos?", 
-                      a: "No. La plataforma te guiará durante la configuración de correos, WhatsApp y automatizaciones." 
-                    },
-                    { 
-                      q: "¿Pro garantiza que conseguiré ventas?", 
-                      a: "No. Aprende Marketing proporciona estrategias, herramientas y materiales, pero los resultados dependen de tu oferta, tráfico y ejecución." 
+                      a: "No. La plataforma te guía paso a paso durante la configuración de páginas, correos, dominios y automatizaciones." 
                     }
                   ].map((faq, idx) => {
                     const isFaqOpen = openFaq === idx;

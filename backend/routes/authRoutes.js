@@ -44,7 +44,7 @@ export const clearLimitsCache = (userId) => {
     else limitsCache.clear();
 };
 
-export const PLAN_ORDER = ['starter', 'plan-max-1', 'plan-max-2', 'plan-max-3', 'plan-max-4', 'plan-max-5', 'plan-max-6', 'plan-max-7', 'plan-max-8', 'plan-max-9', 'plan-max-10'];
+export const PLAN_ORDER = ['starter', 'free', 'pro', 'max', 'plan-max-1', 'plan-max-2', 'plan-max-3', 'plan-max-4', 'plan-max-5', 'plan-max-6', 'plan-max-7', 'plan-max-8', 'plan-max-9', 'plan-max-10'];
 
 export const getEffectiveLimits = async (userId) => {
     try {
@@ -152,7 +152,10 @@ export const getEffectiveLimits = async (userId) => {
             let effectivePlanSlug = 'starter';
             let isBlocked = false;
 
-            if (slotNumber === 1) {
+            if (activeSlugsSet.has('pro') || activeSlugsSet.has('max')) {
+                effectivePlanSlug = 'pro';
+                isBlocked = false;
+            } else if (slotNumber === 1) {
                 // Slot 1 is always active. Use plan-max-1 if active, else starter.
                 effectivePlanSlug = activeSlugsSet.has('plan-max-1') ? 'plan-max-1' : 'starter';
                 isBlocked = false;
