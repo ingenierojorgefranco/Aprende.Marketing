@@ -6,7 +6,7 @@ import { getIcon } from './utils';
 import {
   Check, Mail, Play, Volume2, VolumeX,
   Settings, Maximize2, Clock, User, GraduationCap,
-  ExternalLink, Gift, MessageCircle, Sparkles, Anchor
+  ExternalLink, Gift, MessageCircle, Sparkles
 } from 'lucide-react';
 
 interface LiveThankYouPageProps {
@@ -18,6 +18,133 @@ interface LiveThankYouPageProps {
   project?: any;
 }
 
+// Helper para sincronizar bordes, badges y acentos con la paleta activa de la página de captura
+const getPaletteAccents = (palette: string = 'nature-green') => {
+  switch (palette) {
+    case 'nature-green':
+      return {
+        cardBorder: 'border-2 border-emerald-500',
+        badgeBg: 'bg-emerald-600',
+        badgeText: 'text-white',
+        checkBg: 'bg-emerald-600 text-white',
+        checkText: 'text-emerald-400',
+        recommendBg: 'bg-emerald-50/90 border-emerald-200/80 text-emerald-700',
+        stepBadgeBg: 'bg-emerald-100 text-emerald-700',
+        stepIconBg: 'bg-emerald-50 text-emerald-600',
+        stepIconCheckBg: 'bg-emerald-50 text-emerald-600',
+      };
+    case 'modern-blue':
+      return {
+        cardBorder: 'border-2 border-blue-600',
+        badgeBg: 'bg-blue-600',
+        badgeText: 'text-white',
+        checkBg: 'bg-blue-600 text-white',
+        checkText: 'text-blue-400',
+        recommendBg: 'bg-blue-50/90 border-blue-200/80 text-blue-700',
+        stepBadgeBg: 'bg-blue-100 text-blue-700',
+        stepIconBg: 'bg-blue-50 text-blue-600',
+        stepIconCheckBg: 'bg-blue-50 text-blue-600',
+      };
+    case 'elegant-purple':
+      return {
+        cardBorder: 'border-2 border-purple-600',
+        badgeBg: 'bg-purple-600',
+        badgeText: 'text-white',
+        checkBg: 'bg-purple-600 text-white',
+        checkText: 'text-purple-400',
+        recommendBg: 'bg-purple-50/90 border-purple-200/80 text-purple-700',
+        stepBadgeBg: 'bg-purple-100 text-purple-700',
+        stepIconBg: 'bg-purple-50 text-purple-600',
+        stepIconCheckBg: 'bg-purple-50 text-purple-600',
+      };
+    case 'energetic-orange':
+      return {
+        cardBorder: 'border-2 border-orange-500',
+        badgeBg: 'bg-orange-600',
+        badgeText: 'text-white',
+        checkBg: 'bg-orange-600 text-white',
+        checkText: 'text-orange-400',
+        recommendBg: 'bg-orange-50/90 border-orange-200/80 text-orange-700',
+        stepBadgeBg: 'bg-orange-100 text-orange-700',
+        stepIconBg: 'bg-orange-50 text-orange-600',
+        stepIconCheckBg: 'bg-orange-50 text-orange-600',
+      };
+    case 'dark-luxury':
+      return {
+        cardBorder: 'border-2 border-yellow-500',
+        badgeBg: 'bg-yellow-500',
+        badgeText: 'text-black',
+        checkBg: 'bg-yellow-500 text-black',
+        checkText: 'text-yellow-400',
+        recommendBg: 'bg-yellow-50/90 border-yellow-200/80 text-yellow-800',
+        stepBadgeBg: 'bg-yellow-100 text-yellow-800',
+        stepIconBg: 'bg-yellow-50 text-yellow-600',
+        stepIconCheckBg: 'bg-yellow-50 text-yellow-600',
+      };
+    case 'ocean-teal':
+      return {
+        cardBorder: 'border-2 border-teal-500',
+        badgeBg: 'bg-teal-600',
+        badgeText: 'text-white',
+        checkBg: 'bg-teal-600 text-white',
+        checkText: 'text-teal-400',
+        recommendBg: 'bg-teal-50/90 border-teal-200/80 text-teal-700',
+        stepBadgeBg: 'bg-teal-100 text-teal-700',
+        stepIconBg: 'bg-teal-50 text-teal-600',
+        stepIconCheckBg: 'bg-teal-50 text-teal-600',
+      };
+    case 'crimson-red':
+      return {
+        cardBorder: 'border-2 border-red-600',
+        badgeBg: 'bg-red-700',
+        badgeText: 'text-white',
+        checkBg: 'bg-red-700 text-white',
+        checkText: 'text-red-400',
+        recommendBg: 'bg-red-50/90 border-red-200/80 text-red-700',
+        stepBadgeBg: 'bg-red-100 text-red-700',
+        stepIconBg: 'bg-red-50 text-red-600',
+        stepIconCheckBg: 'bg-red-50 text-red-600',
+      };
+    case 'corporate-slate':
+      return {
+        cardBorder: 'border-2 border-slate-600',
+        badgeBg: 'bg-slate-800',
+        badgeText: 'text-white',
+        checkBg: 'bg-slate-800 text-white',
+        checkText: 'text-slate-300',
+        recommendBg: 'bg-slate-100/90 border-slate-200/80 text-slate-700',
+        stepBadgeBg: 'bg-slate-200 text-slate-800',
+        stepIconBg: 'bg-slate-100 text-slate-700',
+        stepIconCheckBg: 'bg-slate-100 text-slate-700',
+      };
+    case 'gold-prestige':
+      return {
+        cardBorder: 'border-2 border-amber-500',
+        badgeBg: 'bg-amber-500',
+        badgeText: 'text-white',
+        checkBg: 'bg-amber-500 text-white',
+        checkText: 'text-amber-400',
+        recommendBg: 'bg-amber-50/90 border-amber-200/80 text-amber-800',
+        stepBadgeBg: 'bg-amber-100 text-amber-800',
+        stepIconBg: 'bg-amber-50 text-amber-600',
+        stepIconCheckBg: 'bg-amber-50 text-amber-600',
+      };
+    case 'minimal-mono':
+    default:
+      return {
+        cardBorder: 'border-2 border-gray-900',
+        badgeBg: 'bg-black',
+        badgeText: 'text-white',
+        checkBg: 'bg-black text-white',
+        checkText: 'text-gray-300',
+        recommendBg: 'bg-gray-100 border-gray-200 text-gray-800',
+        stepBadgeBg: 'bg-gray-200 text-black',
+        stepIconBg: 'bg-gray-100 text-black',
+        stepIconCheckBg: 'bg-gray-100 text-black',
+      };
+  }
+};
+
 export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   content,
   ds,
@@ -28,6 +155,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 }) => {
   const activeDs = ds || getDesignSystem(content.palette);
   const tyConfig: ThankYouPageConfig = content.thankYouPage || {};
+  const paletteAccents = getPaletteAccents(content.palette);
 
   // Brand Name & Visuals
   const brandName = tyConfig.headerLogoText || content.brandName || project?.name || "ResinPro Studio Latino";
@@ -88,51 +216,61 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
     }
   };
 
-  // Helper para renderizar el logo unificado
+  // Helper para renderizar el logo idéntico a la barra de navegación de la página de captura
   const renderLogoIcon = () => {
     if (content.brandIcon) {
-      return getIcon(content.brandIcon, <Sparkles className="w-4 h-4" />);
+      return getIcon(content.brandIcon, <Sparkles className="w-5 h-5" />);
     }
     if (content.logoSvg) {
-      return <div className="w-5 h-5" dangerouslySetInnerHTML={{ __html: content.logoSvg }} />;
+      return (
+        <div 
+          className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center" 
+          dangerouslySetInnerHTML={{ __html: content.logoSvg }} 
+        />
+      );
     }
-    // Icono orbe gradiente por defecto fiel a la imagen de referencia
+    // Hexágono azul 3D idéntico al de las imágenes 1 y 3 de la captura
     return (
-      <div className="w-full h-full rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-400 flex items-center justify-center shadow-inner">
-        <div className="w-2 h-2 rounded-full bg-white/90 shadow"></div>
-      </div>
+      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400 fill-blue-500/90 drop-shadow-sm" viewBox="0 0 24 24">
+        <path d="M12 2L3.5 7v10L12 22l8.5-5V7L12 2zm0 2.8l6.5 3.8v6.8L12 19.2l-6.5-3.8V8.6L12 4.8z" />
+        <path d="M12 7l4.5 2.6v4.8L12 17l-4.5-2.6V9.6L12 7z" fill="currentColor" fillOpacity="0.4" />
+      </svg>
     );
   };
 
   return (
     <div 
       id="thankyou-template-root" 
-      className="min-h-screen font-sans bg-[#0B0918] text-white scroll-smooth relative overflow-hidden flex flex-col antialiased selection:bg-purple-500 selection:text-white"
+      className={`min-h-screen font-sans ${activeDs.hero.bgGradient || 'bg-[#1c1917]'} ${activeDs.selectionColor || 'selection:bg-emerald-500 selection:text-white'} text-white scroll-smooth relative overflow-hidden flex flex-col antialiased`}
     >
-      {/* Resplandor ambiental de fondo fiel al hero de la página de captura */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-gradient-to-b from-purple-900/30 via-indigo-950/20 to-transparent rounded-full blur-[140px] pointer-events-none"></div>
-      <div className="absolute top-[40%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-gradient-to-b from-indigo-900/15 via-purple-900/10 to-transparent rounded-full blur-[160px] pointer-events-none"></div>
+      {/* Resplandor ambiental coherente con el Hero de la página de captura */}
+      <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[850px] h-[550px] rounded-full blur-[140px] pointer-events-none ${activeDs.blobColor} ${activeDs.blobOpacity || 'opacity-20'}`}></div>
+      <div className={`absolute top-[45%] left-1/2 -translate-x-1/2 w-[950px] h-[650px] rounded-full blur-[160px] pointer-events-none ${activeDs.blobColor} opacity-10`}></div>
 
-      {/* 1. HEADER CENTRADO LIMPIO CON EL LOGO OFICIAL */}
-      <header className="pt-8 pb-3 sm:pb-4 flex items-center justify-center gap-2.5 relative z-20">
-        <a 
-          href={basePath || '/'} 
-          className="inline-flex items-center gap-2.5 hover:opacity-90 transition-opacity"
-        >
-          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow-md overflow-hidden shrink-0">
-            {renderLogoIcon()}
-          </div>
-          <span className="font-bold text-white text-base sm:text-lg tracking-tight">
-            {brandName}
-          </span>
-        </a>
+      {/* 1. FRANJA SUPERIOR DEL LOGO (COHERENTE CON EL NAVBAR DE LA CAPTURA - IMAGEN 3) */}
+      <header className={`w-full py-4 sm:py-5 border-b border-white/10 ${activeDs.nav.transparentBg} relative z-20 backdrop-blur-md shadow-sm`}>
+        <div className="max-w-5xl mx-auto px-4 flex items-center justify-center">
+          <a 
+            href={basePath || '/'} 
+            className="inline-flex items-center gap-3 hover:opacity-90 transition-opacity"
+          >
+            {/* Logo dentro del círculo con el fondo y color oficial de la captura */}
+            <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-md shrink-0 overflow-hidden ${activeDs.nav.logoBg} ${activeDs.nav.logoText}`}>
+              {renderLogoIcon()}
+            </div>
+            {/* Nombre de la marca con tipografía de alto contraste */}
+            <span className="font-bold text-white text-base sm:text-lg tracking-tight">
+              {brandName}
+            </span>
+          </a>
+        </div>
       </header>
 
-      {/* 2. HERO DE CONFIRMACIÓN CON ICONO VERDE Y AVISO DE CORREO */}
-      <section className="relative pt-4 pb-8 sm:pb-12 text-center px-4 relative z-10">
+      {/* 2. HERO DE CONFIRMACIÓN (FONDO MÁS OSCURO DEL HERO DE LA CAPTURA) */}
+      <section className="relative pt-8 sm:pt-10 pb-8 sm:pb-12 text-center px-4 z-10">
         <div className="max-w-3xl mx-auto">
-          {/* Icono Check Circular Verde de Confirmación */}
-          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#00B758] flex items-center justify-center text-white mx-auto mb-4 shadow-lg shadow-emerald-500/30 ring-4 ring-emerald-500/15 animate-in zoom-in-75 duration-300">
+          {/* Icono Check Circular de Confirmación con el color de acento de la captura */}
+          <div className={`w-13 h-13 sm:w-14 sm:h-14 rounded-full ${paletteAccents.checkBg} flex items-center justify-center mx-auto mb-4 shadow-lg shadow-black/20 ring-4 ring-white/10 animate-in zoom-in-75 duration-300`}>
             <Check className="w-7 h-7 sm:w-8 sm:h-8 stroke-[3]" />
           </div>
 
@@ -142,13 +280,13 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
           </h1>
 
           {/* Subtítulo */}
-          <p className="text-sm sm:text-base md:text-lg text-white/80 font-normal leading-relaxed max-w-xl mx-auto mb-5">
+          <p className={`text-sm sm:text-base md:text-lg ${activeDs.hero.subtitleColor || 'text-white/80'} font-normal leading-relaxed max-w-xl mx-auto mb-5`}>
             {tyConfig.subheadline || "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo para que puedas volver cuando quieras."}
           </p>
 
-          {/* Píldora de aviso de correo con fondo oscuro/púrpura traslúcido */}
-          <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full border border-purple-500/25 bg-[#170E2B]/80 backdrop-blur-md shadow-sm text-xs sm:text-sm font-medium text-white/90">
-            <Mail className="w-4 h-4 text-[#00B758] shrink-0" />
+          {/* Píldora de aviso de correo con fondo sutil y borde coherente */}
+          <div className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full border ${activeDs.hero.badgeBg || 'bg-black/40'} ${activeDs.hero.badgeText || 'text-white/90'} ${activeDs.hero.badgeBorder || 'border-white/15'} backdrop-blur-md shadow-sm text-xs sm:text-sm font-medium`}>
+            <Mail className={`w-4 h-4 ${paletteAccents.checkText} shrink-0`} />
             <span>{tyConfig.emailNotificationText || "Revisa tu bandeja de entrada (y spam) para encontrar el acceso."}</span>
           </div>
         </div>
@@ -158,12 +296,12 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
       <main className="flex-1 px-4 pb-16 relative z-10">
         <div className="max-w-[50rem] mx-auto space-y-9">
 
-          {/* TARJETA 1: LA CLASE GRATUITA + OFERTA DE FORMACIÓN (BORDE VERDE ESMERALDA) */}
-          <div className="bg-white rounded-[2rem] p-5 sm:p-8 md:p-10 shadow-2xl border-2 border-[#00B758] text-gray-900 relative">
+          {/* TARJETA 1: LA CLASE GRATUITA + OFERTA DE FORMACIÓN */}
+          <div className={`bg-white rounded-[2rem] p-5 sm:p-8 md:p-10 shadow-2xl ${paletteAccents.cardBorder} text-gray-900 relative`}>
             
-            {/* Badge Centrado: CLASE GRATUITA */}
+            {/* Badge Centrado: CLASE GRATUITA con color de la captura */}
             <div className="text-center mb-3">
-              <span className="inline-block bg-[#00B758] text-white text-[10px] sm:text-[11px] font-black tracking-widest uppercase px-5 py-1.5 rounded-full shadow-sm">
+              <span className={`inline-block ${paletteAccents.badgeBg} ${paletteAccents.badgeText} text-[10px] sm:text-[11px] font-black tracking-widest uppercase px-5 py-1.5 rounded-full shadow-sm`}>
                 {tyConfig.videoBadge || "CLASE GRATUITA"}
               </span>
             </div>
@@ -253,9 +391,9 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                       {videoCurrentTime} / {videoDuration}
                     </span>
 
-                    {/* Barra de Progreso Scrub en color verde */}
+                    {/* Barra de Progreso Scrub sincronizada con la paleta */}
                     <div className="flex-1 mx-1 sm:mx-2 bg-gray-700/80 h-1.5 rounded-full overflow-hidden relative cursor-pointer">
-                      <div className="h-full bg-[#00B758] w-[18%] relative rounded-full">
+                      <div className={`h-full ${paletteAccents.badgeBg} w-[18%] relative rounded-full`}>
                         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow"></div>
                       </div>
                     </div>
@@ -286,8 +424,8 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
             {/* Píldora de Recomendación debajo del Video */}
             <div className="text-center mb-8 sm:mb-10">
-              <div className="rounded-full py-1.5 px-5 inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold bg-emerald-50/90 border border-emerald-200/80 text-[#00B758]">
-                <Clock className="w-4 h-4 shrink-0 text-[#00B758]" />
+              <div className={`rounded-full py-1.5 px-5 inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold ${paletteAccents.recommendBg}`}>
+                <Clock className="w-4 h-4 shrink-0" />
                 <span>{tyConfig.videoNoticeText || "Te recomendamos ver la clase completa antes de continuar."}</span>
               </div>
             </div>
@@ -303,7 +441,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                 </p>
               </div>
 
-              {/* Grid 2 Columnas: Mockup 3D + Beneficios y Botón Verde */}
+              {/* Grid 2 Columnas: Mockup 3D + Beneficios y Botón Oficial */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                 {/* Columna Izquierda: Mockup 3D del Programa */}
                 <div>
@@ -316,7 +454,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                   />
                 </div>
 
-                {/* Columna Derecha: Detalles del Programa y CTA Verde */}
+                {/* Columna Derecha: Detalles del Programa y CTA Oficial */}
                 <div className="space-y-4 text-left">
                   <div>
                     <h4 className="text-lg sm:text-xl font-black leading-tight text-gray-950 mb-2">
@@ -339,7 +477,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                     </div>
                   </div>
 
-                  {/* Lista de 4 Checks de Valor con icono verde */}
+                  {/* Lista de 4 Checks de Valor con icono de la paleta */}
                   <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-gray-700">
                     {(tyConfig.upsellBullets || [
                       "Aprende el proceso paso a paso",
@@ -348,7 +486,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                       "Acceso a una formación estructurada"
                     ]).map((bullet, idx) => (
                       <li key={idx} className="flex items-center gap-2.5">
-                        <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-sm bg-[#00B758] text-white">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-sm ${paletteAccents.checkBg}`}>
                           <Check className="w-3 h-3 stroke-[3]" />
                         </div>
                         <span>{bullet}</span>
@@ -356,12 +494,12 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                     ))}
                   </ul>
 
-                  {/* Botón CTA Formación Completa Verde Oficial */}
+                  {/* Botón CTA Formación Completa (Hereda el estilo primario de la captura) */}
                   <a
                     href={upsellTargetUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full bg-[#00B758] hover:bg-[#00A34E] text-white py-3.5 sm:py-4 px-5 rounded-xl font-bold text-xs sm:text-sm md:text-base tracking-wider uppercase flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer mt-3"
+                    className={`w-full ${activeDs.buttons.primary} py-3.5 sm:py-4 px-5 rounded-xl font-bold text-xs sm:text-sm md:text-base tracking-wider uppercase flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer mt-3`}
                   >
                     <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>{tyConfig.upsellButtonText || "CONOCER LA FORMACIÓN COMPLETA"}</span>
@@ -374,12 +512,12 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
           </div>
 
 
-          {/* TARJETA 2: REGALO ADICIONAL (WHATSAPP + GUÍA PRÁCTICA) (BORDE VERDE ESMERALDA) */}
-          <div className="bg-white rounded-[2rem] p-5 sm:p-8 md:p-10 shadow-2xl border-2 border-[#00B758] text-gray-900 relative">
+          {/* TARJETA 2: REGALO ADICIONAL (WHATSAPP + GUÍA PRÁCTICA) */}
+          <div className={`bg-white rounded-[2rem] p-5 sm:p-8 md:p-10 shadow-2xl ${paletteAccents.cardBorder} text-gray-900 relative`}>
             
             {/* Badge Centrado: REGALO ADICIONAL */}
             <div className="text-center mb-3">
-              <span className="inline-flex items-center gap-1.5 bg-[#00B758] text-white text-[10px] sm:text-[11px] font-black tracking-widest uppercase px-5 py-1.5 rounded-full shadow-sm">
+              <span className={`inline-flex items-center gap-1.5 ${paletteAccents.badgeBg} ${paletteAccents.badgeText} text-[10px] sm:text-[11px] font-black tracking-widest uppercase px-5 py-1.5 rounded-full shadow-sm`}>
                 <Gift className="w-3.5 h-3.5" />
                 <span>{tyConfig.whatsappBadge || "REGALO ADICIONAL"}</span>
               </span>
@@ -395,7 +533,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
               </p>
             </div>
 
-            {/* Grid 2 Columnas: Mockup de la Guía + Puntos de Valor y Botón Verde de WhatsApp */}
+            {/* Grid 2 Columnas: Mockup de la Guía + Puntos de Valor y Botón Oficial de WhatsApp */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
               {/* Columna Izquierda: Mockup 3D de la Guía */}
               <div>
@@ -413,7 +551,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                   {tyConfig.whatsappGuideTitle || "Cómo convertir la aplicación de resina epóxica para suelos en un negocio rentable"}
                 </h4>
 
-                {/* Lista de 4 Checks de la Guía */}
+                {/* Lista de 4 Checks de la Guía con color de la captura */}
                 <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-gray-700">
                   {(tyConfig.whatsappGuideBullets || [
                     "Descubre cómo encontrar clientes",
@@ -422,7 +560,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                     "Conoce cómo presentar el servicio profesionalmente"
                   ]).map((bullet, idx) => (
                     <li key={idx} className="flex items-center gap-2.5">
-                      <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-sm bg-[#00B758] text-white">
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-sm ${paletteAccents.checkBg}`}>
                         <Check className="w-3 h-3 stroke-[3]" />
                       </div>
                       <span>{bullet}</span>
@@ -464,10 +602,10 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
               
               {/* PASO 1 */}
               <div className="bg-gray-50/75 border border-gray-100/90 hover:bg-gray-50 rounded-2xl p-5 text-center flex flex-col items-center transition-colors">
-                <div className="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center mb-3 bg-purple-100 text-purple-600">
+                <div className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center mb-3 ${paletteAccents.stepBadgeBg}`}>
                   1
                 </div>
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 shadow-sm bg-blue-50 text-blue-600">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 shadow-sm ${paletteAccents.stepIconBg}`}>
                   <Play className="w-5 h-5 fill-current" />
                 </div>
                 <h4 className="font-bold text-sm sm:text-base mb-1 text-gray-900">
@@ -480,7 +618,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
               {/* PASO 2 */}
               <div className="bg-gray-50/75 border border-gray-100/90 hover:bg-gray-50 rounded-2xl p-5 text-center flex flex-col items-center transition-colors">
-                <div className="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center mb-3 bg-purple-100 text-purple-600">
+                <div className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center mb-3 ${paletteAccents.stepBadgeBg}`}>
                   2
                 </div>
                 <div className="w-12 h-12 rounded-xl bg-emerald-50 text-[#00B758] flex items-center justify-center mb-3 shadow-sm">
@@ -496,10 +634,10 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
               {/* PASO 3 */}
               <div className="bg-gray-50/75 border border-gray-100/90 hover:bg-gray-50 rounded-2xl p-5 text-center flex flex-col items-center transition-colors">
-                <div className="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center mb-3 bg-purple-100 text-purple-600">
+                <div className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center mb-3 ${paletteAccents.stepBadgeBg}`}>
                   3
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-3 shadow-sm">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 shadow-sm ${paletteAccents.stepIconBg}`}>
                   <GraduationCap className="w-5 h-5" />
                 </div>
                 <h4 className="font-bold text-sm sm:text-base mb-1 text-gray-900">
@@ -517,14 +655,14 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
         </div>
       </main>
 
-      {/* 4. FOOTER OSCURO ELEGANTE (TAL COMO EN LA IMAGEN ADJUNTA) */}
-      <footer className="w-full border-t border-white/5 py-12 px-6 relative z-10 text-white">
+      {/* 4. FOOTER OSCURO ELEGANTE INTEGRADO CON LA PALETA */}
+      <footer className={`w-full border-t border-white/10 ${activeDs.footer?.bg || 'bg-black/50'} py-12 px-6 relative z-10 text-white`}>
         <div className="max-w-[50rem] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 text-left">
-            {/* Columna 1: Logo, Nombre de Marca y Tagline */}
+            {/* Columna 1: Logo dentro del círculo, Nombre de Marca y Tagline */}
             <div>
               <div className="flex items-center gap-2.5 mb-2.5">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center shadow-md overflow-hidden shrink-0">
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center shadow-md overflow-hidden shrink-0 ${activeDs.nav.logoBg} ${activeDs.nav.logoText}`}>
                   {renderLogoIcon()}
                 </div>
                 <span className="font-bold text-white text-base tracking-tight">
