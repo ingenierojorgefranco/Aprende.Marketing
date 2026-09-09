@@ -5,13 +5,15 @@ interface FormationMockupProps {
   subtitle?: string;
   brandName?: string;
   customImageUrl?: string;
+  ds?: any;
 }
 
 export const FormationMockup: React.FC<FormationMockupProps> = ({
   title = "ESPECIALISTA EN RESINA EPÓXICA PARA SUELOS",
   subtitle = "De la práctica a un negocio rentable",
   brandName = "ResinPro",
-  customImageUrl
+  customImageUrl,
+  ds
 }) => {
   if (customImageUrl) {
     return (
@@ -25,10 +27,13 @@ export const FormationMockup: React.FC<FormationMockupProps> = ({
     );
   }
 
+  const glowColor = ds?.blobColor || 'bg-gradient-to-tr from-emerald-500/15 via-indigo-500/10 to-transparent';
+  const logoBg = ds?.nav?.logoBg || 'bg-emerald-500/20';
+
   return (
     <div className="relative w-full max-w-[340px] mx-auto h-[260px] flex items-center justify-center select-none py-2">
       {/* Glow effect behind bundle */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/15 via-indigo-500/10 to-transparent rounded-full blur-2xl"></div>
+      <div className={`absolute inset-0 ${glowColor} rounded-full blur-2xl opacity-40 pointer-events-none`}></div>
 
       {/* 1. CAJA 3D (BACKGROUND LEFT) */}
       <div className="absolute left-2 bottom-4 w-36 h-48 bg-gradient-to-b from-[#111625] to-[#0A0D18] rounded-r-lg rounded-l-sm shadow-2xl border border-gray-700/60 overflow-hidden transform -rotate-3 hover:rotate-0 transition-transform duration-300 z-10">
@@ -41,8 +46,8 @@ export const FormationMockup: React.FC<FormationMockupProps> = ({
         {/* Portada de la caja */}
         <div className="pl-4 pr-2 pt-3 pb-2 h-full flex flex-col justify-between text-left">
           <div>
-            <div className="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center mb-1.5">
-              <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+            <div className={`w-5 h-5 rounded-full ${logoBg} border border-white/20 flex items-center justify-center mb-1.5`}>
+              <div className="w-2 h-2 rounded-full bg-white"></div>
             </div>
             <h5 className="text-[10px] font-black text-white leading-tight uppercase tracking-tight line-clamp-3">
               {title}
@@ -120,12 +125,14 @@ interface GuideMockupProps {
   title?: string;
   subtitle?: string;
   customImageUrl?: string;
+  ds?: any;
 }
 
 export const GuideMockup: React.FC<GuideMockupProps> = ({
   title = "CÓMO CONVERTIR LA APLICACIÓN DE RESINA EPÓXICA PARA SUELOS EN UN NEGOCIO RENTABLE",
   subtitle = "GUÍA PRÁCTICA PASO A PASO",
-  customImageUrl
+  customImageUrl,
+  ds
 }) => {
   if (customImageUrl) {
     return (
@@ -139,10 +146,12 @@ export const GuideMockup: React.FC<GuideMockupProps> = ({
     );
   }
 
+  const glowColor = ds?.blobColor || 'bg-gradient-to-tr from-emerald-500/20 via-teal-500/10 to-transparent';
+
   return (
     <div className="relative w-full max-w-[340px] mx-auto h-[260px] flex items-center justify-center select-none py-2">
       {/* Glow effect behind bundle */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 via-teal-500/10 to-transparent rounded-full blur-2xl"></div>
+      <div className={`absolute inset-0 ${glowColor} rounded-full blur-2xl opacity-40 pointer-events-none`}></div>
 
       {/* 1. EBOOK PRINCIPAL / TABLET GRANDE (IZQUIERDA) */}
       <div className="absolute left-2 bottom-3 w-44 h-56 bg-white rounded-lg shadow-2xl border-2 border-gray-300 overflow-hidden transform -rotate-2 hover:rotate-0 transition-transform duration-300 z-10 flex flex-col justify-between p-3.5">
