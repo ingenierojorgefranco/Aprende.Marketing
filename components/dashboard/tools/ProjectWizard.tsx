@@ -488,6 +488,8 @@ export const ProjectWizard: React.FC = () => {
             upsellTitle?: string;
             upsellSubtitle?: string;
             upsellProductName?: string;
+            upsellInstructorName?: string;
+            upsellInstructorTitle?: string;
             upsellImageUrl?: string;
             upsellBullets?: string[];
             upsellButtonText?: string;
@@ -516,6 +518,8 @@ export const ProjectWizard: React.FC = () => {
             upsellTitle: '¿Quieres aprender el proceso completo?',
             upsellSubtitle: 'Lleva tus habilidades al siguiente nivel con nuestra formación especializada.',
             upsellProductName: '',
+            upsellInstructorName: '',
+            upsellInstructorTitle: '',
             upsellImageUrl: '',
             upsellBullets: [
                 'Aprende el proceso paso a paso',
@@ -2086,6 +2090,40 @@ export const ProjectWizard: React.FC = () => {
                                                         placeholder="Lleva tus habilidades al siguiente nivel con nuestra formación especializada."
                                                         className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
                                                     />
+                                                </div>
+
+                                                {/* INSTRUCTOR / PROFESOR DE LA BASE DE DATOS (IMAGEN 2) */}
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:col-span-2 bg-gray-900/40 p-3 rounded-xl border border-gray-800">
+                                                    <div>
+                                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                            Nombre del Profesor / Instructor (Ficha del Programa)
+                                                        </label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={multimedia.thankYouPage?.upsellInstructorName || ''} 
+                                                            onChange={(e) => handleUpdateThankYouField('upsellInstructorName', e.target.value)}
+                                                            placeholder={originalStrategyJson?.teacher?.name || "Ej: Ariana Zamora (o dejar vacío para usar el profesor de la estrategia)"}
+                                                            className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
+                                                        />
+                                                        <p className="text-[9px] text-gray-500 mt-1">
+                                                            {originalStrategyJson?.teacher?.name ? `Profesor en la base de datos: "${originalStrategyJson.teacher.name}"` : "Si se deja vacío, tomará el profesor generado en la estrategia del proyecto."}
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                            Título / Especialidad del Profesor
+                                                        </label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={multimedia.thankYouPage?.upsellInstructorTitle || ''} 
+                                                            onChange={(e) => handleUpdateThankYouField('upsellInstructorTitle', e.target.value)}
+                                                            placeholder={originalStrategyJson?.teacher?.title || "Ej: Especialista en recubrimientos epóxicos"}
+                                                            className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
+                                                        />
+                                                        <p className="text-[9px] text-gray-500 mt-1">
+                                                            {originalStrategyJson?.teacher?.title ? `Especialidad en base de datos: "${originalStrategyJson.teacher.title}"` : "Si se deja vacío, tomará el cargo de la estrategia."}
+                                                        </p>
+                                                    </div>
                                                 </div>
 
                                                 {/* URL ESPECÍFICA DE PAGO (OPCIONAL) */}

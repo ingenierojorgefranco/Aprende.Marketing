@@ -166,6 +166,27 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
       (tyConfig as any)[k] = projTyConfig[k];
     }
   });
+
+  // Los campos definidos explícitamente en el Proyecto (ProjectWizard - Imagen 4) tienen máxima prioridad
+  if (projTyConfig.videoPosterUrl && projTyConfig.videoPosterUrl.trim() !== '') {
+    tyConfig.videoPosterUrl = projTyConfig.videoPosterUrl;
+  }
+  if (projTyConfig.videoUrl && projTyConfig.videoUrl.trim() !== '') {
+    tyConfig.videoUrl = projTyConfig.videoUrl;
+  }
+  if (projTyConfig.upsellImageUrl && projTyConfig.upsellImageUrl.trim() !== '') {
+    tyConfig.upsellImageUrl = projTyConfig.upsellImageUrl;
+  }
+  if (projTyConfig.whatsappGuideImageUrl && projTyConfig.whatsappGuideImageUrl.trim() !== '') {
+    tyConfig.whatsappGuideImageUrl = projTyConfig.whatsappGuideImageUrl;
+  }
+  if (projTyConfig.upsellInstructorName && projTyConfig.upsellInstructorName.trim() !== '') {
+    tyConfig.upsellInstructorName = projTyConfig.upsellInstructorName;
+  }
+  if (projTyConfig.upsellInstructorTitle && projTyConfig.upsellInstructorTitle.trim() !== '') {
+    tyConfig.upsellInstructorTitle = projTyConfig.upsellInstructorTitle;
+  }
+
   const paletteAccents = getPaletteAccents(content.palette);
 
   // Brand Name & Visuals
@@ -183,11 +204,10 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [videoCurrentTime, setVideoCurrentTime] = useState<string>("0:00");
 
-  const videoUrl = tyConfig.videoUrl || "";
+  const videoUrl = tyConfig.videoUrl || (project?.multimedia_json as any)?.videoUrls?.[0] || "";
   const videoDuration = tyConfig.videoDuration || "34:28";
-  const videoPoster = tyConfig.videoPosterUrl || "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80";
 
-  // YouTube / Vimeo embed parser
+  // YouTube / Vimeo embed parser & thumbnail extractor
   const getEmbedVideoUrl = (url: string): string | null => {
     if (!url) return null;
     const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
@@ -201,7 +221,64 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
     return null;
   };
 
+  const getYouTubeThumbnail = (url: string): string | null => {
+    if (!url) return null;
+    const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+    return ytMatch && ytMatch[1] ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null;
+  };
+
   const embedUrl = getEmbedVideoUrl(videoUrl);
+  const autoYtThumbnail = getYouTubeThumbnail(videoUrl);
+
+  const defaultPoster = "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80";
+  
+  // Captura de carga del video definida en el proyecto (Imagen 4) con fallback automático al thumbnail del video o imagen de portada
+  const videoPoster = (tyConfig.videoPosterUrl && tyConfig.videoPosterUrl.trim() !== '')
+    ? tyConfig.videoPosterUrl
+    : (autoYtThumbnail || project?.multimedia_json?.heroImages?.[0] || defaultPoster);
+
+  // 2. Instructor desde la base de datos (strategy_json.teacher)
+  const teacherFromStrategy = (project?.strategy_json as any)?.teacher || (project?.strategy_json as any)?.instructor || {};
+  const instructorFromContent = (content as any)?.instructor || {};
+
+  const instructorName = 
+    tyConfig.upsellInstructorName 
+    || teacherFromStrategy.name 
+    || instructorFromContent.name 
+    || "Ariana Zamora";
+
+  const instructorTitle = 
+    tyConfig.upsellInstructorTitle 
+    || teacherFromStrategy.title 
+    || teacherFromStrategy.bio 
+    || instructorFromContent.title 
+    || instructorFromContent.role 
+    || "Especialista en recubrimientos epóxicos";
+
+  const instructorImage = 
+    teacherFromStrategy.image 
+    || instructorFromContent.image 
+    || instructorFromContent.avatar 
+    || (project?.multimedia_json as any)?.instructorImage 
+    || "";
+
+  // 3. Imágenes que aparecen al lado izquierdo de los textos (Lead Magnet y Programa Completo - Imagen 3 y 4)
+  // Deben cargar las imágenes del poster definido en el proyecto (Imagen 4) o la imagen personalizada si existe
+  const upsellCustomImage = 
+    (tyConfig.upsellImageUrl && tyConfig.upsellImageUrl.trim() !== '')
+      ? tyConfig.upsellImageUrl
+      : (videoPoster && videoPoster !== defaultPoster)
+        ? videoPoster
+        : (project?.multimedia_json?.heroImages?.[0] || undefined);
+
+  const leadMagnetCustomImage = 
+    (tyConfig.whatsappGuideImageUrl && tyConfig.whatsappGuideImageUrl.trim() !== '')
+      ? tyConfig.whatsappGuideImageUrl
+      : (project?.multimedia_json?.leadMagnets?.[0]?.imageUrl && project.multimedia_json.leadMagnets[0].imageUrl.trim() !== '')
+        ? project.multimedia_json.leadMagnets[0].imageUrl
+        : (videoPoster && videoPoster !== defaultPoster)
+          ? videoPoster
+          : undefined;
 
   const handlePlayClick = () => {
     setIsPlaying(!isPlaying);
@@ -337,16 +414,18 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
-              ) : isPlaying && videoUrl.endsWith('.mp4') ? (
+              ) : isPlaying && videoUrl ? (
                 <video
                   src={videoUrl}
                   controls
                   autoPlay
-                  className="w-full h-full object-cover"
+                  playsInline
+                  poster={videoPoster}
+                  className="w-full h-full object-contain bg-black"
                 />
               ) : (
                 <>
-                  {/* Poster / Fotograma de la clase */}
+                  {/* Poster / Fotograma de la clase (Captura de carga del video - Imagen 1 y 4) */}
                   <img
                     src={videoPoster}
                     alt="Masterclass"
@@ -366,17 +445,17 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                   {/* Frase de valor a la derecha */}
                   <div className="hidden sm:block absolute top-4 right-4 z-10 text-right">
                     <p className="text-white/90 text-xs md:text-sm font-serif italic drop-shadow-md">
-                      Suelos que inspiran oportunidades
+                      {tyConfig.videoSubtitle || "Clase Especializada Paso a Paso"}
                     </p>
                   </div>
 
                   {/* Título inferior izquierdo sobre el video */}
                   <div className="absolute left-3 sm:left-5 bottom-12 sm:bottom-14 z-10 max-w-[70%] text-left">
                     <h3 className="text-white font-black text-xs sm:text-base md:text-lg uppercase tracking-tight leading-snug drop-shadow-lg">
-                      {tyConfig.videoTitle ? tyConfig.videoTitle.toUpperCase() : "INTRODUCCIÓN A LA RESINA EPÓXICA PARA SUELOS"}
+                      {tyConfig.videoTitle ? tyConfig.videoTitle.toUpperCase() : (content.hero?.headline?.toUpperCase() || (project?.productName ? project.productName.toUpperCase() : "CLASE GRATUITA COMPLETA"))}
                     </h3>
                     <div className="mt-1 sm:mt-1.5 inline-block bg-[#4f46e5] text-white text-[9px] sm:text-xs font-bold px-2.5 py-0.5 rounded shadow">
-                      De un proyecto a un negocio rentable
+                      {tyConfig.videoSubtitle || "De un proyecto a un negocio rentable"}
                     </div>
                   </div>
 
@@ -454,13 +533,14 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
               {/* Grid 2 Columnas: Mockup 3D + Beneficios y Botón Oficial */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                {/* Columna Izquierda: Mockup 3D del Programa */}
+                {/* Columna Izquierda: Mockup 3D del Programa (Carga poster definido en Imagen 4) */}
                 <div>
                   <FormationMockup 
-                    title={tyConfig.upsellProductName || "ESPECIALISTA EN RESINA EPÓXICA PARA SUELOS"}
+                    title={tyConfig.upsellProductName || project?.productName || "ESPECIALISTA EN FORMACIÓN COMPLETA"}
                     subtitle="De la práctica a un negocio rentable"
                     brandName={brandName}
-                    customImageUrl={tyConfig.upsellImageUrl}
+                    customImageUrl={upsellCustomImage}
+                    posterUrl={videoPoster}
                     ds={activeDs}
                   />
                 </div>
@@ -469,20 +549,28 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                 <div className="space-y-4 text-left">
                   <div>
                     <h4 className="text-lg sm:text-xl font-black leading-tight text-gray-950 mb-2">
-                      {tyConfig.upsellProductName || "Especialista en Resina Epóxica para Suelos"}
+                      {tyConfig.upsellProductName || project?.productName || "Formación Especializada Completa"}
                     </h4>
 
-                    {/* Ficha del Instructor */}
+                    {/* Ficha del Instructor desde la base de datos (strategy_json.teacher - Imagen 2) */}
                     <div className="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-100 bg-gray-50/80">
-                      <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-indigo-100 text-indigo-600">
-                        <User className="w-4 h-4" />
-                      </div>
+                      {instructorImage ? (
+                        <img 
+                          src={instructorImage} 
+                          alt={instructorName} 
+                          className="w-9 h-9 rounded-full object-cover shrink-0 border border-gray-200 shadow-sm" 
+                        />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-indigo-100 text-indigo-600">
+                          <User className="w-4 h-4" />
+                        </div>
+                      )}
                       <div className="text-xs">
                         <p className="font-bold leading-tight text-gray-900">
-                          Impartido por: {tyConfig.upsellInstructorName || "Ariana Zamora"}
+                          Impartido por: <span className="font-extrabold text-gray-950">{instructorName}</span>
                         </p>
                         <p className="text-[11px] leading-tight text-gray-500">
-                          {tyConfig.upsellInstructorTitle || "Especialista en recubrimientos epóxicos"}
+                          {instructorTitle}
                         </p>
                       </div>
                     </div>
@@ -546,12 +634,13 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
             {/* Grid 2 Columnas: Mockup de la Guía + Puntos de Valor y Botón Oficial de WhatsApp */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-              {/* Columna Izquierda: Mockup 3D de la Guía */}
+              {/* Columna Izquierda: Mockup 3D de la Guía (Carga poster definido en Imagen 4) */}
               <div>
                 <GuideMockup 
-                  title={tyConfig.whatsappGuideTitle || "CÓMO CONVERTIR LA APLICACIÓN DE RESINA EPÓXICA PARA SUELOS EN UN NEGOCIO RENTABLE"}
+                  title={tyConfig.whatsappGuideTitle || tyConfig.leadMagnetName || project?.multimedia_json?.leadMagnets?.[0]?.name || "CÓMO CONVERTIR TU APRENDIZAJE EN UN NEGOCIO RENTABLE"}
                   subtitle="GUÍA PRÁCTICA PASO A PASO"
-                  customImageUrl={tyConfig.whatsappGuideImageUrl}
+                  customImageUrl={leadMagnetCustomImage}
+                  posterUrl={videoPoster}
                   ds={activeDs}
                 />
               </div>

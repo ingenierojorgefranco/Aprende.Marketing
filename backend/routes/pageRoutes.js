@@ -64,7 +64,7 @@ const safeParseJson = (str, fallback = null) => {
 };
 
 const attachProjectData = (page) => {
-    if (page.project_strategy || page.project_multimedia || page.master_multimedia || page.master_strategy || page.project_whatsapp_group_url || page.master_whatsapp_group_url) {
+    if (page.project_strategy || page.project_multimedia || page.master_multimedia || page.master_strategy || page.project_whatsapp_group_url || page.master_whatsapp_group_url || page.project_id) {
         const projMm = safeParseJson(page.project_multimedia, {}) || {};
         const mastMm = safeParseJson(page.master_multimedia, {}) || {};
 
@@ -75,6 +75,8 @@ const attachProjectData = (page) => {
 
         page.project = {
             id: page.project_id,
+            name: page.project_name || page.master_name || page.name || "",
+            productName: page.project_product_name || page.master_product_name || "",
             masterParentId: page.master_parent_id,
             leadMagnetUrl: page.project_lead_magnet_url || page.master_lead_magnet_url || "",
             whatsappGroupUrl: resolvedWhatsappUrl,
@@ -325,7 +327,9 @@ router.get('/public/pages/by-domain', async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT lp.*, lp.thankyoupage_json, 
+              pr.name as project_name, pr.product_name as project_product_name,
               pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
+              pm.name as master_name, pm.product_name as master_product_name,
               pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url
        FROM landing_pages lp
        LEFT JOIN projects pr ON lp.project_id = pr.id
@@ -356,7 +360,9 @@ router.get('/public/pages/by-user/:userSlug/:slug', async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT lp.*, lp.thankyoupage_json, 
+              pr.name as project_name, pr.product_name as project_product_name,
               pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
+              pm.name as master_name, pm.product_name as master_product_name,
               pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url
        FROM landing_pages lp
        INNER JOIN users u ON u.id = lp.user_id
@@ -390,7 +396,9 @@ router.get('/public/pages/:slug', async (req, res) => {
     if (/^\d+$/.test(slug)) {
        [rows] = await pool.query(`
          SELECT lp.*, lp.thankyoupage_json, 
+                pr.name as project_name, pr.product_name as project_product_name,
                 pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
+                pm.name as master_name, pm.product_name as master_product_name,
                 pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url
          FROM landing_pages lp 
          LEFT JOIN projects pr ON lp.project_id = pr.id
@@ -401,7 +409,9 @@ router.get('/public/pages/:slug', async (req, res) => {
     if (rows.length === 0) {
         [rows] = await pool.query(`
           SELECT lp.*, lp.thankyoupage_json, 
+                 pr.name as project_name, pr.product_name as project_product_name,
                  pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
+                 pm.name as master_name, pm.product_name as master_product_name,
                  pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url
           FROM landing_pages lp 
           LEFT JOIN projects pr ON lp.project_id = pr.id

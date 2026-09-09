@@ -5,6 +5,7 @@ interface FormationMockupProps {
   subtitle?: string;
   brandName?: string;
   customImageUrl?: string;
+  posterUrl?: string;
   ds?: any;
 }
 
@@ -13,22 +14,25 @@ export const FormationMockup: React.FC<FormationMockupProps> = ({
   subtitle = "De la práctica a un negocio rentable",
   brandName = "ResinPro",
   customImageUrl,
+  posterUrl,
   ds
 }) => {
+  const glowColor = ds?.blobColor || 'bg-gradient-to-tr from-emerald-500/20 via-indigo-500/15 to-transparent';
+  const logoBg = ds?.nav?.logoBg || 'bg-emerald-500/20';
+  const displayImage = posterUrl || customImageUrl;
+
   if (customImageUrl) {
     return (
-      <div className="w-full flex items-center justify-center p-2">
+      <div className="w-full flex items-center justify-center p-2 relative group select-none">
+        <div className={`absolute -inset-1 ${glowColor} rounded-3xl blur-xl opacity-60 group-hover:opacity-80 transition duration-500 pointer-events-none`}></div>
         <img 
           src={customImageUrl} 
           alt={title} 
-          className="rounded-2xl max-h-72 w-auto object-contain drop-shadow-2xl" 
+          className="relative rounded-2xl max-h-72 w-auto object-contain drop-shadow-2xl shadow-2xl border border-gray-100/20 transition-transform duration-300 group-hover:scale-[1.02]" 
         />
       </div>
     );
   }
-
-  const glowColor = ds?.blobColor || 'bg-gradient-to-tr from-emerald-500/15 via-indigo-500/10 to-transparent';
-  const logoBg = ds?.nav?.logoBg || 'bg-emerald-500/20';
 
   return (
     <div className="relative w-full max-w-[340px] mx-auto h-[260px] flex items-center justify-center select-none py-2">
@@ -60,9 +64,9 @@ export const FormationMockup: React.FC<FormationMockupProps> = ({
           {/* Imagen ilustrativa en la caja */}
           <div className="w-full h-16 rounded overflow-hidden relative border border-gray-700/50 my-1 bg-black">
             <img 
-              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80" 
+              src={displayImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80"} 
               alt="Floor" 
-              className="w-full h-full object-cover opacity-80"
+              className="w-full h-full object-cover opacity-85"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
           </div>
@@ -81,7 +85,7 @@ export const FormationMockup: React.FC<FormationMockupProps> = ({
         {/* Pantalla del monitor */}
         <div className="relative w-full h-28 bg-black overflow-hidden">
           <img 
-            src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80" 
+            src={displayImage || "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80"} 
             alt="Interior" 
             className="w-full h-full object-cover brightness-95"
           />
@@ -105,7 +109,7 @@ export const FormationMockup: React.FC<FormationMockupProps> = ({
         {/* Pantalla móvil */}
         <div className="w-full h-full relative overflow-hidden">
           <img 
-            src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=400&q=80" 
+            src={displayImage || "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=400&q=80"} 
             alt="Mobile App" 
             className="w-full h-full object-cover"
           />
@@ -125,6 +129,7 @@ interface GuideMockupProps {
   title?: string;
   subtitle?: string;
   customImageUrl?: string;
+  posterUrl?: string;
   ds?: any;
 }
 
@@ -132,21 +137,24 @@ export const GuideMockup: React.FC<GuideMockupProps> = ({
   title = "CÓMO CONVERTIR LA APLICACIÓN DE RESINA EPÓXICA PARA SUELOS EN UN NEGOCIO RENTABLE",
   subtitle = "GUÍA PRÁCTICA PASO A PASO",
   customImageUrl,
+  posterUrl,
   ds
 }) => {
+  const glowColor = ds?.blobColor || 'bg-gradient-to-tr from-emerald-500/20 via-teal-500/10 to-transparent';
+  const displayImage = posterUrl || customImageUrl;
+
   if (customImageUrl) {
     return (
-      <div className="w-full flex items-center justify-center p-2">
+      <div className="w-full flex items-center justify-center p-2 relative group select-none">
+        <div className={`absolute -inset-1 ${glowColor} rounded-3xl blur-xl opacity-60 group-hover:opacity-80 transition duration-500 pointer-events-none`}></div>
         <img 
           src={customImageUrl} 
           alt={title} 
-          className="rounded-2xl max-h-72 w-auto object-contain drop-shadow-2xl" 
+          className="relative rounded-2xl max-h-72 w-auto object-contain drop-shadow-2xl shadow-2xl border border-gray-100/20 transition-transform duration-300 group-hover:scale-[1.02]" 
         />
       </div>
     );
   }
-
-  const glowColor = ds?.blobColor || 'bg-gradient-to-tr from-emerald-500/20 via-teal-500/10 to-transparent';
 
   return (
     <div className="relative w-full max-w-[340px] mx-auto h-[260px] flex items-center justify-center select-none py-2">
@@ -197,9 +205,9 @@ export const GuideMockup: React.FC<GuideMockupProps> = ({
         </div>
         <div className="w-full h-14 bg-black/60 rounded border border-gray-800 overflow-hidden relative">
           <img 
-            src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80" 
+            src={displayImage || "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80"} 
             alt="Guide" 
-            className="w-full h-full object-cover opacity-75"
+            className="w-full h-full object-cover opacity-80"
           />
         </div>
         <span className="text-[6.5px] text-center font-bold text-gray-300 block">
