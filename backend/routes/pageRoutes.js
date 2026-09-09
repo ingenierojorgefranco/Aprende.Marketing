@@ -84,7 +84,11 @@ const attachProjectData = (page) => {
                 ...mastMm,
                 ...projMm,
                 whatsappGroupUrl: resolvedWhatsappUrl,
-                leadMagnets
+                leadMagnets,
+                thankYouPage: {
+                    ...(mastMm.thankYouPage || {}),
+                    ...(projMm.thankYouPage || {})
+                }
             }
         };
 

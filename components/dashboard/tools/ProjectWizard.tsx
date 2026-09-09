@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp, Upload, Image, FileText, FileUp, ExternalLink, MessageCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp, Upload, Image, FileText, FileUp, ExternalLink, MessageCircle, Video, Play, Gift, Check, GraduationCap, Clock } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -477,13 +477,67 @@ export const ProjectWizard: React.FC = () => {
         videoUrls: string[], 
         descriptiveImages: string[], 
         instructorImage?: string,
-        leadMagnets?: { name: string; url: string; imageUrl?: string; description?: string; fromMaster?: boolean; }[] 
+        leadMagnets?: { name: string; url: string; imageUrl?: string; description?: string; fromMaster?: boolean; }[],
+        thankYouPage?: {
+            videoUrl?: string;
+            videoTitle?: string;
+            videoSubtitle?: string;
+            videoPosterUrl?: string;
+            videoDuration?: string;
+            videoNoticeText?: string;
+            upsellTitle?: string;
+            upsellSubtitle?: string;
+            upsellProductName?: string;
+            upsellImageUrl?: string;
+            upsellBullets?: string[];
+            upsellButtonText?: string;
+            upsellButtonUrl?: string;
+            whatsappBadge?: string;
+            whatsappTitle?: string;
+            whatsappSubtitle?: string;
+            whatsappGuideTitle?: string;
+            whatsappGuideBullets?: string[];
+            whatsappButtonText?: string;
+            whatsappGuideImageUrl?: string;
+        }
     }>({
         heroImages: [],
         videoUrls: [],
         descriptiveImages: [],
         instructorImage: '',
-        leadMagnets: []
+        leadMagnets: [],
+        thankYouPage: {
+            videoUrl: '',
+            videoTitle: '',
+            videoSubtitle: '',
+            videoPosterUrl: '',
+            videoDuration: '34:28',
+            videoNoticeText: 'Te recomendamos ver la clase completa antes de continuar.',
+            upsellTitle: '¿Quieres aprender el proceso completo?',
+            upsellSubtitle: 'Lleva tus habilidades al siguiente nivel con nuestra formación especializada.',
+            upsellProductName: '',
+            upsellImageUrl: '',
+            upsellBullets: [
+                'Aprende el proceso paso a paso',
+                'Materiales, preparación y aplicación',
+                'Acabados profesionales y corrección de errores',
+                'Acceso a una formación estructurada'
+            ],
+            upsellButtonText: 'CONOCER LA FORMACIÓN COMPLETA',
+            upsellButtonUrl: '',
+            whatsappBadge: 'REGALO ADICIONAL',
+            whatsappTitle: 'Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica',
+            whatsappSubtitle: 'Conecta con nuestra comunidad, resuelve tus dudas y descarga tu guía en formato digital.',
+            whatsappGuideTitle: '',
+            whatsappGuideBullets: [
+                'Descubre cómo encontrar clientes',
+                'Aprende a estructurar tu oferta',
+                'Calcula correctamente tus costes',
+                'Conoce cómo presentar el servicio profesionalmente'
+            ],
+            whatsappButtonText: 'UNIRME AL GRUPO Y RECIBIR LA GUÍA',
+            whatsappGuideImageUrl: ''
+        }
     });
     const [uploadingState, setUploadingState] = useState<{type: string, index: number} | null>(null);
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: string, index?: number) => {
@@ -497,6 +551,12 @@ export const ProjectWizard: React.FC = () => {
             previousUrl = multimedia.descriptiveImages[index] || '';
         } else if (type === "instructorImage") {
             previousUrl = multimedia.instructorImage || '';
+        } else if (type === "thankYouUpsellImage") {
+            previousUrl = multimedia.thankYouPage?.upsellImageUrl || '';
+        } else if (type === "thankYouGuideImage") {
+            previousUrl = multimedia.thankYouPage?.whatsappGuideImageUrl || '';
+        } else if (type === "thankYouVideoPoster") {
+            previousUrl = multimedia.thankYouPage?.videoPosterUrl || '';
         }
 
         try {
@@ -513,6 +573,21 @@ export const ProjectWizard: React.FC = () => {
                 setMultimedia({ ...multimedia, descriptiveImages: newImgs });
             } else if (type === "instructorImage") {
                 setMultimedia({ ...multimedia, instructorImage: url });
+            } else if (type === "thankYouUpsellImage") {
+                setMultimedia(prev => ({
+                    ...prev,
+                    thankYouPage: { ...(prev.thankYouPage || {}), upsellImageUrl: url }
+                }));
+            } else if (type === "thankYouGuideImage") {
+                setMultimedia(prev => ({
+                    ...prev,
+                    thankYouPage: { ...(prev.thankYouPage || {}), whatsappGuideImageUrl: url }
+                }));
+            } else if (type === "thankYouVideoPoster") {
+                setMultimedia(prev => ({
+                    ...prev,
+                    thankYouPage: { ...(prev.thankYouPage || {}), videoPosterUrl: url }
+                }));
             }
 
             // Si reemplazó una imagen previa alojada en el bucket, borrar la física anterior para ahorrar espacio
@@ -528,7 +603,7 @@ export const ProjectWizard: React.FC = () => {
         }
     };
 
-    const handleDeleteImage = async (type: 'heroImages' | 'descriptiveImages' | 'instructorImage', index?: number) => {
+    const handleDeleteImage = async (type: 'heroImages' | 'descriptiveImages' | 'instructorImage' | 'thankYouUpsellImage' | 'thankYouGuideImage' | 'thankYouVideoPoster', index?: number) => {
         let urlToDelete = '';
         if (type === 'heroImages' && index !== undefined) {
             urlToDelete = multimedia.heroImages[index];
@@ -541,6 +616,15 @@ export const ProjectWizard: React.FC = () => {
         } else if (type === 'instructorImage') {
             urlToDelete = multimedia.instructorImage || '';
             setMultimedia(prev => ({ ...prev, instructorImage: '' }));
+        } else if (type === 'thankYouUpsellImage') {
+            urlToDelete = multimedia.thankYouPage?.upsellImageUrl || '';
+            setMultimedia(prev => ({ ...prev, thankYouPage: { ...(prev.thankYouPage || {}), upsellImageUrl: '' } }));
+        } else if (type === 'thankYouGuideImage') {
+            urlToDelete = multimedia.thankYouPage?.whatsappGuideImageUrl || '';
+            setMultimedia(prev => ({ ...prev, thankYouPage: { ...(prev.thankYouPage || {}), whatsappGuideImageUrl: '' } }));
+        } else if (type === 'thankYouVideoPoster') {
+            urlToDelete = multimedia.thankYouPage?.videoPosterUrl || '';
+            setMultimedia(prev => ({ ...prev, thankYouPage: { ...(prev.thankYouPage || {}), videoPosterUrl: '' } }));
         }
 
         if (urlToDelete && urlToDelete.trim()) {
@@ -724,6 +808,57 @@ export const ProjectWizard: React.FC = () => {
         setMultimedia(prev => ({ ...prev, leadMagnets: currentList }));
     };
 
+    const handleUpdateThankYouField = (field: string, value: any) => {
+        setMultimedia(prev => ({
+            ...prev,
+            thankYouPage: {
+                ...(prev.thankYouPage || {}),
+                [field]: value
+            }
+        }));
+    };
+
+    const handleUpdateThankYouBullet = (section: 'upsellBullets' | 'whatsappGuideBullets', index: number, value: string) => {
+        setMultimedia(prev => {
+            const currentBullets = [...(prev.thankYouPage?.[section] || [])];
+            currentBullets[index] = value;
+            return {
+                ...prev,
+                thankYouPage: {
+                    ...(prev.thankYouPage || {}),
+                    [section]: currentBullets
+                }
+            };
+        });
+    };
+
+    const handleAddThankYouBullet = (section: 'upsellBullets' | 'whatsappGuideBullets') => {
+        setMultimedia(prev => {
+            const currentBullets = [...(prev.thankYouPage?.[section] || [])];
+            currentBullets.push('');
+            return {
+                ...prev,
+                thankYouPage: {
+                    ...(prev.thankYouPage || {}),
+                    [section]: currentBullets
+                }
+            };
+        });
+    };
+
+    const handleDeleteThankYouBullet = (section: 'upsellBullets' | 'whatsappGuideBullets', index: number) => {
+        setMultimedia(prev => {
+            const currentBullets = (prev.thankYouPage?.[section] || []).filter((_, i) => i !== index);
+            return {
+                ...prev,
+                thankYouPage: {
+                    ...(prev.thankYouPage || {}),
+                    [section]: currentBullets
+                }
+            };
+        });
+    };
+
     const commissionRate = fullPrice > 0 ? (commissionValue / fullPrice) * 100 : 0;
 
     const analysisMessages = [
@@ -858,6 +993,7 @@ export const ProjectWizard: React.FC = () => {
                     setTempCommercial(JSON.parse(JSON.stringify(DEFAULT_COMMERCIAL_DATA)));
                 }
                 if (proj.multimedia_json) {
+                    const loadedTy = (proj.multimedia_json as any).thankYouPage || {};
                     setMultimedia({
                         heroImages: proj.multimedia_json.heroImages || [],
                         videoUrls: proj.multimedia_json.videoUrls || ((proj.multimedia_json as any).videoUrl ? [(proj.multimedia_json as any).videoUrl] : []),
@@ -865,7 +1001,39 @@ export const ProjectWizard: React.FC = () => {
                         instructorImage: proj.multimedia_json.instructorImage || '',
                         leadMagnets: Array.isArray((proj.multimedia_json as any).leadMagnets)
                             ? (proj.multimedia_json as any).leadMagnets.map((lm: any) => typeof lm === 'string' ? { name: 'Lead Magnet', url: lm } : lm)
-                            : (proj.leadMagnetUrl ? [{ name: 'Lead Magnet Principal', url: proj.leadMagnetUrl }] : [])
+                            : (proj.leadMagnetUrl ? [{ name: 'Lead Magnet Principal', url: proj.leadMagnetUrl }] : []),
+                        thankYouPage: {
+                            videoUrl: loadedTy.videoUrl || '',
+                            videoTitle: loadedTy.videoTitle || '',
+                            videoSubtitle: loadedTy.videoSubtitle || '',
+                            videoPosterUrl: loadedTy.videoPosterUrl || '',
+                            videoDuration: loadedTy.videoDuration || '34:28',
+                            videoNoticeText: loadedTy.videoNoticeText || 'Te recomendamos ver la clase completa antes de continuar.',
+                            upsellTitle: loadedTy.upsellTitle || '¿Quieres aprender el proceso completo?',
+                            upsellSubtitle: loadedTy.upsellSubtitle || 'Lleva tus habilidades al siguiente nivel con nuestra formación especializada.',
+                            upsellProductName: loadedTy.upsellProductName || proj.productName || '',
+                            upsellImageUrl: loadedTy.upsellImageUrl || '',
+                            upsellBullets: Array.isArray(loadedTy.upsellBullets) && loadedTy.upsellBullets.length > 0 ? loadedTy.upsellBullets : [
+                                'Aprende el proceso paso a paso',
+                                'Materiales, preparación y aplicación',
+                                'Acabados profesionales y corrección de errores',
+                                'Acceso a una formación estructurada'
+                            ],
+                            upsellButtonText: loadedTy.upsellButtonText || 'CONOCER LA FORMACIÓN COMPLETA',
+                            upsellButtonUrl: loadedTy.upsellButtonUrl || '',
+                            whatsappBadge: loadedTy.whatsappBadge || 'REGALO ADICIONAL',
+                            whatsappTitle: loadedTy.whatsappTitle || 'Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica',
+                            whatsappSubtitle: loadedTy.whatsappSubtitle || 'Conecta con nuestra comunidad, resuelve tus dudas y descarga tu guía en formato digital.',
+                            whatsappGuideTitle: loadedTy.whatsappGuideTitle || '',
+                            whatsappGuideBullets: Array.isArray(loadedTy.whatsappGuideBullets) && loadedTy.whatsappGuideBullets.length > 0 ? loadedTy.whatsappGuideBullets : [
+                                'Descubre cómo encontrar clientes',
+                                'Aprende a estructurar tu oferta',
+                                'Calcula correctamente tus costes',
+                                'Conoce cómo presentar el servicio profesionalmente'
+                            ],
+                            whatsappButtonText: loadedTy.whatsappButtonText || 'UNIRME AL GRUPO Y RECIBIR LA GUÍA',
+                            whatsappGuideImageUrl: loadedTy.whatsappGuideImageUrl || ''
+                        }
                     });
                 } else if (proj.leadMagnetUrl) {
                     setMultimedia({
@@ -873,7 +1041,39 @@ export const ProjectWizard: React.FC = () => {
                         videoUrls: [],
                         descriptiveImages: [],
                         instructorImage: '',
-                        leadMagnets: [{ name: 'Lead Magnet Principal', url: proj.leadMagnetUrl }]
+                        leadMagnets: [{ name: 'Lead Magnet Principal', url: proj.leadMagnetUrl }],
+                        thankYouPage: {
+                            videoUrl: '',
+                            videoTitle: '',
+                            videoSubtitle: '',
+                            videoPosterUrl: '',
+                            videoDuration: '34:28',
+                            videoNoticeText: 'Te recomendamos ver la clase completa antes de continuar.',
+                            upsellTitle: '¿Quieres aprender el proceso completo?',
+                            upsellSubtitle: 'Lleva tus habilidades al siguiente nivel con nuestra formación especializada.',
+                            upsellProductName: proj.productName || '',
+                            upsellImageUrl: '',
+                            upsellBullets: [
+                                'Aprende el proceso paso a paso',
+                                'Materiales, preparación y aplicación',
+                                'Acabados profesionales y corrección de errores',
+                                'Acceso a una formación estructurada'
+                            ],
+                            upsellButtonText: 'CONOCER LA FORMACIÓN COMPLETA',
+                            upsellButtonUrl: '',
+                            whatsappBadge: 'REGALO ADICIONAL',
+                            whatsappTitle: 'Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica',
+                            whatsappSubtitle: 'Conecta con nuestra comunidad, resuelve tus dudas y descarga tu guía en formato digital.',
+                            whatsappGuideTitle: '',
+                            whatsappGuideBullets: [
+                                'Descubre cómo encontrar clientes',
+                                'Aprende a estructurar tu oferta',
+                                'Calcula correctamente tus costes',
+                                'Conoce cómo presentar el servicio profesionalmente'
+                            ],
+                            whatsappButtonText: 'UNIRME AL GRUPO Y RECIBIR LA GUÍA',
+                            whatsappGuideImageUrl: ''
+                        }
                     });
                 }
             }
@@ -1577,6 +1777,567 @@ export const ProjectWizard: React.FC = () => {
                                                 ))}
                                             </div>
                                         )}
+                                    </div>
+
+                                    {/* SECCIÓN: CONTENIDOS DE PÁGINA DE GRACIAS (CLASE GRATUITA) */}
+                                    <div className="space-y-6 border-t border-blue-500/20 pt-6">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2.5 bg-amber-500/20 border border-amber-500/30 rounded-xl text-amber-400">
+                                                    <Video className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <h5 className="text-white font-black text-sm uppercase tracking-wider flex items-center gap-2">
+                                                        Contenidos de página de gracias
+                                                        <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">
+                                                            Clase Gratuita & Oferta
+                                                        </span>
+                                                    </h5>
+                                                    <p className="text-xs text-gray-400">
+                                                        Configura los textos, el video de la clase gratuita, el acceso a la formación completa y el regalo en WhatsApp que verá el prospecto.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* SUB-BLOQUE 1: CLASE GRATUITA (VIDEO, TÍTULO Y SUBTÍTULO - REF. IMAGEN 2) */}
+                                        <div className="bg-black/50 border border-gray-800/80 rounded-2xl p-5 space-y-5">
+                                            <div className="flex items-center gap-2 border-b border-gray-800 pb-3">
+                                                <Play className="w-4 h-4 text-emerald-400 fill-emerald-400/20" />
+                                                <h6 className="text-xs font-black uppercase tracking-wider text-emerald-400">
+                                                    1. Video de la Clase Gratuita (Título y Subtítulo - Ref. Imagen 2)
+                                                </h6>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {/* URL DEL VIDEO */}
+                                                <div className="md:col-span-2">
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        URL del Video de la Clase Gratuita (Página de Gracias)
+                                                    </label>
+                                                    <div className="flex gap-2">
+                                                        <input 
+                                                            type="text" 
+                                                            value={multimedia.thankYouPage?.videoUrl || ''} 
+                                                            onChange={(e) => handleUpdateThankYouField('videoUrl', e.target.value)}
+                                                            placeholder="https://www.youtube.com/watch?v=... o https://vimeo.com/... o enlace directo .mp4"
+                                                            className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-emerald-300 font-mono outline-none focus:border-emerald-500"
+                                                        />
+                                                        {multimedia.thankYouPage?.videoUrl && (
+                                                            <a 
+                                                                href={multimedia.thankYouPage.videoUrl} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer" 
+                                                                className="p-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 rounded-lg transition-colors flex items-center justify-center"
+                                                                title="Probar enlace de video"
+                                                            >
+                                                                <ExternalLink className="w-4 h-4" />
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-[10px] text-gray-500 mt-1">
+                                                        Este video se reproducirá como la clase principal en la página de gracias.
+                                                    </p>
+                                                </div>
+
+                                                {/* TÍTULO DEL VIDEO (IMAGEN 2) */}
+                                                <div>
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Título de la Clase Gratuita (Superior)
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={multimedia.thankYouPage?.videoTitle || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('videoTitle', e.target.value)}
+                                                        placeholder="Ej: INTRODUCCIÓN A LA RESINA EPÓXICA PARA SUELOS"
+                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
+                                                    />
+                                                    <p className="text-[10px] text-gray-500 mt-1">
+                                                        Título principal que aparece sobre el reproductor de video.
+                                                    </p>
+                                                </div>
+
+                                                {/* SUBTÍTULO DEL VIDEO (IMAGEN 2) */}
+                                                <div>
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Subtítulo / Mensaje de la Clase
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={multimedia.thankYouPage?.videoSubtitle || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('videoSubtitle', e.target.value)}
+                                                        placeholder="Ej: De un proyecto a un negocio rentable"
+                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
+                                                    />
+                                                    <p className="text-[10px] text-gray-500 mt-1">
+                                                        Subtítulo o distintivo de valor debajo del título del video.
+                                                    </p>
+                                                </div>
+
+                                                {/* IMAGEN DE PORTADA / POSTER DEL VIDEO */}
+                                                <div>
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Imagen de Portada / Poster del Video (Opcional)
+                                                    </label>
+                                                    <div className="flex items-center gap-2">
+                                                        {multimedia.thankYouPage?.videoPosterUrl ? (
+                                                            <a 
+                                                                href={multimedia.thankYouPage.videoPosterUrl} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer" 
+                                                                className="w-10 h-10 rounded-lg border border-gray-700 bg-gray-900 overflow-hidden shrink-0 flex items-center justify-center group relative hover:opacity-80 transition"
+                                                                title="Ver imagen"
+                                                            >
+                                                                <img src={multimedia.thankYouPage.videoPosterUrl} alt="Poster" className="w-full h-full object-cover" />
+                                                            </a>
+                                                        ) : (
+                                                            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 text-emerald-400">
+                                                                <Image className="w-5 h-5" />
+                                                            </div>
+                                                        )}
+                                                        <input 
+                                                            type="text" 
+                                                            value={multimedia.thankYouPage?.videoPosterUrl || ''} 
+                                                            onChange={(e) => handleUpdateThankYouField('videoPosterUrl', e.target.value)}
+                                                            placeholder="URL del poster..."
+                                                            className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-emerald-300 font-mono outline-none focus:border-emerald-500"
+                                                        />
+                                                        <label 
+                                                            className={`p-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 rounded-lg cursor-pointer transition-colors flex items-center justify-center ${uploadingState?.type === 'thankYouVideoPoster' ? 'opacity-50 pointer-events-none' : ''}`}
+                                                            title="Subir poster al bucket"
+                                                        >
+                                                            {uploadingState?.type === 'thankYouVideoPoster' ? (
+                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                            ) : (
+                                                                <Upload className="w-4 h-4" />
+                                                            )}
+                                                            <input 
+                                                                type="file" 
+                                                                className="hidden" 
+                                                                accept="image/*"
+                                                                disabled={uploadingState !== null}
+                                                                onChange={(e) => handleImageUpload(e, 'thankYouVideoPoster')}
+                                                            />
+                                                        </label>
+                                                        {multimedia.thankYouPage?.videoPosterUrl && (
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => handleDeleteImage('thankYouVideoPoster')}
+                                                                disabled={uploadingState !== null}
+                                                                className="p-2 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors flex items-center justify-center"
+                                                                title="Eliminar poster"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* DURACIÓN Y AVISO DE RECOMENDACIÓN */}
+                                                <div>
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Aviso Recomendación Inferior
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={multimedia.thankYouPage?.videoNoticeText || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('videoNoticeText', e.target.value)}
+                                                        placeholder="Te recomendamos ver la clase completa antes de continuar."
+                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* SUB-BLOQUE 2: ACCESO A LA FORMACIÓN COMPLETA (MOCKUP 3D Y BULLETS - REF. IMAGEN 3) */}
+                                        <div className="bg-black/50 border border-gray-800/80 rounded-2xl p-5 space-y-5">
+                                            <div className="flex items-center gap-2 border-b border-gray-800 pb-3">
+                                                <GraduationCap className="w-4 h-4 text-indigo-400" />
+                                                <h6 className="text-xs font-black uppercase tracking-wider text-indigo-400">
+                                                    2. Acceso a la Formación Completa (Mockup 3D y Bullets - Ref. Imagen 3)
+                                                </h6>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {/* IMAGEN DEL ACCESO A LA CLASE COMPLETA (MOCKUP 3D) */}
+                                                <div className="md:col-span-2">
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Imagen del Acceso a la Clase Completa (Mockup 3D de la Formación)
+                                                    </label>
+                                                    <div className="flex items-center gap-2">
+                                                        {multimedia.thankYouPage?.upsellImageUrl ? (
+                                                            <a 
+                                                                href={multimedia.thankYouPage.upsellImageUrl} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer" 
+                                                                className="w-12 h-12 rounded-lg border border-gray-700 bg-gray-900 overflow-hidden shrink-0 flex items-center justify-center group relative hover:opacity-80 transition"
+                                                                title="Ver imagen completa"
+                                                            >
+                                                                <img src={multimedia.thankYouPage.upsellImageUrl} alt="Mockup Clase Completa" className="w-full h-full object-cover" />
+                                                            </a>
+                                                        ) : (
+                                                            <div className="w-12 h-12 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 text-indigo-400">
+                                                                <Image className="w-6 h-6" />
+                                                            </div>
+                                                        )}
+                                                        <input 
+                                                            type="text" 
+                                                            value={multimedia.thankYouPage?.upsellImageUrl || ''} 
+                                                            onChange={(e) => handleUpdateThankYouField('upsellImageUrl', e.target.value)}
+                                                            placeholder="URL del mockup 3D de la formación completa..."
+                                                            className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
+                                                        />
+                                                        <label 
+                                                            className={`p-2.5 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20 rounded-lg cursor-pointer transition-colors flex items-center justify-center ${uploadingState?.type === 'thankYouUpsellImage' ? 'opacity-50 pointer-events-none' : ''}`}
+                                                            title="Subir imagen al bucket"
+                                                        >
+                                                            {uploadingState?.type === 'thankYouUpsellImage' ? (
+                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                            ) : (
+                                                                <Upload className="w-4 h-4" />
+                                                            )}
+                                                            <input 
+                                                                type="file" 
+                                                                className="hidden" 
+                                                                accept="image/*"
+                                                                disabled={uploadingState !== null}
+                                                                onChange={(e) => handleImageUpload(e, 'thankYouUpsellImage')}
+                                                            />
+                                                        </label>
+                                                        {multimedia.thankYouPage?.upsellImageUrl && (
+                                                            <a 
+                                                                href={multimedia.thankYouPage.upsellImageUrl} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer" 
+                                                                className="p-2.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors flex items-center justify-center"
+                                                                title="Ver en pestaña nueva"
+                                                            >
+                                                                <ExternalLink className="w-4 h-4" />
+                                                            </a>
+                                                        )}
+                                                        {multimedia.thankYouPage?.upsellImageUrl && (
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => handleDeleteImage('thankYouUpsellImage')}
+                                                                disabled={uploadingState !== null}
+                                                                className="p-2.5 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors flex items-center justify-center"
+                                                                title="Eliminar imagen del servidor"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-[10px] text-gray-500 mt-1">
+                                                        Sube la portada o mockup 3D del producto o formación completa (si no subes una, se generará una tarjeta 3D automática con el color de la página).
+                                                    </p>
+                                                </div>
+
+                                                {/* NOMBRE DEL PRODUCTO / FORMACIÓN */}
+                                                <div>
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Nombre de la Formación Completa
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={multimedia.thankYouPage?.upsellProductName || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('upsellProductName', e.target.value)}
+                                                        placeholder="Ej: Especialista en Resina Epóxica para Suelos"
+                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
+                                                    />
+                                                </div>
+
+                                                {/* TEXTO DEL BOTÓN DE LA FORMACIÓN */}
+                                                <div>
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Texto del Botón de la Formación
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={multimedia.thankYouPage?.upsellButtonText || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('upsellButtonText', e.target.value)}
+                                                        placeholder="CONOCER LA FORMACIÓN COMPLETA"
+                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
+                                                    />
+                                                </div>
+
+                                                {/* TÍTULO DE SECCIÓN UPSELL */}
+                                                <div>
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Título Superior de la Sección
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={multimedia.thankYouPage?.upsellTitle || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('upsellTitle', e.target.value)}
+                                                        placeholder="¿Quieres aprender el proceso completo?"
+                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
+                                                    />
+                                                </div>
+
+                                                {/* SUBTÍTULO DE SECCIÓN UPSELL */}
+                                                <div>
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Subtítulo de la Sección
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={multimedia.thankYouPage?.upsellSubtitle || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('upsellSubtitle', e.target.value)}
+                                                        placeholder="Lleva tus habilidades al siguiente nivel con nuestra formación especializada."
+                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
+                                                    />
+                                                </div>
+
+                                                {/* URL ESPECÍFICA DE PAGO (OPCIONAL) */}
+                                                <div className="md:col-span-2">
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        URL de Pago / Checkout Específico (Opcional)
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={multimedia.thankYouPage?.upsellButtonUrl || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('upsellButtonUrl', e.target.value)}
+                                                        placeholder="https://pay.hotmart.com/... (si se deja vacío, tomará el Hotlink Principal de Afiliado)"
+                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
+                                                    />
+                                                </div>
+
+                                                {/* BULLET POINTS DE LA FORMACIÓN COMPLETA (IMAGEN 3) */}
+                                                <div className="md:col-span-2 space-y-2 pt-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                                            Bullet Points del Acceso a la Formación Completa (Ref. Imagen 3)
+                                                        </label>
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => handleAddThankYouBullet('upsellBullets')}
+                                                            className="text-[10px] bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 px-2.5 py-1 rounded-md font-bold flex items-center gap-1 transition-colors"
+                                                        >
+                                                            <Plus className="w-3 h-3" /> Agregar Viñeta
+                                                        </button>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        {(multimedia.thankYouPage?.upsellBullets || []).map((bullet, bIdx) => (
+                                                            <div key={bIdx} className="flex items-center gap-2">
+                                                                <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs font-bold">
+                                                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                                                </div>
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={bullet} 
+                                                                    onChange={(e) => handleUpdateThankYouBullet('upsellBullets', bIdx, e.target.value)}
+                                                                    placeholder={`Viñeta ${bIdx + 1}...`}
+                                                                    className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
+                                                                />
+                                                                <button 
+                                                                    type="button"
+                                                                    onClick={() => handleDeleteThankYouBullet('upsellBullets', bIdx)}
+                                                                    className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                                                                    title="Eliminar viñeta"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* SUB-BLOQUE 3: LEAD MAGNET / REGALO ADICIONAL EN WHATSAPP (REF. IMAGEN 4) */}
+                                        <div className="bg-black/50 border border-gray-800/80 rounded-2xl p-5 space-y-5">
+                                            <div className="flex items-center gap-2 border-b border-gray-800 pb-3">
+                                                <Gift className="w-4 h-4 text-emerald-400" />
+                                                <h6 className="text-xs font-black uppercase tracking-wider text-emerald-400">
+                                                    3. Sección de Lead Magnet / Guía en WhatsApp (Ref. Imagen 4)
+                                                </h6>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {/* BADGE SUPERIOR */}
+                                                <div>
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Badge / Distintivo Superior
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={multimedia.thankYouPage?.whatsappBadge || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('whatsappBadge', e.target.value)}
+                                                        placeholder="REGALO ADICIONAL"
+                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
+                                                    />
+                                                </div>
+
+                                                {/* TEXTO DEL BOTÓN DE WHATSAPP */}
+                                                <div>
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Texto del Botón de WhatsApp
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={multimedia.thankYouPage?.whatsappButtonText || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('whatsappButtonText', e.target.value)}
+                                                        placeholder="UNIRME AL GRUPO Y RECIBIR LA GUÍA"
+                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
+                                                    />
+                                                </div>
+
+                                                {/* TÍTULO PRINCIPAL DEL BLOQUE DE WHATSAPP */}
+                                                <div className="md:col-span-2">
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Título del Bloque de WhatsApp
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={multimedia.thankYouPage?.whatsappTitle || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('whatsappTitle', e.target.value)}
+                                                        placeholder="Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica"
+                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
+                                                    />
+                                                </div>
+
+                                                {/* SUBTÍTULO DEL BLOQUE DE WHATSAPP */}
+                                                <div className="md:col-span-2">
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Subtítulo del Bloque de WhatsApp
+                                                    </label>
+                                                    <textarea 
+                                                        value={multimedia.thankYouPage?.whatsappSubtitle || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('whatsappSubtitle', e.target.value)}
+                                                        placeholder="Conecta con nuestra comunidad, resuelve tus dudas y descarga tu guía en formato digital."
+                                                        rows={2}
+                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500 resize-y"
+                                                    />
+                                                </div>
+
+                                                {/* IMAGEN DE LA GUÍA PRÁCTICA (MOCKUP) */}
+                                                <div className="md:col-span-2">
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Imagen de Portada de la Guía Digital (Mockup Libro/Guía)
+                                                    </label>
+                                                    <div className="flex items-center gap-2">
+                                                        {multimedia.thankYouPage?.whatsappGuideImageUrl ? (
+                                                            <a 
+                                                                href={multimedia.thankYouPage.whatsappGuideImageUrl} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer" 
+                                                                className="w-12 h-12 rounded-lg border border-gray-700 bg-gray-900 overflow-hidden shrink-0 flex items-center justify-center group relative hover:opacity-80 transition"
+                                                                title="Ver imagen completa"
+                                                            >
+                                                                <img src={multimedia.thankYouPage.whatsappGuideImageUrl} alt="Portada Guía" className="w-full h-full object-cover" />
+                                                            </a>
+                                                        ) : (
+                                                            <div className="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 text-emerald-400">
+                                                                <Image className="w-6 h-6" />
+                                                            </div>
+                                                        )}
+                                                        <input 
+                                                            type="text" 
+                                                            value={multimedia.thankYouPage?.whatsappGuideImageUrl || ''} 
+                                                            onChange={(e) => handleUpdateThankYouField('whatsappGuideImageUrl', e.target.value)}
+                                                            placeholder="URL de la portada de la guía..."
+                                                            className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-emerald-300 font-mono outline-none focus:border-emerald-500"
+                                                        />
+                                                        <label 
+                                                            className={`p-2.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 rounded-lg cursor-pointer transition-colors flex items-center justify-center ${uploadingState?.type === 'thankYouGuideImage' ? 'opacity-50 pointer-events-none' : ''}`}
+                                                            title="Subir imagen al bucket"
+                                                        >
+                                                            {uploadingState?.type === 'thankYouGuideImage' ? (
+                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                            ) : (
+                                                                <Upload className="w-4 h-4" />
+                                                            )}
+                                                            <input 
+                                                                type="file" 
+                                                                className="hidden" 
+                                                                accept="image/*"
+                                                                disabled={uploadingState !== null}
+                                                                onChange={(e) => handleImageUpload(e, 'thankYouGuideImage')}
+                                                            />
+                                                        </label>
+                                                        {multimedia.thankYouPage?.whatsappGuideImageUrl && (
+                                                            <a 
+                                                                href={multimedia.thankYouPage.whatsappGuideImageUrl} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer" 
+                                                                className="p-2.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors flex items-center justify-center"
+                                                                title="Ver en pestaña nueva"
+                                                            >
+                                                                <ExternalLink className="w-4 h-4" />
+                                                            </a>
+                                                        )}
+                                                        {multimedia.thankYouPage?.whatsappGuideImageUrl && (
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => handleDeleteImage('thankYouGuideImage')}
+                                                                disabled={uploadingState !== null}
+                                                                className="p-2.5 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors flex items-center justify-center"
+                                                                title="Eliminar imagen del servidor"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-[10px] text-gray-500 mt-1">
+                                                        Sube la portada o pantallazo de la guía digital para el regalo de WhatsApp (Ref. Imagen 4).
+                                                    </p>
+                                                </div>
+
+                                                {/* TÍTULO ESPECÍFICO DE LA GUÍA DIGITAL */}
+                                                <div className="md:col-span-2">
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                                        Título Específico de la Guía Digital
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={multimedia.thankYouPage?.whatsappGuideTitle || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('whatsappGuideTitle', e.target.value)}
+                                                        placeholder="Ej: Cómo convertir la aplicación de resina epóxica para suelos en un negocio rentable"
+                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
+                                                    />
+                                                </div>
+
+                                                {/* BULLET POINTS DE LA GUÍA (IMAGEN 4) */}
+                                                <div className="md:col-span-2 space-y-2 pt-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                                            Bullet Points de la Guía Digital / Lead Magnet (Ref. Imagen 4)
+                                                        </label>
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => handleAddThankYouBullet('whatsappGuideBullets')}
+                                                            className="text-[10px] bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 px-2.5 py-1 rounded-md font-bold flex items-center gap-1 transition-colors"
+                                                        >
+                                                            <Plus className="w-3 h-3" /> Agregar Viñeta
+                                                        </button>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        {(multimedia.thankYouPage?.whatsappGuideBullets || []).map((bullet, bIdx) => (
+                                                            <div key={bIdx} className="flex items-center gap-2">
+                                                                <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs font-bold">
+                                                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                                                </div>
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={bullet} 
+                                                                    onChange={(e) => handleUpdateThankYouBullet('whatsappGuideBullets', bIdx, e.target.value)}
+                                                                    placeholder={`Viñeta ${bIdx + 1}...`}
+                                                                    className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
+                                                                />
+                                                                <button 
+                                                                    type="button"
+                                                                    onClick={() => handleDeleteThankYouBullet('whatsappGuideBullets', bIdx)}
+                                                                    className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                                                                    title="Eliminar viñeta"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )}

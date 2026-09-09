@@ -315,6 +315,11 @@ router.get('/', async (req, res) => {
             childMm.leadMagnets = parentMm.leadMagnets;
         }
 
+        if ((!childMm.thankYouPage || Object.keys(childMm.thankYouPage).length === 0) &&
+            (parentMm.thankYouPage && Object.keys(parentMm.thankYouPage).length > 0)) {
+            childMm.thankYouPage = parentMm.thankYouPage;
+        }
+
         return {
             ...p,
             pain_points: safeParseJson(p.pain_points),
@@ -370,6 +375,10 @@ router.get('/:id', async (req, res) => {
     if ((!childMm.leadMagnets || !Array.isArray(childMm.leadMagnets) || childMm.leadMagnets.length === 0) &&
         (parentMm.leadMagnets && Array.isArray(parentMm.leadMagnets) && parentMm.leadMagnets.length > 0)) {
         childMm.leadMagnets = parentMm.leadMagnets;
+    }
+    if ((!childMm.thankYouPage || Object.keys(childMm.thankYouPage).length === 0) &&
+        (parentMm.thankYouPage && Object.keys(parentMm.thankYouPage).length > 0)) {
+        childMm.thankYouPage = parentMm.thankYouPage;
     }
     if (!project.lead_magnet_url && project.parent_lead_magnet_url) {
         project.lead_magnet_url = project.parent_lead_magnet_url;

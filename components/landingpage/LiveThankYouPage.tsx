@@ -154,7 +154,18 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   project
 }) => {
   const activeDs = ds || getDesignSystem(content.palette);
-  const tyConfig: ThankYouPageConfig = content.thankYouPage || {};
+  const projTyConfig: Partial<ThankYouPageConfig> = (project?.multimedia_json as any)?.thankYouPage || {};
+  const pageTyConfig: Partial<ThankYouPageConfig> = content.thankYouPage || {};
+  const tyConfig: ThankYouPageConfig = {
+    ...projTyConfig,
+    ...pageTyConfig,
+  };
+  (Object.keys(projTyConfig) as (keyof ThankYouPageConfig)[]).forEach((k) => {
+    const val = pageTyConfig[k];
+    if ((val === undefined || val === null || val === "" || (Array.isArray(val) && val.length === 0)) && projTyConfig[k]) {
+      (tyConfig as any)[k] = projTyConfig[k];
+    }
+  });
   const paletteAccents = getPaletteAccents(content.palette);
 
   // Brand Name & Visuals

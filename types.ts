@@ -660,6 +660,28 @@ export interface Project {
       description?: string; 
       fromMaster?: boolean;
     }[];
+    thankYouPage?: {
+      videoUrl?: string;
+      videoTitle?: string;
+      videoSubtitle?: string;
+      videoPosterUrl?: string;
+      videoDuration?: string;
+      videoNoticeText?: string;
+      upsellTitle?: string;
+      upsellSubtitle?: string;
+      upsellProductName?: string;
+      upsellImageUrl?: string;
+      upsellBullets?: string[];
+      upsellButtonText?: string;
+      upsellButtonUrl?: string;
+      whatsappBadge?: string;
+      whatsappTitle?: string;
+      whatsappSubtitle?: string;
+      whatsappGuideTitle?: string;
+      whatsappGuideBullets?: string[];
+      whatsappButtonText?: string;
+      whatsappGuideImageUrl?: string;
+    };
   };
   
   createdAt: Date;
