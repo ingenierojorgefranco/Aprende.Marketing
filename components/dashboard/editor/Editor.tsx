@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, DestinationType, ThankYouPageConfig, Project } from '../../../types';
-import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift, AlertTriangle, Book, ShoppingBag, XCircle, Library, X, Search } from 'lucide-react';
+import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift, AlertTriangle, Book, ShoppingBag, XCircle, Library, X, Search, Video, GraduationCap } from 'lucide-react';
 import { LivePage } from '../../LivePage';
 import { useLocation } from 'react-router-dom';
 import { api } from '../../../services/api';
@@ -1271,69 +1271,98 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                   {/* === TAB: THANK YOU PAGE === */}
                   {activeTab === 'thankyou' && (
                       <div className="space-y-6 animate-in slide-in-from-left-2 duration-200 p-2">
-                          <SectionHeader id="ty-hero" title="Hero & Configuración" icon={Sparkles} openSection={openSection} toggleSection={toggleSection} />
+                          
+                          {/* 1. HERO Y CONFIRMACIÓN */}
+                          <SectionHeader id="ty-hero" title="1. Hero & Confirmación" icon={Sparkles} openSection={openSection} toggleSection={toggleSection} />
                           <SectionContent id="ty-hero" openSection={openSection}>
-                              <div><Label>Título Principal</Label><Input value={content.thankYouPage?.headline || ''} onChange={(e) => updateThankYouConfig('headline', e.target.value)} /></div>
-                              <div><Label>Mensaje / Subtítulo</Label><RichTextArea value={content.thankYouPage?.subheadline || ''} onChange={(e) => updateThankYouConfig('subheadline', e.target.value)} className="h-20"/></div>
-                              <div className="pt-4 border-t border-gray-800"><Label>Texto Barra Progreso</Label><Input value={content.thankYouPage?.progressBarText || ''} onChange={(e) => updateThankYouConfig('progressBarText', e.target.value)} placeholder="¡ESPERA! SÓLO TE FALTA..." /></div>
-                              <div><Label>Texto Badge Verde</Label><Input value={content.thankYouPage?.greenBadgeText || ''} onChange={(e) => updateThankYouConfig('greenBadgeText', e.target.value)} placeholder="RECIBE NUESTRO LIBRO..." /></div>
-                              <div className="pt-4 border-t border-gray-800"><Label>Link Grupo VIP (WhatsApp)</Label><Input value={content.thankYouPage?.ctaLink || ''} onChange={(e) => updateThankYouConfig('ctaLink', e.target.value)} placeholder="https://chat.whatsapp.com/..." /></div>
-                              <div className="pt-2"><label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={content.thankYouPage?.showSocials !== false} onChange={(e) => updateThankYouConfig('showSocials', e.target.checked)} className="accent-green-500 w-4 h-4"/><span className="text-gray-300 text-xs font-bold uppercase">Mostrar Footer Redes Sociales</span></label></div>
+                              <div><Label>Nombre de la Marca / Logo</Label><Input value={content.thankYouPage?.headerLogoText || ''} onChange={(e) => updateThankYouConfig('headerLogoText', e.target.value)} placeholder="ResinPro Studio Latino" /></div>
+                              <div><Label>Título de Confirmación</Label><Input value={content.thankYouPage?.headline || ''} onChange={(e) => updateThankYouConfig('headline', e.target.value)} placeholder="Perfecto, tu registro está confirmado" /></div>
+                              <div><Label>Mensaje / Subtítulo</Label><RichTextArea value={content.thankYouPage?.subheadline || ''} onChange={(e) => updateThankYouConfig('subheadline', e.target.value)} className="h-20" placeholder="Tu clase gratuita ya está disponible..." /></div>
+                              <div><Label>Texto de Aviso (Email / Spam)</Label><Input value={content.thankYouPage?.emailNotificationText || ''} onChange={(e) => updateThankYouConfig('emailNotificationText', e.target.value)} placeholder="Revisa tu bandeja de entrada (y spam) para encontrar el acceso." /></div>
                           </SectionContent>
 
-                          <SectionHeader id="ty-step1" title="Paso 1: Email" icon={MessageCircle} openSection={openSection} toggleSection={toggleSection} />
-                          <SectionContent id="ty-step1" openSection={openSection}>
-                              <div><Label>Título Paso 1</Label><Input value={content.thankYouPage?.step1Title || ''} onChange={(e) => updateThankYouConfig('step1Title', e.target.value)} placeholder="Revisa tu Correo" /></div>
-                              <div><Label>Descripción</Label><Input value={content.thankYouPage?.step1Desc || ''} onChange={(e) => updateThankYouConfig('step1Desc', e.target.value)} /></div>
-                              <div className="pt-2 bg-yellow-900/20 p-2 rounded border border-yellow-500/20"><div><Label>Advertencia Spam</Label><Input value={content.thankYouPage?.step1Warning || ''} onChange={(e) => updateThankYouConfig('step1Warning', e.target.value)} className="bg-black/50" placeholder="Importante: Verifica..." /></div></div>
-                              <div><Label>Asunto del Correo (Guía)</Label><Input value={content.thankYouPage?.step1Subject || ''} onChange={(e) => updateThankYouConfig('step1Subject', e.target.value)} placeholder='Busca: "Acceso..."' /></div>
+                          {/* 2. CLASE GRATUITA (VIDEO) */}
+                          <SectionHeader id="ty-video" title="2. Clase Gratuita (Video)" icon={Video} openSection={openSection} toggleSection={toggleSection} />
+                          <SectionContent id="ty-video" openSection={openSection}>
+                              <div><Label>Badge Superior</Label><Input value={content.thankYouPage?.videoBadge || ''} onChange={(e) => updateThankYouConfig('videoBadge', e.target.value)} placeholder="CLASE GRATUITA" /></div>
+                              <div><Label>Título de la Clase</Label><Input value={content.thankYouPage?.videoTitle || ''} onChange={(e) => updateThankYouConfig('videoTitle', e.target.value)} placeholder="Cómo empezar profesionalmente con resina epóxica para suelos" /></div>
+                              <div><Label>Subtítulo / Descripción</Label><RichTextArea value={content.thankYouPage?.videoSubtitle || ''} onChange={(e) => updateThankYouConfig('videoSubtitle', e.target.value)} className="h-20" placeholder="Aprende cómo funciona esta técnica..." /></div>
+                              <div className="pt-3 border-t border-gray-800">
+                                  <Label>URL del Video (YouTube, Vimeo o MP4)</Label>
+                                  <Input value={content.thankYouPage?.videoUrl || ''} onChange={(e) => updateThankYouConfig('videoUrl', e.target.value)} placeholder="https://www.youtube.com/watch?v=... o https://vimeo.com/..." />
+                                  <p className="text-[11px] text-gray-500 mt-1">Si dejas este campo vacío, se mostrará el reproductor interactivo con fotograma cinematográfico.</p>
+                              </div>
+                              <div><Label>URL Fotograma / Poster (Opcional)</Label><Input value={content.thankYouPage?.videoPosterUrl || ''} onChange={(e) => updateThankYouConfig('videoPosterUrl', e.target.value)} placeholder="https://images.unsplash.com/..." /></div>
+                              <div className="grid grid-cols-2 gap-2">
+                                  <div><Label>Duración del Video</Label><Input value={content.thankYouPage?.videoDuration || ''} onChange={(e) => updateThankYouConfig('videoDuration', e.target.value)} placeholder="34:28" /></div>
+                                  <div><Label>Aviso Recomendación</Label><Input value={content.thankYouPage?.videoNoticeText || ''} onChange={(e) => updateThankYouConfig('videoNoticeText', e.target.value)} placeholder="Te recomendamos ver la clase completa..." /></div>
+                              </div>
                           </SectionContent>
 
-                          <SectionHeader id="ty-step2" title="Paso 2: Comunidad" icon={Users} openSection={openSection} toggleSection={toggleSection} />
-                          <SectionContent id="ty-step2" openSection={openSection}>
-                              <div><Label>Título Paso 2</Label><Input value={content.thankYouPage?.step2Title || ''} onChange={(e) => updateThankYouConfig('step2Title', e.target.value)} placeholder="Grupo VIP" /></div>
-                              <div><Label>Descripción</Label><Input value={content.thankYouPage?.step2Desc || ''} onChange={(e) => updateThankYouConfig('step2Desc', e.target.value)} /></div>
-                              <div><Label>Badge de Acción (Rojo)</Label><Input value={content.thankYouPage?.step2Badge || ''} onChange={(e) => updateThankYouConfig('step2Badge', e.target.value)} placeholder="¡Acción Requerida!" /></div>
-                              <div className="grid grid-cols-2 gap-2 pt-2"><div><Label>Título Bono</Label><Input value={content.thankYouPage?.step2BonusTitle || ''} onChange={(e) => updateThankYouConfig('step2BonusTitle', e.target.value)} placeholder="Libro Digital GRATIS" /></div><div><Label>Valor Bono</Label><Input value={content.thankYouPage?.step2BonusValue || ''} onChange={(e) => updateThankYouConfig('step2BonusValue', e.target.value)} placeholder="Valor $19 USD" /></div></div>
+                          {/* 3. FORMACIÓN COMPLETA / UPSELL */}
+                          <SectionHeader id="ty-upsell" title="3. Formación Completa (Upsell)" icon={GraduationCap} openSection={openSection} toggleSection={toggleSection} />
+                          <SectionContent id="ty-upsell" openSection={openSection}>
+                              <div><Label>Título Sección</Label><Input value={content.thankYouPage?.upsellTitle || ''} onChange={(e) => updateThankYouConfig('upsellTitle', e.target.value)} placeholder="¿Quieres aprender el proceso completo?" /></div>
+                              <div><Label>Subtítulo Sección</Label><Input value={content.thankYouPage?.upsellSubtitle || ''} onChange={(e) => updateThankYouConfig('upsellSubtitle', e.target.value)} placeholder="Lleva tus habilidades al siguiente nivel..." /></div>
+                              <div className="pt-3 border-t border-gray-800">
+                                  <Label>Nombre del Programa / Formación</Label>
+                                  <Input value={content.thankYouPage?.upsellProductName || ''} onChange={(e) => updateThankYouConfig('upsellProductName', e.target.value)} placeholder="Especialista en Resina Epóxica para Suelos" />
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                  <div><Label>Nombre del Instructor</Label><Input value={content.thankYouPage?.upsellInstructorName || ''} onChange={(e) => updateThankYouConfig('upsellInstructorName', e.target.value)} placeholder="Ariana Zamora" /></div>
+                                  <div><Label>Especialidad Instructor</Label><Input value={content.thankYouPage?.upsellInstructorTitle || ''} onChange={(e) => updateThankYouConfig('upsellInstructorTitle', e.target.value)} placeholder="Especialista en recubrimientos epóxicos" /></div>
+                              </div>
+                              <div className="pt-3 border-t border-gray-800">
+                                  <Label>Texto Botón CTA</Label>
+                                  <Input value={content.thankYouPage?.upsellButtonText || ''} onChange={(e) => updateThankYouConfig('upsellButtonText', e.target.value)} placeholder="CONOCER LA FORMACIÓN COMPLETA" />
+                              </div>
+                              <div>
+                                  <Label>Enlace Botón (Checkout / Página de Pago)</Label>
+                                  <Input value={content.thankYouPage?.upsellButtonUrl || ''} onChange={(e) => updateThankYouConfig('upsellButtonUrl', e.target.value)} placeholder="https://pay.hotmart.com/... o enlace de compra" />
+                              </div>
+                              <div>
+                                  <Label>Imagen Mockup Personalizada (Opcional)</Label>
+                                  <Input value={content.thankYouPage?.upsellImageUrl || ''} onChange={(e) => updateThankYouConfig('upsellImageUrl', e.target.value)} placeholder="URL de imagen de mockup (deja vacío para mockup 3D automático)" />
+                              </div>
                           </SectionContent>
 
-                          <SectionHeader id="ty-offer" title="Oferta / Libro" icon={Book} openSection={openSection} toggleSection={toggleSection} />
-                          <SectionContent id="ty-offer" openSection={openSection}>
-                              <div><Label>Título Superior (Sección)</Label><Input value={content.thankYouPage?.offerTopTitle || ''} onChange={(e) => updateThankYouConfig('offerTopTitle', e.target.value)} /></div>
-                              <div><Label>Headline Oferta (Soporta HTML)</Label><RichTextArea value={content.thankYouPage?.offerHeadline || ''} onChange={(e) => updateThankYouConfig('offerHeadline', e.target.value)} className="h-20" /></div>
-                              <div><Label>Descripción Oferta</Label><RichTextArea value={content.thankYouPage?.offerDescription || ''} onChange={(e) => updateThankYouConfig('offerDescription', e.target.value)} className="h-24" /></div>
-                              <div className="pt-4 border-t border-gray-800"><Label>Beneficios del Libro (Bullets)</Label><div className="space-y-2 mt-1">{(content.thankYouPage?.offerBullets || []).map((bullet, i) => (<div key={i} className="flex gap-2"><Input value={bullet} onChange={(e) => updateTyBullet(i, e.target.value)} /><button onClick={() => removeTyItem('offerBullets', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>))}<button onClick={() => addTyItem('offerBullets')} className="text-xs text-primary flex items-center gap-1 hover:underline"><Plus className="w-3 h-3"/> Agregar Bullet</button></div></div>
-                              <div className="pt-4 border-t border-gray-800"><Label>Botón Descarga (CTA)</Label><Input value={content.thankYouPage?.ctaButtonText || ''} onChange={(e) => updateThankYouConfig('ctaButtonText', e.target.value)} /></div>
-                              <div className="pt-4 border-t border-gray-800"><Label>Título "¿De qué trata el Ebook?" (Debajo del Botón)</Label><Input value={content.thankYouPage?.leadMagnetDescriptionTitle || ''} onChange={(e) => updateThankYouConfig('leadMagnetDescriptionTitle', e.target.value)} placeholder="¿De qué trata nuestro Ebook Digital Gratuito?" /></div>
-                              <div><Label>Descripción Detallada del Ebook (Soporta HTML y Párrafos)</Label><RichTextArea value={content.thankYouPage?.leadMagnetDescription || ''} onChange={(e) => updateThankYouConfig('leadMagnetDescription', e.target.value)} className="h-32" placeholder="Escribe aquí la descripción detallada del ebook..." /></div>
+                          {/* 4. REGALO ADICIONAL (WHATSAPP + GUÍA) */}
+                          <SectionHeader id="ty-whatsapp" title="4. Regalo Adicional (WhatsApp + Guía)" icon={Gift} openSection={openSection} toggleSection={toggleSection} />
+                          <SectionContent id="ty-whatsapp" openSection={openSection}>
+                              <div><Label>Badge Superior</Label><Input value={content.thankYouPage?.whatsappBadge || ''} onChange={(e) => updateThankYouConfig('whatsappBadge', e.target.value)} placeholder="REGALO ADICIONAL" /></div>
+                              <div><Label>Título Principal</Label><Input value={content.thankYouPage?.whatsappTitle || ''} onChange={(e) => updateThankYouConfig('whatsappTitle', e.target.value)} placeholder="Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica" /></div>
+                              <div><Label>Subtítulo</Label><RichTextArea value={content.thankYouPage?.whatsappSubtitle || ''} onChange={(e) => updateThankYouConfig('whatsappSubtitle', e.target.value)} className="h-20" placeholder="Conecta con nuestra comunidad, resuelve tus dudas..." /></div>
+                              <div className="pt-3 border-t border-gray-800">
+                                  <Label>Título de la Guía Práctica</Label>
+                                  <Input value={content.thankYouPage?.whatsappGuideTitle || ''} onChange={(e) => updateThankYouConfig('whatsappGuideTitle', e.target.value)} placeholder="Cómo convertir la aplicación de resina epóxica para suelos en un negocio rentable" />
+                              </div>
+                              <div className="pt-3 border-t border-gray-800">
+                                  <Label>Texto Botón de WhatsApp</Label>
+                                  <Input value={content.thankYouPage?.whatsappButtonText || ''} onChange={(e) => updateThankYouConfig('whatsappButtonText', e.target.value)} placeholder="UNIRME AL GRUPO Y RECIBIR LA GUÍA" />
+                              </div>
+                              <div>
+                                  <Label>Enlace del Grupo de WhatsApp (VIP)</Label>
+                                  <Input value={content.thankYouPage?.ctaLink || ''} onChange={(e) => updateThankYouConfig('ctaLink', e.target.value)} placeholder="https://chat.whatsapp.com/..." />
+                              </div>
+                              <div>
+                                  <Label>Imagen Guía Personalizada (Opcional)</Label>
+                                  <Input value={content.thankYouPage?.whatsappGuideImageUrl || ''} onChange={(e) => updateThankYouConfig('whatsappGuideImageUrl', e.target.value)} placeholder="URL de imagen de la guía (deja vacío para mockup 3D automático)" />
+                              </div>
                           </SectionContent>
 
-                          <SectionHeader id="ty-book-visual" title="Detalles Visuales Libro" icon={Image} openSection={openSection} toggleSection={toggleSection} />
-                          <SectionContent id="ty-book-visual" openSection={openSection}>
-                              <div className="grid grid-cols-2 gap-2"><div><Label>Título Portada</Label><Input value={content.thankYouPage?.bookTitle || ''} onChange={(e) => updateThankYouConfig('bookTitle', e.target.value)} /></div><div><Label>Subtítulo Portada</Label><Input value={content.thankYouPage?.bookSubtitle || ''} onChange={(e) => updateThankYouConfig('bookSubtitle', e.target.value)} /></div></div>
-                              <div><Label>Texto Pie (ej: Guía 2025)</Label><Input value={content.thankYouPage?.bookFooter || ''} onChange={(e) => updateThankYouConfig('bookFooter', e.target.value)} /></div>
-                              <div className="pt-2 border-t border-gray-800 mt-2"><div className="grid grid-cols-2 gap-2"><div><Label>Precio Regular</Label><Input value={content.thankYouPage?.offerPriceRegular || ''} onChange={(e) => updateThankYouConfig('offerPriceRegular', e.target.value)} /></div><div><Label>Precio Oferta</Label><Input value={content.thankYouPage?.offerPriceFree || ''} onChange={(e) => updateThankYouConfig('offerPriceFree', e.target.value)} /></div></div><div className="mt-2"><Label>Badge Oferta</Label><Input value={content.thankYouPage?.offerBadge || ''} onChange={(e) => updateThankYouConfig('offerBadge', e.target.value)} /></div></div>
+                          {/* 5. ONBOARDING (¿QUÉ OCURRE AHORA?) */}
+                          <SectionHeader id="ty-steps" title="5. Pasos Onboarding" icon={List} openSection={openSection} toggleSection={toggleSection} />
+                          <SectionContent id="ty-steps" openSection={openSection}>
+                              <div><Label>Título Sección</Label><Input value={content.thankYouPage?.stepsTitle || ''} onChange={(e) => updateThankYouConfig('stepsTitle', e.target.value)} placeholder="¿Qué ocurre ahora?" /></div>
+                              <div><Label>Subtítulo</Label><Input value={content.thankYouPage?.stepsSubtitle || ''} onChange={(e) => updateThankYouConfig('stepsSubtitle', e.target.value)} placeholder="Sigue estos 3 pasos para aprovechar al máximo tu acceso:" /></div>
                           </SectionContent>
 
-                          <SectionHeader id="ty-learning" title="Temario (Aprenderás)" icon={List} openSection={openSection} toggleSection={toggleSection} />
-                          <SectionContent id="ty-learning" openSection={openSection}>
-                              <div><Label>Título Sección</Label><Input value={content.thankYouPage?.learningTitle || ''} onChange={(e) => updateThankYouConfig('learningTitle', e.target.value)} /></div>
-                              <div><Label>Subtítulo</Label><Input value={content.thankYouPage?.learningSubtitle || ''} onChange={(e) => updateThankYouConfig('learningSubtitle', e.target.value)} /></div>
-                              <div className="space-y-4 mt-4">{(content.thankYouPage?.learningItems || []).map((item, i) => (<div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group"><div className="absolute top-2 right-2"><button onClick={() => removeTyItem('learningItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div><div className="mb-2"><Label>Título Item</Label><Input value={item.title} onChange={(e) => updateTyArray('learningItems', i, 'title', e.target.value)} /></div><div><Label>Descripción</Label><Input value={item.description} onChange={(e) => updateTyArray('learningItems', i, 'description', e.target.value)} /></div></div>))}<button onClick={() => addTyItem('learningItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Item</button></div>
+                          {/* 6. FOOTER */}
+                          <SectionHeader id="ty-footer" title="6. Footer & Lema" icon={Sparkles} openSection={openSection} toggleSection={toggleSection} />
+                          <SectionContent id="ty-footer" openSection={openSection}>
+                              <div><Label>Lema del Nicho / Footer</Label><Input value={content.thankYouPage?.footerTagline || ''} onChange={(e) => updateThankYouConfig('footerTagline', e.target.value)} placeholder="Transformando ideas en suelos que generan oportunidades." /></div>
                           </SectionContent>
 
-                          <SectionHeader id="ty-social" title="Testimonios" icon={Star} openSection={openSection} toggleSection={toggleSection} />
-                          <SectionContent id="ty-social" openSection={openSection}>
-                              <div><Label>Título</Label><Input value={content.thankYouPage?.socialTitle || ''} onChange={(e) => updateThankYouConfig('socialTitle', e.target.value)} /></div>
-                              <div><Label>Contador (ej: +1000)</Label><Input value={content.thankYouPage?.socialCountText || ''} onChange={(e) => updateThankYouConfig('socialCountText', e.target.value)} /></div>
-                              <div className="space-y-4 mt-4">{(content.thankYouPage?.socialItems || []).map((item, i) => (<div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group"><div className="absolute top-2 right-2"><button onClick={() => removeTyItem('socialItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div><div className="grid grid-cols-2 gap-2 mb-2"><div><Label>Nombre</Label><Input value={item.name} onChange={(e) => updateTyArray('socialItems', i, 'name', e.target.value)} /></div><div><Label>Ubicación</Label><Input value={item.location} onChange={(e) => updateTyArray('socialItems', i, 'location', e.target.value)} /></div></div><div><Label>Testimonio</Label><RichTextArea value={item.text} onChange={(e) => updateTyArray('socialItems', i, 'text', e.target.value)} className="h-16"/></div></div>))}<button onClick={() => addTyItem('socialItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Testimonio</button></div>
-                          </SectionContent>
-
-                          <SectionHeader id="ty-faq" title="Preguntas Frecuentes" icon={HelpCircle} openSection={openSection} toggleSection={toggleSection} />
-                          <SectionContent id="ty-faq" openSection={openSection}>
-                              <div><Label>Título FAQ</Label><Input value={content.thankYouPage?.faqTitle || ''} onChange={(e) => updateThankYouConfig('faqTitle', e.target.value)} /></div>
-                              <div className="space-y-4 mt-4">{(content.thankYouPage?.faqItems || []).map((item, i) => (<div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group"><div className="absolute top-2 right-2"><button onClick={() => removeTyItem('faqItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div><div className="mb-2"><Label>Pregunta</Label><Input value={item.question} onChange={(e) => updateTyArray('faqItems', i, 'question', e.target.value)} /></div><div><Label>Respuesta</Label><RichTextArea value={item.answer} onChange={(e) => updateTyArray('faqItems', i, 'answer', e.target.value)} className="h-16"/></div></div>))}<button onClick={() => addTyItem('faqItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Pregunta</button></div>
-                          </SectionContent>
                       </div>
                   )}
 

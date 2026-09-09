@@ -342,6 +342,48 @@ export interface ThankYouPageConfig {
   leadMagnetImageUrl?: string;
   leadMagnetDescription?: string;
   leadMagnetDescriptionTitle?: string;
+
+  // NUEVO DISEÑO: Masterclass en Video + Formación + WhatsApp + Onboarding
+  headerLogoText?: string;
+  headerLogoIcon?: string;
+  emailNotificationText?: string;
+
+  // Sección 1: Clase Gratuita (Video)
+  videoBadge?: string;
+  videoTitle?: string;
+  videoSubtitle?: string;
+  videoUrl?: string;
+  videoPosterUrl?: string;
+  videoDuration?: string;
+  videoNoticeText?: string;
+
+  // Sección 1 (Inferior): Formación Completa / Upsell
+  upsellTitle?: string;
+  upsellSubtitle?: string;
+  upsellProductName?: string;
+  upsellInstructorName?: string;
+  upsellInstructorTitle?: string;
+  upsellBullets?: string[];
+  upsellButtonText?: string;
+  upsellButtonUrl?: string;
+  upsellImageUrl?: string;
+
+  // Sección 2: Regalo Adicional (WhatsApp + Guía)
+  whatsappBadge?: string;
+  whatsappTitle?: string;
+  whatsappSubtitle?: string;
+  whatsappGuideTitle?: string;
+  whatsappGuideBullets?: string[];
+  whatsappButtonText?: string;
+  whatsappGuideImageUrl?: string;
+
+  // Sección 3: Onboarding "¿Qué ocurre ahora?"
+  stepsTitle?: string;
+  stepsSubtitle?: string;
+  stepsItems?: Array<{ number: number; title: string; desc: string; icon?: string }>;
+
+  // Footer personalizado
+  footerTagline?: string;
   
   // Legacy fields fallback
   ctaText?: string; 
