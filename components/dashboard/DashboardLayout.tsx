@@ -472,7 +472,7 @@ export const DashboardLayout = ({
                                       {effectiveUser.name}
                                   </p>
                                   <p className="text-[11px] font-bold text-[#FF5A1F] uppercase tracking-wider mt-0.5">
-                                      Plan gratuito
+                                      {effectiveUser.role === 'admin' ? 'Admin' : ((effectiveUser.planLimits?.planName === 'pro' || effectiveUser.planLimits?.planName === 'max') ? 'Plan Pro' : 'Plan Free')}
                                   </p>
                               </div>
                           </div>

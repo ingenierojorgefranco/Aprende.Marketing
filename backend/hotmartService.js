@@ -70,8 +70,8 @@ export const handleWebhook = async (payload) => {
     if (event === 'SUBSCRIPTION_CANCELLATION') {
         console.log(`[Hotmart Webhook] Procesando CANCELACIÓN PROGRAMADA para User ${userId} (Producto ${productId})`);
         
-        // 1. Identificar el plan por el ID de producto
-        const [planRows] = await pool.query("SELECT slug FROM plans WHERE hotmart_id = ? LIMIT 1", [productId]);
+        // 1. Identificar el plan por el ID de producto (mensual o anual)
+        const [planRows] = await pool.query("SELECT slug FROM plans WHERE hotmart_id = ? OR hotmart_id_annual = ? LIMIT 1", [productId, productId]);
         const planSlug = planRows.length > 0 ? planRows[0].slug : null;
 
         if (planSlug) {
@@ -129,14 +129,19 @@ export const handleWebhook = async (payload) => {
     if (status === 'approved' || status === 'complete' || event === 'PURCHASE_APPROVED') {
         console.log(`[Hotmart Webhook] Activando plan para User ${userId} (Producto ${productId}, Oferta ${offerCode || 'N/A'})`);
 
-        // 1. Buscar el plan que coincide con este Hotmart ID y Oferta
+        // 1. Buscar el plan que coincide con este Hotmart ID y Oferta (tanto mensual como anual)
         // Priorizamos la coincidencia exacta de la oferta si existe
         const [planRows] = await pool.query(
             `SELECT id, limits_config, slug FROM plans 
-             WHERE hotmart_id = ? 
-             AND (hotmart_offer = ? OR hotmart_offer IS NULL OR hotmart_offer = '')
-             ORDER BY (hotmart_offer = ?) DESC LIMIT 1`, 
-            [productId, offerCode, offerCode]
+             WHERE (hotmart_id = ? OR hotmart_id_annual = ?) 
+             AND (
+                 hotmart_offer = ? OR hotmart_offer_annual = ? 
+                 OR (hotmart_offer IS NULL AND hotmart_offer_annual IS NULL)
+                 OR (hotmart_offer = '' AND (hotmart_offer_annual IS NULL OR hotmart_offer_annual = ''))
+                 OR ? IS NULL OR ? = ''
+             )
+             ORDER BY (hotmart_offer = ? OR hotmart_offer_annual = ?) DESC LIMIT 1`, 
+            [productId, productId, offerCode, offerCode, offerCode, offerCode, offerCode, offerCode]
         );
         
         console.log(`[Hotmart Webhook] Planes encontrados en DB para Producto ${productId}: ${planRows.length}`);

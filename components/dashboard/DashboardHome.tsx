@@ -132,9 +132,10 @@ export const DashboardHome: React.FC = () => {
       });
   }, [masterLibrary, projects]);
 
-  const planName = user?.planLimits?.planName || 'Starter';
-  const isFree = planName.toLowerCase() === 'starter' || planName.toLowerCase() === 'gratis';
-  const maxProjects = user?.planLimits?.maxProjects || 3;
+  const planRawName = user?.planLimits?.planName || 'Free';
+  const isFree = planRawName.toLowerCase() === 'starter' || planRawName.toLowerCase() === 'free' || planRawName.toLowerCase() === 'gratis';
+  const planName = isFree ? 'Free' : (planRawName.toLowerCase() === 'pro' || planRawName.toLowerCase() === 'max' ? 'Pro All-Access' : planRawName);
+  const maxProjects = user?.planLimits?.maxProjects || 1;
   
   
 

@@ -624,11 +624,11 @@ router.get('/public/plans', async (req, res) => {
             stripePriceId: p.stripe_price_id,
             ////////// Se incluye hotmartId en la respuesta pública - 24/05/2025 10:30 //////////
             hotmartId: p.hotmart_id,
-            ////////// Fin de actualización - 24/05/2025 10:30 //////////
-            ////////// Se incluyen hotmartOffer y hotmartCheckoutMode en la respuesta pública - 25/05/2025 19:30 //////////
             hotmartOffer: p.hotmart_offer,
             hotmartCheckoutMode: p.hotmart_checkout_mode,
-            ////////// Fin de actualización - 25/05/2025 19:30 //////////
+            hotmartIdAnnual: p.hotmart_id_annual,
+            hotmartOfferAnnual: p.hotmart_offer_annual,
+            hotmartCheckoutModeAnnual: p.hotmart_checkout_mode_annual,
             limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
             uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : (p.ui_features || []),
             isRecommended: !!p.is_recommended

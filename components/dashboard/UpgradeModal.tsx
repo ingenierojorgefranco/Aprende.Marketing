@@ -87,17 +87,22 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
       }
 
       if (activePaymentMethod === 'hotmart') {
-        if (plan.hotmartId) {
+        const isAnnual = billingPeriod === 'yearly';
+        // Si el usuario seleccionó facturación anual, usar los parámetros anuales (o fallback a los mensuales si no están definidos)
+        const targetHotmartId = isAnnual ? (plan.hotmartIdAnnual || plan.hotmartId) : plan.hotmartId;
+        const targetHotmartOffer = isAnnual ? (plan.hotmartOfferAnnual || plan.hotmartOffer) : plan.hotmartOffer;
+        const targetHotmartCheckoutMode = isAnnual ? (plan.hotmartCheckoutModeAnnual || plan.hotmartCheckoutMode) : plan.hotmartCheckoutMode;
+
+        if (targetHotmartId) {
           const finalUserId = user?.id || userId || localStorage.getItem('plataformadeventacom_user_id') || '0';
-          const hotmartProductId = plan.hotmartId;
-          const baseUrl = `https://pay.hotmart.com/${hotmartProductId}`;
+          const baseUrl = `https://pay.hotmart.com/${targetHotmartId}`;
           const params = new URLSearchParams();
           
-          if (plan.hotmartOffer) {
-            params.set('off', plan.hotmartOffer);
+          if (targetHotmartOffer) {
+            params.set('off', targetHotmartOffer);
           }
-          if (plan.hotmartCheckoutMode) {
-            params.set('checkoutMode', plan.hotmartCheckoutMode);
+          if (targetHotmartCheckoutMode) {
+            params.set('checkoutMode', targetHotmartCheckoutMode);
           }
           
           const srcValue = projectId ? `${finalUserId}-${projectId}` : finalUserId;

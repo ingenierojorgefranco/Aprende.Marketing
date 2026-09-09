@@ -126,13 +126,11 @@ export const AdminPlans: React.FC = () => {
             stripePriceId: '', // Default empty
             ////////// Nuevo campo hotmartId inicializado vacío - 24/05/2025 10:30 //////////
             hotmartId: '',
-            ////////// Fin de actualización - 24/05/2025 10:30 //////////
-            ////////// Nuevo campo hotmartOffer inicializado vacío - 25/05/2025 15:30 //////////
             hotmartOffer: '',
-            ////////// Fin de actualización - 25/05/2025 15:30 //////////
-            ////////// Nuevo campo hotmartCheckoutMode inicializado vacío - 25/05/2025 18:45 //////////
             hotmartCheckoutMode: '',
-            ////////// Fin de actualización - 25/05/2025 18:45 //////////
+            hotmartIdAnnual: '',
+            hotmartOfferAnnual: '',
+            hotmartCheckoutModeAnnual: '',
             limitsConfig: { ...DEFAULT_LIMITS },
             uiFeatures: [],
             isActive: true,
@@ -150,7 +148,17 @@ export const AdminPlans: React.FC = () => {
         if (safeLimits.maxWhatsAppLaunches === undefined) safeLimits.maxWhatsAppLaunches = 1;
         if (safeLimits.maxHooks === undefined) safeLimits.maxHooks = 10;
 
-        setEditingPlan({ ...plan, limitsConfig: safeLimits });
+        setEditingPlan({ 
+            ...plan, 
+            stripePriceId: plan.stripePriceId || '',
+            hotmartId: plan.hotmartId || '',
+            hotmartOffer: plan.hotmartOffer || '',
+            hotmartCheckoutMode: plan.hotmartCheckoutMode || '',
+            hotmartIdAnnual: plan.hotmartIdAnnual || '',
+            hotmartOfferAnnual: plan.hotmartOfferAnnual || '',
+            hotmartCheckoutModeAnnual: plan.hotmartCheckoutModeAnnual || '',
+            limitsConfig: safeLimits 
+        });
         setActiveTab('general');
     };
 
@@ -243,20 +251,31 @@ export const AdminPlans: React.FC = () => {
                             <p>Lanzamientos WA: <strong>{plan.limitsConfig.maxWhatsAppLaunches || 0}</strong></p>
                             <p>Ganchos IA: <strong>{plan.limitsConfig.maxHooks || 0}</strong></p>
                             <p>Features: {Object.values(plan.limitsConfig.features).filter(Boolean).length} activas</p>
-                            {plan.stripePriceId && <p className="text-xs text-blue-400 truncate mt-2">Stripe: {plan.stripePriceId}</p>}
-                            {/* ////////// Visualización de Hotmart ID, Oferta y Modo en la lista - 25/05/2025 18:45 ////////// */}
+                            {plan.stripePriceId && (
+                                <p className="text-xs text-blue-400 truncate mt-2 bg-blue-950/20 p-1.5 rounded border border-blue-500/20">
+                                    <span className="font-semibold text-blue-300">Stripe:</span> {plan.stripePriceId}
+                                </p>
+                            )}
                             {plan.hotmartId && (
-                                <div className="text-xs text-orange-400 truncate mt-1 space-y-0.5">
-                                    <p>ID Hotmart: {plan.hotmartId}</p>
+                                <div className="text-xs text-orange-400 truncate mt-2 space-y-1 bg-orange-950/20 p-2 rounded border border-orange-500/20">
+                                    <p className="font-semibold text-orange-300">Hotmart Mensual: {plan.hotmartId}</p>
                                     {(plan.hotmartOffer || plan.hotmartCheckoutMode) && (
-                                        <p className="opacity-80">
+                                        <p className="opacity-80 text-[11px]">
                                             {plan.hotmartOffer ? `off: ${plan.hotmartOffer}` : ''} 
                                             {plan.hotmartCheckoutMode ? ` | mode: ${plan.hotmartCheckoutMode}` : ''}
                                         </p>
                                     )}
+                                    {plan.hotmartOfferAnnual && (
+                                        <div className="pt-1 mt-1 border-t border-orange-500/20 text-amber-300">
+                                            <p className="font-semibold text-amber-300">Hotmart Anual: {plan.hotmartIdAnnual || plan.hotmartId}</p>
+                                            <p className="opacity-80 text-[11px]">
+                                                off: {plan.hotmartOfferAnnual}
+                                                {plan.hotmartCheckoutModeAnnual ? ` | mode: ${plan.hotmartCheckoutModeAnnual}` : ''}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             )}
-                            {/* ////////// Fin de actualización - 25/05/2025 18:45 ////////// */}
                         </div>
 
                         <div className="flex gap-2">
@@ -355,59 +374,127 @@ export const AdminPlans: React.FC = () => {
                                         </div>
                                     </div>
                                     
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {/* STRIPE PRICE ID INPUT */}
-                                        <div>
-                                            <label className="block text-xs font-bold text-blue-400 uppercase mb-1 flex items-center gap-1"><CreditCard className="w-3 h-3"/> Stripe Price ID</label>
-                                            <input 
-                                                type="text" 
-                                                value={editingPlan.stripePriceId || ''}
-                                                onChange={(e) => setEditingPlan({...editingPlan, stripePriceId: e.target.value})}
-                                                className="w-full bg-black border border-blue-900/50 rounded px-3 py-2 text-blue-100 font-mono placeholder-gray-600 focus:border-blue-500"
-                                                placeholder="Ej: price_1SdGw..."
-                                            />
-                                        </div>
+                                     {/* SECCIÓN STRIPE (INDEPENDIENTE) */}
+                                     <div className="bg-[#0e1726]/70 border border-blue-500/25 rounded-xl p-4 space-y-2">
+                                         <div className="flex items-center gap-2">
+                                             <CreditCard className="w-4 h-4 text-blue-400"/>
+                                             <h4 className="text-xs font-bold text-blue-300 uppercase tracking-wider">Pasarela Stripe</h4>
+                                         </div>
+                                         <div>
+                                             <label className="block text-[11px] font-semibold text-gray-400 uppercase mb-1">Stripe Price ID</label>
+                                             <input 
+                                                 type="text" 
+                                                 value={editingPlan.stripePriceId || ''}
+                                                 onChange={(e) => setEditingPlan({...editingPlan, stripePriceId: e.target.value})}
+                                                 className="w-full bg-black/80 border border-blue-900/60 rounded-lg px-3 py-2 text-blue-100 font-mono text-sm placeholder-gray-600 focus:border-blue-500 focus:outline-none"
+                                                 placeholder="Ej: price_1SdGwIRJVKdziYWKRDtjacOl"
+                                             />
+                                             <span className="text-[11px] text-gray-500 mt-1 block">ID de precio o suscripción recurrente en Stripe.</span>
+                                         </div>
+                                     </div>
 
-                                        {/* ////////// Campo para Hotmart Product ID - 24/05/2025 ////////// */}
-                                        <div>
-                                            <label className="block text-xs font-bold text-orange-400 uppercase mb-1 flex items-center gap-1"><Tag className="w-3 h-3"/> Hotmart Product ID</label>
-                                            <input 
-                                                type="text" 
-                                                value={editingPlan.hotmartId || ''}
-                                                onChange={(e) => setEditingPlan({...editingPlan, hotmartId: e.target.value})}
-                                                className="w-full bg-black border border-orange-900/50 rounded px-3 py-2 text-orange-100 font-mono placeholder-gray-600 focus:border-orange-500"
-                                                placeholder="Ej: 2458123"
-                                            />
-                                        </div>
-                                    </div>
+                                     {/* SECCIÓN HOTMART - PLAN MENSUAL */}
+                                     <div className="bg-[#1a0f0a]/70 border border-orange-500/25 rounded-xl p-4 space-y-3">
+                                         <div className="flex items-center justify-between">
+                                             <div className="flex items-center gap-2">
+                                                 <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                                                 <Tag className="w-4 h-4 text-[#FF5A1F]"/>
+                                                 <h4 className="text-xs font-bold text-orange-300 uppercase tracking-wider">Hotmart — Plan Mensual</h4>
+                                             </div>
+                                             <span className="text-[10px] font-bold uppercase bg-orange-500/10 text-orange-400 px-2 py-0.5 rounded border border-orange-500/20">Pago Mensual</span>
+                                         </div>
+                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                             <div>
+                                                 <label className="block text-[11px] font-bold text-orange-400 uppercase mb-1 flex items-center gap-1">
+                                                     <Tag className="w-3 h-3"/> Product ID
+                                                 </label>
+                                                 <input 
+                                                     type="text" 
+                                                     value={editingPlan.hotmartId || ''}
+                                                     onChange={(e) => setEditingPlan({...editingPlan, hotmartId: e.target.value})}
+                                                     className="w-full bg-black/80 border border-orange-900/50 rounded-lg px-3 py-2 text-orange-100 font-mono text-sm placeholder-gray-600 focus:border-orange-500 focus:outline-none"
+                                                     placeholder="Ej: L43619849X"
+                                                 />
+                                             </div>
+                                             <div>
+                                                 <label className="block text-[11px] font-bold text-orange-400 uppercase mb-1 flex items-center gap-1">
+                                                     <Sparkles className="w-3 h-3"/> Código Oferta (off)
+                                                 </label>
+                                                 <input 
+                                                     type="text" 
+                                                     value={editingPlan.hotmartOffer || ''}
+                                                     onChange={(e) => setEditingPlan({...editingPlan, hotmartOffer: e.target.value})}
+                                                     className="w-full bg-black/80 border border-orange-900/50 rounded-lg px-3 py-2 text-orange-100 font-mono text-sm placeholder-gray-600 focus:border-orange-500 focus:outline-none"
+                                                     placeholder="Ej: 0yieku7c"
+                                                 />
+                                             </div>
+                                             <div>
+                                                 <label className="block text-[11px] font-bold text-orange-400 uppercase mb-1 flex items-center gap-1">
+                                                     <LayoutTemplate className="w-3 h-3"/> Modo Checkout
+                                                 </label>
+                                                 <input 
+                                                     type="text" 
+                                                     value={editingPlan.hotmartCheckoutMode || ''}
+                                                     onChange={(e) => setEditingPlan({...editingPlan, hotmartCheckoutMode: e.target.value})}
+                                                     className="w-full bg-black/80 border border-orange-900/50 rounded-lg px-3 py-2 text-orange-100 font-mono text-sm placeholder-gray-600 focus:border-orange-500 focus:outline-none"
+                                                     placeholder="Ej: 6 o 10"
+                                                 />
+                                             </div>
+                                         </div>
+                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {/* ////////// Campo para Código de Oferta Hotmart (off) - 25/05/2025 15:30 ////////// */}
-                                        <div>
-                                            <label className="block text-xs font-bold text-orange-400 uppercase mb-1 flex items-center gap-1"><Sparkles className="w-3 h-3"/> Código Oferta (off)</label>
-                                            <input 
-                                                type="text" 
-                                                value={editingPlan.hotmartOffer || ''}
-                                                onChange={(e) => setEditingPlan({...editingPlan, hotmartOffer: e.target.value})}
-                                                className="w-full bg-black border border-orange-900/50 rounded px-3 py-2 text-orange-100 font-mono placeholder-gray-600 focus:border-orange-500"
-                                                placeholder="Ej: udz8rafl"
-                                            />
-                                        </div>
-                                        {/* ////////// Fin de actualización - 25/05/2025 15:30 ////////// */}
-
-                                        {/* ////////// Nuevo campo para Modo de Checkout Hotmart (checkoutMode) - 25/05/2025 18:45 ////////// */}
-                                        <div>
-                                            <label className="block text-xs font-bold text-orange-400 uppercase mb-1 flex items-center gap-1"><LayoutTemplate className="w-3 h-3"/> Modo Checkout (checkoutMode)</label>
-                                            <input 
-                                                type="text" 
-                                                value={editingPlan.hotmartCheckoutMode || ''}
-                                                onChange={(e) => setEditingPlan({...editingPlan, hotmartCheckoutMode: e.target.value})}
-                                                className="w-full bg-black border border-orange-900/50 rounded px-3 py-2 text-orange-100 font-mono placeholder-gray-600 focus:border-orange-500"
-                                                placeholder="Ej: 6 o 10"
-                                            />
-                                        </div>
-                                        {/* ////////// Fin de actualización - 25/05/2025 18:45 ////////// */}
-                                    </div>
+                                     {/* SECCIÓN HOTMART - PLAN ANUAL */}
+                                     <div className="bg-[#1a140a]/70 border border-amber-500/25 rounded-xl p-4 space-y-3">
+                                         <div className="flex items-center justify-between">
+                                             <div className="flex items-center gap-2">
+                                                 <div className="w-2 h-2 rounded-full bg-amber-400"></div>
+                                                 <Sparkles className="w-4 h-4 text-amber-400"/>
+                                                 <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider">Hotmart — Plan Anual</h4>
+                                             </div>
+                                             <span className="text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">Pago Anual (-25% Dto)</span>
+                                         </div>
+                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                             <div>
+                                                 <label className="block text-[11px] font-bold text-amber-400 uppercase mb-1 flex items-center gap-1">
+                                                     <Tag className="w-3 h-3"/> Product ID (Anual)
+                                                 </label>
+                                                 <input 
+                                                     type="text" 
+                                                     value={editingPlan.hotmartIdAnnual || ''}
+                                                     onChange={(e) => setEditingPlan({...editingPlan, hotmartIdAnnual: e.target.value})}
+                                                     className="w-full bg-black/80 border border-amber-900/50 rounded-lg px-3 py-2 text-amber-100 font-mono text-sm placeholder-gray-600 focus:border-amber-500 focus:outline-none"
+                                                     placeholder="Mismo ID si es el mismo producto"
+                                                 />
+                                             </div>
+                                             <div>
+                                                 <label className="block text-[11px] font-bold text-amber-400 uppercase mb-1 flex items-center gap-1">
+                                                     <Sparkles className="w-3 h-3"/> Código Oferta Anual (off)
+                                                 </label>
+                                                 <input 
+                                                     type="text" 
+                                                     value={editingPlan.hotmartOfferAnnual || ''}
+                                                     onChange={(e) => setEditingPlan({...editingPlan, hotmartOfferAnnual: e.target.value})}
+                                                     className="w-full bg-black/80 border border-amber-900/50 rounded-lg px-3 py-2 text-amber-100 font-mono text-sm placeholder-gray-600 focus:border-amber-500 focus:outline-none"
+                                                     placeholder="Ej: x9klp2a"
+                                                 />
+                                             </div>
+                                             <div>
+                                                 <label className="block text-[11px] font-bold text-amber-400 uppercase mb-1 flex items-center gap-1">
+                                                     <LayoutTemplate className="w-3 h-3"/> Modo Checkout Anual
+                                                 </label>
+                                                 <input 
+                                                     type="text" 
+                                                     value={editingPlan.hotmartCheckoutModeAnnual || ''}
+                                                     onChange={(e) => setEditingPlan({...editingPlan, hotmartCheckoutModeAnnual: e.target.value})}
+                                                     className="w-full bg-black/80 border border-amber-900/50 rounded-lg px-3 py-2 text-amber-100 font-mono text-sm placeholder-gray-600 focus:border-amber-500 focus:outline-none"
+                                                     placeholder="Ej: 6 o 10"
+                                                 />
+                                             </div>
+                                         </div>
+                                         <p className="text-[11px] text-gray-500">
+                                             Se cargará automáticamente cuando el usuario seleccione la opción de facturación anual en el modal de suscripción.
+                                         </p>
+                                     </div>
 
                                     <div>
                                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Descripción Corta</label>

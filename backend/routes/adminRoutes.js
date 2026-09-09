@@ -380,13 +380,11 @@ router.get('/plans', async (req, res) => {
             stripePriceId: p.stripe_price_id,
             ////////// Se añade mapeo de hotmartId desde la base de datos - 24/05/2025 10:30 //////////
             hotmartId: p.hotmart_id,
-            ////////// Fin de actualización - 24/05/2025 10:30 //////////
-            ////////// Se añade mapeo de hotmartOffer desde la base de datos - 25/05/2025 15:30 //////////
             hotmartOffer: p.hotmart_offer,
-            ////////// Fin de actualización - 25/05/2025 15:30 //////////
-            ////////// Se añade mapeo de hotmartCheckoutMode desde la base de datos - 25/05/2025 18:45 //////////
             hotmartCheckoutMode: p.hotmart_checkout_mode,
-            ////////// Fin de actualización - 25/05/2025 18:45 //////////
+            hotmartIdAnnual: p.hotmart_id_annual,
+            hotmartOfferAnnual: p.hotmart_offer_annual,
+            hotmartCheckoutModeAnnual: p.hotmart_checkout_mode_annual,
             limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
             uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : (p.ui_features || []),
             isActive: !!p.is_active,
@@ -399,15 +397,13 @@ router.get('/plans', async (req, res) => {
 });
 
 router.post('/plans', async (req, res) => {
-    ////////// Se añade hotmartId, hotmartOffer y hotmartCheckoutMode en la creación de planes - 25/05/2025 18:45 //////////
-    const { name, slug, description, priceMonthly, currency, stripePriceId, hotmartId, hotmartOffer, hotmartCheckoutMode, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
+    const { name, slug, description, priceMonthly, currency, stripePriceId, hotmartId, hotmartOffer, hotmartCheckoutMode, hotmartIdAnnual, hotmartOfferAnnual, hotmartCheckoutModeAnnual, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
     try {
         await pool.query(
-            `INSERT INTO plans (name, slug, description, price_monthly, currency, stripe_price_id, hotmart_id, hotmart_offer, hotmart_checkout_mode, limits_config, ui_features, is_active, is_recommended) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [name, slug, description, priceMonthly, currency || 'EUR', stripePriceId, hotmartId, hotmartOffer, hotmartCheckoutMode, JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended]
+            `INSERT INTO plans (name, slug, description, price_monthly, currency, stripe_price_id, hotmart_id, hotmart_offer, hotmart_checkout_mode, hotmart_id_annual, hotmart_offer_annual, hotmart_checkout_mode_annual, limits_config, ui_features, is_active, is_recommended) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [name, slug, description, priceMonthly, currency || 'EUR', stripePriceId, hotmartId, hotmartOffer, hotmartCheckoutMode, hotmartIdAnnual, hotmartOfferAnnual, hotmartCheckoutModeAnnual, JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended]
         );
-        ////////// Fin de actualización - 25/05/2025 18:45 //////////
         const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
         await logSystemActivity(req.user.id, admin[0]?.name, 'CREATE_PLAN', 'plan', null, { name, slug });
         res.json({ success: true });
@@ -418,12 +414,11 @@ router.post('/plans', async (req, res) => {
 
 router.put('/plans/:id', async (req, res) => {
     const { id } = req.params;
-    ////////// Se añade hotmartId, hotmartOffer y hotmartCheckoutMode en la actualización de planes - 25/05/2025 18:45 //////////
-    const { name, slug, description, priceMonthly, currency, stripePriceId, hotmartId, hotmartOffer, hotmartCheckoutMode, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
+    const { name, slug, description, priceMonthly, currency, stripePriceId, hotmartId, hotmartOffer, hotmartCheckoutMode, hotmartIdAnnual, hotmartOfferAnnual, hotmartCheckoutModeAnnual, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
     try {
         await pool.query(
-            `UPDATE plans SET name=?, slug=?, description=?, price_monthly=?, currency=?, stripe_price_id=?, hotmart_id=?, hotmart_offer=?, hotmart_checkout_mode=?, limits_config=?, ui_features=?, is_active=?, is_recommended=? WHERE id=?`,
-            [name, slug, description, priceMonthly, currency || 'EUR', stripePriceId, hotmartId, hotmartOffer, hotmartCheckoutMode, JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended, id]
+            `UPDATE plans SET name=?, slug=?, description=?, price_monthly=?, currency=?, stripe_price_id=?, hotmart_id=?, hotmart_offer=?, hotmart_checkout_mode=?, hotmart_id_annual=?, hotmart_offer_annual=?, hotmart_checkout_mode_annual=?, limits_config=?, ui_features=?, is_active=?, is_recommended=? WHERE id=?`,
+            [name, slug, description, priceMonthly, currency || 'EUR', stripePriceId, hotmartId, hotmartOffer, hotmartCheckoutMode, hotmartIdAnnual, hotmartOfferAnnual, hotmartCheckoutModeAnnual, JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended, id]
         );
         ////////// Fin de actualización - 25/05/2025 18:45 //////////
         const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);

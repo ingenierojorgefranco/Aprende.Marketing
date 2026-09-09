@@ -548,7 +548,10 @@ const initDb = async () => {
         ////////// Fin de actualización - 25/05/2025 15:30 //////////
         ////////// Se añade columna hotmart_checkout_mode para soportar modos de checkout personalizados - 25/05/2025 18:45 //////////
         await addColumnSafe(connection, 'plans', "hotmart_checkout_mode VARCHAR(50)");
-        ////////// Fin de actualización - 25/05/2025 18:45 //////////
+        ////////// Columnas para Hotmart Plan / Oferta Anual //////////
+        await addColumnSafe(connection, 'plans', "hotmart_id_annual VARCHAR(255)");
+        await addColumnSafe(connection, 'plans', "hotmart_offer_annual VARCHAR(255)");
+        await addColumnSafe(connection, 'plans', "hotmart_checkout_mode_annual VARCHAR(50)");
         
         await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");
         await addColumnSafe(connection, 'courses', "badge_text VARCHAR(100) DEFAULT 'Certificado'");
@@ -809,7 +812,7 @@ const initDb = async () => {
             'Sin Dominio Propio'
         ]);
         await connection.query(
-            `UPDATE plans SET name = 'Plan Gratuito', price_monthly = 0, currency = 'USD', description = 'Plan base para probar la plataforma y crear tu primer proyecto.', limits_config = ?, ui_features = ?, is_active = 1, is_recommended = 0 WHERE slug = 'starter'`,
+            `UPDATE plans SET name = 'Plan Free', price_monthly = 0, currency = 'USD', description = 'Plan base para probar la plataforma y crear tu primer proyecto.', limits_config = ?, ui_features = ?, is_active = 1, is_recommended = 0 WHERE slug = 'starter'`,
             [freeLimits, freeUiFeatures]
         );
 

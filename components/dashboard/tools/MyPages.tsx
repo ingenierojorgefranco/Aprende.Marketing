@@ -465,7 +465,7 @@ export const MyPages: React.FC = () => {
                     currentPlan={projects.find(p => p.id === upgradeProjectId)?.planSlug || user.planLimits?.planName}
                     projectId={upgradeProjectId}
                     userId={user.id}
-                    reason="El plan Starter no incluye dominios personalizados. Actualiza para profesionalizar tu marca."
+                    reason="El plan Free no incluye dominios personalizados. Actualiza al Plan Pro para conectar tu propio dominio."
                 />
             )}
 

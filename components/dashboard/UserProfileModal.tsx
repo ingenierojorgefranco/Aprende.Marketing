@@ -57,6 +57,15 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
 
     ////////// Fin de actualización - 27/05/2025 13:00 /////////
 
+    const formatPlanName = (name?: string) => {
+        if (!name) return 'Free';
+        const lower = name.toLowerCase();
+        if (lower === 'starter' || lower === 'free' || lower === 'gratuito') return 'Free';
+        if (lower === 'pro') return 'Pro All-Access';
+        if (lower === 'max') return 'Pro All-Access';
+        return name;
+    };
+
     const memberDays = user.createdAt 
         ? Math.floor((new Date().getTime() - new Date(user.createdAt).getTime()) / (1000 * 3600 * 24))
         : 0;
@@ -185,7 +194,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                             <p className="text-gray-400 text-sm font-medium">{user.email}</p>
                             <div className="flex items-center justify-center md:justify-start gap-4 mt-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
                                 <span className="flex items-center gap-1.5 bg-[#FF5A1F]/10 text-[#FF5A1F] px-3 py-1 rounded-full border border-[#FF5A1F]/20">
-                                    <ShieldCheck className="w-3 h-3" /> {user.role === 'admin' ? 'Administrador' : `Plan ${user.planLimits?.planName || 'Starter'}`}
+                                    <ShieldCheck className="w-3 h-3" /> {user.role === 'admin' ? 'Administrador' : `Plan ${formatPlanName(user.planLimits?.planName)}`}
                                 </span>
                                 <span className="flex items-center gap-1.5">
                                     <Clock className="w-3 h-3" /> Miembro hace {memberDays} {memberDays === 1 ? 'día' : 'días'}
@@ -264,7 +273,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                     </div>
                                     <div className="relative z-10">
                                         <span className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.3em] mb-2 block">Tu Suscripción</span>
-                                        <h3 className="text-5xl font-black text-white capitalize leading-none mb-6">Plan {user.planLimits?.planName || 'Starter'}</h3>
+                                        <h3 className="text-5xl font-black text-white capitalize leading-none mb-6">Plan {formatPlanName(user.planLimits?.planName)}</h3>
                                         
                                         <div className="grid md:grid-cols-2 gap-8 pt-8 border-t border-white/5">
                                             <div className="flex items-center gap-4">
@@ -289,12 +298,12 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                     </div>
                                 </div>
 
-                                {user.planLimits?.planName !== 'max' && (
+                                {user.planLimits?.planName !== 'pro' && user.planLimits?.planName !== 'max' && (
                                     <button 
                                         onClick={() => setShowUpgrade(true)}
                                         className="w-full py-6 rounded-2xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-xl shadow-[#FF5A1F]/20 transition-all flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 uppercase"
                                     >
-                                        <Sparkles className="w-7 h-7 fill-current" /> Actualizar Plan
+                                        <Sparkles className="w-7 h-7 fill-current" /> Actualizar a Plan Pro ($79)
                                     </button>
                                 )}
                             </div>
