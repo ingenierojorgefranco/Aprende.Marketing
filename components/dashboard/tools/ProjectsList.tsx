@@ -66,6 +66,12 @@ export const ProjectsList: React.FC = () => {
     const [projectToRestrict, setProjectToRestrict] = useState<Project | null>(null);
     // ----------------------------------------------------
 
+    // --- Estado para Modal de Eliminación (Admin) ---
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+    const [isDeletingProject, setIsDeletingProject] = useState(false);
+    // ----------------------------------------------------
+
     // Generating state per project ID
     const [generatingId, setGeneratingId] = useState<string | null>(null);
 
@@ -203,7 +209,7 @@ export const ProjectsList: React.FC = () => {
         return project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Aprende una habilidad de alta demanda y conviértela en un negocio rentable.");
     };
 
-    const handleDelete = async (project: Project, e: React.MouseEvent) => {
+    const handleDelete = (project: Project, e: React.MouseEvent) => {
         e.stopPropagation();
         
         // Si el usuario no tiene el rol admin, se interceptará la acción
@@ -213,10 +219,24 @@ export const ProjectsList: React.FC = () => {
             return;
         }
 
-        if (confirm(`¿Estás seguro de eliminar el proyecto "${project.name}" y toda su estrategia?`)) {
-            await api.deleteProject(project.id);
-            setProjects(projects.filter(p => p.id !== project.id));
-            setMasterLibrary(masterLibrary.filter(p => p.id !== project.id));
+        setProjectToDelete(project);
+        setShowDeleteModal(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!projectToDelete) return;
+        try {
+            setIsDeletingProject(true);
+            await api.deleteProject(projectToDelete.id);
+            setProjects(prev => prev.filter(p => p.id !== projectToDelete.id));
+            setMasterLibrary(prev => prev.filter(p => p.id !== projectToDelete.id));
+            setShowDeleteModal(false);
+            setProjectToDelete(null);
+        } catch (error: any) {
+            console.error("Error al eliminar proyecto:", error);
+            alert(error.message || "Error al eliminar el proyecto");
+        } finally {
+            setIsDeletingProject(false);
         }
     };
 
@@ -683,6 +703,34 @@ export const ProjectsList: React.FC = () => {
                                                     </p>
                                                 </>
                                             )}
+
+                                            {/* Enlaces de Gestión Exclusivos para Administrador */}
+                                            {user.role === 'admin' && (
+                                                <div className="flex items-center justify-between gap-2.5 pt-3 mt-3 border-t border-white/10">
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigate(`/dashboard/projects/edit/${project.id}`);
+                                                        }}
+                                                        className="flex-1 py-2 px-3 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 border border-blue-500/30 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+                                                        title="Editar imágenes y contenido del proyecto"
+                                                    >
+                                                        <Edit2 className="w-3.5 h-3.5 shrink-0" />
+                                                        <span>Editar</span>
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => handleDelete(project, e)}
+                                                        className="flex-1 py-2 px-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+                                                        title="Eliminar proyecto"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                                                        <span>Eliminar</span>
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 );
@@ -1020,6 +1068,64 @@ export const ProjectsList: React.FC = () => {
                 userEmail={user.email}
                 userName={user.name}
             />
+
+            {/* MODAL DE CONFIRMACIÓN DE ELIMINACIÓN PARA ADMIN */}
+            {showDeleteModal && projectToDelete && (
+                <div 
+                    onClick={() => !isDeletingProject && setShowDeleteModal(false)}
+                    className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 !mt-0"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-[#0B0B0B] border border-red-500/30 rounded-[2rem] w-full max-w-md p-6 sm:p-8 shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200 text-center"
+                    >
+                        <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-500 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-red-500/10">
+                            <Trash2 className="w-8 h-8" />
+                        </div>
+
+                        <h3 className="text-xl sm:text-2xl font-black text-white mb-2">
+                            ¿Eliminar Proyecto?
+                        </h3>
+
+                        <p className="text-sm text-zinc-400 leading-relaxed mb-6">
+                            ¿Estás seguro de que deseas eliminar permanentemente el proyecto <span className="text-white font-bold">"{projectToDelete.name}"</span>? Esta acción no se puede deshacer y borrará toda la información y configuración asociada.
+                        </p>
+
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                disabled={isDeletingProject}
+                                onClick={() => {
+                                    setShowDeleteModal(false);
+                                    setProjectToDelete(null);
+                                }}
+                                className="flex-1 py-3 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer"
+                            >
+                                Cancelar
+                            </button>
+
+                            <button
+                                type="button"
+                                disabled={isDeletingProject}
+                                onClick={handleConfirmDelete}
+                                className="flex-1 py-3 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+                            >
+                                {isDeletingProject ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                                        <span>Eliminando...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Trash2 className="w-4 h-4 shrink-0" />
+                                        <span>Eliminar</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* MODAL SELECTOR DE INICIO (EFECTO WOW) */}
             {showCreateOptionsModal && (
