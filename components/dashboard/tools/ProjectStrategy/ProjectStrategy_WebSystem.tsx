@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp, Save, Play, Copy, FileText } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp, Save, Play, Copy, FileText, Link as LinkIcon } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan, Project } from '../../../../types';
 import { Generator } from '../Generator';
@@ -64,6 +64,10 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [iframeKey, setIframeKey] = useState(0);
     const [masterProjectData, setMasterProjectData] = useState<Project | null>(null);
 
+    // Estados para Hotlink de Afiliado en página de gracias (Ref. Imagen 1 y 2)
+    const [selectedHotlinkUrl, setSelectedHotlinkUrl] = useState<string>('');
+    const [isSavingHotlink, setIsSavingHotlink] = useState(false);
+
     // Obtener los lead magnets disponibles del proyecto o de su Proyecto Maestro
     const multimedia = typeof projectData?.multimedia_json === 'string'
         ? (() => { try { return JSON.parse(projectData.multimedia_json); } catch { return {}; } })()
@@ -97,6 +101,18 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         }
         if (projectLMs.length > 0) return projectLMs;
         return masterLMs;
+    })();
+
+    // Obtener los hotlinks / enlaces de afiliado disponibles del proyecto (o heredados del maestro)
+    // Se filtran estrictamente los que tienen enlace asignado válido (no vacío y no '#') - Ref. Imagen 2
+    const availableHotlinks: { label: string; url: string }[] = (() => {
+        const rawLinks = (projectData?.affiliateLinks && projectData.affiliateLinks.length > 0)
+            ? projectData.affiliateLinks
+            : (masterProjectData?.affiliateLinks || []);
+
+        return (rawLinks || []).filter((l: any) => 
+            l && typeof l.url === 'string' && l.url.trim() !== '' && l.url.trim() !== '#'
+        );
     })();
 
     const isRealAdmin = (planLimits?.planName === 'admin' || userRole === 'admin') && !isSimulating;
@@ -188,6 +204,83 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             } finally {
                 setIsSavingLeadMagnet(false);
             }
+        }
+    };
+
+    // Sincronizar selección inicial de Hotlink con la configuración de la página de gracias o del proyecto
+    useEffect(() => {
+        if (availableHotlinks.length > 0) {
+            let currentUrl = '';
+            if (linkedPages.length > 0) {
+                currentUrl = linkedPages[0].content?.thankYouPage?.upsellButtonUrl || '';
+            }
+            if (!currentUrl && projectData) {
+                currentUrl = (projectData as any)?.selectedHotlinkUrl || 
+                             (projectData.thankYouPageConfig as any)?.upsellButtonUrl || 
+                             (projectData.multimedia_json as any)?.thankYouPage?.upsellButtonUrl || '';
+            }
+
+            if (currentUrl && availableHotlinks.some(l => l.url === currentUrl)) {
+                setSelectedHotlinkUrl(currentUrl);
+            } else if (availableHotlinks.length === 1 && !currentUrl) {
+                handleSelectHotlink(availableHotlinks[0].url);
+            }
+        } else {
+            setSelectedHotlinkUrl('');
+        }
+    }, [linkedPages, availableHotlinks, projectData]);
+
+    const handleSelectHotlink = async (url: string) => {
+        setSelectedHotlinkUrl(url);
+        setIsSavingHotlink(true);
+        try {
+            // 1. Persistir en el proyecto
+            if (projectData && projectId) {
+                const currentMultimedia = typeof projectData.multimedia_json === 'string'
+                    ? (() => { try { return JSON.parse(projectData.multimedia_json); } catch { return {}; } })()
+                    : (projectData.multimedia_json || {});
+
+                const updatedProject = {
+                    ...projectData,
+                    selectedHotlinkUrl: url,
+                    thankYouPageConfig: {
+                        ...((projectData.thankYouPageConfig as any) || {}),
+                        upsellButtonUrl: url
+                    },
+                    multimedia_json: {
+                        ...currentMultimedia,
+                        thankYouPage: {
+                            ...(currentMultimedia.thankYouPage || {}),
+                            upsellButtonUrl: url
+                        }
+                    }
+                };
+                await api.updateProject(projectId, updatedProject as any);
+                setProjectData(updatedProject);
+            }
+
+            // 2. Persistir en la página de gracias vinculada si existe
+            if (linkedPages.length > 0) {
+                const currentPage = linkedPages[0];
+                const updatedThankYou = {
+                    ...(currentPage.content?.thankYouPage || {}),
+                    upsellButtonUrl: url
+                };
+                const updatedPage: LandingPage = {
+                    ...currentPage,
+                    content: {
+                        ...currentPage.content,
+                        thankYouPage: updatedThankYou
+                    }
+                };
+                await api.updatePage(updatedPage);
+                setLinkedPages(prev => prev.map((p, i) => i === 0 ? updatedPage : p));
+                setIframeKey(k => k + 1);
+            }
+        } catch (err) {
+            console.error("Error al actualizar hotlink de la página de gracias:", err);
+        } finally {
+            setIsSavingHotlink(false);
         }
     };
     
@@ -1099,6 +1192,98 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <p className="text-slate-400 text-xs text-left leading-relaxed">
                                     Contabiliza los usuarios que llegaron a la página de gracias y los que hicieron clic en el botón de WhatsApp.
                                 </p>
+                            </div>
+
+                            {/* Hotlink de Afiliado para la Página de Gracias (Ref. Imagen 1 y 2) */}
+                            <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-5 space-y-4 text-left shadow-lg">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                        <LinkIcon className="w-4 h-4 text-purple-400" />
+                                        <span>HOTLINK DE AFILIADO</span>
+                                    </h4>
+                                    {isSavingHotlink && (
+                                        <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-medium">
+                                            <Loader2 className="w-3 h-3 animate-spin" /> Guardando...
+                                        </span>
+                                    )}
+                                </div>
+
+                                <p className="text-xs text-slate-300 leading-relaxed">
+                                    Selecciona cuál de tus Hotlinks configurados se vinculará al botón de formación completa en la página de gracias.
+                                </p>
+
+                                {availableHotlinks.length > 0 ? (
+                                    <div className="space-y-3">
+                                        <div>
+                                            <div className="flex items-center justify-between mb-1.5">
+                                                <label className="block text-[11px] font-bold text-slate-400 uppercase">
+                                                    Seleccionar Hotlink
+                                                </label>
+                                                <span className="text-[10px] text-purple-400 font-bold flex items-center gap-1">
+                                                    <CheckCircle2 className="w-3 h-3 text-purple-400" />
+                                                    {availableHotlinks.length} {availableHotlinks.length === 1 ? 'Disponible' : 'Disponibles'}
+                                                </span>
+                                            </div>
+                                            <div className="relative">
+                                                <select
+                                                    value={selectedHotlinkUrl}
+                                                    onChange={(e) => handleSelectHotlink(e.target.value)}
+                                                    disabled={isSavingHotlink}
+                                                    className="w-full bg-[#080d18] border border-slate-700 hover:border-slate-600 text-white rounded-xl px-3.5 py-2.5 text-xs font-medium focus:outline-none focus:border-purple-500 appearance-none cursor-pointer pr-9 transition"
+                                                >
+                                                    <option value="" className="bg-slate-900 text-slate-400 py-2">
+                                                        -- Selecciona un Hotlink --
+                                                    </option>
+                                                    {availableHotlinks.map((link, idx) => (
+                                                        <option key={idx} value={link.url} className="bg-slate-900 text-white py-2">
+                                                            {link.label || `Hotlink ${idx + 1}`}: {link.url}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                    <ChevronDown className="w-4 h-4" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {selectedHotlinkUrl && availableHotlinks.some(l => l.url === selectedHotlinkUrl) && (
+                                            <div className="bg-purple-950/30 border border-purple-800/40 rounded-xl p-3 flex items-center gap-2.5 text-xs text-purple-200">
+                                                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
+                                                    <LinkIcon className="w-4 h-4" />
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="font-bold text-white truncate text-xs">
+                                                        {availableHotlinks.find(l => l.url === selectedHotlinkUrl)?.label || 'Hotlink seleccionado'}
+                                                    </div>
+                                                    <div className="text-[11px] text-purple-300/80 truncate font-mono">
+                                                        {selectedHotlinkUrl}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2.5">
+                                        <div className="relative">
+                                            <select
+                                                disabled
+                                                value=""
+                                                className="w-full bg-[#080d18] border border-slate-800 text-slate-500 rounded-xl px-3.5 py-2.5 text-xs font-medium cursor-not-allowed appearance-none pr-9"
+                                            >
+                                                <option value="">No hay enlaces con URL configurada</option>
+                                            </select>
+                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600">
+                                                <ChevronDown className="w-4 h-4" />
+                                            </div>
+                                        </div>
+                                        <p className="text-[11px] text-amber-400/90 leading-relaxed flex items-start gap-1.5">
+                                            <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                                            <span>
+                                                Ve a <strong>Tus enlaces para recibir comisiones</strong> (Paso 4: Hotlinks) y añade la URL a tus enlaces para poder seleccionarlos aquí.
+                                            </span>
+                                        </p>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Lead Magnet de Invitación */}

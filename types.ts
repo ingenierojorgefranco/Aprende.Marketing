@@ -639,6 +639,8 @@ export interface Project {
   keyBenefits: string[]; // ["Certificado Incluido", "Acceso de por vida", "Baja inversión"]
   
   affiliateLinks: AffiliateLink[]; // Centralized links
+  selectedHotlinkUrl?: string; // Hotlink seleccionado para el botón de la página de gracias
+  thankYouPageConfig?: any; // Configuración de página de gracias del proyecto
   
   planId?: string; // NEW: Plan ID assigned to this specific project
   planSlug?: string; // NEW: Plan slug assigned to this specific project

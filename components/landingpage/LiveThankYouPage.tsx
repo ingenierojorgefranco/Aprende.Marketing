@@ -192,12 +192,39 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   // Brand Name & Visuals
   const brandName = tyConfig.headerLogoText || content.brandName || project?.name || "ResinPro Studio Latino";
 
-  // WhatsApp Link Resolution
-  const rawWhatsapp = tyConfig.ctaLink || project?.whatsappGroupUrl || project?.whatsapp_group_url || (project?.multimedia_json as any)?.whatsappGroupUrl;
-  const whatsappLink = (rawWhatsapp && rawWhatsapp.trim() !== '' && rawWhatsapp !== '#') ? rawWhatsapp : "#";
+  // WhatsApp Link Resolution (Configurado en Hotlinks / Project Wizard - Imagen 4)
+  const rawWhatsapp = 
+    (project?.whatsappGroupUrl && project.whatsappGroupUrl.trim() !== '' && project.whatsappGroupUrl.trim() !== '#')
+      ? project.whatsappGroupUrl.trim()
+      : (project?.whatsapp_group_url && project.whatsapp_group_url.trim() !== '' && project.whatsapp_group_url.trim() !== '#')
+        ? project.whatsapp_group_url.trim()
+        : ((project?.multimedia_json as any)?.whatsappGroupUrl && (project.multimedia_json as any).whatsappGroupUrl.trim() !== '' && (project.multimedia_json as any).whatsappGroupUrl.trim() !== '#')
+          ? (project.multimedia_json as any).whatsappGroupUrl.trim()
+          : (tyConfig.ctaLink && tyConfig.ctaLink.trim() !== '' && tyConfig.ctaLink.trim() !== '#')
+            ? tyConfig.ctaLink.trim()
+            : null;
 
-  // Upsell Button Resolution
-  const upsellTargetUrl = tyConfig.upsellButtonUrl || content.destination?.url || project?.paymentUrl || "#";
+  const hasWhatsAppGroup = Boolean(rawWhatsapp);
+  const whatsappLink = hasWhatsAppGroup 
+    ? (rawWhatsapp!.startsWith('http://') || rawWhatsapp!.startsWith('https://') ? rawWhatsapp! : `https://${rawWhatsapp}`)
+    : "#";
+
+  // Upsell Button Resolution (Configurado vía selector de Hotlinks / Afiliados - Ref. Imagen 3)
+  const rawUpsell = 
+    (tyConfig.upsellButtonUrl && tyConfig.upsellButtonUrl.trim() !== '' && tyConfig.upsellButtonUrl.trim() !== '#')
+      ? tyConfig.upsellButtonUrl.trim()
+      : ((project as any)?.selectedHotlinkUrl && (project as any).selectedHotlinkUrl.trim() !== '' && (project as any).selectedHotlinkUrl.trim() !== '#')
+        ? (project as any).selectedHotlinkUrl.trim()
+        : ((project as any)?.thankYouPageConfig?.upsellButtonUrl && (project as any).thankYouPageConfig.upsellButtonUrl.trim() !== '' && (project as any).thankYouPageConfig.upsellButtonUrl.trim() !== '#')
+          ? (project as any).thankYouPageConfig.upsellButtonUrl.trim()
+          : ((project?.multimedia_json as any)?.thankYouPage?.upsellButtonUrl && (project.multimedia_json as any).thankYouPage.upsellButtonUrl.trim() !== '' && (project.multimedia_json as any).thankYouPage.upsellButtonUrl.trim() !== '#')
+            ? (project.multimedia_json as any).thankYouPage.upsellButtonUrl.trim()
+            : null;
+
+  const hasUpsellUrl = Boolean(rawUpsell);
+  const upsellTargetUrl = hasUpsellUrl 
+    ? (rawUpsell!.startsWith('http://') || rawUpsell!.startsWith('https://') ? rawUpsell! : `https://${rawUpsell}`)
+    : "#";
 
   // Video State & Controls
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -532,18 +559,32 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                   </ul>
                 </div>
 
-                {/* Botón CTA Formación Completa con tamaño prominente */}
+                {/* Botón CTA Formación Completa con tamaño prominente (Ref. Imagen 3) */}
                 <div className="max-w-md mx-auto">
-                  <a
-                    href={upsellTargetUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`w-full ${activeDs.buttons.primary} py-4 px-6 rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-3 shadow-xl hover:shadow-2xl hover:scale-[1.01] active:scale-98 transition-all cursor-pointer`}
-                  >
-                    <GraduationCap className="w-5 h-5 shrink-0" />
-                    <span>{tyConfig.upsellButtonText || "CONOCER LA FORMACIÓN COMPLETA"}</span>
-                    <ExternalLink className="w-4 h-4 shrink-0 ml-0.5" />
-                  </a>
+                  {hasUpsellUrl ? (
+                    <a
+                      href={upsellTargetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`w-full ${activeDs.buttons.primary} py-4 px-6 rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-3 shadow-xl hover:shadow-2xl hover:scale-[1.01] active:scale-98 transition-all cursor-pointer`}
+                    >
+                      <GraduationCap className="w-5 h-5 shrink-0" />
+                      <span>{tyConfig.upsellButtonText || "CONOCER LA FORMACIÓN COMPLETA"}</span>
+                      <ExternalLink className="w-4 h-4 shrink-0 ml-0.5" />
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled
+                      aria-disabled="true"
+                      title="Hotlink de formación no configurado aún"
+                      className={`w-full ${activeDs.buttons.primary} opacity-50 py-4 px-6 rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-3 shadow-md cursor-not-allowed select-none`}
+                    >
+                      <GraduationCap className="w-5 h-5 shrink-0" />
+                      <span>{tyConfig.upsellButtonText || "CONOCER LA FORMACIÓN COMPLETA"}</span>
+                      <ExternalLink className="w-4 h-4 shrink-0 ml-0.5 opacity-50" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -611,85 +652,30 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
               {/* Botón Verde Oficial de WhatsApp */}
               <div className="max-w-md mx-auto">
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={handleWhatsAppClick}
-                  className="w-full bg-[#00B758] hover:bg-[#00A34E] text-white py-4 px-6 rounded-2xl font-black text-sm sm:text-base tracking-wide uppercase flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/25 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer"
-                >
-                  <MessageCircle className="w-5 h-5 fill-white/20 shrink-0" />
-                  <span>{tyConfig.whatsappButtonText || "UNIRME AL GRUPO Y RECIBIR LA GUÍA"}</span>
-                </a>
+                {hasWhatsAppGroup ? (
+                  <a
+                    href={whatsappLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={handleWhatsAppClick}
+                    className="w-full bg-[#00B758] hover:bg-[#00A34E] text-white py-4 px-6 rounded-2xl font-black text-sm sm:text-base tracking-wide uppercase flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/25 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer"
+                  >
+                    <MessageCircle className="w-5 h-5 fill-white/20 shrink-0" />
+                    <span>{tyConfig.whatsappButtonText || "UNIRME AL GRUPO Y RECIBIR LA GUÍA"}</span>
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    aria-disabled="true"
+                    title="Enlace de WhatsApp no configurado aún"
+                    className="w-full bg-[#00B758]/50 text-white/70 py-4 px-6 rounded-2xl font-black text-sm sm:text-base tracking-wide uppercase flex items-center justify-center gap-3 shadow-md cursor-not-allowed select-none opacity-60"
+                  >
+                    <MessageCircle className="w-5 h-5 fill-white/20 shrink-0" />
+                    <span>{tyConfig.whatsappButtonText || "UNIRME AL GRUPO Y RECIBIR LA GUÍA"}</span>
+                  </button>
+                )}
               </div>
-            </div>
-
-          </div>
-
-
-          {/* TARJETA 3: ¿QUÉ OCURRE AHORA? (3 PASOS DE ONBOARDING) */}
-          <div className="bg-white rounded-[2rem] p-5 sm:p-8 md:p-10 shadow-2xl border border-gray-100 text-gray-900 relative">
-            
-            <div className="text-center mb-6 sm:mb-8">
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-gray-950 mb-1">
-                {tyConfig.stepsTitle || "¿Qué ocurre ahora?"}
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-500">
-                {tyConfig.stepsSubtitle || "Sigue estos 3 pasos para aprovechar al máximo tu acceso:"}
-              </p>
-            </div>
-
-            {/* Grid 3 Columnas de Pasos */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
-              
-              {/* PASO 1 */}
-              <div className="bg-gray-50/75 border border-gray-100/90 hover:bg-gray-50 rounded-2xl p-5 text-center flex flex-col items-center transition-colors">
-                <div className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center mb-3 ${paletteAccents.stepBadgeBg}`}>
-                  1
-                </div>
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 shadow-sm ${paletteAccents.stepIconBg}`}>
-                  <Play className="w-5 h-5 fill-current" />
-                </div>
-                <h4 className="font-bold text-sm sm:text-base mb-1 text-gray-900">
-                  Mira la clase gratuita
-                </h4>
-                <p className="text-xs leading-relaxed text-gray-500">
-                  Aprende los fundamentos y toma nota de las ideas clave.
-                </p>
-              </div>
-
-              {/* PASO 2 */}
-              <div className="bg-gray-50/75 border border-gray-100/90 hover:bg-gray-50 rounded-2xl p-5 text-center flex flex-col items-center transition-colors">
-                <div className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center mb-3 ${paletteAccents.stepBadgeBg}`}>
-                  2
-                </div>
-                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-[#00B758] flex items-center justify-center mb-3 shadow-sm">
-                  <MessageCircle className="w-5 h-5 fill-[#00B758]/20" />
-                </div>
-                <h4 className="font-bold text-sm sm:text-base mb-1 text-gray-900">
-                  Únete al grupo y descarga la guía
-                </h4>
-                <p className="text-xs leading-relaxed text-gray-500">
-                  Conecta con la comunidad y recibe tu material gratuito.
-                </p>
-              </div>
-
-              {/* PASO 3 */}
-              <div className="bg-gray-50/75 border border-gray-100/90 hover:bg-gray-50 rounded-2xl p-5 text-center flex flex-col items-center transition-colors">
-                <div className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center mb-3 ${paletteAccents.stepBadgeBg}`}>
-                  3
-                </div>
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 shadow-sm ${paletteAccents.stepIconBg}`}>
-                  <GraduationCap className="w-5 h-5" />
-                </div>
-                <h4 className="font-bold text-sm sm:text-base mb-1 text-gray-900">
-                  Conoce la formación recomendada
-                </h4>
-                <p className="text-xs leading-relaxed text-gray-500">
-                  Da el siguiente paso y lleva tu conocimiento al nivel profesional.
-                </p>
-              </div>
-
             </div>
 
           </div>
@@ -698,49 +684,21 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
       </main>
 
       {/* 4. FOOTER OSCURO ELEGANTE INTEGRADO CON LA PALETA */}
-      <footer className={`w-full border-t border-white/10 ${activeDs.footer?.bg || 'bg-black/50'} py-12 px-6 relative z-10 text-white`}>
-        <div className="max-w-[50rem] mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 text-left">
-            {/* Columna 1: Logo dentro del círculo, Nombre de Marca y Tagline */}
-            <div>
-              <div className="flex items-center gap-2.5 mb-2.5">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center shadow-md overflow-hidden shrink-0 ${activeDs.nav.logoBg} ${activeDs.nav.logoText}`}>
-                  {renderLogoIcon()}
-                </div>
-                <span className="font-bold text-white text-base tracking-tight">
-                  {brandName}
-                </span>
-              </div>
-              <p className="text-xs text-gray-400 leading-relaxed max-w-xs">
-                {project?.tagline || "Transformando ideas en suelos que generan oportunidades."}
-              </p>
+      <footer className={`w-full border-t border-white/10 ${activeDs.footer?.bg || 'bg-black/50'} py-10 px-6 relative z-10 text-white`}>
+        <div className="max-w-[50rem] mx-auto flex flex-col items-center justify-center text-center">
+          {/* Logo centrado */}
+          <div className="flex items-center justify-center gap-2.5 mb-3">
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center shadow-md overflow-hidden shrink-0 ${activeDs.nav.logoBg} ${activeDs.nav.logoText}`}>
+              {renderLogoIcon()}
             </div>
-
-            {/* Columna 2: Enlaces */}
-            <div>
-              <h5 className="font-bold text-xs sm:text-sm text-white mb-3">Enlaces</h5>
-              <ul className="space-y-2 text-xs text-gray-400">
-                <li><a href={basePath || '/'} className="hover:text-white transition-colors">Inicio</a></li>
-                <li><a href={upsellTargetUrl} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Formación</a></li>
-                <li><a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Contacto</a></li>
-                <li><a href={`${basePath || ''}/blog`} className="hover:text-white transition-colors">Blog</a></li>
-              </ul>
-            </div>
-
-            {/* Columna 3: Legal */}
-            <div>
-              <h5 className="font-bold text-xs sm:text-sm text-white mb-3">Legal</h5>
-              <ul className="space-y-2 text-xs text-gray-400">
-                <li><a href={`${basePath || ''}/privacidad`} className="hover:text-white transition-colors">Política de Privacidad</a></li>
-                <li><a href={`${basePath || ''}/terminos`} className="hover:text-white transition-colors">Términos de Uso</a></li>
-                <li><a href={`${basePath || ''}/aviso-legal`} className="hover:text-white transition-colors">Aviso Legal</a></li>
-              </ul>
-            </div>
+            <span className="font-bold text-white text-base tracking-tight">
+              {brandName}
+            </span>
           </div>
 
           {/* Copyright Inferior */}
-          <div className="border-t border-white/5 pt-8 text-center text-xs text-gray-500">
-            © {new Date().getFullYear()} {brandName}. Todos los derechos reservados.
+          <div className="text-xs text-gray-400">
+            © {new Date().getFullYear()} {brandName} . Todos los derechos reservados.
           </div>
         </div>
       </footer>
