@@ -141,16 +141,16 @@ export const GuideMockup: React.FC<GuideMockupProps> = ({
   ds
 }) => {
   const glowColor = ds?.blobColor || 'bg-gradient-to-tr from-emerald-500/20 via-teal-500/10 to-transparent';
-  const displayImage = posterUrl || customImageUrl;
+  const displayImage = customImageUrl || posterUrl;
 
-  if (customImageUrl) {
+  if (displayImage) {
     return (
       <div className="w-full flex items-center justify-center p-2 relative group select-none">
-        <div className={`absolute -inset-1 ${glowColor} rounded-3xl blur-xl opacity-60 group-hover:opacity-80 transition duration-500 pointer-events-none`}></div>
+        <div className={`absolute -inset-2 ${glowColor} rounded-3xl blur-2xl opacity-60 group-hover:opacity-80 transition duration-500 pointer-events-none`}></div>
         <img 
-          src={customImageUrl} 
+          src={displayImage} 
           alt={title} 
-          className="relative rounded-2xl max-h-72 w-auto object-contain drop-shadow-2xl shadow-2xl border border-gray-100/20 transition-transform duration-300 group-hover:scale-[1.02]" 
+          className="relative rounded-2xl max-h-80 sm:max-h-[22rem] w-auto max-w-full object-contain drop-shadow-2xl shadow-2xl border border-gray-100/20 transition-transform duration-300 group-hover:scale-[1.01]" 
         />
       </div>
     );
