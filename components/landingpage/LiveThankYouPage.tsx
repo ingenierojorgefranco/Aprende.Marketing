@@ -358,22 +358,48 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
       <section className="relative pt-8 sm:pt-10 pb-8 sm:pb-12 text-center px-4 z-10">
         <div className="max-w-3xl mx-auto">
           {/* Icono Check Circular de Confirmación con el color de acento de la captura */}
-          <div className={`w-13 h-13 sm:w-14 sm:h-14 rounded-full ${paletteAccents.checkBg} flex items-center justify-center mx-auto mb-4 shadow-lg shadow-black/20 ring-4 ring-white/10 animate-in zoom-in-75 duration-300`}>
+          <div 
+            className={`w-13 h-13 sm:w-14 sm:h-14 rounded-full ${paletteAccents.checkBg} flex items-center justify-center mx-auto mb-4 shadow-lg shadow-black/20 ring-4 ring-white/10 animate-in zoom-in-75 duration-300`}
+            style={{
+              marginTop: '1.5em'
+            }}
+          >
             <Check className="w-7 h-7 sm:w-8 sm:h-8 stroke-[3]" />
           </div>
 
           {/* Título Principal */}
-          <h1 className="text-3xl sm:text-4xl md:text-[2.6rem] font-black tracking-tight text-white mb-3 leading-tight">
-            {tyConfig.headline || "Perfecto, tu registro está confirmado"}
+          <h1 
+            className="text-3xl sm:text-4xl md:text-[2.6rem] font-black tracking-tight text-white mb-3 leading-tight mx-auto"
+            style={{
+              fontSize: '3em',
+              lineHeight: '1.1em',
+              width: '18em',
+              maxWidth: '100%',
+              paddingBottom: '0em'
+            }}
+          >
+            {tyConfig.headline && tyConfig.headline !== "PERFECTO, YA TIENES EL ACCESO A LA CLASE DE MICROBLADING PROFESIONAL" ? tyConfig.headline : "Perfecto, tu registro está confirmado"}
           </h1>
 
           {/* Subtítulo */}
-          <p className={`text-sm sm:text-base md:text-lg ${activeDs.hero.subtitleColor || 'text-white/80'} font-normal leading-relaxed max-w-xl mx-auto mb-5`}>
-            {tyConfig.subheadline || "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo para que puedas volver cuando quieras."}
+          <p 
+            className={`text-sm sm:text-base md:text-lg ${activeDs.hero.subtitleColor || 'text-white/80'} font-normal leading-relaxed max-w-xl mx-auto mb-5`}
+            style={{
+              fontSize: '1.3em',
+              lineHeight: '1.5em',
+              paddingTop: '1em'
+            }}
+          >
+            {tyConfig.subheadline || "Sigue estos 2 pasos sencillos para asegurar tu cupo y recibir tu material de preparación gratuito."}
           </p>
 
           {/* Píldora de aviso de correo con fondo sutil y borde coherente */}
-          <div className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full border ${activeDs.hero.badgeBg || 'bg-black/40'} ${activeDs.hero.badgeText || 'text-white/90'} ${activeDs.hero.badgeBorder || 'border-white/15'} backdrop-blur-md shadow-sm text-xs sm:text-sm font-medium`}>
+          <div 
+            className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full border ${activeDs.hero.badgeBg || 'bg-black/40'} ${activeDs.hero.badgeText || 'text-white/90'} ${activeDs.hero.badgeBorder || 'border-white/15'} backdrop-blur-md shadow-sm text-xs sm:text-sm font-medium`}
+            style={{
+              fontSize: '1.1em'
+            }}
+          >
             <Mail className={`w-4 h-4 ${paletteAccents.checkText} shrink-0`} />
             <span>{tyConfig.emailNotificationText || "Revisa tu bandeja de entrada (y spam) para encontrar el acceso."}</span>
           </div>
@@ -395,17 +421,36 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
             </div>
 
             {/* Título y Subtítulo de la Masterclass */}
-            <div className="text-center max-w-2xl mx-auto mb-6">
-              <h2 className="text-2xl sm:text-3xl md:text-[1.95rem] font-black tracking-tight text-gray-950 leading-snug mb-2">
-                {tyConfig.videoTitle || "Cómo empezar profesionalmente con resina epóxica para suelos"}
+            <div className="text-center max-w-3xl mx-auto mb-6">
+              <h2 
+                className="text-2xl sm:text-3xl md:text-[1.95rem] font-black tracking-tight text-gray-950 leading-snug mb-2"
+                style={{
+                  fontSize: '2.4em',
+                  lineHeight: '1.3em',
+                  paddingBottom: '0.3em'
+                }}
+              >
+                {tyConfig.videoTitle || "¿Cómo empezar profesionalmente con el Microblading de Cejas?"}
               </h2>
-              <p className="text-xs sm:text-sm md:text-base text-gray-600 leading-relaxed max-w-lg mx-auto">
-                {tyConfig.videoSubtitle || "Aprende cómo funciona esta técnica, qué necesitas para comenzar y cuáles son los errores que debes evitar."}
+              <p 
+                className="text-xs sm:text-sm md:text-base text-gray-600 leading-relaxed max-w-lg mx-auto"
+                style={{
+                  fontSize: '1.4em',
+                  lineHeight: '1.3em',
+                  textAlign: 'center',
+                  maxWidth: '42rem',
+                  paddingTop: '0.3em'
+                }}
+              >
+                {tyConfig.videoSubtitle || "Aprende cómo funciona la técnica del Microblading de Cejas, qué necesitas para comenzar y cuáles son los errores que debes evitar."}
               </p>
             </div>
 
             {/* REPRODUCTOR DE VIDEO DE ALTA FIDELIDAD */}
-            <div className="w-full aspect-video rounded-2xl overflow-hidden shadow-xl relative bg-black border border-gray-900 mb-4 select-none group">
+            <div 
+              onClick={!isPlaying ? handlePlayClick : undefined}
+              className="w-full aspect-video rounded-2xl overflow-hidden shadow-xl relative bg-black border border-gray-900 mb-4 select-none group cursor-pointer"
+            >
               {isPlaying && embedUrl ? (
                 <iframe
                   src={embedUrl}
@@ -425,89 +470,24 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                 />
               ) : (
                 <>
-                  {/* Poster / Fotograma de la clase (Captura de carga del video - Imagen 1 y 4) */}
+                  {/* Captura de carga del video publicado sin textos sobre ella (Ref. Imagen 1) */}
                   <img
                     src={videoPoster}
-                    alt="Masterclass"
-                    className="w-full h-full object-cover brightness-[0.78] group-hover:scale-[1.01] transition-transform duration-500"
+                    alt="Captura del video"
+                    className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300"
                   />
-                  
-                  {/* Overlay gradiente oscuro */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/60 pointer-events-none"></div>
 
-                  {/* Watermark superior izquierdo */}
-                  <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10 flex items-center gap-1.5">
-                    <span className="text-white/90 text-[10px] sm:text-xs font-semibold tracking-wide drop-shadow-md">
-                      {brandName}
-                    </span>
-                  </div>
-
-                  {/* Frase de valor a la derecha */}
-                  <div className="hidden sm:block absolute top-4 right-4 z-10 text-right">
-                    <p className="text-white/90 text-xs md:text-sm font-serif italic drop-shadow-md">
-                      {tyConfig.videoSubtitle || "Clase Especializada Paso a Paso"}
-                    </p>
-                  </div>
-
-                  {/* Título inferior izquierdo sobre el video */}
-                  <div className="absolute left-3 sm:left-5 bottom-12 sm:bottom-14 z-10 max-w-[70%] text-left">
-                    <h3 className="text-white font-black text-xs sm:text-base md:text-lg uppercase tracking-tight leading-snug drop-shadow-lg">
-                      {tyConfig.videoTitle ? tyConfig.videoTitle.toUpperCase() : (content.hero?.headline?.toUpperCase() || (project?.productName ? project.productName.toUpperCase() : "CLASE GRATUITA COMPLETA"))}
-                    </h3>
-                    <div className="mt-1 sm:mt-1.5 inline-block bg-[#4f46e5] text-white text-[9px] sm:text-xs font-bold px-2.5 py-0.5 rounded shadow">
-                      {tyConfig.videoSubtitle || "De un proyecto a un negocio rentable"}
-                    </div>
-                  </div>
-
-                  {/* Botón Central de Play con efecto Frosted Glass */}
+                  {/* Botón Central de Play */}
                   <button
-                    onClick={handlePlayClick}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePlayClick();
+                    }}
                     aria-label="Reproducir video"
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 sm:w-18 sm:h-18 rounded-full bg-black/60 backdrop-blur-md border border-white/35 flex items-center justify-center text-white shadow-2xl hover:scale-110 hover:bg-black/75 transition-all duration-300 cursor-pointer z-20 group/play focus:outline-none"
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-black/60 backdrop-blur-md border-2 border-white/40 flex items-center justify-center text-white shadow-2xl hover:scale-110 hover:bg-black/80 transition-all duration-300 cursor-pointer z-20 group/play focus:outline-none"
                   >
-                    <Play className="w-6 h-6 sm:w-8 sm:h-8 fill-white text-white ml-1 group-hover/play:scale-105 transition-transform" />
+                    <Play className="w-8 h-8 sm:w-9 sm:h-9 fill-white text-white ml-1 group-hover/play:scale-105 transition-transform" />
                   </button>
-
-                  {/* Barra de Controles Inferior del Reproductor */}
-                  <div className="absolute bottom-0 left-0 right-0 h-10 sm:h-11 bg-black/80 backdrop-blur-sm px-3 sm:px-4 flex items-center justify-between gap-2 sm:gap-3 text-white text-[10px] sm:text-xs font-mono z-10 border-t border-white/10">
-                    <button 
-                      onClick={handlePlayClick} 
-                      className="text-white hover:text-white/80 transition-colors p-1"
-                    >
-                      <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-white" />
-                    </button>
-                    
-                    <span className="text-gray-300 shrink-0 text-[10px] sm:text-xs">
-                      {videoCurrentTime} / {videoDuration}
-                    </span>
-
-                    {/* Barra de Progreso Scrub sincronizada con la paleta */}
-                    <div className="flex-1 mx-1 sm:mx-2 bg-gray-700/80 h-1.5 rounded-full overflow-hidden relative cursor-pointer">
-                      <div className={`h-full ${paletteAccents.badgeBg} w-[18%] relative rounded-full`}>
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow"></div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 sm:gap-3 text-gray-300">
-                      <button 
-                        onClick={() => setIsMuted(!isMuted)} 
-                        className="hover:text-white transition-colors"
-                        title={isMuted ? "Activar sonido" : "Silenciar"}
-                      >
-                        {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                      </button>
-                      <button className="hover:text-white transition-colors hidden sm:block">
-                        <Settings className="w-3.5 h-3.5" />
-                      </button>
-                      <button 
-                        onClick={handlePlayClick} 
-                        className="hover:text-white transition-colors"
-                        title="Pantalla completa"
-                      >
-                        <Maximize2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
                 </>
               )}
             </div>
@@ -521,88 +501,76 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
             </div>
 
             {/* SECCIÓN INTERNA: ¿Quieres aprender el proceso completo? (FORMACIÓN / UPSELL) */}
-            <div className="pt-6 border-t border-gray-100">
-              <div className="text-center mb-6">
-                <h3 className="text-xl sm:text-2xl font-black tracking-tight text-gray-950 mb-1">
+            <div className="pt-8 border-t border-gray-100">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl sm:text-3xl md:text-[2rem] font-black tracking-tight text-gray-950 mb-2">
                   {tyConfig.upsellTitle || "¿Quieres aprender el proceso completo?"}
                 </h3>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">
+                <p className="text-sm sm:text-base font-medium text-gray-600 max-w-xl mx-auto">
                   {tyConfig.upsellSubtitle || "Lleva tus habilidades al siguiente nivel con nuestra formación especializada."}
                 </p>
               </div>
 
-              {/* Grid 2 Columnas: Mockup 3D + Beneficios y Botón Oficial */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                {/* Columna Izquierda: Mockup 3D del Programa (Carga poster definido en Imagen 4) */}
-                <div>
-                  <FormationMockup 
-                    title={tyConfig.upsellProductName || project?.productName || "ESPECIALISTA EN FORMACIÓN COMPLETA"}
-                    subtitle="De la práctica a un negocio rentable"
-                    brandName={brandName}
-                    customImageUrl={upsellCustomImage}
-                    posterUrl={videoPoster}
-                    ds={activeDs}
-                  />
+              {/* Contenido Organizado sin la imagen izquierda (Ref. Imagen 2) */}
+              <div className="max-w-2xl mx-auto text-center">
+                {/* Título de la Formación Completa con tipografía mejorada y más grande */}
+                <h4 className="text-2xl sm:text-3xl font-black leading-tight text-gray-950 mb-4 tracking-tight">
+                  {tyConfig.upsellProductName || project?.productName || "Curso Profesional Certificado de Microblading de Cejas"}
+                </h4>
+
+                {/* Ficha del Instructor desde la base de datos (strategy_json.teacher) */}
+                <div className="inline-flex items-center gap-3 py-2.5 px-5 rounded-2xl border border-gray-200/80 bg-gray-50/90 shadow-sm mb-6 text-left">
+                  {instructorImage ? (
+                    <img 
+                      src={instructorImage} 
+                      alt={instructorName} 
+                      className="w-11 h-11 rounded-full object-cover shrink-0 border border-gray-200 shadow-sm ring-2 ring-purple-500/20" 
+                    />
+                  ) : (
+                    <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 bg-indigo-100 text-indigo-600 ring-2 ring-purple-500/20">
+                      <User className="w-5 h-5" />
+                    </div>
+                  )}
+                  <div className="text-xs sm:text-sm">
+                    <p className="font-bold leading-tight text-gray-900">
+                      Impartido por: <span className="font-extrabold text-gray-950">{instructorName}</span>
+                    </p>
+                    <p className="text-[11px] sm:text-xs leading-tight text-gray-500 font-medium">
+                      {instructorTitle || "Conoce a tu Mentor"}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Columna Derecha: Detalles del Programa y CTA Oficial */}
-                <div className="space-y-4 text-left">
-                  <div>
-                    <h4 className="text-lg sm:text-xl font-black leading-tight text-gray-950 mb-2">
-                      {tyConfig.upsellProductName || project?.productName || "Formación Especializada Completa"}
-                    </h4>
-
-                    {/* Ficha del Instructor desde la base de datos (strategy_json.teacher - Imagen 2) */}
-                    <div className="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-100 bg-gray-50/80">
-                      {instructorImage ? (
-                        <img 
-                          src={instructorImage} 
-                          alt={instructorName} 
-                          className="w-9 h-9 rounded-full object-cover shrink-0 border border-gray-200 shadow-sm" 
-                        />
-                      ) : (
-                        <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-indigo-100 text-indigo-600">
-                          <User className="w-4 h-4" />
-                        </div>
-                      )}
-                      <div className="text-xs">
-                        <p className="font-bold leading-tight text-gray-900">
-                          Impartido por: <span className="font-extrabold text-gray-950">{instructorName}</span>
-                        </p>
-                        <p className="text-[11px] leading-tight text-gray-500">
-                          {instructorTitle}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Lista de 4 Checks de Valor con icono de la paleta */}
-                  <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-gray-700">
+                {/* Lista de Viñetas de Valor organizada y con tamaño optimizado */}
+                <div className="max-w-xl mx-auto mb-8">
+                  <ul className="space-y-3 sm:space-y-3.5 text-left inline-block">
                     {(tyConfig.upsellBullets || [
                       "Aprende el proceso paso a paso",
                       "Materiales, preparación y aplicación",
                       "Acabados profesionales y corrección de errores",
                       "Acceso a una formación estructurada"
                     ]).map((bullet, idx) => (
-                      <li key={idx} className="flex items-center gap-2.5">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-sm ${paletteAccents.checkBg}`}>
-                          <Check className="w-3 h-3 stroke-[3]" />
+                      <li key={idx} className="flex items-center gap-3">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 shadow-sm ${paletteAccents.checkBg}`}>
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
                         </div>
-                        <span>{bullet}</span>
+                        <span className="text-sm sm:text-base font-semibold text-gray-800">{bullet}</span>
                       </li>
                     ))}
                   </ul>
+                </div>
 
-                  {/* Botón CTA Formación Completa (Hereda el estilo primario de la captura) */}
+                {/* Botón CTA Formación Completa con tamaño prominente */}
+                <div className="max-w-md mx-auto">
                   <a
                     href={upsellTargetUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`w-full ${activeDs.buttons.primary} py-3.5 sm:py-4 px-5 rounded-xl font-bold text-xs sm:text-sm md:text-base tracking-wider uppercase flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer mt-3`}
+                    className={`w-full ${activeDs.buttons.primary} py-4 px-6 rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-3 shadow-xl hover:shadow-2xl hover:scale-[1.01] active:scale-98 transition-all cursor-pointer`}
                   >
-                    <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <GraduationCap className="w-5 h-5 shrink-0" />
                     <span>{tyConfig.upsellButtonText || "CONOCER LA FORMACIÓN COMPLETA"}</span>
-                    <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-0.5" />
+                    <ExternalLink className="w-4 h-4 shrink-0 ml-0.5" />
                   </a>
                 </div>
               </div>
