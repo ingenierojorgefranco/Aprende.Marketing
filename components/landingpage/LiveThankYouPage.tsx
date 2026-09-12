@@ -424,7 +424,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
           {/* Subtítulo */}
           <p 
-            className={`text-sm sm:text-base md:text-lg ${activeDs.hero.subtitleColor || 'text-purple-200'} font-normal leading-relaxed max-w-xl mx-auto mb-5`}
+            className={`text-sm sm:text-base md:text-lg ${activeDs.hero.subtitleColor || 'text-cyan-100'} font-normal leading-relaxed max-w-xl mx-auto mb-5`}
             style={{
               fontSize: '1.3em',
               lineHeight: '1.5em',
@@ -434,9 +434,12 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
           >
             {tyConfig.subheadline && 
              !tyConfig.subheadline.toLowerCase().includes("sigue estos 2 pasos") && 
+             !tyConfig.subheadline.toLowerCase().includes("únete a nuestro grupo") && 
+             !tyConfig.subheadline.toLowerCase().includes("unete a nuestro grupo") && 
+             !tyConfig.subheadline.toLowerCase().includes("recibir tu material de preparación") && 
              tyConfig.subheadline !== "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo para que puedas volver a verla cuando quieras."
               ? tyConfig.subheadline 
-              : "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo electrónico para que puedas volver cuando quieras."}
+              : "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo electrónico para que puedas volver cuando quieras"}
           </p>
 
           {/* Píldora de aviso de correo con color verde esmeralda (Ref. Imagen 1) */}

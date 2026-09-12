@@ -711,7 +711,7 @@ export const MICROBLADING_CONTENT: GeneratedPageContent = {
       progressBarText: "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR.",
       greenBadgeText: "RECIBE NUESTRO LIBRO DIGITAL 100% GRATIS",
       headline: "PERFECTO, YA TIENES EL ACCESO A LA CLASE DE MICROBLADING DE CEJAS",
-      subheadline: "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo electrónico para que puedas volver cuando quieras.",
+      subheadline: "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo electrónico para que puedas volver cuando quieras",
       
       // Steps
       step1Title: "Revisa tu Correo",

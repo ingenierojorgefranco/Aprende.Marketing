@@ -164,6 +164,19 @@ const attachProjectData = (page) => {
             if (resolvedWhatsappUrl && (!ty.ctaLink || ty.ctaLink === '#' || ty.ctaLink === 'https://chat.whatsapp.com/demo')) {
                 ty.ctaLink = resolvedWhatsappUrl;
             }
+
+            // Normalizar subtítulo de la página de gracias
+            if (ty.subheadline) {
+                const subLower = String(ty.subheadline).toLowerCase();
+                if (
+                    subLower.includes('únete a nuestro grupo') ||
+                    subLower.includes('unete a nuestro grupo') ||
+                    subLower.includes('grupo privado de whatsapp') ||
+                    subLower.includes('sigue estos 2 pasos')
+                ) {
+                    ty.subheadline = "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo electrónico para que puedas volver cuando quieras";
+                }
+            }
         }
     }
 };
