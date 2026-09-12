@@ -110,12 +110,17 @@ export const DashboardLayout = ({
   const [showNewsModal, setShowNewsModal] = useState(false);
   const [sidebarUserMenuOpen, setSidebarUserMenuOpen] = useState(false);
   const sidebarUserMenuRef = React.useRef<HTMLDivElement>(null);
+  const [headerUserMenuOpen, setHeaderUserMenuOpen] = useState(false);
+  const headerUserMenuRef = React.useRef<HTMLDivElement>(null);
   const [isWizardGenerating, setIsWizardGenerating] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (sidebarUserMenuRef.current && !sidebarUserMenuRef.current.contains(event.target as Node)) {
         setSidebarUserMenuOpen(false);
+      }
+      if (headerUserMenuRef.current && !headerUserMenuRef.current.contains(event.target as Node)) {
+        setHeaderUserMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -592,7 +597,85 @@ export const DashboardLayout = ({
              
              {!isWizardGenerating && (
                  <div className="flex items-center gap-2.5 sm:gap-3">
-                     {/* Botón ACTUALIZA A PRO (Imagen 1) colocado antes del botón Cerrar sesión (Imagen 2) */}
+                     {/* Tarjeta de usuario (Imagen 1) colocada antes de ACTUALIZA A PRO */}
+                     {!isLaunchRestricted && (
+                         <div className="relative" ref={headerUserMenuRef}>
+                             <button
+                                 onClick={() => setHeaderUserMenuOpen(!headerUserMenuOpen)}
+                                 className={`flex items-center gap-2.5 py-1.5 px-3 rounded-xl border transition-all cursor-pointer group text-left ${headerUserMenuOpen ? 'bg-zinc-800/90 border-white/20 shadow-lg' : 'bg-zinc-900/60 hover:bg-zinc-800/60 border-white/10 hover:border-white/20'}`}
+                                 title="Perfil y configuración"
+                             >
+                                 <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center text-xs font-bold text-zinc-200 shrink-0 overflow-hidden shadow-inner">
+                                     {effectiveUser.avatarUrl ? (
+                                         <img src={effectiveUser.avatarUrl} alt={effectiveUser.name} className="w-full h-full object-cover" />
+                                     ) : (
+                                         userInitials
+                                     )}
+                                 </div>
+                                 <div className="min-w-0 leading-tight">
+                                     <p className="text-xs sm:text-sm font-semibold text-zinc-100 group-hover:text-white truncate max-w-[110px] sm:max-w-[140px]">
+                                         {effectiveUser.name}
+                                     </p>
+                                     <p className="text-[10px] sm:text-[11px] font-bold text-[#FF5A1F] uppercase tracking-wider mt-0.5">
+                                         {effectiveUser.role === 'admin' ? 'Admin' : ((effectiveUser.planLimits?.planName === 'pro' || effectiveUser.planLimits?.planName === 'max') ? 'Plan Pro' : 'Plan Gratuito')}
+                                     </p>
+                                 </div>
+                                 <ChevronsUpDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400 group-hover:text-zinc-200 shrink-0 ml-0.5 sm:ml-1" />
+                             </button>
+
+                             {/* Menú desplegable flotante de usuario en header */}
+                             {headerUserMenuOpen && (
+                                 <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl bg-[#12141a] border border-white/10 shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-xl">
+                                     <div className="px-3 py-2 border-b border-white/5 mb-1 sm:hidden">
+                                         <p className="text-xs font-bold text-white truncate">{effectiveUser.name}</p>
+                                         <p className="text-[10px] text-[#FF5A1F] font-bold uppercase">{effectiveUser.role === 'admin' ? 'Admin' : 'Plan Gratuito'}</p>
+                                     </div>
+                                     <button
+                                         onClick={() => {
+                                             setHeaderUserMenuOpen(false);
+                                             setShowProfileModal(true);
+                                         }}
+                                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                                     >
+                                         <Settings className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors shrink-0" />
+                                         <span>Cuenta</span>
+                                     </button>
+                                     <button
+                                         onClick={() => {
+                                             setHeaderUserMenuOpen(false);
+                                             setShowUpgradeModal(true);
+                                         }}
+                                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                                     >
+                                         <CreditCard className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors shrink-0" />
+                                         <span>Facturación</span>
+                                     </button>
+                                     <a
+                                         href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4"
+                                         target="_blank"
+                                         rel="noopener noreferrer"
+                                         onClick={() => setHeaderUserMenuOpen(false)}
+                                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                                     >
+                                         <Users className="w-4 h-4 text-[#FF5A1F] transition-colors shrink-0" />
+                                         <span>Comunidad WhatsApp</span>
+                                     </a>
+                                     <button
+                                         onClick={() => {
+                                             setHeaderUserMenuOpen(false);
+                                             setShowHelpModal(true);
+                                         }}
+                                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                                     >
+                                         <HelpCircle className="w-4 h-4 text-[#FF5A1F] transition-colors shrink-0" />
+                                         <span>Ayuda y Soporte</span>
+                                     </button>
+                                 </div>
+                             )}
+                         </div>
+                     )}
+
+                     {/* Botón ACTUALIZA A PRO (Imagen 2) */}
                      {!isLaunchRestricted && (
                          <button 
                              onClick={() => setShowUpgradeModal(true)} 

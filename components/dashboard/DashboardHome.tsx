@@ -9,6 +9,7 @@ import { api } from '../../services/api';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { User, Project } from '../../types';
 import { NewsHistoryModal } from './NewsHistoryModal';
+import { UnlockProjectModal } from './UnlockProjectModal';
 
 const getOnboardingCardImage = (project: Project) => {
     let mm: any = project.multimedia_json;
@@ -77,6 +78,11 @@ export const DashboardHome: React.FC = () => {
   const [academyCourses, setAcademyCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [unlockModalProject, setUnlockModalProject] = useState<Project | null>(null);
+
+  const isRealAdmin = user?.role === 'admin';
+  const maxProjectsCalculated = user?.planLimits?.maxProjects || 1;
+  const isAtLimit = (projects.length >= maxProjectsCalculated) && !isRealAdmin;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -375,7 +381,7 @@ export const DashboardHome: React.FC = () => {
                                               const userClone = projects.find(p => String(p.masterParentId) === String(project.id));
                                               navigate(`/dashboard/projects/${userClone?.id || project.id}/strategy`);
                                           } else {
-                                              navigate('/dashboard/projects');
+                                              setUnlockModalProject(project);
                                           }
                                       }}
                                       className={`group rounded-3xl p-5 md:p-6 flex flex-col justify-between h-full relative w-full cursor-pointer transition-all duration-300 space-y-4 ${
@@ -457,7 +463,7 @@ export const DashboardHome: React.FC = () => {
                                                       type="button"
                                                       onClick={(e) => {
                                                           e.stopPropagation();
-                                                          navigate('/dashboard/projects');
+                                                          setUnlockModalProject(project);
                                                       }}
                                                       className="w-full py-3 px-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(234,179,8,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
                                                   >
@@ -617,6 +623,30 @@ export const DashboardHome: React.FC = () => {
 
           </div>
       </div>
+
+      {/* MODAL DE DESBLOQUEO MAESTRO TIPO PREMIUM */}
+      <UnlockProjectModal
+          isOpen={!!unlockModalProject}
+          onClose={() => setUnlockModalProject(null)}
+          project={unlockModalProject}
+          isAtLimit={isAtLimit}
+          onUnlockWithPro={(p) => {
+              setUnlockModalProject(null);
+              if (setShowUpgradeModal) {
+                  setShowUpgradeModal(true);
+              }
+          }}
+          onUnlockFree={(p) => {
+              setUnlockModalProject(null);
+              if (typeof window !== 'undefined') {
+                  localStorage.setItem('preselect_wizard_project_id', p.id);
+                  localStorage.setItem('selected_wizard_project_id', p.id);
+                  localStorage.setItem('force_wizard_step', 'selection');
+                  localStorage.removeItem('wizard_dismissed');
+              }
+              navigate(`/wizard/step-2?projectId=${p.id}`);
+          }}
+      />
 
     </div>
   );

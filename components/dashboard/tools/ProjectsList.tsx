@@ -1,11 +1,12 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useNavigate, useOutletContext, useLocation } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { Project, User, AffiliateLink, Plan } from '../../../types';
 import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check, Gift, ShoppingCart as CartIcon, Info, Crown as CornerCrown, Settings, FileText, Star, Play, Users, Eye, ChevronRight, Clock, Activity, Folder, Globe, Award, Compass, GraduationCap, ShieldCheck, Package } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
+import { UnlockProjectModal } from '../UnlockProjectModal';
 import confetti from 'canvas-confetti';
 
 const getCategoryIcon = (category?: string) => {
@@ -34,6 +35,7 @@ interface DashboardContext {
 
 export const ProjectsList: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, isSimulating, setShowProfileModal, projectCount } = useOutletContext() as DashboardContext;
     const [projects, setProjects] = useState<Project[]>([]);
     const [masterLibrary, setMasterLibrary] = useState<Project[]>([]);
@@ -96,6 +98,18 @@ export const ProjectsList: React.FC = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const unlockId = params.get('unlockProjectId');
+        if (unlockId && masterLibrary.length > 0) {
+            const found = masterLibrary.find(p => String(p.id) === String(unlockId));
+            if (found) {
+                setSelectedMasterProject(found);
+                setShowUnlockProtocol(true);
+            }
+        }
+    }, [location.search, masterLibrary]);
 
     const [activeOnboardingCategory, setActiveOnboardingCategory] = useState('all');
 
@@ -778,140 +792,21 @@ export const ProjectsList: React.FC = () => {
                 </div>
             </div>
 
-            {/* --- PROTOCOLO DE DESBLOQUEO MAESTRO (MODAL INTERCEPTOR REDISEÑADO) --- */}
-            {showUnlockProtocol && selectedMasterProject && (
-                <div 
-                    onClick={() => setShowUnlockProtocol(false)}
-                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300 !mt-0"
-                >
-                    <div 
-                        onClick={(e) => e.stopPropagation()}
-                        className={`bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full ${unlockStep === 'info' ? 'max-w-[45rem]' : 'max-w-[34rem]'} shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative max-h-[90vh]`}
-                    >
-                        {/* Línea de acento dorada superior */}
-                        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-yellow-600 via-amber-400 to-yellow-600 shadow-[0_0_15px_rgba(234,179,8,0.5)]"></div>
-                        
-                        {unlockStep === 'info' && (
-                            <div className="p-6 md:p-8 space-y-8 flex-1 overflow-y-auto custom-scrollbar animate-in slide-in-from-right-4 duration-500">
-                                <div className="flex flex-col items-center text-center space-y-6">
-                                    <div className="w-20 h-20 bg-yellow-500/10 text-yellow-500 rounded-[2rem] flex items-center justify-center mx-auto border border-yellow-500/20 shadow-lg shadow-yellow-900/10 animate-pulse">
-                                        <CornerCrown className="w-10 h-10" />
-                                    </div>
-                                    <div className="space-y-3">
-                                        <h3 className="text-2xl md:text-4xl font-black text-white leading-none">COPIA NUESTRA ESTRATEGIA Y MEJORA TUS RESULTADOS</h3>
-                                        <p className="text-yellow-500 pt-3 text-[1.2em] leading-[1.6em]">Sabemos lo frustrante y dificil que es crear tu propio negocio por Internet</p>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <p className="text-white text-[1.2rem] leading-[1.6em] font-normal max-w-2xl mx-auto">
-                                            ¿Pero que pensarias si te dijese que nuestro equipo de profesionales ha diseñado para ti la mejor estrategia para empieces a recomendar en minutos el producto digital "{selectedMasterProject.name}"?
-                                        </p>
-                                        <p className="text-white text-[1.2rem] leading-[1.6em] font-normal max-w-2xl mx-auto">
-                                            Nuestra estratrategia incluye avatares, guiones de venta, copys para email y estructura web de alta conversión.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="aspect-video max-w-lg mx-auto w-full bg-black rounded-[2rem] overflow-hidden border border-white/5 shadow-2xl relative group cursor-pointer">
-                                    <iframe 
-                                        className="w-full h-full rounded-2xl"
-                                        src="https://www.youtube.com/embed/2yez3O8ibzA?rel=0&controls=1&showinfo=0" 
-                                        title="Video Preview" 
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                        allowFullScreen
-                                    ></iframe>
-                                </div>
-
-                                <div className="flex flex-col gap-4 py-2">
-                                    {[
-                                        { 
-                                            label: 'Copywriting', 
-                                            icon: PenTool, 
-                                            color: 'text-orange-400',
-                                            desc: 'Escritura persuasiva de alto nivel diseñada para tocar las fibras emocionales de tu cliente y forzar la decisión de compra sin sonar como un vendedor pesado.'
-                                        },
-                                        { 
-                                            label: 'Diseño Web', 
-                                            icon: Layout, 
-                                            color: 'text-blue-400',
-                                            desc: 'Estructuras de alta conversión probadas y optimizadas para móviles, asegurando que cada visita tenga la mayor probabilidad de convertirse en un registro.'
-                                        },
-                                        { 
-                                            label: 'Estrategia IA', 
-                                            icon: Sparkles, 
-                                            color: 'text-purple-400',
-                                            desc: 'Inteligencia artificial avanzada que analiza tu nicho específico para crear ganchos y ángulos de venta únicos que tu competencia ni siquiera imagina.'
-                                        },
-                                        { 
-                                            label: 'Automatización', 
-                                            icon: Rocket, 
-                                            color: 'text-emerald-400',
-                                            desc: 'Sincronización total de tu embudo para que los prospectos fluyan desde tu página hasta tu WhatsApp sin que tengas que mover un solo dedo.'
-                                        }
-                                    ].map((item, i) => (
-                                        <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-3xl flex flex-col md:flex-row items-center gap-6 hover:bg-white/10 transition-all group">
-                                            <div className={`p-4 rounded-2xl bg-black/40 ${item.color} shadow-lg shrink-0`}>
-                                                <item.icon className="w-8 h-8" />
-                                            </div>
-                                            <div className="text-center md:text-left">
-                                                <h5 className="text-white font-black text-xl mb-2 uppercase tracking-tight">{item.label}</h5>
-                                                <p className="text-white text-[1.2rem] leading-[1.6em] font-normal opacity-80">{item.desc}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                                
-                                <div className="p-6 md:p-8 bg-black/60 border-t border-white/5 flex flex-col sm:flex-row gap-4 shrink-0">
-                                    <button onClick={() => setShowUnlockProtocol(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest transition-all border border-white/5">Cancelar</button>
-                                    <button onClick={handleNextToConfirm} className="flex-1 py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#FF5A1F]/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"><Unlock className="w-5 h-5" /> DESBLOQUEAR</button>
-                                </div>
-                            </div>
-                        )}
-
-                        {unlockStep === 'confirm' && (
-                            <div className="p-6 md:p-8 space-y-8 flex-1 overflow-y-auto animate-in slide-in-from-right-4 duration-500">
-                                <div className="flex flex-col items-center text-center space-y-6">
-                                    <div className="w-20 h-20 bg-emerald-500/10 text-emerald-500 rounded-[2rem] flex items-center justify-center mx-auto border border-emerald-500/20 shadow-lg shadow-emerald-900/10">
-                                        <Zap className="w-10 h-10" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirmar Consumo de Créditos</h3>
-                                        <p className="text-white text-lg leading-relaxed font-medium max-w-xl">Al crear una nueva estrategia consumirás 1 cupo de proyecto disponible de tu plan actual.</p>
-                                    </div>
-                                </div>
-
-                                <div className="bg-black border border-white/5 p-8 rounded-[2.5rem] shadow-inner relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500/50"></div>
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Cupos Disponibles para Proyectos</span>
-                                        <span className="text-white font-mono font-bold text-sm">{currentCount} / {isRealAdmin ? '∞' : maxProjects}</span>
-                                    </div>
-                                    <div className="w-full bg-gray-900 h-3 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
-                                        <div 
-                                            className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-[0_0_15px_rgba(234,179,8,0.5)] ${progressColor}`} 
-                                            style={{ width: `${isRealAdmin ? (currentCount > 0 ? 100 : 0) : usagePercent}%` }}
-                                        ></div>
-                                    </div>
-                                    {isAtLimit && (
-                                        <div className="mt-6 flex items-center gap-4 p-4 bg-red-950/20 border border-red-900/30 rounded-2xl">
-                                            <AlertTriangle className="w-6 h-6 text-red-500 shrink-0" />
-                                            <p className="text-red-400 text-sm font-bold leading-snug uppercase tracking-tight">Límite alcanzado. Debes subir de plan para continuar.</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="p-6 md:p-8 bg-black/60 border-t border-white/5 flex flex-col sm:flex-row gap-4 shrink-0">
-                                    <button onClick={() => setUnlockStep('info')} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest border border-white/5">Volver</button>
-                                    {isAtLimit ? (
-                                        <button onClick={() => { setShowUnlockProtocol(false); setShowUpgradeModal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase shadow-xl transform hover:scale-[1.02] transition-all">Actualizar Plan Pro <ArrowRight className="w-5 h-5" /></button>
-                                    ) : (
-                                        <button onClick={handleAcceptAndContinueToWizard} className="flex-1 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-emerald-900/20 transform hover:scale-[1.02] active:scale-95 transition-all">Aceptar y Continuar</button>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
+            {/* --- PROTOCOLO DE DESBLOQUEO MAESTRO (MODAL TIPO PREMIUM) --- */}
+            <UnlockProjectModal
+                isOpen={showUnlockProtocol && !!selectedMasterProject}
+                onClose={() => setShowUnlockProtocol(false)}
+                project={selectedMasterProject}
+                isAtLimit={isAtLimit}
+                onUnlockWithPro={(project) => {
+                    setShowUnlockProtocol(false);
+                    setUpgradeProjectId(project.id);
+                    setShowUpgradeModal(true);
+                }}
+                onUnlockFree={(project) => {
+                    handleAcceptAndContinueToWizard();
+                }}
+            />
 
             {/* --- OVERLAY DE GENERACIÓN (IDÉNTICO A GENERATOR) --- */}
             {generationStatus === 'generating' && (
