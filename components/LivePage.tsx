@@ -40,18 +40,28 @@ export const LivePage: React.FC<LivePageProps> = ({
         if (project?.id !== initialProject.id) {
           setProject(initialProject);
         }
-        // Si el proyecto tiene masterParentId y no tiene leadMagnets locales, buscar en el maestro
-        const currentLMs = initialProject.multimedia_json?.leadMagnets;
-        if (initialProject.masterParentId && (!Array.isArray(currentLMs) || currentLMs.length === 0)) {
+        // Si el proyecto tiene un Proyecto Maestro asociado, sincronizar siempre los datos globales
+        if (initialProject.masterParentId) {
             api.getProjectById(initialProject.masterParentId).then(master => {
-                if (master?.multimedia_json?.leadMagnets && master.multimedia_json.leadMagnets.length > 0) {
-                    const masterLMs = master.multimedia_json.leadMagnets;
+                if (master) {
+                    const masterLMs = master.multimedia_json?.leadMagnets || [];
+                    const masterTy = (master.multimedia_json as any)?.thankYouPage || {};
+                    const currentTy = (initialProject.multimedia_json as any)?.thankYouPage || {};
+
+                    const mergedTy = {
+                        ...currentTy,
+                        ...masterTy,
+                        ...(currentTy.upsellButtonUrl ? { upsellButtonUrl: currentTy.upsellButtonUrl } : {}),
+                        ...(currentTy.ctaLink ? { ctaLink: currentTy.ctaLink } : {})
+                    };
+
                     setProject(prev => prev ? {
                         ...prev,
-                        leadMagnetUrl: prev.leadMagnetUrl || master.leadMagnetUrl,
+                        leadMagnetUrl: master.leadMagnetUrl || prev.leadMagnetUrl,
                         multimedia_json: {
                             ...(prev.multimedia_json || {}),
-                            leadMagnets: masterLMs
+                            leadMagnets: masterLMs.length > 0 ? masterLMs : (prev.multimedia_json?.leadMagnets || []),
+                            thankYouPage: mergedTy
                         }
                     } : prev);
                 }
@@ -64,24 +74,31 @@ export const LivePage: React.FC<LivePageProps> = ({
     if (projectId && (!project || String(project.id) !== String(projectId))) {
         api.getProjectById(projectId).then(async p => {
             if (p) {
-                const currentLMs = p.multimedia_json?.leadMagnets;
                 if (p.masterParentId) {
                     try {
                         const master = await api.getProjectById(p.masterParentId);
                         if (master) {
-                            const masterLMs = master.multimedia_json?.leadMagnets;
-                            const hasChildLMs = Array.isArray(currentLMs) && currentLMs.length > 0;
+                            const masterLMs = master.multimedia_json?.leadMagnets || [];
                             const resolvedWhatsapp = p.whatsappGroupUrl || p.whatsapp_group_url || (p.multimedia_json as any)?.whatsappGroupUrl || master.whatsappGroupUrl || master.whatsapp_group_url || (master.multimedia_json as any)?.whatsappGroupUrl;
-                            
+                            const masterTy = (master.multimedia_json as any)?.thankYouPage || {};
+                            const childTy = (p.multimedia_json as any)?.thankYouPage || {};
+                            const mergedTy = {
+                                ...childTy,
+                                ...masterTy,
+                                ...(childTy.upsellButtonUrl ? { upsellButtonUrl: childTy.upsellButtonUrl } : {}),
+                                ...(childTy.ctaLink ? { ctaLink: childTy.ctaLink } : {})
+                            };
+
                             p = {
                                 ...p,
-                                leadMagnetUrl: p.leadMagnetUrl || master.leadMagnetUrl,
+                                leadMagnetUrl: master.leadMagnetUrl || p.leadMagnetUrl,
                                 whatsappGroupUrl: resolvedWhatsapp,
                                 whatsapp_group_url: resolvedWhatsapp,
                                 multimedia_json: {
                                     ...(p.multimedia_json || {}),
                                     whatsappGroupUrl: resolvedWhatsapp,
-                                    leadMagnets: hasChildLMs ? currentLMs : (masterLMs || [])
+                                    leadMagnets: masterLMs.length > 0 ? masterLMs : (p.multimedia_json?.leadMagnets || []),
+                                    thankYouPage: mergedTy
                                 }
                             };
                         }

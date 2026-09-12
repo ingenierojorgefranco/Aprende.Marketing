@@ -70,15 +70,35 @@ const attachProjectData = (page) => {
 
         const childLeadMagnets = Array.isArray(projMm.leadMagnets) && projMm.leadMagnets.length > 0 ? projMm.leadMagnets : [];
         const masterLeadMagnets = Array.isArray(mastMm.leadMagnets) && mastMm.leadMagnets.length > 0 ? mastMm.leadMagnets : [];
-        const leadMagnets = childLeadMagnets.length > 0 ? childLeadMagnets : masterLeadMagnets;
+        // Si existe proyecto maestro, sus Lead Magnets son la fuente de verdad prioritaria
+        const leadMagnets = (page.master_parent_id && masterLeadMagnets.length > 0) 
+            ? masterLeadMagnets 
+            : (masterLeadMagnets.length > 0 ? masterLeadMagnets : childLeadMagnets);
+        const resolvedLeadMagnetUrl = (page.master_parent_id && page.master_lead_magnet_url) 
+            ? page.master_lead_magnet_url 
+            : (page.project_lead_magnet_url || page.master_lead_magnet_url || (leadMagnets[0]?.url || ""));
         const resolvedWhatsappUrl = page.project_whatsapp_group_url || page.master_whatsapp_group_url || projMm.whatsappGroupUrl || mastMm.whatsappGroupUrl || "";
+
+        // En la Página de Gracias, los datos definidos en el Proyecto Maestro (Video, Título, Oferta) tienen máxima prioridad
+        const masterTy = mastMm.thankYouPage || {};
+        const childTy = projMm.thankYouPage || {};
+        const effectiveTy = page.master_parent_id ? {
+            ...childTy,
+            ...masterTy,
+            // Conservar enlaces personales del afiliado si existen
+            ...(childTy.upsellButtonUrl ? { upsellButtonUrl: childTy.upsellButtonUrl } : {}),
+            ...(childTy.ctaLink ? { ctaLink: childTy.ctaLink } : {})
+        } : {
+            ...masterTy,
+            ...childTy
+        };
 
         page.project = {
             id: page.project_id,
             name: page.project_name || page.master_name || page.name || "",
             productName: page.project_product_name || page.master_product_name || "",
             masterParentId: page.master_parent_id,
-            leadMagnetUrl: page.project_lead_magnet_url || page.master_lead_magnet_url || "",
+            leadMagnetUrl: resolvedLeadMagnetUrl,
             whatsappGroupUrl: resolvedWhatsappUrl,
             whatsapp_group_url: resolvedWhatsappUrl,
             strategy_json: safeParseJson(page.project_strategy) || safeParseJson(page.master_strategy),
@@ -87,18 +107,62 @@ const attachProjectData = (page) => {
                 ...projMm,
                 whatsappGroupUrl: resolvedWhatsappUrl,
                 leadMagnets,
-                thankYouPage: {
-                    ...(mastMm.thankYouPage || {}),
-                    ...(projMm.thankYouPage || {})
-                }
+                thankYouPage: effectiveTy
             }
         };
 
-        if (resolvedWhatsappUrl) {
-            if (page.content && page.content.thankYouPage) {
-                if (!page.content.thankYouPage.ctaLink || page.content.thankYouPage.ctaLink === '#' || page.content.thankYouPage.ctaLink === 'https://chat.whatsapp.com/demo') {
-                    page.content.thankYouPage.ctaLink = resolvedWhatsappUrl;
+        // Sincronizar dinámicamente el contenido de la Página de Gracias para que siempre refleje el Proyecto Maestro
+        if (page.content) {
+            if (!page.content.thankYouPage) page.content.thankYouPage = {};
+            const ty = page.content.thankYouPage;
+
+            // Sobrescribir video y datos de la clase desde el Proyecto Maestro
+            if (effectiveTy.videoUrl) ty.videoUrl = effectiveTy.videoUrl;
+            if (effectiveTy.videoTitle) ty.videoTitle = effectiveTy.videoTitle;
+            if (effectiveTy.videoSubtitle) ty.videoSubtitle = effectiveTy.videoSubtitle;
+            if (effectiveTy.videoNoticeText) ty.videoNoticeText = effectiveTy.videoNoticeText;
+            if (effectiveTy.videoPosterUrl) ty.videoPosterUrl = effectiveTy.videoPosterUrl;
+            if (effectiveTy.videoBadge) ty.videoBadge = effectiveTy.videoBadge;
+            if (effectiveTy.videoDuration) ty.videoDuration = effectiveTy.videoDuration;
+
+            // Sincronizar Lead Magnets (PDFs / Guías)
+            if (leadMagnets.length > 0) {
+                ty.leadMagnetName = leadMagnets[0].name || ty.leadMagnetName;
+                ty.leadMagnetUrl = leadMagnets[0].url || ty.leadMagnetUrl;
+                if (leadMagnets[0].imageUrl) ty.leadMagnetImageUrl = leadMagnets[0].imageUrl;
+                if (leadMagnets[0].description) ty.leadMagnetDescription = leadMagnets[0].description;
+                if (!effectiveTy.whatsappGuideTitle && leadMagnets[0].name) {
+                    ty.whatsappGuideTitle = leadMagnets[0].name;
                 }
+            } else if (resolvedLeadMagnetUrl) {
+                ty.leadMagnetUrl = resolvedLeadMagnetUrl;
+            }
+
+            if (effectiveTy.whatsappGuideTitle) ty.whatsappGuideTitle = effectiveTy.whatsappGuideTitle;
+            if (effectiveTy.whatsappBadge) ty.whatsappBadge = effectiveTy.whatsappBadge;
+            if (effectiveTy.whatsappTitle) ty.whatsappTitle = effectiveTy.whatsappTitle;
+            if (effectiveTy.whatsappSubtitle) ty.whatsappSubtitle = effectiveTy.whatsappSubtitle;
+            if (effectiveTy.whatsappButtonText) ty.whatsappButtonText = effectiveTy.whatsappButtonText;
+            if (effectiveTy.whatsappGuideImageUrl) ty.whatsappGuideImageUrl = effectiveTy.whatsappGuideImageUrl;
+            if (effectiveTy.whatsappGuideBullets) ty.whatsappGuideBullets = effectiveTy.whatsappGuideBullets;
+
+            if (effectiveTy.upsellTitle) ty.upsellTitle = effectiveTy.upsellTitle;
+            if (effectiveTy.upsellSubtitle) ty.upsellSubtitle = effectiveTy.upsellSubtitle;
+            if (effectiveTy.upsellBadge) ty.upsellBadge = effectiveTy.upsellBadge;
+            if (effectiveTy.upsellFeatures) ty.upsellFeatures = effectiveTy.upsellFeatures;
+            if (effectiveTy.upsellPrice) ty.upsellPrice = effectiveTy.upsellPrice;
+            if (effectiveTy.upsellOriginalPrice) ty.upsellOriginalPrice = effectiveTy.upsellOriginalPrice;
+            if (effectiveTy.upsellButtonText) ty.upsellButtonText = effectiveTy.upsellButtonText;
+            if (effectiveTy.upsellImageUrl) ty.upsellImageUrl = effectiveTy.upsellImageUrl;
+            if (effectiveTy.upsellInstructorName) ty.upsellInstructorName = effectiveTy.upsellInstructorName;
+            if (effectiveTy.upsellInstructorTitle) ty.upsellInstructorTitle = effectiveTy.upsellInstructorTitle;
+
+            if (effectiveTy.stepsTitle) ty.stepsTitle = effectiveTy.stepsTitle;
+            if (effectiveTy.stepsSubtitle) ty.stepsSubtitle = effectiveTy.stepsSubtitle;
+            if (effectiveTy.footerTagline) ty.footerTagline = effectiveTy.footerTagline;
+
+            if (resolvedWhatsappUrl && (!ty.ctaLink || ty.ctaLink === '#' || ty.ctaLink === 'https://chat.whatsapp.com/demo')) {
+                ty.ctaLink = resolvedWhatsappUrl;
             }
         }
     }

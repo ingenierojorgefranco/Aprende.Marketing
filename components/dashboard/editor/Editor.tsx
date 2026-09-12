@@ -356,7 +356,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       },
       thankYouPage: page.content.thankYouPage || {
           headline: "Perfecto, hemos enviado el acceso a la clase gratuita a tu correo electrónico",
-          subheadline: "Únete a nuestro grupo privado de Whatsapp para acceder a nuestras mentorías y recibir tu material de preparación gratuito.",
+          subheadline: "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo electrónico para que puedas volver cuando quieras.",
           ctaLink: "#",
           showSocials: true
       }

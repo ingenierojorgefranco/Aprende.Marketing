@@ -156,35 +156,43 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   const activeDs = ds || getDesignSystem(content.palette);
   const projTyConfig: Partial<ThankYouPageConfig> = (project?.multimedia_json as any)?.thankYouPage || {};
   const pageTyConfig: Partial<ThankYouPageConfig> = content.thankYouPage || {};
+  
+  // El Proyecto Maestro / Proyecto actúa como FUENTE ÚNICA DE VERDAD (Single Source of Truth) para todo el contenido global
+  // La página de captura hereda dinámicamente cualquier cambio realizado por el administrador en el proyecto maestro
   const tyConfig: ThankYouPageConfig = {
-    ...projTyConfig,
     ...pageTyConfig,
+    ...projTyConfig,
   };
-  (Object.keys(projTyConfig) as (keyof ThankYouPageConfig)[]).forEach((k) => {
-    const val = pageTyConfig[k];
-    if ((val === undefined || val === null || val === "" || (Array.isArray(val) && val.length === 0)) && projTyConfig[k]) {
-      (tyConfig as any)[k] = projTyConfig[k];
+
+  // Prevalencia estricta de cualquier campo configurado en el proyecto maestro sobre la copia estática de la página
+  const globalMasterKeys: (keyof ThankYouPageConfig)[] = [
+    'videoUrl', 'videoTitle', 'videoSubtitle', 'videoNoticeText', 'videoPosterUrl', 'videoBadge', 'videoDuration',
+    'whatsappGuideTitle', 'whatsappGuideImageUrl', 'whatsappGuideBullets', 'whatsappBadge', 'whatsappTitle', 'whatsappSubtitle', 'whatsappButtonText',
+    'upsellTitle', 'upsellSubtitle', 'upsellProductName', 'upsellBullets', 'upsellButtonText',
+    'upsellImageUrl', 'upsellInstructorName', 'upsellInstructorTitle',
+    'stepsTitle', 'stepsSubtitle', 'footerTagline'
+  ];
+
+  globalMasterKeys.forEach((k) => {
+    const pVal = projTyConfig[k];
+    if (pVal !== undefined && pVal !== null) {
+      if (typeof pVal === 'string' && pVal.trim() !== '') {
+        (tyConfig as any)[k] = pVal.trim();
+      } else if (Array.isArray(pVal) && pVal.length > 0) {
+        (tyConfig as any)[k] = pVal;
+      }
     }
   });
 
-  // Los campos definidos explícitamente en el Proyecto (ProjectWizard - Imagen 4) tienen máxima prioridad
-  if (projTyConfig.videoPosterUrl && projTyConfig.videoPosterUrl.trim() !== '') {
-    tyConfig.videoPosterUrl = projTyConfig.videoPosterUrl;
+  // Lead Magnets (PDFs / Guías) extraídos directamente del Proyecto Maestro / Proyecto
+  const masterLeadMagnets = project?.multimedia_json?.leadMagnets || [];
+  const activeLeadMagnet = masterLeadMagnets.length > 0 ? masterLeadMagnets[0] : null;
+
+  if (activeLeadMagnet?.name && (!projTyConfig.whatsappGuideTitle || projTyConfig.whatsappGuideTitle.trim() === '')) {
+    tyConfig.whatsappGuideTitle = activeLeadMagnet.name;
   }
-  if (projTyConfig.videoUrl && projTyConfig.videoUrl.trim() !== '') {
-    tyConfig.videoUrl = projTyConfig.videoUrl;
-  }
-  if (projTyConfig.upsellImageUrl && projTyConfig.upsellImageUrl.trim() !== '') {
-    tyConfig.upsellImageUrl = projTyConfig.upsellImageUrl;
-  }
-  if (projTyConfig.whatsappGuideImageUrl && projTyConfig.whatsappGuideImageUrl.trim() !== '') {
-    tyConfig.whatsappGuideImageUrl = projTyConfig.whatsappGuideImageUrl;
-  }
-  if (projTyConfig.upsellInstructorName && projTyConfig.upsellInstructorName.trim() !== '') {
-    tyConfig.upsellInstructorName = projTyConfig.upsellInstructorName;
-  }
-  if (projTyConfig.upsellInstructorTitle && projTyConfig.upsellInstructorTitle.trim() !== '') {
-    tyConfig.upsellInstructorTitle = projTyConfig.upsellInstructorTitle;
+  if (activeLeadMagnet?.imageUrl && (!projTyConfig.whatsappGuideImageUrl || projTyConfig.whatsappGuideImageUrl.trim() === '')) {
+    tyConfig.whatsappGuideImageUrl = activeLeadMagnet.imageUrl;
   }
 
   const paletteAccents = getPaletteAccents(content.palette);
@@ -210,21 +218,25 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
     : "#";
 
   // Upsell Button Resolution (Configurado vía selector de Hotlinks / Afiliados - Ref. Imagen 3)
-  const rawUpsell = 
-    (tyConfig.upsellButtonUrl && tyConfig.upsellButtonUrl.trim() !== '' && tyConfig.upsellButtonUrl.trim() !== '#')
-      ? tyConfig.upsellButtonUrl.trim()
-      : ((project as any)?.selectedHotlinkUrl && (project as any).selectedHotlinkUrl.trim() !== '' && (project as any).selectedHotlinkUrl.trim() !== '#')
-        ? (project as any).selectedHotlinkUrl.trim()
-        : ((project as any)?.thankYouPageConfig?.upsellButtonUrl && (project as any).thankYouPageConfig.upsellButtonUrl.trim() !== '' && (project as any).thankYouPageConfig.upsellButtonUrl.trim() !== '#')
-          ? (project as any).thankYouPageConfig.upsellButtonUrl.trim()
-          : ((project?.multimedia_json as any)?.thankYouPage?.upsellButtonUrl && (project.multimedia_json as any).thankYouPage.upsellButtonUrl.trim() !== '' && (project.multimedia_json as any).thankYouPage.upsellButtonUrl.trim() !== '#')
-            ? (project.multimedia_json as any).thankYouPage.upsellButtonUrl.trim()
-            : null;
+  // Regla del usuario: Si no hay ningún enlace asignado o definido, el botón no estará habilitado
+  const projectAffiliateLinks = project?.affiliateLinks || [];
+  const assignedAffiliateLinks = projectAffiliateLinks.filter(
+    (l: any) => l && typeof l.url === 'string' && l.url.trim() !== '' && l.url.trim() !== '#'
+  );
 
-  const hasUpsellUrl = Boolean(rawUpsell);
-  const upsellTargetUrl = hasUpsellUrl 
-    ? (rawUpsell!.startsWith('http://') || rawUpsell!.startsWith('https://') ? rawUpsell! : `https://${rawUpsell}`)
-    : "#";
+  let rawUpsell: string | null = null;
+  if ((project as any)?.selectedHotlinkUrl && (project as any).selectedHotlinkUrl.trim() !== '' && (project as any).selectedHotlinkUrl.trim() !== '#') {
+    rawUpsell = (project as any).selectedHotlinkUrl.trim();
+  } else if (tyConfig.upsellButtonUrl && tyConfig.upsellButtonUrl.trim() !== '' && tyConfig.upsellButtonUrl.trim() !== '#' && !tyConfig.upsellButtonUrl.includes('pay.hotmart.com/...')) {
+    rawUpsell = tyConfig.upsellButtonUrl.trim();
+  } else if ((project?.multimedia_json as any)?.thankYouPage?.upsellButtonUrl && (project.multimedia_json as any).thankYouPage.upsellButtonUrl.trim() !== '' && (project.multimedia_json as any).thankYouPage.upsellButtonUrl.trim() !== '#') {
+    rawUpsell = (project.multimedia_json as any).thankYouPage.upsellButtonUrl.trim();
+  } else if (assignedAffiliateLinks.length > 0) {
+    rawUpsell = assignedAffiliateLinks[0].url.trim();
+  }
+
+  const hasUpsellUrl = Boolean(rawUpsell && rawUpsell !== '#' && (rawUpsell.startsWith('http://') || rawUpsell.startsWith('https://')));
+  const upsellTargetUrl = hasUpsellUrl ? rawUpsell! : "#";
 
   // Video State & Controls
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -420,7 +432,11 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
               maxWidth: '44rem'
             }}
           >
-            {tyConfig.subheadline || "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo para que puedas volver a verla cuando quieras."}
+            {tyConfig.subheadline && 
+             !tyConfig.subheadline.toLowerCase().includes("sigue estos 2 pasos") && 
+             tyConfig.subheadline !== "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo para que puedas volver a verla cuando quieras."
+              ? tyConfig.subheadline 
+              : "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo electrónico para que puedas volver cuando quieras."}
           </p>
 
           {/* Píldora de aviso de correo con color verde esmeralda (Ref. Imagen 1) */}

@@ -103,13 +103,11 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         return masterLMs;
     })();
 
-    // Obtener los hotlinks / enlaces de afiliado disponibles del proyecto (o heredados del maestro)
-    // Se filtran estrictamente los que tienen enlace asignado válido (no vacío y no '#') - Ref. Imagen 2
+    // Obtener los hotlinks / enlaces de afiliado disponibles del proyecto del usuario
+    // Solo cargan los enlaces que tienen URL asignada válida (no vacía y no '#')
+    // Los enlaces creados por defecto sin URL no se muestran. Si no hay ningún enlace asignado, la lista queda vacía.
     const availableHotlinks: { label: string; url: string }[] = (() => {
-        const rawLinks = (projectData?.affiliateLinks && projectData.affiliateLinks.length > 0)
-            ? projectData.affiliateLinks
-            : (masterProjectData?.affiliateLinks || []);
-
+        const rawLinks = projectData?.affiliateLinks || [];
         return (rawLinks || []).filter((l: any) => 
             l && typeof l.url === 'string' && l.url.trim() !== '' && l.url.trim() !== '#'
         );

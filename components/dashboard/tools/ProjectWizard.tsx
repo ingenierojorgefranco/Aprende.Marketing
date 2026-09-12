@@ -2126,8 +2126,32 @@ export const ProjectWizard: React.FC = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* URL ESPECÍFICA DE PAGO (OPCIONAL) */}
-                                                <div className="md:col-span-2">
+                                                {/* URL ESPECÍFICA DE PAGO (OPCIONAL) O SELECCIÓN DE HOTLINK */}
+                                                <div className="md:col-span-2 space-y-2">
+                                                    {(() => {
+                                                        const validAffiliateLinks = (affiliateLinks || []).filter(l => l && typeof l.url === 'string' && l.url.trim() !== '' && l.url.trim() !== '#');
+                                                        return validAffiliateLinks.length > 0 ? (
+                                                            <div>
+                                                                <label className="block text-[10px] font-bold uppercase tracking-wider text-purple-400 mb-1 flex items-center justify-between">
+                                                                    <span>Seleccionar desde tus Hotlinks de Afiliado</span>
+                                                                    <span className="text-[9px] text-purple-300 font-mono">({validAffiliateLinks.length} disponibles)</span>
+                                                                </label>
+                                                                <select
+                                                                    value={multimedia.thankYouPage?.upsellButtonUrl || ''}
+                                                                    onChange={(e) => handleUpdateThankYouField('upsellButtonUrl', e.target.value)}
+                                                                    className="w-full bg-black/80 border border-purple-800/60 rounded-lg px-3 py-2 text-xs text-purple-200 outline-none focus:border-purple-500 mb-2 cursor-pointer"
+                                                                >
+                                                                    <option value="">-- Seleccionar Hotlink de la lista --</option>
+                                                                    {validAffiliateLinks.map((link, idx) => (
+                                                                        <option key={idx} value={link.url}>
+                                                                            {link.label || `Hotlink ${idx + 1}`}: {link.url}
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
+                                                            </div>
+                                                        ) : null;
+                                                    })()}
+
                                                     <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
                                                         URL de Pago / Checkout Específico (Opcional)
                                                     </label>

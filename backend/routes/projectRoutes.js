@@ -310,15 +310,26 @@ router.get('/', async (req, res) => {
         const childMm = safeParseJson(p.multimedia_json) || {};
         const parentMm = safeParseJson(p.parent_multimedia_json) || {};
 
-        if ((!childMm.leadMagnets || !Array.isArray(childMm.leadMagnets) || childMm.leadMagnets.length === 0) &&
+        if (p.master_parent_id && parentMm.leadMagnets && Array.isArray(parentMm.leadMagnets) && parentMm.leadMagnets.length > 0) {
+            childMm.leadMagnets = parentMm.leadMagnets;
+        } else if ((!childMm.leadMagnets || !Array.isArray(childMm.leadMagnets) || childMm.leadMagnets.length === 0) &&
             (parentMm.leadMagnets && Array.isArray(parentMm.leadMagnets) && parentMm.leadMagnets.length > 0)) {
             childMm.leadMagnets = parentMm.leadMagnets;
         }
 
-        if ((!childMm.thankYouPage || Object.keys(childMm.thankYouPage).length === 0) &&
+        if (p.master_parent_id && parentMm.thankYouPage && Object.keys(parentMm.thankYouPage).length > 0) {
+            childMm.thankYouPage = {
+                ...(childMm.thankYouPage || {}),
+                ...parentMm.thankYouPage,
+                ...(childMm.thankYouPage?.upsellButtonUrl ? { upsellButtonUrl: childMm.thankYouPage.upsellButtonUrl } : {}),
+                ...(childMm.thankYouPage?.ctaLink ? { ctaLink: childMm.thankYouPage.ctaLink } : {})
+            };
+        } else if ((!childMm.thankYouPage || Object.keys(childMm.thankYouPage).length === 0) &&
             (parentMm.thankYouPage && Object.keys(parentMm.thankYouPage).length > 0)) {
             childMm.thankYouPage = parentMm.thankYouPage;
         }
+
+        const effectiveLeadMagnetUrl = p.master_parent_id ? (p.parent_lead_magnet_url || p.lead_magnet_url) : p.lead_magnet_url;
 
         return {
             ...p,
@@ -327,7 +338,7 @@ router.get('/', async (req, res) => {
             affiliate_links: safeParseJson(p.affiliate_links),
             strategy_json: safeParseJson(p.strategy_json),
             multimedia_json: childMm,
-            lead_magnet_url: p.lead_magnet_url || (p.master_parent_id ? p.parent_lead_magnet_url : undefined),
+            lead_magnet_url: effectiveLeadMagnetUrl,
             digital_product_url: p.master_parent_id ? p.parent_digital_product_url : p.digital_product_url,
             whatsappGroupUrl: p.whatsapp_group_url || (p.master_parent_id ? p.parent_whatsapp_group_url : undefined),
             whatsapp_group_url: p.whatsapp_group_url || (p.master_parent_id ? p.parent_whatsapp_group_url : undefined),
@@ -369,18 +380,29 @@ router.get('/:id', async (req, res) => {
     project.strategy_json = safeParseJson(project.strategy_json);
     project.digital_product_url = project.master_parent_id ? project.parent_digital_product_url : project.digital_product_url;
 
-    // Manejar multimedia_json heredando del proyecto maestro si el hijo no tiene leadMagnets
+    // Manejar multimedia_json heredando del proyecto maestro (fuente de verdad)
     const childMm = safeParseJson(project.multimedia_json) || {};
     const parentMm = safeParseJson(project.parent_multimedia_json) || {};
-    if ((!childMm.leadMagnets || !Array.isArray(childMm.leadMagnets) || childMm.leadMagnets.length === 0) &&
+    if (project.master_parent_id && parentMm.leadMagnets && Array.isArray(parentMm.leadMagnets) && parentMm.leadMagnets.length > 0) {
+        childMm.leadMagnets = parentMm.leadMagnets;
+    } else if ((!childMm.leadMagnets || !Array.isArray(childMm.leadMagnets) || childMm.leadMagnets.length === 0) &&
         (parentMm.leadMagnets && Array.isArray(parentMm.leadMagnets) && parentMm.leadMagnets.length > 0)) {
         childMm.leadMagnets = parentMm.leadMagnets;
     }
-    if ((!childMm.thankYouPage || Object.keys(childMm.thankYouPage).length === 0) &&
+
+    if (project.master_parent_id && parentMm.thankYouPage && Object.keys(parentMm.thankYouPage).length > 0) {
+        childMm.thankYouPage = {
+            ...(childMm.thankYouPage || {}),
+            ...parentMm.thankYouPage,
+            ...(childMm.thankYouPage?.upsellButtonUrl ? { upsellButtonUrl: childMm.thankYouPage.upsellButtonUrl } : {}),
+            ...(childMm.thankYouPage?.ctaLink ? { ctaLink: childMm.thankYouPage.ctaLink } : {})
+        };
+    } else if ((!childMm.thankYouPage || Object.keys(childMm.thankYouPage).length === 0) &&
         (parentMm.thankYouPage && Object.keys(parentMm.thankYouPage).length > 0)) {
         childMm.thankYouPage = parentMm.thankYouPage;
     }
-    if (!project.lead_magnet_url && project.parent_lead_magnet_url) {
+
+    if (project.master_parent_id && project.parent_lead_magnet_url) {
         project.lead_magnet_url = project.parent_lead_magnet_url;
     }
     project.whatsappGroupUrl = project.whatsapp_group_url || (project.master_parent_id ? project.parent_whatsapp_group_url : undefined);

@@ -308,7 +308,7 @@ export const generateLandingPageContent = async (
   5. Footer: Copyright y contacto.
   9. BLUEPRINT DE PÁGINA DE GRACIAS (Usa estos valores como base y adáptalos al nicho y al Lead Magnet asignado):
      - headline: "Perfecto, hemos enviado el acceso a la clase gratuita a tu correo electrónico"
-     - subheadline: "Únete a nuestro grupo privado de Whatsapp para acceder a nuestras mentorías y recibir tu material de preparación gratuito."
+     - subheadline: "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo electrónico para que puedas volver cuando quieras."
      - progressBarText: "¡PERO ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR."
      - greenBadgeText: ""
      - step1Title: "Revisa tu Correo Electrónico"
