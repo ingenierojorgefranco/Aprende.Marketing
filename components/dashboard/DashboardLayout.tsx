@@ -110,12 +110,17 @@ export const DashboardLayout = ({
   const [showNewsModal, setShowNewsModal] = useState(false);
   const [sidebarUserMenuOpen, setSidebarUserMenuOpen] = useState(false);
   const sidebarUserMenuRef = React.useRef<HTMLDivElement>(null);
+  const [headerUserMenuOpen, setHeaderUserMenuOpen] = useState(false);
+  const headerUserMenuRef = React.useRef<HTMLDivElement>(null);
   const [isWizardGenerating, setIsWizardGenerating] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (sidebarUserMenuRef.current && !sidebarUserMenuRef.current.contains(event.target as Node)) {
         setSidebarUserMenuOpen(false);
+      }
+      if (headerUserMenuRef.current && !headerUserMenuRef.current.contains(event.target as Node)) {
+        setHeaderUserMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -552,6 +557,24 @@ export const DashboardLayout = ({
                           </div>
                       )}
                   </div>
+
+                  {/* Botón ACTUALIZA A PRO debajo del botón de usuario (imagen 1 -> debajo de imagen 2) */}
+                  {!isLaunchRestricted && (
+                      <button 
+                          onClick={() => setShowUpgradeModal(true)} 
+                          className="w-full mt-2.5 relative overflow-hidden flex items-center justify-between gap-2.5 py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-600/20 border border-yellow-500/50 hover:border-yellow-400 text-yellow-300 transition-all duration-300 group cursor-pointer shadow-[0_0_20px_rgba(234,179,8,0.15)] hover:shadow-[0_0_25px_rgba(234,179,8,0.3)] active:scale-[0.98]"
+                      >
+                          <div className="flex items-center gap-2 sm:gap-2.5 relative z-10">
+                              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 flex items-center justify-center shadow-md shadow-amber-950/40 shrink-0 group-hover:scale-105 transition-transform">
+                                  <Crown className="w-3.5 h-3.5 text-black fill-black/20" />
+                              </div>
+                              <span className="text-xs font-black tracking-wider uppercase text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-amber-300 to-yellow-400 group-hover:from-white group-hover:to-yellow-200">
+                                  ACTUALIZA A PRO
+                              </span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-yellow-400/80 group-hover:text-yellow-300 group-hover:translate-x-0.5 transition-all relative z-10" />
+                      </button>
+                  )}
               </div>
           )}
         </aside>
@@ -591,22 +614,83 @@ export const DashboardLayout = ({
              </div>
              
              {!isWizardGenerating && (
-                 <div className="flex items-center gap-2.5 sm:gap-4">
+                 <div className="flex items-center gap-2.5 sm:gap-3">
+                     {/* Botón de usuario en el header (imagen 3 colocada junto a Cerrar sesión de imagen 4) */}
                      {!isLaunchRestricted && (
-                         <button 
-                             onClick={() => setShowUpgradeModal(true)} 
-                             className="relative overflow-hidden flex items-center justify-between gap-2.5 sm:gap-3 py-2 px-3 sm:px-3.5 rounded-xl bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-600/20 border border-yellow-500/50 hover:border-yellow-400 text-yellow-300 transition-all duration-300 group cursor-pointer shadow-[0_0_20px_rgba(234,179,8,0.15)] hover:shadow-[0_0_25px_rgba(234,179,8,0.3)] active:scale-[0.98]"
-                         >
-                             <div className="flex items-center gap-2 sm:gap-2.5 relative z-10">
-                                 <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 flex items-center justify-center shadow-md shadow-amber-950/40 shrink-0 group-hover:scale-105 transition-transform">
-                                     <Crown className="w-3.5 h-3.5 text-black fill-black/20" />
+                         <div className="relative" ref={headerUserMenuRef}>
+                             <button
+                                 onClick={() => setHeaderUserMenuOpen(!headerUserMenuOpen)}
+                                 className={`flex items-center gap-2.5 py-1.5 px-3 rounded-xl border transition-all cursor-pointer group text-left ${headerUserMenuOpen ? 'bg-zinc-800/90 border-white/20 shadow-lg' : 'bg-zinc-900/60 hover:bg-zinc-800/60 border-white/10 hover:border-white/20'}`}
+                                 title="Perfil y configuración"
+                             >
+                                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center text-xs font-bold text-zinc-200 shrink-0 overflow-hidden shadow-inner">
+                                     {effectiveUser.avatarUrl ? (
+                                         <img src={effectiveUser.avatarUrl} alt={effectiveUser.name} className="w-full h-full object-cover" />
+                                     ) : (
+                                         userInitials
+                                     )}
                                  </div>
-                                 <span className="text-xs font-black tracking-wider uppercase text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-amber-300 to-yellow-400 group-hover:from-white group-hover:to-yellow-200">
-                                     ACTUALIZA A PRO
-                                 </span>
-                             </div>
-                             <ChevronRight className="w-4 h-4 text-yellow-400/80 group-hover:text-yellow-300 group-hover:translate-x-0.5 transition-all relative z-10" />
-                         </button>
+                                 <div className="min-w-0 leading-tight hidden sm:block">
+                                     <p className="text-xs font-semibold text-zinc-100 group-hover:text-white truncate max-w-[120px]">
+                                         {effectiveUser.name}
+                                     </p>
+                                     <p className="text-[10px] font-bold text-[#FF5A1F] uppercase tracking-wider mt-0.5">
+                                         {effectiveUser.role === 'admin' ? 'Admin' : ((effectiveUser.planLimits?.planName === 'pro' || effectiveUser.planLimits?.planName === 'max') ? 'Plan Pro' : 'Plan Free')}
+                                     </p>
+                                 </div>
+                                 <ChevronsUpDown className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-200 shrink-0 ml-0.5" />
+                             </button>
+
+                             {/* Menú desplegable flotante de usuario en header */}
+                             {headerUserMenuOpen && (
+                                 <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl bg-[#12141a] border border-white/10 shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-xl">
+                                     <div className="px-3 py-2 border-b border-white/5 mb-1 sm:hidden">
+                                         <p className="text-xs font-bold text-white truncate">{effectiveUser.name}</p>
+                                         <p className="text-[10px] text-[#FF5A1F] font-bold uppercase">{effectiveUser.role === 'admin' ? 'Admin' : 'Plan Free'}</p>
+                                     </div>
+                                     <button
+                                         onClick={() => {
+                                             setHeaderUserMenuOpen(false);
+                                             setShowProfileModal(true);
+                                         }}
+                                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                                     >
+                                         <Settings className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors shrink-0" />
+                                         <span>Cuenta</span>
+                                     </button>
+                                     <button
+                                         onClick={() => {
+                                             setHeaderUserMenuOpen(false);
+                                             setShowUpgradeModal(true);
+                                         }}
+                                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                                     >
+                                         <CreditCard className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors shrink-0" />
+                                         <span>Facturación</span>
+                                     </button>
+                                     <a
+                                         href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4"
+                                         target="_blank"
+                                         rel="noopener noreferrer"
+                                         onClick={() => setHeaderUserMenuOpen(false)}
+                                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                                     >
+                                         <Users className="w-4 h-4 text-[#FF5A1F] transition-colors shrink-0" />
+                                         <span>Comunidad WhatsApp</span>
+                                     </a>
+                                     <button
+                                         onClick={() => {
+                                             setHeaderUserMenuOpen(false);
+                                             setShowHelpModal(true);
+                                         }}
+                                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                                     >
+                                         <HelpCircle className="w-4 h-4 text-[#FF5A1F] transition-colors shrink-0" />
+                                         <span>Ayuda y Soporte</span>
+                                     </button>
+                                 </div>
+                             )}
+                         </div>
                      )}
 
                      <button
