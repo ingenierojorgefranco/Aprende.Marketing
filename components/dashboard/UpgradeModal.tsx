@@ -35,6 +35,11 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  const isUserFreePlan = (() => {
+    const rawPlan = (currentPlan || user?.planLimits?.planName || (user as any)?.plan || 'starter').toLowerCase();
+    return ['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico'].includes(rawPlan);
+  })();
+
   const planOrder = ['starter', 'plan-max-1', 'plan-max-2', 'plan-max-3', 'plan-max-4', 'plan-max-5', 'plan-max-6', 'plan-max-7', 'plan-max-8', 'plan-max-9', 'plan-max-10'];
 
   useEffect(() => {
@@ -77,7 +82,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
           id: slug,
           slug: slug,
           name: billingPeriod === 'monthly' ? 'Plan Pro Mensual' : 'Plan Pro Anual (5 Proyectos activos / Hasta 12 al año)',
-          priceMonthly: billingPeriod === 'monthly' ? 79 : 590,
+          priceMonthly: billingPeriod === 'monthly' ? 79 : 708,
           currency: 'USD',
           description: billingPeriod === 'monthly' 
             ? 'Acceso a 1 proyecto activo con 30 reels al mes, dominio propio y embudos de venta.'
@@ -282,12 +287,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                               </div>
                             </div>
                             <span className="border border-[#00DF8F]/40 bg-[#00DF8F]/10 text-[#00DF8F] text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-full whitespace-nowrap">
-                              Ideal para comenzar
+                              {isUserFreePlan ? 'Tu plan actual' : 'Ideal para comenzar'}
                             </span>
                           </div>
 
                           <p className="text-base sm:text-lg text-gray-300 leading-relaxed mt-5 mb-8 font-normal">
-                            Empieza tu primer proyecto y prueba cómo Aprende.Marketing construye contigo tu sistema de marketing.
+                            Empieza tu primer proyecto digital y prueba cómo Aprende.Marketing construye contigo tu propio sistema de marketing.
                           </p>
 
                           {/* Lista de características */}
@@ -298,7 +303,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                               </div>
                               <div>
                                 <h5 className="text-base sm:text-lg font-bold text-white leading-snug">1 proyecto activo</h5>
-                                <p className="text-sm text-gray-400 mt-0.5 leading-relaxed">Crea tu primer producto o nicho.</p>
+                                <p className="text-sm text-gray-400 mt-0.5 leading-relaxed">Elige tu primer producto digital de la biblioteca que nuestros profesionales han seleccionado por ti.</p>
                               </div>
                             </div>
 
@@ -307,8 +312,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                                 <Globe className="w-5 h-5" />
                               </div>
                               <div>
-                                <h5 className="text-base sm:text-lg font-bold text-white leading-snug">1 sitio publicado</h5>
-                                <p className="text-sm text-gray-400 mt-0.5 leading-relaxed">En subdominio Aprende.Marketing</p>
+                                <h5 className="text-base sm:text-lg font-bold text-white leading-snug">1 página de captura profesional publicada</h5>
+                                <p className="text-sm text-gray-400 mt-0.5 leading-relaxed">Nuestro sistema creará por ti una página web de captura con la que podrás atraer nuevos clientes</p>
                               </div>
                             </div>
 
@@ -380,10 +385,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                             disabled
                             className="w-full py-4 px-6 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-300 font-bold text-base sm:text-lg flex items-center justify-center gap-2.5 cursor-default"
                           >
-                            <span>Empezar Gratis</span>
-                            <ArrowRight className="w-5 h-5" />
+                            <span>{isUserFreePlan ? 'Tu plan actual' : 'Empezar Gratis'}</span>
+                            {!isUserFreePlan && <ArrowRight className="w-5 h-5" />}
                           </button>
-                          <p className="text-sm text-gray-400 text-center mt-3 font-medium">No necesitas tarjeta de crédito</p>
+                          <p className="text-sm text-gray-400 text-center mt-3 font-medium">
+                            {isUserFreePlan ? 'Plan activo en tu cuenta' : 'No necesitas tarjeta de crédito'}
+                          </p>
                         </div>
                       </motion.div>
                     )}
@@ -430,13 +437,13 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                           <div className="flex flex-wrap items-center justify-between gap-5 mt-3">
                             <div>
                               <div className="flex items-baseline gap-2">
-                                <span className="text-6xl sm:text-7xl lg:text-8xl font-black text-white tracking-tight">$590</span>
+                                <span className="text-6xl sm:text-7xl lg:text-8xl font-black text-white tracking-tight">$708</span>
                                 <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-400">/año</span>
                               </div>
                               <p className="text-[#00DF8F] text-xl sm:text-2xl lg:text-3xl font-black mt-2.5 tracking-tight flex items-center gap-2 flex-wrap">
                                 <span>Equivale a $59/mes</span>
                                 <span className="text-[#00DF8F]/50">•</span>
-                                <span>Ahorra $358 al año</span>
+                                <span>Ahorra $240 al año</span>
                               </p>
                             </div>
 
@@ -449,7 +456,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                               </div>
                               <div className="text-left font-mono">
                                 <span className="text-xs font-black text-[#00DF8F] uppercase tracking-wider block">AHORRA</span>
-                                <span className="text-2xl sm:text-3xl font-black text-white block leading-none my-0.5">$358</span>
+                                <span className="text-2xl sm:text-3xl font-black text-white block leading-none my-0.5">$240</span>
                                 <span className="text-[11px] font-black text-[#00DF8F] uppercase tracking-wider block">AL AÑO</span>
                               </div>
                             </div>
@@ -655,7 +662,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                     <p className="text-sm sm:text-base text-gray-400 text-center mt-3 font-medium">
                       {billingPeriod === 'monthly'
                         ? 'Facturado $79 al mes · Cancela cuando quieras'
-                        : 'Pago anual de $590 • Equivale a solo $59/mes (Ahorra $358 al año)'}
+                        : 'Pago anual de $708 • Equivale a $59/mes (Ahorras $240 al año)'}
                     </p>
                   </div>
                 </motion.div>
