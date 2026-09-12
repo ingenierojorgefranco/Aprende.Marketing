@@ -58,9 +58,9 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
     ////////// Fin de actualización - 27/05/2025 13:00 /////////
 
     const formatPlanName = (name?: string) => {
-        if (!name) return 'Free';
+        if (!name) return 'Gratuito';
         const lower = name.toLowerCase();
-        if (lower === 'starter' || lower === 'free' || lower === 'gratuito') return 'Free';
+        if (lower === 'starter' || lower === 'free' || lower === 'gratuito' || lower === 'gratis') return 'Gratuito';
         if (lower === 'pro') return 'Pro All-Access';
         if (lower === 'max') return 'Pro All-Access';
         return name;

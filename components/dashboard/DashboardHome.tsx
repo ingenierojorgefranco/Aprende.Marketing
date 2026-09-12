@@ -132,9 +132,9 @@ export const DashboardHome: React.FC = () => {
       });
   }, [masterLibrary, projects]);
 
-  const planRawName = user?.planLimits?.planName || 'Free';
-  const isFree = planRawName.toLowerCase() === 'starter' || planRawName.toLowerCase() === 'free' || planRawName.toLowerCase() === 'gratis';
-  const planName = isFree ? 'Free' : (planRawName.toLowerCase() === 'pro' || planRawName.toLowerCase() === 'max' ? 'Pro All-Access' : planRawName);
+  const planRawName = user?.planLimits?.planName || 'Gratuito';
+  const isFree = planRawName.toLowerCase() === 'starter' || planRawName.toLowerCase() === 'free' || planRawName.toLowerCase() === 'gratis' || planRawName.toLowerCase() === 'gratuito';
+  const planName = isFree ? 'Plan Gratuito' : (planRawName.toLowerCase() === 'pro' || planRawName.toLowerCase() === 'max' ? 'Pro All-Access' : planRawName);
   const maxProjects = user?.planLimits?.maxProjects || 1;
   
   
@@ -238,7 +238,7 @@ export const DashboardHome: React.FC = () => {
                                   <p className="text-xs text-gray-400 mt-1">{isFree ? 'Versión gratuita' : 'Plan Premium'}</p>
                               </div>
                               <span className="px-2.5 py-1 rounded-lg bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 text-[#FF5A1F] text-xs font-bold uppercase tracking-wider">
-                                  {planName}
+                                  {isFree ? 'GRATUITO' : planName}
                               </span>
                           </div>
                           

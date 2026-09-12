@@ -81,12 +81,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
         plan = {
           id: slug,
           slug: slug,
-          name: billingPeriod === 'monthly' ? 'Plan Pro Mensual' : 'Plan Pro Anual (5 Proyectos activos / Hasta 12 al año)',
+          name: billingPeriod === 'monthly' ? 'Plan Pro Mensual' : 'Plan Pro Anual (12 Proyectos activos al año)',
           priceMonthly: billingPeriod === 'monthly' ? 79 : 708,
           currency: 'USD',
           description: billingPeriod === 'monthly' 
-            ? 'Acceso a 1 proyecto activo con 30 reels al mes, dominio propio y embudos de venta.'
-            : 'Construye y escala varios proyectos digitales durante todo el año con más capacidad y todos los beneficios Pro.',
+            ? 'Desbloquea hasta 3 negocios digitales listos para usar y gestiona todo su sistema de marketing desde un solo lugar.'
+            : 'Desbloquea y escala hasta 12 proyectos digitales durante todo el año con 360 reels con IA al mes y 12 dominios propios.',
           limitsConfig: {} as any,
           uiFeatures: [],
           isActive: true,
@@ -357,25 +357,6 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                               </div>
                             </div>
                           </div>
-
-                          {/* No incluye */}
-                          <div className="mt-8 pt-6 border-t border-white/10 space-y-3">
-                            <p className="text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-wider font-mono">NO INCLUYE:</p>
-                            <ul className="space-y-2 text-sm sm:text-base text-gray-400 font-medium">
-                              <li className="flex items-center gap-2.5 text-gray-400">
-                                <X className="w-4 h-4 text-gray-500 shrink-0" />
-                                <span>Dominio personalizado</span>
-                              </li>
-                              <li className="flex items-center gap-2.5 text-gray-400">
-                                <X className="w-4 h-4 text-gray-500 shrink-0" />
-                                <span>Automatizaciones avanzadas</span>
-                              </li>
-                              <li className="flex items-center gap-2.5 text-gray-400">
-                                <X className="w-4 h-4 text-gray-500 shrink-0" />
-                                <span>Academia Pro</span>
-                              </li>
-                            </ul>
-                          </div>
                         </div>
 
                         {/* Botón CTA Gratis */}
@@ -471,7 +452,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
 
                       <p className="text-base sm:text-lg text-gray-200 mt-4 max-w-3xl leading-relaxed font-normal">
                         {billingPeriod === 'monthly'
-                          ? 'Construye y haz crecer tu proyecto digital con todo el sistema de marketing en un solo lugar.'
+                          ? 'Desbloquea hasta 3 negocios digitales listos para usar y gestiona todo su sistema de marketing desde un solo lugar.'
                           : 'Construye y escala varios proyectos digitales durante todo el año con más capacidad y todos los beneficios Pro.'}
                       </p>
                     </div>
@@ -485,31 +466,31 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                             <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] mb-1">
                               <Folder className="w-5 h-5" />
                             </div>
-                            <h4 className="text-base sm:text-lg font-bold text-white">5 proyectos activos</h4>
+                            <h4 className="text-base sm:text-lg font-bold text-white">12 proyectos activos al año</h4>
                             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
-                              Gestiona hasta 5 productos, nichos o negocios al mismo tiempo.
+                              Desbloquea y gestiona hasta 12 productos o negocios digitales listos para facturar.
                             </p>
                           </div>
 
                           {/* Bloque 2 Anual */}
                           <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-5 flex flex-col gap-2">
                             <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] mb-1">
-                              <Rocket className="w-5 h-5" />
+                              <Video className="w-5 h-5" />
                             </div>
-                            <h4 className="text-base sm:text-lg font-bold text-white">Hasta 12 proyectos durante el año</h4>
+                            <h4 className="text-base sm:text-lg font-bold text-white">360 reels con IA cada mes</h4>
                             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
-                              Lanza distintas ideas durante tu suscripción anual sin limitar tu crecimiento.
+                              30 reels con IA por proyecto (hasta 360 al mes) con hooks, guiones y llamadas a la acción.
                             </p>
                           </div>
 
                           {/* Bloque 3 Anual */}
                           <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-5 flex flex-col gap-2">
                             <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] mb-1">
-                              <Video className="w-5 h-5" />
+                              <Globe className="w-5 h-5" />
                             </div>
-                            <h4 className="text-base sm:text-lg font-bold text-white">30 reels con IA cada mes</h4>
+                            <h4 className="text-base sm:text-lg font-bold text-white">12 dominios propios con SSL</h4>
                             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
-                              Hooks, guiones y llamadas a la acción para mantener activa tu captación.
+                              Publica cada uno de tus 12 proyectos con su propio dominio personalizado y marca profesional.
                             </p>
                           </div>
                         </>
@@ -520,9 +501,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                             <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] mb-1">
                               <Folder className="w-5 h-5" />
                             </div>
-                            <h4 className="text-base sm:text-lg font-bold text-white">1 proyecto activo</h4>
+                            <h4 className="text-base sm:text-lg font-bold text-white">3 proyectos activos</h4>
                             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
-                              Gestiona tu nicho o negocio seleccionado con foco total.
+                              Desbloquea y gestiona hasta 3 negocios digitales con todo su sistema de marketing en un solo lugar.
                             </p>
                           </div>
 
@@ -531,9 +512,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                             <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] mb-1">
                               <Video className="w-5 h-5" />
                             </div>
-                            <h4 className="text-base sm:text-lg font-bold text-white">30 reels con IA cada mes</h4>
+                            <h4 className="text-base sm:text-lg font-bold text-white">30 reels con IA por proyecto cada mes</h4>
                             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
-                              Hooks, guiones y llamadas a la acción para mantener activa tu captación.
+                              Desbloquea hasta 90 Reels, Hooks, guiones y llamadas a la acción para atraer audiencia a tus proyectos digitales.
                             </p>
                           </div>
 
@@ -563,48 +544,48 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                             <>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                <span className="font-bold text-white">Hasta 5 proyectos activos</span>
+                                <span className="font-bold text-white">12 proyectos activos al año</span>
                               </div>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                <span className="font-bold text-white">Hasta 12 proyectos durante el año</span>
+                                <span className="font-bold text-white">12 sitios publicados con dominio propio</span>
                               </div>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                <span className="font-bold text-white">Hasta 5 sitios publicados</span>
+                                <span className="font-bold text-white">360 reels con IA cada mes (30 por proyecto)</span>
                               </div>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                <span className="font-bold text-white">30 reels con IA cada mes</span>
+                                <span className="font-bold text-white">Hasta 48 Artículos de blog para SEO con IA al mes</span>
                               </div>
                             </>
                           ) : (
                             <>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                <span className="font-bold text-white">1 proyecto activo desbloqueado</span>
+                                <span className="font-bold text-white">3 proyectos activos desbloqueados</span>
                               </div>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                <span className="font-bold text-white">1 sitio publicado con dominio propio</span>
+                                <span className="font-bold text-white">3 sitios publicados con dominio propio</span>
                               </div>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                <span className="font-bold text-white">30 reels con IA cada mes</span>
+                                <span className="font-bold text-white">30 reels con IA por proyecto cada mes</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
+                                <span className="font-bold text-white">Hasta 12 Artículos de blog para SEO con IA</span>
                               </div>
                             </>
                           )}
                           <div className="flex items-center gap-3">
                             <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                            <span>Dominios personalizados</span>
+                            <span>Dominios personalizados con SSL</span>
                           </div>
                           <div className="flex items-center gap-3">
                             <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                            <span>Páginas de captación y embudos</span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                            <span>Artículos de blog para SEO con IA</span>
+                            <span>Páginas de captación y embudos completos</span>
                           </div>
                         </div>
 
@@ -669,144 +650,316 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
               </motion.div>
             </div>
 
-              {/* Sello de confianza (Diseño idéntico a imagen) */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto w-full py-6 px-6 border-t border-b border-white/10 my-4">
-                <div className="flex items-center justify-center gap-3.5 text-left">
-                  <CreditCard className="w-7 h-7 text-white shrink-0" />
-                  <div>
-                    <p className="text-base sm:text-lg font-bold text-white">Pago 100% seguro con Stripe</p>
-                    <p className="text-sm text-gray-400 font-medium">Tus datos están protegidos</p>
+              {/* Sello de confianza (Ampliada a ancho completo max-w-[1440px] acorde al contenido) */}
+              <div className="w-full max-w-[1440px] mx-auto border-t border-b border-white/10 py-7 sm:py-9 my-3 sm:my-5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
+                  <div className="flex items-center justify-start md:justify-center gap-4 px-3 sm:px-6">
+                    <CreditCard className="w-7 h-7 sm:w-8 sm:h-8 text-white shrink-0 stroke-[1.75]" />
+                    <div>
+                      <p className="text-base sm:text-lg font-bold text-white tracking-tight">Pago 100% seguro con Hotmart</p>
+                      <p className="text-xs sm:text-sm text-gray-400 font-medium mt-0.5">Tus datos están protegidos</p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center justify-center gap-3.5 text-left md:border-l md:border-r border-white/10 md:px-8">
-                  <ShieldCheck className="w-7 h-7 text-white shrink-0" />
-                  <div>
-                    <p className="text-base sm:text-lg font-bold text-white">Cancela cuando quieras</p>
-                    <p className="text-sm text-gray-400 font-medium">Sin permanencias</p>
+                  <div className="flex items-center justify-start md:justify-center gap-4 px-3 sm:px-6 md:border-l md:border-r border-white/10">
+                    <ShieldCheck className="w-7 h-7 sm:w-8 sm:h-8 text-white shrink-0 stroke-[1.75]" />
+                    <div>
+                      <p className="text-base sm:text-lg font-bold text-white tracking-tight">Cancela cuando quieras</p>
+                      <p className="text-xs sm:text-sm text-gray-400 font-medium mt-0.5">Sin permanencias</p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center justify-center gap-3.5 text-left">
-                  <Headphones className="w-7 h-7 text-white shrink-0" />
-                  <div>
-                    <p className="text-base sm:text-lg font-bold text-white">Soporte real — Te ayudamos en todo el proceso</p>
-                    <p className="text-sm text-gray-400 font-medium">De emprendedores para emprendedores</p>
+                  <div className="flex items-center justify-start md:justify-center gap-4 px-3 sm:px-6">
+                    <Headphones className="w-7 h-7 sm:w-8 sm:h-8 text-white shrink-0 stroke-[1.75]" />
+                    <div>
+                      <p className="text-base sm:text-lg font-bold text-white tracking-tight">Soporte real — Te ayudamos en todo el proceso</p>
+                      <p className="text-xs sm:text-sm text-gray-400 font-medium mt-0.5">De emprendedores para emprendedores</p>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Detailed Comparison Table */}
-              <div className="border border-white/5 bg-[#0c0c0e]/60 backdrop-blur-xl rounded-[2rem] p-6 md:p-10 space-y-6 shadow-xl max-w-[1440px] mx-auto w-full">
-                <div className="space-y-1">
-                  <span className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.25em] font-mono">COMPARATIVA DETALLADA</span>
-                  <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-                    Plan Gratuito vs. Plan Pro ({billingPeriod === 'monthly' ? '$79/mes' : '$790/año ($65,83/mes)'})
+              <div className="border border-white/10 bg-[#0d0e12] rounded-3xl p-6 sm:p-10 space-y-7 shadow-2xl max-w-[1440px] mx-auto w-full">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase font-mono bg-white/5 border border-white/10 text-zinc-300">
+                    <Sparkles className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                    <span>{billingPeriod === 'yearly' ? 'COMPARATIVA PRO MENSUAL VS. PRO ANUAL' : 'COMPARATIVA DETALLADA'}</span>
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+                    {billingPeriod === 'yearly'
+                      ? 'Plan Pro Mensual vs. Plan Pro Anual'
+                      : 'Plan Gratuito vs. Plan Pro Mensual ($79/mes)'}
                   </h3>
+                  <p className="text-sm sm:text-base text-zinc-400 font-normal leading-relaxed max-w-3xl">
+                    {billingPeriod === 'yearly'
+                      ? 'Multiplica por 4 tus proyectos, contenidos con IA y dominios propios con la suscripción Anual, ahorrando $240 al año (equivalente a $59/mes).'
+                      : 'Descubre todo lo que desbloqueas al dar el salto al Plan Pro Mensual para lanzar tus proyectos digitales.'}
+                  </p>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[550px]">
+                <div className="overflow-x-auto -mx-2 sm:mx-0">
+                  <table className="w-full text-left border-collapse min-w-[660px]">
                     <thead>
-                      <tr className="border-b border-white/10 text-gray-400 text-xs font-black uppercase tracking-wider">
-                        <th className="pb-4 font-mono w-1/2">Funcionalidad</th>
-                        <th className="pb-4 font-mono text-center w-1/4">PLAN FREE ($0)</th>
-                        <th className="pb-4 font-mono text-center w-1/4 text-[#FF5A1F]">
-                          PLAN PRO ({billingPeriod === 'monthly' ? '$79/mes' : '$65,83/mes eq.'}) ★
+                      <tr className="border-b border-white/10">
+                        <th className="pb-4 pt-2 px-4 text-xs font-semibold uppercase tracking-wider text-zinc-400 w-[42%]">
+                          Funcionalidad
+                        </th>
+                        <th className="pb-4 pt-2 px-4 text-center w-[29%]">
+                          <div className="space-y-0.5">
+                            <span className="text-xs font-bold uppercase tracking-wider text-zinc-300 block">
+                              {billingPeriod === 'yearly' ? 'Plan Pro Mensual' : 'Plan Gratuito'}
+                            </span>
+                            <span className="text-[11px] font-mono text-zinc-500 font-medium block">
+                              {billingPeriod === 'yearly' ? '$79 USD / mes' : '$0 USD / mes'}
+                            </span>
+                          </div>
+                        </th>
+                        <th className="pb-4 pt-2 px-4 text-center w-[29%]">
+                          <div className="space-y-1 bg-white/[0.03] border-t border-x border-white/10 rounded-t-2xl py-3 px-3">
+                            {billingPeriod === 'yearly' ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                                AHORRAS $240 AL AÑO
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 text-[#FF8552]">
+                                RECOMENDADO
+                              </span>
+                            )}
+                            <span className="text-xs font-bold uppercase tracking-wider text-white block">
+                              {billingPeriod === 'yearly' ? 'Plan Pro Anual' : 'Plan Pro Mensual'}
+                            </span>
+                            <span className="text-[11px] font-mono text-zinc-300 font-medium block">
+                              {billingPeriod === 'yearly' ? '$59 USD / mes eq. ($708/año)' : '$79 USD / mes'}
+                            </span>
+                          </div>
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/[0.04] text-sm">
-                      {[
+                    <tbody className="divide-y divide-white/[0.06] text-sm sm:text-[15px]">
+                      {(billingPeriod === 'yearly' ? [
                         { 
-                          feature: "Proyectos y Nichos activos", 
-                          free: "1 proyecto de prueba", 
-                          pro: billingPeriod === 'monthly' ? "1 proyecto activo" : "5 activos (hasta 12 durante el año)" 
+                          feature: "Proyectos y negocios activos", 
+                          col2: "3 proyectos activos", 
+                          col3: "12 proyectos activos al año",
+                          highlightCol3: true
                         },
                         { 
-                          feature: "Reels con IA generados al mes", 
-                          free: "3 de prueba", 
-                          pro: billingPeriod === 'monthly' ? "30 al mes" : "30 al mes (360 al año)" 
+                          feature: "Reels con IA generados cada mes", 
+                          col2: "30 reels por proyecto (hasta 90/mes)", 
+                          col3: "360 reels con IA al mes (30 por proyecto)",
+                          highlightCol3: true
                         },
                         { 
-                          feature: "Dominios propios personalizados", 
-                          free: "Subdominio compartido", 
-                          pro: billingPeriod === 'monthly' ? "1 Dominio propio con SSL" : "Hasta 5 dominios (hasta 12 al año)" 
+                          feature: "Dominios propios con SSL incluidos", 
+                          col2: "3 dominios propios", 
+                          col3: "12 dominios propios con SSL",
+                          highlightCol3: true
                         },
                         { 
-                          feature: "Páginas de captación y embudos", 
-                          free: "1 página activa", 
-                          pro: "Embudos completos del nicho" 
+                          feature: "Artículos de blog para SEO con IA", 
+                          col2: "Hasta 12 artículos al mes", 
+                          col3: "Hasta 48 artículos al mes",
+                          highlightCol3: true
                         },
                         { 
-                          feature: "Artículos de blog para SEO", 
-                          free: "1 al mes", 
-                          pro: "Incluidos para tu nicho" 
+                          feature: "Hooks y guiones persuasivos con IA", 
+                          col2: "Hasta 90 hooks al mes", 
+                          col3: "Hasta 360 hooks y guiones al mes",
+                          highlightCol3: true
                         },
                         { 
-                          feature: "Hooks y guiones persuasivos", 
-                          free: "Básicos", 
-                          pro: "Persuasivos de alta conversión" 
+                          feature: "Páginas de captación y embudos de venta", 
+                          col2: "Embudos completos para 3 proyectos", 
+                          col3: "Embudos completos para tus 12 proyectos",
+                          highlightCol3: false
                         },
                         { 
-                          feature: "Email marketing automatizado", 
-                          free: "—", 
-                          pro: "Secuencias incluidas" 
+                          feature: "Precio y facturación", 
+                          col2: "$79 USD / mes ($948 al año)", 
+                          col3: "$59 USD / mes eq. ($708 al año — Ahorras $240)",
+                          highlightCol3: true,
+                          badge: "Ahorra $240"
                         },
                         { 
-                          feature: "Secuencias y lanzamientos WhatsApp", 
-                          free: "—", 
-                          pro: "Estrategias incluidas" 
+                          feature: "Mentorías grupales y formación en vivo", 
+                          col2: "Grabaciones y masterclasses", 
+                          col3: "En vivo todas las semanas + grabaciones",
+                          highlightCol3: false
                         },
                         { 
-                          feature: "Mentorías grupales en vivo", 
-                          free: "—", 
-                          pro: billingPeriod === 'monthly' ? "Acceso a grabaciones" : "En vivo todas las semanas" 
+                          feature: "Catálogo y nuevos lanzamientos", 
+                          col2: "Acceso mes a mes a tu selección", 
+                          col3: "Pase anual continuo a todos los nichos nuevos",
+                          highlightCol3: false
                         },
                         { 
-                          feature: "Sin marca de agua en páginas", 
-                          free: "Marca visible", 
-                          pro: "100% Marca Blanca" 
+                          feature: "Marca Blanca (Sin marca de agua)", 
+                          col2: "100% Marca Blanca (3 proyectos)", 
+                          col3: "100% Marca Blanca en los 12 proyectos",
+                          highlightCol3: false
                         },
                         { 
                           feature: "Integración Systeme.io y Webhooks", 
-                          free: "—", 
-                          pro: "Totalmente incluida" 
+                          col2: "Incluida para 3 proyectos", 
+                          col3: "Totalmente incluida para tus 12 proyectos",
+                          highlightCol3: false
+                        },
+                        { 
+                          feature: "Soporte técnico y acompañamiento", 
+                          col2: "Prioritario por chat", 
+                          col3: "VIP Prioritario 1 a 1 de máxima prioridad",
+                          highlightCol3: false
+                        }
+                      ] : [
+                        { 
+                          feature: "Proyectos y negocios activos", 
+                          col2: "1 proyecto de prueba", 
+                          col3: "3 proyectos activos simultáneos",
+                          highlightCol3: true
+                        },
+                        { 
+                          feature: "Reels con IA generados al mes", 
+                          col2: "3 de prueba", 
+                          col3: "30 reels por proyecto (hasta 90 al mes)",
+                          highlightCol3: true
+                        },
+                        { 
+                          feature: "Dominios propios personalizados", 
+                          col2: "Subdominio compartido (aprende.marketing)", 
+                          col3: "3 Dominios propios con SSL",
+                          highlightCol3: true
+                        },
+                        { 
+                          feature: "Páginas de captación y embudos", 
+                          col2: "1 página de captura básica", 
+                          col3: "Embudos completos y páginas ilimitadas",
+                          highlightCol3: false
+                        },
+                        { 
+                          feature: "Artículos de blog para SEO con IA", 
+                          col2: "1 al mes", 
+                          col3: "Hasta 12 artículos de blog al mes",
+                          highlightCol3: true
+                        },
+                        { 
+                          feature: "Hooks y guiones persuasivos", 
+                          col2: "Básicos de prueba", 
+                          col3: "Hasta 90 hooks y guiones de alta conversión",
+                          highlightCol3: true
+                        },
+                        { 
+                          feature: "Biblioteca de productos digitales", 
+                          col2: "1 producto de selección inicial", 
+                          col3: "Acceso completo a todos los nichos y productos",
+                          highlightCol3: false
+                        },
+                        { 
+                          feature: "Email marketing automatizado", 
+                          col2: "—", 
+                          col3: "Secuencias completas de nutrición y venta",
+                          highlightCol3: false
+                        },
+                        { 
+                          feature: "Secuencias y lanzamientos WhatsApp", 
+                          col2: "—", 
+                          col3: "Estrategias y guiones de cierre incluidos",
+                          highlightCol3: false
+                        },
+                        { 
+                          feature: "Mentorías grupales y formación en vivo", 
+                          col2: "—", 
+                          col3: "Acceso a grabaciones y masterclasses",
+                          highlightCol3: false
+                        },
+                        { 
+                          feature: "Sin marca de agua en páginas", 
+                          col2: "Marca Aprende.Marketing visible", 
+                          col3: "100% Marca Blanca personalizada",
+                          highlightCol3: false
+                        },
+                        { 
+                          feature: "Integración Systeme.io y Webhooks", 
+                          col2: "—", 
+                          col3: "Totalmente incluida (ventas y leads)",
+                          highlightCol3: false
                         },
                         { 
                           feature: "Nivel de soporte técnico", 
-                          free: "Comunidad", 
-                          pro: "VIP Prioritario 1 a 1" 
+                          col2: "Comunidad / Autoservicio", 
+                          col3: "Soporte VIP Prioritario 1 a 1",
+                          highlightCol3: false
                         }
-                      ].map((row, idx) => (
-                        <tr key={idx} className="hover:bg-white/[0.01] transition-colors">
-                          <td className="py-4 font-bold text-gray-300">{row.feature}</td>
-                          <td className="py-4 text-center text-gray-500 font-semibold">{row.free}</td>
-                          <td className="py-4 text-center text-[#FF5A1F] font-black text-base">{row.pro}</td>
-                        </tr>
-                      ))}
+                      ]).map((row, idx, arr) => {
+                        const isLast = idx === arr.length - 1;
+                        return (
+                          <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
+                            <td className="py-4 px-4 font-medium text-zinc-200">
+                              {row.feature}
+                            </td>
+                            <td className="py-4 px-4 text-center text-zinc-400 font-normal">
+                              {row.col2 === "—" ? (
+                                <span className="text-zinc-600 font-medium">—</span>
+                              ) : (
+                                row.col2
+                              )}
+                            </td>
+                            <td className={`py-4 px-4 text-center bg-white/[0.03] border-x border-white/10 ${
+                              isLast ? 'border-b rounded-b-2xl' : ''
+                            }`}>
+                              <span className={`font-medium ${
+                                row.highlightCol3 
+                                  ? 'text-white font-semibold' 
+                                  : 'text-zinc-200'
+                              }`}>
+                                {row.col3}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
+                </div>
+
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10">
+                  <p className="text-xs sm:text-sm text-zinc-400">
+                    {billingPeriod === 'yearly'
+                      ? '✓ Incluye garantía de satisfacción, acceso inmediato a 12 proyectos y cancelación en 1 clic.'
+                      : '✓ Sin contratos de permanencia. Cancela o cambia de plan en cualquier momento.'}
+                  </p>
+                  <button
+                    onClick={() => handleUpgrade('pro')}
+                    disabled={!!processing}
+                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-[#FF7A00] text-white font-bold text-sm hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#FF5A1F]/20 cursor-pointer"
+                  >
+                    <span>
+                      {billingPeriod === 'yearly'
+                        ? 'Desbloquear Plan Anual ($59/mes eq.)'
+                        : 'Desbloquear Plan Pro ($79/mes)'}
+                    </span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
 
               {/* 4. Help desk FAQs Accordion */}
-              <div className="space-y-6">
+              <div className="space-y-6 max-w-[1440px] mx-auto w-full">
                 <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">Preguntas frecuentes</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
                     { 
                       q: "¿Cuál es la diferencia entre el Plan Mensual y el Plan Anual?", 
-                      a: "El Plan Mensual ($79/mes) te permite desbloquear 1 proyecto/nicho activo con 30 reels al mes y dominio propio. El Plan Anual ($790/año, equivalente a $65,83/mes) te da acceso a 5 proyectos activos simultáneos (hasta 12 durante el año) con todos los beneficios Pro y un ahorro de $158 al año (2 meses de regalo)." 
+                      a: "El Plan Mensual ($79/mes) te permite gestionar hasta 3 proyectos o nichos activos con 30 reels por proyecto al mes (hasta 90 reels) y 3 dominios propios. El Plan Anual ($708/año, equivalente a $59/mes) te da acceso completo a 12 proyectos activos al año, 360 reels con IA cada mes (30 por proyecto), 12 dominios propios con SSL, hasta 48 artículos de blog para SEO al mes y un ahorro directo de $240 al año." 
                     },
                     { 
                       q: "¿Puedo desbloquear más de un proyecto en el Plan Mensual?", 
-                      a: "El Plan Mensual está enfocado en 1 proyecto/nicho activo a la vez para garantizar foco y resultados. Si deseas diversificar y trabajar múltiples nichos a la vez, el Plan Anual te da acceso a 5 proyectos activos simultáneos y hasta 12 durante el año." 
+                      a: "¡Sí! El Plan Mensual te permite gestionar hasta 3 negocios digitales activos simultáneamente con sus propios dominios y embudos. Si buscas una estrategia a gran escala para todo el año, el Plan Anual te da 12 proyectos activos al año con 12 dominios propios y 360 reels con IA al mes." 
                     },
                     { 
                       q: "¿Puedo cancelar cuando quiera?", 
-                      a: "Sí, totalmente sin permanencias forzadas. Si cancelas el plan mensual, mantendrás todas las funciones Pro de tu proyecto hasta finalizar el ciclo que ya hayas abonado." 
+                      a: "Sí, totalmente sin permanencias forzadas. Si cancelas el plan mensual, mantendrás todas las funciones Pro de tus proyectos hasta finalizar el ciclo que ya hayas abonado." 
                     },
                     { 
                       q: "¿Necesito conocimientos técnicos para publicar?", 
@@ -861,7 +1014,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 bg-white/[0.01] border border-white/5 p-2 rounded-2xl">
-                  {["Visa", "Mastercard", "American Express", "Stripe Seguro"].map((brand, bIdx) => (
+                  {["Visa", "Mastercard", "American Express", "Hotmart Seguro"].map((brand, bIdx) => (
                     <span 
                       key={bIdx} 
                       className="text-[10px] font-black text-gray-400 uppercase bg-black/40 px-3 py-1.5 rounded-lg font-mono border border-white/5 shadow-inner"
