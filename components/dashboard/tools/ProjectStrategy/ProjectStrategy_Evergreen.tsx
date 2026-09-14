@@ -22,11 +22,12 @@ interface ProjectStrategy_EvergreenProps {
     linkedArticles?: Article[];
     hideHeader?: boolean;
     totalSteps?: number;
+    onGoToContent?: () => void;
 }
 
 export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps> = ({
     projectId, evergreenData = [], avatars = [], activeEvergreenEmail: propActiveEvergreenEmail, setActiveEvergreenEmail: propSetActiveEvergreenEmail, onUpgrade = () => {}, features, planLimits, nextPlan, linkedArticles = [],
-    hideHeader = false, totalSteps
+    hideHeader = false, totalSteps, onGoToContent
 }) => {
     const navigate = useNavigate();
     const context = useOutletContext() as any;
@@ -85,36 +86,76 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     }, [projectId]);
 
     useEffect(() => {
-        if ((!linkedArticles || linkedArticles.length === 0) && projectId) {
+        if (projectId) {
             Promise.all([
                 api.getPages().catch(() => []),
+                api.getArticlesByProject(projectId).catch(() => []),
                 api.getArticles().catch(() => [])
-            ]).then(([allPages, allArticles]) => {
-                if (Array.isArray(allPages) && Array.isArray(allArticles)) {
-                    const projectPages = allPages.filter((p: any) => String(p.projectId) === String(projectId));
-                    const projectArts = allArticles.filter((a: any) => projectPages.some((p: any) => String(p.id) === String(a.pageId)));
-                    setLocalArticles(projectArts);
-                }
-            }).catch(err => console.error(err));
+            ]).then(([allPages, projectSpecificArticles, allArticles]) => {
+                const projectPages = Array.isArray(allPages) ? allPages.filter((p: any) => String(p.projectId) === String(projectId)) : [];
+                const combinedArticles = [
+                    ...(Array.isArray(projectSpecificArticles) ? projectSpecificArticles : []),
+                    ...(Array.isArray(allArticles) ? allArticles : [])
+                ];
+                
+                // Desduplicar por ID
+                const uniqueArticlesMap = new Map<string, any>();
+                combinedArticles.forEach(a => {
+                    if (a && a.id) uniqueArticlesMap.set(String(a.id), a);
+                });
+                const allList = Array.from(uniqueArticlesMap.values());
+
+                // Filtrar los que pertenezcan a este proyecto
+                const projectArts = allList.filter((a: any) => 
+                    String(a.projectId) === String(projectId) || 
+                    projectPages.some((p: any) => String(p.id) === String(a.pageId))
+                );
+
+                // Solo artículos que realmente han sido generados (con contenido HTML redactado)
+                const generatedArticles = projectArts.filter((a: any) => 
+                    a.isGenerated || (a.contentHtml && typeof a.contentHtml === 'string' && a.contentHtml.trim().length > 0)
+                );
+                setLocalArticles(generatedArticles);
+            }).catch(err => console.error("Error loading articles in Evergreen:", err));
         }
-    }, [projectId, linkedArticles]);
+    }, [projectId]);
 
-    const effectiveArticles = (linkedArticles && linkedArticles.length > 0)
-        ? linkedArticles
-        : (localArticles && localArticles.length > 0)
-            ? localArticles
-            : (evergreenData && evergreenData.length > 0)
-                ? evergreenData.map((item: any, idx: number) => ({
-                    id: item.id || `ev-art-${idx}`,
-                    title: item.title || item.subject || item.name || `Artículo ${idx + 1}`,
-                    description: item.description || item.purpose || item.summary || '',
-                    contentHtml: item.contentHtml || item.body || item.content || '',
-                    slug: item.slug || `art-${idx + 1}`
-                }))
-                : [];
+    // Filtrar linkedArticles si vinieron de props para asegurar que sean artículos generados
+    const validLinkedArticles = (linkedArticles && Array.isArray(linkedArticles))
+        ? linkedArticles.filter((a: any) => a && (a.isGenerated || (a.contentHtml && typeof a.contentHtml === 'string' && a.contentHtml.trim().length > 0)))
+        : [];
 
-    // Si no hay artículos, mostramos el estado vacío con invitación a generar contenido
-    if (effectiveArticles.length === 0) {
+    const effectiveArticles = (localArticles && localArticles.length > 0)
+        ? localArticles
+        : validLinkedArticles;
+
+    // Si no hay artículos generados pero ya existen correos de nutrición guardados en la BD, los preservamos
+    const articlesToDisplay = effectiveArticles.length > 0
+        ? effectiveArticles
+        : (nurturingMessages && nurturingMessages.length > 0)
+            ? nurturingMessages.map((msg, idx) => ({
+                id: msg.id || `saved-msg-${idx}`,
+                title: msg.subject || `Correo de Nutrición ${idx + 1}`,
+                description: msg.purpose || '',
+                contentHtml: msg.contentHtml || '',
+                slug: `email-${idx + 1}`
+            }))
+            : [];
+
+    const handleGoToContent = () => {
+        if (onGoToContent) {
+            onGoToContent();
+            return;
+        }
+        if (window.location.pathname.includes('/project-guide') || window.location.search.includes('id=')) {
+            navigate(`/dashboard/project-guide?id=${projectId}&section=content&step=6`);
+            return;
+        }
+        navigate(`/dashboard/strategy/${projectId}?section=content`);
+    };
+
+    // Si no hay artículos generados, mostramos el estado vacío con invitación a generar contenido
+    if (articlesToDisplay.length === 0) {
         return (
             <div id="psd-evergreen-empty" className="space-y-6 text-left animate-in fade-in duration-500">
             {!hideHeader && (
@@ -148,13 +189,13 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                         <Info className="w-10 h-10" />
                     </div>
                     <div className="max-w-md mx-auto">
-                        <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-4">Sin contenidos generados</h4>
+                        <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-4">Sin artículos de blog generados</h4>
                         <p className="text-gray-400 font-medium leading-relaxed">
-                            Para activar la secuencia Evergreen, primero debes redactar al menos un artículo SEO en la pestaña "Generar Estrategia de Contenidos".
+                            Para activar la secuencia de Nutrición (Evergreen), primero debes redactar al menos un artículo SEO en la etapa <strong>6. Artículos de Blog</strong>.
                         </p>
                     </div>
                     <button 
-                        onClick={() => navigate(`/dashboard/strategy/${projectId}?section=content`)}
+                        onClick={handleGoToContent}
                         className="px-10 py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-orange-900/20 flex items-center justify-center gap-3 mx-auto transform hover:scale-[1.03]"
                     >
                         Ir a Generar Contenidos <ArrowRight className="w-5 h-5" />
@@ -383,7 +424,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     };
 
     // Mapeamos los artículos reales a una secuencia dinámica basada en email_messages
-    const dynamicSequence = effectiveArticles.map((article, idx) => {
+    const dynamicSequence = articlesToDisplay.map((article, idx) => {
         const dayNum = 8 + (idx * 2);
         const dbMessage = Array.isArray(nurturingMessages) ? nurturingMessages.find(m => m.dayIndex === dayNum) : undefined;
         

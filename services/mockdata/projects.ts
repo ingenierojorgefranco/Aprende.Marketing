@@ -439,15 +439,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     objective: "Llamado final a la acción antes del cierre de inscripciones."
                 }
             ],
-            evergreen: [
-                {
-                    id: 8,
-                    day: "Día 8",
-                    subject: "¿Cansada de las promesas vacías en cursos online?",
-                    type: "Educativo",
-                    objective: "Empatizar con el miedo del cliente and posicionar el curso como the solución real."
-                }
-            ]
+            evergreen: []
         },
         whatsapp: [
             {

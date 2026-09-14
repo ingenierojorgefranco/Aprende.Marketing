@@ -879,22 +879,7 @@ h2:
                 objective: "Llamado a la acción final con escasez y urgencia real para cerrar la venta."
             }
       ],
-      "evergreen": [
-        {
-                id: 8,
-                day: "Día 8",
-                subject: "¿Cansada de las promesas vacías en cursos online?",
-                type: "Autoridad / Educación",
-                objective: "Empatizar con el miedo del cliente y posicionar el curso como la única solución técnica real."
-            },
-            {
-                id: 9,
-                day: "Día 15",
-                subject: "El checklist definitivo para montar tu estudio en casa",
-                type: "Valor / Utilidad",
-                objective: "Entregar valor práctico que facilite la visualización del negocio real."
-            }
-      ]
+      "evergreen": []
     },
     "whatsapp": [
      {

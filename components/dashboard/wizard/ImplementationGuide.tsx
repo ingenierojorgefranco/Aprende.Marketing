@@ -1043,6 +1043,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                 avatars={strategyData?.avatars || []}
                 linkedArticles={strategyData?.modules?.content || []}
                 onUpgrade={onUpgradeClick || (() => {})}
+                onGoToContent={() => setActiveStep(6)}
               />
             )}
 
