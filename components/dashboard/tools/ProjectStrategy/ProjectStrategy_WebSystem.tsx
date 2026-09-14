@@ -1283,22 +1283,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     </div>
                                 )}
                             </div>
-
-                            {/* Acceso independiente al Lead Magnet de WhatsApp */}
-                            <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-5 space-y-3 text-left shadow-lg">
-                                <div className="flex items-center justify-between">
-                                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                        <Gift className="w-4 h-4 text-amber-400" />
-                                        <span>LEADMAGNET DE WHATSAPP</span>
-                                    </h4>
-                                    <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 font-bold border border-amber-500/20">
-                                        Paso 5 Independiente
-                                    </span>
-                                </div>
-                                <p className="text-xs text-slate-300 leading-relaxed">
-                                    El recurso gratuito y Lead Magnet para entrega manual por WhatsApp ahora se gestiona de manera independiente en la sección <strong>5. LeadMagnet de Whatsapp</strong> del menú de tu proyecto.
-                                </p>
-                            </div>
                         </div>
                     </div>
                 </div>

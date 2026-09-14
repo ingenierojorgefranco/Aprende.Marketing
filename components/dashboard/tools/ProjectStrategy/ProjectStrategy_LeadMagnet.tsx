@@ -59,7 +59,6 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [selectedLeadMagnetIndex, setSelectedLeadMagnetIndex] = useState<number>(0);
     const [isSaving, setIsSaving] = useState(false);
-    const [copiedLink, setCopiedLink] = useState(false);
     const [copiedMessage, setCopiedMessage] = useState(false);
 
     // Permisos de Plan
@@ -242,15 +241,8 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
 
     // Texto sugerido para enviar por WhatsApp
     const defaultWhatsAppMessage = currentLM 
-        ? `¡Hola! 👋 Como me pediste, aquí tienes el enlace para descargar tu guía gratuita de *${currentLM.name}*:\n\n🔗 ${currentLM.url}\n\n¡Espero que te sea de gran utilidad! Si tienes alguna duda o pregunta mientras la lees, escríbeme directamente por aquí para ayudarte.`
-        : '';
-
-    const handleCopyLink = () => {
-        if (!currentLM?.url) return;
-        navigator.clipboard.writeText(currentLM.url);
-        setCopiedLink(true);
-        setTimeout(() => setCopiedLink(false), 2500);
-    };
+        ? `¡Hola! 👋 ¡Muchísimas gracias por unirte a nuestro grupo de WhatsApp! 🎉\n\nAquí tienes tu material y guía de *${currentLM.name}* totalmente gratis para que puedas descargarla y aprovecharla al máximo.\n\n¡Esperamos que este contenido de alto valor sea de muchísima utilidad para ti! Si tienes cualquier consulta, escríbenos directamente por aquí.`
+        : `¡Hola! 👋 ¡Muchísimas gracias por unirte a nuestro grupo de WhatsApp! 🎉\n\nAquí tienes tu material y guía totalmente gratis para que puedas descargarla y aprovecharla al máximo.\n\n¡Esperamos que este contenido de alto valor sea de muchísima utilidad para ti! Si tienes cualquier consulta, escríbenos directamente por aquí.`;
 
     const handleCopyMessage = () => {
         if (!defaultWhatsAppMessage) return;
@@ -398,7 +390,7 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                                                     {currentLM.description}
                                                 </p>
                                             ) : (
-                                                <p className="text-xs text-slate-400 italic">
+                                                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                                                     Guía práctica y material de alto valor en formato PDF descargable listo para compartir.
                                                 </p>
                                             )}
@@ -411,11 +403,11 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                                             href={currentLM.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="w-full sm:w-auto px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-xl transition flex items-center justify-center gap-2.5 text-xs sm:text-sm font-bold shadow-md cursor-pointer shrink-0 border border-slate-700"
-                                            title="Abrir / Descargar PDF"
+                                            className="w-full sm:w-auto px-6 py-3.5 sm:py-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 text-sm sm:text-base shadow-lg shadow-amber-500/20 cursor-pointer shrink-0 border border-amber-300"
+                                            title="Ver y Descargar LeadMagnet"
                                         >
-                                            <Download className="w-4 h-4 text-emerald-400" />
-                                            <span>Descargar PDF</span>
+                                            <Download className="w-5 h-5 text-slate-950 stroke-[2.5]" />
+                                            <span>Ver y Descargar LeadMagnet</span>
                                         </a>
                                     )}
                                 </div>
@@ -451,98 +443,60 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                             </div>
                         )}
 
-                        {/* 4. HERRAMIENTAS DIRECTAS PARA ENVIAR POR WHATSAPP */}
+                        {/* 4. MENSAJE SUGERIDO PARA WHATSAPP (Ampliado a todo el ancho) */}
                         {currentLM && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                                
-                                {/* Tarjeta 1: Enlace directo del PDF para WhatsApp */}
-                                <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-5 space-y-4 flex flex-col justify-between shadow-lg">
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2 text-xs font-black text-slate-300 uppercase tracking-wide">
-                                            <Copy className="w-4 h-4 text-[#FF5A1F]" />
-                                            <span>Enlace Directo del Lead Magnet</span>
+                            <div className="w-full pt-2">
+                                <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-6 sm:p-7 space-y-5 shadow-lg">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2 text-sm font-black text-slate-200 uppercase tracking-wide">
+                                                <MessageSquare className="w-5 h-5 text-emerald-400" />
+                                                <span>Guión sugerido para WhatsApp</span>
+                                            </div>
+                                            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                                                Mensaje de bienvenida y entrega listo para copiar y enviar a los miembros que se unan a tu grupo de WhatsApp:
+                                            </p>
                                         </div>
-                                        <p className="text-xs text-slate-400 leading-relaxed">
-                                            Copia el enlace directo para pegarlo en tu chat de WhatsApp o enviarlo por cualquier red social:
-                                        </p>
-                                        <div className="bg-[#080d18] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono break-all line-clamp-2">
-                                            {currentLM.url}
-                                        </div>
-                                    </div>
 
-                                    <button
-                                        type="button"
-                                        onClick={handleCopyLink}
-                                        className={`w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
-                                            copiedLink 
-                                            ? 'bg-emerald-600 text-white shadow-emerald-900/30' 
-                                            : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
-                                        }`}
-                                    >
-                                        {copiedLink ? (
-                                            <>
-                                                <Check className="w-4 h-4 text-emerald-300" />
-                                                <span>¡Enlace copiado al portapapeles!</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Copy className="w-4 h-4 text-slate-400" />
-                                                <span>Copiar enlace del Lead Magnet</span>
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
+                                        <div className="flex items-center gap-3 shrink-0">
+                                            <button
+                                                type="button"
+                                                onClick={handleCopyMessage}
+                                                className={`px-5 py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
+                                                    copiedMessage 
+                                                    ? 'bg-emerald-600 text-white shadow-emerald-900/30' 
+                                                    : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/20'
+                                                }`}
+                                            >
+                                                {copiedMessage ? (
+                                                    <>
+                                                        <Check className="w-4 h-4 text-emerald-200" />
+                                                        <span>¡Mensaje copiado!</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Copy className="w-4 h-4" />
+                                                        <span>Copiar mensaje</span>
+                                                    </>
+                                                )}
+                                            </button>
 
-                                {/* Tarjeta 2: Mensaje de WhatsApp listo para enviar */}
-                                <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-5 space-y-4 flex flex-col justify-between shadow-lg">
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2 text-xs font-black text-slate-300 uppercase tracking-wide">
-                                            <MessageSquare className="w-4 h-4 text-emerald-400" />
-                                            <span>Guión sugerido para WhatsApp</span>
-                                        </div>
-                                        <p className="text-xs text-slate-400 leading-relaxed">
-                                            Mensaje de bienvenida y entrega listo para copiar y enviar a tu prospecto:
-                                        </p>
-                                        <div className="bg-[#080d18] border border-slate-800 rounded-xl p-3 text-xs text-slate-300 leading-relaxed line-clamp-3 whitespace-pre-line">
-                                            {defaultWhatsAppMessage}
+                                            <button
+                                                type="button"
+                                                onClick={handleOpenWhatsAppWeb}
+                                                className="px-4 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-white text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer"
+                                                title="Abrir WhatsApp Web con el texto preparado"
+                                            >
+                                                <Send className="w-4 h-4 text-emerald-400" />
+                                                <span>WhatsApp Web</span>
+                                            </button>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={handleCopyMessage}
-                                            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
-                                                copiedMessage 
-                                                ? 'bg-emerald-600 text-white shadow-emerald-900/30' 
-                                                : 'bg-emerald-600/90 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-900/20'
-                                            }`}
-                                        >
-                                            {copiedMessage ? (
-                                                <>
-                                                    <Check className="w-4 h-4 text-emerald-200" />
-                                                    <span>¡Mensaje copiado!</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Copy className="w-4 h-4" />
-                                                    <span>Copiar mensaje</span>
-                                                </>
-                                            )}
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            onClick={handleOpenWhatsAppWeb}
-                                            className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
-                                            title="Abrir WhatsApp Web con el texto preparado"
-                                        >
-                                            <Send className="w-3.5 h-3.5 text-emerald-400" />
-                                            <span className="hidden sm:inline">WhatsApp Web</span>
-                                        </button>
+                                    <div className="bg-[#080d18] border border-slate-800 rounded-xl p-4 sm:p-5 text-sm text-slate-200 leading-relaxed whitespace-pre-line font-sans shadow-inner">
+                                        {defaultWhatsAppMessage}
                                     </div>
                                 </div>
-
                             </div>
                         )}
 
