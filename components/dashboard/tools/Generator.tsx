@@ -600,10 +600,11 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                         </h3>
                     </div>
 
-                    {/* Badge de advertencia */}
-                    <div className="px-6 py-2 bg-red-600/20 border border-red-600/30 rounded-full shadow-lg">
-                        <p className="text-red-500 font-black uppercase text-sm tracking-widest flex items-center gap-2">
-                            <AlertTriangle className="w-4 h-4" /> No cierres esta página
+                    {/* Badge de advertencia resaltado en amarillo */}
+                    <div className="px-6 py-3 bg-amber-950/40 border-2 border-amber-400/80 rounded-2xl shadow-[0_0_25px_rgba(251,191,36,0.25)] flex items-center justify-center gap-2.5">
+                        <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
+                        <p className="text-amber-300 font-extrabold text-xs sm:text-sm tracking-wide uppercase text-center">
+                            No cierres esta ventana mientras terminamos de generar tu página de captura
                         </p>
                     </div>
 

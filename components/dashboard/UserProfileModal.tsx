@@ -15,11 +15,18 @@ interface UserProfileModalProps {
     user: User;
     onClose: () => void;
     onUpdateUser: (user: User) => void;
+    initialTab?: 'profile' | 'plan' | 'usage' | 'payments';
 }
 
-const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUpdateUser }) => {
+const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUpdateUser, initialTab = 'plan' }) => {
     ////////// Estado de pestañas y edición - 27/05/2025 13:00 //////////
-    const [activeTab, setActiveTab] = useState<'profile' | 'plan' | 'usage' | 'payments'>('plan');
+    const [activeTab, setActiveTab] = useState<'profile' | 'plan' | 'usage' | 'payments'>(initialTab);
+
+    useEffect(() => {
+        if (initialTab) {
+            setActiveTab(initialTab);
+        }
+    }, [initialTab]);
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showUpgrade, setShowUpgrade] = useState(false);

@@ -89,17 +89,14 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
     const [activeCategory, setActiveCategory] = React.useState('all');
     const lastHandledTargetIdRef = React.useRef<string | null>(null);
 
-    // Auto-abrir modal de confirmación si viene un proyecto preseleccionado desde URL o ProjectsList
+    // Auto-abrir modal de confirmación SOLO si viene un proyecto explícitamente preseleccionado desde URL
     React.useEffect(() => {
         if (!projects || projects.length === 0) return;
 
         let targetId: string | null = null;
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
-            targetId = params.get('projectId') || localStorage.getItem('preselect_wizard_project_id');
-        }
-        if (!targetId && selectedProjectId) {
-            targetId = selectedProjectId;
+            targetId = params.get('projectId');
         }
 
         if (targetId && targetId !== lastHandledTargetIdRef.current) {
@@ -112,7 +109,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                 }
             }
         }
-    }, [projects, selectedProjectId]);
+    }, [projects]);
 
     // Categorías dinámicas extraídas de los proyectos disponibles
     const categories = React.useMemo(() => {
@@ -985,13 +982,13 @@ export const GeneratingStep: React.FC<{
                 </p>
             </div>
 
-            {/* 5. Bottom Warning Pill */}
-            <div className="w-full max-w-md mx-auto bg-[#0c0c0e]/80 border border-zinc-800/80 rounded-2xl py-3 px-4 sm:px-5 flex items-center justify-center gap-2.5 text-zinc-300 text-xs sm:text-sm font-normal text-center shadow-lg">
-                <div className="w-5 h-5 rounded-full border border-[#FF5A1F]/80 text-[#FF5A1F] flex items-center justify-center shrink-0 text-xs font-bold font-mono">
-                    i
+            {/* 5. Bottom Warning Pill - Resaltado en amarillo llamativo */}
+            <div className="w-full max-w-lg mx-auto bg-amber-950/30 border-2 border-amber-400/80 rounded-2xl py-3 px-4 sm:px-6 flex items-center justify-center gap-3 text-center shadow-[0_0_30px_rgba(251,191,36,0.2)]">
+                <div className="w-6 h-6 rounded-full bg-amber-400 text-black flex items-center justify-center shrink-0 text-xs font-black shadow-md">
+                    !
                 </div>
-                <span>
-                    No cierres esta ventana mientras terminamos de generar {isWeb ? "tu página" : isVideo ? "tus videos" : "tu proyecto"}.
+                <span className="text-amber-300 font-extrabold text-xs sm:text-sm tracking-wide leading-snug">
+                    No cierres esta ventana mientras terminamos de generar {isWeb ? "tu página de captura" : isVideo ? "tus reels" : "tu proyecto"}.
                 </span>
             </div>
         </div>
@@ -1709,7 +1706,7 @@ export const SuccessStep: React.FC<{
                     onClick={onFinish}
                     className="w-full py-4.5 sm:py-5 px-8 bg-gradient-to-r from-[#FF5A1F] via-[#FF6A28] to-[#FF5A1F] hover:opacity-95 text-white rounded-2xl font-black text-base sm:text-lg tracking-wider uppercase transition-all shadow-[0_12px_40px_rgba(255,90,31,0.45)] border border-orange-400/30 flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer"
                 >
-                    <span>IR A MI PROYECTO</span>
+                    <span>Configurar mi Proyecto Digital</span>
                     <ArrowRight className="w-6 h-6 stroke-[2.5]" />
                 </button>
 

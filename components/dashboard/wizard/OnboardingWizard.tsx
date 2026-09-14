@@ -204,7 +204,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     }
     if (typeof window !== "undefined") {
       const fullPath = window.location.pathname + window.location.hash + window.location.search;
-      if (fullPath.includes("step-2") || fullPath.includes("selection")) {
+      if (fullPath.includes("onboarding") || fullPath.includes("step-2") || fullPath.includes("selection")) {
         return "selection";
       }
       if (fullPath.includes("step-1") || fullPath.includes("welcome")) {
@@ -262,7 +262,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       if (forced === "success" || step === "success") {
         if (step !== "success") setStep("success");
       }
-    } else if (fullPath.includes("step-2") || fullPath.includes("selection")) {
+    } else if (fullPath.includes("onboarding") || fullPath.includes("step-2") || fullPath.includes("selection")) {
       if (step !== "selection") {
         setStep("selection");
         setRevealedSections(["selection"]);
@@ -872,7 +872,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   useEffect(() => {
     if (projects.length > 0) {
       const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-      const targetId = params?.get("projectId") || (typeof window !== "undefined" ? (localStorage.getItem("preselect_wizard_project_id") || localStorage.getItem("selected_wizard_project_id")) : null);
+      const targetId = params?.get("projectId");
       if (targetId) {
         const found = projects.find((p) => p.id === targetId || String(p.id) === String(targetId));
         if (found) {
@@ -882,11 +882,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           return;
         }
       }
-      if (!selectedProject) {
-        setSelectedProject(projects[0]);
-      }
+      // No preseleccionar automáticamente projects[0] para que cargue la lista completa sin modal
     }
-  }, [projects, selectedProject]);
+  }, [projects]);
 
   const handleProjectSelection = async (project: Project) => {
     setSelectedProject(project);

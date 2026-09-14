@@ -80,7 +80,7 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, 
                         onClick={handleContinue}
                         className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-[#FF5A1F] rounded-xl hover:bg-[#E04814] hover:scale-105 hover:shadow-lg hover:shadow-[#FF5A1F]/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF5A1F] focus:ring-offset-[#030712] text-lg"
                     >
-                        Comenzar mi Ruta de Aprendizaje
+                        CREAR MI PROYECTO DIGITAL
                         <ArrowRight className="ml-3 w-6 h-6 transition-transform group-hover:translate-x-1" />
                     </button>
                 </motion.div>

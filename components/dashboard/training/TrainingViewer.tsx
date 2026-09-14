@@ -426,16 +426,41 @@ export const TrainingViewer: React.FC = () => {
                           );
                         }
 
+                        // Navegación en la misma ventana (sin abrir nueva pestaña)
+                        let targetPath = currentLesson.cta_url;
+                        let isClientRoute = false;
+                        if (targetPath.startsWith('/')) {
+                          isClientRoute = true;
+                        } else {
+                          try {
+                            const parsed = new URL(targetPath, window.location.origin);
+                            if (parsed.hostname.includes('aprende.marketing') || parsed.origin === window.location.origin) {
+                              targetPath = parsed.pathname + parsed.search + parsed.hash;
+                              isClientRoute = true;
+                            }
+                          } catch (e) {
+                            // URL relativa o especial
+                          }
+                        }
+
                         return (
                           <div className="flex justify-center mb-8">
-                            <a 
-                              href={currentLesson.cta_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-black py-4 px-10 rounded-2xl shadow-xl shadow-[#FF5A1F]/20 transition-all hover:scale-105 active:scale-95 text-lg sm:text-xl text-center w-full sm:w-auto"
-                            >
-                              {currentLesson.cta_title}
-                            </a>
+                            {isClientRoute ? (
+                              <Link 
+                                to={targetPath}
+                                className="bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-black py-4 px-10 rounded-2xl shadow-xl shadow-[#FF5A1F]/20 transition-all hover:scale-105 active:scale-95 text-lg sm:text-xl text-center w-full sm:w-auto"
+                              >
+                                {currentLesson.cta_title}
+                              </Link>
+                            ) : (
+                              <a 
+                                href={currentLesson.cta_url}
+                                target="_self"
+                                className="bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-black py-4 px-10 rounded-2xl shadow-xl shadow-[#FF5A1F]/20 transition-all hover:scale-105 active:scale-95 text-lg sm:text-xl text-center w-full sm:w-auto"
+                              >
+                                {currentLesson.cta_title}
+                              </a>
+                            )}
                           </div>
                         );
                       }

@@ -350,8 +350,8 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                         {/* Ficha informativa del Lead Magnet seleccionado con portada y descripción (Exacto a Imagen 2) */}
                         {currentLM && (
                             <div className="bg-[#0e1628] border border-slate-800/90 rounded-2xl p-5 sm:p-6 space-y-5 shadow-lg">
-                                <div className="flex flex-col sm:flex-row items-start justify-between gap-5">
-                                    <div className="flex items-start gap-4 min-w-0 flex-1">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+                                    <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1">
                                         {currentLM.imageUrl ? (
                                             <img 
                                                 src={currentLM.imageUrl} 
@@ -397,27 +397,19 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                                         </div>
                                     </div>
 
-                                    {/* Botón de apertura / descarga */}
+                                    {/* Botón de apertura / descarga centrado verticalmente */}
                                     {currentLM.url && (
                                         <a
                                             href={currentLM.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="w-full sm:w-auto px-6 py-3.5 sm:py-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 text-sm sm:text-base shadow-lg shadow-amber-500/20 cursor-pointer shrink-0 border border-amber-300"
+                                            className="w-full sm:w-auto self-stretch sm:self-center px-6 py-3.5 sm:py-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 text-sm sm:text-base shadow-lg shadow-amber-500/20 cursor-pointer shrink-0 border border-amber-300"
                                             title="Ver y Descargar LeadMagnet"
                                         >
                                             <Download className="w-5 h-5 text-slate-950 stroke-[2.5]" />
                                             <span>Ver y Descargar LeadMagnet</span>
                                         </a>
                                     )}
-                                </div>
-
-                                {/* Pie de estado */}
-                                <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-400 pt-4 border-t border-slate-800/80">
-                                    <FileText className="w-4 h-4 text-emerald-400 shrink-0" />
-                                    <span className="truncate">
-                                        Activo para entrega manual y en la página de gracias vinculada
-                                    </span>
                                 </div>
                             </div>
                         )}
