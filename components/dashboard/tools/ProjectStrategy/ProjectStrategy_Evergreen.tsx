@@ -42,6 +42,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     const [nurturingMessages, setNurturingMessages] = useState<EmailMessage[]>([]);
     const [loadingMessages, setLoadingMessages] = useState(true);
     const [localArticles, setLocalArticles] = useState<Article[]>([]);
+    const [loadingArticles, setLoadingArticles] = useState(true);
 
     // Estados para el flujo de generación profesional
     const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success' | 'error'>('idle');
@@ -62,6 +63,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     const subjectRef = useRef<HTMLTextAreaElement>(null);
     const lastActiveEmailRef = useRef<number>(activeEvergreenEmail);
 
+    // Hook 1: Cargar mensajes de nutrición
     useEffect(() => {
         const loadMessages = async () => {
             try {
@@ -85,8 +87,10 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         loadMessages();
     }, [projectId]);
 
+    // Hook 2: Cargar artículos del proyecto
     useEffect(() => {
         if (projectId) {
+            setLoadingArticles(true);
             Promise.all([
                 api.getPages().catch(() => []),
                 api.getArticlesByProject(projectId).catch(() => []),
@@ -116,10 +120,39 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     a.isGenerated || (a.contentHtml && typeof a.contentHtml === 'string' && a.contentHtml.trim().length > 0)
                 );
                 setLocalArticles(generatedArticles);
-            }).catch(err => console.error("Error loading articles in Evergreen:", err));
+            }).catch(err => console.error("Error loading articles in Evergreen:", err))
+            .finally(() => setLoadingArticles(false));
+        } else {
+            setLoadingArticles(false);
         }
     }, [projectId]);
 
+    // Hook 3: Sincronizar estados locales cuando cambiamos de correo
+    useEffect(() => {
+        const dayNum = 8 + (activeEvergreenEmail * 2);
+        const dbMessage = nurturingMessages.find(m => m.dayIndex === dayNum);
+        
+        if (lastActiveEmailRef.current !== activeEvergreenEmail || localSubject === '' || (dbMessage && !localSubject)) {
+            const tabName = `Día ${dayNum}`;
+            if (dbMessage) {
+                setLocalSubject(dbMessage.subject || tabName);
+            } else {
+                setLocalSubject(tabName);
+            }
+            setIsPreviewMode(true);
+            lastActiveEmailRef.current = activeEvergreenEmail;
+        }
+    }, [activeEvergreenEmail, nurturingMessages, linkedArticles]);
+
+    // Hook 4: Auto-resize subject
+    useEffect(() => {
+        if (subjectRef.current) {
+            subjectRef.current.style.height = 'auto';
+            subjectRef.current.style.height = `${subjectRef.current.scrollHeight}px`;
+        }
+    }, [localSubject]);
+
+    // --- CÁLCULO DE ARTÍCULOS Y SECUENCIAS (TODOS LOS HOOKS YA SE EJECUTARON) ---
     // Filtrar linkedArticles si vinieron de props para asegurar que sean artículos generados
     const validLinkedArticles = (linkedArticles && Array.isArray(linkedArticles))
         ? linkedArticles.filter((a: any) => a && (a.isGenerated || (a.contentHtml && typeof a.contentHtml === 'string' && a.contentHtml.trim().length > 0)))
@@ -142,103 +175,25 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
             }))
             : [];
 
-    const handleGoToContent = () => {
-        if (onGoToContent) {
-            onGoToContent();
-            return;
-        }
-        if (window.location.pathname.includes('/project-guide') || window.location.search.includes('id=')) {
-            navigate(`/dashboard/project-guide?id=${projectId}&section=content&step=6`);
-            return;
-        }
-        navigate(`/dashboard/strategy/${projectId}?section=content`);
-    };
-
-    // Si no hay artículos generados, mostramos el estado vacío con invitación a generar contenido
-    if (articlesToDisplay.length === 0) {
-        return (
-            <div id="psd-evergreen-empty" className="space-y-6 text-left animate-in fade-in duration-500">
-            {!hideHeader && (
-                <div className="space-y-6">
-                    {/* --- HEADER CARD --- */}
-                    <StepHeaderCard
-                        stepNumber={9}
-                        totalSteps={totalSteps}
-                        stageNumber={2}
-                        categoryTitle="9. Email Marketing (Nutrición)"
-                        title={<>Secuencia de Autoridad <span className="text-[#FF5A1F]">(Evergreen)</span></>}
-                        description="Esta secuencia se construye automáticamente a partir de los artículos que generes en la sección 'Contenido'. Cada artículo se transforma en un punto de contacto para nutrir a tu audiencia."
-                    />
-
-                    {/* --- VIDEO TUTORIAL --- */}
-                    <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
-                        <StepVideoContainer 
-                            stepNumber={9}
-                            videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
-                            title="Video Tutorial Evergreen"
-                        />
-                    </div>
-                </div>
-            )}
-
-                <div className="bg-[#111] p-16 rounded-[3rem] border border-white/5 text-center space-y-8 shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-10 opacity-5">
-                        <BookOpen className="w-32 h-32 text-orange-500" />
-                    </div>
-                    <div className="w-20 h-20 bg-orange-500/10 rounded-3xl flex items-center justify-center text-orange-500 mx-auto border border-orange-500/20 shadow-lg">
-                        <Info className="w-10 h-10" />
-                    </div>
-                    <div className="max-w-md mx-auto">
-                        <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-4">Sin artículos de blog generados</h4>
-                        <p className="text-gray-400 font-medium leading-relaxed">
-                            Para activar la secuencia de Nutrición (Evergreen), primero debes redactar al menos un artículo SEO en la etapa <strong>6. Artículos de Blog</strong>.
-                        </p>
-                    </div>
-                    <button 
-                        onClick={handleGoToContent}
-                        className="px-10 py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-orange-900/20 flex items-center justify-center gap-3 mx-auto transform hover:scale-[1.03]"
-                    >
-                        Ir a Generar Contenidos <ArrowRight className="w-5 h-5" />
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
     // Lógica de límites
     const isRealAdmin = (planLimits?.planName === 'admin' || user?.role === 'admin') && !isSimulating;
     const emailsUsed = nurturingMessages.length;
     const maxEmails = planLimits?.maxEmailSequencesNurturing || 0;
     const usagePercent = maxEmails > 0 ? Math.min(100, (emailsUsed / maxEmails) * 100) : 0;
     const isLimitReached = !isRealAdmin && maxEmails > 0 && emailsUsed >= maxEmails;
-
-    // Color de la barra de progreso
     const progressColor = (usagePercent > 90 && !isRealAdmin) ? 'bg-red-500' : usagePercent > 70 ? 'bg-orange-500' : 'bg-blue-500';
 
-    // Sincronizar estados locales cuando cambiamos de correo
-    useEffect(() => {
-        const dayNum = 8 + (activeEvergreenEmail * 2);
-        const dbMessage = nurturingMessages.find(m => m.dayIndex === dayNum);
-        
-        if (lastActiveEmailRef.current !== activeEvergreenEmail || localSubject === '' || (dbMessage && !localSubject)) {
-            const tabName = `Día ${dayNum}`;
-            if (dbMessage) {
-                setLocalSubject(dbMessage.subject || tabName);
-            } else {
-                setLocalSubject(tabName);
-            }
-            setIsPreviewMode(true);
-            lastActiveEmailRef.current = activeEvergreenEmail;
+    const handleGoToContent = () => {
+        if (onGoToContent) {
+            onGoToContent();
+            return;
         }
-    }, [activeEvergreenEmail, nurturingMessages, linkedArticles]);
-
-    // Auto-resize subject
-    useEffect(() => {
-        if (subjectRef.current) {
-            subjectRef.current.style.height = 'auto';
-            subjectRef.current.style.height = `${subjectRef.current.scrollHeight}px`;
+        if (window.location.pathname.includes('/project-guide') || window.location.search.includes('id=')) {
+            navigate(`/dashboard/project-guide?id=${projectId}&section=content&step=7`);
+            return;
         }
-    }, [localSubject]);
+        navigate(`/dashboard/strategy/${projectId}?section=content`);
+    };
 
     const handleUpdateMessage = async (field: string, value: any) => {
         if (field === 'subject') setLocalSubject(value);
@@ -299,7 +254,8 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     };
 
     const handleGenerateEmail = async () => {
-        const article = linkedArticles[activeEvergreenEmail];
+        const targetIdx = (activeEvergreenEmail >= 0 && activeEvergreenEmail < articlesToDisplay.length) ? activeEvergreenEmail : 0;
+        const article = articlesToDisplay[targetIdx] || (linkedArticles && linkedArticles[targetIdx]);
         if (!article || generationStatus === 'generating') return;
 
         setShowConfirmModal(false);
@@ -440,6 +396,85 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
             isGenerated: !!dbMessage
         };
     });
+
+    // Si aún está cargando mensajes o artículos y no tenemos qué mostrar, mostrar loader
+    if ((loadingArticles || loadingMessages) && articlesToDisplay.length === 0) {
+        return (
+            <div id="psd-evergreen-loading" className="space-y-6 text-left animate-in fade-in duration-500">
+                {!hideHeader && (
+                    <div className="space-y-6">
+                        <StepHeaderCard
+                            stepNumber={9}
+                            totalSteps={totalSteps}
+                            stageNumber={2}
+                            categoryTitle="9. Email Marketing (Nutrición)"
+                            title={<>Secuencia de Autoridad <span className="text-[#FF5A1F]">(Evergreen)</span></>}
+                            description="Esta secuencia se construye automáticamente a partir de los artículos que generes en la sección 'Contenido'. Cada artículo se transforma en un punto de contacto para nutrir a tu audiencia."
+                        />
+                        <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
+                            <StepVideoContainer 
+                                stepNumber={9}
+                                videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
+                                title="Video Tutorial Evergreen"
+                            />
+                        </div>
+                    </div>
+                )}
+                <div className="bg-[#111] p-16 rounded-[3rem] border border-white/5 text-center space-y-4 shadow-2xl flex flex-col items-center justify-center">
+                    <Loader2 className="w-10 h-10 text-orange-500 animate-spin" />
+                    <p className="text-gray-400 font-medium">Cargando estrategia de nutrición...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Si ya terminó de cargar y no hay artículos generados, mostramos el estado vacío
+    if (articlesToDisplay.length === 0) {
+        return (
+            <div id="psd-evergreen-empty" className="space-y-6 text-left animate-in fade-in duration-500">
+                {!hideHeader && (
+                    <div className="space-y-6">
+                        <StepHeaderCard
+                            stepNumber={9}
+                            totalSteps={totalSteps}
+                            stageNumber={2}
+                            categoryTitle="9. Email Marketing (Nutrición)"
+                            title={<>Secuencia de Autoridad <span className="text-[#FF5A1F]">(Evergreen)</span></>}
+                            description="Esta secuencia se construye automáticamente a partir de los artículos que generes en la sección 'Contenido'. Cada artículo se transforma en un punto de contacto para nutrir a tu audiencia."
+                        />
+                        <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
+                            <StepVideoContainer 
+                                stepNumber={9}
+                                videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
+                                title="Video Tutorial Evergreen"
+                            />
+                        </div>
+                    </div>
+                )}
+
+                <div className="bg-[#111] p-16 rounded-[3rem] border border-white/5 text-center space-y-8 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-10 opacity-5">
+                        <BookOpen className="w-32 h-32 text-orange-500" />
+                    </div>
+                    <div className="w-20 h-20 bg-orange-500/10 rounded-3xl flex items-center justify-center text-orange-500 mx-auto border border-orange-500/20 shadow-lg">
+                        <Info className="w-10 h-10" />
+                    </div>
+                    <div className="max-w-md mx-auto">
+                        <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-4">Sin artículos de blog generados</h4>
+                        <p className="text-gray-400 font-medium leading-relaxed">
+                            Para activar la secuencia de Nutrición (Evergreen), primero debes redactar al menos un artículo SEO en la etapa <strong>7. Artículos de Blog</strong>.
+                        </p>
+                    </div>
+                    <button 
+                        onClick={handleGoToContent}
+                        className="px-10 py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-orange-900/20 flex items-center justify-center gap-3 mx-auto transform hover:scale-[1.03] cursor-pointer"
+                    >
+                        Ir a Generar Contenidos <ArrowRight className="w-5 h-5" />
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     const activeEmail = dynamicSequence[activeEvergreenEmail] || dynamicSequence[0];
 

@@ -41,6 +41,76 @@ router.get('/', async (req, res) => {
 });
 
 /**
+ * Obtener lista de IDs de videos vistos por el usuario
+ */
+router.get('/watched', async (req, res) => {
+    try {
+        await pool.query(`CREATE TABLE IF NOT EXISTS user_watched_step_videos (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NULL,
+            video_id VARCHAR(255) NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uq_user_video (user_id, video_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        const userId = req.user?.id || null;
+        let query = 'SELECT video_id FROM user_watched_step_videos';
+        let params = [];
+        if (userId) {
+            query += ' WHERE user_id = ?';
+            params.push(userId);
+        }
+
+        const [rows] = await pool.query(query, params);
+        const watchedVideoIds = rows.map(r => String(r.video_id));
+        res.json({ watchedVideoIds });
+    } catch (error) {
+        console.error('Error al obtener videos vistos:', error);
+        res.json({ watchedVideoIds: [] });
+    }
+});
+
+/**
+ * Marcar video como visto
+ */
+router.post('/watched', async (req, res) => {
+    try {
+        const { videoId } = req.body;
+        if (!videoId) {
+            return res.status(400).json({ error: 'videoId es requerido' });
+        }
+
+        await pool.query(`CREATE TABLE IF NOT EXISTS user_watched_step_videos (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NULL,
+            video_id VARCHAR(255) NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uq_user_video (user_id, video_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        const userId = req.user?.id || null;
+        await pool.query(
+            'INSERT IGNORE INTO user_watched_step_videos (user_id, video_id) VALUES (?, ?)',
+            [userId, videoId]
+        );
+
+        let query = 'SELECT video_id FROM user_watched_step_videos';
+        let params = [];
+        if (userId) {
+            query += ' WHERE user_id = ?';
+            params.push(userId);
+        }
+
+        const [rows] = await pool.query(query, params);
+        const watchedVideoIds = rows.map(r => String(r.video_id));
+        res.json({ success: true, watchedVideoIds });
+    } catch (error) {
+        console.error('Error al marcar video como visto:', error);
+        res.json({ success: true, watchedVideoIds: [req.body.videoId] });
+    }
+});
+
+/**
  * Obtener videos para un número de paso específico
  */
 router.get('/step/:stepNumber', async (req, res) => {
