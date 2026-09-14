@@ -177,7 +177,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     setCompletedSteps(newCompleted);
     
     if (stepId < 9) {
-      setActiveStep(stepId + 1);
+      const nextStep = stepId + 1;
+      setActiveStep(nextStep);
+      const nextSectionId = stepToSectionMap[nextStep] || 'summary';
+      setSearchParams({ section: nextSectionId });
+      if (onStrategySectionChange) {
+        onStrategySectionChange(nextSectionId);
+      }
     }
     
     const pid = projectId || searchParams.get('id');
@@ -208,8 +214,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const stepToSectionMap: Record<number | string, string> = {
     1: 'summary',
     2: 'avatar',
-    3: 'web',
-    4: 'hotlinks',
+    3: 'hotlinks',
+    4: 'web',
     5: 'hooks',
     6: 'content',
     7: 'email',
@@ -220,8 +226,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const sectionToStepMap: Record<string, number> = {
     summary: 1,
     avatar: 2,
-    web: 3,
-    hotlinks: 4,
+    hotlinks: 3,
+    web: 4,
     hooks: 5,
     content: 6,
     email: 7,
@@ -335,8 +341,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const stepsList = [
     { id: 1, title: "1. Bienvenida e introducción", stage: 1, stageTitle: "ETAPA 1 — Activa tu sistema" },
     { id: 2, title: "2. Tu comprador ideal", stage: 1 },
-    { id: 3, title: "3. Tu página de captura", stage: 1 },
-    { id: 4, title: "4. Tus enlaces de afiliados", stage: 1 },
+    { id: 3, title: "3. Tus enlaces de afiliados", stage: 1 },
+    { id: 4, title: "4. Tu página de captura", stage: 1 },
     
     { id: 5, title: "5. Tus videos de atracción (Hooks)", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)" },
     { id: 6, title: "6. Artículos de Blog", stage: 2 },
@@ -987,19 +993,19 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 3: Tu Página Web de Captura */}
+            {/* Paso 3: Configura tus enlaces de afiliado */}
             {activeStep === 3 && (
+              <ProjectStrategy_Hotlinks totalSteps={stepsList.length} projectId={projectId || searchParams.get('id') || ''} />
+            )}
+
+            {/* Paso 4: Tu Página Web de Captura */}
+            {activeStep === 4 && (
               <ProjectStrategy_WebSystem 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''} 
                 lpTabsData={strategyData?.modules?.web?.landingPageTabs} 
                 tyTabsData={strategyData?.modules?.web?.thankYouPageTabs} 
               />
-            )}
-
-            {/* Paso 4: Configura tus enlaces de afiliado */}
-            {activeStep === 4 && (
-              <ProjectStrategy_Hotlinks totalSteps={stepsList.length} projectId={projectId || searchParams.get('id') || ''} />
             )}
 
             {/* Paso 5: Tus Ganchos de Venta (Hooks) */}

@@ -681,7 +681,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             <div id="psd-websystem-section" className="space-y-6 text-left animate-in fade-in duration-500">
                 {/* 1. HEADER CARD */}
                 <StepHeaderCard
-                    stepNumber={3}
+                    stepNumber={4}
                     totalSteps={totalSteps}
                     stageNumber={1}
                     categoryTitle="Mira tu Página de Captura"
@@ -692,7 +692,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 {/* 2. VIDEO TUTORIAL */}
                 <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                     <StepVideoContainer 
-                        stepNumber={3}
+                        stepNumber={4}
                         videoUrl="https://www.youtube.com/embed/WUqaWRJG92c?rel=0&controls=1&showinfo=0"
                         title="Video Tutorial Web System"
                     />
@@ -1277,7 +1277,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         <p className="text-[11px] text-amber-400/90 leading-relaxed flex items-start gap-1.5">
                                             <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                                             <span>
-                                                Ve a <strong>Tus enlaces para recibir comisiones</strong> (Paso 4: Hotlinks) y añade la URL a tus enlaces para poder seleccionarlos aquí.
+                                                Ve a <strong>Tus enlaces para recibir comisiones</strong> (Paso 3: Tus enlaces de afiliados) y añade la URL a tus enlaces para poder seleccionarlos aquí.
                                             </span>
                                         </p>
                                     </div>

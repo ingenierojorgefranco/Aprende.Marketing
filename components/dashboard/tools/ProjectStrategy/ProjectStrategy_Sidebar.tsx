@@ -33,8 +33,8 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
             items: [
                 { id: 'summary', label: '1. Bienvenida e introducción', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema", stepNumber: 1 },
                 { id: 'avatar', label: '2. Tu comprador ideal', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto", stepNumber: 2 },
-                { id: 'web', label: '3. Tu página de captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura", stepNumber: 3 },
-                { id: 'hotlinks', label: '4. Tus enlaces de afiliados', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado", stepNumber: 4 },
+                { id: 'hotlinks', label: '3. Tus enlaces de afiliados', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado", stepNumber: 3 },
+                { id: 'web', label: '4. Tu página de captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura", stepNumber: 4 },
             ]
         },
         {
@@ -52,8 +52,8 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
     const sectionAliases: Record<string, string> = {
         '1': 'summary',
         '2': 'avatar',
-        '3': 'web',
-        '4': 'hotlinks',
+        '3': 'hotlinks',
+        '4': 'web',
         '5': 'hooks',
         '6': 'content',
         '7': 'email',
@@ -61,8 +61,8 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         '9': 'whatsapp',
         summary: 'summary',
         avatar: 'avatar',
-        web: 'web',
         hotlinks: 'hotlinks',
+        web: 'web',
         hooks: 'hooks',
         content: 'content',
         email: 'email',
