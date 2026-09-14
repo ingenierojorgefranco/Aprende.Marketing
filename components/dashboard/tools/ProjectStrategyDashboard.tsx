@@ -23,6 +23,7 @@ const ProjectStrategy_Hooks = React.lazy(() => import('./ProjectStrategy/Project
 const ProjectStrategy_Email = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Email').then(m => ({ default: m.ProjectStrategy_Email }))) as React.FC<any>;
 const ProjectStrategy_Evergreen = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Evergreen').then(m => ({ default: m.ProjectStrategy_Evergreen }))) as React.FC<any>;
 const ProjectStrategy_WhatsApp = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_WhatsApp').then(m => ({ default: m.ProjectStrategy_WhatsApp }))) as React.FC<any>;
+const ProjectStrategy_LeadMagnet = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_LeadMagnet').then(m => ({ default: m.ProjectStrategy_LeadMagnet }))) as React.FC<any>;
 const ProjectStrategy_Hotlinks = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Hotlinks').then(m => ({ default: m.ProjectStrategy_Hotlinks }))) as React.FC<any>;
 
 import { UpgradeModal } from '../UpgradeModal';

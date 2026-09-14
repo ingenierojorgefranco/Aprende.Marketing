@@ -3,7 +3,7 @@ import {
     LayoutDashboard, TrendingUp, Map, UserSearch, 
     Globe, FileText, Mail, Calendar, MessageCircle,
     ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity, MessageSquare,
-    Link as LinkIcon, CheckCircle2
+    Link as LinkIcon, CheckCircle2, Gift
 } from 'lucide-react';
 import { ImplementationGuideContext } from '../../wizard/ImplementationGuideContext';
 
@@ -35,16 +35,17 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                 { id: 'avatar', label: '2. Tu comprador ideal', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto", stepNumber: 2 },
                 { id: 'hotlinks', label: '3. Tus enlaces de afiliados', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado", stepNumber: 3 },
                 { id: 'web', label: '4. Tu página de captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura", stepNumber: 4 },
+                { id: 'leadmagnet', label: '5. LeadMagnet de Whatsapp', icon: Gift, module: "SISTEMA DE VENTAS", description: "Entrega manual por WhatsApp", stepNumber: 5 },
             ]
         },
         {
             module: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)",
             items: [
-                { id: 'hooks', label: '5. Tus videos de atracción (Hooks)', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos", stepNumber: 5 },
-                { id: 'content', label: '6. Artículos de Blog', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO", stepNumber: 6 },
-                { id: 'email', label: '7. Email Marketing (Conversión)', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial", stepNumber: 7 },
-                { id: 'evergreen', label: '8. Email Marketing (Nutrición)', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo", stepNumber: 8 },
-                { id: 'whatsapp', label: '9. Lanzamientos (Estrategia WhatsApp)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta", stepNumber: 9 },
+                { id: 'hooks', label: '6. Tus videos de atracción (Hooks)', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos", stepNumber: 6 },
+                { id: 'content', label: '7. Artículos de Blog', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO", stepNumber: 7 },
+                { id: 'email', label: '8. Email Marketing (Conversión)', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial", stepNumber: 8 },
+                { id: 'evergreen', label: '9. Email Marketing (Nutrición)', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo", stepNumber: 9 },
+                { id: 'whatsapp', label: '10. Lanzamientos (Estrategia WhatsApp)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta", stepNumber: 10 },
             ]
         }
     ].filter(group => group.items.length > 0);
@@ -54,15 +55,17 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         '2': 'avatar',
         '3': 'hotlinks',
         '4': 'web',
-        '5': 'hooks',
-        '6': 'content',
-        '7': 'email',
-        '8': 'evergreen',
-        '9': 'whatsapp',
+        '5': 'leadmagnet',
+        '6': 'hooks',
+        '7': 'content',
+        '8': 'email',
+        '9': 'evergreen',
+        '10': 'whatsapp',
         summary: 'summary',
         avatar: 'avatar',
         hotlinks: 'hotlinks',
         web: 'web',
+        leadmagnet: 'leadmagnet',
         hooks: 'hooks',
         content: 'content',
         email: 'email',

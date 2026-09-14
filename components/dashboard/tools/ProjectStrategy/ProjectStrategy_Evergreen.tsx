@@ -162,10 +162,10 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={8}
+                        stepNumber={9}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="Emails: Secuencia de Confianza"
+                        categoryTitle="9. Email Marketing (Nutrición)"
                         title={<>Secuencia de Autoridad <span className="text-[#FF5A1F]">(Evergreen)</span></>}
                         description="Esta secuencia se construye automáticamente a partir de los artículos que generes en la sección 'Contenido'. Cada artículo se transforma en un punto de contacto para nutrir a tu audiencia."
                     />
@@ -173,7 +173,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
-                            stepNumber={8}
+                            stepNumber={9}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial Evergreen"
                         />
@@ -454,10 +454,10 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={8}
+                        stepNumber={9}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="Emails: Secuencia de Confianza"
+                        categoryTitle="9. Email Marketing (Nutrición)"
                         title={<>Tu Estrategia <span className="text-[#FF5A1F]">de Nutrición (Evergreen)</span></>}
                         description={`Tienes ${effectiveArticles.length} artículos vinculados. El sistema ha programado estos correos para enviarse a partir del Día 8, manteniendo tu oferta presente sin ser invasivo.`}
                     />
@@ -465,7 +465,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
-                            stepNumber={8}
+                            stepNumber={9}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial Evergreen"
                         />

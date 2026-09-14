@@ -9,6 +9,7 @@ import { ProjectStrategy_BusinessGrowth } from "../tools/ProjectStrategy/Project
 import { ProjectStrategy_Blueprint } from "../tools/ProjectStrategy/ProjectStrategy_Blueprint";
 import { ProjectStrategy_AvatarDiagnosis } from "../tools/ProjectStrategy/ProjectStrategy_AvatarDiagnosis";
 import { ProjectStrategy_WebSystem } from "../tools/ProjectStrategy/ProjectStrategy_WebSystem";
+import { ProjectStrategy_LeadMagnet } from "../tools/ProjectStrategy/ProjectStrategy_LeadMagnet";
 import { ProjectStrategy_Hooks } from "../tools/ProjectStrategy/ProjectStrategy_Hooks";
 import { ProjectStrategy_Content } from "../tools/ProjectStrategy/ProjectStrategy_Content";
 import { ProjectStrategy_Email } from "../tools/ProjectStrategy/ProjectStrategy_Email";
@@ -176,7 +177,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     const newCompleted = [...completedSteps, stepId];
     setCompletedSteps(newCompleted);
     
-    if (stepId < 9) {
+    if (stepId < 10) {
       const nextStep = stepId + 1;
       setActiveStep(nextStep);
       const nextSectionId = stepToSectionMap[nextStep] || 'summary';
@@ -216,11 +217,12 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     2: 'avatar',
     3: 'hotlinks',
     4: 'web',
-    5: 'hooks',
-    6: 'content',
-    7: 'email',
-    8: 'evergreen',
-    9: 'whatsapp'
+    5: 'leadmagnet',
+    6: 'hooks',
+    7: 'content',
+    8: 'email',
+    9: 'evergreen',
+    10: 'whatsapp'
   };
 
   const sectionToStepMap: Record<string, number> = {
@@ -228,11 +230,12 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     avatar: 2,
     hotlinks: 3,
     web: 4,
-    hooks: 5,
-    content: 6,
-    email: 7,
-    evergreen: 8,
-    whatsapp: 9,
+    leadmagnet: 5,
+    hooks: 6,
+    content: 7,
+    email: 8,
+    evergreen: 9,
+    whatsapp: 10,
     '1': 1,
     '2': 2,
     '3': 3,
@@ -241,7 +244,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     '6': 6,
     '7': 7,
     '8': 8,
-    '9': 9
+    '9': 9,
+    '10': 10
   };
 
   const currentStrategySection = stepToSectionMap[activeStep] || activeStrategySection || searchParams.get('section') || "summary";
@@ -343,12 +347,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     { id: 2, title: "2. Tu comprador ideal", stage: 1 },
     { id: 3, title: "3. Tus enlaces de afiliados", stage: 1 },
     { id: 4, title: "4. Tu página de captura", stage: 1 },
+    { id: 5, title: "5. LeadMagnet de Whatsapp", stage: 1 },
     
-    { id: 5, title: "5. Tus videos de atracción (Hooks)", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)" },
-    { id: 6, title: "6. Artículos de Blog", stage: 2 },
-    { id: 7, title: "7. Email Marketing (Conversión)", stage: 2 },
-    { id: 8, title: "8. Email Marketing (Nutrición)", stage: 2 },
-    { id: 9, title: "9. Lanzamientos (Estrategia WhatsApp)", stage: 2 },
+    { id: 6, title: "6. Tus videos de atracción (Hooks)", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)" },
+    { id: 7, title: "7. Artículos de Blog", stage: 2 },
+    { id: 8, title: "8. Email Marketing (Conversión)", stage: 2 },
+    { id: 9, title: "9. Email Marketing (Nutrición)", stage: 2 },
+    { id: 10, title: "10. Lanzamientos (Estrategia WhatsApp)", stage: 2 },
   ];
 
   const handleStepClick = (id: number) => {
@@ -365,7 +370,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
       setCompletedSteps(prev => [...prev, id]);
     }
     // Automatically transition to next step if not last
-    if (id < 9) {
+    if (id < 10) {
       handleStepClick(id + 1);
     }
   };
@@ -378,7 +383,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     }
   };
 
-  const percentCompleted = Math.round((completedSteps.length / 9) * 100);
+  const percentCompleted = Math.round((completedSteps.length / 10) * 100);
 
   return (
     <ImplementationGuideContext.Provider value={{ completedSteps, onCompleteStep: handleCompleteStep }}>
@@ -439,7 +444,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                 </span>
               </div>
             )}
-            {activeStep !== 2 && activeStep !== 3 && activeStep !== 4 && activeStep !== 5 && activeStep !== 6 && activeStep !== 7 && activeStep !== 8 && activeStep !== 9 && (
+            {activeStep !== 2 && activeStep !== 3 && activeStep !== 4 && activeStep !== 5 && activeStep !== 6 && activeStep !== 7 && activeStep !== 8 && activeStep !== 9 && activeStep !== 10 && (
               <StepHeaderCard 
                 stepNumber={activeStep}
                 totalSteps={stepsList.length}
@@ -1008,24 +1013,35 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 5: Tus Ganchos de Venta (Hooks) */}
+            {/* Paso 5: LeadMagnet de Whatsapp */}
             {activeStep === 5 && (
+              <ProjectStrategy_LeadMagnet 
+                totalSteps={stepsList.length}
+                projectId={projectId || searchParams.get('id') || ''}
+                strategyData={strategyData}
+                onUpgrade={onUpgradeClick || (() => {})}
+                user={user}
+              />
+            )}
+
+            {/* Paso 6: Tus Ganchos de Venta (Hooks) */}
+            {activeStep === 6 && (
               <ProjectStrategy_Hooks 
                 totalSteps={stepsList.length}
                 strategyData={strategyData}
               />
             )}
 
-            {/* Paso 6: Tu Estrategia de Contenidos */}
-            {activeStep === 6 && (
+            {/* Paso 7: Tu Estrategia de Contenidos */}
+            {activeStep === 7 && (
               <ProjectStrategy_Content 
                 totalSteps={stepsList.length}
                 contentData={strategyData?.modules?.content || []}
               />
             )}
 
-            {/* Paso 7: Email Marketing */}
-            {activeStep === 7 && (
+            {/* Paso 8: Email Marketing */}
+            {activeStep === 8 && (
               <ProjectStrategy_Email 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || undefined}
@@ -1034,8 +1050,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 8: Secuencia de Confianza (Evergreen) */}
-            {activeStep === 8 && (
+            {/* Paso 9: Secuencia de Confianza (Evergreen) */}
+            {activeStep === 9 && (
               <ProjectStrategy_Evergreen 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
@@ -1043,12 +1059,12 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                 avatars={strategyData?.avatars || []}
                 linkedArticles={strategyData?.modules?.content || []}
                 onUpgrade={onUpgradeClick || (() => {})}
-                onGoToContent={() => setActiveStep(6)}
+                onGoToContent={() => setActiveStep(7)}
               />
             )}
 
-            {/* Paso 9: Scripts de WhatsApp (Cierre) */}
-            {activeStep === 9 && (
+            {/* Paso 10: Scripts de WhatsApp (Cierre) */}
+            {activeStep === 10 && (
               <ProjectStrategy_WhatsApp 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
@@ -1057,8 +1073,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Dinámico para otros pasos (Paso 10+) */}
-            {activeStep > 9 && (
+            {/* Dinámico para otros pasos (Paso 11+) */}
+            {activeStep > 10 && (
               <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-8 text-center space-y-6 shadow-xl">
                 
                 <div className="max-w-md mx-auto space-y-4">

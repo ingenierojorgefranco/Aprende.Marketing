@@ -656,10 +656,10 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={6}
+                        stepNumber={7}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="Tu Estrategia de Contenidos"
+                        categoryTitle="7. Artículos de Blog"
                         title={<>Contenido SEO <span className="text-[#FF5A1F]">que crearemos automáticamente</span></>}
                         description="Los activos digitales son la clave de la libertad financiera. No basta con pagar anuncios; necesitas crear una red de contenidos que trabajen por ti 24/7."
                     />
@@ -667,7 +667,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
-                            stepNumber={6}
+                            stepNumber={7}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial Content"
                         />
