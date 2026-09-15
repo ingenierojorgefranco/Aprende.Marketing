@@ -529,7 +529,7 @@ export const DashboardLayout = ({
              {!isWizardGenerating && (
                  <div className="flex items-center gap-2.5 sm:gap-3">
                      {/* Tarjeta de usuario (Imagen 1) colocada antes de ACTUALIZA A PRO */}
-                     {!isLaunchRestricted && (
+                     {!isLaunchRestricted && !(user.role !== 'admin' && projectCount === 0) && (
                          <div className="relative" ref={headerUserMenuRef}>
                              <button
                                  onClick={() => setHeaderUserMenuOpen(!headerUserMenuOpen)}
@@ -608,7 +608,7 @@ export const DashboardLayout = ({
                      )}
 
                      {/* Botón ACTUALIZA A PRO (Imagen 2) */}
-                     {!isLaunchRestricted && (
+                     {!isLaunchRestricted && !(user.role !== 'admin' && projectCount === 0) && (
                          <button 
                              onClick={() => setShowUpgradeModal(true)} 
                              className="relative overflow-hidden flex items-center justify-between gap-2 sm:gap-2.5 py-1.5 px-2.5 sm:px-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-600/15 border border-yellow-500/60 hover:border-yellow-400 text-yellow-300 transition-all duration-300 group cursor-pointer shadow-[0_0_15px_rgba(234,179,8,0.12)] hover:shadow-[0_0_22px_rgba(234,179,8,0.25)] active:scale-[0.98] whitespace-nowrap"
