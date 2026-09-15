@@ -29,12 +29,13 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
     onSectionChange,
     onUpgradeClick,
     user,
-    isAdmin = false
+    isAdmin: propIsAdmin = false
 }) => {
+    const isAdmin = propIsAdmin || user?.role === 'admin' || user?.role === 'superuser';
     const { completedSteps } = useContext(ImplementationGuideContext);
 
     const planRawName = (user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
-    const isFreeUser = planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName;
+    const isFreeUser = !isAdmin && (planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName);
 
     const menuItems: { module: string; items: SidebarItem[] }[] = [
         {

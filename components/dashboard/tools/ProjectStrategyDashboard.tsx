@@ -250,6 +250,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 onScrollToProjectPanel={() => {}}
                 onUpgradeClick={() => setShowUpgradeModal(true)}
                 user={user}
+                isAdmin={user?.role === 'admin' || user?.role === 'superuser'}
             />
         </div>
     );

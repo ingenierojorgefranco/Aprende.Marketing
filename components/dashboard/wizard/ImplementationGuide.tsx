@@ -112,8 +112,9 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   activeStrategySection,
   onStrategySectionChange,
   user,
-  isAdmin,
+  isAdmin: propIsAdmin,
 }) => {
+  const isAdmin = propIsAdmin || user?.role === 'admin' || user?.role === 'superuser';
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeStep, setActiveStep] = useState<number>(1);
@@ -129,7 +130,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const [openGuideStages, setOpenGuideStages] = useState<number[]>([1]);
 
   const planRawName = (user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
-  const isFreeUser = planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName;
+  const isFreeUser = !isAdmin && (planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName);
 
   useEffect(() => {
     const activeStageNum = stepsList.find(s => s.id === activeStep)?.stage || 1;
