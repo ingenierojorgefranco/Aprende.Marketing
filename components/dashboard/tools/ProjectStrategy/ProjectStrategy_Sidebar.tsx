@@ -3,7 +3,7 @@ import {
     LayoutDashboard, TrendingUp, Map, UserSearch, 
     Globe, FileText, Mail, Calendar, MessageCircle,
     ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity, MessageSquare,
-    Link as LinkIcon, CheckCircle2, Gift
+    Link as LinkIcon, CheckCircle2, Gift, Lock
 } from 'lucide-react';
 import { ImplementationGuideContext } from '../../wizard/ImplementationGuideContext';
 
@@ -19,13 +19,22 @@ interface SidebarItem {
 interface ProjectStrategy_SidebarProps {
     activeSection?: string;
     onSectionChange?: (id: string) => void;
+    onUpgradeClick?: () => void;
+    user?: any;
+    isAdmin?: boolean;
 }
 
 export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = ({ 
     activeSection = 'summary', 
-    onSectionChange 
+    onSectionChange,
+    onUpgradeClick,
+    user,
+    isAdmin = false
 }) => {
     const { completedSteps } = useContext(ImplementationGuideContext);
+
+    const planRawName = (user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
+    const isFreeUser = planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName;
 
     const menuItems: { module: string; items: SidebarItem[] }[] = [
         {
@@ -35,13 +44,13 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                 { id: 'avatar', label: '2. Tu comprador ideal', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto", stepNumber: 2 },
                 { id: 'hotlinks', label: '3. Tus enlaces de afiliados', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado", stepNumber: 3 },
                 { id: 'web', label: '4. Tu página de captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura", stepNumber: 4 },
-                { id: 'leadmagnet', label: '5. LeadMagnet de Whatsapp', icon: Gift, module: "SISTEMA DE VENTAS", description: "Entrega manual por WhatsApp", stepNumber: 5 },
+                { id: 'hooks', label: '5. Tus videos de atracción (Hooks)', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos", stepNumber: 5 },
             ]
         },
         {
-            module: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)",
+            module: "ETAPA 2: TU SISTEMA DE VENTAS",
             items: [
-                { id: 'hooks', label: '6. Tus videos de atracción (Hooks)', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos", stepNumber: 6 },
+                { id: 'leadmagnet', label: '6. LeadMagnet de Whatsapp', icon: Gift, module: "SISTEMA DE VENTAS", description: "Entrega manual por WhatsApp", stepNumber: 6 },
                 { id: 'content', label: '7. Artículos de Blog', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO", stepNumber: 7 },
                 { id: 'email', label: '8. Email Marketing (Conversión)', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial", stepNumber: 8 },
                 { id: 'evergreen', label: '9. Email Marketing (Nutrición)', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo", stepNumber: 9 },
@@ -55,8 +64,8 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         '2': 'avatar',
         '3': 'hotlinks',
         '4': 'web',
-        '5': 'leadmagnet',
-        '6': 'hooks',
+        '5': 'hooks',
+        '6': 'leadmagnet',
         '7': 'content',
         '8': 'email',
         '9': 'evergreen',
@@ -130,10 +139,23 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                                     {group.items.map((item) => {
                                         const isActive = currentSectionId === item.id || activeSection === item.id;
                                         const isCompleted = item.stepNumber ? completedSteps.includes(item.stepNumber) : false;
+                                        
+                                        const handleItemClick = () => {
+                                            if (item.stepNumber && item.stepNumber >= 6 && isFreeUser && !isAdmin) {
+                                                if (onUpgradeClick) {
+                                                    onUpgradeClick();
+                                                }
+                                            } else {
+                                                if (onSectionChange) {
+                                                    onSectionChange(item.id);
+                                                }
+                                            }
+                                        };
+
                                         return (
                                             <button
                                                 key={item.id}
-                                                onClick={() => onSectionChange && onSectionChange(item.id)}
+                                                onClick={handleItemClick}
                                                 className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 text-left border group cursor-pointer ${
                                                     isActive 
                                                     ? 'bg-gradient-to-r from-[#FF5A1F]/85 via-[#FF5A1F]/30 to-transparent border-[#FF5A1F]/50 text-white font-semibold shadow-lg shadow-[#FF5A1F]/20' 
@@ -150,6 +172,14 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                                                     </p>
                                                 </div>
                                                 
+                                                {/* PRO Badge */}
+                                                {item.stepNumber && item.stepNumber >= 6 && (
+                                                    <span className="flex items-center gap-1 bg-[#F59E0B] text-[#0B1120] px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider uppercase shrink-0 shadow-sm">
+                                                        <Lock className="w-2.5 h-2.5 stroke-[3]" />
+                                                        PRO
+                                                    </span>
+                                                )}
+
                                                 {/* Check de completado */}
                                                 {isCompleted && (
                                                     <CheckCircle2 className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-emerald-500'}`} />

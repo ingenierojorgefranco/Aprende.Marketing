@@ -128,6 +128,9 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const [selectedCommercialOption, setSelectedCommercialOption] = useState<CommercialOptionId | null>(null);
   const [openGuideStages, setOpenGuideStages] = useState<number[]>([1]);
 
+  const planRawName = (user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
+  const isFreeUser = planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName;
+
   useEffect(() => {
     const activeStageNum = stepsList.find(s => s.id === activeStep)?.stage || 1;
     setOpenGuideStages(prev => Array.from(new Set([...prev, activeStageNum])));
@@ -163,13 +166,17 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               firstUncompleted++;
             }
             if (firstUncompleted <= 9) {
-              setActiveStep(firstUncompleted);
+              if (firstUncompleted >= 6 && isFreeUser && !isAdmin) {
+                setActiveStep(5);
+              } else {
+                setActiveStep(firstUncompleted);
+              }
             }
           }
         }
       }).catch((err: any) => console.error("Error loading project in ImplementationGuide", err));
     }
-  }, [projectId, searchParams, activeStrategySection]);
+  }, [projectId, searchParams, activeStrategySection, isFreeUser, isAdmin]);
 
   const handleCompleteStep = async (stepId: number) => {
     if (completedSteps.includes(stepId)) return;
@@ -179,6 +186,12 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     
     if (stepId < 10) {
       const nextStep = stepId + 1;
+      if (nextStep >= 6 && isFreeUser && !isAdmin) {
+        if (onUpgradeClick) {
+          onUpgradeClick();
+        }
+        return;
+      }
       setActiveStep(nextStep);
       const nextSectionId = stepToSectionMap[nextStep] || 'summary';
       setSearchParams({ section: nextSectionId });
@@ -217,8 +230,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     2: 'avatar',
     3: 'hotlinks',
     4: 'web',
-    5: 'leadmagnet',
-    6: 'hooks',
+    5: 'hooks',
+    6: 'leadmagnet',
     7: 'content',
     8: 'email',
     9: 'evergreen',
@@ -230,8 +243,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     avatar: 2,
     hotlinks: 3,
     web: 4,
-    leadmagnet: 5,
-    hooks: 6,
+    hooks: 5,
+    leadmagnet: 6,
     content: 7,
     email: 8,
     evergreen: 9,
@@ -255,13 +268,27 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     if (rawSection) {
       const step = sectionToStepMap[rawSection];
       if (step && step !== activeStep) {
-        setActiveStep(step);
+        if (step >= 6 && isFreeUser && !isAdmin) {
+          if (onUpgradeClick) {
+            onUpgradeClick();
+          }
+          setActiveStep(5);
+          setSearchParams({ section: 'hooks' });
+        } else {
+          setActiveStep(step);
+        }
       }
     }
-  }, [activeStrategySection, searchParams]);
+  }, [activeStrategySection, searchParams, isFreeUser, isAdmin, onUpgradeClick]);
 
   const handleStrategySectionClick = (sectionId: string) => {
     const step = sectionToStepMap[sectionId] || 1;
+    if (step >= 6 && isFreeUser && !isAdmin) {
+      if (onUpgradeClick) {
+        onUpgradeClick();
+      }
+      return;
+    }
     setActiveStep(step);
     const normalizedSection = stepToSectionMap[step] || sectionId;
     setSearchParams({ section: normalizedSection });
@@ -347,9 +374,9 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     { id: 2, title: "2. Tu comprador ideal", stage: 1 },
     { id: 3, title: "3. Tus enlaces de afiliados", stage: 1 },
     { id: 4, title: "4. Tu página de captura", stage: 1 },
-    { id: 5, title: "5. LeadMagnet de Whatsapp", stage: 1 },
+    { id: 5, title: "5. Tus videos de atracción (Hooks)", stage: 1 },
     
-    { id: 6, title: "6. Tus videos de atracción (Hooks)", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS (LISTO PARA USAR)" },
+    { id: 6, title: "6. LeadMagnet de Whatsapp", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS" },
     { id: 7, title: "7. Artículos de Blog", stage: 2 },
     { id: 8, title: "8. Email Marketing (Conversión)", stage: 2 },
     { id: 9, title: "9. Email Marketing (Nutrición)", stage: 2 },
@@ -357,6 +384,12 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   ];
 
   const handleStepClick = (id: number) => {
+    if (id >= 6 && isFreeUser && !isAdmin) {
+      if (onUpgradeClick) {
+        onUpgradeClick();
+      }
+      return;
+    }
     setActiveStep(id);
     const sectionId = stepToSectionMap[id] || 'summary';
     setSearchParams({ section: sectionId });
@@ -400,6 +433,9 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
             <ProjectStrategy_Sidebar 
               activeSection={currentStrategySection}
               onSectionChange={handleStrategySectionClick}
+              onUpgradeClick={onUpgradeClick}
+              user={user}
+              isAdmin={isAdmin}
             />
           </aside>
 
@@ -1013,22 +1049,22 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 5: LeadMagnet de Whatsapp */}
+            {/* Paso 5: Tus videos de atracción (Hooks) */}
             {activeStep === 5 && (
+              <ProjectStrategy_Hooks 
+                totalSteps={stepsList.length}
+                strategyData={strategyData}
+              />
+            )}
+
+            {/* Paso 6: LeadMagnet de Whatsapp */}
+            {activeStep === 6 && (
               <ProjectStrategy_LeadMagnet 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
                 strategyData={strategyData}
                 onUpgrade={onUpgradeClick || (() => {})}
                 user={user}
-              />
-            )}
-
-            {/* Paso 6: Tus Ganchos de Venta (Hooks) */}
-            {activeStep === 6 && (
-              <ProjectStrategy_Hooks 
-                totalSteps={stepsList.length}
-                strategyData={strategyData}
               />
             )}
 

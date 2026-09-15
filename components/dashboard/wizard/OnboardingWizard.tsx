@@ -5169,7 +5169,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                   { label: "Dispositivos de uso", val: realAv?.devices || (hasSavedAvatars ? "(no definido)" : defaultAv.demographics[5].val) },
                                 ];
 
-                                // Dolores y Miedos Ocultos (Garantizar 6 elementos en 3 columnas x 2 filas)
+                              // Dolores y Miedos Ocultos (Garantizar 6 elementos en 3 columnas x 2 filas)
                               let rawDolores = (realAv?.dolores_ocultos && Array.isArray(realAv.dolores_ocultos) && realAv.dolores_ocultos.length > 0)
                                 ? realAv.dolores_ocultos
                                 : (realAv?.hidden_pains && Array.isArray(realAv.hidden_pains) && realAv.hidden_pains.length > 0)
@@ -5182,10 +5182,27 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                         ? [{ title: defaultAv.dolores_ocultos[0]?.title || "DOLOR IDENTIFICADO", text: realAv.pain }]
                                         : [...defaultAv.dolores_ocultos];
 
-                              let dolores_ocultos = rawDolores.map((item: any, dIdx: number) => ({
-                                title: (typeof item === 'string' ? (defaultAv.dolores_ocultos[dIdx % defaultAv.dolores_ocultos.length]?.title || ("FRUSTRACIÓN OCULTA " + (dIdx + 1))) : (item.title || defaultAv.dolores_ocultos[dIdx % defaultAv.dolores_ocultos.length]?.title || ("FRUSTRACIÓN OCULTA " + (dIdx + 1)))).toUpperCase(),
-                                text: typeof item === 'string' ? item : (item.text || item.title || "")
-                              }));
+                              let dolores_ocultos = rawDolores.map((item: any, dIdx: number) => {
+                                const fallback = defaultAv.dolores_ocultos[dIdx % defaultAv.dolores_ocultos.length];
+                                const title = (typeof item === 'string' ? item : (item.title || fallback.title)).toUpperCase();
+                                
+                                let text = "";
+                                if (typeof item === 'string') {
+                                  if (item.toUpperCase() === title || item.length < 20) {
+                                    text = fallback.text;
+                                  } else {
+                                    text = item;
+                                  }
+                                } else {
+                                  const rawText = item.text || item.description || item.desc || item.details || item.detail || "";
+                                  if (!rawText || rawText.toUpperCase() === title || rawText.length < 20) {
+                                    text = fallback.text;
+                                  } else {
+                                    text = rawText;
+                                  }
+                                }
+                                return { title, text };
+                              });
 
                               while (dolores_ocultos.length < 6) {
                                 const fallback = defaultAv.dolores_ocultos[dolores_ocultos.length % defaultAv.dolores_ocultos.length];
@@ -5213,10 +5230,27 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                             ? [{ title: defaultAv.deseos_motivaciones[0]?.title || "ANHELO PROFUNDO", text: realAv.desire || realAv.transformation_title }]
                                             : [...defaultAv.deseos_motivaciones];
 
-                              let deseos_motivaciones = rawDeseos.map((item: any, dIdx: number) => ({
-                                title: (typeof item === 'string' ? (defaultAv.deseos_motivaciones[dIdx % defaultAv.deseos_motivaciones.length]?.title || ("ANHELO PROFUNDO " + (dIdx + 1))) : (item.title || defaultAv.deseos_motivaciones[dIdx % defaultAv.deseos_motivaciones.length]?.title || ("ANHELO PROFUNDO " + (dIdx + 1)))).toUpperCase(),
-                                text: typeof item === 'string' ? item : (item.text || item.title || "")
-                              }));
+                              let deseos_motivaciones = rawDeseos.map((item: any, dIdx: number) => {
+                                const fallback = defaultAv.deseos_motivaciones[dIdx % defaultAv.deseos_motivaciones.length];
+                                const title = (typeof item === 'string' ? item : (item.title || fallback.title)).toUpperCase();
+                                
+                                let text = "";
+                                if (typeof item === 'string') {
+                                  if (item.toUpperCase() === title || item.length < 20) {
+                                    text = fallback.text;
+                                  } else {
+                                    text = item;
+                                  }
+                                } else {
+                                  const rawText = item.text || item.description || item.desc || item.details || item.detail || "";
+                                  if (!rawText || rawText.toUpperCase() === title || rawText.length < 20) {
+                                    text = fallback.text;
+                                  } else {
+                                    text = rawText;
+                                  }
+                                }
+                                return { title, text };
+                              });
 
                               while (deseos_motivaciones.length < 6) {
                                 const fallback = defaultAv.deseos_motivaciones[deseos_motivaciones.length % defaultAv.deseos_motivaciones.length];
