@@ -286,7 +286,15 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                 } ${isLocked && !isSelected ? 'opacity-40 grayscale' : 'opacity-100'} rounded-3xl p-5 md:p-6 flex flex-col justify-between h-full relative w-full group cursor-pointer transition-all duration-300 space-y-4`}
                                 onClick={() => !isLocked && setConfirmingProject(project)}
                             >
-                                {/* Image Container with floating Category badge Top-Left */}
+                                {/* Category Badge at the top, separate from image */}
+                                <div className="flex items-center justify-between w-full pb-1">
+                                    <div className="px-3.5 py-2 bg-zinc-900/60 border border-zinc-800/60 text-zinc-300 text-xs font-bold rounded-xl flex items-center gap-2">
+                                        <span className="text-[#FF5A1F]">{projectCategoryIcon}</span>
+                                        <span>Categoría: {projectCategory}</span>
+                                    </div>
+                                </div>
+
+                                {/* Image Container */}
                                 <div className="h-44 md:h-48 bg-zinc-900 relative overflow-hidden rounded-2xl shrink-0 border border-zinc-800/50">
                                     {project.multimedia_json?.heroImages?.[0] ? (
                                         <img 
@@ -301,13 +309,6 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                         </div>
                                     )}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                                    
-                                    {/* Floating category Badge Top-Left */}
-                                    <div className="absolute top-3 left-3 z-10">
-                                        <span className="px-3 py-1 bg-black/75 backdrop-blur-md text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-white/10 shadow-sm">
-                                            <span>{projectCategoryIcon}</span> Categoría: {projectCategory}
-                                        </span>
-                                    </div>
                                 </div>
 
                                 {/* Content Block */}
