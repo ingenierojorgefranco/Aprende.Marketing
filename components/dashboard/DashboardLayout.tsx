@@ -394,6 +394,12 @@ export const DashboardLayout = ({
   const showWizard = isWizardRoute;
  
   useEffect(() => {
+    if (showWelcomeVideo && location.pathname !== '/welcome') {
+      navigate('/welcome', { replace: true });
+    }
+  }, [showWelcomeVideo, location.pathname, navigate]);
+
+  useEffect(() => {
     // Si el usuario navegó intencionalmente a cualquier ruta del dashboard, limpiar force_wizard_step
     if (location.pathname.startsWith('/dashboard') && typeof window !== 'undefined') {
       const forced = localStorage.getItem('force_wizard_step');
