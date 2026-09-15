@@ -368,14 +368,14 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   return (
     <div 
       id="thankyou-template-root" 
-      className={`min-h-screen font-sans ${activeDs.hero.bgGradient || 'bg-[#1c1917]'} ${activeDs.selectionColor || 'selection:bg-emerald-500 selection:text-white'} text-white scroll-smooth relative overflow-hidden flex flex-col antialiased`}
+      className={`min-h-screen font-sans ${activeDs.hero.bgGradient || 'bg-[#1c1917]'} ${activeDs.selectionColor || 'selection:bg-emerald-500 selection:text-white'} ${content.palette === 'minimal-mono' ? 'text-gray-900' : 'text-white'} scroll-smooth relative overflow-hidden flex flex-col antialiased`}
     >
       {/* Resplandor ambiental coherente con el Hero de la página de captura */}
       <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[850px] h-[550px] rounded-full blur-[140px] pointer-events-none ${activeDs.blobColor} ${activeDs.blobOpacity || 'opacity-20'}`}></div>
       <div className={`absolute top-[45%] left-1/2 -translate-x-1/2 w-[950px] h-[650px] rounded-full blur-[160px] pointer-events-none ${activeDs.blobColor} opacity-10`}></div>
 
       {/* 1. FRANJA SUPERIOR DEL LOGO (COHERENTE CON EL NAVBAR DE LA CAPTURA - IMAGEN 3) */}
-      <header className={`w-full py-4 sm:py-5 border-b border-white/10 ${activeDs.nav.transparentBg} relative z-20 backdrop-blur-md shadow-sm`}>
+      <header className={`w-full py-4 sm:py-5 border-b ${content.palette === 'minimal-mono' ? 'border-gray-200' : 'border-white/10'} ${activeDs.nav.transparentBg} relative z-20 backdrop-blur-md shadow-sm`}>
         <div className="max-w-5xl mx-auto px-4 flex items-center justify-center">
           <a 
             href={basePath || '/'} 
@@ -386,7 +386,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
               {renderLogoIcon()}
             </div>
             {/* Nombre de la marca con tipografía de alto contraste */}
-            <span className="font-bold text-white text-base sm:text-lg tracking-tight">
+            <span className={`font-bold ${content.palette === 'minimal-mono' ? 'text-gray-900' : 'text-white'} text-base sm:text-lg tracking-tight`}>
               {brandName}
             </span>
           </a>
@@ -398,7 +398,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
         <div className="max-w-3xl mx-auto">
           {/* Icono Check Circular de Confirmación con el color de acento de la captura */}
           <div 
-            className={`w-13 h-13 sm:w-14 sm:h-14 rounded-full ${paletteAccents.checkBg} flex items-center justify-center mx-auto mb-4 shadow-lg shadow-black/20 ring-4 ring-white/10 animate-in zoom-in-75 duration-300`}
+            className={`w-13 h-13 sm:w-14 sm:h-14 rounded-full ${paletteAccents.checkBg} flex items-center justify-center mx-auto mb-4 shadow-lg shadow-black/20 ring-4 ${content.palette === 'minimal-mono' ? 'ring-black/5' : 'ring-white/10'} animate-in zoom-in-75 duration-300`}
             style={{
               marginTop: '1.5em'
             }}
@@ -408,7 +408,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
           {/* Título Principal */}
           <h1 
-            className="text-3xl sm:text-4xl md:text-[2.6rem] font-black tracking-tight text-white mb-3 leading-tight mx-auto"
+            className={`text-3xl sm:text-4xl md:text-[2.6rem] font-black tracking-tight ${content.palette === 'minimal-mono' ? 'text-gray-900' : 'text-white'} mb-3 leading-tight mx-auto`}
             style={{
               fontSize: '2.7em',
               lineHeight: '1.1em',
@@ -424,7 +424,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
           {/* Subtítulo */}
           <p 
-            className={`text-sm sm:text-base md:text-lg ${activeDs.hero.subtitleColor || 'text-cyan-100'} font-normal leading-relaxed max-w-xl mx-auto mb-5`}
+            className={`text-sm sm:text-base md:text-lg ${activeDs.hero.subtitleColor || (content.palette === 'minimal-mono' ? 'text-gray-500' : 'text-cyan-100')} font-normal leading-relaxed max-w-xl mx-auto mb-5`}
             style={{
               fontSize: '1.3em',
               lineHeight: '1.5em',
@@ -444,7 +444,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
           {/* Píldora de aviso de correo con color verde esmeralda (Ref. Imagen 1) */}
           <div 
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border bg-emerald-500/20 text-emerald-200 border-emerald-500/40 backdrop-blur-md shadow-sm text-xs sm:text-sm font-medium"
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full border ${content.palette === 'minimal-mono' ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-sm' : 'bg-emerald-500/20 text-emerald-200 border-emerald-500/40 backdrop-blur-md shadow-sm'} text-xs sm:text-sm font-medium`}
             style={{
               fontSize: '1.1em'
             }}
@@ -703,14 +703,14 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
       </main>
 
       {/* 4. FOOTER OSCURO ELEGANTE INTEGRADO CON LA PALETA */}
-      <footer className={`w-full border-t border-white/10 ${activeDs.footer?.bg || 'bg-black/50'} py-10 px-6 relative z-10 text-white`}>
+      <footer className={`w-full border-t ${content.palette === 'minimal-mono' ? 'border-gray-200 text-gray-600' : 'border-white/10 text-white'} ${activeDs.footer?.bg || 'bg-black/50'} py-10 px-6 relative z-10`}>
         <div className="max-w-[50rem] mx-auto flex flex-col items-center justify-center text-center">
           {/* Logo centrado */}
           <div className="flex items-center justify-center gap-2.5 mb-3">
             <div className={`w-7 h-7 rounded-full flex items-center justify-center shadow-md overflow-hidden shrink-0 ${activeDs.nav.logoBg} ${activeDs.nav.logoText}`}>
               {renderLogoIcon()}
             </div>
-            <span className="font-bold text-white text-base tracking-tight">
+            <span className={`font-bold ${content.palette === 'minimal-mono' ? 'text-gray-900' : 'text-white'} text-base tracking-tight`}>
               {brandName}
             </span>
           </div>

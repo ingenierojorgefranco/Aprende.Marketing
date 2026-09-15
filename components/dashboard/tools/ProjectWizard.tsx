@@ -964,7 +964,7 @@ export const ProjectWizard: React.FC = () => {
                         quote: masterAv.quote || defAv.quote || '',
                         dolores_ocultos: masterAv.hidden_pains || masterAv.dolores_ocultos || [...defAv.dolores_ocultos],
                         deseos_motivaciones: masterAv.hidden_desires || masterAv.deseos_motivaciones || [...defAv.deseos_motivaciones],
-                        comportamientos: masterAv.behaviors_list || masterAv.comportamientos || [...defAv.comportamientos],
+                        comportamientos: (() => { const list = masterAv.behaviors_list || masterAv.comportamientos; let result = (list && Array.isArray(list)) ? list.map((x: any) => typeof x === 'string' ? x : (x.text || x.title || String(x))).filter((x: string) => x && x.trim() !== "") : []; if (result.length === 0) return [...defAv.comportamientos]; while (result.length < 6) { result.push(defAv.comportamientos[result.length % defAv.comportamientos.length]); } return result.slice(0, 6); })(),
                         behaviors: masterAv.behaviors || [...defAv.behaviors],
                         motivations: healedMotivations
                     };
@@ -2533,7 +2533,7 @@ export const ProjectWizard: React.FC = () => {
                                                 quote: masterAv.quote || defAv.quote || '',
                                                 dolores_ocultos: masterAv.hidden_pains || masterAv.dolores_ocultos || [...defAv.dolores_ocultos],
                                                 deseos_motivaciones: masterAv.hidden_desires || masterAv.deseos_motivaciones || [...defAv.deseos_motivaciones],
-                                                comportamientos: masterAv.behaviors_list || masterAv.comportamientos || [...defAv.comportamientos],
+                                                comportamientos: (() => { const list = masterAv.behaviors_list || masterAv.comportamientos; let result = (list && Array.isArray(list)) ? list.map((x: any) => typeof x === 'string' ? x : (x.text || x.title || String(x))).filter((x: string) => x && x.trim() !== "") : []; if (result.length === 0) return [...defAv.comportamientos]; while (result.length < 6) { result.push(defAv.comportamientos[result.length % defAv.comportamientos.length]); } return result.slice(0, 6); })(),
                                                 behaviors: masterAv.behaviors || [...defAv.behaviors],
                                                 motivations: healedMotivations
                                             };

@@ -189,13 +189,27 @@ router.post('/unlock/:id', async (req, res) => {
                         avatar.deseos_motivaciones = desires;
                         avatar.hidden_desires = desires;
                     }
-                    const behaviors = (masterAv && (masterAv.comportamientos || masterAv.behaviors_list))
+                    let behaviors = (masterAv && (masterAv.comportamientos || masterAv.behaviors_list))
                         ? (masterAv.comportamientos || masterAv.behaviors_list)
                         : (avatar.comportamientos || avatar.behaviors_list);
-                    if (behaviors && Array.isArray(behaviors) && behaviors.length > 0) {
-                        avatar.comportamientos = behaviors;
-                        avatar.behaviors_list = behaviors;
+                    if (behaviors && Array.isArray(behaviors)) {
+                        behaviors = behaviors.map(b => typeof b === 'string' ? b : (b.text || b.title || String(b))).filter(b => b && b.trim() !== "");
                     }
+                    if (!behaviors || !Array.isArray(behaviors) || behaviors.length === 0) {
+                        behaviors = [
+                            "Consume activamente tutoriales, reels y contenido de expertos en Instagram y TikTok buscando mejorar su técnica.",
+                            "Busca recomendaciones y opiniones en grupos especializados antes de invertir en nuevos programas.",
+                            "Guarda publicaciones y capturas de pantalla de marcas referentes para inspirarse en sus propuestas.",
+                            "Suele dudar al comprar por miedo a elegir un método desactualizado o sin soporte personalizado.",
+                            "Prefiere canales de comunicación directos como WhatsApp para resolver dudas antes de comprar.",
+                            "Compara precios constantemente pero termina eligiendo a quien le transmite mayor seguridad y autoridad."
+                        ];
+                    }
+                    while (behaviors.length < 6) {
+                        behaviors.push(behaviors[behaviors.length % behaviors.length]);
+                    }
+                    avatar.comportamientos = behaviors.slice(0, 6);
+                    avatar.behaviors_list = behaviors.slice(0, 6);
                 });
             }
             

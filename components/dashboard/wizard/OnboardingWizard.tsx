@@ -5250,7 +5250,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                     ? realAv.behaviors
                                     : [...defaultAv.comportamientos];
 
-                              let comportamientos = rawComportamientos.map((b: any) => typeof b === 'string' ? b : (b.text || b.title || String(b)));
+                              let comportamientos = rawComportamientos
+                                .map((b: any) => typeof b === 'string' ? b : (b.text || b.title || String(b)))
+                                .filter((b: string) => b && b.trim() !== "");
 
                               while (comportamientos.length < 6) {
                                 comportamientos.push(defaultAv.comportamientos[comportamientos.length % defaultAv.comportamientos.length]);

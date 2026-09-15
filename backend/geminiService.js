@@ -1062,7 +1062,9 @@ h2:
                     behaviors.push(avatar.behavior);
                 }
 
-                behaviors = behaviors.map(b => typeof b === 'string' ? b : (b.text || b.title || String(b)));
+                behaviors = behaviors
+                    .map(b => typeof b === 'string' ? b : (b.text || b.title || String(b)))
+                    .filter(b => b && b.trim() !== "");
 
                 const defaultNicheBehaviors = [
                     "Consume activamente tutoriales, reels y contenido de expertos en Instagram y TikTok buscando mejorar su técnica.",

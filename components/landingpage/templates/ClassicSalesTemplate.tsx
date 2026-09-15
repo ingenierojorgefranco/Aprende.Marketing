@@ -83,27 +83,27 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
                 </div>
                 <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-2 mt-8 pt-4' : 'lg:col-span-4 lg:sticky lg:top-28 order-2 pt-6 lg:pt-14'}`}>
                      <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} sticky={false} />
-                     <div id="why-join-today-block" className="mt-6 mb-10 space-y-3 bg-black/20 backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-xl">
+                     <div id="why-join-today-block" className={`mt-6 mb-10 space-y-3 ${content.palette === 'minimal-mono' ? 'bg-gray-50 border border-gray-200 text-gray-900' : 'bg-black/20 backdrop-blur-md border border-white/10 text-white'} rounded-2xl p-5 shadow-xl`}>
                          <h4 className={`font-bold mb-4 flex items-center gap-2 ${ds.hero.titleColor || 'text-white'}`}>
                              <Zap className="w-5 h-5 text-yellow-400" />
                              ¿Por qué unirte hoy?
                          </h4>
                          <ul className="space-y-3">
                              <li className="flex items-start gap-3">
-                                 <CheckCircle className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
-                                 <span className={`text-sm leading-relaxed ${ds.hero.subtitleColor || 'text-white/90'}`}>
+                                 <CheckCircle className={`w-5 h-5 ${content.palette === 'minimal-mono' ? 'text-green-600' : 'text-green-400'} shrink-0 mt-0.5`} />
+                                 <span className={`text-sm leading-relaxed ${ds.hero.subtitleColor || (content.palette === 'minimal-mono' ? 'text-gray-700' : 'text-white/90')}`}>
                                      Sin experiencia previa
                                  </span>
                              </li>
                              <li className="flex items-start gap-3">
-                                 <CheckCircle className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
-                                 <span className={`text-sm leading-relaxed ${ds.hero.subtitleColor || 'text-white/90'}`}>
+                                 <CheckCircle className={`w-5 h-5 ${content.palette === 'minimal-mono' ? 'text-green-600' : 'text-green-400'} shrink-0 mt-0.5`} />
+                                 <span className={`text-sm leading-relaxed ${ds.hero.subtitleColor || (content.palette === 'minimal-mono' ? 'text-gray-700' : 'text-white/90')}`}>
                                      Desde casa y a tu ritmo
                                  </span>
                              </li>
                              <li className="flex items-start gap-3">
-                                 <CheckCircle className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
-                                 <span className={`text-sm leading-relaxed ${ds.hero.subtitleColor || 'text-white/90'}`}>
+                                 <CheckCircle className={`w-5 h-5 ${content.palette === 'minimal-mono' ? 'text-green-600' : 'text-green-400'} shrink-0 mt-0.5`} />
+                                 <span className={`text-sm leading-relaxed ${ds.hero.subtitleColor || (content.palette === 'minimal-mono' ? 'text-gray-700' : 'text-white/90')}`}>
                                      Certificado incluido
                                  </span>
                              </li>
