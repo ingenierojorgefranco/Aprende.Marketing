@@ -659,7 +659,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                         stageNumber={2}
                         categoryTitle="10. Lanzamientos (Estrategia WhatsApp)"
                         title={<>Secuencia de Lanzamiento <span className="text-[#FF5A1F]">vía WhatsApp</span></>}
-                        description="El cierre por WhatsApp permite humanizar la venta y generar picos de facturación masiva. Nuestra estrategia divide el lanzamiento en 12 momentos críticos divididos en 4 fases psicológicas."
+                        description="Configura tu secuencia de lanzamiento por WhatsApp para generar expectativa, mantener el interés de tus prospectos y guiarlos estratégicamente hacia la compra."
                     />
 
                     {/* --- VIDEO TUTORIAL --- */}

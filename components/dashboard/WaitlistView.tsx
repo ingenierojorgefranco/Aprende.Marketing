@@ -58,7 +58,7 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, 
                 >
                     
                     <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
-                        YA TENEMOS TODO LISTO <span className="text-[#FF5A1F]">PARA EMPEZAR</span>
+                        YA ESTAMOS LISTOS <span className="text-[#FF5A1F]">PARA EMPEZAR</span>
                     </h1>
                     
                     <p className="text-gray-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto">

@@ -685,8 +685,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     totalSteps={totalSteps}
                     stageNumber={1}
                     categoryTitle="Mira tu Página de Captura"
-                    title="Activa tu Página Web Profesional y captura clientes en automático"
-                    description="Imagina que pudieses crear tu propia página web profesional que capture clientes interesados todos los días. Hoy es ese día, nuestra Inteligencia Artificial creará por ti tu propia página web personalizada (Landing Page) en minutos."
+                    title={<>Activa tu <span className="text-[#FF5A1F]">Página Web de Captura</span></>}
+                    description="Activa tu página web de captura para atraer personas interesadas, recopilar sus datos y convertir visitantes en oportunidades reales de venta."
                 />
 
                 {/* 2. VIDEO TUTORIAL */}

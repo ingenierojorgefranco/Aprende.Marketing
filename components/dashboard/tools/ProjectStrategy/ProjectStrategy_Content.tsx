@@ -660,8 +660,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         totalSteps={totalSteps}
                         stageNumber={2}
                         categoryTitle="7. Artículos de Blog"
-                        title={<>Contenido SEO <span className="text-[#FF5A1F]">que crearemos automáticamente</span></>}
-                        description="Los activos digitales son la clave de la libertad financiera. No basta con pagar anuncios; necesitas crear una red de contenidos que trabajen por ti 24/7."
+                        title={<>Artículos de Blog <span className="text-[#FF5A1F]"> y SEO</span></>}
+                        description="Crea artículos de blog optimizados para SEO que atraigan tráfico desde Google, respondan las dudas de tu audiencia y generen nuevas oportunidades de venta."
                     />
 
                     {/* --- VIDEO TUTORIAL --- */}

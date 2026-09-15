@@ -639,8 +639,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         totalSteps={totalSteps}
                         stageNumber={2}
                         categoryTitle="8. Email Marketing (Conversión)"
-                        title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Conversión (7 Días)</span></>}
-                        description="Hemos diseñado una secuencia de 7 correos electrónicos estratégicos para nutrir a tus prospectos y llevarlos paso a paso hacia la decisión de compra, utilizando gatillos mentales de autoridad, escasez y urgencia."
+                        title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Conversión</span></>}
+                        description="Configura tu secuencia de Email Marketing para convertir a tus prospectos desde el primer momento, generar confianza y guiarlos paso a paso."
                     />
 
                     {/* --- VIDEO TUTORIAL --- */}

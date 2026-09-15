@@ -265,8 +265,8 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                 totalSteps={totalSteps}
                 stageNumber={2}
                 categoryTitle="6. LeadMagnet de Whatsapp"
-                title={<>LeadMagnet de WhatsApp <span className="text-[#FF5A1F]">(Entrega Manual)</span></>}
-                description="Configura y descarga el recurso gratuito (Lead Magnet) que entregarás de forma manual por WhatsApp a los prospectos captados en tu página web para romper el hielo y construir confianza inmediata."
+                title={<>LeadMagnet <span className="text-[#FF5A1F]">de WhatsApp</span></>}
+                description="Configura y descarga tu recurso gratuito (Lead Magnet) para entregarlo por WhatsApp, romper el hielo con tus prospectos y generar confianza desde el primer contacto."
             />
 
             {/* 2. VIDEO TUTORIAL */}

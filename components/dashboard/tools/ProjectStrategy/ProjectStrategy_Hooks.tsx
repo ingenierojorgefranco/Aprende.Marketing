@@ -947,8 +947,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 totalSteps={totalSteps}
                 stageNumber={1}
                 categoryTitle="5. Tus videos de atracción (Hooks)"
-                title={<>Hooks <span className="text-[#FF5A1F]">de Atracción</span></>}
-                description="Un Hook no es solo una pregunta; es el puente que detiene el scroll de tu cliente ideal. Hemos diseñado estos ganchos para atacar directamente los deseos de libertad y crecimiento de tu avatar."
+                title={<>Video Hooks <span className="text-[#FF5A1F]">de Atracción</span></>}
+                description="Crea videos con hooks de atracción para captar la atención desde los primeros segundos, despertar interés y llevar más personas hacia tu oferta."
             />
 
             {/* --- VIDEO TUTORIAL --- */}

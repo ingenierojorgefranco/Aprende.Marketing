@@ -128,7 +128,7 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                 stageNumber={1}
                 categoryTitle="Configura tus enlaces de afiliado"
                 title="Configura tus enlaces de afiliado"
-                description="Configura tus enlaces ahora para que el sistema pueda automatizar tus ventas. Si no sabes cómo obtenerlos, mira el tutorial de abajo."
+                description="Configura tus enlaces de afiliado para dirigir a tus clientes al producto correcto, registrar tus recomendaciones y recibir las comisiones de cada venta.."
             />
 
             {/* CONTENEDOR TUTORIAL Y FORMULARIO EN BLOQUES ESTRUCTURADOS */}

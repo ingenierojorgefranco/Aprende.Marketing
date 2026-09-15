@@ -488,26 +488,25 @@ export const TrainingViewer: React.FC = () => {
           )}
 
           {/* "Lo que aprenderás" Box */}
-          <div className="bg-gray-900/40 border border-gray-800 rounded-3xl p-8 backdrop-blur-sm">
-            <h3 className="text-white font-bold mb-8 flex items-center gap-3 text-xl">
-              <div className="bg-green-500/20 p-2 rounded-lg"><CheckCircle className="w-6 h-6 text-green-500" /></div>
-              Lo que aprenderás en esta clase
-            </h3>
-            <ul className="grid grid-cols-1 gap-y-4">
-              {(currentLesson?.learning_points || []).map((point: string, i: number) => (
-                <li key={i} className="flex items-start gap-4 text-gray-300 text-lg group">
-                  <div className="mt-2 w-2 h-2 rounded-full bg-primary flex-shrink-0 shadow-[0_0_10px_rgba(99,102,241,0.5)] group-hover:scale-125 transition-transform"></div>
-                  <span className="leading-relaxed group-hover:text-white transition-colors">{point}</span>
-                </li>
-              ))}
-              {(!currentLesson?.learning_points || currentLesson.learning_points.length === 0) && (
-                  <li className="text-gray-500 italic">No hay puntos clave definidos para esta lección.</li>
-              )}
-            </ul>
-          </div>
+          {currentLesson?.learning_points && currentLesson.learning_points.some((point: string) => point && point.trim() !== '') && (
+            <div className="bg-gray-900/40 border border-gray-800 rounded-3xl p-8 backdrop-blur-sm">
+              <h3 className="text-white font-bold mb-8 flex items-center gap-3 text-xl">
+                <div className="bg-green-500/20 p-2 rounded-lg"><CheckCircle className="w-6 h-6 text-green-500" /></div>
+                Lo que aprenderás en esta clase
+              </h3>
+              <ul className="grid grid-cols-1 gap-y-4">
+                {currentLesson.learning_points.filter((point: string) => point && point.trim() !== '').map((point: string, i: number) => (
+                  <li key={i} className="flex items-start gap-4 text-gray-300 text-lg group">
+                    <div className="mt-2 w-2 h-2 rounded-full bg-primary flex-shrink-0 shadow-[0_0_10px_rgba(99,102,241,0.5)] group-hover:scale-125 transition-transform"></div>
+                    <span className="leading-relaxed group-hover:text-white transition-colors">{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* New: Description Block */}
-          {currentLesson && (
+          {currentLesson && currentLesson.description && currentLesson.description.trim() !== '' && (
               <div className="bg-gray-900/40 border border-gray-800 rounded-3xl p-8 backdrop-blur-sm">
                 <h3 className="text-white font-bold mb-6 flex items-center gap-3 text-xl">
                     <div className="bg-blue-500/20 p-2 rounded-lg"><FileText className="w-6 h-6 text-blue-500" /></div>
@@ -515,7 +514,7 @@ export const TrainingViewer: React.FC = () => {
                 </h3>
                 <div className="prose prose-invert max-w-none text-gray-300 leading-relaxed text-lg">
                     {/* Render HTML Content */}
-                    <div dangerouslySetInnerHTML={{ __html: currentLesson.description || "Sin descripción disponible." }} />
+                    <div dangerouslySetInnerHTML={{ __html: currentLesson.description }} />
                 </div>
               </div>
           )}

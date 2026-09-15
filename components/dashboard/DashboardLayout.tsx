@@ -575,16 +575,6 @@ export const DashboardLayout = ({
                                          <Settings className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors shrink-0" />
                                          <span>Cuenta</span>
                                      </button>
-                                     <button
-                                         onClick={() => {
-                                             setHeaderUserMenuOpen(false);
-                                             setShowUpgradeModal(true);
-                                         }}
-                                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
-                                     >
-                                         <CreditCard className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors shrink-0" />
-                                         <span>Facturación</span>
-                                     </button>
                                      <a
                                          href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4"
                                          target="_blank"
@@ -604,17 +594,6 @@ export const DashboardLayout = ({
                                      >
                                          <HelpCircle className="w-4 h-4 text-[#FF5A1F] transition-colors shrink-0" />
                                          <span>Ayuda y Soporte</span>
-                                     </button>
-                                     <div className="my-1 border-t border-white/10" />
-                                     <button
-                                         onClick={() => {
-                                             setHeaderUserMenuOpen(false);
-                                             onLogout();
-                                         }}
-                                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer group"
-                                     >
-                                         <LogOut className="w-4 h-4 text-red-400 group-hover:text-red-300 transition-colors shrink-0" />
-                                         <span>Cerrar sesión</span>
                                      </button>
                                  </div>
                              )}

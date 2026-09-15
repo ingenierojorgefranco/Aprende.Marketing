@@ -483,7 +483,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                 stageNumber={1}
                 categoryTitle="Conoce a tu Comprador Ideal"
                 title="Conoce a tu Comprador Ideal"
-                description="El 90% de los embudos fracasan porque el mensaje es demasiado genérico. Aquí tienes los perfiles psicológicos exactos de las personas que realmente comprarán tu producto."
+                description="Un comprador ideal es la persona con mayor probabilidad de adquirir tu producto porque tiene una necesidad clara, capacidad de compra y verdadero interés en tu solución."
             />
 
             {/* 2. VIDEO TUTORIAL */}
