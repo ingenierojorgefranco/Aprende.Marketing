@@ -277,6 +277,11 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                         const projectCategory = project.niche || "General";
                         const projectCategoryIcon = getCategoryIcon(projectCategory);
 
+                        const rawCommission = project.commissionRate || 80;
+                        const displayCommission = rawCommission < 1 ? Math.round(rawCommission * 100) : Math.round(rawCommission);
+                        const profitValue = project.fullPrice && displayCommission ? (project.fullPrice * (displayCommission / 100)).toFixed(2) : '0.00';
+                        const profitInt = Math.round(parseFloat(profitValue));
+
                         return (
                             <motion.div 
                                 key={project.id}
@@ -328,6 +333,42 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                     >
                                         {idealForDesc}
                                     </p>
+
+                                    {/* Financial stats block matching image 2 and request */}
+                                    <div className="space-y-2 pt-3 border-t border-zinc-850 text-left">
+                                        {/* Precio */}
+                                        <div className="flex items-center gap-3.5 bg-zinc-900/50 border border-zinc-800/40 rounded-xl p-3">
+                                            <div className="w-9 h-9 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                                <Tag className="w-5 h-5" />
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-[10px] text-zinc-400 font-extrabold uppercase tracking-wider leading-none">PRECIO EN EL QUE SE VENDERÁ TU PRODUCTO</span>
+                                                <span className="text-base font-black text-white mt-1">USD {project.fullPrice || 200}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Comisión */}
+                                        <div className="flex items-center gap-3.5 bg-zinc-900/50 border border-zinc-800/40 rounded-xl p-3">
+                                            <div className="w-9 h-9 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                                <Percent className="w-5 h-5" />
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-[10px] text-zinc-400 font-extrabold uppercase tracking-wider leading-none">% DE COMISIÓN POR RECOMENDARLO</span>
+                                                <span className="text-base font-black text-white mt-1">{displayCommission} %</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Ganancias */}
+                                        <div className="flex items-center gap-3.5 bg-[#FF5A1F]/5 border border-[#FF5A1F]/20 rounded-xl p-3">
+                                            <div className="w-9 h-9 rounded-xl bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F] shrink-0">
+                                                <TrendingUp className="w-5 h-5" />
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-[10px] text-zinc-400 font-extrabold uppercase tracking-wider leading-none">¿CUÁNTO GANARÁS POR CADA VENTA?</span>
+                                                <span className="text-base font-black text-[#FF5A1F] mt-1">USD {profitInt}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Action Button */}
