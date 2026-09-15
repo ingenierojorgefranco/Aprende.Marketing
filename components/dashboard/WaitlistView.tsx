@@ -9,10 +9,11 @@ interface WaitlistViewProps {
     user: User;
     onUpdateUser?: (updatedUser: User) => void;
     onComplete?: () => void;
+    forceSuccess?: boolean;
 }
 
-export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, onComplete }) => {
-    const [showSuccess, setShowSuccess] = useState(false);
+export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, onComplete, forceSuccess }) => {
+    const [showSuccess, setShowSuccess] = useState(forceSuccess || false);
 
     useEffect(() => {
         if (showSuccess) {

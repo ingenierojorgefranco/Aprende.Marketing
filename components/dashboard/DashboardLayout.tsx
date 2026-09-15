@@ -378,8 +378,10 @@ export const DashboardLayout = ({
     return !!survey;
   }, [user.survey_json, user.role]);
 
-  const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin' && !hasCompletedSurvey;
-  const isSurveyPending = !hasCompletedSurvey && user.role !== 'admin';
+  const hasUserActivity = projectCount > 0 || pageCount > 0;
+  const isLaunchRestricted = false;
+  const isSurveyPending = false;
+  const showWelcomeVideo = user.role !== 'admin' && !hasUserActivity && typeof window !== 'undefined' && localStorage.getItem('welcome_video_seen') !== 'true';
   const isWizardRoute = location.pathname.startsWith('/wizard') || location.pathname.startsWith('/onboarding');
   
   const isWizardCompleted = typeof window !== 'undefined' && (
@@ -387,11 +389,10 @@ export const DashboardLayout = ({
     localStorage.getItem('wizard_dismissed') === 'true'
   );
   const isWizardDismissed = typeof window !== 'undefined' && localStorage.getItem('wizard_dismissed') === 'true';
-  const hasUserActivity = projectCount > 0 || pageCount > 0;
-
+ 
   // showWizard SOLO debe ser true si la ruta actual es una ruta de wizard (/wizard/* o /onboarding)
   const showWizard = isWizardRoute;
-
+ 
   useEffect(() => {
     // Si el usuario navegó intencionalmente a cualquier ruta del dashboard, limpiar force_wizard_step
     if (location.pathname.startsWith('/dashboard') && typeof window !== 'undefined') {
@@ -400,13 +401,12 @@ export const DashboardLayout = ({
         localStorage.removeItem('force_wizard_step');
       }
     }
-
+ 
     // Solo si es un usuario totalmente nuevo en /dashboard que nunca ha descartado el wizard, no tiene proyectos y está habilitado
     if (
       location.pathname === '/dashboard' &&
       wizardEnabled &&
-      !isSurveyPending &&
-      !isLaunchRestricted &&
+      !showWelcomeVideo &&
       user.role !== 'admin' &&
       !isWizardCompleted &&
       !isWizardDismissed &&
@@ -414,8 +414,8 @@ export const DashboardLayout = ({
     ) {
       navigate('/wizard/step-1', { replace: true });
     }
-  }, [location.pathname, isSurveyPending, isLaunchRestricted, navigate, isWizardCompleted, isWizardDismissed, hasUserActivity, wizardEnabled, user.role]);
-
+  }, [location.pathname, showWelcomeVideo, navigate, isWizardCompleted, isWizardDismissed, hasUserActivity, wizardEnabled, user.role]);
+ 
   if (loadingMode) {
       return (
           <div className="h-screen bg-black flex items-center justify-center">
@@ -423,10 +423,10 @@ export const DashboardLayout = ({
           </div>
       );
   }
-
+ 
   return (
     <div className="h-screen overflow-hidden bg-[#030712] text-[#FFFFFF] flex font-sans">
-      {(!isSurveyPending && !isLaunchRestricted && !showWizard && !isProjectDetailRoute) && (
+      {(!showWelcomeVideo && !showWizard && !isProjectDetailRoute) && (
         <aside className={`fixed md:relative top-0 left-0 h-full w-64 md:w-[17rem] shrink-0 bg-[#030712] border-r border-slate-800/60 shadow-2xl z-40 transition-all duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
           <div className="p-6 pb-5 flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -486,7 +486,7 @@ export const DashboardLayout = ({
         {mobileMenuOpen && <div className="fixed inset-0 bg-black/80 z-30 md:hidden" onClick={() => setMobileMenuOpen(false)}></div>}
         <header className="h-20 bg-[#030712]/95 backdrop-blur-md border-b border-slate-800/60 flex items-center justify-between px-6 shrink-0 z-30">
              <div className={`flex items-center gap-4 ${isWizardGenerating ? 'w-full justify-center' : ''}`}>
-                 {isSurveyPending || showWizard ? (
+                 {showWelcomeVideo || showWizard ? (
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-[#FF5A1F]/20 px-1">AM</div>
                         <h2 className="text-lg font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
@@ -647,13 +647,17 @@ export const DashboardLayout = ({
              )}
         </header>
 
-        <div id="dashboard-scroll-container" className={`flex-1 overflow-y-auto bg-[#030712] p-4 sm:p-8 relative ${(isSurveyPending || isLaunchRestricted || showWizard) ? 'flex flex-col items-center' : ''} ${isWizardGenerating ? '!overflow-hidden' : ''}`}>
-            <div className={`w-full max-w-[1600px] ${(isSurveyPending || isLaunchRestricted || showWizard) ? 'max-w-6xl mx-auto mt-0' : 'mx-auto'}`}>
-                {(isLaunchRestricted || isSurveyPending) ? (
+        <div id="dashboard-scroll-container" className={`flex-1 overflow-y-auto bg-[#030712] p-4 sm:p-8 relative ${(showWelcomeVideo || showWizard) ? 'flex flex-col items-center' : ''} ${isWizardGenerating ? '!overflow-hidden' : ''}`}>
+            <div className={`w-full max-w-[1600px] ${(showWelcomeVideo || showWizard) ? 'max-w-6xl mx-auto mt-0' : 'mx-auto'}`}>
+                {showWelcomeVideo ? (
                     <WaitlistView 
                         user={effectiveUser} 
                         onUpdateUser={onUpdateUser}
+                        forceSuccess={true}
                         onComplete={async () => {
+                            if (typeof window !== 'undefined') {
+                                localStorage.setItem('welcome_video_seen', 'true');
+                            }
                             try {
                                 const redirectUrl = await api.getLoginRedirect();
                                 if (redirectUrl) {

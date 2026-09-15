@@ -27,6 +27,7 @@ import {
     Music,
     Wallet
 } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
 import { User as UserType } from '../../types';
 import { countries } from '../../src/lib/countriesData';
@@ -37,7 +38,21 @@ interface OnboardingSurveyProps {
 }
 
 export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComplete }) => {
-    const [step, setStep] = useState(0);
+    const { stepParam } = useParams() as { stepParam?: string };
+    const navigate = useNavigate();
+    const [localStep, setLocalStep] = useState(0);
+
+    const isSurveyRoute = window.location.pathname.includes('/survey');
+    const step = isSurveyRoute ? (stepParam === '2' ? 1 : 0) : localStep;
+
+    const setStep = (newStep: number) => {
+        if (isSurveyRoute) {
+            navigate(`/survey/${newStep + 1}`);
+        } else {
+            setLocalStep(newStep);
+        }
+    };
+
     const [loading, setLoading] = useState(false);
     const [attemptedNext, setAttemptedNext] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");

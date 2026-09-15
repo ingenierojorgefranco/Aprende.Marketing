@@ -30,6 +30,7 @@ const AprendeMarketingProjectPageWrapper: React.FC = () => {
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
 import { DashboardHome } from "./components/dashboard/DashboardHome";
 import { WelcomePage } from "./components/dashboard/WelcomePage";
+import { SurveyPage } from "./components/dashboard/SurveyPage";
 
 // Dashboard Admin
 import { AdminPanel } from "./components/dashboard/admin/AdminPanel";
@@ -331,6 +332,23 @@ const App: React.FC = () => {
         <Route path="/jorge-franco/proyectos/aprende-marketing" element={<Navigate to="/jorge-franco/es/proyectos/aprende-marketing" replace />} />
         <Route path="/jorge-franco/:lang/proyectos/aprende-marketing" element={<AprendeMarketingProjectPageWrapper />} />
         {/* ////////// Fin de nuevas rutas - 27/05/2025 01:15 ////////// */}
+
+        <Route 
+          path="/survey" 
+          element={
+            <ProtectedRoute>
+              <SurveyPage user={user!} onUpdateUser={setUser} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/survey/:stepParam" 
+          element={
+            <ProtectedRoute>
+              <SurveyPage user={user!} onUpdateUser={setUser} />
+            </ProtectedRoute>
+          } 
+        />
 
         <Route 
           path="/onboarding" 
