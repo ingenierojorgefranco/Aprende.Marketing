@@ -56,16 +56,26 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
     const [loading, setLoading] = useState(false);
     const [attemptedNext, setAttemptedNext] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const [formData, setFormData] = useState({
-        email: user.email || '',
-        fullName: user.name || '',
-        country: '',
-        dedicationTime: '',
-        experienceLevel: '', 
-        budgetRange: '', 
-        mainObstacle: [] as string[],
-        currentResources: [] as string[],
+    const [formData, setFormData] = useState(() => {
+        const saved = typeof window !== 'undefined' ? localStorage.getItem('onboarding_survey_data') : null;
+        const initial = saved ? JSON.parse(saved) : {};
+        return {
+            email: user.email || '',
+            fullName: user.name || '',
+            country: initial.country || '',
+            dedicationTime: initial.dedicationTime || '',
+            experienceLevel: initial.experienceLevel || '', 
+            budgetRange: initial.budgetRange || '', 
+            mainObstacle: (initial.mainObstacle || []) as string[],
+            currentResources: (initial.currentResources || []) as string[],
+        };
     });
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('onboarding_survey_data', JSON.stringify(formData));
+        }
+    }, [formData]);
 
     // Subir al inicio al cambiar de paso
     useEffect(() => {
@@ -129,7 +139,21 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
     };
 
     const handleSubmit = async () => {
-        const isAllValid = [0, 1].every(i => validateStep(i));
+        const finalFormData = {
+            ...formData,
+            country: formData.country || 'No especificado',
+            experienceLevel: formData.experienceLevel || 'Estoy comenzando desde cero',
+            dedicationTime: formData.dedicationTime || 'Menos de 2 horas al día'
+        };
+
+        const isAllValid = [0, 1].every(i => {
+            if (i === 0) {
+                return !!finalFormData.country && !!finalFormData.experienceLevel && !!finalFormData.dedicationTime;
+            }
+            const hasObstacle = Array.isArray(finalFormData.mainObstacle) ? finalFormData.mainObstacle.length > 0 : !!finalFormData.mainObstacle;
+            return hasObstacle;
+        });
+
         if (!isAllValid) {
             setErrorMessage("Por favor responde a todas las preguntas obligatorias antes de comenzar.");
             return;
@@ -138,9 +162,12 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
         setLoading(true);
         setErrorMessage("");
         try {
-            console.log("🚀 Enviando encuesta simplificada al backend...", formData);
-            await api.submitSurvey(formData);
+            console.log("🚀 Enviando encuesta simplificada al backend...", finalFormData);
+            await api.submitSurvey(finalFormData);
             console.log("✅ Encuesta guardada exitosamente");
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('onboarding_survey_data');
+            }
             onComplete();
         } catch (error) {
             console.error("❌ Error al guardar la encuesta:", error);

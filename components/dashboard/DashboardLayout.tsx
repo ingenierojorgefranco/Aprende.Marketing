@@ -381,7 +381,7 @@ export const DashboardLayout = ({
   const hasUserActivity = projectCount > 0 || pageCount > 0;
   const isLaunchRestricted = false;
   const isSurveyPending = false;
-  const showWelcomeVideo = user.role !== 'admin' && !hasUserActivity && typeof window !== 'undefined' && localStorage.getItem('welcome_video_seen') !== 'true';
+  const showWelcomeVideo = user.role !== 'admin' && !hasUserActivity && typeof window !== 'undefined' && localStorage.getItem(`welcome_video_seen_${user.id}`) !== 'true';
   const isWizardRoute = location.pathname.startsWith('/wizard') || location.pathname.startsWith('/onboarding');
   
   const isWizardCompleted = typeof window !== 'undefined' && (
@@ -656,7 +656,7 @@ export const DashboardLayout = ({
                         forceSuccess={true}
                         onComplete={async () => {
                             if (typeof window !== 'undefined') {
-                                localStorage.setItem('welcome_video_seen', 'true');
+                                localStorage.setItem(`welcome_video_seen_${user.id}`, 'true');
                             }
                             try {
                                 const redirectUrl = await api.getLoginRedirect();

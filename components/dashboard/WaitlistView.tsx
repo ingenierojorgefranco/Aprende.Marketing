@@ -54,15 +54,15 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, 
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    className="w-full max-w-4xl relative flex flex-col items-center text-center"
+                    className="w-full max-w-[60rem] relative flex flex-col items-center text-center"
                 >
                     
                     <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
-                        ¡Perfecto! Ya tenemos todo para <span className="text-[#FF5A1F]">empezar</span>
+                        YA TENEMOS TODO LISTO <span className="text-[#FF5A1F]">PARA EMPEZAR</span>
                     </h1>
                     
                     <p className="text-gray-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
-                        Hemos configurado tu perfil con éxito. Antes de ingresar a la academia, te invitamos a ver este breve video.
+                        Antes de continuar te invitamos a ver este breve video.
                     </p>
 
                     <div className="w-full aspect-video rounded-2xl overflow-hidden border border-gray-800 shadow-2xl mb-10 relative bg-black">

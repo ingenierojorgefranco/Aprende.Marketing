@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { OnboardingSurvey } from './OnboardingSurvey';
 import { User } from '../../types';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, LayoutDashboard } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface SurveyPageProps {
     user: User;
@@ -12,17 +13,17 @@ interface SurveyPageProps {
 export const SurveyPage: React.FC<SurveyPageProps> = ({ user, onUpdateUser }) => {
     const { stepParam } = useParams() as { stepParam?: string };
     const navigate = useNavigate();
+    const [completed, setCompleted] = useState(false);
 
     // Redirect /survey to /survey/1 automatically for URL consistency
     useEffect(() => {
-        if (!stepParam) {
+        if (!stepParam && !completed) {
             navigate('/survey/1', { replace: true });
         }
-    }, [stepParam, navigate]);
+    }, [stepParam, navigate, completed]);
 
     const handleSurveyComplete = () => {
-        // Redirigir al dashboard
-        navigate('/dashboard', { replace: true });
+        setCompleted(true);
     };
 
     return (
@@ -47,10 +48,38 @@ export const SurveyPage: React.FC<SurveyPageProps> = ({ user, onUpdateUser }) =>
             {/* Contenido principal */}
             <main className="flex-1 flex flex-col items-center justify-center py-10 px-4">
                 <div className="w-full max-w-3xl relative">
-                    <OnboardingSurvey 
-                        user={user} 
-                        onComplete={handleSurveyComplete} 
-                    />
+                    {completed ? (
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-8 md:p-12 text-center flex flex-col items-center max-w-2xl mx-auto shadow-2xl"
+                        >
+                            <div className="w-16 h-16 bg-[#FF5A1F]/10 text-[#FF5A1F] rounded-full flex items-center justify-center mb-6 shadow-[0_4px_20px_rgba(255,90,31,0.15)]">
+                                <CheckCircle2 className="w-9 h-9" />
+                            </div>
+
+                            <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-4 uppercase">
+                                ¡Muchísimas gracias por completar la encuesta!
+                            </h1>
+
+                            <p className="text-zinc-400 text-lg mb-8 leading-relaxed">
+                                Tus respuestas han sido guardadas de forma segura. Nos servirán para personalizar todo tu itinerario académico y adecuar las recomendaciones para que puedas lograr tus metas con la mayor velocidad posible.
+                            </p>
+
+                            <button
+                                onClick={() => navigate('/dashboard', { replace: true })}
+                                className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-250 bg-[#FF5A1F] rounded-xl hover:bg-[#E04814] hover:scale-[1.03] hover:shadow-lg hover:shadow-[#FF5A1F]/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF5A1F] focus:ring-offset-[#030712] text-lg w-full sm:w-auto"
+                            >
+                                <LayoutDashboard className="mr-3 w-5 h-5" />
+                                Ir al Panel Principal
+                            </button>
+                        </motion.div>
+                    ) : (
+                        <OnboardingSurvey 
+                            user={user} 
+                            onComplete={handleSurveyComplete} 
+                        />
+                    )}
                 </div>
             </main>
         </div>
