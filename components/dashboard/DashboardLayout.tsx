@@ -256,6 +256,13 @@ export const DashboardLayout = ({
         ];
     }
 
+    // Si el usuario no es admin y no tiene proyectos creados, solo mostrar Academia apuntando al curso digital-products
+    if (user.role !== 'admin' && projectCount === 0) {
+        return [
+            { id: 'training', label: 'Academia', icon: GraduationCap, path: '/dashboard/training/digital-products' }
+        ];
+    }
+
     const SHOW_TU_SISTEMA_MENU = false; // Ocultado según instrucción. Cambiar a true para reactivar.
 
     return [
@@ -283,7 +290,7 @@ export const DashboardLayout = ({
           ]
         }
       ];
-  }, [systemMode, user.role, courseItems]);
+  }, [systemMode, user.role, courseItems, projectCount]);
 
   const NavItemRender: React.FC<{ item: MenuItem }> = ({ item }) => {
     if (item.adminOnly && user.role !== 'admin') return null;

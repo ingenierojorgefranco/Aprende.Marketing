@@ -13,7 +13,7 @@ interface WelcomeVideoPageProps {
 export const WelcomeVideoPage: React.FC<WelcomeVideoPageProps> = ({ user, onLogout, onUpdateUser }) => {
     React.useEffect(() => {
         if (typeof window !== 'undefined' && localStorage.getItem(`welcome_video_seen_${user.id}`) === 'true') {
-            window.location.href = '/dashboard';
+            window.location.href = '/dashboard/training/digital-products';
         }
     }, [user.id]);
 
@@ -58,16 +58,7 @@ export const WelcomeVideoPage: React.FC<WelcomeVideoPageProps> = ({ user, onLogo
                             if (typeof window !== 'undefined') {
                                 localStorage.setItem(`welcome_video_seen_${user.id}`, 'true');
                             }
-                            try {
-                                const redirectUrl = await api.getLoginRedirect();
-                                if (redirectUrl) {
-                                    window.location.href = redirectUrl;
-                                } else {
-                                    window.location.href = "/dashboard";
-                                }
-                            } catch (e) {
-                                window.location.href = "/dashboard";
-                            }
+                            window.location.href = "/dashboard/training/digital-products";
                         }} 
                     />
                 </div>
