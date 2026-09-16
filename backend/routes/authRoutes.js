@@ -85,6 +85,8 @@ export const getEffectiveLimits = async (userId) => {
         );
         let directPlanSlug = 'starter';
         let directMaxHooks = null;
+        let isUserCustom = false;
+        let customLimitsObj = null;
         if (userRows && userRows.length > 0) {
             const row = userRows[0];
             let directLimits = row.plan_limits;
@@ -95,10 +97,16 @@ export const getEffectiveLimits = async (userId) => {
                     directLimits = null;
                 }
             }
-            const possibleSlug = directLimits.planSlug || directLimits.planName;
-            if (possibleSlug) {
-                const rawName = String(possibleSlug).toLowerCase().trim();
-                directPlanSlug = rawName.replace(/\s+/g, '-');
+            if (directLimits) {
+                if (directLimits.isCustom === true) {
+                    isUserCustom = true;
+                    customLimitsObj = directLimits;
+                }
+                const possibleSlug = directLimits.planSlug || directLimits.planName;
+                if (possibleSlug) {
+                    const rawName = String(possibleSlug).toLowerCase().trim();
+                    directPlanSlug = rawName.replace(/\s+/g, '-');
+                }
             }
             if (row.max_hooks !== null && row.max_hooks !== undefined) {
                 directMaxHooks = row.max_hooks;
@@ -170,7 +178,7 @@ export const getEffectiveLimits = async (userId) => {
                 }
             }
 
-            const limits = planDefinitions[effectivePlanSlug] || DEFAULT_LIMITS;
+            const limits = isUserCustom ? customLimitsObj : (planDefinitions[effectivePlanSlug] || DEFAULT_LIMITS);
             projectLimits[proj.id] = { ...limits, planName: effectivePlanSlug, isBlocked };
             projectStatus[proj.id] = { planName: effectivePlanSlug, isBlocked };
         });
@@ -193,32 +201,46 @@ export const getEffectiveLimits = async (userId) => {
             features: { ...DEFAULT_LIMITS.features }
         };
 
-        relevantSlugs.forEach(slug => {
-            const limits = planDefinitions[slug] || DEFAULT_LIMITS;
-            
-            // Sum up global capacities (Inventory based)
-            summary.maxProjects += (limits.maxProjects || 0);
-            summary.maxLandings += (limits.maxLandings || 0);
-            summary.maxArticles += (limits.maxArticles || 0);
-            summary.maxDomains += (limits.maxDomains || 0);
-            summary.maxEmailSequences += (limits.maxEmailSequences || 0);
-            
-            let nurtureVal = limits.maxEmailSequencesNurturing;
-            if (nurtureVal === undefined || nurtureVal === null || nurtureVal === 0) {
-                nurtureVal = (slug !== 'starter') ? 15 : 0;
+        if (isUserCustom) {
+            summary.maxProjects = customLimitsObj.maxProjects || 0;
+            summary.maxLandings = customLimitsObj.maxLandings || 0;
+            summary.maxArticles = customLimitsObj.maxArticles || 0;
+            summary.maxDomains = customLimitsObj.maxDomains || 0;
+            summary.maxEmailSequences = customLimitsObj.maxEmailSequences || 0;
+            summary.maxEmailSequencesNurturing = customLimitsObj.maxEmailSequencesNurturing || 15;
+            summary.maxWhatsAppLaunches = customLimitsObj.maxWhatsAppLaunches || 0;
+            summary.maxHooks = customLimitsObj.maxHooks || 0;
+            if (customLimitsObj.features) {
+                summary.features = { ...DEFAULT_LIMITS.features, ...customLimitsObj.features };
             }
-            summary.maxEmailSequencesNurturing += nurtureVal;
-            
-            summary.maxWhatsAppLaunches += (limits.maxWhatsAppLaunches || 0);
-            summary.maxHooks += (limits.maxHooks || 0);
+        } else {
+            relevantSlugs.forEach(slug => {
+                const limits = planDefinitions[slug] || DEFAULT_LIMITS;
+                
+                // Sum up global capacities (Inventory based)
+                summary.maxProjects += (limits.maxProjects || 0);
+                summary.maxLandings += (limits.maxLandings || 0);
+                summary.maxArticles += (limits.maxArticles || 0);
+                summary.maxDomains += (limits.maxDomains || 0);
+                summary.maxEmailSequences += (limits.maxEmailSequences || 0);
+                
+                let nurtureVal = limits.maxEmailSequencesNurturing;
+                if (nurtureVal === undefined || nurtureVal === null || nurtureVal === 0) {
+                    nurtureVal = (slug !== 'starter') ? 15 : 0;
+                }
+                summary.maxEmailSequencesNurturing += nurtureVal;
+                
+                summary.maxWhatsAppLaunches += (limits.maxWhatsAppLaunches || 0);
+                summary.maxHooks += (limits.maxHooks || 0);
 
-            // Merge features
-            if (limits.features) {
-                Object.keys(limits.features).forEach(feat => {
-                    if (limits.features[feat]) summary.features[feat] = true;
-                });
-            }
-        });
+                // Merge features
+                if (limits.features) {
+                    Object.keys(limits.features).forEach(feat => {
+                        if (limits.features[feat]) summary.features[feat] = true;
+                    });
+                }
+            });
+        }
 
         // Determine "Best Plan" for UI display name based on hierarchy
         let bestPlanSlug = 'starter';

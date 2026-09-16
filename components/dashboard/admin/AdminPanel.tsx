@@ -173,10 +173,15 @@ export const AdminPanel: React.FC = () => {
         if (!editingUser || !tempPlanLimits) return;
 
         try {
+            const planLimitsWithCustomFlag = {
+                ...tempPlanLimits,
+                isCustom: true
+            };
+
             // Update Full User Profile including Role and Plan Limits
             await api.updateUser(editingUser.id, {
                 role: editingUser.role || 'user',
-                planLimits: tempPlanLimits,
+                planLimits: planLimitsWithCustomFlag,
                 maxHooks: editingUser.maxHooks,
                 isActive: true, // Assuming active for now
                 name: editingUser.name,
@@ -190,7 +195,7 @@ export const AdminPanel: React.FC = () => {
             // Refresh list
             setUsers(prev => prev.map(u => u.id === editingUser.id ? { 
                 ...editingUser, 
-                planLimits: tempPlanLimits,
+                planLimits: planLimitsWithCustomFlag,
                 maxHooks: editingUser.maxHooks
             } : u));
             
