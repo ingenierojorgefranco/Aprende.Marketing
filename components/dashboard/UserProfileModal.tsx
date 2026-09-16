@@ -305,7 +305,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                     </div>
                                 </div>
 
-                                {user.planLimits?.planName !== 'pro' && user.planLimits?.planName !== 'max' && (
+                                {['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free'].includes((user.planLimits?.planName || 'starter').toLowerCase()) && (
                                     <button 
                                         onClick={() => setShowUpgrade(true)}
                                         className="w-full py-6 rounded-2xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-xl shadow-[#FF5A1F]/20 transition-all flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 uppercase"

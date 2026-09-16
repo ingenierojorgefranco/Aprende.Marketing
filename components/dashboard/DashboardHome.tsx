@@ -139,8 +139,8 @@ export const DashboardHome: React.FC = () => {
   }, [masterLibrary, projects]);
 
   const planRawName = user?.planLimits?.planName || 'Gratuito';
-  const isFree = planRawName.toLowerCase() === 'starter' || planRawName.toLowerCase() === 'free' || planRawName.toLowerCase() === 'gratis' || planRawName.toLowerCase() === 'gratuito';
-  const planName = isFree ? 'Plan Gratuito' : (planRawName.toLowerCase() === 'pro' || planRawName.toLowerCase() === 'max' ? 'Pro All-Access' : planRawName);
+  const isFree = ['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free'].includes(planRawName.toLowerCase());
+  const planName = isFree ? 'Plan Gratuito' : planRawName;
   const maxProjects = user?.planLimits?.maxProjects || 1;
   
   
@@ -272,24 +272,33 @@ export const DashboardHome: React.FC = () => {
                   </div>
 
                   {/* SECCIÓN INFERIOR: TEXTO MOTIVACIONAL + BOTÓN (Conectado sin gran espacio vacío) */}
-                  <div className="relative z-10 mt-4 space-y-3">
-                      <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-                          Mejora tu suscripción y obtén las mejores características para tener mejores resultados
-                      </p>
+                  {isFree ? (
+                      <div className="relative z-10 mt-4 space-y-3">
+                          <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
+                              Mejora tu suscripción y obtén las mejores características para tener mejores resultados
+                          </p>
 
-                      <button 
-                          onClick={() => {
-                              if (setShowUpgradeModal) {
-                                  setShowUpgradeModal(true);
-                              } else {
-                                  setShowProfileModal(true);
-                              }
-                          }} 
-                          className="w-full py-3.5 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-[#FF5A1F] via-[#FF6E2B] to-[#FF853A] text-white hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-[0_5px_20px_rgba(255,90,31,0.35)] cursor-pointer uppercase tracking-wider"
-                      >
-                          <Zap className="w-4 h-4 fill-current" /> Mejorar a Pro
-                      </button>
-                  </div>
+                          <button 
+                              onClick={() => {
+                                  if (setShowUpgradeModal) {
+                                      setShowUpgradeModal(true);
+                                  } else {
+                                      setShowProfileModal(true);
+                                  }
+                              }} 
+                              className="w-full py-3.5 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-[#FF5A1F] via-[#FF6E2B] to-[#FF853A] text-white hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-[0_5px_20px_rgba(255,90,31,0.35)] cursor-pointer uppercase tracking-wider"
+                          >
+                              <Zap className="w-4 h-4 fill-current" /> Mejorar a Pro
+                          </button>
+                      </div>
+                  ) : (
+                      <div className="relative z-10 mt-4">
+                          <p className="text-xs sm:text-sm text-green-400 font-bold flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 px-3.5 py-2.5 rounded-xl">
+                              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse animate-duration-1000"></span>
+                              Suscripción Premium Activa: ¡Acceso ilimitado habilitado!
+                          </p>
+                      </div>
+                  )}
               </div>
 
               {/* 2. COMUNIDAD DE WHATSAPP (Aumentada en presencia y altura para equilibrio proporcional) */}
