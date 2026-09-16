@@ -1262,7 +1262,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         ) : (
                             <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />
                         )}
-                        {unlockingSingle ? 'Desbloqueando...' : isLimitReached ? 'Actualiza tu Plan' : 'Desbloquear Hook'}
+                        {unlockingSingle ? 'Desbloqueando...' : isLimitReached ? 'Desbloquear 27 Hooks' : 'Desbloquear Hook'}
                     </button>
                     
                     <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">

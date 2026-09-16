@@ -738,9 +738,9 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
                                     <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
                                 </div>
-                                <div className="bg-[#040710] border border-slate-800/80 px-4 py-1 rounded-full text-[11px] text-slate-400 font-mono truncate max-w-xs">
-                                    aprende.marketing/admin/lp/{linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo'}
-                                </div>
+                                <span className="text-xs sm:text-sm font-bold text-slate-300">
+                                    Tu página web de captura
+                                </span>
                                 <div className="w-12"></div>
                             </div>
 
@@ -891,8 +891,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         </h4>
 
                                         {/* Campo de URL con botón copiar */}
-                                        <div className="flex items-center bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-2 min-w-0">
-                                            <span className="truncate flex-1 select-all">
+                                        <div className="flex items-start bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-2 min-w-0">
+                                            <span className="break-all whitespace-normal flex-1 select-all leading-relaxed py-0.5">
                                                 aprende.marketing/admin/lp/{linkedPages[0].subdomain.split('.')[0]}
                                             </span>
                                             <button 
@@ -1023,9 +1023,9 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
                                     <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
                                 </div>
-                                <div className="bg-[#040710] border border-slate-800/80 px-4 py-1 rounded-full text-[11px] text-slate-400 font-mono truncate max-w-xs">
-                                    aprende.marketing/admin/lp/{linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo'}/gracias
-                                </div>
+                                <span className="text-xs sm:text-sm font-bold text-slate-300">
+                                    Tu página de gracias
+                                </span>
                                 <div className="w-12"></div>
                             </div>
 
@@ -1109,13 +1109,13 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         </h4>
 
                                         {/* Campo de URL con botón copiar */}
-                                        <div className="flex items-center bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-2 min-w-0">
-                                            <span className="truncate flex-1 select-all">
+                                        <div className="flex items-start bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-2 min-w-0">
+                                            <span className="break-all whitespace-normal flex-1 select-all leading-relaxed py-0.5">
                                                 aprende.marketing/admin/lp/{linkedPages[0].subdomain.split('.')[0]}/gracias
                                             </span>
                                             <button 
                                                 onClick={handleCopyTyUrl} 
-                                                className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0 cursor-pointer"
+                                                className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0 cursor-pointer mt-0.5"
                                                 title="Copiar enlace"
                                             >
                                                 {copiedTyUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}

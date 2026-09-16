@@ -201,14 +201,26 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   const brandName = tyConfig.headerLogoText || content.brandName || project?.name || "ResinPro Studio Latino";
 
   // WhatsApp Link Resolution (Configurado en Hotlinks / Project Wizard - Imagen 4)
+  const isValidWhatsappUrl = (url: string | null | undefined): boolean => {
+    if (!url) return false;
+    const cleanUrl = url.trim();
+    const lowerUrl = cleanUrl.toLowerCase();
+    if (cleanUrl === '' || cleanUrl === '#') return false;
+    // Evitar URLs que correspondan al panel de control o edición del proyecto
+    if (lowerUrl.includes('aprende.marketing/dashboard') || lowerUrl.includes('projects/edit') || lowerUrl.includes('aprende.marketing/admin')) {
+      return false;
+    }
+    return true;
+  };
+
   const rawWhatsapp = 
-    (project?.whatsappGroupUrl && project.whatsappGroupUrl.trim() !== '' && project.whatsappGroupUrl.trim() !== '#')
+    (project?.whatsappGroupUrl && isValidWhatsappUrl(project.whatsappGroupUrl))
       ? project.whatsappGroupUrl.trim()
-      : (project?.whatsapp_group_url && project.whatsapp_group_url.trim() !== '' && project.whatsapp_group_url.trim() !== '#')
+      : (project?.whatsapp_group_url && isValidWhatsappUrl(project.whatsapp_group_url))
         ? project.whatsapp_group_url.trim()
-        : ((project?.multimedia_json as any)?.whatsappGroupUrl && (project.multimedia_json as any).whatsappGroupUrl.trim() !== '' && (project.multimedia_json as any).whatsappGroupUrl.trim() !== '#')
+        : ((project?.multimedia_json as any)?.whatsappGroupUrl && isValidWhatsappUrl((project.multimedia_json as any).whatsappGroupUrl))
           ? (project.multimedia_json as any).whatsappGroupUrl.trim()
-          : (tyConfig.ctaLink && tyConfig.ctaLink.trim() !== '' && tyConfig.ctaLink.trim() !== '#')
+          : (tyConfig.ctaLink && isValidWhatsappUrl(tyConfig.ctaLink))
             ? tyConfig.ctaLink.trim()
             : null;
 
