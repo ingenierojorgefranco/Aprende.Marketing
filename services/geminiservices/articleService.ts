@@ -48,22 +48,20 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
 };
 
 export const generateArticleOutline = async (title: string, objective: string): Promise<string[]> => {
-    /* */ /* Actualización: Ajuste del prompt para forzar la generación de una estructura SEO robusta con entre 5 y 7 encabezados H2 y al menos 3 encabezados H3 para maximizar el impacto y autoridad del contenido - 24/05/2024 20:30 */
-    const prompt = `Actúa como un arquitecto de contenido SEO experto.
-    Crea una estructura (outline) OBLIGATORIA para un artículo de blog titulado: "${title}".
-    Objetivo: "${objective}".
-    
+    const prompt = `Actúa como un REDACTOR SEO EXPERTO, EDITOR y ANALISTA DE INTENCIÓN DE BÚSQUEDA.
+    Analiza internamente el título "${title}" y el objetivo "${objective}" para determinar su intención de búsqueda principal (informativa, cómo hacer, comparativa, cuantitativa/precio, errores, beneficios, etc.).
+    Diseña una estructura (outline) OBLIGATORIA de altísima calidad editorial que resuelva de forma óptima esa intención de búsqueda.
+
     REGLAS ESTRUCTURALES ESTRICTAS:
-    1. Genera obligatoriamente entre 5 y 7 encabezados H2 que actúen como pilares del contenido.
-    2. Genera un mínimo de 3 encabezados H3 distribuidos estratégicamente dentro de los H2 más extensos para desglosar subtemas.
-    3. La estructura debe ser jerárquica y lógica para facilitar la lectura.
+    1. Genera obligatoriamente entre 5 y 7 encabezados H2 que actúen como pilares estratégicos y lógicos de contenido.
+    2. Genera un mínimo de 3 encabezados H3 distribuidos estratégicamente dentro de los H2 para profundizar y desglosar subtemas técnicos o prácticos.
+    3. La estructura debe estar pensada para que un lector resuelva su duda por completo, sin repetir conceptos en diferentes encabezados.
+    4. Cada encabezado en el array devuelto debe comenzar estrictamente con el nivel correspondiente ("H2: [Texto]" o "H3: [Texto]"). No incluyas "H1: " ya que el título principal se maneja de forma independiente.
 
     FORMATO DE RESPUESTA:
-    1. H1: [Título Principal]
-    2. H2: [Título de Atención]
-    3. H3: [Subtítulos]
-    ...
-    Devuelve SOLO un JSON array de strings.`;
+    Devuelve estrictamente un JSON Array de strings, donde cada string representa un encabezado estructurado, por ejemplo:
+    ["H2: ¿Qué es...?", "H2: Cómo funciona...", "H3: Paso 1...", "H3: Paso 2...", "H2: Errores comunes...", "H2: Alternativas..."]
+    No agregues introducciones, explicaciones, ni comentarios adicionales fuera del JSON Array.`;
 
     const schema = {
         type: Type.ARRAY,
@@ -95,59 +93,80 @@ export const generateFullArticle = async (
         - Producto a promocionar: "${projectContext.productName}"
         - Puntos de Dolor: ${projectContext.painPoints?.join(", ")}.
         - Beneficios Clave: ${projectContext.keyBenefits?.join(", ")}.
+        - Público Objetivo (Cliente Ideal): "${projectContext.targetAudience || ''}"
         
         Usa este contexto para que el artículo no sea genérico, sino enfocado en vender este producto específico.
         `;
     }
 
-    const prompt = `Actúa como un experto cercano y empático que le habla directamente al lector (usa "tú", "te", "tu", "estás"). El texto debe sentirse como si una persona le hablara directamente al usuario final, como un mentor o consejero.
-    
-    REGLAS DE PERSONA:
-    - Actúa como un consejero experto que entiende profundamente al lector.
-    - NO menciones nombres propios de personas (ni el tuyo ni de otros).
-    - NO cuentas anécdotas personales, historias de vida o detalles privados.
-    - Mantén un enfoque 100% informativo, educativo y profesional.
-    - Dirígete al lector de forma personal, cercana y empática.
+    const prompt = `Actúa como un REDACTOR SEO EXPERTO, EDITOR Y ANALISTA DE INTENCIÓN DE BÚSQUEDA altamente experimentado.
+    Tu objetivo es redactar un artículo extraordinario, riguroso, natural y sumamente competitivo para Aprende.Marketing, diseñado principalmente para resolver la necesidad real de búsqueda del lector de forma tan completa que no tenga que regresar a Google.
 
-    Escribe un artículo de blog COMPLETO y optimizado para SEO basado en este esquema estructural OBLIGATORIO.
-    
-    Título Base: "${title}"
-    Esquema Estructural: ${JSON.stringify(outline)}
-    Objetivo: "${objective}"
-    ${keyword ? `Keyword SEO: "${keyword}"` : ''}
-    CTA Link: "${ctaLink}"
-    
+    DATOS DE ENTRADA:
+    - Título Base: "${title}"
+    - Esquema Estructural OBLIGATORIO (H2 y H3): ${JSON.stringify(outline)}
+    - Objetivo: "${objective}"
+    - Keyword Principal: "${keyword || ''}"
+    - Enlace CTA: "${ctaLink}"
     ${projectStrategy}
 
-    REGLAS DE REDACCIÓN Y ESTRUCTURA:
-    1. TÍTULO CON ESTEROIDES: Genera una variación del título base que sea única, viral y altamente atractiva. Debe tener buen contexto, cumplir con las mejores prácticas SEO y obtener el máximo CTR sin perder el contexto del título original. Optimiza longitud y enfoque.
-    2. INTRODUCCIÓN EMPÁTICA OBLIGATORIA: El artículo DEBE comenzar con una pregunta directamente relacionada con la necesidad o el problema del lector. Inmediatamente después, habla como un consejero que entiende su dolor, atacando directamente sus frustraciones para conectar emocionalmente. PROHIBIDO usar saludos genéricos.
-    3. SIN CONCLUSIÓN: NO incluyas una sección de conclusión o cierre al final del texto. El artículo debe terminar con el contenido informativo y el CTA final.
-    4. PÁRRAFOS MUY CORTOS: Cada párrafo debe tener un máximo de 2 a 3 líneas. Divide el contenido en fragmentos cortos y directos para facilitar la lectura rápida.
-    5. BANNERS DE LLAMADO A LA ACCIÓN (CTA) CONTEXTUALIZADOS: 
-       - Inserta DOS banners de CTA en formato HTML real dentro del contenido (uno aproximadamente en la mitad y otro al final).
-       - PÁRRAFO DE DOLOR PRE-CTA: Antes de cada banner de CTA, DEBES incluir un párrafo corto que toque el dolor de la persona, le haga una pregunta y luego enfoque el contenido hacia el CTA.
-       - ENFOQUE DEL CTA: Si el objetivo menciona una "clase gratuita", enfoca el CTA a invitar al usuario a mejorar sus habilidades con esa clase. Si es una "guía", enfócalo a descargar la guía. Adapta el contexto del banner al tipo de Lead Magnet.
-       - CADA BANNER DEBE TENER UN TEXTO PERSUASIVO DIFERENTE. No los repitas.
-       - TONO PERSONALIZADO: El párrafo del CTA debe estar dirigido directamente al usuario que lee (usa "tú", "estás", "quieres", "puedes").
-       - BOTÓN EN PRIMERA PERSONA: El texto del botón debe ser un deseo del usuario (ej: "QUIERO INGRESAR A LA CLASE GRATUITA", "SÍ, DESEO EMPEZAR AHORA").
-       - Usa EXACTAMENTE esta estructura HTML para los banners:
+    DIRECTRICES DE CONTENIDO DE ALTO VALOR ("INFORMATION GAIN"):
+    1. ANALIZA LA INTENCIÓN DE BÚSQUEDA: Determina si la consulta es de tipo cuantitativo (precios/costos), tutorial (cómo hacer), conceptual (qué es), comparativo, beneficios, o basado en errores. No expongas este análisis de forma explícita al lector, pero adecúa la información:
+       - Si es CUANTITATIVO (coste, cuánto cuesta, ROI, etc.): Proporciona rangos realistas, factores que influyen, supuestos claros o fórmulas matemáticas simples (ej: "20 m² x 70 € = 1.400 €"). Diferencia claramente Facturación vs. Beneficio Bruto vs. Neto. No inventes números exactos de mercado si no los tienes; preséntalos con prudencia o como escenarios hipotéticos ilustrativos claramente identificados.
+       - Si es "CÓMO HACER": Prioriza los requisitos, pasos secuenciales numerados, el porqué de cada paso, errores comunes y cómo verificar que el resultado está bien hecho.
+       - Si es COMPARATIVO: Compara objetivamente basándote en criterios definidos (costos, dificultad, duración, casos de uso). Usa una tabla HTML limpia y estilizada para resumir. No declares un ganador absoluto si depende de la situación.
+       - Si es CONCEPTUAL / "QUÉ ES": Explica qué es, su funcionamiento real, ventajas, límites y diferencias contra conceptos similares.
+       - Si es de ERRORES: Sigue el esquema "ERROR -> POR QUÉ OCURRE -> CONSECUENCIA -> CÓMO SOLUCIONARLO".
+       - Si es de BENEFICIOS: Detalla el qué, por qué, limitaciones de cada beneficio. Evita listas insustanciales.
+    2. NUNCA INVENTES INFORMACIÓN SENSIBLE: Está terminantemente prohibido inventar estadísticas exactas de estudios no existentes, testimonios falsos, premios, acreditaciones oficiales, años específicos de experiencia del instructor o cifras exactas de alumnos a menos que estén provistos explícitamente en el CONTEXTO DEL PROYECTO. Si no tienes la información, exprésala de forma prudente o como un escenario de ejemplo claramente identificado como hipotético.
+    3. VALOR ORIGINAL: Añade explicaciones ricas, checklists prácticos, marcos de decisión o tablas HTML limpias donde el tema lo amerite. Cada sección H2 debe aportar información fresca y sustancial; evita repetir las mismas ideas con sinónimos.
+    4. EVITA INTRODUCCIONES CLICHÉ Y RELLENO: El artículo DEBE comenzar de inmediato respondiendo o contextualizando de forma directa la intención de búsqueda principal. PROHIBIDO comenzar con generalidades vacías tipo "En los últimos años...", "Cada vez son más las personas...", "En el mundo actual...". Confirma al lector de inmediato que está en el lugar correcto, responde o introduce la solución de inmediato y explica de forma breve y atractiva qué descubrirá en esta lectura.
+    5. SENSIVILIDAD DE TEMAS (YMYL): Si el artículo roza temas de salud, finanzas o empleo, sé sumamente riguroso fácticamente. Evita declaraciones categóricas o promesas de ingresos asegurados.
+    6. KEYWORD PRINCIPAL: Debe aparecer de manera natural e integrada en el Título SEO, el primer párrafo de introducción, en el slug si corresponde, y sutilmente en el cuerpo. PROHIBIDO el keyword stuffing o repetir artificialmente la palabra clave.
 
-       <div style="margin: 4rem 0; padding: 2.5rem; border-radius: 2.5rem; background: linear-gradient(to bottom right, #111827, #000000); border: 1px solid rgba(255,255,255,0.1); text-align: center; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
-         <div style="position: relative; z-index: 10;">
-           <h3 style="font-size: 2.25rem; font-weight: 900; margin-bottom: 1rem; color: #ffffff; text-transform: uppercase; letter-spacing: -0.025em; font-style: italic;">[TEXTO PERSUASIVO CONTEXTUALIZADO AQUÍ]</h3>
-           <p style="font-size: 1.25rem; color: #d1d5db; margin-bottom: 2rem; max-width: 42rem; margin-left: auto; margin-right: auto; line-height: 1.625;">[DESCRIPCIÓN MOTIVADORA ENFOCADA AL LEAD MAGNET AQUÍ]</p>
-           <a href="${ctaLink}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.75rem; font-weight: 900; padding: 1.25rem 2.5rem; border-radius: 1rem; background-color: #FF5A1F; color: #ffffff; text-decoration: none; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.875rem;">
-             [TEXTO BOTÓN EN PRIMERA PERSONA AQUÍ]
-           </a>
-         </div>
-       </div>
+    REGLAS DE TONO Y ESTILO DE REDACCIÓN:
+    1. TONO: Actúa como un consejero/mentor experto que habla directamente al lector (usa "tú", "te", "tu", "estás") de forma cercana y empática, respetando además el tono de voz solicitado: "${projectContext?.brandTone || 'profesional, empático'}".
+    2. VOCABULARIO PROHIBIDO: Elimina términos excesivamente publicitarios o spam como "cambia tu vida", "libertad financiera", "éxito asegurado", "negocio redondo", "ingresos garantizados". El artículo debe leerse como una pieza editorial seria de primer nivel antes que una carta de ventas agresiva. También evita patrones robóticos de IA como "En conclusión...", "Es importante destacar...", "Sin duda...", "Como hemos visto...".
+    3. PÁRRAFOS CORTOS: Limita cada párrafo a un máximo de 2 o 3 líneas para una lectura digital ágil y fluida. No hagas que cada oración sea un párrafo; mantén la cohesión y el ritmo natural.
+    4. SIN CONCLUSIÓN: El artículo no debe finalizar con una sección formal de conclusión o resumen. Debe fluir de manera natural hacia la sección educativa final y el llamado a la acción.
+    5. FORMATO HTML: Usa etiquetas de estructuración HTML limpias para el cuerpo (p, strong, ul, ol, li, y tablas para comparativas). No uses el H1 dentro de la propiedad 'html'.
 
-    6. META DESCRIPTION: Genera una meta description optimizada para buscadores (Máx 155 car.).
-    7. NO incluyas el Título Principal (H1) dentro del campo 'html'.
-    8. ASEGÚRATE de que el enlace en el botón sea "${ctaLink}" y tenga target="_blank".
+    REGLAS ESTRICTAS PARA LOS DOS BANNERS DE LLAMADO A LA ACCIÓN (CTA):
+    Debes insertar exactamente DOS banners de CTA en formato HTML real dentro de la propiedad 'html'. Uno posicionado aproximadamente a la mitad del artículo, y el otro al final absoluto.
+    - Antes de cada banner, debes colocar un párrafo corto en formato HTML que toque el punto de dolor del lector relacionado con el tema, le plantee una pregunta relevante y lo encamine suavemente al CTA.
+    - Cada banner debe poseer un título persuasivo y una descripción motivadora diferente y contextualizada al Lead Magnet u objetivo.
+    - El botón debe contener un texto potente escrito en primera persona del singular ("QUIERO...", "SÍ, DESEO...").
+    - Usa EXACTAMENTE esta estructura HTML para cada uno de los dos banners (no modifiques sus estilos CSS):
 
-    Formato de Salida JSON: { "title": "Título Optimizado con Esteroides", "html": "Contenido HTML...", "metaDescription": "..." }`;
+    <div style="margin: 4rem 0; padding: 2.5rem; border-radius: 2.5rem; background: linear-gradient(to bottom right, #111827, #000000); border: 1px solid rgba(255,255,255,0.1); text-align: center; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+      <div style="position: relative; z-index: 10;">
+        <h3 style="font-size: 2.25rem; font-weight: 900; margin-bottom: 1rem; color: #ffffff; text-transform: uppercase; letter-spacing: -0.025em; font-style: italic;">[TEXTO PERSUASIVO CONTEXTUALIZADO AQUÍ]</h3>
+        <p style="font-size: 1.25rem; color: #d1d5db; margin-bottom: 2rem; max-width: 42rem; margin-left: auto; margin-right: auto; line-height: 1.625;">[DESCRIPCIÓN MOTIVADORA ENFOCADA AL LEAD MAGNET AQUÍ]</p>
+        <a href="${ctaLink}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.75rem; font-weight: 900; padding: 1.25rem 2.5rem; border-radius: 1rem; background-color: #FF5A1F; color: #ffffff; text-decoration: none; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.875rem;">
+          [TEXTO BOTÓN EN PRIMERA PERSONA AQUÍ]
+        </a>
+      </div>
+    </div>
+
+    AUDITORÍA DE CALIDAD INTERNA:
+    Antes de responder, realiza una auditoría interna mental con estas comprobaciones:
+    - ¿Responde realmente a la intención principal?
+    - ¿La respuesta comienza en los primeros dos párrafos?
+    - ¿Cumple la promesa del título?
+    - ¿Se evitaron cifras o fuentes inventadas?
+    - ¿Los ejemplos inventados se identifican claramente como hipotéticos?
+    - ¿Cada H2 aporta información totalmente fresca y diferente?
+    - ¿Se integró la keyword de forma natural y sin stuffing?
+    - ¿Se respetó el formato JSON y la estructura exacta del banner HTML?
+
+    FORMATO DE SALIDA REQUERIDO (JSON STRICT):
+    Debes retornar un objeto JSON válido que cumpla estrictamente con esta estructura:
+    {
+      "title": "[Variación optimizada, atractiva y viral del Título Base, optimizada para CTR y SEO de máx 60 caracteres]",
+      "html": "[El contenido completo del artículo formateado en HTML limpio, comenzando de inmediato con la introducción empática (H2s y H3s según el esquema provisto, párrafos, tablas, negritas, seguidos de los dos banners de CTA contextuales y sus respectivos párrafos de dolor pre-CTA)]",
+      "metaDescription": "[Meta descripción atractiva para los buscadores que resuma el artículo en un máximo de 155 caracteres]"
+    }
+    No agregues ningún tipo de texto introductorio, explicativo, markdown de bloque para rodear el JSON (por ejemplo, sin triple acento grave), ni comentarios fuera de esta estructura. Solo devuelve el JSON parseable.`;
 
     const schema = {
         type: Type.OBJECT,
