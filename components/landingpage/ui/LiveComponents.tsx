@@ -346,28 +346,69 @@ const LeadCaptureForm = ({ btnClass, btnText, ds, pageId, basePath }: { btnClass
 
 // --- Registration Modal ---
 export const RegistrationModal = ({ content, ds, onClose, pageId, basePath, project }: { content: GeneratedPageContent, ds: any, onClose: () => void, pageId?: string, basePath?: string, project?: any }) => {
+    const projectImageUrl = 
+        project?.multimedia_json?.leadMagnets?.[0]?.imageUrl ||
+        project?.multimedia_json?.heroImages?.[0] ||
+        content?.hero?.heroImage ||
+        content?.intro?.imageUrl ||
+        "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop";
+
     return (
         <div 
             id="registration-modal" 
             onClick={() => onClose()}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
         >
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+            <div className="absolute inset-0 bg-black/75 backdrop-blur-sm"></div>
             <div 
                 onClick={(e) => e.stopPropagation()}
-                className={`relative p-8 rounded-2xl border w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-300 ${ds.cta.containerBg} ${ds.cta.containerBorder}`}
+                className={`relative rounded-3xl border w-full max-w-lg md:max-w-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 ${ds.cta.containerBg} ${ds.cta.containerBorder}`}
             >
-                <button onClick={onClose} className={`absolute top-4 right-4 transition ${ds.cta.cardTextColor} hover:opacity-70`}><X className="w-6 h-6" /></button>
-                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 ${ds.badges.spotsBg} ${ds.badges.spotsText} text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border ${ds.badges.spotsBorder}`}>
+                {/* Botón Cerrar */}
+                <button 
+                    onClick={onClose} 
+                    className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/40 text-white/80 hover:text-white transition hover:scale-110"
+                >
+                    <X className="w-5 h-5" />
+                </button>
+                
+                {/* Badge de Cupos Estilo Flotante */}
+                <div className={`absolute top-4 left-4 z-50 ${ds.badges.spotsBg} ${ds.badges.spotsText} text-[0.7rem] md:text-xs font-black px-4 py-1.5 rounded-full shadow-md border ${ds.badges.spotsBorder}`}>
                     {content.hero.spotsLeft || "¡Cupos Limitados!"}
                 </div>
-                <div className="text-center mb-6">
-                    <h3 id="modal-title" className={`text-2xl font-bold mb-2 ${ds.cta.cardTitleColor}`}>Reserva tu Cupo</h3>
-                    <p id="modal-desc" className={`text-sm ${ds.cta.cardTextColor}`}>Completa el formulario para acceder ahora.</p>
-                </div>
-                <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.hero.ctaText} ds={ds} pageId={pageId} basePath={basePath} />
-                <div className={`mt-4 flex items-center justify-center gap-2 text-xs ${ds.cta.cardTextColor}`}>
-                    <Lock className="w-3 h-3" /> Datos seguros y encriptados.
+
+                <div className="grid grid-cols-1 md:grid-cols-12 w-full">
+                    {/* Columna Izquierda: Imagen del producto/clase */}
+                    <div className="relative md:col-span-6 bg-black/20 flex items-center justify-center border-b md:border-b-0 md:border-r border-white/5">
+                        <img 
+                            src={projectImageUrl} 
+                            alt="Clase Gratuita" 
+                            className="w-full h-48 md:h-[480px] object-cover"
+                            referrerPolicy="no-referrer"
+                        />
+                        {/* Elegant shadow overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none md:block hidden"></div>
+                    </div>
+
+                    {/* Columna Derecha: Formulario de Registro */}
+                    <div className="md:col-span-6 p-6 md:p-10 flex flex-col justify-center">
+                        <div className="text-center md:text-left mb-6">
+                            <h3 id="modal-title" className={`text-2xl md:text-3xl font-black mb-2 leading-tight tracking-tight ${ds.cta.cardTitleColor}`}>
+                                Reserva tu Cupo
+                            </h3>
+                            <p id="modal-desc" className={`text-sm md:text-base opacity-90 ${ds.cta.cardTextColor}`}>
+                                Completa el formulario para acceder ahora mismo.
+                            </p>
+                        </div>
+                        
+                        <div className="w-full">
+                            <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.hero.ctaText} ds={ds} pageId={pageId} basePath={basePath} />
+                        </div>
+
+                        <div className={`mt-5 flex items-center justify-center md:justify-start gap-2 text-xs opacity-80 ${ds.cta.cardTextColor}`}>
+                            <Lock className="w-3.5 h-3.5" /> Datos seguros y encriptados.
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

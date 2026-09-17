@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Article, GeneratedPageContent } from '../../../types';
 import { api } from '../../../services/api';
 import { Loader2, Calendar, ArrowRight, ArrowLeft, Target, ChevronLeft, ChevronRight } from 'lucide-react';
+import { RegistrationModal } from '../ui/LiveComponents';
 
 interface SingleBlogProps {
   content: GeneratedPageContent;
@@ -26,10 +27,40 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
   const [currentArticle, setCurrentArticle] = useState<Article | null>(null);
   const [recommendedArticles, setRecommendedArticles] = useState<Article[]>([]);
   const [blogLoading, setBlogLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
+
+  const handleArticleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      const target = e.target as HTMLElement;
+      const anchor = target.closest('a');
+      if (anchor) {
+          const href = anchor.getAttribute('href');
+          const isFormCapture = content?.destination?.type === 'form';
+          
+          if (isFormCapture) {
+              const isCtaLink = href === '#' || 
+                                href === '' || 
+                                (currentArticle?.psychologicalStrategy?.targetUrl && href?.includes(currentArticle.psychologicalStrategy.targetUrl)) ||
+                                (content?.destination?.url && href?.includes(content.destination.url)) ||
+                                anchor.closest('div[style*="background: linear-gradient"]') ||
+                                anchor.closest('div[style*="background-color"]') ||
+                                anchor.textContent?.toUpperCase().includes('QUIERO') ||
+                                anchor.textContent?.toUpperCase().includes('DESEO') ||
+                                anchor.textContent?.toUpperCase().includes('RESERVAR') ||
+                                anchor.textContent?.toUpperCase().includes('ACCEDER') ||
+                                anchor.textContent?.toUpperCase().includes('INGRESAR') ||
+                                anchor.textContent?.toUpperCase().includes('EMPEZAR');
+
+              if (isCtaLink) {
+                  e.preventDefault();
+                  setShowModal(true);
+              }
+          }
+      }
+  };
 
   useEffect(() => {
      if (viewMode === 'blog-list' && pageId) {
@@ -183,6 +214,7 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
                       <div 
                           className="prose prose-lg prose-indigo max-w-none text-gray-800" 
                           style={{ fontSize: '1.3rem', lineHeight: '1.8' }}
+                          onClick={handleArticleContentClick}
                           dangerouslySetInnerHTML={{ __html: currentArticle.contentHtml }} 
                       />
 
@@ -244,6 +276,15 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
                                   ))}
                               </div>
                           </div>
+                      )}
+                      {showModal && (
+                          <RegistrationModal 
+                              content={content} 
+                              ds={ds} 
+                              onClose={() => setShowModal(false)} 
+                              pageId={pageId} 
+                              basePath={basePath} 
+                          />
                       )}
                   </div>
               </article>
