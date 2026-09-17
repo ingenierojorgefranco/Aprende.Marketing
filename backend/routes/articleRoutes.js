@@ -271,11 +271,20 @@ router.post('/articles', authMiddleware, async (req, res) => {
 });
 
 router.put('/articles/:id', authMiddleware, async (req, res) => {
-  const { id } = req.params;
+  let { id } = req.params;
   const body = req.body;
+  
+  if (id && String(id).startsWith('available-')) {
+    id = String(id).replace('available-', '');
+  }
+
   try {
-    const [check] = await pool.query('SELECT id FROM articles WHERE id = ? AND user_id = ?', [id, req.user.id]);
-    if (check.length === 0) return res.status(403).json({ error: 'No autorizado' });
+    const [check] = await pool.query('SELECT id, user_id FROM articles WHERE id = ?', [id]);
+    if (check.length === 0) return res.status(404).json({ error: 'Artículo no encontrado' });
+
+    if (check[0].user_id !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
 
     const updates = [];
     const values = [];
@@ -300,11 +309,19 @@ router.put('/articles/:id', authMiddleware, async (req, res) => {
 
     if (updates.length === 0) return res.json({ message: 'Nada que actualizar' });
 
-    values.push(id, req.user.id);
-    await pool.query(
-      `UPDATE articles SET ${updates.join(', ')} WHERE id = ? AND user_id = ?`,
-      values
-    );
+    if (req.user.role === 'admin') {
+      values.push(id);
+      await pool.query(
+        `UPDATE articles SET ${updates.join(', ')} WHERE id = ?`,
+        values
+      );
+    } else {
+      values.push(id, req.user.id);
+      await pool.query(
+        `UPDATE articles SET ${updates.join(', ')} WHERE id = ? AND user_id = ?`,
+        values
+      );
+    }
     res.json({ message: 'Artículo actualizado' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
