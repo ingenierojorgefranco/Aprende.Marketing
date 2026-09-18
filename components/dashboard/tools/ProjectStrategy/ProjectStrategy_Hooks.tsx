@@ -1462,17 +1462,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     </div>
                                 </div>
 
-                                {/* Info Badges/Chips */}
-                                <div className="flex flex-wrap items-center gap-3 pt-5 border-t border-white/[0.04]">
-                                    <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/5 bg-white/[0.01]">
-                                        <Video className="w-4 h-4 text-zinc-400" />
-                                        <span className="text-xs font-bold text-[#FF5D1E]">Canal: <span className="text-white font-normal ml-1">Reels de Instagram</span></span>
-                                    </div>
-                                    <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/5 bg-white/[0.01]">
-                                        <Target className="w-4 h-4 text-[#FF5D1E]" />
-                                        <span className="text-xs font-bold text-[#FF5D1E]">Destino: <span className="text-white font-normal ml-1">Mensaje Directo al DM</span></span>
-                                    </div>
-                                </div>
 
                                 {/* Campo URL de Video para Administrador */}
                                 {isRealAdmin && (

@@ -357,57 +357,56 @@ export const RegistrationModal = ({ content, ds, onClose, pageId, basePath, proj
         <div 
             id="registration-modal" 
             onClick={() => onClose()}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
         >
-            <div className="absolute inset-0 bg-black/75 backdrop-blur-sm"></div>
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
             <div 
                 onClick={(e) => e.stopPropagation()}
-                className={`relative rounded-3xl border w-full max-w-lg md:max-w-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 ${ds.cta.containerBg} ${ds.cta.containerBorder}`}
+                className={`relative rounded-3xl border w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 ${ds.cta.containerBg} ${ds.cta.containerBorder} flex flex-col`}
             >
+                {/* Banner / Imagen Superior Premium */}
+                <div className="relative w-full h-56 md:h-64 bg-black/20 overflow-hidden border-b border-white/10">
+                    <img 
+                        src={projectImageUrl} 
+                        alt="Clase Gratuita" 
+                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                        referrerPolicy="no-referrer"
+                    />
+                    {/* Shadow Overlay Gradient at bottom of the banner */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+                </div>
+
                 {/* Botón Cerrar */}
                 <button 
                     onClick={onClose} 
-                    className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/40 text-white/80 hover:text-white transition hover:scale-110"
+                    className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white/90 hover:text-white transition duration-200 hover:scale-110 shadow-lg border border-white/10"
                 >
                     <X className="w-5 h-5" />
                 </button>
                 
                 {/* Badge de Cupos Estilo Flotante */}
-                <div className={`absolute top-4 left-4 z-50 ${ds.badges.spotsBg} ${ds.badges.spotsText} text-[0.7rem] md:text-xs font-black px-4 py-1.5 rounded-full shadow-md border ${ds.badges.spotsBorder}`}>
+                <div className={`absolute top-4 left-4 z-50 ${ds.badges.spotsBg} ${ds.badges.spotsText} text-[0.7rem] md:text-xs font-black px-4 py-1.5 rounded-full shadow-md border ${ds.badges.spotsBorder} uppercase tracking-wider`}>
                     {content.hero.spotsLeft || "¡Cupos Limitados!"}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-12 w-full">
-                    {/* Columna Izquierda: Imagen del producto/clase */}
-                    <div className="relative md:col-span-6 bg-black/20 flex items-center justify-center border-b md:border-b-0 md:border-r border-white/5">
-                        <img 
-                            src={projectImageUrl} 
-                            alt="Clase Gratuita" 
-                            className="w-full h-48 md:h-[480px] object-cover"
-                            referrerPolicy="no-referrer"
-                        />
-                        {/* Elegant shadow overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none md:block hidden"></div>
+                {/* Formulario y Contenido */}
+                <div className="p-6 md:p-8 space-y-6">
+                    <div className="text-center">
+                        <h3 id="modal-title" className={`text-2xl md:text-3xl font-black mb-2 leading-tight tracking-tight ${ds.cta.cardTitleColor}`}>
+                            Reserva tu Cupo
+                        </h3>
+                        <p id="modal-desc" className={`text-sm md:text-base opacity-95 ${ds.cta.cardTextColor} max-w-sm mx-auto font-medium`}>
+                            Completa el formulario para acceder ahora mismo.
+                        </p>
+                    </div>
+                    
+                    <div className="w-full bg-white/[0.02] border border-white/5 rounded-2xl p-4 md:p-5 shadow-inner">
+                        <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.hero.ctaText} ds={ds} pageId={pageId} basePath={basePath} />
                     </div>
 
-                    {/* Columna Derecha: Formulario de Registro */}
-                    <div className="md:col-span-6 p-6 md:p-10 flex flex-col justify-center">
-                        <div className="text-center md:text-left mb-6">
-                            <h3 id="modal-title" className={`text-2xl md:text-3xl font-black mb-2 leading-tight tracking-tight ${ds.cta.cardTitleColor}`}>
-                                Reserva tu Cupo
-                            </h3>
-                            <p id="modal-desc" className={`text-sm md:text-base opacity-90 ${ds.cta.cardTextColor}`}>
-                                Completa el formulario para acceder ahora mismo.
-                            </p>
-                        </div>
-                        
-                        <div className="w-full">
-                            <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.hero.ctaText} ds={ds} pageId={pageId} basePath={basePath} />
-                        </div>
-
-                        <div className={`mt-5 flex items-center justify-center md:justify-start gap-2 text-xs opacity-80 ${ds.cta.cardTextColor}`}>
-                            <Lock className="w-3.5 h-3.5" /> Datos seguros y encriptados.
-                        </div>
+                    <div className={`flex items-center justify-center gap-2 text-xs font-semibold opacity-90 ${ds.cta.cardTextColor}`}>
+                        <Lock className="w-4 h-4 text-emerald-500" /> 
+                        <span>Tus datos están protegidos y encriptados de forma segura.</span>
                     </div>
                 </div>
             </div>
