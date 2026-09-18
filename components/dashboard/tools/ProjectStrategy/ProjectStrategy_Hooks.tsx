@@ -102,6 +102,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [activeLibraryHook, setActiveLibraryHook] = useState(0);
 
   const [localTitle, setLocalTitle] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [localStrategy, setLocalStrategy] = useState("");
   const [strategyItems, setStrategyItems] = useState<string[]>(["", "", ""]);
   const [activeHookTabImage1, setActiveHookTabImage1] = useState<"Hook" | "Guion del Hook" | "Publicacion y CTA">("Hook");
@@ -1277,10 +1278,18 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                     {/* Header Card (Ficha de la Imagen 1) */}
                     <div className="bg-[#0c0c11]/80 border border-white/10 p-5 md:p-6 rounded-[20px] flex flex-col justify-between gap-4 shadow-2xl">
                         <div className="space-y-2 text-left">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-between w-full">
                                 <span className="text-[10px] md:text-xs font-black tracking-widest text-[#FF5D1E] uppercase">
                                     VIDEO HOOK #{currentHook.id || (activeTab === 'library' ? activeLibraryHook : activeHook) + 1}
                                 </span>
+                                <button
+                                    onClick={() => setShowDeleteConfirm(true)}
+                                    className="text-[10px] md:text-xs font-black text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-full border border-red-500/30 transition-all cursor-pointer flex items-center gap-1.5 uppercase shrink-0"
+                                    title="Eliminar Hook completo"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Eliminar Hook</span>
+                                </button>
                             </div>
                             {isRealAdmin && isEditingTitle ? (
                                 <div className="w-full max-w-3xl my-1">
@@ -1413,7 +1422,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         <div className="pl-4 border-l-2 border-[#FF5D1E] space-y-1 text-left">
                                             <span className="text-xs text-zinc-400 font-medium">Primeros 3 segundos</span>
                                             <p className="italic text-zinc-100 font-medium text-sm md:text-base leading-relaxed">
-                                                "¿{(localTitle || currentHook.title || "").replace(/^¿+|^\?+|^"/g, "").replace(/¿+|\?+$/g, "")}?"
+                                                {localTitle || currentHook.title || ""}
                                             </p>
                                         </div>
 
@@ -1634,9 +1643,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         {!isEditingAds ? (
                                             <button 
                                                 onClick={() => {
-                                                    setTempReelTitle(currentKit.reelTitle || localTitle || currentHook.title || "");
-                                                    setTempAds(currentKit.ads || "");
-                                                    setTempPinnedComment(currentKit.pinnedComment || "");
+                                                    setTempReelTitle(currentKit?.reelTitle || localTitle || currentHook.title || "");
+                                                    const hookText = localTitle || currentHook.title || "";
+                                                    const originalAds = currentKit?.ads || "";
+                                                    let initialAds = originalAds;
+                                                    if (hookText && !originalAds.includes(hookText)) {
+                                                        initialAds = `${hookText}\n\n${originalAds}`;
+                                                    }
+                                                    setTempAds(initialAds);
+                                                    setTempPinnedComment(currentKit?.pinnedComment || "");
                                                     setIsEditingAds(true);
                                                 }}
                                                 className="text-xs font-black text-[#FF5D1E] uppercase bg-[#FF5D1E]/10 px-3.5 py-1.5 rounded-lg border border-[#FF5D1E]/30 flex items-center gap-1.5 hover:bg-[#FF5D1E]/20 transition-all cursor-pointer"
@@ -1667,18 +1682,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
                                 {isEditingAds ? (
                                     <div className="space-y-6">
-                                        {/* Edit Card 1: Título del Reel */}
-                                        <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
-                                            <label className="text-[11px] font-black text-emerald-400 uppercase tracking-widest block">TÍTULO DEL REEL</label>
-                                            <input 
-                                                type="text"
-                                                value={tempReelTitle}
-                                                onChange={(e) => setTempReelTitle(e.target.value)}
-                                                className="w-full bg-black/60 border border-white/10 rounded-xl p-3.5 text-white font-bold text-base md:text-lg outline-none focus:border-[#FF5D1E] transition-all"
-                                                placeholder="Ingresa el título del Reel..."
-                                            />
-                                        </div>
-
                                         {/* Edit Card 2: Caption / Descripción Sugerida */}
                                         <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
                                             <label className="text-[11px] font-black text-emerald-400 uppercase tracking-widest block">CAPTION / DESCRIPCIÓN SUGERIDA</label>
@@ -1705,20 +1708,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     </div>
                                 ) : (
                                     <>
-                                        {/* Card 1: Título del Reel */}
-                                        <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
-                                            <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
-                                                <span className="text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20 font-bold">TÍTULO</span>
-                                                <span className="text-zinc-400 font-bold flex items-center gap-1.5">
-                                                    <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
-                                                    TÍTULO DEL REEL
-                                                </span>
-                                            </div>
-                                            <h3 className="text-lg md:text-xl font-bold text-white tracking-tight">
-                                                {currentKit?.reelTitle || localTitle || currentHook.title || "Sin título definido"}
-                                            </h3>
-                                        </div>
-
                                         {/* Card 2: Caption / Descripción Sugerida */}
                                         <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-4 text-left">
                                             <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
@@ -1729,7 +1718,14 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                                 </span>
                                             </div>
                                             <div className="text-zinc-200 text-sm md:text-base font-normal leading-relaxed whitespace-pre-wrap">
-                                                {currentKit?.ads || "Sin descripción definida"}
+                                                {(() => {
+                                                    const hookText = localTitle || currentHook.title || "";
+                                                    const originalAds = currentKit?.ads || "";
+                                                    if (hookText && !originalAds.includes(hookText)) {
+                                                        return `${hookText}\n\n${originalAds}`;
+                                                    }
+                                                    return originalAds || "Sin descripción definida";
+                                                })()}
                                             </div>
                                         </div>
 
@@ -1806,6 +1802,60 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                       ) : (
                           <button onClick={executeUnlock} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Desbloquear</button>
                       )}
+                  </div>
+              </div>
+          </div>
+      )}
+
+      {/* --- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN --- */}
+      {showDeleteConfirm && (
+          <div 
+              onClick={() => setShowDeleteConfirm(false)}
+              className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" 
+          >
+              <div className="bg-[#0B0B0B] border border-red-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-500"></div>
+                  <div className="p-8 md:p-10 space-y-8 flex-1 text-center">
+                      <div className="w-20 h-20 bg-red-500/10 text-red-400 rounded-3xl flex items-center justify-center mx-auto border border-red-500/20 shadow-lg">
+                          <Trash2 className="w-10 h-10" />
+                      </div>
+                      <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">¿Eliminar este Hook?</h3>
+                      <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                          ¿Estás seguro de que deseas eliminar este hook estratégico por completo? Esta acción no se puede deshacer.
+                      </p>
+                      <div className="bg-white/5 border border-white/5 p-4 rounded-2xl text-left">
+                          <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider mb-1">Hook seleccionado:</p>
+                          <p className="text-zinc-200 text-sm font-medium italic">
+                              "{localTitle || currentHook.title || ""}"
+                          </p>
+                      </div>
+                  </div>
+                  <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                      <button 
+                          onClick={() => setShowDeleteConfirm(false)} 
+                          className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest transition-all cursor-pointer"
+                      >
+                          No, Cancelar
+                      </button>
+                      <button 
+                          onClick={async () => {
+                              setShowDeleteConfirm(false);
+                              setSaving(true);
+                              try {
+                                  await api.deleteProjectHook(currentHook.id);
+                                  await loadHooks();
+                                  setActiveHook(0);
+                                  alert("Gancho eliminado correctamente.");
+                              } catch (e: any) {
+                                  alert("Error al eliminar: " + e.message);
+                              } finally {
+                                  setSaving(false);
+                              }
+                          }} 
+                          className="flex-1 py-4 rounded-xl bg-gradient-to-r from-red-600 to-orange-600 text-white font-black text-xs uppercase shadow-xl transform hover:scale-105 transition-all cursor-pointer"
+                      >
+                          Sí, Eliminar
+                      </button>
                   </div>
               </div>
           </div>
