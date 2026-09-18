@@ -3,7 +3,8 @@ import {
     ChevronRight, ArrowRight, Play, Users, PlayCircle, Clock, Award, 
     CreditCard, Folder, CheckCircle2, Bot,
     ShieldCheck, Smartphone, Zap, Sparkles, Image as ImageIcon,
-    BookOpen, HelpCircle, Video, Compass, Crown, Lock, Unlock, Package
+    BookOpen, HelpCircle, Video, Compass, Crown, Lock, Unlock, Package,
+    Globe, Mail, FileText, FileDown, Layers, Send, HeartHandshake, MessageSquare
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { useNavigate, useOutletContext } from 'react-router-dom';
@@ -80,6 +81,18 @@ export const DashboardHome: React.FC = () => {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [unlockModalProject, setUnlockModalProject] = useState<Project | null>(null);
 
+  const [realCounts, setRealCounts] = useState({
+      projects: 0,
+      pages: 0,
+      domains: 0,
+      hooks: 0,
+      articles: 0,
+      emailConversion: 0,
+      emailNurturing: 0,
+      whatsappLaunches: 0,
+      leadmagnets: 0
+  });
+
   const isRealAdmin = user?.role === 'admin';
   const maxProjectsCalculated = user?.planLimits?.maxProjects || 1;
   const isAtLimit = (projects.length >= maxProjectsCalculated) && !isRealAdmin;
@@ -88,14 +101,28 @@ export const DashboardHome: React.FC = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [summary, userProjects, courses, library] = await Promise.all([
+            const [
+                summary, 
+                userProjects, 
+                courses, 
+                library,
+                userPages,
+                userArticles,
+                emailSequences,
+                whatsappLaunches
+            ] = await Promise.all([
                 api.getAnalyticsSummary(),
                 api.getProjects(),
                 api.getCoursesList(),
-                api.getMasterLibrary().catch(() => [])
+                api.getMasterLibrary().catch(() => []),
+                api.getPages().catch(() => []),
+                api.getArticles().catch(() => []),
+                api.getEmailSequences().catch(() => []),
+                api.getWhatsAppLaunches().catch(() => [])
             ]);
 
-            setProjects(userProjects || []);
+            const projectsList = userProjects || [];
+            setProjects(projectsList);
             setMasterLibrary(library || []);
             setAcademyCourses((courses || []).slice(0, 3));
 
@@ -108,6 +135,45 @@ export const DashboardHome: React.FC = () => {
                 totalConversions: summary.totalConversions,
                 totalPages: summary.totalPages,
                 conversionRate: rate
+            });
+
+            // Calculate lead magnets count across all projects
+            let leadMagnetsCount = 0;
+            projectsList.forEach((p: Project) => {
+                let mmObj: any = null;
+                if (typeof p.multimedia_json === 'string') {
+                    try { mmObj = JSON.parse(p.multimedia_json); } catch { mmObj = null; }
+                } else {
+                    mmObj = p.multimedia_json;
+                }
+                if (mmObj && Array.isArray(mmObj.leadMagnets)) {
+                    leadMagnetsCount += mmObj.leadMagnets.filter((lm: any) => lm && lm.name).length;
+                } else if (p.strategy_json?.multimedia_json && Array.isArray(p.strategy_json.multimedia_json.leadMagnets)) {
+                    leadMagnetsCount += p.strategy_json.multimedia_json.leadMagnets.filter((lm: any) => lm && lm.name).length;
+                } else if (p.strategy_json?.visualIdentity?.leadMagnetUrl || (p as any).leadMagnetUrl) {
+                    leadMagnetsCount += 1;
+                }
+            });
+
+            const pagesList = userPages || [];
+            const domainsCount = pagesList.filter((p: any) => p.customDomain && p.customDomain.trim() !== '').length;
+            const articlesList = userArticles || [];
+            const emailsList = emailSequences || [];
+            const launchesList = whatsappLaunches || [];
+
+            const conversionEmailsCount = emailsList.filter((s: any) => s.type === 'conversion' || !s.type).length;
+            const nurturingEmailsCount = emailsList.filter((s: any) => s.type === 'nurturing').length;
+
+            setRealCounts({
+                projects: projectsList.length,
+                pages: pagesList.length,
+                domains: domainsCount,
+                hooks: summary?.totalHooks || 0,
+                articles: articlesList.length,
+                emailConversion: conversionEmailsCount,
+                emailNurturing: nurturingEmailsCount,
+                whatsappLaunches: launchesList.length,
+                leadmagnets: leadMagnetsCount
             });
 
         } catch (error) {
@@ -248,25 +314,32 @@ export const DashboardHome: React.FC = () => {
                               </span>
                           </div>
                           
-                          {/* CARACTERÍSTICAS DISPONIBLES (Filas con espaciado equilibrado) */}
-                          <div className="space-y-2">
-                              {/* Proyectos permitidos */}
-                              <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-800/90 text-xs sm:text-sm hover:border-[#FF5A1F]/30 transition-colors">
-                                  <span className="text-gray-300 font-medium">Proyectos permitidos:</span>
-                                  <span className="font-bold text-white">{projects.length} / {maxProjects}</span>
-                              </div>
-
-                              {/* Reels disponibles */}
-                              <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-800/90 text-xs sm:text-sm hover:border-[#FF5A1F]/30 transition-colors">
-                                  <span className="text-gray-300 font-medium">Reels disponibles:</span>
-                                  <span className="font-bold text-white">27 / 30</span>
-                              </div>
-
-                              {/* Registros generados */}
-                              <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-800/90 text-xs sm:text-sm hover:border-[#FF5A1F]/30 transition-colors">
-                                  <span className="text-gray-300 font-medium">Registros generados:</span>
-                                  <span className="font-bold text-white">{summaryData.totalConversions || 85}</span>
-                              </div>
+                          {/* CARACTERÍSTICAS DISPONIBLES (Filas con espaciado equilibrado y compacto) */}
+                          <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
+                              {[
+                                  { label: 'Proyectos', key: 'projects', actual: realCounts.projects, max: user?.planLimits?.maxProjects || 1, icon: Folder },
+                                  { label: 'Páginas de Captura', key: 'pages', actual: realCounts.pages, max: user?.planLimits?.maxLandings || 1, icon: Layers },
+                                  { label: 'Dominios', key: 'domains', actual: realCounts.domains, max: user?.planLimits?.maxDomains ?? 0, icon: Globe },
+                                  { label: 'Video Hooks con IA', key: 'hooks', actual: realCounts.hooks, max: user?.planLimits?.maxHooks || 3, icon: Sparkles },
+                                  { label: 'Artículos SEO', key: 'articles', actual: realCounts.articles, max: user?.planLimits?.maxArticles || 1, icon: FileText },
+                                  { label: 'Secuencias Email Conversión', key: 'emailConversion', actual: realCounts.emailConversion, max: user?.planLimits?.maxEmailSequences || 0, icon: Send },
+                                  { label: 'Secuencias Email Nutrición', key: 'emailNurturing', actual: realCounts.emailNurturing, max: user?.planLimits?.maxEmailSequencesNurturing || 0, icon: HeartHandshake },
+                                  { label: 'Lanzamientos WhatsApp', key: 'whatsappLaunches', actual: realCounts.whatsappLaunches, max: user?.planLimits?.maxWhatsAppLaunches || 0, icon: MessageSquare },
+                                  { label: 'Leadmagnets via Whatsapp', key: 'leadmagnets', actual: realCounts.leadmagnets, max: isFree ? 1 : 9999, icon: FileDown }
+                              ].map((item) => (
+                                  <div 
+                                      key={item.key} 
+                                      className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/60 border border-slate-800/70 text-xs hover:border-[#FF5A1F]/30 transition-colors"
+                                  >
+                                      <div className="flex items-center gap-2.5 min-w-0">
+                                          <item.icon className="w-4 h-4 text-[#FF5A1F] shrink-0" />
+                                          <span className="text-gray-300 font-medium truncate">{item.label}</span>
+                                      </div>
+                                      <span className="font-bold text-white shrink-0 ml-2">
+                                          {item.actual} / {item.max >= 9999 || isRealAdmin ? 'Ilimitado' : item.max}
+                                      </span>
+                                  </div>
+                              ))}
                           </div>
                       </div>
                   </div>
