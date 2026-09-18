@@ -362,18 +362,18 @@ export const RegistrationModal = ({ content, ds, onClose, pageId, basePath, proj
             <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
             <div 
                 onClick={(e) => e.stopPropagation()}
-                className={`relative rounded-3xl border w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 ${ds.cta.containerBg} ${ds.cta.containerBorder} flex flex-col`}
+                className={`relative rounded-3xl border w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-300 ${ds.cta.containerBg} ${ds.cta.containerBorder} flex flex-col`}
             >
                 {/* Banner / Imagen Superior Premium */}
-                <div className="relative w-full h-56 md:h-64 bg-black/20 overflow-hidden border-b border-white/10">
+                <div className="relative w-full aspect-[16/9] bg-black/20 overflow-hidden border-b border-white/10 rounded-t-[22px]">
                     <img 
                         src={projectImageUrl} 
                         alt="Clase Gratuita" 
-                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-102"
                         referrerPolicy="no-referrer"
                     />
                     {/* Shadow Overlay Gradient at bottom of the banner */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none"></div>
                 </div>
 
                 {/* Botón Cerrar */}
@@ -384,8 +384,8 @@ export const RegistrationModal = ({ content, ds, onClose, pageId, basePath, proj
                     <X className="w-5 h-5" />
                 </button>
                 
-                {/* Badge de Cupos Estilo Flotante */}
-                <div className={`absolute top-4 left-4 z-50 ${ds.badges.spotsBg} ${ds.badges.spotsText} text-[0.7rem] md:text-xs font-black px-4 py-1.5 rounded-full shadow-md border ${ds.badges.spotsBorder} uppercase tracking-wider`}>
+                {/* Badge de Cupos Estilo Flotante Elevado */}
+                <div className={`absolute -top-3.5 left-1/2 -translate-x-1/2 z-50 ${ds.badges.spotsBg} ${ds.badges.spotsText} text-[0.75rem] font-extrabold px-5 py-2 rounded-full shadow-xl border ${ds.badges.spotsBorder} uppercase tracking-wider whitespace-nowrap`}>
                     {content.hero.spotsLeft || "¡Cupos Limitados!"}
                 </div>
 

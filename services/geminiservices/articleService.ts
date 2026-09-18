@@ -124,12 +124,18 @@ export const generateFullArticle = async (
     5. SENSIVILIDAD DE TEMAS (YMYL): Si el artículo roza temas de salud, finanzas o empleo, sé sumamente riguroso fácticamente. Evita declaraciones categóricas o promesas de ingresos asegurados.
     6. KEYWORD PRINCIPAL: Debe aparecer de manera natural e integrada en el Título SEO, el primer párrafo de introducción, en el slug si corresponde, y sutilmente en el cuerpo. PROHIBIDO el keyword stuffing o repetir artificialmente la palabra clave.
 
-    REGLAS DE TONO Y ESTILO DE REDACCIÓN:
-    1. TONO: Actúa como un consejero/mentor experto que habla directamente al lector (usa "tú", "te", "tu", "estás") de forma cercana y empática, respetando además el tono de voz solicitado: "${projectContext?.brandTone || 'profesional, empático'}".
-    2. VOCABULARIO PROHIBIDO: Elimina términos excesivamente publicitarios o spam como "cambia tu vida", "libertad financiera", "éxito asegurado", "negocio redondo", "ingresos garantizados". El artículo debe leerse como una pieza editorial seria de primer nivel antes que una carta de ventas agresiva. También evita patrones robóticos de IA como "En conclusión...", "Es importante destacar...", "Sin duda...", "Como hemos visto...".
-    3. PÁRRAFOS CORTOS: Limita cada párrafo a un máximo de 2 o 3 líneas para una lectura digital ágil y fluida. No hagas que cada oración sea un párrafo; mantén la cohesión y el ritmo natural.
+    REGLAS DE TONO Y ESTILO DE REDACCIÓN (ESTILO PERSUASIVO MAESTRO - GARY HALBERT, ISRA BRAVO, EL MONJE MALO):
+    1. TONO DE REDACCIÓN: Escribe el artículo adoptando y variando de forma genial el estilo de los grandes maestros del copywriting en español y marketing directo (Isra Bravo, Gary Halbert, El Monje Malo):
+       - Altamente conversacional, directo al grano y magnético. Habla de "tú" a "tú" con total franqueza.
+       - Comienza con un gancho demoledor y ganchos de curiosidad a lo largo de la lectura.
+       - Di las verdades incómodas de la industria (estilo "El Monje Malo") con firmeza y autoridad intelectual. Rompe con la formalidad aburrida y corporativa, pero mantén un rigor impecable resolviendo la duda del lector.
+       - Usa la fuerza de las historias cortas o analogías de la vida real (estilo "Gary Halbert") para ilustrar conceptos técnicos.
+    2. REGLA CRÍTICA DE PÁRRAFOS CORTOS Y MÚLTIPLES: No acumules bloques densos de texto. Cada párrafo debe ser extremadamente CORTO, limitándose a un máximo de 1 o 2 frases (o de 1 a 3 líneas de texto).
+       - Puedes (y debes) generar múltiples párrafos (3, 4 o más si el tema lo requiere) dentro de cada sección (H2 o H3) para dar toda la información valiosa que solucione la duda. 
+       - No intentes empaquetarlo todo en 1 o 2 párrafos gigantescos. Separa las ideas con saltos de línea frecuentes (<p>...</p>) creando un ritmo respirable, ágil, adictivo y aireado para el lector.
+    3. VOCABULARIO PROHIBIDO: Elimina términos robóticos de IA como "En conclusión", "Es importante destacar", "Sin duda", "Como hemos visto", "En resumen", "En el dinámico mundo de...". Evita frases cliché de marketing de baja calidad como "libertad financiera" o "cambia tu vida". Haz que se lea genuino, humano, perspicaz y sumamente adictivo.
     4. SIN CONCLUSIÓN: El artículo no debe finalizar con una sección formal de conclusión o resumen. Debe fluir de manera natural hacia la sección educativa final y el llamado a la acción.
-    5. FORMATO HTML: Usa etiquetas de estructuración HTML limpias para el cuerpo (p, strong, ul, ol, li, y tablas para comparativas). No uses el H1 dentro de la propiedad 'html'.
+    5. FORMATO HTML: Usa etiquetas de estructuración HTML limpias para el cuerpo (p, strong, ul, ol, li, y tablas para comparativas). No uses la etiqueta H1 dentro del contenido html.
 
     REGLAS ESTRICTAS PARA LOS DOS BANNERS DE LLAMADO A LA ACCIÓN (CTA):
     Debes insertar exactamente DOS banners de CTA en formato HTML real dentro de la propiedad 'html'. Uno posicionado aproximadamente a la mitad del artículo, y el otro al final absoluto.
