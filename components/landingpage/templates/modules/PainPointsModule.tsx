@@ -185,7 +185,7 @@ export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds,
             </div>
         </div>
         
-        {showModal && <RegistrationModal content={content} ds={ds} onClose={() => setShowModal(false)} pageId={pageId} basePath={basePath} />}
+        {showModal && <RegistrationModal content={content} ds={ds} onClose={() => setShowModal(false)} pageId={pageId} basePath={basePath} project={project} />}
     </section>
   );
 };

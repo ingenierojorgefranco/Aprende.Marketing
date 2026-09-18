@@ -347,9 +347,9 @@ const LeadCaptureForm = ({ btnClass, btnText, ds, pageId, basePath }: { btnClass
 // --- Registration Modal ---
 export const RegistrationModal = ({ content, ds, onClose, pageId, basePath, project }: { content: GeneratedPageContent, ds: any, onClose: () => void, pageId?: string, basePath?: string, project?: any }) => {
     const projectImageUrl = 
-        project?.multimedia_json?.leadMagnets?.[0]?.imageUrl ||
-        project?.multimedia_json?.heroImages?.[0] ||
         content?.hero?.heroImage ||
+        project?.multimedia_json?.heroImages?.[0] ||
+        project?.multimedia_json?.leadMagnets?.[0]?.imageUrl ||
         content?.intro?.imageUrl ||
         "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop";
 
