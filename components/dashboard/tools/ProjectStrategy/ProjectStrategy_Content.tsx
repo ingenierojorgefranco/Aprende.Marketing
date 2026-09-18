@@ -713,7 +713,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         }
     };
 
-    const maxArticles = planLimits?.maxArticles || 2;
+    const maxArticles = planLimits?.maxArticles || user?.planLimits?.maxArticles || 2;
     const currentArticleCount = linkedArticles.filter(a => a.isGenerated || a.isUnlocked).length;
     const isAtLimit = !isRealAdmin && !api.isUsingMockData() && currentArticleCount >= maxArticles;
 

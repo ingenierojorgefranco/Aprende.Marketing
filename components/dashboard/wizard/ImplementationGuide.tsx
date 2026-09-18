@@ -1047,6 +1047,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                 projectId={projectId || searchParams.get('id') || ''} 
                 lpTabsData={strategyData?.modules?.web?.landingPageTabs} 
                 tyTabsData={strategyData?.modules?.web?.thankYouPageTabs} 
+                planLimits={user?.planLimits}
+                onUpgrade={onUpgradeClick}
               />
             )}
 
@@ -1074,6 +1076,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               <ProjectStrategy_Content 
                 totalSteps={stepsList.length}
                 contentData={strategyData?.modules?.content || []}
+                planLimits={user?.planLimits}
+                onUpgrade={onUpgradeClick}
               />
             )}
 
@@ -1084,6 +1088,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                 projectId={projectId || searchParams.get('id') || undefined}
                 emailData={strategyData?.modules?.emails?.nurture || []}
                 avatars={strategyData?.avatars || []}
+                planLimits={user?.planLimits}
+                onUpgrade={onUpgradeClick}
               />
             )}
 
@@ -1097,6 +1103,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                 linkedArticles={strategyData?.modules?.content || []}
                 onUpgrade={onUpgradeClick || (() => {})}
                 onGoToContent={() => setActiveStep(7)}
+                planLimits={user?.planLimits}
               />
             )}
 
@@ -1107,6 +1114,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                 projectId={projectId || searchParams.get('id') || ''}
                 strategyData={strategyData}
                 onUpgrade={onUpgradeClick || (() => {})}
+                planLimits={user?.planLimits}
               />
             )}
 

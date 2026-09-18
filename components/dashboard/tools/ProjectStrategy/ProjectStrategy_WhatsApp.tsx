@@ -534,7 +534,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     };
 
     const isRealAdmin = (user?.role === 'admin' || planLimits?.planName === 'admin') && !isSimulating;
-    const maxLaunches = planLimits?.maxWhatsAppLaunches || 1;
+    const maxLaunches = planLimits?.maxWhatsAppLaunches || user?.planLimits?.maxWhatsAppLaunches || 1;
     const launchUsed = launchCount;
     const usagePercent = Math.min(100, (launchUsed / maxLaunches) * 100);
     let progressColor = "bg-green-500";
