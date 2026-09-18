@@ -4,6 +4,7 @@ import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { PlanLimits, Plan, LandingPage, Article } from '../../../../types';
 import { ContentGenerator } from '../ContentGenerator';
 import { api } from '../../../../services/api';
+import { generateArticleOutline, generateFullArticle } from '../../../../services/geminiService';
 import { UpgradeModal } from '../../UpgradeModal';
 import { DeletionRestrictionModal } from '../../DeletionRestrictionModal';
 import { StepHeaderCard } from '../../wizard/StepHeaderCard';
@@ -115,6 +116,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showUnlockConfirmModal, setShowUnlockConfirmModal] = useState(false);
+    const [unlockProgressMsg, setUnlockProgressMsg] = useState("");
     const [showRestrictionModal, setShowRestrictionModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
@@ -567,16 +569,23 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         const active = currentData[activeArticleIdx];
         if (!active || !active.id) return;
         
+        const slugify = (text: string) => text.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-');
+        
         setShowUnlockConfirmModal(false);
         const targetTitle = active.title;
         setUnlockingSingle(true);
+        setUnlockProgressMsg("Iniciando conexión con el motor de Inteligencia Artificial...");
+        
         try {
+            // Paso 1: Desbloquear / Registrar en la base de datos
+            setUnlockProgressMsg("Registrando y preparando el artículo en la base de datos...");
+            let savedId = '';
             if (String(active.id).startsWith('available-')) {
                 const masterId = active.id.replace('available-', '');
-                await api.unlockArticle(projectId!, masterId);
+                const unlockRes = await api.unlockArticle(projectId!, masterId);
+                savedId = String(unlockRes.id);
             } else if (String(active.id).startsWith('json-')) {
-                // Para sugerencias del JSON, las "desbloqueamos" guardándolas en la DB
-                await api.saveArticle({
+                const saveRes = await api.saveArticle({
                     projectId: projectId!,
                     title: active.title,
                     description: active.strategy || '',
@@ -591,13 +600,76 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         targetUrl: ''
                     }
                 } as any);
+                savedId = String(saveRes.id);
+            } else {
+                savedId = String(active.id);
             }
-            await loadLocalData(targetTitle);
-            alert("¡Artículo desbloqueado con éxito!");
+
+            // Paso 2: Generar esquema
+            setUnlockProgressMsg("Paso 1/2: Diseñando estructura de encabezados optimizada para Google (SEO)...");
+            let generatedOutline: string[] = [];
+            if (api.isUsingMockData()) {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                generatedOutline = [`H1: ${active.title}`, "H2: Introducción Estratégica", "H2: Análisis del Mercado", "H2: Implementación Paso a Paso", "H2: Conclusión"];
+            } else {
+                const result = await generateArticleOutline(active.title, active.strategy || '');
+                generatedOutline = Array.isArray(result) ? result : ["H2: Introducción", "H2: Contenido Principal", "H2: Conclusión"];
+            }
+
+            // Paso 3: Generar artículo completo con copy persuasivo
+            setUnlockProgressMsg("Paso 2/2: Redactando contenido magnético con IA (Isra Bravo + Gary Halbert)...");
+            const projectContext = await api.getProjectById(projectId!);
+            const ctaLink = linkedPages && linkedPages.length > 0 
+                ? `https://${linkedPages[0].subdomain}` 
+                : '#';
+
+            let genResult;
+            if (api.isUsingMockData()) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                genResult = {
+                    title: active.title,
+                    html: `<p>Contenido de prueba redactado en estilo persuasivo e interactivo para <strong>${active.title}</strong>.</p><h2>Introducción</h2><p>Exclusivo de prueba.</p>`,
+                    metaDescription: `Descubre todos los secretos y estrategias de ${active.title}.`
+                };
+            } else {
+                genResult = await generateFullArticle(active.title, generatedOutline, active.strategy || '', ctaLink, active.keyword || '', projectContext);
+            }
+
+            // Paso 4: Actualizar base de datos con el artículo redactado
+            setUnlockProgressMsg("Finalizando redacción y optimizando metadatos SEO en la base de datos...");
+            const finalTitle = genResult.title || active.title;
+            const articlePayload = {
+                projectId: projectId!,
+                title: finalTitle,
+                slug: active.slug || slugify(finalTitle),
+                description: genResult.metaDescription || active.strategy || '',
+                contentHtml: genResult.html || '',
+                keyword: active.keyword || '',
+                seoScore: 85,
+                metaTitle: finalTitle,
+                metaDescription: genResult.metaDescription || '',
+                status: 'published' as const,
+                publishedAt: new Date(),
+                isGenerated: true,
+                psychologicalStrategy: {
+                    focus: active.strategy || '',
+                    keyword: active.keyword || '',
+                    searchVolume: String(active.searchVolume || '0'),
+                    targetUrl: ctaLink
+                }
+            };
+
+            await api.updateArticle(savedId, articlePayload as any);
+            await loadLocalData(finalTitle);
+            
+            // Forzar selección automática del artículo generado e ir a la pestaña "Contenidos Generados"
+            setActiveTab('generated');
+            
         } catch (e: any) {
-            alert("Error al desbloquear: " + e.message);
+            alert("Error en la redacción automática: " + e.message);
         } finally {
             setUnlockingSingle(false);
+            setUnlockProgressMsg("");
         }
     };
 
@@ -1101,31 +1173,42 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
             {showUnlockConfirmModal && (
                 <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowUnlockConfirmModal(false)}>
-                    <div className="bg-[#0B0B0B] border border-orange-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                    <div className="bg-[#0B0B0B] border border-orange-500/20 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5D1E] to-amber-500"></div>
-                        <div className="p-8 md:p-10 space-y-8 flex-1 overflow-y-auto">
-                            <div className="flex flex-col items-center text-center space-y-6">
-                                <div className="w-20 h-20 bg-orange-500/10 text-orange-400 rounded-3xl flex items-center justify-center mx-auto border border-orange-500/20 shadow-lg shadow-orange-950/20 animate-pulse"><Sparkles className="w-10 h-10" /></div>
-                                <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
-                                    Confirmar Consumo de <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">Créditos</span>
+                        <div className="p-8 md:p-10 space-y-6 flex-1 overflow-y-auto">
+                            <div className="flex flex-col items-center text-center space-y-5">
+                                <div className="w-16 h-16 bg-orange-500/10 text-orange-400 rounded-2xl flex items-center justify-center mx-auto border border-orange-500/20 shadow-lg shadow-orange-950/20 animate-pulse"><Sparkles className="w-8 h-8" /></div>
+                                <h1 className="text-2xl md:text-3xl font-black text-white leading-tight mb-1">
+                                    ¿Quieres redactar este <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">Artículo?</span>
                                 </h1>
-                                <p className="text-white text-lg leading-relaxed font-normal">
-                                    Al desbloquear este artículo estratégico se consumirá 1 crédito de tu plan actual.
+                                <p className="text-gray-300 text-sm md:text-base leading-relaxed font-normal">
+                                    {isRealAdmin ? (
+                                        "Como Administrador tienes acceso ilimitado para redactar todos los artículos que desees."
+                                    ) : (
+                                        <>
+                                            Tienes disponible la creación de <strong className="text-orange-400 font-extrabold">{Math.max(0, maxArticles - currentArticleCount)} {Math.max(0, maxArticles - currentArticleCount) === 1 ? 'artículo' : 'artículos'}</strong> en tu plan actual.
+                                        </>
+                                    )}
                                 </p>
                             </div>
-                            <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-inner text-left">
-                                <div className="flex justify-between items-center mb-3">
-                                    <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Créditos de Artículos</span>
-                                    <span className="text-white font-bold text-sm">{currentArticleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
+
+                            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-4 shadow-inner text-left">
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="text-gray-400 font-bold uppercase tracking-wider">Artículos de tu Plan</span>
+                                    <span className="text-white font-extrabold">{currentArticleCount} de {isRealAdmin ? 'Ilimitados' : maxArticles} redactados</span>
                                 </div>
-                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
+                                <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
                                     <div className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (currentArticleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                 </div>
                             </div>
+
+                            <p className="text-[11px] text-gray-500 text-center leading-relaxed font-medium">
+                                Al confirmar, nuestra Inteligencia Artificial comenzará la redacción automática y optimización SEO de inmediato. No tendrás que pasar por menús o configurar nada más.
+                            </p>
                         </div>
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
-                            <button onClick={() => setShowUnlockConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
-                            <button onClick={handleUnlockArticle} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Desbloquear</button>
+                            <button onClick={() => setShowUnlockConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-bold text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">No, cancelar</button>
+                            <button onClick={handleUnlockArticle} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 text-white font-bold text-[10px] uppercase tracking-wider shadow-lg shadow-orange-900/20 transform hover:scale-[1.02] active:scale-[0.98] transition-all">Sí, Desbloquear y Redactar</button>
                         </div>
                     </div>
                 </div>
@@ -1186,6 +1269,49 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 handleCloseAndReload();
                             }}
                         />
+                    </div>
+                </div>
+            )}
+
+            {unlockingSingle && (
+                <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center p-6 bg-black/95 backdrop-blur-xl animate-in fade-in">
+                    <div className="max-w-md w-full text-center space-y-8 animate-in zoom-in-95 duration-500">
+                        {/* Circular Brain/Sparkles Glowing animation */}
+                        <div className="relative w-28 h-28 mx-auto">
+                            <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full blur-xl opacity-30 animate-pulse"></div>
+                            <div className="relative w-28 h-28 bg-[#121212] border border-orange-500/20 rounded-full flex items-center justify-center shadow-2xl">
+                                <Sparkles className="w-12 h-12 text-orange-400 animate-spin" style={{ animationDuration: '4s' }} />
+                            </div>
+                        </div>
+                        
+                        <div className="space-y-3">
+                            <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-wider">
+                                Redactando Artículo
+                            </h2>
+                            <p className="text-orange-400 font-semibold text-sm uppercase tracking-widest animate-pulse">
+                                {unlockProgressMsg || "Iniciando Inteligencia Artificial..."}
+                            </p>
+                        </div>
+
+                        {/* Subtle progress indicator steps */}
+                        <div className="bg-white/5 rounded-2xl p-6 border border-white/5 space-y-4 max-w-sm mx-auto">
+                            <div className="flex items-center gap-3 text-left">
+                                <div className="w-6 h-6 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-xs text-orange-400 font-bold">1</div>
+                                <span className="text-gray-300 text-xs font-semibold">Generando esquema optimizado para SEO</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-left">
+                                <div className="w-6 h-6 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-xs text-orange-400 font-bold">2</div>
+                                <span className="text-gray-300 text-xs font-semibold">Redacción con estilo persuasivo (Gary Halbert, Isra Bravo)</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-left">
+                                <div className="w-6 h-6 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-xs text-orange-400 font-bold">3</div>
+                                <span className="text-gray-300 text-xs font-semibold">Publicación automática en tu ecosistema</span>
+                            </div>
+                        </div>
+
+                        <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                            Por favor no cierres esta ventana ni recargues la página. Tu contenido de alta conversión estará listo en unos segundos.
+                        </p>
                     </div>
                 </div>
             )}

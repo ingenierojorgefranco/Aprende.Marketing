@@ -362,7 +362,7 @@ export const RegistrationModal = ({ content, ds, onClose, pageId, basePath, proj
             <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
             <div 
                 onClick={(e) => e.stopPropagation()}
-                className={`relative rounded-3xl border w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-300 ${ds.cta.containerBg} ${ds.cta.containerBorder} flex flex-col`}
+                className={`relative rounded-3xl border w-full max-w-[40rem] shadow-2xl animate-in zoom-in-95 duration-300 ${ds.cta.containerBg} ${ds.cta.containerBorder} flex flex-col`}
             >
                 {/* Banner / Imagen Superior Premium */}
                 <div className="relative w-full aspect-[16/9] bg-black/20 overflow-hidden border-b border-white/10 rounded-t-[22px]">
@@ -372,8 +372,6 @@ export const RegistrationModal = ({ content, ds, onClose, pageId, basePath, proj
                         className="w-full h-full object-cover transition-transform duration-700 hover:scale-102"
                         referrerPolicy="no-referrer"
                     />
-                    {/* Shadow Overlay Gradient at bottom of the banner */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none"></div>
                 </div>
 
                 {/* Botón Cerrar */}
