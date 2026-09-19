@@ -45,24 +45,10 @@ export const UnlockProjectModal: React.FC<UnlockProjectModalProps> = ({
   };
 
   const getCardTitle = (p: Project) => {
-    const nameLower = (p.name || '').toLowerCase();
-    if (nameLower.includes("microblading")) return "Certificación Expert Microblading";
-    if (nameLower.includes("manicurista")) return "Curso de Maquillaje Profesional";
-    if (nameLower.includes("pisos") || nameLower.includes("resina")) return "Master en Pisos de Resina Epóxica";
-    return p.name || "Producto Digital";
+    return p.productName || p.name || "Producto Digital";
   };
 
   const getCardDesc = (p: Project) => {
-    const nameLower = (p.name || '').toLowerCase();
-    if (nameLower.includes("microblading") || nameLower.includes("cejas")) {
-      return "Domina la técnica de cejas y crea un servicio rentable con alta demanda.";
-    }
-    if (nameLower.includes("manicurista") || nameLower.includes("maquillaje")) {
-      return "Aprende maquillaje, color y técnica profesional para realzar la belleza en cualquier ocasión.";
-    }
-    if (nameLower.includes("pisos") || nameLower.includes("resina")) {
-      return "Aprende acabados profesionales en pisos de resina y conviértelo en un servicio rentable.";
-    }
     return p.shortDescription || (p.description ? p.description.replace(/<[^>]*>?/gm, '') : "Aprende una habilidad de alta demanda y conviértela en un negocio rentable.");
   };
 

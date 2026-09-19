@@ -255,24 +255,9 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                     filteredProjects.map((project, index) => {
                         const isSelected = selectedProjectId === project.id;
 
-                        const displayTitle = project.name?.toLowerCase().includes("microblading") 
-                            ? "Certificación Expert Microblading" 
-                            : (project.name?.toLowerCase().includes("manicurista") 
-                                ? "Curso de Maquillaje Profesional" 
-                                : (project.name?.toLowerCase().includes("pisos") || project.name?.toLowerCase().includes("resina")
-                                    ? "Master en Pisos de Resina Epóxica"
-                                    : (project.name || "Producto Digital")));
+                        const displayTitle = project.productName || project.name || "Producto Digital";
 
-                        let idealForDesc = project.shortDescription || project.description;
-                        if (project.name?.toLowerCase().includes("microblading") || project.name?.toLowerCase().includes("cejas")) {
-                            idealForDesc = "Domina la técnica de cejas y crea un servicio rentable con alta demanda.";
-                        } else if (project.name?.toLowerCase().includes("manicurista") || project.name?.toLowerCase().includes("maquillaje")) {
-                            idealForDesc = "Aprende maquillaje, color y técnica profesional para realzar la belleza en cualquier ocasión.";
-                        } else if (project.name?.toLowerCase().includes("pisos") || project.name?.toLowerCase().includes("resina")) {
-                            idealForDesc = "Aprende acabados profesionales en pisos de resina y conviértelo en un servicio altamente rentable.";
-                        } else if (!idealForDesc) {
-                            idealForDesc = project.strategy_json?.shortDescription || project.strategy_json?.productDescription || "Aprende una habilidad de alta demanda y conviértela en un negocio rentable.";
-                        }
+                        let idealForDesc = project.shortDescription || project.description || project.strategy_json?.shortDescription || project.strategy_json?.productDescription || "Aprende una habilidad de alta demanda y conviértela en un negocio rentable.";
 
                         const projectCategory = project.niche || "General";
                         const projectCategoryIcon = getCategoryIcon(projectCategory);
@@ -404,9 +389,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                 const categoryLabel = confirmingProject.niche 
                     ? confirmingProject.niche.toUpperCase() 
                     : "PRODUCTO DIGITAL";
-                const displayTitle = confirmingProject.name?.toLowerCase().includes("microblading") 
-                    ? "Curso Profesional de Microblading de Cejas" 
-                    : confirmingProject.name;
+                const displayTitle = confirmingProject.productName || confirmingProject.name || "Producto Digital";
                 // Helper to extract a clean, short description from the project data
                 const getCleanShortDescription = (proj: any) => {
                     let raw = proj?.shortDescription 
@@ -614,7 +597,7 @@ export const UnlockProtocolStep: React.FC<StepProps & { project: any, isStrategy
         idealText = "Una oportunidad ideal para personas interesadas en belleza, contenido visual y una estrategia basada en clase gratuita.";
     }
 
-    const displayTitle = isCejasOrMicroblading ? "Curso Profesional de Microblading de Cejas" : project.name;
+    const displayTitle = project.productName || project.name || "Producto Digital";
     const uppercaseNiche = isCejasOrMicroblading ? "BELLEZA Y CUIDADO PERSONAL" : (project.niche || 'Belleza y estética').toUpperCase();
 
     return (

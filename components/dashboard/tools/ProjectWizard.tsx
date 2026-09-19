@@ -434,6 +434,7 @@ export const ProjectWizard: React.FC = () => {
     
     const [name, setName] = useState('');
     const [productName, setProductName] = useState('');
+    const [shortDescription, setShortDescription] = useState('');
     const [description, setDescription] = useState('');
     const [brandTone, setBrandTone] = useState('Amigable y Cercano');
     
@@ -904,6 +905,7 @@ export const ProjectWizard: React.FC = () => {
             if (proj) {
                 setName(proj.name);
                 setProductName(proj.productName);
+                setShortDescription(proj.shortDescription || '');
                 setDescription(proj.description);
                 setBrandTone(proj.brandTone || 'Amigable y Cercano');
                 setFullPrice(proj.fullPrice || 0);
@@ -1103,7 +1105,10 @@ export const ProjectWizard: React.FC = () => {
                 setProductName(data.productName);
                 setName(data.productName); // Sincronización automática de nombre de proyecto
             }
-            if (data.description) setDescription(data.description);
+            if (data.description) {
+                setDescription(data.description);
+                setShortDescription(data.description);
+            }
             if (data.niche) setNiche(data.niche);
             setShowAnalyzeConfirm(false);
         } catch (error: any) {
@@ -1138,6 +1143,9 @@ export const ProjectWizard: React.FC = () => {
         currentStrategy.avatars = tempAvatars;
         currentStrategy.commercial = tempCommercial; // Persistencia de datos del modal comercial
         
+        if (!currentStrategy.meta) currentStrategy.meta = {};
+        currentStrategy.meta.shortDescription = shortDescription;
+
         const firstLeadMagnetUrl = (multimedia.leadMagnets && multimedia.leadMagnets.length > 0)
             ? multimedia.leadMagnets.find(lm => lm.url && lm.url.trim() !== '')?.url
             : '';
@@ -1145,6 +1153,7 @@ export const ProjectWizard: React.FC = () => {
         const projectData: any = {
             name,
             productName,
+            shortDescription,
             description,
             brandTone,
             fullPrice,
@@ -2435,6 +2444,11 @@ export const ProjectWizard: React.FC = () => {
                                     <input type="text" value={productName} onChange={e => setProductName(e.target.value)} className={`w-full bg-black border ${errors.productName ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700`} placeholder="Ej: Masterclass Uñas Perfectas" />
                                     {errors.productName && <p className="text-red-500 text-xs mt-2 font-medium">{errors.productName}</p>}
                                 </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Descripción de Onboarding (Resumen Corto para la Tarjeta)</label>
+                                <input type="text" value={shortDescription} onChange={e => setShortDescription(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700" placeholder="Ej: Domina la técnica de cejas y crea un servicio rentable con alta demanda." />
+                                <p className="text-[11px] text-gray-500 mt-1">Este resumen corto de 1 o 2 frases aparecerá debajo del título del producto en las tarjetas de selección.</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Descripción del Producto (Editor Visual)</label>

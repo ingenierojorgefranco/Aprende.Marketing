@@ -122,7 +122,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 pageId: a.page_id ? String(a.page_id) : undefined,
                 pageName: a.page_name,
                 pageSubdomain: a.page_subdomain,
-                isUnlocked: true,
+                isUnlocked: !!a.is_generated,
                 isGenerated: !!a.is_generated,
                 isActive: !!a.is_active,
                 unlockedAt: a.unlocked_at,
@@ -238,14 +238,16 @@ router.post('/articles', authMiddleware, async (req, res) => {
       'page_id', 'project_id', 'is_generated', 'psychological_strategy', 
       'title', 'slug', 'description', 'content_html', 'featured_image', 
       'keyword', 'seo_score', 'meta_title', 'meta_description', 
-      'email_subject', 'email_body', 'status', 'published_at', 'is_active'
+      'email_subject', 'email_body', 'status', 'published_at', 'is_active',
+      'master_article_id'
     ];
 
     for (const field of allowedFields) {
-      if (body.hasOwnProperty(field)) {
+      const bodyKey = field === 'master_article_id' ? 'masterArticleId' : field;
+      if (body.hasOwnProperty(field) || body.hasOwnProperty(bodyKey)) {
         fields.push(field);
         placeholders.push('?');
-        let val = body[field];
+        let val = body.hasOwnProperty(field) ? body[field] : body[bodyKey];
         if (field === 'is_generated' || field === 'is_active') val = val ? 1 : 0;
         if (field === 'psychological_strategy' && typeof val === 'object') val = JSON.stringify(val);
         if (field === 'published_at' && val) val = new Date(val);
@@ -293,13 +295,15 @@ router.put('/articles/:id', authMiddleware, async (req, res) => {
       'page_id', 'project_id', 'is_generated', 'psychological_strategy', 
       'title', 'slug', 'description', 'content_html', 'featured_image', 
       'keyword', 'seo_score', 'meta_title', 'meta_description', 
-      'email_subject', 'email_body', 'status', 'published_at', 'is_active'
+      'email_subject', 'email_body', 'status', 'published_at', 'is_active',
+      'master_article_id'
     ];
 
     for (const field of allowedFields) {
-      if (body.hasOwnProperty(field)) {
+      const bodyKey = field === 'master_article_id' ? 'masterArticleId' : field;
+      if (body.hasOwnProperty(field) || body.hasOwnProperty(bodyKey)) {
         updates.push(`${field} = ?`);
-        let val = body[field];
+        let val = body.hasOwnProperty(field) ? body[field] : body[bodyKey];
         if (field === 'is_generated' || field === 'is_active') val = val ? 1 : 0;
         if (field === 'psychological_strategy' && typeof val === 'object') val = JSON.stringify(val);
         if (field === 'published_at' && val) val = new Date(val);

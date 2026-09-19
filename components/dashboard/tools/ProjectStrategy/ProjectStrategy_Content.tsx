@@ -436,8 +436,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
     useEffect(() => {
         const active = currentData[activeArticleIdx];
-        // Bloqueo de seguridad: No auto-guardar si no hay edición local, si no hay ID, o si es un ID de biblioteca maestra
-        if (!localEdit || !active?.id || String(active.id).startsWith('available-') || active.isUnlocked === false) return;
+        // Bloqueo de seguridad: No auto-guardar si no hay edición local, si no hay ID, o si es un ID de biblioteca maestra (excepto si es administrador real)
+        if (!localEdit || !active?.id || (!isRealAdmin && (String(active.id).startsWith('available-') || active.isUnlocked === false))) return;
         
         // Evitar guardado si no hay cambios reales
         if (
@@ -1258,9 +1258,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             embeddedProjectId={projectId}
                             onClose={handleCloseAndReload}
                             onSave={async (article) => {
-                                const isUpdate = article.id && !String(article.id).startsWith('json-') && !String(article.id).startsWith('available-');
-                                
-                                if (isUpdate) {
+                                if (article.id && String(article.id).startsWith('available-')) {
+                                    const masterId = String(article.id).replace('available-', '');
+                                    const unlockRes = await api.unlockArticle(projectId!, masterId);
+                                    await api.updateArticle(unlockRes.id, article);
+                                } else if (article.id && !String(article.id).startsWith('json-')) {
                                     await api.updateArticle(article.id!, article);
                                 } else {
                                     const { id, ...dataToSave } = article;
