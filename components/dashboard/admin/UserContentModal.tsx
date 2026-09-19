@@ -292,7 +292,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
         >
             <div 
                 onClick={(e) => e.stopPropagation()}
-                className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-4xl shadow-2xl animate-in zoom-in-95 flex flex-col max-h-[80vh]"
+                className="bg-gray-900 border border-gray-700 rounded-2xl w-11/12 md:w-[80vw] md:max-w-[80vw] shadow-2xl animate-in zoom-in-95 flex flex-col max-h-[85vh] h-[85vh]"
             >
                 <div className="p-6 border-b border-gray-800 flex justify-between items-center shrink-0">
                     <div>
@@ -548,7 +548,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                             <tr>
                                                 <th className="pb-2 pl-2">Nombre</th>
                                                 <th className="pb-2">Nicho</th>
-                                                <th className="pb-2">Objetivo</th>
+                                                <th className="pb-2">Id Proyecto</th>
                                                 <th className="pb-2 text-right pr-2">Acción</th>
                                             </tr>
                                         </thead>
@@ -557,7 +557,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                                 <tr key={p.id} className="hover:bg-white/[0.02]">
                                                     <td className="py-2 pl-2 font-medium">{p.name}</td>
                                                     <td className="py-2">{p.niche}</td>
-                                                    <td className="py-2 text-blue-400">{p.main_goal}</td>
+                                                    <td className="py-2 font-mono text-yellow-500">{p.id}</td>
                                                     <td className="py-2 text-right pr-2">
                                                         <button 
                                                             onClick={() => handleDeleteAsset('projects', p.id, p.name)}
@@ -597,7 +597,9 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                     <table className="w-full text-xs text-left">
                                         <thead className="text-gray-500 uppercase">
                                             <tr>
-                                                <th className="pb-2 pl-2">Nombre</th>
+                                                <th className="pb-2 pl-2">ID Landing</th>
+                                                <th className="pb-2">Nombre</th>
+                                                <th className="pb-2">Proyecto Id</th>
                                                 <th className="pb-2 text-right">Visitas</th>
                                                 <th className="pb-2 text-right">Leads</th>
                                                 <th className="pb-2 text-center">Dominio</th>
@@ -607,7 +609,9 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                         <tbody className="text-gray-300 divide-y divide-gray-800">
                                             {loadedData.pages.map((p: any) => (
                                                 <tr key={p.id} className="hover:bg-white/[0.02]">
-                                                    <td className="py-2 pl-2 font-medium">{p.name}</td>
+                                                    <td className="py-2 pl-2 font-mono text-gray-400">{p.id}</td>
+                                                    <td className="py-2 font-medium">{p.name}</td>
+                                                    <td className="py-2 font-mono text-yellow-500">{p.project_id || p.projectId || 'N/A'}</td>
                                                     <td className="py-2 text-right font-mono">{p.visits}</td>
                                                     <td className="py-2 text-right font-mono">{p.conversions || 0}</td>
                                                     <td className="py-2 text-center">
@@ -686,7 +690,9 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                         <table className="w-full text-xs text-left">
                                             <thead className="text-gray-500 uppercase">
                                                 <tr>
-                                                    <th className="pb-2 pl-2">Título</th>
+                                                    <th className="pb-2 pl-2">Id Artículo</th>
+                                                    <th className="pb-2">Título</th>
+                                                    <th className="pb-2">Id Proyecto</th>
                                                     <th className="pb-2">Procedencia</th>
                                                     <th className="pb-2">Estado</th>
                                                     <th className="pb-2">Fecha</th>
@@ -703,7 +709,9 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                                         
                                                         return (
                                                             <tr key={a.id} className="hover:bg-white/[0.02]">
-                                                                <td className="py-2 pl-2 font-medium truncate max-w-[200px]">{a.title}</td>
+                                                                <td className="py-2 pl-2 font-mono text-gray-400">{a.id}</td>
+                                                                <td className="py-2 font-medium truncate max-w-[200px]">{a.title}</td>
+                                                                <td className="py-2 font-mono text-yellow-500">{a.project_id || a.projectId || 'N/A'}</td>
                                                                 <td className="py-2">
                                                                     <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.isJson ? 'bg-purple-900/30 text-purple-400' : 'bg-blue-900/30 text-blue-400'}`}>
                                                                         {a.isJson ? 'JSON' : 'Base de Datos'}
@@ -813,7 +821,9 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                         <table className="w-full text-xs text-left">
                                             <thead className="text-gray-500 uppercase">
                                                 <tr>
-                                                    <th className="pb-2 pl-2">Título del Gancho</th>
+                                                    <th className="pb-2 pl-2">Id Hook</th>
+                                                    <th className="pb-2">Título del Gancho</th>
+                                                    <th className="pb-2">Id Proyecto</th>
                                                     <th className="pb-2">Procedencia</th>
                                                     <th className="pb-2">Estado</th>
                                                     <th className="pb-2">Fecha</th>
@@ -826,7 +836,9 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                                     .slice((currentPageHooks - 1) * itemsPerPage, currentPageHooks * itemsPerPage)
                                                     .map((h: any) => (
                                                         <tr key={h.id} className="hover:bg-white/[0.02]">
-                                                            <td className="py-2 pl-2 font-medium">{h.title}</td>
+                                                            <td className="py-2 pl-2 font-mono text-gray-400">{h.id}</td>
+                                                            <td className="py-2 font-medium">{h.title}</td>
+                                                            <td className="py-2 font-mono text-yellow-500">{h.project_id || h.projectId || "N/A"}</td>
                                                             <td className="py-2">
                                                                 <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${h.is_json || h.master_hook_id ? 'bg-purple-900/30 text-purple-400' : 'bg-blue-900/30 text-blue-400'}`}>
                                                                     {h.is_json || h.master_hook_id ? 'JSON' : 'Base de Datos'}
