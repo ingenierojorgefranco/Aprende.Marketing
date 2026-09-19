@@ -663,34 +663,18 @@ export const ProjectsList: React.FC = () => {
                                         {/* Action Buttons */}
                                         <div className="pt-2">
                                             {isAlreadyUnlocked ? (
-                                                <div className="flex flex-col gap-2">
-                                                    <button
-                                                        type="button"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            const userClone = projects.find(p => String(p.masterParentId) === String(project.id));
-                                                            handleViewStrategy(e, userClone || project);
-                                                        }}
-                                                        className="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(16,185,129,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
-                                                    >
-                                                        <span>VER PROYECTO</span>
-                                                        <ArrowRight className="w-4 h-4 shrink-0" />
-                                                    </button>
-
-                                                    {user.role === 'admin' && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleViewStrategy(e, project);
-                                                            }}
-                                                            className="w-full py-3.5 px-5 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(79,70,229,0.25)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
-                                                        >
-                                                            <span>VER PROYECTO (MAESTRO)</span>
-                                                            <ArrowRight className="w-4 h-4 shrink-0" />
-                                                        </button>
-                                                    )}
-                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        const userClone = projects.find(p => String(p.masterParentId) === String(project.id));
+                                                        handleViewStrategy(e, userClone || project);
+                                                    }}
+                                                    className="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl shadow-[0_4px_20px_rgba(16,185,129,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+                                                >
+                                                    <span>VER PROYECTO</span>
+                                                    <ArrowRight className="w-4 h-4 shrink-0" />
+                                                </button>
                                             ) : (
                                                 <>
                                                     <button
