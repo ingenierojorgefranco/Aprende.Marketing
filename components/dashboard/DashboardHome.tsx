@@ -229,181 +229,143 @@ export const DashboardHome: React.FC = () => {
           </div>
       </div>
 
-      {/* 2. VIDEO INTRODUCTORIO + TU SUSCRIPCIÓN (BLOQUES LADO A LADO) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+      {/* 2. TU SUSCRIPCIÓN + COMUNIDAD WHATSAPP (BLOQUES LADO A LADO) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
           
-          {/* BLOQUE DE VIDEO (Izquierda / Principal) */}
-          <div className="lg:col-span-7 xl:col-span-8 bg-[#0B1120] p-6 sm:p-8 rounded-[2rem] border border-slate-800 shadow-xl flex flex-col justify-between group">
-              <div>
-                  <div className="flex items-center justify-between gap-4 mb-4">
-                      <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-bold uppercase tracking-wider">
-                          <PlayCircle className="w-4 h-4" />
-                          <span>Tour de la Plataforma</span>
+          {/* 1. TU SUSCRIPCIÓN (Espaciado natural y compacto sin huecos vacíos) */}
+          <div className="bg-gradient-to-br from-[#0F172A] via-[#0B1120] to-[#180D06] p-6 sm:p-7 rounded-[2rem] border border-[#FF5A1F]/30 hover:border-[#FF5A1F]/50 transition-all shadow-2xl relative overflow-hidden flex flex-col justify-between">
+              <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#FF5A1F]/15 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none text-[#FF5A1F]">
+                  <Crown className="w-28 h-28" />
+              </div>
+              
+              <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                          <div className="p-1.5 rounded-lg bg-[#FF5A1F]/15 border border-[#FF5A1F]/30">
+                              <Crown className="w-4 h-4 text-[#FF5A1F]" />
+                          </div>
+                          <h2 className="text-xs font-black text-white uppercase tracking-widest">Tu Suscripción</h2>
                       </div>
-                      <span className="text-xs text-gray-400 font-medium hidden sm:inline-flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-[#FF5A1F]" /> 4:36 min
+                      <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+                          Activo
                       </span>
                   </div>
                   
-                  <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mb-2">
-                      Aprende a dominar tu panel y acelerar tus resultados
-                  </h2>
-                  <p className="text-sm sm:text-base text-gray-300 leading-relaxed mb-6">
-                      Mira este breve recorrido guiado para aprender a estructurar proyectos, generar reels con IA y activar tus páginas de captación.
-                  </p>
-              </div>
-
-              {/* Video Embed */}
-              <div className="w-full aspect-video rounded-2xl overflow-hidden border border-slate-800 shadow-2xl relative bg-black">
-                  <iframe 
-                      className="w-full h-full absolute inset-0"
-                      src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&modestbranding=1&controls=1" 
-                      title="Tour de la Plataforma Aprende.Marketing" 
-                      frameBorder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                      allowFullScreen
-                  ></iframe>
-              </div>
-          </div>
-
-          {/* BLOQUE DERECHA: TU SUSCRIPCIÓN + COMUNIDAD WHATSAPP APILADOS Y EQUILIBRADOS */}
-          <div className="lg:col-span-5 xl:col-span-4 flex flex-col justify-between gap-6">
-              
-              {/* 1. TU SUSCRIPCIÓN (Espaciado natural y compacto sin huecos vacíos) */}
-              <div className="bg-gradient-to-br from-[#0F172A] via-[#0B1120] to-[#180D06] p-6 sm:p-7 rounded-[2rem] border border-[#FF5A1F]/30 hover:border-[#FF5A1F]/50 transition-all shadow-2xl relative overflow-hidden flex flex-col">
-                  <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#FF5A1F]/15 rounded-full blur-3xl pointer-events-none"></div>
-                  <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none text-[#FF5A1F]">
-                      <Crown className="w-28 h-28" />
-                  </div>
-                  
-                  <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2">
-                              <div className="p-1.5 rounded-lg bg-[#FF5A1F]/15 border border-[#FF5A1F]/30">
-                                  <Crown className="w-4 h-4 text-[#FF5A1F]" />
-                              </div>
-                              <h2 className="text-xs font-black text-white uppercase tracking-widest">Tu Suscripción</h2>
+                  <div>
+                      <div className="flex items-baseline justify-between mb-3.5">
+                          <div>
+                              <h3 className="text-2xl sm:text-3xl font-black text-white capitalize">{planName}</h3>
+                              <p className="text-xs text-gray-400 mt-1">{isFree ? 'Versión gratuita' : 'Plan Premium'}</p>
                           </div>
-                          <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
-                              Activo
+                          <span className="px-2.5 py-1 rounded-lg bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 text-[#FF5A1F] text-xs font-bold uppercase tracking-wider">
+                              {isFree ? 'GRATUITO' : planName}
                           </span>
                       </div>
                       
-                      <div>
-                          <div className="flex items-baseline justify-between mb-3.5">
-                              <div>
-                                  <h3 className="text-2xl sm:text-3xl font-black text-white capitalize">{planName}</h3>
-                                  <p className="text-xs text-gray-400 mt-1">{isFree ? 'Versión gratuita' : 'Plan Premium'}</p>
-                              </div>
-                              <span className="px-2.5 py-1 rounded-lg bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 text-[#FF5A1F] text-xs font-bold uppercase tracking-wider">
-                                  {isFree ? 'GRATUITO' : planName}
-                              </span>
-                          </div>
-                          
-                          {/* CARACTERÍSTICAS DISPONIBLES (Filas con espaciado equilibrado y compacto) */}
-                          <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
-                              {[
-                                  { label: 'Proyectos', key: 'projects', actual: realCounts.projects, max: user?.planLimits?.maxProjects || 1, icon: Folder },
-                                  { label: 'Páginas de Captura', key: 'pages', actual: realCounts.pages, max: user?.planLimits?.maxLandings || 1, icon: Layers },
-                                  { label: 'Dominios', key: 'domains', actual: realCounts.domains, max: user?.planLimits?.maxDomains ?? 0, icon: Globe },
-                                  { label: 'Video Hooks con IA', key: 'hooks', actual: realCounts.hooks, max: user?.planLimits?.maxHooks || 3, icon: Sparkles },
-                                  { label: 'Artículos SEO', key: 'articles', actual: realCounts.articles, max: user?.planLimits?.maxArticles || 1, icon: FileText },
-                                  { label: 'Secuencias Email Conversión', key: 'emailConversion', actual: realCounts.emailConversion, max: user?.planLimits?.maxEmailSequences || 0, icon: Send },
-                                  { label: 'Secuencias Email Nutrición', key: 'emailNurturing', actual: realCounts.emailNurturing, max: user?.planLimits?.maxEmailSequencesNurturing || 0, icon: HeartHandshake },
-                                  { label: 'Lanzamientos WhatsApp', key: 'whatsappLaunches', actual: realCounts.whatsappLaunches, max: user?.planLimits?.maxWhatsAppLaunches || 0, icon: MessageSquare },
-                                  { label: 'Leadmagnets via Whatsapp', key: 'leadmagnets', actual: realCounts.leadmagnets, max: isFree ? 1 : 9999, icon: FileDown }
-                              ].map((item) => (
-                                  <div 
-                                      key={item.key} 
-                                      className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/60 border border-slate-800/70 text-xs hover:border-[#FF5A1F]/30 transition-colors"
-                                  >
-                                      <div className="flex items-center gap-2.5 min-w-0">
-                                          <item.icon className="w-4 h-4 text-[#FF5A1F] shrink-0" />
-                                          <span className="text-gray-300 font-medium truncate">{item.label}</span>
-                                      </div>
-                                      <span className="font-bold text-white shrink-0 ml-2">
-                                          {item.actual} / {item.max >= 9999 || isRealAdmin ? 'Ilimitado' : item.max}
-                                      </span>
+                      {/* CARACTERÍSTICAS DISPONIBLES (Filas con espaciado equilibrado y compacto) */}
+                      <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
+                          {[
+                              { label: 'Proyectos', key: 'projects', actual: realCounts.projects, max: user?.planLimits?.maxProjects || 1, icon: Folder },
+                              { label: 'Páginas de Captura', key: 'pages', actual: realCounts.pages, max: user?.planLimits?.maxLandings || 1, icon: Layers },
+                              { label: 'Dominios', key: 'domains', actual: realCounts.domains, max: user?.planLimits?.maxDomains ?? 0, icon: Globe },
+                              { label: 'Video Hooks con IA', key: 'hooks', actual: realCounts.hooks, max: user?.planLimits?.maxHooks || 3, icon: Sparkles },
+                              { label: 'Artículos SEO', key: 'articles', actual: realCounts.articles, max: user?.planLimits?.maxArticles || 1, icon: FileText },
+                              { label: 'Secuencias Email Conversión', key: 'emailConversion', actual: realCounts.emailConversion, max: user?.planLimits?.maxEmailSequences || 0, icon: Send },
+                              { label: 'Secuencias Email Nutrición', key: 'emailNurturing', actual: realCounts.emailNurturing, max: user?.planLimits?.maxEmailSequencesNurturing || 0, icon: HeartHandshake },
+                              { label: 'Lanzamientos WhatsApp', key: 'whatsappLaunches', actual: realCounts.whatsappLaunches, max: user?.planLimits?.maxWhatsAppLaunches || 0, icon: MessageSquare },
+                              { label: 'Leadmagnets via Whatsapp', key: 'leadmagnets', actual: realCounts.leadmagnets, max: isFree ? 1 : 9999, icon: FileDown }
+                          ].map((item) => (
+                              <div 
+                                  key={item.key} 
+                                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/60 border border-slate-800/70 text-xs hover:border-[#FF5A1F]/30 transition-colors"
+                              >
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                      <item.icon className="w-4 h-4 text-[#FF5A1F] shrink-0" />
+                                      <span className="text-gray-300 font-medium truncate">{item.label}</span>
                                   </div>
-                              ))}
-                          </div>
+                                  <span className="font-bold text-white shrink-0 ml-2">
+                                      {item.actual} / {item.max >= 9999 || isRealAdmin ? 'Ilimitado' : item.max}
+                                  </span>
+                              </div>
+                          ))}
                       </div>
                   </div>
-
-                  {/* SECCIÓN INFERIOR: TEXTO MOTIVACIONAL + BOTÓN (Conectado sin gran espacio vacío) */}
-                  {isFree ? (
-                      <div className="relative z-10 mt-4 space-y-3">
-                          <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-                              Mejora tu suscripción y obtén las mejores características para tener mejores resultados
-                          </p>
-
-                          <button 
-                              onClick={() => {
-                                  if (setShowUpgradeModal) {
-                                      setShowUpgradeModal(true);
-                                  } else {
-                                      setShowProfileModal(true);
-                                  }
-                              }} 
-                              className="w-full py-3.5 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-[#FF5A1F] via-[#FF6E2B] to-[#FF853A] text-white hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-[0_5px_20px_rgba(255,90,31,0.35)] cursor-pointer uppercase tracking-wider"
-                          >
-                              <Zap className="w-4 h-4 fill-current" /> Mejorar a Pro
-                          </button>
-                      </div>
-                  ) : (
-                      <div className="relative z-10 mt-4">
-                          <p className="text-xs sm:text-sm text-green-400 font-bold flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 px-3.5 py-2.5 rounded-xl">
-                              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse animate-duration-1000"></span>
-                              Suscripción Premium Activa: ¡Acceso ilimitado habilitado!
-                          </p>
-                      </div>
-                  )}
               </div>
 
-              {/* 2. COMUNIDAD DE WHATSAPP (Aumentada en presencia y altura para equilibrio proporcional) */}
-              <div className="bg-[#0B1120] p-6 sm:p-7 rounded-[2rem] border border-slate-800 shadow-xl relative overflow-hidden flex flex-col justify-between flex-1">
-                  <div>
-                      <div className="flex items-center justify-between mb-3.5">
-                          <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-[#25D366] rounded-xl flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(37,211,102,0.3)]">
-                                  <Smartphone className="w-5 h-5 text-white" />
-                              </div>
-                              <div>
-                                  <h2 className="text-xs font-black text-white uppercase tracking-wider leading-none">Comunidad WhatsApp</h2>
-                                  <p className="text-[11px] text-[#25D366] font-bold mt-1">Grupo Exclusivo VIP</p>
-                              </div>
+              {/* SECCIÓN INFERIOR: TEXTO MOTIVACIONAL + BOTÓN (Conectado sin gran espacio vacío) */}
+              {isFree ? (
+                  <div className="relative z-10 mt-4 space-y-3 animate-pulse">
+                      <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
+                          Mejora tu suscripción y obtén las mejores características para tener mejores resultados
+                      </p>
+
+                      <button 
+                          onClick={() => {
+                              if (setShowUpgradeModal) {
+                                  setShowUpgradeModal(true);
+                              } else {
+                                  setShowProfileModal(true);
+                              }
+                          }} 
+                          className="w-full py-3.5 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-[#FF5A1F] via-[#FF6E2B] to-[#FF853A] text-white hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-[0_5px_20px_rgba(255,90,31,0.35)] cursor-pointer uppercase tracking-wider"
+                      >
+                          <Zap className="w-4 h-4 fill-current" /> Mejorar a Pro
+                      </button>
+                  </div>
+              ) : (
+                  <div className="relative z-10 mt-4">
+                      <p className="text-xs sm:text-sm text-green-400 font-bold flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 px-3.5 py-2.5 rounded-xl">
+                          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse animate-duration-1000"></span>
+                          Suscripción Premium Activa: ¡Acceso ilimitado habilitado!
+                      </p>
+                  </div>
+              )}
+          </div>
+
+          {/* 2. COMUNIDAD DE WHATSAPP (Aumentada en presencia y altura para equilibrio proporcional) */}
+          <div className="bg-[#0B1120] p-6 sm:p-7 rounded-[2rem] border border-slate-800 shadow-xl relative overflow-hidden flex flex-col justify-between">
+              <div>
+                  <div className="flex items-center justify-between mb-3.5">
+                      <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-[#25D366] rounded-xl flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(37,211,102,0.3)]">
+                              <Smartphone className="w-5 h-5 text-white" />
                           </div>
-                          
-                          <div className="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-full border border-slate-800">
-                              <div className="flex -space-x-1.5">
-                                  {[1,2,3].map(i => (
-                                      <div key={i} className="w-5 h-5 rounded-full border border-[#0B1120] bg-slate-700 flex items-center justify-center text-[8px] text-gray-300">
-                                          <Users className="w-2.5 h-2.5" />
-                                      </div>
-                                  ))}
-                              </div>
-                              <span className="text-[10px] text-gray-400 font-bold">+236</span>
+                          <div>
+                              <h2 className="text-xs font-black text-white uppercase tracking-wider leading-none">Comunidad WhatsApp</h2>
+                              <p className="text-[11px] text-[#25D366] font-bold mt-1">Grupo Exclusivo VIP</p>
                           </div>
                       </div>
                       
-                      <p className="text-sm sm:text-base text-gray-300 leading-relaxed mb-4">
-                          Conecta con otros creadores, comparte tus lanzamientos y recibe soporte directo en tiempo real.
-                      </p>
+                      <div className="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-full border border-slate-800">
+                          <div className="flex -space-x-1.5">
+                              {[1,2,3].map(i => (
+                                  <div key={i} className="w-5 h-5 rounded-full border border-[#0B1120] bg-slate-700 flex items-center justify-center text-[8px] text-gray-300">
+                                      <Users className="w-2.5 h-2.5" />
+                                  </div>
+                              ))}
+                          </div>
+                          <span className="text-[10px] text-gray-400 font-bold">+236</span>
+                      </div>
                   </div>
-
-                  <div>
-                      <a 
-                          href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm bg-[#25D366] hover:bg-[#20bd5a] text-white transition-colors flex items-center justify-center gap-2 shadow-[0_4px_14px_rgba(37,211,102,0.25)] cursor-pointer"
-                      >
-                          <Smartphone className="w-4 h-4" /> Unirme al grupo VIP
-                      </a>
-                  </div>
+                  
+                  <p className="text-sm sm:text-base text-gray-300 leading-relaxed mb-4">
+                      Conecta con otros creadores, comparte tus lanzamientos y recibe soporte directo en tiempo real.
+                  </p>
               </div>
 
+              <div>
+                  <a 
+                      href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm bg-[#25D366] hover:bg-[#20bd5a] text-white transition-colors flex items-center justify-center gap-2 shadow-[0_4px_14px_rgba(37,211,102,0.25)] cursor-pointer"
+                  >
+                      <Smartphone className="w-4 h-4" /> Unirme al grupo VIP
+                  </a>
+              </div>
           </div>
+
       </div>
 
       {/* 3. MAIN CONTENT GRID (8 + 4) */}

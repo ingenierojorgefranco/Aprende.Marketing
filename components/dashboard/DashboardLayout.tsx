@@ -548,8 +548,8 @@ export const DashboardLayout = ({
                                      <p className="text-xs sm:text-sm font-semibold text-zinc-100 group-hover:text-white truncate max-w-[110px] sm:max-w-[140px]">
                                          {effectiveUser.name}
                                      </p>
-                                     <p className="text-[10px] sm:text-[11px] font-bold text-[#FF5A1F] uppercase tracking-wider mt-0.5">
-                                         {effectiveUser.role === 'admin' ? 'Admin' : (!isFreePlan ? 'Plan Pro' : 'Plan Gratuito')}
+                                     <p className="text-[10px] sm:text-[11px] font-bold text-[#FF5A1F] lowercase tracking-normal mt-0.5 truncate max-w-[115px] sm:max-w-[145px] block">
+                                         {effectiveUser.email}
                                      </p>
                                  </div>
                                  <ChevronsUpDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400 group-hover:text-zinc-200 shrink-0 ml-0.5 sm:ml-1" />
@@ -560,7 +560,7 @@ export const DashboardLayout = ({
                                  <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl bg-[#12141a] border border-white/10 shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-xl">
                                      <div className="px-3 py-2 border-b border-white/5 mb-1 sm:hidden">
                                          <p className="text-xs font-bold text-white truncate">{effectiveUser.name}</p>
-                                         <p className="text-[10px] text-[#FF5A1F] font-bold uppercase">{effectiveUser.role === 'admin' ? 'Admin' : (!isFreePlan ? 'Plan Pro' : 'Plan Gratuito')}</p>
+                                         <p className="text-[10px] text-[#FF5A1F] font-bold lowercase truncate max-w-[180px] block">{effectiveUser.email}</p>
                                      </div>
                                      <button
                                          onClick={() => {
