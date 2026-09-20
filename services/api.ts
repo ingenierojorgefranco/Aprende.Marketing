@@ -795,7 +795,9 @@ export const api = {
             content: page.content,
             isPublished: page.isPublished,
             projectId: page.projectId,
-            subdomain: page.subdomain
+            subdomain: page.subdomain,
+            customDomain: page.customDomain,
+            custom_domain: page.customDomain
         })
     });
     clearCache('pages');
