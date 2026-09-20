@@ -959,23 +959,23 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         </div>
 
                                         <div className="w-20 h-20 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-6 border border-orange-500/20 shadow-lg animate-pulse">
-                                            <Lock className="w-10 h-10 text-orange-500" />
+                                            <PenTool className="w-10 h-10 text-orange-500" />
                                         </div>
 
-                                        <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Artículos Disponibles para Desbloquear</h4>
-                                        <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro sistema ha generado este Artículo Estratégico por ti. Haz clic en Desbloquear para ver todo el contenido.</p>
+                                        <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Artículos Disponibles para Redactar</h4>
+                                        <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro sistema ha generado la estructura para este Artículo por ti. Haz clic en Redactar para ver todo el contenido.</p>
 
                                         <button 
                                             onClick={isAtLimit ? onUpgrade : () => setShowUnlockConfirmModal(true)}
                                             disabled={unlockingSingle}
                                             className={`w-full py-5 rounded-2xl ${isAtLimit ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110'} text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-950/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70`}
                                         >
-                                            {unlockingSingle ? <Loader2 className="w-6 h-6 animate-spin" /> : isAtLimit ? <Crown className="w-6 h-6 fill-current" /> : <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />}
-                                            {unlockingSingle ? 'Desbloqueando...' : isAtLimit ? 'Límite Alcanzado: Subir a PRO' : 'Desbloquear Artículo'}
+                                            {unlockingSingle ? <Loader2 className="w-6 h-6 animate-spin" /> : isAtLimit ? <Crown className="w-6 h-6 fill-current" /> : <Sparkles className="w-6 h-6 group-hover:rotate-12 transition-transform" />}
+                                            {unlockingSingle ? 'Redactando...' : isAtLimit ? 'Límite Alcanzado: Subir a PRO' : 'Redactar Artículo de Blog'}
                                         </button>
                                         
                                         <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">
-                                            <Shield className="w-3 h-3" /> Acceso Instantáneo tras Desbloqueo
+                                            <Shield className="w-3 h-3" /> Redacción Instantánea con Inteligencia Artificial
                                         </div>
                                     </div>
                                 ) : (
@@ -1181,34 +1181,34 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 <h1 className="text-2xl md:text-3xl font-black text-white leading-tight mb-1">
                                     ¿Quieres redactar este <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">Artículo?</span>
                                 </h1>
-                                <p className="text-gray-300 text-sm md:text-base leading-relaxed font-normal">
+                                <p className="text-zinc-200 text-base md:text-lg leading-relaxed font-medium">
                                     {isRealAdmin ? (
                                         "Como Administrador tienes acceso ilimitado para redactar todos los artículos que desees."
                                     ) : (
                                         <>
-                                            Tienes disponible la creación de <strong className="text-orange-400 font-extrabold">{Math.max(0, maxArticles - currentArticleCount)} {Math.max(0, maxArticles - currentArticleCount) === 1 ? 'artículo' : 'artículos'}</strong> en tu plan actual.
+                                            Tienes disponible la creación de <strong className="text-orange-500 font-black text-lg sm:text-xl px-1">{Math.max(0, maxArticles - currentArticleCount)} {Math.max(0, maxArticles - currentArticleCount) === 1 ? 'artículo' : 'artículos'}</strong> en tu plan actual.
                                         </>
                                     )}
                                 </p>
                             </div>
 
                             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-4 shadow-inner text-left">
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-gray-400 font-bold uppercase tracking-wider">Artículos de tu Plan</span>
-                                    <span className="text-white font-extrabold">{currentArticleCount} de {isRealAdmin ? 'Ilimitados' : maxArticles} redactados</span>
+                                <div className="flex justify-between items-center text-sm font-semibold">
+                                    <span className="text-zinc-300 font-black uppercase tracking-widest text-xs">Artículos de tu Plan</span>
+                                    <span className="text-orange-400 font-black text-sm sm:text-base">{currentArticleCount} de {isRealAdmin ? 'Ilimitados' : maxArticles} redactados</span>
                                 </div>
                                 <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
                                     <div className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (currentArticleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                 </div>
                             </div>
 
-                            <p className="text-[11px] text-gray-500 text-center leading-relaxed font-medium">
+                            <p className="text-xs sm:text-sm text-zinc-300 text-center leading-relaxed font-semibold bg-white/[0.03] p-4 rounded-xl border border-white/5 shadow-inner">
                                 Al confirmar, nuestra Inteligencia Artificial comenzará la redacción automática y optimización SEO de inmediato. No tendrás que pasar por menús o configurar nada más.
                             </p>
                         </div>
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
-                            <button onClick={() => setShowUnlockConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-bold text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">No, cancelar</button>
-                            <button onClick={handleUnlockArticle} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 text-white font-bold text-[10px] uppercase tracking-wider shadow-lg shadow-orange-900/20 transform hover:scale-[1.02] active:scale-[0.98] transition-all">Sí, Desbloquear y Redactar</button>
+                            <button onClick={() => setShowUnlockConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-300 font-black text-xs sm:text-sm uppercase tracking-widest hover:bg-white/10 transition-all">No, cancelar</button>
+                            <button onClick={handleUnlockArticle} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-orange-900/20 transform hover:scale-[1.02] active:scale-[0.98] transition-all">Sí, Redactar Artículo</button>
                         </div>
                     </div>
                 </div>

@@ -355,9 +355,10 @@ router.get('/public/pages/:pageId/blog', async (req, res) => {
         const [rows] = await pool.query(
             `SELECT id, title, slug, description, meta_description, featured_image, published_at 
              FROM articles 
-             WHERE page_id = ? AND status = 'published' AND published_at <= NOW()
+             WHERE (page_id = ? OR (page_id IS NULL AND project_id = (SELECT project_id FROM landing_pages WHERE id = ? AND project_id IS NOT NULL))) 
+               AND status = 'published' AND published_at <= NOW()
              ORDER BY published_at DESC`,
-            [pageId]
+            [pageId, pageId]
         );
         res.json(rows);
     } catch (e) {
