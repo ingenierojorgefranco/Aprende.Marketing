@@ -638,11 +638,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             // Paso 4: Actualizar base de datos con el artículo redactado
             setUnlockProgressMsg("Finalizando redacción y optimizando metadatos SEO en la base de datos...");
             const finalTitle = genResult.title || active.title;
+            const finalStrategy = (genResult as any).strategy || active.strategy || '';
             const articlePayload = {
                 projectId: projectId!,
                 title: finalTitle,
-                slug: active.slug || slugify(finalTitle),
-                description: genResult.metaDescription || active.strategy || '',
+                slug: slugify(finalTitle),
+                description: finalStrategy || genResult.metaDescription || '',
                 contentHtml: genResult.html || '',
                 keyword: active.keyword || '',
                 seoScore: 85,
@@ -652,7 +653,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 publishedAt: new Date(),
                 isGenerated: true,
                 psychologicalStrategy: {
-                    focus: active.strategy || '',
+                    focus: finalStrategy,
                     keyword: active.keyword || '',
                     searchVolume: String(active.searchVolume || '0'),
                     targetUrl: ctaLink
@@ -1014,20 +1015,17 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     </h3>
                                     )}
 
-                                    {(localEdit?.strategy || isRealAdmin) && (
+                                    {(localEdit?.strategy || currentData[activeArticleIdx]?.strategy || currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && (
                                         <div className="bg-black/40 rounded-xl p-6 border border-white/10 backdrop-blur-sm mb-6 shadow-inner">
-                                        <h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-                                            <Sparkles className="w-4 h-4 text-orange-400"/> Enfoque Estratégico del Artículo
-                                        </h5>
-                                        <div className="space-y-3">
-                                            <p className="text-gray-200 leading-relaxed font-normal" style={{ fontSize: '1.05rem' }}>
-                                                {localEdit?.strategy || currentData[activeArticleIdx]?.strategy || `Este artículo aborda de forma persuasiva y estructurada los aspectos fundamentales de "${currentData[activeArticleIdx]?.title || 'el tema seleccionado'}", respondiendo a las principales inquietudes de tu audiencia.`}
-                                            </p>
-                                            <p className="text-orange-300 leading-relaxed font-medium bg-orange-500/10 p-3.5 rounded-xl border border-orange-500/20" style={{ fontSize: '0.95rem' }}>
-                                                🎯 <strong>Objetivo Estratégico:</strong> El propósito central de este artículo es aportar alto valor, derribar objeciones iniciales y dirigir a los lectores a registrarse e ingresar a tu <strong>clase gratuita</strong>.
-                                            </p>
+                                            <h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                                                <Sparkles className="w-4 h-4 text-orange-400"/> Enfoque Estratégico del Artículo
+                                            </h5>
+                                            <div className="space-y-3">
+                                                <p className="text-gray-200 leading-relaxed font-normal whitespace-pre-line" style={{ fontSize: '1.05rem' }}>
+                                                    {localEdit?.strategy || currentData[activeArticleIdx]?.strategy || `Este artículo aborda de forma persuasiva y estructurada los aspectos fundamentales de "${currentData[activeArticleIdx]?.title || 'el tema seleccionado'}", guiando al lector a registrarse e ingresar a tu clase gratuita.`}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
                                     )}
 
                                     <div className="space-y-4">

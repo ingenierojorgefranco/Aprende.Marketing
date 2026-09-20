@@ -83,7 +83,7 @@ export const generateFullArticle = async (
     ctaLink: string, 
     keyword: string,
     projectContext?: Project 
-): Promise<{ title: string; html: string; metaDescription: string }> => {
+): Promise<{ title: string; html: string; metaDescription: string; strategy?: string }> => {
     
     let projectStrategy = "";
     if (projectContext) {
@@ -179,9 +179,10 @@ export const generateFullArticle = async (
     FORMATO DE SALIDA REQUERIDO (JSON STRICT):
     Debes retornar un objeto JSON válido que cumpla estrictamente con esta estructura:
     {
-      "title": "[Variación optimizada, atractiva y viral del Título Base, optimizada para CTR y SEO de máx 60 caracteres]",
+      "title": "[Título de alto CTR totalmente REESCRITO, persuasivo, magnético e irresistible para blog/SEO basado en la idea/tema original, de máximo 60 caracteres]",
       "html": "[El contenido completo del artículo formateado en HTML limpio, comenzando de inmediato con la introducción empática (H2s y H3s según el esquema provisto, párrafos, tablas, negritas, seguidos de los dos banners de CTA contextuales y sus respectivos párrafos de dolor pre-CTA)]",
-      "metaDescription": "[Meta descripción atractiva para los buscadores que resuma el artículo en un máximo de 155 caracteres]"
+      "metaDescription": "[Meta descripción atractiva para los buscadores que resuma el artículo en un máximo de 155 caracteres]",
+      "strategy": "[Enfoque Estratégico del artículo de 1 a 2 párrafos breves que explique la idea central del artículo redactado y enfatice el objetivo de guiar a los lectores a registrarse e ingresar a la clase gratuita]"
     }
     No agregues ningún tipo de texto introductorio, explicativo, markdown de bloque para rodear el JSON (por ejemplo, sin triple acento grave), ni comentarios fuera de esta estructura. Solo devuelve el JSON parseable.`;
 
@@ -190,9 +191,10 @@ export const generateFullArticle = async (
         properties: {
             title: { type: Type.STRING },
             html: { type: Type.STRING },
-            metaDescription: { type: Type.STRING }
+            metaDescription: { type: Type.STRING },
+            strategy: { type: Type.STRING }
         },
-        required: ["title", "html", "metaDescription"]
+        required: ["title", "html", "metaDescription", "strategy"]
     };
 
     try {
@@ -200,8 +202,8 @@ export const generateFullArticle = async (
         if (response.text) {
             return JSON.parse(response.text);
         }
-        return { title: title, html: "<p>Error generando el artículo.</p>", metaDescription: "" };
+        return { title: title, html: "<p>Error generando el artículo.</p>", metaDescription: "", strategy: "" };
     } catch (e) {
-        return { title: title, html: `<p>Error de conexión o timeout. Intenta con un tema más corto.</p>`, metaDescription: "" };
+        return { title: title, html: `<p>Error de conexión o timeout. Intenta con un tema más corto.</p>`, metaDescription: "", strategy: "" };
     }
 };

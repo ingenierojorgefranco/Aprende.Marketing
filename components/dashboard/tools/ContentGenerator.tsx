@@ -484,6 +484,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
           metaDescription: result.metaDescription || '',
           psychologicalStrategy: { 
               ...(initialPsychologicalStrategy || {}),
+              focus: (result as any).strategy || initialPsychologicalStrategy?.focus || objective || '',
               targetUrl: ctaLink 
           },
           status: 'published' as const,
