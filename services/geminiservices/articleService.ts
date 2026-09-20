@@ -123,6 +123,17 @@ export const generateFullArticle = async (
     4. EVITA INTRODUCCIONES CLICHÉ Y RELLENO: El artículo DEBE comenzar de inmediato respondiendo o contextualizando de forma directa la intención de búsqueda principal. PROHIBIDO comenzar con generalidades vacías tipo "En los últimos años...", "Cada vez son más las personas...", "En el mundo actual...". Confirma al lector de inmediato que está en el lugar correcto, responde o introduce la solución de inmediato y explica de forma breve y atractiva qué descubrirá en esta lectura.
     5. SENSIVILIDAD DE TEMAS (YMYL): Si el artículo roza temas de salud, finanzas o empleo, sé sumamente riguroso fácticamente. Evita declaraciones categóricas o promesas de ingresos asegurados.
     6. KEYWORD PRINCIPAL: Debe aparecer de manera natural e integrada en el Título SEO, el primer párrafo de introducción, en el slug si corresponde, y sutilmente en el cuerpo. PROHIBIDO el keyword stuffing o repetir artificialmente la palabra clave.
+    7. ELEMENTOS OBLIGATORIOS DE FORMATO Y RIQUEZA VISUAL (VIÑETAS, CAJAS Y EJEMPLOS PRÁCTICOS):
+       a) LISTAS Y VIÑETAS (<ul> y <ol>): Incluye obligatoriamente al menos 2 listas con viñetas o listas numeradas en las secciones donde enumeres factores, pasos, recomendaciones o checklists para maximizar la legibilidad y escaneo rápido.
+       b) CAJAS DESTACADAS DE "CONSEJO PROFESIONAL" O "DATO CLAVE": Inserta al menos 1 o 2 cajas destacadas estilizadas en HTML dentro del artículo para resaltar tips críticos o advertencias de la industria. Usa exactamente esta estructura HTML con estilo integrado:
+          <div style="margin: 2.25rem 0; padding: 1.5rem 1.75rem; border-radius: 1.25rem; background-color: rgba(255, 90, 31, 0.08); border: 1px solid rgba(255, 90, 31, 0.25); border-left: 5px solid #FF5A1F;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <span style="font-size: 1.25rem;">💡</span>
+              <strong style="color: #FF5A1F; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;">CONSEJO PROFESIONAL:</strong>
+            </div>
+            <p style="margin: 0; font-size: 1.05rem; color: #d1d5db; line-height: 1.625; font-weight: 400;">[Explicación práctica del consejo o secreto del profesional con ejemplo real...]</p>
+          </div>
+       c) PROFUNDIDAD Y EJEMPLOS PRÁCTICOS: Genera un artículo completo y bien nutrido (extensión ideal de 1.000 a 1.500 palabras). Cada H2 y H3 debe incluir escenarios o casos prácticos de la vida real para ilustrar la teoría de forma enriquecedora y sustancial, manteniendo párrafos breves de 1 a 3 líneas.
 
     REGLAS DE TONO Y ESTILO DE REDACCIÓN (ESTILO PERSUASIVO MAESTRO - GARY HALBERT, ISRA BRAVO, EL MONJE MALO):
     1. TONO DE REDACCIÓN: Escribe el artículo adoptando y variando de forma genial el estilo de los grandes maestros del copywriting en español y marketing directo (Isra Bravo, Gary Halbert, El Monje Malo):

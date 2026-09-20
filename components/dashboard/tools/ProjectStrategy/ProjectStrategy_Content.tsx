@@ -935,17 +935,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <div className="w-full text-left mb-8">
                                             <h3 className="text-white mb-6 font-bold transition-colors" style={{ fontSize: '1.6rem', lineHeight: '2rem', paddingTop: '1em', paddingBottom: '0.3em' }}>{currentData[activeArticleIdx].title}</h3>
                                             
-                                            <div className="bg-orange-500/5 rounded-2xl p-6 border border-orange-500/20 backdrop-blur-sm mb-4">
-                                                <div className="flex items-center gap-2 mb-3">
-                                                    <Brain className="w-5 h-5 text-orange-400" />
-                                                    <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
-                                                </div>
-                                                <div className="max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
-                                                    <p className="text-white font-light leading-relaxed" style={{ fontSize: '1.1rem' }}>
-                                                        {currentData[activeArticleIdx].strategy}
-                                                    </p>
-                                                </div>
-                                            </div>
+                                            
 
                                             <div className="bg-orange-500/5 rounded-2xl p-6 border border-orange-500/20 backdrop-blur-sm mb-8">
                                                 <div className="flex items-center gap-2 mb-3">
@@ -1026,107 +1016,21 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
                                     {(localEdit?.strategy || isRealAdmin) && (
                                         <div className="bg-black/40 rounded-xl p-6 border border-white/10 backdrop-blur-sm mb-6 shadow-inner">
-                                            <h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-                                                <Sparkles className="w-4 h-4 text-orange-400"/> Enfoque Estratégico del Artículo
-                                            </h5>
-                                            <div className="max-h-[180px] overflow-y-auto custom-scrollbar">
-                                                {editingField === 'strategy' ? (
-                                                    <textarea 
-                                                        autoFocus
-                                                        value={localEdit?.strategy || ''}
-                                                        onChange={(e) => handleFieldChange('strategy', e.target.value)}
-                                                        onBlur={() => { setEditingField(null); handleBlurSave(); }}
-                                                        className="w-full bg-transparent text-gray-300 text-xl leading-relaxed font-light outline-none resize-none min-h-[100px]"
-                                                    />
-                                                ) : (
-                                                    <p 
-                                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('strategy')}
-                                                        className={`text-gray-300 leading-relaxed font-light transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-white' : ''}`}
-                                                        style={{ fontSize: '1.1rem' }}
-                                                    >
-                                                        {localEdit?.strategy || currentData[activeArticleIdx]?.strategy || (isRealAdmin ? 'Añadir Enfoque Estratégico...' : '')}
-                                                    </p>
-                                                )}
-                                            </div>
+                                        <h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                                            <Sparkles className="w-4 h-4 text-orange-400"/> Enfoque Estratégico del Artículo
+                                        </h5>
+                                        <div className="space-y-3">
+                                            <p className="text-gray-200 leading-relaxed font-normal" style={{ fontSize: '1.05rem' }}>
+                                                {localEdit?.strategy || currentData[activeArticleIdx]?.strategy || `Este artículo aborda de forma persuasiva y estructurada los aspectos fundamentales de "${currentData[activeArticleIdx]?.title || 'el tema seleccionado'}", respondiendo a las principales inquietudes de tu audiencia.`}
+                                            </p>
+                                            <p className="text-orange-300 leading-relaxed font-medium bg-orange-500/10 p-3.5 rounded-xl border border-orange-500/20" style={{ fontSize: '0.95rem' }}>
+                                                🎯 <strong>Objetivo Estratégico:</strong> El propósito central de este artículo es aportar alto valor, derribar objeciones iniciales y dirigir a los lectores a registrarse e ingresar a tu <strong>clase gratuita</strong>.
+                                            </p>
                                         </div>
+                                    </div>
                                     )}
 
                                     <div className="space-y-4">
-                                        <div 
-                                            className="px-4 py-4 bg-black/40 rounded-xl border border-white/10 w-full text-center group" 
-                                        >
-                                            <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
-                                                <Brain className="w-3 h-3"/> Intención de Búsqueda
-                                            </p>
-                                            <select
-                                                value={localEdit?.searchIntent || ''}
-                                                onChange={(e) => handleSearchIntentChange(e.target.value)}
-                                                disabled={currentData[activeArticleIdx]?.isGenerated && !isRealAdmin}
-                                                className={`w-full bg-transparent text-orange-300 font-bold text-lg text-center outline-none appearance-none cursor-pointer ${(currentData[activeArticleIdx]?.isGenerated && !isRealAdmin) ? 'disabled:cursor-default' : ''}`}
-                                            >
-                                                <option value="" className="bg-gray-900 text-gray-400">Seleccionar Intención...</option>
-                                                <option value="Inconsciente" className="bg-gray-900 text-white">Inconsciente</option>
-                                                <option value="Consciente del Problema" className="bg-gray-900 text-white">Consciente del Problema</option>
-                                                <option value="Consciente de la Solución" className="bg-gray-900 text-white">Consciente de la Solución</option>
-                                                <option value="Consciente del Producto" className="bg-gray-900 text-white">Consciente del Producto</option>
-                                                <option value="Totalmente Consciente" className="bg-gray-900 text-white">Totalmente Consciente</option>
-                                            </select>
-                                        </div>
-
-                                        {(localEdit?.keyword || isRealAdmin) && (
-                                            <div 
-                                                className="px-4 py-4 bg-black/40 rounded-xl border border-white/10 w-full text-center group" 
-                                            >
-                                                <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
-                                                    <Search className="w-3 h-3"/> Keyword SEO
-                                                </p>
-                                                {editingField === 'keyword' ? (
-                                                    <input 
-                                                        autoFocus
-                                                        type="text"
-                                                        value={localEdit?.keyword || ''}
-                                                        onChange={(e) => handleFieldChange('keyword', e.target.value)}
-                                                        onBlur={() => { setEditingField(null); handleBlurSave(); }}
-                                                        className="w-full bg-transparent text-orange-300 font-bold text-lg text-center outline-none"
-                                                    />
-                                                ) : (
-                                                    <p 
-                                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('keyword')}
-                                                        className={`text-orange-300 font-bold text-lg leading-tight break-words transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-orange-100' : ''}`}
-                                                    >
-                                                        {localEdit?.keyword || currentData[activeArticleIdx]?.keyword || (isRealAdmin ? 'Añadir Keyword...' : '')}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {(localEdit?.searchVolume || isRealAdmin) && (
-                                            <div 
-                                                className="px-4 py-4 bg-black/40 rounded-xl border border-white/10 w-full text-center group" 
-                                            >
-                                                <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
-                                                    <BarChart className="w-3 h-3"/> Vol. Búsqueda
-                                                </p>
-                                                {editingField === 'searchVolume' ? (
-                                                    <input 
-                                                        autoFocus
-                                                        type="text"
-                                                        value={localEdit?.searchVolume || ''}
-                                                        onChange={(e) => handleFieldChange('searchVolume', e.target.value)}
-                                                        onBlur={() => { setEditingField(null); handleBlurSave(); }}
-                                                        className="w-full bg-transparent text-emerald-300 font-bold text-lg text-center outline-none"
-                                                    />
-                                                ) : (
-                                                    <p 
-                                                        onClick={() => (!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) && setEditingField('searchVolume')}
-                                                        className={`text-emerald-300 font-bold text-lg leading-tight break-words transition-colors ${(!currentData[activeArticleIdx]?.isGenerated || isRealAdmin) ? 'cursor-pointer hover:text-emerald-100' : ''}`}
-                                                    >
-                                                        {localEdit?.searchVolume || currentData[activeArticleIdx]?.searchVolume || (isRealAdmin ? 'Añadir Volumen...' : 'N/A')}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        )}
-
                                         {/* Botón de Acción Reubicado */}
                                         {!currentData[activeArticleIdx]?.isGenerated && (
                                             <div className="pt-2">
