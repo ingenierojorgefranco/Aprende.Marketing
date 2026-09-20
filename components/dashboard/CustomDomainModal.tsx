@@ -14,7 +14,7 @@ import {
     Check, 
     AlertCircle 
 } from 'lucide-react';
-import { LandingPage } from '../../types';
+import { LandingPage, User } from '../../types';
 import { api } from '../../services/api';
 
 interface CustomDomainModalProps {
@@ -22,6 +22,7 @@ interface CustomDomainModalProps {
     onClose: () => void;
     page?: LandingPage | null;
     projectId?: string;
+    user?: User | null;
     onDomainSaved?: (newDomain: string) => void;
 }
 
@@ -30,6 +31,7 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
     onClose,
     page,
     projectId,
+    user,
     onDomainSaved
 }) => {
     // Accordion state: default step 3 open for direct domain configuration, or step 1
@@ -40,11 +42,21 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [feedbackMsg, setFeedbackMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
     const [targetPage, setTargetPage] = useState<LandingPage | null>(page || null);
+    const [currentUser, setCurrentUser] = useState<User | null>(user || null);
 
-    // Synchronize page data when modal opens
+    // Synchronize page data and user when modal opens
     useEffect(() => {
         if (isOpen) {
             setFeedbackMsg(null);
+            
+            if (user) {
+                setCurrentUser(user);
+            } else {
+                api.getCurrentUser().then(u => {
+                    if (u) setCurrentUser(u);
+                }).catch(() => {});
+            }
+
             if (page) {
                 setTargetPage(page);
                 const current = page.customDomain || '';
@@ -77,7 +89,7 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
                 setIsEditing(true);
             }
         }
-    }, [isOpen, page, projectId]);
+    }, [isOpen, page, projectId, user]);
 
     if (!isOpen) return null;
 
@@ -89,6 +101,21 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
         d = d.replace(/\/.*$/, '');
         return d;
     };
+
+    const domainForMessage = savedDomain || cleanDomain(domainInput) || 'No especificado';
+    const emailForMessage = currentUser?.email || 'No especificado';
+    const userIdForMessage = currentUser?.id || 'No especificado';
+
+    const whatsappText = `Hola, he configurado mi nombre de dominio para mi página en Aprende Marketing y me gustaría que procedan a su vinculación.
+
+📌 Datos de vinculación:
+- Dominio: ${domainForMessage}
+- Email: ${emailForMessage}
+- ID de usuario: ${userIdForMessage}
+
+Por favor, ayúdenme a añadirlo a Aprende Marketing para tenerlo operativo.`;
+
+    const whatsappUrl = `https://wa.me/34641941902?text=${encodeURIComponent(whatsappText)}`;
 
     const handleSaveDomain = async () => {
         setFeedbackMsg(null);
@@ -439,10 +466,10 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
                         {activeAccordion === 4 && (
                             <div className="p-8 bg-black/30 border-t border-gray-800 animate-in slide-in-from-top-2 text-center">
                                 <p className="text-gray-300 text-lg leading-relaxed mb-8">
-                                    Una vez realizados los cambios en tu proveedor, la propagación puede tardar entre 1 y 24 horas. Para finalizar, haz clic en el botón de abajo para que nuestro equipo técnico active tu certificado de seguridad SSL y finalice la vinculación.
+                                    Para completar la vinculación y poder utilizar tu dominio en <strong className="text-white font-bold">Aprende Marketing</strong>, ponte en contacto con nuestro equipo de soporte técnico. Envíanos un mensaje por WhatsApp haciendo clic en el botón de abajo con los datos de tu dominio, correo e ID de usuario para que procedamos a añadirlo y dejarlo 100% operativo.
                                 </p>
                                 <a 
-                                    href={`https://wa.me/573146270784?text=${encodeURIComponent(`Hola, me gustaría configurar mi nombre de dominio ${savedDomain ? `(${savedDomain})` : ''} a mi página web en www.aprende.marketing`)}`}
+                                    href={whatsappUrl}
                                     target="_blank" 
                                     rel="noopener noreferrer" 
                                     className="inline-flex items-center gap-3 px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg rounded-2xl shadow-xl shadow-emerald-900/20 transition-all transform hover:scale-105 active:scale-95 mb-4"
@@ -455,18 +482,6 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
                             </div>
                         )}
                     </div>
-                </div>
-
-                {/* Botón WhatsApp Final Fuera del Acordeón */}
-                <div className="mt-auto">
-                    <a 
-                        href={`https://wa.me/573146270784?text=${encodeURIComponent(`Hola, me gustaría configurar mi nombre de dominio ${savedDomain ? `(${savedDomain})` : ''} a mi página web en www.aprende.marketing`)}`}
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="w-full py-5 rounded-[2rem] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-lg shadow-xl shadow-blue-900/30 flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02] active:scale-95 mb-4"
-                    >
-                        <MessageCircle className="w-6 h-6" /> Quiero configurar mi dominio
-                    </a>
                 </div>
             </div>
         </div>

@@ -509,6 +509,7 @@ export const MyPages: React.FC = () => {
                 isOpen={showDomainModal && !!selectedPageForDomain} 
                 onClose={closeDomainModal} 
                 page={selectedPageForDomain} 
+                user={user}
                 onDomainSaved={(newDomain) => {
                     if (selectedPageForDomain) {
                         setPages(prev => prev.map(p => p.id === selectedPageForDomain.id ? { ...p, customDomain: newDomain } : p));
