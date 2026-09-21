@@ -799,6 +799,18 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       initDashboard();
     } else {
       loadMasterProjects();
+      if (user.role !== 'admin') {
+        api.getProjects().then((myProjects) => {
+          if (myProjects && myProjects.length > 0) {
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('wizard_completed', 'true');
+              localStorage.setItem(`has_projects_${user.id}`, 'true');
+              localStorage.removeItem('force_wizard_step');
+            }
+            navigate('/dashboard', { replace: true });
+          }
+        }).catch(() => {});
+      }
     }
   }, [isStandaloneDashboard]);
 

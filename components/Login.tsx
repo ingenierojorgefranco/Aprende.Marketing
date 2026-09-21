@@ -72,6 +72,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           const hasProjects = projects && projects.length > 0;
           
           if (hasProjects) {
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('wizard_completed', 'true');
+                localStorage.setItem(`has_projects_${mappedUser.id}`, 'true');
+                localStorage.removeItem('force_wizard_step');
+              }
               navigate('/dashboard');
           } else if (mappedUser.customRedirectUrl && mappedUser.customRedirectUrl.trim() !== '') {
               navigate(mappedUser.customRedirectUrl);

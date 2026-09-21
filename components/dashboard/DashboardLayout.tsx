@@ -389,12 +389,14 @@ export const DashboardLayout = ({
   const hasUserActivity = projectCount > 0 || pageCount > 0;
   const isLaunchRestricted = false;
   const isSurveyPending = false;
-  const showWelcomeVideo = user.role !== 'admin' && !hasUserActivity && typeof window !== 'undefined' && localStorage.getItem(`welcome_video_seen_${user.id}`) !== 'true';
+  const showWelcomeVideo = !loadingMode && user.role !== 'admin' && !hasUserActivity && typeof window !== 'undefined' && localStorage.getItem(`welcome_video_seen_${user.id}`) !== 'true';
   const isWizardRoute = location.pathname.startsWith('/wizard') || location.pathname.startsWith('/onboarding');
   
   const isWizardCompleted = typeof window !== 'undefined' && (
     localStorage.getItem('wizard_completed') === 'true' ||
-    localStorage.getItem('wizard_dismissed') === 'true'
+    localStorage.getItem('wizard_dismissed') === 'true' ||
+    localStorage.getItem(`has_projects_${user.id}`) === 'true' ||
+    hasUserActivity
   );
   const isWizardDismissed = typeof window !== 'undefined' && localStorage.getItem('wizard_dismissed') === 'true';
  
@@ -402,12 +404,21 @@ export const DashboardLayout = ({
   const showWizard = isWizardRoute;
  
   useEffect(() => {
-    if (showWelcomeVideo && location.pathname !== '/welcome') {
+    if (!loadingMode && showWelcomeVideo && location.pathname !== '/welcome') {
       navigate('/welcome', { replace: true });
     }
-  }, [showWelcomeVideo, location.pathname, navigate]);
+  }, [loadingMode, showWelcomeVideo, location.pathname, navigate]);
 
   useEffect(() => {
+    // Si aún está cargando los datos del backend, NUNCA tomar decisiones de redirección
+    if (loadingMode) return;
+
+    // Si ya tiene actividad/proyectos, sincronizar en localStorage
+    if (hasUserActivity && typeof window !== 'undefined') {
+      localStorage.setItem('wizard_completed', 'true');
+      localStorage.setItem(`has_projects_${user.id}`, 'true');
+    }
+
     // Si el usuario navegó intencionalmente a cualquier ruta del dashboard, limpiar force_wizard_step
     if (location.pathname.startsWith('/dashboard') && typeof window !== 'undefined') {
       const forced = localStorage.getItem('force_wizard_step');
@@ -416,6 +427,17 @@ export const DashboardLayout = ({
       }
     }
  
+    // Si el usuario YA TIENE proyectos o actividad, y se encuentra en la pantalla de bienvenida del wizard (/wizard/step-1, /wizard o /onboarding),
+    // NO debe mostrarse esa pantalla; redirigir de inmediato al dashboard principal
+    if (
+      user.role !== 'admin' &&
+      hasUserActivity &&
+      (location.pathname === '/wizard/step-1' || location.pathname === '/wizard' || location.pathname === '/onboarding')
+    ) {
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+
     // Solo si es un usuario totalmente nuevo en /dashboard que nunca ha descartado el wizard, no tiene proyectos y está habilitado
     if (
       location.pathname === '/dashboard' &&
@@ -428,7 +450,7 @@ export const DashboardLayout = ({
     ) {
       navigate('/wizard/step-1', { replace: true });
     }
-  }, [location.pathname, showWelcomeVideo, navigate, isWizardCompleted, isWizardDismissed, hasUserActivity, wizardEnabled, user.role]);
+  }, [loadingMode, location.pathname, showWelcomeVideo, navigate, isWizardCompleted, isWizardDismissed, hasUserActivity, wizardEnabled, user.role]);
  
   if (loadingMode) {
       return (
