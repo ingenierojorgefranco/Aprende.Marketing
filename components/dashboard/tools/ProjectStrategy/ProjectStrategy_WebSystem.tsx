@@ -29,6 +29,7 @@ interface ProjectStrategy_WebSystemProps {
     isSimulating?: boolean;
     totalSteps?: number;
 }
+
  
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
     projectId: propProjectId, lpTabsData, tyTabsData,
