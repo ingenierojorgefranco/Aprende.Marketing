@@ -40,18 +40,32 @@ const createToken = (user) => {
 const limitsCache = new Map();
 
 export const clearLimitsCache = (userId) => {
-    if (userId) limitsCache.delete(userId);
-    else limitsCache.clear();
+    if (userId !== undefined && userId !== null) {
+        limitsCache.delete(String(userId));
+        limitsCache.delete(Number(userId));
+        limitsCache.delete(userId);
+    } else {
+        limitsCache.clear();
+    }
 };
 
 export const PLAN_ORDER = ['starter', 'free', 'pro', 'max', 'plan-max-1', 'plan-max-2', 'plan-max-3', 'plan-max-4', 'plan-max-5', 'plan-max-6', 'plan-max-7', 'plan-max-8', 'plan-max-9', 'plan-max-10'];
 
-export const getEffectiveLimits = async (userId) => {
+const normalizePlanSlug = (slug) => {
+    if (!slug) return 'starter';
+    const s = String(slug).toLowerCase().trim().replace(/\s+/g, '-');
+    if (s === 'pro' || s === 'plan-pro' || s === 'plan-pro-all-access' || s === 'pro-all-access') return 'pro';
+    if (s === 'free' || s === 'starter' || s === 'gratuito' || s === 'gratis' || s === 'plan-gratuito') return 'starter';
+    return s;
+};
+
+export const getEffectiveLimits = async (userId, bypassCache = false) => {
     try {
-        // Check cache first
-        if (limitsCache.has(userId)) {
-            const cached = limitsCache.get(userId);
-            if (Date.now() - cached.timestamp < 300000) { // 5 minutes cache
+        const cacheKey = String(userId);
+        // Check cache first (short 10-second TTL to guarantee real-time updates)
+        if (!bypassCache && limitsCache.has(cacheKey)) {
+            const cached = limitsCache.get(cacheKey);
+            if (Date.now() - cached.timestamp < 10000) {
                 return { ...cached.data, fromCache: true };
             }
         }
@@ -104,8 +118,7 @@ export const getEffectiveLimits = async (userId) => {
                 }
                 const possibleSlug = directLimits.planSlug || directLimits.planName;
                 if (possibleSlug) {
-                    const rawName = String(possibleSlug).toLowerCase().trim();
-                    directPlanSlug = rawName.replace(/\s+/g, '-');
+                    directPlanSlug = normalizePlanSlug(possibleSlug);
                 }
             }
             if (row.max_hooks !== null && row.max_hooks !== undefined) {
@@ -116,13 +129,13 @@ export const getEffectiveLimits = async (userId) => {
         // --- LÓGICA JERÁRQUICA INTELIGENTE (EXPANSIÓN) ---
         let highestIndex = 0; // Por defecto el índice 0: 'starter'
         for (const slug of activeSlugs) {
-            const normalized = String(slug || '').toLowerCase().trim();
+            const normalized = normalizePlanSlug(slug);
             const idx = PLAN_ORDER.indexOf(normalized);
             if (idx > highestIndex) {
                 highestIndex = idx;
             }
         }
-        const directIdx = PLAN_ORDER.indexOf(directPlanSlug);
+        const directIdx = PLAN_ORDER.indexOf(normalizePlanSlug(directPlanSlug));
         if (directIdx > highestIndex) {
             highestIndex = directIdx;
         }
@@ -268,7 +281,7 @@ export const getEffectiveLimits = async (userId) => {
             result.maxHooks = directMaxHooks;
         }
 
-        limitsCache.set(userId, { data: result, timestamp: Date.now() });
+        limitsCache.set(cacheKey, { data: result, timestamp: Date.now() });
         return { ...result, fromCache: false };
     } catch (error) {
         console.error("Error fetching effective limits:", error);
@@ -390,6 +403,10 @@ router.post('/logout', authMiddleware, async (req, res) => {
 // Get Me Route
 router.get('/me', authMiddleware, async (req, res) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
     const [rows] = await pool.query(
       'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json, main_goal, experience_level, budget_range, main_obstacle, createdsurvey_at, updatedsurvey_at, niche, urgency_level FROM users WHERE id = ?',
       [req.user.id]
@@ -397,7 +414,7 @@ router.get('/me', authMiddleware, async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
     
     const user = rows[0];
-    const planLimits = await getEffectiveLimits(user.id);
+    const planLimits = await getEffectiveLimits(user.id, true);
 
     res.json({
         id: user.id,

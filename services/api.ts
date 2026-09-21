@@ -1458,6 +1458,13 @@ export const api = {
         await fetchWithFallback(`/admin/users/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) });
         clearCache('adminUserResources');
         clearCache('usersList');
+        clearCache('userSubscriptions');
+        clearCache('projects');
+        clearCache('summary');
+        try {
+            window.dispatchEvent(new CustomEvent('app-plan-updated', { detail: { userId: id } }));
+            localStorage.setItem('app_last_plan_update', Date.now().toString());
+        } catch {}
     },
   
     deleteUser: async (id: string) => {
@@ -1505,6 +1512,13 @@ export const api = {
             body: JSON.stringify(data) 
         });
         clearCache('userSubscriptions');
+        clearCache('usersList');
+        clearCache('projects');
+        clearCache('summary');
+        try {
+            window.dispatchEvent(new CustomEvent('app-plan-updated', { detail: { subscriptionId } }));
+            localStorage.setItem('app_last_plan_update', Date.now().toString());
+        } catch {}
     },
 
     adminCreateSubscription: async (userId: string, planId: string): Promise<any> => {
@@ -1515,6 +1529,13 @@ export const api = {
             body: JSON.stringify({ planId, status: 'active' }) 
         });
         clearCache('userSubscriptions');
+        clearCache('usersList');
+        clearCache('projects');
+        clearCache('summary');
+        try {
+            window.dispatchEvent(new CustomEvent('app-plan-updated', { detail: { userId } }));
+            localStorage.setItem('app_last_plan_update', Date.now().toString());
+        } catch {}
         return res;
     },
 

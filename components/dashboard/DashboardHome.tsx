@@ -9,6 +9,7 @@ import {
 import { api } from '../../services/api';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { User, Project } from '../../types';
+import { getCurrentUser } from '../../services/auth';
 import { NewsHistoryModal } from './NewsHistoryModal';
 import { UnlockProjectModal } from './UnlockProjectModal';
 
@@ -48,11 +49,12 @@ interface DashboardContext {
     articleCount: number;
     setShowProfileModal: (show: boolean) => void;
     setShowUpgradeModal?: (show: boolean) => void;
+    onUpdateUser?: (updatedUser: User) => void;
 }
 
 export const DashboardHome: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setShowProfileModal, setShowUpgradeModal, projectCount } = useOutletContext() as DashboardContext;
+  const { user, setShowProfileModal, setShowUpgradeModal, projectCount, onUpdateUser } = useOutletContext() as DashboardContext;
 
   const [summaryData, setSummaryData] = useState({
       totalVisits: 0,
@@ -95,7 +97,8 @@ export const DashboardHome: React.FC = () => {
                 userPages,
                 userArticles,
                 emailSequences,
-                whatsappLaunches
+                whatsappLaunches,
+                freshUser
             ] = await Promise.all([
                 api.getAnalyticsSummary(),
                 api.getProjects(),
@@ -104,8 +107,24 @@ export const DashboardHome: React.FC = () => {
                 api.getPages().catch(() => []),
                 api.getArticles().catch(() => []),
                 api.getEmailSequences().catch(() => []),
-                api.getWhatsAppLaunches().catch(() => [])
+                api.getWhatsAppLaunches().catch(() => []),
+                getCurrentUser().catch(() => null)
             ]);
+
+            if (freshUser && onUpdateUser) {
+                const freshPlan = (freshUser as any).planLimits?.planName || (freshUser as any).planSlug;
+                const currentPlan = user?.planLimits?.planName || user?.planSlug;
+                if (freshPlan !== currentPlan || JSON.stringify((freshUser as any).planLimits) !== JSON.stringify(user?.planLimits)) {
+                    onUpdateUser({
+                        ...user,
+                        ...freshUser,
+                        id: freshUser.id.toString(),
+                        role: (freshUser.role === 'admin' ? 'admin' : 'user') as 'admin' | 'user',
+                        planSlug: freshPlan || user?.planSlug,
+                        planLimits: (freshUser as any).planLimits || user?.planLimits
+                    });
+                }
+            }
 
             const projectsList = userProjects || [];
             setProjects(projectsList);
@@ -190,9 +209,13 @@ export const DashboardHome: React.FC = () => {
       });
   }, [masterLibrary, projects]);
 
-  const planRawName = user?.planLimits?.planName || 'Gratuito';
-  const isFree = ['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free'].includes(planRawName.toLowerCase());
-  const planName = isFree ? 'Plan Gratuito' : planRawName;
+  const planRawName = (user?.planLimits as any)?.planDisplayName || user?.planLimits?.planName || user?.planSlug || 'Gratuito';
+  const isFree = ['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free', 'plan starter'].includes(planRawName.toLowerCase());
+  const planName = isFree 
+    ? 'Plan Gratuito' 
+    : (planRawName.toLowerCase() === 'pro' 
+        ? 'Plan Pro' 
+        : (planRawName.toLowerCase().startsWith('plan') ? planRawName : `Plan ${planRawName}`));
   const maxProjects = user?.planLimits?.maxProjects || 1;
   
   

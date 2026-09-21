@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
 import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, ChevronLeft, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers, Rocket, Smartphone, Zap, Bell, ChevronsUpDown, User as UserIcon } from 'lucide-react';
@@ -143,30 +143,59 @@ export const DashboardLayout = ({
       return localStorage.getItem('admin_simulated_plan') || null;
   });
 
-  // --- Sincronización Silenciosa de Encuesta ---
-  // Si el usuario en memoria no tiene encuesta, verificamos con el servidor 
-  // por si es un error de caché o sesión no actualizada.
-  useEffect(() => {
-    const syncSurveyStatus = async () => {
-        if (user.role !== 'admin' && !user.survey_json) {
-            try {
-                const latestUser = await getCurrentUser();
-                if (latestUser && (latestUser as any).survey_json && onUpdateUser) {
-                    // Convertir a tipo User para compatibilidad
-                    const formattedUser: User = {
-                        ...user, // Mantener lo que ya tenemos
-                        id: latestUser.id.toString(),
-                        survey_json: (latestUser as any).survey_json
-                    };
-                    onUpdateUser(formattedUser);
-                }
-            } catch (e) {
-                console.error("Error en sincronización silenciosa de encuesta:", e);
-            }
+  // --- Sincronización Inmediata y Reactiva del Usuario (Plan, Límites, Encuesta, Rol) ---
+  const syncCurrentUser = useCallback(async () => {
+    try {
+      const latestUser = await getCurrentUser();
+      if (latestUser && onUpdateUser) {
+        const latestPlanName = (latestUser as any).planLimits?.planName || (latestUser as any).planSlug;
+        const currentPlanName = user.planLimits?.planName || user.planSlug;
+        const hasPlanChanged = latestPlanName !== currentPlanName || 
+          JSON.stringify((latestUser as any).planLimits) !== JSON.stringify(user.planLimits);
+        const hasSurveyChanged = (latestUser as any).survey_json && !user.survey_json;
+        const hasRoleChanged = latestUser.role !== user.role;
+
+        if (hasPlanChanged || hasSurveyChanged || hasRoleChanged) {
+          const formattedUser: User = {
+            ...user,
+            ...latestUser,
+            id: latestUser.id.toString(),
+            role: (latestUser.role === 'admin' ? 'admin' : 'user') as 'admin' | 'user',
+            planSlug: latestPlanName || user.planSlug,
+            planLimits: (latestUser as any).planLimits || user.planLimits,
+            survey_json: (latestUser as any).survey_json || user.survey_json
+          };
+          onUpdateUser(formattedUser);
         }
+      }
+    } catch (e) {
+      console.error("Error en sincronización reactiva de usuario:", e);
+    }
+  }, [user, onUpdateUser]);
+
+  useEffect(() => {
+    syncCurrentUser();
+
+    const handleFocus = () => syncCurrentUser();
+    window.addEventListener('focus', handleFocus);
+
+    const handlePlanUpdate = () => syncCurrentUser();
+    window.addEventListener('app-plan-updated', handlePlanUpdate);
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'app_last_plan_update') syncCurrentUser();
     };
-    syncSurveyStatus();
-  }, [user.id]); // Solo se ejecuta si cambia el ID del usuario o al montar
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('app-plan-updated', handlePlanUpdate);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, [syncCurrentUser]);
+
+  useEffect(() => {
+    syncCurrentUser();
+  }, [location.pathname, syncCurrentUser]);
 
   useEffect(() => {
       if (simulatedPlanSlug) {
@@ -713,7 +742,8 @@ export const DashboardLayout = ({
                         hookCount,
                         isSimulating: !!simulatedPlanSlug,
                         setShowProfileModal,
-                        setShowUpgradeModal
+                        setShowUpgradeModal,
+                        onUpdateUser
                     }} />
                 )}
             </div>

@@ -4,7 +4,7 @@ import { api } from '../../../services/api';
 import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone, Zap, CreditCard, Power, Edit, Check, Calendar, User as UserIcon, Shield, MapPin, Target, Award, Clock, HelpCircle, BookOpen, Megaphone } from 'lucide-react';
 
 ////////// Actualización: Creación de archivo independiente para carga dinámica - 05/06/2025 21:30 //////////
-const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
+const UserContentModal: React.FC<{ user: User, onClose: () => void, onUserUpdated?: () => void }> = ({ user, onClose, onUserUpdated }) => {
     const [loadedData, setLoadedData] = useState<{
         plans: UserSubscription[] | null;
         systemPlans: Plan[] | null;
@@ -163,6 +163,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                 ...prev,
                 plans: prev.plans?.map(s => s.id === sub.id ? { ...s, status: newStatus } : s) || null
             }));
+            onUserUpdated?.();
         } catch (error) {
             alert("Error al actualizar la suscripción.");
         }
@@ -176,8 +177,9 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
             const newSub = await api.adminCreateSubscription!(user.id, planId);
             setLoadedData(prev => ({
                 ...prev,
-                plans: [...(prev.plans || []), newSub]
+                plans: [...(prev.plans || []).filter(s => s.id !== newSub?.id), newSub]
             }));
+            onUserUpdated?.();
         } catch (error) {
             console.error("Error activating plan:", error);
             alert("Error al activar el plan.");

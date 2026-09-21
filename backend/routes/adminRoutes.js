@@ -111,6 +111,8 @@ router.put('/users/:id', async (req, res) => {
         const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
         await logSystemActivity(req.user.id, admin[0]?.name, 'UPDATE_USER', 'user', id, { role, planName: planLimits.planName });
         clearLimitsCache(id);
+        clearLimitsCache(String(id));
+        clearLimitsCache(Number(id));
         res.json({ message: 'Usuario actualizado correctamente' });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -201,22 +203,30 @@ router.post('/users/:userId/subscriptions', async (req, res) => {
     const { userId } = req.params;
     const { planId, status } = req.body;
     try {
-        // 1. Obtener la información del plan
-        const [plans] = await pool.query('SELECT slug, name, limits_config FROM plans WHERE id = ?', [planId]);
+        // 1. Obtener la información del plan por ID o por Slug
+        const [plans] = await pool.query('SELECT slug, name, limits_config FROM plans WHERE id = ? OR slug = ?', [planId, planId]);
         if (plans.length === 0) return res.status(404).json({ error: 'Plan no encontrado' });
         const plan = plans[0];
         const planSlug = plan.slug;
         const limitsConfig = typeof plan.limits_config === 'string' ? JSON.parse(plan.limits_config) : plan.limits_config;
 
-        // 2. Crear la suscripción
+        // 2. Desactivar suscripciones activas anteriores para evitar conflictos de estado
+        await pool.query(
+            "UPDATE user_subscriptions SET status = 'replaced' WHERE user_id = ? AND status = 'active'",
+            [userId]
+        );
+
+        // 3. Crear la nueva suscripción activa
         const [result] = await pool.query(
             'INSERT INTO user_subscriptions (user_id, plan_slug, status, created_at) VALUES (?, ?, ?, NOW())',
             [userId, planSlug, status || 'active']
         );
 
-        // 3. Actualizar los límites del usuario inmediatamente
+        // 4. Actualizar los límites del usuario inmediatamente
         const newPlanLimits = {
-            planName: plan.name,
+            planName: planSlug,
+            planSlug: planSlug,
+            planDisplayName: plan.name,
             ...limitsConfig
         };
         
@@ -225,9 +235,18 @@ router.post('/users/:userId/subscriptions', async (req, res) => {
             [JSON.stringify(newPlanLimits), userId]
         );
 
-        clearLimitsCache(userId);
+        // 5. Sincronizar el plan_slug en los proyectos del usuario para desbloquearlos de inmediato
+        await pool.query(
+            'UPDATE projects SET plan_slug = ? WHERE user_id = ?',
+            [planSlug, userId]
+        );
 
-        // 4. Obtener la fila insertada para devolverla
+        // 6. Limpieza total de caché de límites (claves como string y número)
+        clearLimitsCache(userId);
+        clearLimitsCache(String(userId));
+        clearLimitsCache(Number(userId));
+
+        // 7. Obtener la fila insertada para devolverla
         const [newSub] = await pool.query(`
             SELECT 
                 us.id, 
@@ -260,7 +279,7 @@ router.put('/subscriptions/:id', async (req, res) => {
     try {
         await pool.query('UPDATE user_subscriptions SET status = ? WHERE id = ?', [status, id]);
 
-        // Coordinar y sincronizar con la tabla de users
+        // Coordinar y sincronizar con la tabla de users y projects
         const [subs] = await pool.query('SELECT user_id, plan_slug FROM user_subscriptions WHERE id = ?', [id]);
         if (subs.length > 0) {
             const userId = subs[0].user_id;
@@ -274,11 +293,17 @@ router.put('/subscriptions/:id', async (req, res) => {
                     const limitsConfig = typeof plan.limits_config === 'string' ? JSON.parse(plan.limits_config) : plan.limits_config;
                     const newPlanLimits = {
                         planName: planSlug,
+                        planSlug: planSlug,
+                        planDisplayName: plan.name,
                         ...limitsConfig
                     };
                     await pool.query(
                         'UPDATE users SET plan_limits = ? WHERE id = ?',
                         [JSON.stringify(newPlanLimits), userId]
+                    );
+                    await pool.query(
+                        'UPDATE projects SET plan_slug = ? WHERE user_id = ?',
+                        [planSlug, userId]
                     );
                 }
             } else if (status === 'inactive' || status === 'canceled') {
@@ -287,10 +312,16 @@ router.put('/subscriptions/:id', async (req, res) => {
                     'UPDATE users SET plan_limits = ? WHERE id = ?',
                     [JSON.stringify(DEFAULT_LIMITS), userId]
                 );
+                await pool.query(
+                    'UPDATE projects SET plan_slug = "starter" WHERE user_id = ?',
+                    [userId]
+                );
             }
 
             // Limpiamos la caché inmediatamente para actualizar en tiempo real
             clearLimitsCache(userId);
+            clearLimitsCache(String(userId));
+            clearLimitsCache(Number(userId));
         }
 
         res.json({ success: true });

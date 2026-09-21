@@ -553,7 +553,11 @@ export const AdminPanel: React.FC = () => {
             {/* ////////// Actualización: Integración de Suspense para UserContentModal Lazy - 05/06/2025 21:30 ////////// */}
             <React.Suspense fallback={null}>
                 {viewingUser && (
-                    <UserContentModal user={viewingUser} onClose={() => setViewingUser(null)} />
+                    <UserContentModal 
+                        user={viewingUser} 
+                        onClose={() => setViewingUser(null)} 
+                        onUserUpdated={loadData}
+                    />
                 )}
             </React.Suspense>
             {/* ////////// Fin de actualización - 05/06/2025 21:30 ////////// */}

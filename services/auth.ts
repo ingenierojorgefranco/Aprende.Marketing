@@ -115,8 +115,12 @@ export const getCurrentUser = async (): Promise<AuthUser | null> => {
   const token = authStorage.getToken();
   if (!token) return null;
 
-  const res = await fetch(`${API_URL}/auth/me`, {
-    headers: { Authorization: `Bearer ${token}` },
+  const res = await fetch(`${API_URL}/auth/me?_t=${Date.now()}`, {
+    headers: { 
+      Authorization: `Bearer ${token}`,
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
+    },
   });
 
   if (!res.ok) {
