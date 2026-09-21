@@ -267,7 +267,8 @@ export const ProjectsList: React.FC = () => {
         if (!selectedMasterProject) return;
         
         const isRealAdmin = user.role === 'admin' && !isSimulating;
-        const maxProjectsCalculated = user.planLimits?.maxProjects || 1;
+        const isProPlan = user.planSlug === 'pro' || user.planId === 'pro' || user.planLimits?.planName?.toLowerCase().includes('pro');
+        const maxProjectsCalculated = user.planLimits?.maxProjects || (isProPlan ? 3 : 1);
         const totalActive = projects.length;
 
         if (totalActive >= maxProjectsCalculated && !isRealAdmin) {
@@ -281,6 +282,7 @@ export const ProjectsList: React.FC = () => {
             localStorage.setItem('selected_wizard_project_id', selectedMasterProject.id);
             localStorage.setItem('force_wizard_step', 'selection');
             localStorage.removeItem('wizard_dismissed');
+            localStorage.removeItem('wizard_completed');
         }
 
         setShowUnlockProtocol(false);
@@ -291,7 +293,8 @@ export const ProjectsList: React.FC = () => {
         if (!selectedMasterProject) return;
         
         const isRealAdmin = user.role === 'admin' && !isSimulating;
-        const maxProjectsCalculated = user.planLimits?.maxProjects || 1;
+        const isProPlan = user.planSlug === 'pro' || user.planId === 'pro' || user.planLimits?.planName?.toLowerCase().includes('pro');
+        const maxProjectsCalculated = user.planLimits?.maxProjects || (isProPlan ? 3 : 1);
         const totalActive = projects.length;
 
         if (totalActive >= maxProjectsCalculated && !isRealAdmin) {
@@ -439,7 +442,8 @@ export const ProjectsList: React.FC = () => {
 
     // Plan Logic
     const isRealAdmin = user.role === 'admin' && !isSimulating;
-    const maxProjects = user.planLimits?.maxProjects || 1;
+    const isProPlan = user.planSlug === 'pro' || user.planId === 'pro' || user.planLimits?.planName?.toLowerCase().includes('pro');
+    const maxProjects = user.planLimits?.maxProjects || (isProPlan ? 3 : 1);
     const currentCount = projects.length;
     const usagePercent = Math.min(100, (currentCount / maxProjects) * 100);
     const isAtLimit = !isRealAdmin && currentCount >= maxProjects;

@@ -456,12 +456,30 @@ export const DashboardLayout = ({
       }
     }
  
-    // Si el usuario YA TIENE proyectos o actividad, y se encuentra en la pantalla de bienvenida del wizard (/wizard/step-1, /wizard o /onboarding),
-    // NO debe mostrarse esa pantalla; redirigir de inmediato al dashboard principal
+    const searchParams = new URLSearchParams(location.search);
+    const targetProjId = searchParams.get('projectId') || (typeof window !== 'undefined' ? localStorage.getItem('preselect_wizard_project_id') : null);
+    const forcedStep = typeof window !== 'undefined' ? localStorage.getItem('force_wizard_step') : null;
+
+    // Si el usuario navega a /onboarding con un projectId, redirigir inmediatamente a /wizard/step-2 preservando el projectId
+    if (location.pathname === '/onboarding') {
+      if (targetProjId) {
+        navigate(`/wizard/step-2?projectId=${targetProjId}`, { replace: true });
+        return;
+      } else if (hasUserActivity && user.role !== 'admin') {
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+    }
+
+    // Si el usuario YA TIENE proyectos o actividad, y se encuentra en la pantalla de bienvenida del wizard (/wizard/step-1 o /wizard),
+    // SOLO redirigir al dashboard si NO tiene la intención explícita de desbloquear un proyecto
     if (
       user.role !== 'admin' &&
       hasUserActivity &&
-      (location.pathname === '/wizard/step-1' || location.pathname === '/wizard' || location.pathname === '/onboarding')
+      !targetProjId &&
+      forcedStep !== 'selection' &&
+      forcedStep !== 'unlock' &&
+      (location.pathname === '/wizard/step-1' || location.pathname === '/wizard')
     ) {
       navigate('/dashboard', { replace: true });
       return;

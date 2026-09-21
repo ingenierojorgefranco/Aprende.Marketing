@@ -261,6 +261,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       const forced = localStorage.getItem("force_wizard_step");
       if (forced === "success" || step === "success") {
         if (step !== "success") setStep("success");
+      } else {
+        if (step !== "unlock") {
+          setStep("unlock");
+          setRevealedSections(["unlock"]);
+        }
       }
     } else if (fullPath.includes("onboarding") || fullPath.includes("step-2") || fullPath.includes("selection")) {
       if (step !== "selection") {
@@ -800,16 +805,31 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     } else {
       loadMasterProjects();
       if (user.role !== 'admin') {
-        api.getProjects().then((myProjects) => {
-          if (myProjects && myProjects.length > 0) {
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('wizard_completed', 'true');
-              localStorage.setItem(`has_projects_${user.id}`, 'true');
-              localStorage.removeItem('force_wizard_step');
+        const searchP = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+        const targetProjId = searchP?.get('projectId') || (typeof window !== 'undefined' ? localStorage.getItem('preselect_wizard_project_id') : null);
+        const forcedStep = typeof window !== 'undefined' ? localStorage.getItem('force_wizard_step') : null;
+        const isExplicitStep = typeof window !== 'undefined' && (
+          window.location.pathname.includes('step-2') || 
+          window.location.pathname.includes('step-3') || 
+          window.location.pathname.includes('selection') || 
+          window.location.pathname.includes('unlock')
+        );
+
+        // Si el usuario viene a desbloquear un proyecto o a un paso específico, NUNCA expulsar al dashboard
+        if (targetProjId || forcedStep === 'selection' || forcedStep === 'unlock' || isExplicitStep) {
+          // Permitir continuar en el wizard para desbloquear el nuevo proyecto
+        } else {
+          api.getProjects().then((myProjects) => {
+            if (myProjects && myProjects.length > 0) {
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('wizard_completed', 'true');
+                localStorage.setItem(`has_projects_${user.id}`, 'true');
+                localStorage.removeItem('force_wizard_step');
+              }
+              navigate('/dashboard', { replace: true });
             }
-            navigate('/dashboard', { replace: true });
-          }
-        }).catch(() => {});
+          }).catch(() => {});
+        }
       }
     }
   }, [isStandaloneDashboard]);
@@ -884,12 +904,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   useEffect(() => {
     if (projects.length > 0) {
       const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-      const targetId = params?.get("projectId");
+      const targetId = params?.get("projectId") || (typeof window !== "undefined" ? (localStorage.getItem("preselect_wizard_project_id") || localStorage.getItem("selected_wizard_project_id")) : null);
       if (targetId) {
         const found = projects.find((p) => p.id === targetId || String(p.id) === String(targetId));
         if (found) {
           if (selectedProject?.id !== found.id) {
             setSelectedProject(found);
+          }
+          if (unlockedProject?.id !== found.id && (!strategyData || (strategyData as any)?.project_id !== found.id)) {
+            setStrategyData(null);
           }
           return;
         }

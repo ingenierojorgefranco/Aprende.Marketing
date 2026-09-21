@@ -82,7 +82,8 @@ export const DashboardHome: React.FC = () => {
   });
 
   const isRealAdmin = user?.role === 'admin';
-  const maxProjectsCalculated = user?.planLimits?.maxProjects || 1;
+  const isProPlan = user?.planSlug === 'pro' || user?.planId === 'pro' || user?.planLimits?.planName?.toLowerCase().includes('pro');
+  const maxProjectsCalculated = user?.planLimits?.maxProjects || (isProPlan ? 3 : 1);
   const isAtLimit = (projects.length >= maxProjectsCalculated) && !isRealAdmin;
 
   useEffect(() => {
@@ -696,6 +697,7 @@ export const DashboardHome: React.FC = () => {
                   localStorage.setItem('selected_wizard_project_id', p.id);
                   localStorage.setItem('force_wizard_step', 'selection');
                   localStorage.removeItem('wizard_dismissed');
+                  localStorage.removeItem('wizard_completed');
               }
               navigate(`/wizard/step-2?projectId=${p.id}`);
           }}

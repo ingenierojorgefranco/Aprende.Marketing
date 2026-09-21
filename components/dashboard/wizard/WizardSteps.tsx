@@ -96,7 +96,7 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
         let targetId: string | null = null;
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
-            targetId = params.get('projectId');
+            targetId = params.get('projectId') || localStorage.getItem('preselect_wizard_project_id') || localStorage.getItem('selected_wizard_project_id');
         }
 
         if (targetId && targetId !== lastHandledTargetIdRef.current) {
