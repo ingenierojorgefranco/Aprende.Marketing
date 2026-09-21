@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp, Save, Play, Copy, FileText, Link as LinkIcon } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp, Save, Play, Copy, FileText, Link as LinkIcon, Edit2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan, Project } from '../../../../types';
 import { Generator } from '../Generator';
@@ -52,6 +52,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showDomainModal, setShowDomainModal] = useState(false);
+    const [domainModalEditMode, setDomainModalEditMode] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
@@ -117,7 +118,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const isRealAdmin = (planLimits?.planName === 'admin' || userRole === 'admin') && !isSimulating;
     const isPro = isRealAdmin || (planLimits?.planName !== 'starter' && planLimits?.planName !== 'free' && (!projectData?.planSlug || projectData?.planSlug !== 'starter'));
 
-    const handleOpenDomainModal = () => {
+    const handleOpenDomainModal = (isEdit: boolean = false) => {
         if (!isPro) {
             if (onUpgrade) {
                 onUpgrade();
@@ -126,7 +127,26 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             }
             return;
         }
+        setDomainModalEditMode(isEdit);
         setShowDomainModal(true);
+    };
+
+    const handleCloseDomainModal = async () => {
+        setShowDomainModal(false);
+        setDomainModalEditMode(false);
+        try {
+            const pages = await api.getPages();
+            const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
+            setLinkedPages(projectPages);
+            setDomainCount(pages.filter(p => !!p.customDomain).length);
+        } catch (e) {
+            console.error("Error al refrescar páginas tras cerrar modal de dominio:", e);
+        }
+    };
+
+    const handleDomainSaved = (newDomain: string) => {
+        setLinkedPages(prev => prev.map((p, i) => i === 0 ? { ...p, customDomain: newDomain } : p));
+        setDomainCount(prev => prev + 1);
     };
 
     // Sincronizar selección inicial de lead magnet con la configuración guardada de la página de gracias
@@ -905,6 +925,34 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                             </button>
                                         </div>
 
+                                        {/* Dominio Registrado con Botón Editar (Diseño Imagen 4) */}
+                                        {linkedPages[0].customDomain && (
+                                            <div className="bg-[#051914] border border-emerald-500/40 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-lg shadow-emerald-950/30 animate-in fade-in">
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                                                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest leading-none mb-1">
+                                                            DOMINIO REGISTRADO
+                                                        </p>
+                                                        <p className="text-sm sm:text-base font-bold text-white font-mono tracking-tight truncate sm:break-all">
+                                                            {linkedPages[0].customDomain}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <button 
+                                                    onClick={() => handleOpenDomainModal(true)}
+                                                    className="px-3.5 py-1.5 sm:py-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 hover:text-emerald-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 active:scale-95"
+                                                    title="Editar dominio personalizado"
+                                                >
+                                                    <Edit2 className="w-3.5 h-3.5" />
+                                                    <span>Editar</span>
+                                                </button>
+                                            </div>
+                                        )}
+
                                         {/* Botones de Acción */}
                                         <div className="space-y-3 pt-1">
                                             <a 
@@ -930,7 +978,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
                                             {!linkedPages[0].customDomain && (
                                                 <button 
-                                                    onClick={handleOpenDomainModal}
+                                                    onClick={() => handleOpenDomainModal(false)}
                                                     className="w-full bg-[#3B82F6] hover:bg-blue-600 text-white font-black py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg shadow-blue-500/20 cursor-pointer transform hover:scale-[1.01] active:scale-95 relative overflow-hidden group"
                                                 >
                                                     <Globe className="w-4 h-4" />
@@ -1315,7 +1363,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         <PenTool className="w-5 h-5" /> Editar Página de Captura
                                     </a>
                                     <button 
-                                        onClick={handleOpenDomainModal} 
+                                        onClick={() => handleOpenDomainModal(false)} 
                                         className={`flex-1 py-4 rounded-2xl font-black flex items-center justify-center gap-3 transition border shadow-xl transform hover:scale-[1.03] ${
                                             linkedPages.length > 0 && linkedPages[0].customDomain 
                                             ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-white" 
@@ -1415,9 +1463,11 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
             <CustomDomainModal 
                 isOpen={showDomainModal} 
-                onClose={() => setShowDomainModal(false)} 
+                onClose={handleCloseDomainModal} 
                 page={linkedPages[0] || null} 
                 projectId={projectId} 
+                onDomainSaved={handleDomainSaved}
+                initialEditMode={domainModalEditMode}
             />
 
             {/* UPGRADE MODAL PARA FEATURE GATE DE DOMINIO */}

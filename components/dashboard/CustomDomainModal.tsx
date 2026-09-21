@@ -24,6 +24,7 @@ interface CustomDomainModalProps {
     projectId?: string;
     user?: User | null;
     onDomainSaved?: (newDomain: string) => void;
+    initialEditMode?: boolean;
 }
 
 export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
@@ -32,7 +33,8 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
     page,
     projectId,
     user,
-    onDomainSaved
+    onDomainSaved,
+    initialEditMode = false
 }) => {
     // Accordion state: default step 3 open for direct domain configuration, or step 1
     const [activeAccordion, setActiveAccordion] = useState<number | null>(3);
@@ -48,6 +50,7 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
     useEffect(() => {
         if (isOpen) {
             setFeedbackMsg(null);
+            setActiveAccordion(3);
             
             if (user) {
                 setCurrentUser(user);
@@ -62,7 +65,7 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
                 const current = page.customDomain || '';
                 setSavedDomain(current);
                 setDomainInput(current);
-                setIsEditing(!current);
+                setIsEditing(initialEditMode || !current);
             } else if (projectId) {
                 // Fetch page associated with project if page not passed
                 api.getPages().then(pages => {
@@ -72,7 +75,7 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
                         const current = found.customDomain || '';
                         setSavedDomain(current);
                         setDomainInput(current);
-                        setIsEditing(!current);
+                        setIsEditing(initialEditMode || !current);
                     } else {
                         setSavedDomain('');
                         setDomainInput('');
@@ -89,7 +92,7 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
                 setIsEditing(true);
             }
         }
-    }, [isOpen, page, projectId, user]);
+    }, [isOpen, page, projectId, user, initialEditMode]);
 
     if (!isOpen) return null;
 
