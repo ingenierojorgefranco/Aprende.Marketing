@@ -326,6 +326,23 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         setTimeout(() => setCopiedTyUrl(false), 2000);
     };
 
+    // Helper para obtener URL de página según si tiene dominio personalizado registrado
+    const getPageUrl = (page?: LandingPage, path: string = '') => {
+        if (!page) {
+            const fallback = projectId || 'microblading-demo';
+            const cleanPath = path ? (path.startsWith('/') ? path : `/${path}`) : '';
+            return `/admin/lp/${fallback}${cleanPath}`;
+        }
+        if (page.customDomain && page.customDomain.trim()) {
+            const cleanDomain = page.customDomain.trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+            const cleanPath = path ? (path.startsWith('/') ? path : `/${path}`) : '';
+            return `https://${cleanDomain}${cleanPath}`;
+        }
+        const cleanSubdomain = page.subdomain ? page.subdomain.split('.')[0] : (projectId || 'microblading-demo');
+        const cleanPath = path ? (path.startsWith('/') ? path : `/${path}`) : '';
+        return `/admin/lp/${cleanSubdomain}${cleanPath}`;
+    };
+
     // Estados para edición en línea
     const [draftLpTabsData, setDraftLpTabsData] = useState<any>(null);
     const [draftTyTabsData, setDraftTyTabsData] = useState<any>(null);
@@ -911,18 +928,29 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                             URL DE TU PÁGINA DE CAPTURA
                                         </h4>
 
-                                        {/* Campo de URL con botón copiar */}
-                                        <div className="flex items-start bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-2 min-w-0">
+                                        {/* Campo de URL con botón copiar y botón abrir URL dinámica */}
+                                        <div className="flex items-start bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-1.5 min-w-0">
                                             <span className="break-all whitespace-normal flex-1 select-all leading-relaxed py-0.5">
                                                 aprende.marketing/admin/lp/{linkedPages[0].subdomain.split('.')[0]}
                                             </span>
-                                            <button 
-                                                onClick={handleCopyLpUrl} 
-                                                className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0 cursor-pointer"
-                                                title="Copiar enlace"
-                                            >
-                                                {copiedLpUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                                            </button>
+                                            <div className="flex items-center gap-0.5 shrink-0">
+                                                <button 
+                                                    onClick={handleCopyLpUrl} 
+                                                    className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0 cursor-pointer"
+                                                    title="Copiar enlace dinámico"
+                                                >
+                                                    {copiedLpUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                                                </button>
+                                                <a 
+                                                    href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0 cursor-pointer"
+                                                    title="Abrir URL dinámica en una nueva pestaña"
+                                                >
+                                                    <ExternalLink className="w-4 h-4" />
+                                                </a>
+                                            </div>
                                         </div>
 
                                         {/* Dominio Registrado con Botón Editar (Diseño Imagen 4) */}
@@ -956,7 +984,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         {/* Botones de Acción */}
                                         <div className="space-y-3 pt-1">
                                             <a 
-                                                href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`} 
+                                                href={getPageUrl(linkedPages[0])} 
                                                 target="_blank" 
                                                 rel="noopener noreferrer"
                                                 className="w-full bg-[#00D084] hover:bg-[#00B874] text-slate-950 font-black py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all transform hover:scale-[1.01] active:scale-95 cursor-pointer"
@@ -1157,24 +1185,35 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                             URL DE TU PÁGINA DE GRACIAS
                                         </h4>
 
-                                        {/* Campo de URL con botón copiar */}
-                                        <div className="flex items-start bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-2 min-w-0">
+                                        {/* Campo de URL con botón copiar y botón abrir URL dinámica */}
+                                        <div className="flex items-start bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-1.5 min-w-0">
                                             <span className="break-all whitespace-normal flex-1 select-all leading-relaxed py-0.5">
                                                 aprende.marketing/admin/lp/{linkedPages[0].subdomain.split('.')[0]}/gracias
                                             </span>
-                                            <button 
-                                                onClick={handleCopyTyUrl} 
-                                                className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0 cursor-pointer mt-0.5"
-                                                title="Copiar enlace"
-                                            >
-                                                {copiedTyUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                                            </button>
+                                            <div className="flex items-center gap-0.5 shrink-0 mt-0.5">
+                                                <button 
+                                                    onClick={handleCopyTyUrl} 
+                                                    className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0 cursor-pointer"
+                                                    title="Copiar enlace dinámico"
+                                                >
+                                                    {copiedTyUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                                                </button>
+                                                <a 
+                                                    href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0 cursor-pointer"
+                                                    title="Abrir URL dinámica en una nueva pestaña"
+                                                >
+                                                    <ExternalLink className="w-4 h-4" />
+                                                </a>
+                                            </div>
                                         </div>
 
                                         {/* Botones de Acción */}
                                         <div className="space-y-3 pt-1">
                                             <a 
-                                                href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`} 
+                                                href={getPageUrl(linkedPages[0], '/gracias')} 
                                                 target="_blank" 
                                                 rel="noopener noreferrer"
                                                 className="w-full bg-[#00D084] hover:bg-[#00B874] text-slate-950 font-black py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all transform hover:scale-[1.01] active:scale-95 cursor-pointer"
@@ -1349,8 +1388,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             <div className="w-full space-y-4">
                                 {/* Fila 1 - Visualización */}
                                 <div className="flex flex-col sm:flex-row gap-4">
-                                    <a href={`/admin/lp/${linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : (projectId || 'microblading-demo')}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white text-black font-black py-4 px-10 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Captura</a>
-                                    <a href={`/admin/lp/${linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : (projectId || 'microblading-demo')}/gracias`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-emerald-600 text-white font-black py-4 px-10 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Gracias</a>
+                                    <a href={getPageUrl(linkedPages[0])} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white text-black font-black py-4 px-10 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Captura</a>
+                                    <a href={getPageUrl(linkedPages[0], '/gracias')} target="_blank" rel="noopener noreferrer" className="flex-1 bg-emerald-600 text-white font-black py-4 px-10 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Gracias</a>
                                 </div>
                                 {/* Fila 2 - Gestión */}
                                 <div className="flex flex-col sm:flex-row gap-4">
