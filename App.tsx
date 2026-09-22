@@ -186,7 +186,14 @@ const App: React.FC = () => {
 
       if (!isSystem) {
         try {
-          const res = await fetch(`/api/public/pages/by-domain?domain=${hostname}`);
+          const token = localStorage.getItem("plataformadeventacom_token");
+          const headers: HeadersInit = {};
+          if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
+          const res = await fetch(`/api/public/pages/by-domain?domain=${hostname}&skipVisit=true`, {
+            headers
+          });
           if (res.ok) {
             const data = await res.json();
             // Asumimos que el backend retorna el objeto de la página y usamos su subdomain/slug

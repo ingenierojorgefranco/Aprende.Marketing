@@ -435,7 +435,8 @@ router.get('/public/pages/by-domain', async (req, res) => {
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Página no encontrada' });
     const page = rows[0];
-    if (shouldRecordVisit(req, page)) { await recordVisit(page.id); }
+    const skipVisit = req.query.skipVisit !== 'false'; // Por defecto true para evitar visitas dobles al resolver dominio en App.tsx
+    if (!skipVisit && shouldRecordVisit(req, page)) { await recordVisit(page.id); }
     if (typeof page.content === 'string') { try { page.content = JSON.parse(page.content); } catch {} }
     page.content = sanitizeLandingContent(page.content);
     if (page.thankyoupage_json) {
