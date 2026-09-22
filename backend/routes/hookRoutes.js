@@ -122,6 +122,25 @@ router.get('/library', async (req, res) => {
         const isAdmin = req.user && req.user.role === 'admin';
         const activeCondition = isAdmin ? '' : 'AND ph.is_active = 1';
 
+        let effectiveMasterProjectId = masterProjectId;
+
+        if (!effectiveMasterProjectId && projectId) {
+            const [projRows] = await pool.query('SELECT master_parent_id, is_master FROM projects WHERE id = ?', [projectId]);
+            if (projRows.length > 0) {
+                if (projRows[0].master_parent_id) {
+                    effectiveMasterProjectId = projRows[0].master_parent_id;
+                } else if (projRows[0].is_master) {
+                    effectiveMasterProjectId = projectId;
+                }
+            }
+        }
+
+        // Si no es admin y no se resolvió ningún masterProjectId, limitamos a un id inexistente (-1)
+        // para que no mezcle ganchos de otros proyectos de la base de datos.
+        if (!effectiveMasterProjectId && !isAdmin) {
+            effectiveMasterProjectId = -1;
+        }
+
         let countQuery = `
             SELECT COUNT(*) as total 
             FROM project_hooks ph
@@ -136,10 +155,10 @@ router.get('/library', async (req, res) => {
         `;
         const params = [];
 
-        if (masterProjectId) {
+        if (effectiveMasterProjectId) {
             countQuery += ` AND p.id = ?`;
             dataQuery += ` AND p.id = ?`;
-            params.push(masterProjectId);
+            params.push(effectiveMasterProjectId);
         }
 
         if (projectId && !isAdmin) {
