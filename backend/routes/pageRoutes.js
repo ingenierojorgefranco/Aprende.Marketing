@@ -13,16 +13,22 @@ const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 //  HELPERS INTERNOS
 // ======================================================
 
-const isAdminRequest = (req) => {
+const shouldRecordVisit = (req, page) => {
     const authHeader = req.headers['authorization'];
-    if (!authHeader || !authHeader.startsWith('Bearer ')) return false;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) return true;
     const token = authHeader.replace('Bearer ', '').trim();
     try {
-        jwt.verify(token, JWT_SECRET);
-        return true;
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if (decoded) {
+            // Si el usuario logueado es el dueño de la página (afiliado) o un admin, no contamos la visita
+            if (String(decoded.id) === String(page.user_id) || decoded.role === 'admin') {
+                return false;
+            }
+        }
     } catch (e) {
-        return false;
+        // Token inválido o expirado, contamos la visita por seguridad
     }
+    return true;
 };
 
 const recordVisit = async (pageId) => {
@@ -429,7 +435,7 @@ router.get('/public/pages/by-domain', async (req, res) => {
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Página no encontrada' });
     const page = rows[0];
-    if (!isAdminRequest(req)) { await recordVisit(page.id); }
+    if (shouldRecordVisit(req, page)) { await recordVisit(page.id); }
     if (typeof page.content === 'string') { try { page.content = JSON.parse(page.content); } catch {} }
     page.content = sanitizeLandingContent(page.content);
     if (page.thankyoupage_json) {
@@ -463,7 +469,7 @@ router.get('/public/pages/by-user/:userSlug/:slug', async (req, res) => {
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
     const page = rows[0];
-    if (!isAdminRequest(req)) { await recordVisit(page.id); }
+    if (shouldRecordVisit(req, page)) { await recordVisit(page.id); }
     if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
     page.content = sanitizeLandingContent(page.content);
     if (page.thankyoupage_json) {
@@ -511,7 +517,7 @@ router.get('/public/pages/:slug', async (req, res) => {
     }
     if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
     const page = rows[0];
-    if (!isAdminRequest(req)) { await recordVisit(page.id); }
+    if (shouldRecordVisit(req, page)) { await recordVisit(page.id); }
     if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
     page.content = sanitizeLandingContent(page.content);
     if (page.thankyoupage_json) {

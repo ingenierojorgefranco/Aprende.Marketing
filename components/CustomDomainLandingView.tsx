@@ -41,19 +41,29 @@ export const CustomDomainLandingView: React.FC = () => {
       
       const endpoint = `${API_BASE}/public/pages/by-domain?domain=${encodeURIComponent(host)}`;
 
-      console.log("[CustomDomainLandingView] host:", host);
-      console.log("[CustomDomainLandingView] Fetching:", endpoint);
+        console.log("[CustomDomainLandingView] host:", host);
+        console.log("[CustomDomainLandingView] Fetching:", endpoint);
 
-      try {
-        setLoading(true);
-        setError(null);
-        setDebug({
-          endpoint,
-          host,
-        });
+        try {
+          setLoading(true);
+          setError(null);
+          setDebug({
+            endpoint,
+            host,
+          });
 
-        const res = await fetch(endpoint);
-        const contentType = res.headers.get("content-type");
+          // OBTENER TOKEN: Para no contar visita propia
+          const token = localStorage.getItem("plataformadeventacom_token");
+          const headers: HeadersInit = {};
+          if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
+
+          const res = await fetch(endpoint, {
+            method: "GET",
+            headers: headers
+          });
+          const contentType = res.headers.get("content-type");
         let rawSnippet = "";
 
         // Si la respuesta no es OK o no es JSON, leemos el texto para debug
