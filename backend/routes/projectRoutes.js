@@ -518,7 +518,24 @@ router.put('/:id', async (req, res) => {
     
     const painPoints = body.painPoints !== undefined ? JSON.stringify(body.painPoints) : existing.pain_points;
     const keyBenefits = body.keyBenefits !== undefined ? JSON.stringify(body.keyBenefits) : existing.key_benefits;
-    const affiliateLinks = body.affiliateLinks !== undefined ? JSON.stringify(body.affiliateLinks) : existing.affiliate_links;
+    
+    // Proteger y validar enlaces de afiliado: No permitir la eliminación de los dos por defecto
+    let affiliateLinks = existing.affiliate_links;
+    let parsedAffiliateLinks = [];
+    if (body.affiliateLinks !== undefined) {
+      let incoming = Array.isArray(body.affiliateLinks) ? body.affiliateLinks : safeParseJson(body.affiliateLinks, []);
+      if (!Array.isArray(incoming)) incoming = [];
+      const existingParsed = safeParseJson(existing.affiliate_links, []) || [];
+      if (incoming.length < 2) {
+        if (!incoming[0]) incoming[0] = existingParsed[0] || DEFAULT_AFFILIATE_LINKS[0];
+        if (!incoming[1]) incoming[1] = existingParsed[1] || DEFAULT_AFFILIATE_LINKS[1];
+      }
+      parsedAffiliateLinks = incoming;
+      affiliateLinks = JSON.stringify(incoming);
+    } else {
+      parsedAffiliateLinks = safeParseJson(existing.affiliate_links, []) || [];
+    }
+
     const strategy_json = body.strategy_json !== undefined ? JSON.stringify(body.strategy_json) : existing.strategy_json;
     const multimedia_json = body.multimedia_json !== undefined ? JSON.stringify(body.multimedia_json) : existing.multimedia_json;
     
@@ -556,6 +573,25 @@ router.put('/:id', async (req, res) => {
         }
       } catch (e) {
         console.warn('Error syncing landing_pages thankyoupage_json ctaLink:', e);
+      }
+    }
+
+    // Si se actualizaron los enlaces de afiliado, sincronizar el primer hotlink (Precio Full) con thankyoupage_json de las páginas
+    if (body.affiliateLinks !== undefined && Array.isArray(parsedAffiliateLinks) && parsedAffiliateLinks.length > 0) {
+      try {
+        const firstFullLink = parsedAffiliateLinks.find(l => l && l.label && (l.label.toLowerCase().includes('full') || l.label.toLowerCase().includes('principal'))) || parsedAffiliateLinks[0];
+        if (firstFullLink && firstFullLink.url && firstFullLink.url.trim() !== '') {
+          const [lps] = await pool.query('SELECT id, thankyoupage_json FROM landing_pages WHERE project_id = ?', [id]);
+          for (const lp of lps) {
+            const ty = safeParseJson(lp.thankyoupage_json);
+            if (ty) {
+              ty.upsellButtonUrl = firstFullLink.url.trim();
+              await pool.query('UPDATE landing_pages SET thankyoupage_json = ? WHERE id = ?', [JSON.stringify(ty), lp.id]);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Error syncing landing_pages thankyoupage_json upsellButtonUrl:', e);
       }
     }
     res.json({ message: 'Actualizado' });

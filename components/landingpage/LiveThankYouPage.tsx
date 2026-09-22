@@ -229,16 +229,24 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
     ? (rawWhatsapp!.startsWith('http://') || rawWhatsapp!.startsWith('https://') ? rawWhatsapp! : `https://${rawWhatsapp}`)
     : "#";
 
-  // Upsell Button Resolution (Configurado vía selector de Hotlinks / Afiliados - Ref. Imagen 3)
-  // Regla del usuario: Si no hay ningún enlace asignado o definido, el botón no estará habilitado
-  const projectAffiliateLinks = project?.affiliateLinks || [];
+  // Upsell Button Resolution (Configurado vía selector de Hotlinks / Afiliados - Ref. Imagen 1, 2, 3)
+  // Regla del usuario: El botón debe cargar el primer hotlink que vendría a ser el de precio full (Ref. Imagen 1, 2, 3)
+  const projectAffiliateLinks = project?.affiliateLinks || (project as any)?.affiliate_links || [];
   const assignedAffiliateLinks = projectAffiliateLinks.filter(
     (l: any) => l && typeof l.url === 'string' && l.url.trim() !== '' && l.url.trim() !== '#'
   );
 
+  // Identificar el primer hotlink (Hotlink_Precio_Full)
+  const fullPriceHotlink = assignedAffiliateLinks.find(
+    (l: any) => l.label && (l.label.toLowerCase().includes('full') || l.label.toLowerCase().includes('principal'))
+  ) || assignedAffiliateLinks[0];
+
   let rawUpsell: string | null = null;
   if ((project as any)?.selectedHotlinkUrl && (project as any).selectedHotlinkUrl.trim() !== '' && (project as any).selectedHotlinkUrl.trim() !== '#') {
     rawUpsell = (project as any).selectedHotlinkUrl.trim();
+  } else if (fullPriceHotlink?.url && fullPriceHotlink.url.trim() !== '' && fullPriceHotlink.url.trim() !== '#') {
+    // Carga directa del primer hotlink (Precio Full)
+    rawUpsell = fullPriceHotlink.url.trim();
   } else if (tyConfig.upsellButtonUrl && tyConfig.upsellButtonUrl.trim() !== '' && tyConfig.upsellButtonUrl.trim() !== '#' && !tyConfig.upsellButtonUrl.includes('pay.hotmart.com/...')) {
     rawUpsell = tyConfig.upsellButtonUrl.trim();
   } else if ((project?.multimedia_json as any)?.thankYouPage?.upsellButtonUrl && (project.multimedia_json as any).thankYouPage.upsellButtonUrl.trim() !== '' && (project.multimedia_json as any).thankYouPage.upsellButtonUrl.trim() !== '#') {

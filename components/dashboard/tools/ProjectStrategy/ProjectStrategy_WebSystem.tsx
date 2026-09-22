@@ -234,7 +234,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             if (linkedPages.length > 0) {
                 currentUrl = linkedPages[0].content?.thankYouPage?.upsellButtonUrl || '';
             }
-            if (!currentUrl && projectData) {
+            if ((!currentUrl || currentUrl.includes('pay.hotmart.com/...')) && projectData) {
                 currentUrl = (projectData as any)?.selectedHotlinkUrl || 
                              (projectData.thankYouPageConfig as any)?.upsellButtonUrl || 
                              (projectData.multimedia_json as any)?.thankYouPage?.upsellButtonUrl || '';
@@ -242,7 +242,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
             if (currentUrl && availableHotlinks.some(l => l.url === currentUrl)) {
                 setSelectedHotlinkUrl(currentUrl);
-            } else if (availableHotlinks.length === 1 && !currentUrl) {
+            } else if (availableHotlinks.length > 0) {
+                // Regla del usuario: Cargar el primer hotlink por defecto (Precio Full - Ref. Imagen 1, 2, 3)
                 handleSelectHotlink(availableHotlinks[0].url);
             }
         } else {

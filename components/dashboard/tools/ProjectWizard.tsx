@@ -3652,7 +3652,9 @@ export const ProjectWizard: React.FC = () => {
                                                 <input type="text" value={link.url} onChange={e => handleLinkUpdate(idx, 'url', e.target.value)} className="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-indigo-400 text-xs font-mono focus:border-primary outline-none" placeholder="https://go.hotmart.com/..." />
                                             </div>
                                         </div>
-                                        <button onClick={() => setAffiliateLinks(affiliateLinks.filter((_, i) => i !== idx))} className="text-gray-600 hover:text-red-500 p-2 self-center bg-gray-900 rounded-xl transition-colors"><Trash2 className="w-5 h-5"/></button>
+                                        {idx >= 2 && (
+                                            <button onClick={() => setAffiliateLinks(affiliateLinks.filter((_, i) => i !== idx))} className="text-gray-600 hover:text-red-500 p-2 self-center bg-gray-900 rounded-xl transition-colors"><Trash2 className="w-5 h-5"/></button>
+                                        )}
                                     </div>
                                 ))}
                                 <button onClick={() => setAffiliateLinks([...affiliateLinks, { label: 'Nuevo Enlace', url: '' }])} className="w-full py-4 border-2 border-dashed border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all"><Plus className="w-4 h-4" /> Agregar Otro Hotlink</button>

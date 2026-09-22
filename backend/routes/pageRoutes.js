@@ -85,7 +85,7 @@ const safeParseJson = (str, fallback = null) => {
 };
 
 const attachProjectData = (page) => {
-    if (page.project_strategy || page.project_multimedia || page.master_multimedia || page.master_strategy || page.project_whatsapp_group_url || page.master_whatsapp_group_url || page.project_id) {
+    if (page.project_strategy || page.project_multimedia || page.master_multimedia || page.master_strategy || page.project_whatsapp_group_url || page.master_whatsapp_group_url || page.project_id || page.project_affiliate_links || page.master_affiliate_links) {
         const projMm = safeParseJson(page.project_multimedia, {}) || {};
         const mastMm = safeParseJson(page.master_multimedia, {}) || {};
 
@@ -99,6 +99,20 @@ const attachProjectData = (page) => {
             ? page.master_lead_magnet_url 
             : (page.project_lead_magnet_url || page.master_lead_magnet_url || (leadMagnets[0]?.url || ""));
         const resolvedWhatsappUrl = page.project_whatsapp_group_url || page.master_whatsapp_group_url || projMm.whatsappGroupUrl || mastMm.whatsappGroupUrl || "";
+
+        // Enlaces de afiliado: El proyecto del usuario tiene sus enlaces, con fallback al maestro
+        const childAffiliate = safeParseJson(page.project_affiliate_links, []) || [];
+        const masterAffiliate = safeParseJson(page.master_affiliate_links, []) || [];
+        const rawAffiliate = (Array.isArray(childAffiliate) && childAffiliate.length > 0) 
+            ? childAffiliate 
+            : (Array.isArray(masterAffiliate) && masterAffiliate.length > 0 ? masterAffiliate : []);
+        const affiliateLinks = Array.isArray(rawAffiliate) ? rawAffiliate : [];
+
+        // Obtener el primer hotlink (Precio Full - Ref. Imagen 3)
+        const fullPriceHotlink = affiliateLinks.find(l => l && l.label && (l.label.toLowerCase().includes('full') || l.label.toLowerCase().includes('principal'))) || affiliateLinks[0];
+        const resolvedHotlinkUrl = (fullPriceHotlink && fullPriceHotlink.url && fullPriceHotlink.url.trim() !== '' && fullPriceHotlink.url.trim() !== '#')
+            ? fullPriceHotlink.url.trim()
+            : "";
 
         // En la Página de Gracias, los datos definidos en el Proyecto Maestro (Video, Título, Oferta) tienen máxima prioridad
         const masterTy = mastMm.thankYouPage || {};
@@ -122,6 +136,9 @@ const attachProjectData = (page) => {
             leadMagnetUrl: resolvedLeadMagnetUrl,
             whatsappGroupUrl: resolvedWhatsappUrl,
             whatsapp_group_url: resolvedWhatsappUrl,
+            affiliateLinks: affiliateLinks,
+            affiliate_links: affiliateLinks,
+            selectedHotlinkUrl: projMm.selectedHotlinkUrl || (childTy.upsellButtonUrl || resolvedHotlinkUrl || ""),
             strategy_json: safeParseJson(page.project_strategy) || safeParseJson(page.master_strategy),
             multimedia_json: {
                 ...mastMm,
@@ -136,6 +153,11 @@ const attachProjectData = (page) => {
         if (page.content) {
             if (!page.content.thankYouPage) page.content.thankYouPage = {};
             const ty = page.content.thankYouPage;
+
+            // Vincular el primer Hotlink (Precio Full - Ref. Imagen 3) al botón de formación completa (Ref. Imagen 1 y 2)
+            if (resolvedHotlinkUrl) {
+                ty.upsellButtonUrl = resolvedHotlinkUrl;
+            }
 
             // Sobrescribir video y datos de la clase desde el Proyecto Maestro
             if (effectiveTy.videoUrl) ty.videoUrl = effectiveTy.videoUrl;
@@ -440,8 +462,10 @@ router.get('/public/pages/by-domain', async (req, res) => {
       `SELECT lp.*, lp.thankyoupage_json, 
               pr.name as project_name, pr.product_name as project_product_name,
               pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
+              pr.affiliate_links as project_affiliate_links,
               pm.name as master_name, pm.product_name as master_product_name,
-              pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url
+              pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url,
+              pm.affiliate_links as master_affiliate_links
        FROM landing_pages lp
        LEFT JOIN projects pr ON lp.project_id = pr.id
        LEFT JOIN projects pm ON pr.master_parent_id = pm.id
@@ -474,8 +498,10 @@ router.get('/public/pages/by-user/:userSlug/:slug', async (req, res) => {
       `SELECT lp.*, lp.thankyoupage_json, 
               pr.name as project_name, pr.product_name as project_product_name,
               pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
+              pr.affiliate_links as project_affiliate_links,
               pm.name as master_name, pm.product_name as master_product_name,
-              pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url
+              pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url,
+              pm.affiliate_links as master_affiliate_links
        FROM landing_pages lp
        INNER JOIN users u ON u.id = lp.user_id
        LEFT JOIN projects pr ON lp.project_id = pr.id
@@ -517,8 +543,10 @@ router.get('/public/pages/:slug', async (req, res) => {
          SELECT lp.*, lp.thankyoupage_json, 
                 pr.name as project_name, pr.product_name as project_product_name,
                 pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
+                pr.affiliate_links as project_affiliate_links,
                 pm.name as master_name, pm.product_name as master_product_name,
-                pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url
+                pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url,
+                pm.affiliate_links as master_affiliate_links
          FROM landing_pages lp 
          LEFT JOIN projects pr ON lp.project_id = pr.id
          LEFT JOIN projects pm ON pr.master_parent_id = pm.id
@@ -530,8 +558,10 @@ router.get('/public/pages/:slug', async (req, res) => {
           SELECT lp.*, lp.thankyoupage_json, 
                  pr.name as project_name, pr.product_name as project_product_name,
                  pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
+                 pr.affiliate_links as project_affiliate_links,
                  pm.name as master_name, pm.product_name as master_product_name,
-                 pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url
+                 pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url,
+                 pm.affiliate_links as master_affiliate_links
           FROM landing_pages lp 
           LEFT JOIN projects pr ON lp.project_id = pr.id
           LEFT JOIN projects pm ON pr.master_parent_id = pm.id

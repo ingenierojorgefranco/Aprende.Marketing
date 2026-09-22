@@ -22,8 +22,8 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
         whatsappGroupUrl: '',
         digitalProductUrl: '',
         affiliateLinks: [
-            { label: 'Checkout Principal', url: '' },
-            { label: 'Checkout con Descuento', url: '' }
+            { label: 'Hotlink_Precio_Full', url: '' },
+            { label: 'Hotlink_Precio_Descuento', url: '' }
         ] as AffiliateLink[]
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -40,15 +40,21 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                 const data = await api.getProjectById(projectId);
                 if (data) {
                     setProject(data);
+                    let initialLinks = data.affiliateLinks && data.affiliateLinks.length > 0 
+                        ? [...data.affiliateLinks] 
+                        : [];
+                    if (initialLinks.length === 0) {
+                        initialLinks = [
+                            { label: 'Hotlink_Precio_Full', url: '' },
+                            { label: 'Hotlink_Precio_Descuento', url: '' }
+                        ];
+                    } else if (initialLinks.length === 1) {
+                        initialLinks.push({ label: 'Hotlink_Precio_Descuento', url: '' });
+                    }
                     setForm({
                         whatsappGroupUrl: data.whatsappGroupUrl || data.whatsapp_group_url || (data.multimedia_json as any)?.whatsappGroupUrl || '',
                         digitalProductUrl: data.digitalProductUrl || '',
-                        affiliateLinks: data.affiliateLinks && data.affiliateLinks.length > 0 
-                            ? data.affiliateLinks 
-                            : [
-                                { label: 'Checkout Principal', url: '' },
-                                { label: 'Checkout con Descuento', url: '' }
-                            ]
+                        affiliateLinks: initialLinks
                     });
                 }
             } catch (error) {
@@ -59,6 +65,16 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
         };
         loadProject();
     }, [projectId]);
+
+    const isProtectedLink = (link: AffiliateLink, idx: number) => {
+        // Los dos primeros enlaces creados por defecto no se pueden borrar
+        if (idx < 2) return true;
+        const norm = (link.label || '').trim().toLowerCase();
+        if (norm === 'hotlink_precio_full' || norm === 'hotlink_precio_descuento' || norm === 'checkout principal' || norm === 'checkout con descuento') {
+            return true;
+        }
+        return false;
+    };
 
     const handleUpdateLink = (idx: number, field: 'label' | 'url', val: string) => {
         const newLinks = [...form.affiliateLinks];
@@ -81,6 +97,9 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
     };
 
     const handleRemoveLink = (idx: number) => {
+        if (idx < 2 || isProtectedLink(form.affiliateLinks[idx], idx)) {
+            return; // Restricción: No se permite eliminar los enlaces por defecto
+        }
         const newLinks = form.affiliateLinks.filter((_, i) => i !== idx);
         setForm({ ...form, affiliateLinks: newLinks });
     };
@@ -92,13 +111,36 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
 
         setSaving(true);
         try {
-            await api.updateProject(projectId, {
+            const firstFullLink = form.affiliateLinks.find(
+                l => l && l.label && (l.label.toLowerCase().includes('full') || l.label.toLowerCase().includes('principal'))
+            ) || form.affiliateLinks[0];
+            const firstHotlinkUrl = firstFullLink?.url?.trim() || '';
+
+            const currentMultimedia = typeof project.multimedia_json === 'string'
+                ? (() => { try { return JSON.parse(project.multimedia_json); } catch { return {}; } })()
+                : (project.multimedia_json || {});
+
+            const updatedProject = {
                 ...project,
                 whatsappGroupUrl: form.whatsappGroupUrl.trim(),
                 whatsapp_group_url: form.whatsappGroupUrl.trim(),
                 digitalProductUrl: project.masterParentId ? undefined : form.digitalProductUrl,
-                affiliateLinks: form.affiliateLinks
-            } as any);
+                affiliateLinks: form.affiliateLinks,
+                selectedHotlinkUrl: firstHotlinkUrl || (project as any).selectedHotlinkUrl,
+                thankYouPageConfig: {
+                    ...((project as any).thankYouPageConfig || {}),
+                    ...(firstHotlinkUrl ? { upsellButtonUrl: firstHotlinkUrl } : {})
+                },
+                multimedia_json: {
+                    ...currentMultimedia,
+                    thankYouPage: {
+                        ...(currentMultimedia.thankYouPage || {}),
+                        ...(firstHotlinkUrl ? { upsellButtonUrl: firstHotlinkUrl } : {})
+                    }
+                }
+            };
+
+            await api.updateProject(projectId, updatedProject as any);
             
             setShowSuccess(true);
             setTimeout(() => setShowSuccess(false), 3500);
@@ -300,43 +342,53 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                     )}
                     
                     <div className="grid grid-cols-1 gap-4">
-                        {form.affiliateLinks.map((link, idx) => (
-                            <div key={idx} className="bg-[#0d1322]/90 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-4 relative">
-                                {link.label !== 'Checkout Principal' && link.label !== 'Checkout con Descuento' && (
-                                    <button 
-                                        onClick={() => handleRemoveLink(idx)} 
-                                        className="absolute top-4 right-4 p-1.5 text-slate-500 hover:text-red-400 transition-colors cursor-pointer"
-                                        title="Eliminar enlace"
-                                    >
-                                        <X className="w-4 h-4"/>
-                                    </button>
-                                )}
-                                
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="text-xs text-slate-400 font-bold uppercase tracking-wider block">Etiqueta del Botón</label>
-                                        <input 
-                                            type="text" 
-                                            value={link.label}
-                                            onChange={(e) => handleUpdateLink(idx, 'label', e.target.value)}
-                                            placeholder="Ej: Checkout Principal"
-                                            className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl py-3 px-4 text-white text-sm outline-none focus:border-[#FF5A1F] transition-all font-medium"
-                                        />
-                                    </div>
+                        {form.affiliateLinks.map((link, idx) => {
+                            const isProtected = isProtectedLink(link, idx);
+                            return (
+                                <div key={idx} className="bg-[#0d1322]/90 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-4 relative">
+                                    {!isProtected && (
+                                        <button 
+                                            onClick={() => handleRemoveLink(idx)} 
+                                            className="absolute top-4 right-4 p-1.5 text-slate-500 hover:text-red-400 transition-colors cursor-pointer"
+                                            title="Eliminar enlace"
+                                        >
+                                            <X className="w-4 h-4"/>
+                                        </button>
+                                    )}
                                     
-                                    <div className="space-y-2">
-                                        <label className="text-xs text-slate-400 font-bold uppercase tracking-wider block">URL de Afiliado (Hotlink)</label>
-                                        <input 
-                                            type="text" 
-                                            value={link.url}
-                                            onChange={(e) => handleUpdateLink(idx, 'url', e.target.value)}
-                                            placeholder="https://go.hotmart.com/..."
-                                            className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl py-3 px-4 text-emerald-400 font-mono text-sm outline-none focus:border-[#FF5A1F] transition-all"
-                                        />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-xs text-slate-400 font-bold uppercase tracking-wider block">Etiqueta del Botón</label>
+                                                {isProtected && (
+                                                    <span className="text-[10px] text-slate-400 font-medium bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60">
+                                                        Por defecto
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                value={link.label}
+                                                onChange={(e) => handleUpdateLink(idx, 'label', e.target.value)}
+                                                placeholder={idx === 0 ? "Hotlink_Precio_Full" : idx === 1 ? "Hotlink_Precio_Descuento" : "Etiqueta del enlace"}
+                                                className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl py-3 px-4 text-white text-sm outline-none focus:border-[#FF5A1F] transition-all font-medium"
+                                            />
+                                        </div>
+                                        
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-slate-400 font-bold uppercase tracking-wider block">URL de Afiliado (Hotlink)</label>
+                                            <input 
+                                                type="text" 
+                                                value={link.url}
+                                                onChange={(e) => handleUpdateLink(idx, 'url', e.target.value)}
+                                                placeholder="https://go.hotmart.com/..."
+                                                className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl py-3 px-4 text-emerald-400 font-mono text-sm outline-none focus:border-[#FF5A1F] transition-all"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 
