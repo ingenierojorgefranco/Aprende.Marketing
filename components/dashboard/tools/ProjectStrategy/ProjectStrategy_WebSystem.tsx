@@ -328,20 +328,21 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     };
 
     // Helper para obtener URL de página según si tiene dominio personalizado registrado
-    const getPageUrl = (page?: LandingPage, path: string = '') => {
+    const getPageUrl = (page?: LandingPage, path: string = '', isForPreview: boolean = true) => {
+        const queryParams = isForPreview ? '?preview=true' : '';
         if (!page) {
             const fallback = projectId || 'microblading-demo';
             const cleanPath = path ? (path.startsWith('/') ? path : `/${path}`) : '';
-            return `/admin/lp/${fallback}${cleanPath}`;
+            return `/admin/lp/${fallback}${cleanPath}${queryParams}`;
         }
         if (page.customDomain && page.customDomain.trim()) {
             const cleanDomain = page.customDomain.trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '');
             const cleanPath = path ? (path.startsWith('/') ? path : `/${path}`) : '';
-            return `https://${cleanDomain}${cleanPath}`;
+            return `https://${cleanDomain}${cleanPath}${queryParams}`;
         }
         const cleanSubdomain = page.subdomain ? page.subdomain.split('.')[0] : (projectId || 'microblading-demo');
         const cleanPath = path ? (path.startsWith('/') ? path : `/${path}`) : '';
-        return `/admin/lp/${cleanSubdomain}${cleanPath}`;
+        return `/admin/lp/${cleanSubdomain}${cleanPath}${queryParams}`;
     };
 
     // Estados para edición en línea
@@ -1263,7 +1264,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     <div className="bg-[#080d18] p-3.5 rounded-xl border border-slate-800/80">
                                         <div className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wide">VISITAS</div>
                                         <div className="text-xl font-black text-white mt-1">
-                                            {linkedPages.length > 0 ? (linkedPages[0].conversions || linkedPages[0].visits || 0) : 0}
+                                            {linkedPages.length > 0 ? ((linkedPages[0] as any).thankyou_visits ?? (linkedPages[0] as any).thankyouVisits ?? linkedPages[0].conversions ?? 0) : 0}
                                         </div>
                                     </div>
                                     <div className="bg-[#080d18] p-3.5 rounded-xl border border-slate-800/80">

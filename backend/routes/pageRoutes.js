@@ -46,6 +46,21 @@ const recordVisit = async (pageId) => {
     }
 };
 
+const recordThankYouVisit = async (pageId) => {
+    try {
+        await pool.query('UPDATE landing_pages SET thankyou_visits = thankyou_visits + 1 WHERE id = ?', [pageId]);
+        const today = new Date().toISOString().split('T')[0];
+        await pool.query(
+            `INSERT INTO daily_analytics (page_id, date, thankyou_visits, conversions) 
+             VALUES (?, ?, 1, 0) 
+             ON DUPLICATE KEY UPDATE thankyou_visits = thankyou_visits + 1`,
+            [pageId, today]
+        );
+    } catch (error) {
+        console.error(`[Analytics] Error registrando visita de gracias para página ${pageId}:`, error.message);
+    }
+};
+
 const logCRMActivity = async (contactId, type, content) => {
     try {
         await pool.query(
@@ -470,7 +485,14 @@ router.get('/public/pages/by-user/:userSlug/:slug', async (req, res) => {
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
     const page = rows[0];
-    if (shouldRecordVisit(req, page)) { await recordVisit(page.id); }
+    const skipVisit = req.query.skipVisit === 'true';
+    if (!skipVisit && shouldRecordVisit(req, page)) {
+        if (req.query.isThankYou === 'true') {
+            await recordThankYouVisit(page.id);
+        } else {
+            await recordVisit(page.id);
+        }
+    }
     if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
     page.content = sanitizeLandingContent(page.content);
     if (page.thankyoupage_json) {
@@ -518,7 +540,14 @@ router.get('/public/pages/:slug', async (req, res) => {
     }
     if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
     const page = rows[0];
-    if (shouldRecordVisit(req, page)) { await recordVisit(page.id); }
+    const skipVisit = req.query.skipVisit === 'true';
+    if (!skipVisit && shouldRecordVisit(req, page)) {
+        if (req.query.isThankYou === 'true') {
+            await recordThankYouVisit(page.id);
+        } else {
+            await recordVisit(page.id);
+        }
+    }
     if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
     page.content = sanitizeLandingContent(page.content);
     if (page.thankyoupage_json) {

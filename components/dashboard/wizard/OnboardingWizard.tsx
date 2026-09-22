@@ -2582,7 +2582,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 <div className="flex items-center gap-2 shrink-0">
                                   {/* Abrir página */}
                                   <a
-                                    href={absoluteUrl}
+                                    href={`${absoluteUrl}?preview=true`}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="px-4 py-2.5 rounded-xl bg-[#FF5A1F] hover:bg-[#FF5A1F]/90 text-white text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-1.5 shadow-lg active:scale-95"
@@ -2654,7 +2654,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                   <div className="bg-black/50 border border-white/[0.05] p-4 rounded-xl text-center flex flex-col justify-between">
                                     <div className="text-[10px] text-zinc-400 uppercase font-black tracking-widest leading-none">VISITAS</div>
                                     <div className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white mt-2.5 leading-none">
-                                      {selectedLandingPageTab === "captacion" ? (activePage?.visits ?? 487) : Math.round((activePage?.visits ?? 487) * 0.12)}
+                                      {selectedLandingPageTab === "captacion" ? (activePage?.visits ?? 0) : (activePage?.thankyou_visits ?? 0)}
                                     </div>
                                   </div>
                                   <div className="bg-black/50 border border-white/[0.05] p-4 rounded-xl text-center flex flex-col justify-between">

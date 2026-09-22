@@ -122,6 +122,13 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
           slug: activeSlug,
         });
 
+        const urlParams = new URLSearchParams(window.location.search);
+        const isPreview = urlParams.get('preview') === 'true';
+        if (isPreview) {
+          sessionStorage.setItem('is_owner_session', 'true');
+        }
+        const isOwnerSession = sessionStorage.getItem('is_owner_session') === 'true';
+
         // OBTENER TOKEN: Para no contar visita propia
         const token = localStorage.getItem("plataformadeventacom_token");
         const headers: HeadersInit = {};
@@ -129,7 +136,18 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
           headers["Authorization"] = `Bearer ${token}`;
         }
 
-        const res = await fetch(endpoint, {
+        let finalEndpoint = endpoint;
+        if (isOwnerSession) {
+          try {
+            const urlObj = new URL(endpoint.startsWith('http') ? endpoint : `${window.location.origin}${endpoint}`);
+            urlObj.searchParams.set('skipVisit', 'true');
+            finalEndpoint = endpoint.startsWith('http') ? urlObj.toString() : (urlObj.pathname + urlObj.search);
+          } catch (e) {
+            console.error('Error setting skipVisit query:', e);
+          }
+        }
+
+        const res = await fetch(finalEndpoint, {
           method: "GET",
           headers: headers,
         });
