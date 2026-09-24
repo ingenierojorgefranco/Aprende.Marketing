@@ -684,4 +684,301 @@ router.post('/survey', authMiddleware, async (req, res) => {
     }
 });
 
+// ======================================================
+//  PÁGINA DE GRACIAS / ÉXITO DE SUSCRIPCIÓN HOTMART
+// ======================================================
+
+/**
+ * Obtiene los detalles de la compra y del plan adquirido tras pagar en Hotmart.
+ * Soporta parámetros de consulta (transacción, email, plan, src) y sesión autenticada.
+ */
+router.get('/subscription-success', async (req, res) => {
+    try {
+        const authHeader = req.headers['authorization'];
+        let tokenUserId = null;
+
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.split(' ')[1];
+            try {
+                const decoded = jwt.verify(token, JWT_SECRET);
+                tokenUserId = decoded.id;
+            } catch (e) {
+                // Token inválido o expirado, continuamos como visitante
+            }
+        }
+
+        const rawTransaction = req.query.transaction || req.query.transacao || req.query.transaction_id || '';
+        const rawEmail = (req.query.email || req.query.buyer_email || '').trim().toLowerCase();
+        const rawName = (req.query.name || req.query.buyer_name || '').trim();
+        const rawSrc = req.query.src || '';
+        const rawPlanSlug = req.query.plan || req.query.plan_slug || '';
+        const rawProductId = req.query.product || req.query.prod || req.query.product_id || '';
+        const rawOffer = req.query.off || req.query.offer || '';
+
+        let targetUserId = tokenUserId;
+
+        // Si no hay token de usuario, intentar resolver userId mediante SRC
+        if (!targetUserId && rawSrc) {
+            const srcStr = String(rawSrc);
+            const candidateId = srcStr.includes('-') ? srcStr.split('-')[0] : srcStr;
+            if (/^\d+$/.test(candidateId)) {
+                targetUserId = parseInt(candidateId, 10);
+            }
+        }
+
+        // Buscar registro de pago en DB por transaction_id si fue proporcionado
+        let paymentRecord = null;
+        if (rawTransaction) {
+            const [payRows] = await pool.query(
+                `SELECT * FROM user_payments WHERE transaction_id = ? OR stripe_id = ? ORDER BY created_at DESC LIMIT 1`,
+                [rawTransaction, rawTransaction]
+            );
+            if (payRows.length > 0) {
+                paymentRecord = payRows[0];
+                if (!targetUserId) targetUserId = paymentRecord.user_id;
+            }
+        }
+
+        // Si aún no tenemos targetUserId pero vino email, buscar el usuario
+        let userRecord = null;
+        if (targetUserId) {
+            const [uRows] = await pool.query(
+                `SELECT id, name, email, plan_limits, is_active, created_at FROM users WHERE id = ?`,
+                [targetUserId]
+            );
+            if (uRows.length > 0) userRecord = uRows[0];
+        } else if (rawEmail) {
+            const [uRows] = await pool.query(
+                `SELECT id, name, email, plan_limits, is_active, created_at FROM users WHERE email = ?`,
+                [rawEmail]
+            );
+            if (uRows.length > 0) {
+                userRecord = uRows[0];
+                targetUserId = userRecord.id;
+            }
+        }
+
+        // Si hay targetUserId y no teníamos paymentRecord, buscar el último pago aprobado del usuario
+        if (targetUserId && !paymentRecord) {
+            const [userPayRows] = await pool.query(
+                `SELECT * FROM user_payments WHERE user_id = ? AND status = 'approved' ORDER BY created_at DESC LIMIT 1`,
+                [targetUserId]
+            );
+            if (userPayRows.length > 0) {
+                paymentRecord = userPayRows[0];
+            }
+        }
+
+        // Obtener límites efectivos si hay usuario identificado
+        let effectiveLimits = null;
+        if (targetUserId) {
+            effectiveLimits = await getEffectiveLimits(targetUserId, true);
+        }
+
+        // Determinar el slug del plan
+        let determinedPlanSlug = rawPlanSlug;
+
+        if (!determinedPlanSlug && effectiveLimits?.planName && effectiveLimits.planName !== 'starter') {
+            determinedPlanSlug = effectiveLimits.planName;
+        }
+
+        // Intentar buscar plan en la tabla 'plans'
+        let matchedPlan = null;
+        if (determinedPlanSlug) {
+            const [pRows] = await pool.query(
+                `SELECT * FROM plans WHERE slug = ? OR name = ? LIMIT 1`,
+                [determinedPlanSlug, determinedPlanSlug]
+            );
+            if (pRows.length > 0) matchedPlan = pRows[0];
+        }
+
+        if (!matchedPlan && (rawProductId || rawOffer)) {
+            const [pRows] = await pool.query(
+                `SELECT * FROM plans 
+                 WHERE (hotmart_id = ? OR hotmart_id_annual = ?) 
+                    OR (hotmart_offer = ? OR hotmart_offer_annual = ?) 
+                 LIMIT 1`,
+                [rawProductId, rawProductId, rawOffer, rawOffer]
+            );
+            if (pRows.length > 0) matchedPlan = pRows[0];
+        }
+
+        // Si aún no se encontró un plan específico, tomar el plan Pro o el recomendado
+        if (!matchedPlan) {
+            const [fallbackRows] = await pool.query(
+                `SELECT * FROM plans WHERE slug = 'pro' OR is_recommended = 1 ORDER BY price_monthly DESC LIMIT 1`
+            );
+            if (fallbackRows.length > 0) matchedPlan = fallbackRows[0];
+        }
+
+        // Si todavía no hay planes en BD, fallback genérico
+        const planDetails = matchedPlan ? {
+            id: matchedPlan.id.toString(),
+            name: matchedPlan.name,
+            slug: matchedPlan.slug,
+            description: matchedPlan.description || 'Acceso completo a herramientas avanzadas para escalar tus ventas.',
+            priceMonthly: parseFloat(matchedPlan.price_monthly || 0),
+            priceAnnual: parseFloat(matchedPlan.price_annual || 0),
+            currency: matchedPlan.currency || 'USD',
+            uiFeatures: typeof matchedPlan.ui_features === 'string' 
+                ? JSON.parse(matchedPlan.ui_features) 
+                : (matchedPlan.ui_features || [
+                    'Generador de Landing Pages con IA',
+                    'Estrategia de Hooks Persuasivos',
+                    'Embudos de Alta Conversión',
+                    'Email Marketing & Automatizaciones',
+                    'Lanzamientos por WhatsApp',
+                    'Acceso VIP a la Academia'
+                ]),
+            limitsConfig: typeof matchedPlan.limits_config === 'string'
+                ? JSON.parse(matchedPlan.limits_config)
+                : (matchedPlan.limits_config || DEFAULT_LIMITS)
+        } : {
+            id: 'pro',
+            name: 'Plan Pro',
+            slug: 'pro',
+            description: 'Acceso completo a la plataforma para escalar tus ventas en Hotmart.',
+            priceMonthly: 47,
+            priceAnnual: 470,
+            currency: 'USD',
+            uiFeatures: [
+                'Generador de Landing Pages con IA',
+                'Estrategia de Hooks Persuasivos',
+                'Embudos de Alta Conversión',
+                'Email Marketing & Automatizaciones',
+                'Lanzamientos por WhatsApp',
+                'Acceso VIP a la Academia'
+            ],
+            limitsConfig: DEFAULT_LIMITS
+        };
+
+        const finalTransaction = rawTransaction 
+            || paymentRecord?.transaction_id 
+            || `HP${Date.now().toString().slice(-9)}`;
+
+        const finalAmount = paymentRecord?.amount 
+            || req.query.price 
+            || req.query.amount 
+            || planDetails.priceMonthly;
+
+        const finalCurrency = paymentRecord?.currency 
+            || req.query.currency 
+            || planDetails.currency;
+
+        res.json({
+            success: true,
+            purchase: {
+                transactionId: finalTransaction,
+                status: 'approved',
+                amount: finalAmount,
+                currency: finalCurrency,
+                date: paymentRecord?.created_at || new Date().toISOString(),
+                paymentMethod: paymentRecord?.payment_method || 'Hotmart'
+            },
+            plan: planDetails,
+            buyer: {
+                name: userRecord?.name || rawName || '',
+                email: userRecord?.email || rawEmail || '',
+                isRegistered: !!userRecord,
+                isLoggedIn: !!tokenUserId && (tokenUserId === userRecord?.id)
+            },
+            effectiveLimits: effectiveLimits || planDetails.limitsConfig
+        });
+    } catch (error) {
+        console.error("[Subscription Success Error]", error);
+        res.status(500).json({ error: 'Error al procesar los detalles de la compra' });
+    }
+});
+
+/**
+ * Activación de cuenta directa post-compra en Hotmart.
+ * Permite a un nuevo comprador definir su contraseña y acceder inmediatamente.
+ */
+router.post('/activate-hotmart-account', async (req, res) => {
+    const { email, password, name, transaction } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ error: 'El email y la contraseña son requeridos' });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+    }
+
+    try {
+        const cleanEmail = String(email).trim().toLowerCase();
+        const cleanName = (name || cleanEmail.split('@')[0]).trim();
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        const [existing] = await pool.query('SELECT * FROM users WHERE email = ?', [cleanEmail]);
+
+        let finalUser = null;
+
+        if (existing.length > 0) {
+            // Usuario ya registrado: actualizamos contraseña y activamos
+            const userId = existing[0].id;
+            await pool.query(
+                `UPDATE users SET password_hash = ?, is_active = 1, last_login_at = NOW() WHERE id = ?`,
+                [passwordHash, userId]
+            );
+            const limits = await getEffectiveLimits(userId, true);
+            finalUser = {
+                id: userId.toString(),
+                name: existing[0].name || cleanName,
+                email: cleanEmail,
+                role: existing[0].role || 'user',
+                planLimits: limits,
+                customRedirectUrl: existing[0].custom_redirect_url
+            };
+            await logSystemActivity(userId, finalUser.name, 'HOTMART_ACCOUNT_ACTIVATED', 'user', userId, { email: cleanEmail, transaction });
+        } else {
+            // Usuario nuevo creado desde la página de gracias
+            // Buscar plan Pro como base si no hay plan específico
+            const [proPlans] = await pool.query(`SELECT limits_config FROM plans WHERE slug = 'pro' LIMIT 1`);
+            const defaultLimits = proPlans.length > 0 
+                ? (typeof proPlans[0].limits_config === 'string' ? JSON.parse(proPlans[0].limits_config) : proPlans[0].limits_config)
+                : DEFAULT_LIMITS;
+
+            const [insertResult] = await pool.query(
+                `INSERT INTO users (name, email, password_hash, role, is_active, plan_limits, created_at, last_login_at) 
+                 VALUES (?, ?, ?, 'user', 1, ?, NOW(), NOW())`,
+                [cleanName, cleanEmail, passwordHash, JSON.stringify(defaultLimits)]
+            );
+            const newId = insertResult.insertId;
+
+            // Crear suscripción activa inicial
+            await pool.query(
+                `INSERT INTO user_subscriptions (user_id, plan_slug, status, hotmart_purchase_id, created_at) 
+                 VALUES (?, 'pro', 'active', ?, NOW())`,
+                [newId, transaction || null]
+            );
+
+            // Registrar pago si hay número de transacción
+            if (transaction) {
+                await pool.query(
+                    `INSERT INTO user_payments (user_id, transaction_id, amount, currency, status, payment_method) 
+                     VALUES (?, ?, 0, 'USD', 'approved', 'hotmart')`,
+                    [newId, transaction]
+                );
+            }
+
+            finalUser = {
+                id: newId.toString(),
+                name: cleanName,
+                email: cleanEmail,
+                role: 'user',
+                planLimits: defaultLimits,
+                customRedirectUrl: null
+            };
+            await logSystemActivity(newId, cleanName, 'HOTMART_ACCOUNT_CREATED', 'user', newId, { email: cleanEmail, transaction });
+        }
+
+        const token = createToken(finalUser);
+        res.json({ success: true, user: finalUser, token });
+    } catch (error) {
+        console.error("[Activate Hotmart Account Error]", error);
+        res.status(500).json({ error: 'Error al activar la cuenta' });
+    }
+});
+
 export { router };

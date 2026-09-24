@@ -1,5 +1,6 @@
 
 import pool from './db.js';
+import bcrypt from 'bcryptjs';
 
 /**
  * Maneja el Webhook de Hotmart (Postback)
@@ -55,6 +56,17 @@ export const handleWebhook = async (payload) => {
         if (uRows.length > 0) {
             userId = uRows[0].id;
             console.log(`[Hotmart Webhook] Usuario encontrado por email: ${userId}`);
+        } else if (status === 'approved' || status === 'complete' || event === 'PURCHASE_APPROVED') {
+            // Auto-crear usuario nuevo que compró directamente en Hotmart para no perder la suscripción
+            const buyerName = data.buyer?.name || userEmail.split('@')[0];
+            const tempPassword = Math.random().toString(36).slice(-8) + 'Aa1!';
+            const passwordHash = await bcrypt.hash(tempPassword, 10);
+            const [newUserRes] = await pool.query(
+                "INSERT INTO users (name, email, password_hash, role, is_active, plan_limits) VALUES (?, ?, ?, 'user', 1, ?)",
+                [buyerName, userEmail, passwordHash, JSON.stringify({ planName: 'starter' })]
+            );
+            userId = newUserRes.insertId;
+            console.log(`[Hotmart Webhook] Nuevo usuario creado para ${userEmail} con ID: ${userId}`);
         }
     }
 

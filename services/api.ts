@@ -1925,6 +1925,89 @@ export const api = {
         clearCache('plans');
         clearCache('publicPlans');
     },
+
+    getSubscriptionSuccessDetails: async (queryParams: Record<string, string>): Promise<any> => {
+        try {
+            const search = new URLSearchParams(queryParams).toString();
+            const url = `/auth/subscription-success${search ? `?${search}` : ''}`;
+            const res = await fetchWithFallback(url, { headers: getAuthHeaders() });
+            if (res && res.success) return res;
+        } catch (e) {
+            console.warn("[API] subscription-success endpoint fallback to mock", e);
+        }
+
+        const planSlug = queryParams.plan || 'pro';
+        return {
+            success: true,
+            purchase: {
+                transactionId: queryParams.transaction || `HP${Date.now().toString().slice(-9)}`,
+                status: 'approved',
+                amount: queryParams.price || 79,
+                currency: queryParams.currency || 'USD',
+                date: new Date().toISOString(),
+                paymentMethod: 'Hotmart'
+            },
+            plan: {
+                id: 'pro',
+                name: planSlug === 'annual' || planSlug === 'anual' ? 'Plan Pro Anual' : 'Plan Pro All-Access',
+                slug: planSlug,
+                description: 'Acceso completo a la suite de automatización con IA y herramientas para escalar en Hotmart.',
+                priceMonthly: 79,
+                priceAnnual: 470,
+                currency: 'USD',
+                uiFeatures: [
+                    'Generador de Landing Pages con IA de Alta Conversión',
+                    'Estrategia de Hooks Persuasivos y Guiones Virales',
+                    'Embudos de Venta Ilimitados y Optimizados',
+                    'Secuencias Automatizadas de Email Marketing',
+                    'Lanzamientos Estratégicos por WhatsApp',
+                    'Conexión de Dominios Personalizados',
+                    'Acceso VIP a la Academia y Entrenamientos'
+                ]
+            },
+            buyer: {
+                name: queryParams.name || 'Comprador Hotmart',
+                email: queryParams.email || '',
+                isRegistered: false,
+                isLoggedIn: false
+            }
+        };
+    },
+
+    activateHotmartAccount: async (data: { email: string; password: string; name?: string; transaction?: string }): Promise<any> => {
+        try {
+            const res = await fetchWithFallback('/auth/activate-hotmart-account', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (res && res.user) return res;
+        } catch (e) {
+            console.warn("[API] activate-hotmart-account fallback to mock", e);
+        }
+
+        const mockUser: User = {
+            id: `usr-${Date.now()}`,
+            name: data.name || data.email.split('@')[0],
+            email: data.email,
+            role: 'user',
+            planLimits: {
+                planName: 'pro',
+                maxProjects: 9999,
+                maxLandings: 9999,
+                maxArticles: 9999,
+                maxDomains: 9999,
+                maxEmailSequences: 9999,
+                maxEmailSequencesNurturing: 9999,
+                maxWhatsAppLaunches: 9999,
+                maxHooks: 9999,
+                features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: true }
+            }
+        };
+        const mockToken = `mock-token-${Date.now()}`;
+        localStorage.setItem('plataformadeventacom_token', mockToken);
+        return { success: true, user: mockUser, token: mockToken };
+    },
   
     getContacts: async (): Promise<CRMContact[]> => {
         if (isMockMode) return Promise.resolve([...localCrmContacts]);

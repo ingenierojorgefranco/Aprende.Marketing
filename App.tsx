@@ -13,6 +13,7 @@ import { PublicHome } from "./components/PublicHome";
 import { Login } from "./components/Login";
 import { Register } from "./components/Register";
 import { PublicLandingView } from "./components/PublicLandingView";
+import { SubscriptionSuccessPage } from "./components/SubscriptionSuccessPage";
 ////////// Importación de nuevas páginas legales y contacto - 14/06/2025 01:15 //////////
 import { ContactPage } from "./components/ContactPage";
 import { TermsPage } from "./components/TermsPage";
@@ -304,6 +305,7 @@ const App: React.FC = () => {
     <>
       <Routes>
         {/* RUTAS PÚBLICAS */}
+        <Route path="/suscripcion/exito" element={<SubscriptionSuccessPage user={user} onLogin={handleLoginSubmit} />} />
         <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
         <Route path="/lp/:slug/*" element={<PublicLandingView />} />
 

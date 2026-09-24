@@ -496,6 +496,26 @@ export const AdminPlans: React.FC = () => {
                                          </p>
                                      </div>
 
+                                    {/* URL DE AGRADECIMIENTO POST-COMPRA */}
+                                    <div className="bg-[#1a0f0a]/50 border border-orange-500/30 rounded-xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                                        <div>
+                                            <span className="text-orange-400 font-bold block uppercase tracking-wider text-[10px]">URL de Agradecimiento (Página de Gracias en Hotmart):</span>
+                                            <span className="font-mono text-gray-300 text-[11px] break-all">{typeof window !== 'undefined' ? `${window.location.origin}/suscripcion/exito` : 'https://aprende.marketing/suscripcion/exito'}</span>
+                                            <span className="text-[10px] text-gray-500 block mt-0.5">Configura esta URL en Hotmart como tu página de agradecimiento. El comprador verá los detalles de su orden y plan activo.</span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const url = typeof window !== 'undefined' ? `${window.location.origin}/suscripcion/exito` : 'https://aprende.marketing/suscripcion/exito';
+                                                navigator.clipboard.writeText(url);
+                                                alert("¡URL de agradecimiento copiada!: " + url);
+                                            }}
+                                            className="px-3 py-1.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 border border-orange-500/30 rounded-lg font-bold shrink-0 transition"
+                                        >
+                                            Copiar URL
+                                        </button>
+                                    </div>
+
                                     <div>
                                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Descripción Corta</label>
                                         <textarea 
