@@ -913,9 +913,23 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    alert("Contenido copiado al portapapeles");
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const handleCopyField = (text: string, fieldId: string) => {
+    if (!text || text.trim() === '') return;
+    try {
+      navigator.clipboard.writeText(text);
+      setCopiedField(fieldId);
+      setTimeout(() => {
+        setCopiedField(prev => (prev === fieldId ? null : prev));
+      }, 2500);
+    } catch (e) {
+      console.error("Error al copiar al portapapeles:", e);
+    }
+  };
+
+  const handleCopy = (text: string, fieldId = 'general') => {
+    handleCopyField(text, fieldId);
   };
 
   const maxHooks = user?.maxHooks || planLimits?.maxHooks || 30;
@@ -1324,13 +1338,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 <button
                                     onClick={() => {
                                         const scriptText = currentKit?.script || localTitle || currentHook.title || "";
-                                        navigator.clipboard.writeText(scriptText);
-                                        alert("¡Guión copiado al portapapeles!");
+                                        handleCopyField(scriptText, 'script_top');
                                     }}
-                                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-zinc-200 hover:text-white text-xs font-bold transition-all cursor-pointer shadow-sm ml-auto"
+                                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm ml-auto ${
+                                        copiedField === 'script_top'
+                                            ? 'bg-emerald-600 text-white border border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.35)]'
+                                            : 'bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-zinc-200 hover:text-white'
+                                    }`}
                                 >
-                                    <Copy className="w-3.5 h-3.5" />
-                                    <span>Copiar Guion</span>
+                                    {copiedField === 'script_top' ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
+                                    <span>{copiedField === 'script_top' ? '¡Guión Copiado!' : 'Copiar Guion'}</span>
                                 </button>
                                 <button
                                     onClick={handleDownloadVideo}
@@ -1531,17 +1548,20 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 )}
 
                                 {/* Botones Grandes de Acción de Abajo */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-5 border-t border-white/[0.08]">
+                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-5 border-t border-white/[0.08]">
                                     <button
                                         onClick={() => {
                                             const scriptText = currentKit?.script || localTitle || currentHook.title || "";
-                                            navigator.clipboard.writeText(scriptText);
-                                            alert("¡Guión copiado al portapapeles!");
+                                            handleCopyField(scriptText, 'script_bottom');
                                         }}
-                                        className="w-full py-3.5 px-5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-white/15 text-white text-sm md:text-base font-bold flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-md hover:scale-[1.01]"
+                                        className={`w-full py-3.5 px-5 rounded-xl border text-sm md:text-base font-bold flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-md hover:scale-[1.01] ${
+                                            copiedField === 'script_bottom'
+                                                ? 'bg-emerald-600 text-white border-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.35)]'
+                                                : 'bg-zinc-800 hover:bg-zinc-700 border-white/15 text-white'
+                                        }`}
                                     >
-                                        <Copy className="w-4 h-4 text-zinc-300" />
-                                        <span>Copiar Guion</span>
+                                        {copiedField === 'script_bottom' ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4 text-zinc-300" />}
+                                        <span>{copiedField === 'script_bottom' ? '¡Guión Copiado!' : 'Copiar Guion'}</span>
                                     </button>
                                     <button
                                         onClick={handleDownloadVideo}
@@ -1673,7 +1693,22 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     <div className="space-y-6">
                                         {/* Edit Card 2: Caption / Descripción Sugerida */}
                                         <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
-                                            <label className="text-[11px] font-black text-emerald-400 uppercase tracking-widest block">CAPTION / DESCRIPCIÓN SUGERIDA</label>
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-[11px] font-black text-emerald-400 uppercase tracking-widest block">CAPTION / DESCRIPCIÓN SUGERIDA</label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleCopyField(tempAds, 'edit_caption')}
+                                                    disabled={!tempAds}
+                                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                                        copiedField === 'edit_caption'
+                                                            ? 'bg-emerald-600 text-white border border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.35)]'
+                                                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white border border-white/10'
+                                                    }`}
+                                                >
+                                                    {copiedField === 'edit_caption' ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5 text-zinc-400" />}
+                                                    <span>{copiedField === 'edit_caption' ? '¡Copiado!' : 'Copiar Caption'}</span>
+                                                </button>
+                                            </div>
                                             <textarea 
                                                 value={tempAds}
                                                 onChange={(e) => setTempAds(e.target.value)}
@@ -1685,7 +1720,22 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
                                         {/* Edit Card 3: Comentario Fijado */}
                                         <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
-                                            <label className="text-[11px] font-black text-emerald-400 uppercase tracking-widest block">COMENTARIO FIJADO (DE VALOR)</label>
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-[11px] font-black text-emerald-400 uppercase tracking-widest block">COMENTARIO FIJADO (DE VALOR)</label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleCopyField(tempPinnedComment, 'edit_pinnedComment')}
+                                                    disabled={!tempPinnedComment}
+                                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                                        copiedField === 'edit_pinnedComment'
+                                                            ? 'bg-emerald-600 text-white border border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.35)]'
+                                                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white border border-white/10'
+                                                    }`}
+                                                >
+                                                    {copiedField === 'edit_pinnedComment' ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5 text-zinc-400" />}
+                                                    <span>{copiedField === 'edit_pinnedComment' ? '¡Copiado!' : 'Copiar Comentario'}</span>
+                                                </button>
+                                            </div>
                                             <textarea 
                                                 value={tempPinnedComment}
                                                 onChange={(e) => setTempPinnedComment(e.target.value)}
@@ -1698,39 +1748,110 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 ) : (
                                     <>
                                         {/* Card 2: Caption / Descripción Sugerida */}
-                                        <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-4 text-left">
-                                            <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
-                                                <span className="text-emerald-400 font-bold">CAPTION / DESCRIPCIÓN</span>
-                                                <span className="text-zinc-400 font-bold flex items-center gap-1.5">
-                                                    <Megaphone className="w-3.5 h-3.5 text-zinc-400" />
-                                                    DESCRIPCIÓN SUGERIDA
-                                                </span>
-                                            </div>
-                                            <div className="text-zinc-200 text-sm md:text-base font-normal leading-relaxed whitespace-pre-wrap">
-                                                {(() => {
-                                                    const hookText = localTitle || currentHook.title || "";
-                                                    const originalAds = currentKit?.ads || "";
-                                                    if (hookText && !originalAds.includes(hookText)) {
-                                                        return `${hookText}\n\n${originalAds}`;
-                                                    }
-                                                    return originalAds || "Sin descripción definida";
-                                                })()}
-                                            </div>
-                                        </div>
+                                        {(() => {
+                                            const hookText = localTitle || currentHook.title || "";
+                                            const originalAds = currentKit?.ads || "";
+                                            const captionText = (hookText && !originalAds.includes(hookText))
+                                                ? `${hookText}\n\n${originalAds}`
+                                                : (originalAds || "");
+                                            const isCopied = copiedField === 'caption';
+
+                                            return (
+                                                <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-4 text-left">
+                                                    <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
+                                                        <span className="text-emerald-400 font-bold">CAPTION / DESCRIPCIÓN</span>
+                                                        <span className="text-zinc-400 font-bold flex items-center gap-1.5">
+                                                            <Megaphone className="w-3.5 h-3.5 text-zinc-400" />
+                                                            DESCRIPCIÓN SUGERIDA
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-zinc-200 text-sm md:text-base font-normal leading-relaxed whitespace-pre-wrap">
+                                                        {captionText || "Sin descripción definida"}
+                                                    </div>
+
+                                                    {/* Botón para copiar Caption / Descripción */}
+                                                    <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between gap-3">
+                                                        <span className="text-[11px] text-zinc-400 font-medium hidden sm:inline-block">
+                                                            Copia esta descripción para publicarla en tu video
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleCopyField(captionText, 'caption')}
+                                                            disabled={!captionText}
+                                                            className={`ml-auto inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed ${
+                                                                isCopied
+                                                                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.4)]'
+                                                                    : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white border border-white/10 hover:border-white/20'
+                                                            }`}
+                                                            title="Copiar contenido de Caption / Descripción"
+                                                        >
+                                                            {isCopied ? (
+                                                                <>
+                                                                    <Check className="w-3.5 h-3.5 text-white" />
+                                                                    <span>¡Caption Copiado!</span>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Copy className="w-3.5 h-3.5 text-zinc-400" />
+                                                                    <span>Copiar Caption</span>
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
 
                                         {/* Card 3: Comentario Fijado */}
-                                        <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
-                                            <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
-                                                <span className="text-emerald-400 font-bold">COMENTARIO FIJADO</span>
-                                                <span className="text-emerald-400 font-bold flex items-center gap-1.5">
-                                                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                                                    COMENTARIO DE VALOR
-                                                </span>
-                                            </div>
-                                            <div className="text-zinc-200 text-sm md:text-base font-normal italic leading-relaxed whitespace-pre-wrap">
-                                                {currentKit?.pinnedComment || "Sin comentario fijado"}
-                                            </div>
-                                        </div>
+                                        {(() => {
+                                            const commentText = currentKit?.pinnedComment || "";
+                                            const isCopied = copiedField === 'pinnedComment';
+
+                                            return (
+                                                <div className="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 space-y-3 text-left">
+                                                    <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
+                                                        <span className="text-emerald-400 font-bold">COMENTARIO FIJADO</span>
+                                                        <span className="text-emerald-400 font-bold flex items-center gap-1.5">
+                                                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                                                            COMENTARIO DE VALOR
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-zinc-200 text-sm md:text-base font-normal italic leading-relaxed whitespace-pre-wrap">
+                                                        {commentText || "Sin comentario fijado"}
+                                                    </div>
+
+                                                    {/* Botón para copiar Comentario Fijado */}
+                                                    <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between gap-3">
+                                                        <span className="text-[11px] text-zinc-400 font-medium hidden sm:inline-block">
+                                                            Copia este comentario para fijarlo en tu publicación
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleCopyField(commentText, 'pinnedComment')}
+                                                            disabled={!commentText}
+                                                            className={`ml-auto inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed ${
+                                                                isCopied
+                                                                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.4)]'
+                                                                    : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white border border-white/10 hover:border-white/20'
+                                                            }`}
+                                                            title="Copiar contenido de Comentario Fijado"
+                                                        >
+                                                            {isCopied ? (
+                                                                <>
+                                                                    <Check className="w-3.5 h-3.5 text-white" />
+                                                                    <span>¡Comentario Copiado!</span>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Copy className="w-3.5 h-3.5 text-zinc-400" />
+                                                                    <span>Copiar Comentario</span>
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
                                     </>
                                 )}
 
