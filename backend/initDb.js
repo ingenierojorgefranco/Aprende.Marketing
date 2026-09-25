@@ -708,20 +708,20 @@ const initDb = async () => {
             console.log('[DB Init] 🌱 Insertando planes por defecto...');
             const plans = [
                 {
-                    name: 'Plan 1 (Starter)',
+                    name: 'Plan Free',
                     slug: 'starter',
-                    description: 'Plan base para todos los proyectos.',
+                    description: 'Plan base para probar la plataforma y crear tu primer proyecto.',
                     price: 0,
                     stripeId: '',
                     limits: JSON.stringify({
                         planName: 'starter',
                         maxProjects: 1,
                         maxLandings: 1, 
-                        maxArticles: 2, 
-                        maxDomains: 1, 
-                        maxEmailSequences: 1,
-                        maxWhatsAppLaunches: 1,
-                        maxHooks: 10,
+                        maxArticles: 1, 
+                        maxDomains: 0, 
+                        maxEmailSequences: 0,
+                        maxWhatsAppLaunches: 0,
+                        maxHooks: 3,
                         features: { 
                             whatsappBot: false, 
                             blogGenerator: false, 
@@ -731,172 +731,55 @@ const initDb = async () => {
                             evergreenStrategy: false
                         }
                     }),
-                    features: JSON.stringify(['1 Proyecto Activo', 'Contenidos Limitados', 'Sin Dominio Propio', 'Marca de Agua']),
+                    features: JSON.stringify(['1 Proyecto Activo', '1 Página de Captación', '3 Reels de Prueba al mes con IA', '1 Artículo Mensual de Blog', 'Sin Dominio Propio']),
                     is_rec: false
-                }
-            ];
-
-            // Añadir planes del 1 al 10 (Niveles 2 al 11)
-            for (let i = 1; i <= 10; i++) {
-                plans.push({
-                    name: `Plan Max ${i}`,
-                    slug: `plan-max-${i}`,
-                    description: `Desbloquea el proyecto ${i+1} con todas las funciones profesionales.`,
-                    price: 19.99,
-                    stripeId: '', 
+                },
+                {
+                    name: 'Pro_llimitado',
+                    slug: 'pro',
+                    description: 'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.',
+                    price: 79.00,
+                    stripeId: 'price_1SdGwIRJVKdziYWKRDtjacOl',
                     limits: JSON.stringify({
-                        planName: `plan-max-${i}`,
-                        maxProjects: 1,
-                        maxLandings: 20,
-                        maxArticles: 20,
-                        maxDomains: 3, 
-                        maxEmailSequences: 5,
-                        maxWhatsAppLaunches: 5,
-                        maxHooks: 50,
-                        features: { 
-                            whatsappBot: true, 
-                            blogGenerator: true, 
-                            emailMarketing: true, 
+                        planName: 'pro',
+                        maxProjects: 9999,
+                        maxLandings: 9999,
+                        maxArticles: 9999,
+                        maxDomains: 9999,
+                        maxEmailSequences: 9999,
+                        maxEmailSequencesNurturing: 9999,
+                        maxWhatsAppLaunches: 9999,
+                        maxHooks: 9999,
+                        features: {
+                            whatsappBot: true,
+                            blogGenerator: true,
+                            emailMarketing: true,
                             removeBranding: true,
                             emailStrategy: true,
                             evergreenStrategy: true
                         }
                     }),
-                    features: JSON.stringify([`Proyecto ${i+1} Desbloqueado`, 'Dominios Personalizados', 'Sin Marca de Agua', 'IA Avanzada']),
-                    is_rec: i === 1 // Plan Max 1 es el recomendado por defecto
-                });
-            }
+                    features: JSON.stringify([
+                        'Proyectos y Productos Ilimitados',
+                        'Reels con IA Ilimitados',
+                        'Páginas de Captación y Embudos Ilimitados',
+                        'Dominios Personalizados Ilimitados',
+                        'Email Marketing y Secuencias Ilimitadas',
+                        'Secuencias y Lanzamientos WhatsApp Ilimitados',
+                        'Mentorías Grupales en Vivo Semanales',
+                        'Soporte Prioritario VIP 1 a 1'
+                    ]),
+                    is_rec: true
+                }
+            ];
 
             for (const p of plans) {
                 await connection.query(
-                    `INSERT INTO plans (name, slug, description, price_monthly, stripe_price_id, limits_config, ui_features, is_recommended) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                    `INSERT INTO plans (name, slug, description, price_monthly, stripe_price_id, limits_config, ui_features, is_recommended, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
                     [p.name, p.slug, p.description, p.price, p.stripeId, p.limits, p.features, p.is_rec]
                 );
             }
-        } else {
-            await connection.query(`UPDATE plans SET stripe_price_id = 'price_1SdGwIRJVKdziYWKRDtjacOl' WHERE slug = 'max' AND (stripe_price_id IS NULL OR stripe_price_id = '')`);
         }
-
-        ////////// Migración y Configuración del Modelo Free + Pro ($79/mes Ilimitado) //////////
-        const proLimits = JSON.stringify({
-            planName: 'pro',
-            maxProjects: 9999,
-            maxLandings: 9999,
-            maxArticles: 9999,
-            maxDomains: 9999,
-            maxEmailSequences: 9999,
-            maxEmailSequencesNurturing: 9999,
-            maxWhatsAppLaunches: 9999,
-            maxHooks: 9999,
-            features: {
-                whatsappBot: true,
-                blogGenerator: true,
-                emailMarketing: true,
-                removeBranding: true,
-                emailStrategy: true,
-                evergreenStrategy: true
-            }
-        });
-
-        const proUiFeatures = JSON.stringify([
-            'Proyectos y Productos Ilimitados',
-            'Reels con IA Ilimitados',
-            'Páginas de Captación y Embudos Ilimitados',
-            'Dominios Personalizados Ilimitados',
-            'Email Marketing y Secuencias Ilimitadas',
-            'Secuencias y Lanzamientos WhatsApp Ilimitados',
-            'Mentorías Grupales en Vivo Semanales',
-            'Soporte Prioritario VIP 1 a 1'
-        ]);
-
-        const [proPlanExists] = await connection.query("SELECT id FROM plans WHERE slug = 'pro'");
-        if (proPlanExists.length === 0) {
-            await connection.query(
-                `INSERT INTO plans (name, slug, description, price_monthly, price_annual, currency, stripe_price_id, limits_config, ui_features, is_active, is_recommended)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1)`,
-                [
-                    'Pro_llimitado',
-                    'pro',
-                    'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.',
-                    79.00,
-                    708.00,
-                    'USD',
-                    'price_1SdGwIRJVKdziYWKRDtjacOl',
-                    proLimits,
-                    proUiFeatures
-                ]
-            );
-        } else {
-            await connection.query(
-                `UPDATE plans SET name = 'Pro_llimitado', price_monthly = 79.00, price_annual = 708.00, currency = 'USD', description = 'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.', limits_config = ?, ui_features = ?, is_active = 1, is_recommended = 1 WHERE slug = 'pro'`,
-                [proLimits, proUiFeatures]
-            );
-        }
-
-        // Plan Pro Mensual (Imagen 1)
-        const [proMensualExists] = await connection.query("SELECT id FROM plans WHERE slug = 'pro_mensual'");
-        if (proMensualExists.length === 0) {
-            await connection.query(
-                `INSERT INTO plans (name, slug, description, price_monthly, price_annual, currency, limits_config, ui_features, is_active, is_recommended)
-                 VALUES ('Pro_llimitado', 'pro_mensual', 'Acceso mensual completo a todas las herramientas ilimitadas con renovación cada 30 días.', 79.00, 708.00, 'USD', ?, ?, 1, 1)`,
-                [proLimits, proUiFeatures]
-            );
-        } else {
-            await connection.query(
-                `UPDATE plans SET name = 'Pro_llimitado', price_monthly = 79.00, price_annual = 708.00, currency = 'USD', limits_config = ?, ui_features = ?, is_active = 1 WHERE slug = 'pro_mensual'`,
-                [proLimits, proUiFeatures]
-            );
-        }
-
-        // Plan Pro Anual (Imagen 2)
-        const [proAnualExists] = await connection.query("SELECT id FROM plans WHERE slug = 'pro_anual'");
-        if (proAnualExists.length === 0) {
-            await connection.query(
-                `INSERT INTO plans (name, slug, description, price_monthly, price_annual, currency, limits_config, ui_features, is_active, is_recommended)
-                 VALUES ('Pro_llimitado', 'pro_anual', 'Acceso anual VIP completo a todas las herramientas ilimitadas con renovación cada 365 días.', 59.00, 708.00, 'USD', ?, ?, 1, 1)`,
-                [proLimits, proUiFeatures]
-            );
-        } else {
-            await connection.query(
-                `UPDATE plans SET name = 'Pro_llimitado', price_monthly = 59.00, price_annual = 708.00, currency = 'USD', limits_config = ?, ui_features = ?, is_active = 1 WHERE slug = 'pro_anual'`,
-                [proLimits, proUiFeatures]
-            );
-        }
-
-        // Actualizar el plan Starter para reflejar el plan gratuito
-        const freeLimits = JSON.stringify({
-            planName: 'starter',
-            maxProjects: 1,
-            maxLandings: 1,
-            maxArticles: 1,
-            maxDomains: 0,
-            maxEmailSequences: 0,
-            maxEmailSequencesNurturing: 0,
-            maxWhatsAppLaunches: 0,
-            maxHooks: 3,
-            features: {
-                whatsappBot: false,
-                blogGenerator: false,
-                emailMarketing: false,
-                removeBranding: false,
-                emailStrategy: false,
-                evergreenStrategy: false
-            }
-        });
-        const freeUiFeatures = JSON.stringify([
-            '1 Proyecto Activo',
-            '1 Página de Captación',
-            '3 Reels de Prueba al mes con IA',
-            '1 Artículo Mensual de Blog',
-            'Sin Dominio Propio'
-        ]);
-        await connection.query(
-            `UPDATE plans SET name = 'Plan Free', price_monthly = 0, currency = 'USD', description = 'Plan base para probar la plataforma y crear tu primer proyecto.', limits_config = ?, ui_features = ?, is_active = 1, is_recommended = 0 WHERE slug = 'starter'`,
-            [freeLimits, freeUiFeatures]
-        );
-
-        // Desactivar planes que no sean starter, pro, pro_mensual ni pro_anual
-        await connection.query(`UPDATE plans SET is_active = 0 WHERE slug NOT IN ('starter', 'pro', 'pro_mensual', 'pro_anual')`);
         ////////// Fin de configuración de planes //////////
 
         // --- DATOS SEMILLA (SEED DATA) ---

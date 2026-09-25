@@ -197,7 +197,8 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
                 }
             }
 
-            const limits = isUserCustom ? customLimitsObj : (planDefinitions[effectivePlanSlug] || DEFAULT_LIMITS);
+            const isSlotStarter = effectivePlanSlug === 'starter';
+            const limits = (isUserCustom && !isSlotStarter) ? customLimitsObj : (planDefinitions[effectivePlanSlug] || DEFAULT_LIMITS);
             projectLimits[proj.id] = { ...limits, planName: effectivePlanSlug, isBlocked };
             projectStatus[proj.id] = { planName: effectivePlanSlug, isBlocked };
         });
@@ -220,7 +221,12 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
             features: { ...DEFAULT_LIMITS.features }
         };
 
-        if (isUserCustom) {
+        let activeIsUserCustom = isUserCustom;
+        if (!hasPremiumPlans) {
+            activeIsUserCustom = false;
+        }
+
+        if (activeIsUserCustom) {
             summary.maxProjects = customLimitsObj.maxProjects || 0;
             summary.maxLandings = customLimitsObj.maxLandings || 0;
             summary.maxArticles = customLimitsObj.maxArticles || 0;
