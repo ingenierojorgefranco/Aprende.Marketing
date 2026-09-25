@@ -180,21 +180,13 @@ export const handleWebhook = async (payload) => {
         
         console.log(`[Hotmart Webhook] Planes encontrados en DB para Producto ${productId}: ${planRows.length}`);
         
-        let plan = null;
-        if (planRows.length > 0) {
-            plan = planRows[0];
-            console.log(`[Hotmart Webhook] Plan seleccionado por ID/Oferta: ${plan.slug} (ID: ${plan.id})`);
-        } else {
-            console.log(`[Hotmart Webhook] No hubo coincidencia por Hotmart ID (${productId}) u Oferta (${offerCode}), usando fallback automático al Plan Pro`);
-            const [fallbackPlans] = await pool.query("SELECT id, limits_config, slug FROM plans WHERE slug = 'pro' OR is_recommended = 1 LIMIT 1");
-            if (fallbackPlans.length > 0) {
-                plan = fallbackPlans[0];
-            } else {
-                console.error(`[Hotmart Error] No hay ningún plan Pro en base de datos.`);
-                return;
-            }
+        if (planRows.length === 0) {
+            console.error(`[Hotmart Error] No hay ningún plan configurado con el Hotmart ID: ${productId} y Oferta: ${offerCode}`);
+            return;
         }
 
+        const plan = planRows[0];
+        console.log(`[Hotmart Webhook] Plan seleccionado: ${plan.slug} (ID: ${plan.id})`);
         const limitsConfig = typeof plan.limits_config === 'string' 
             ? JSON.parse(plan.limits_config) 
             : plan.limits_config;

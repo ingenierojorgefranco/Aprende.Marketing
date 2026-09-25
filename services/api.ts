@@ -2159,64 +2159,6 @@ export const api = {
             headers: getAuthHeaders()
         });
     },
-
-    sendHotmartWebhookTest: async (type: 'mensual' | 'anual', email?: string, name?: string): Promise<any> => {
-        const isAnnual = type === 'anual';
-        const tx = `HP${Date.now().toString().slice(-9)}`;
-        const buyerEmail = email || `test_${type}_${Date.now().toString().slice(-4)}@aprende.marketing`;
-        const buyerName = name || "Jorge Alberto Franco";
-        const payload = {
-            id: `test-webhook-${Date.now()}`,
-            creation_date: Date.now(),
-            event: "PURCHASE_APPROVED",
-            version: "2.0.0",
-            data: {
-                product: {
-                    id: isAnnual ? "998877" : "112233",
-                    name: isAnnual ? "Pro_Ilimitado Anual" : "Pro_Ilimitado Mensual"
-                },
-                purchase: {
-                    transaction: tx,
-                    status: "APPROVED",
-                    order_date: Date.now(),
-                    price: {
-                        value: isAnnual ? 708.0 : 79.0,
-                        currency_value: "USD"
-                    },
-                    payment: {
-                        type: "CREDIT_CARD"
-                    },
-                    origin: {
-                        src: "traffic_webhook_test"
-                    }
-                },
-                buyer: {
-                    name: buyerName,
-                    email: buyerEmail,
-                    checkout_phone: "+57 300 123 4567"
-                },
-                affiliate: {
-                    code: "L43619849X"
-                },
-                subscription: {
-                    subscriber: {
-                        code: `SUB-${Date.now().toString().slice(-6)}`
-                    }
-                }
-            },
-            Plan_nombre: isAnnual ? "Pro_Ilimitado Anual" : "Pro_Ilimitado Mensual",
-            Plan_Periodicidad: isAnnual ? "anual" : "mensual",
-            Plan_Precio: isAnnual ? 708 : 79,
-            Plan_Dias: isAnnual ? 365 : 30
-        };
-
-        const res = await fetch('/api/hotmart/webhook', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        return await res.json();
-    },
   
     getContacts: async (): Promise<CRMContact[]> => {
         if (isMockMode) return Promise.resolve([...localCrmContacts]);
