@@ -456,7 +456,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (!hook || !projectId || !(hook as any).masterHookId) return;
     
     if (!isRealAdmin && currentHooksCount >= maxHooks) {
-        alert("Límite de ganchos alcanzado. Por favor, actualiza tu plan para desbloquear más.");
+        alert("Has alcanzado el límite global de ganchos de tu plan. Actualiza tu plan para desbloquear más.");
         return;
     }
 
@@ -1095,7 +1095,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             <div className="w-full mb-6">
               <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                 <div className="flex justify-between items-center mb-2 text-sm">
-                  <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Hooks Disponibles este mes</span>
+                  <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Bolsa Global de Hooks (Compartida en todos tus proyectos)</span>
                   <span className="text-white font-bold">{currentHooksCount} / {isRealAdmin ? '∞' : maxHooks}</span>
                 </div>
                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
@@ -1892,12 +1892,12 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                       <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirmar Consumo de Créditos</h3>
                       <p className="text-gray-400 text-lg leading-relaxed font-medium">
                         {(!isRealAdmin && currentHooksCount >= maxHooks) 
-                          ? "Has alcanzado el límite de ganchos de tu plan actual. Actualiza tu plan para continuar."
-                          : "Al desbloquear este gancho estratégico se consumirá 1 crédito de tu plan actual."}
+                          ? "Has alcanzado el límite global de ganchos de tu plan actual. Actualiza tu plan para continuar."
+                          : "Al desbloquear este gancho estratégico se consumirá 1 crédito de tu bolsa global de ganchos."}
                       </p>
                       <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left">
                           <div className="flex justify-between items-center mb-3">
-                              <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Créditos de Ganchos</span>
+                              <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Bolsa Global de Ganchos</span>
                               <span className="text-white font-mono font-bold text-sm">{currentHooksCount} / {isRealAdmin ? '∞' : maxHooks}</span>
                           </div>
                           <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">

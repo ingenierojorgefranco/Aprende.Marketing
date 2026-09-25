@@ -185,8 +185,12 @@ export const handleWebhook = async (payload, query = {}) => {
             ? JSON.parse(plan.limits_config) 
             : (plan.limits_config || {});
 
+        // Si la compra es anual y el plan tiene configurados límites anuales específicos, los aplicamos:
+        const annualOverrides = (trackingInfo.isAnnual && baseLimits.annual) ? baseLimits.annual : {};
+
         const limitsConfig = {
             ...baseLimits,
+            ...annualOverrides,
             planName: 'pro',
             planSlug: assignedSlug,
             planDisplayName: trackingInfo.planNombre,

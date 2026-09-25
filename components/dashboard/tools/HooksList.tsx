@@ -83,21 +83,6 @@ export const HooksList: React.FC = () => {
     };
 
     const handleProjectSelect = (projectId: string) => {
-        const project = userProjects.find(p => p.id === projectId);
-        const planSlug = project?.planSlug || 'starter';
-        
-        // Buscar el plan correspondiente para obtener el límite real
-        const projectPlan = allPlans.find(p => p.slug === planSlug);
-        const limit = projectPlan?.limitsConfig?.maxHooks || (planSlug === 'starter' ? 10 : 50);
-        
-        const projectHookCount = hooks.filter(h => (h as any).project_id === projectId || h.projectId === projectId).length;
-
-        if (user.role !== 'admin' && projectHookCount >= limit) {
-            setUpgradeProjectId(projectId);
-            setShowUpgradeModal(true);
-            return;
-        }
-
         // Redirigir a la estrategia del proyecto en la sección de hooks
         navigate(`/dashboard/projects/${projectId}/strategy?section=hooks`);
     };
@@ -167,7 +152,7 @@ export const HooksList: React.FC = () => {
                         {/* Plan Usage Bar */}
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
                             <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Ganchos Desbloqueados</span>
+                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Ganchos Desbloqueados (Bolsa Global)</span>
                                 <span className="text-white font-bold">{hookCount} / {isRealAdmin ? '∞' : maxHooks}</span>
                             </div>
                             <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">

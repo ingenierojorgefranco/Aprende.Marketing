@@ -120,6 +120,18 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const [showRestrictionModal, setShowRestrictionModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
+    const [globalArticleCount, setGlobalArticleCount] = useState<number | null>(null);
+
+    const fetchGlobalArticleCount = async () => {
+        try {
+            const summary = await api.getAnalyticsSummary();
+            if (summary && typeof summary.totalArticles === 'number') {
+                setGlobalArticleCount(summary.totalArticles);
+            }
+        } catch (e) {
+            console.error("Error fetching global article count:", e);
+        }
+    };
 
     const loadLocalData = async (targetTitle?: string) => {
         if (!projectId) return;
@@ -267,6 +279,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
     useEffect(() => {
         loadLocalData();
+        fetchGlobalArticleCount();
     }, [projectId, contentData]);
 
     useEffect(() => {
@@ -546,6 +559,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const handleCloseAndReload = async () => {
         setShowGeneratorModal(false);
         await loadLocalData();
+        await fetchGlobalArticleCount();
         setActiveTab('generated');
         setActiveGeneratedArticle(0);
         setCurrentPage(1);
@@ -662,6 +676,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
             await api.updateArticle(savedId, articlePayload as any);
             await loadLocalData(finalTitle);
+            await fetchGlobalArticleCount();
             
             // Forzar selección automática del artículo generado e ir a la pestaña "Contenidos Generados"
             setActiveTab('generated');
@@ -704,6 +719,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     }
                 }
                 await loadLocalData();
+                await fetchGlobalArticleCount();
                 setActiveArticleIdx(0);
                 alert("Artículo eliminado correctamente.");
             } catch (e: any) {
@@ -715,10 +731,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     };
 
     const maxArticles = planLimits?.maxArticles || user?.planLimits?.maxArticles || 2;
-    const currentArticleCount = linkedArticles.filter(a => a.isGenerated || a.isUnlocked).length;
+    const currentArticleCount = typeof globalArticleCount === 'number' 
+        ? globalArticleCount 
+        : (typeof context?.articleCount === 'number' ? context.articleCount : linkedArticles.filter(a => a.isGenerated || a.isUnlocked).length);
     const isAtLimit = !isRealAdmin && !api.isUsingMockData() && currentArticleCount >= maxArticles;
 
-    const usagePercent = Math.min(100, (currentArticleCount / maxArticles) * 100);
+    const usagePercent = maxArticles > 0 ? Math.min(100, (currentArticleCount / maxArticles) * 100) : 0;
     let progressColor = "bg-green-500";
     if (usagePercent > 50) progressColor = "bg-yellow-500";
     if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
@@ -778,7 +796,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             <div className="w-full mb-6">
                                 <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                                     <div className="flex justify-between items-center mb-2 text-sm">
-                                        <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Artículos Generados/Desbloqueados</span>
+                                        <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Bolsa Global de Artículos (Compartida en todos tus proyectos)</span>
                                         <span className="text-white font-bold">{currentArticleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                                     </div>
                                     <div className="w-full bg-black/50 h-2.5 rounded-full overflow-hidden shadow-inner">
@@ -1088,7 +1106,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         "Como Administrador tienes acceso ilimitado para redactar todos los artículos que desees."
                                     ) : (
                                         <>
-                                            Tienes disponible la creación de <strong className="text-orange-500 font-black text-lg sm:text-xl px-1">{Math.max(0, maxArticles - currentArticleCount)} {Math.max(0, maxArticles - currentArticleCount) === 1 ? 'artículo' : 'artículos'}</strong> en tu plan actual.
+                                            Tienes disponible la creación de <strong className="text-orange-500 font-black text-lg sm:text-xl px-1">{Math.max(0, maxArticles - currentArticleCount)} {Math.max(0, maxArticles - currentArticleCount) === 1 ? 'artículo' : 'artículos'}</strong> en tu bolsa global.
                                         </>
                                     )}
                                 </p>
@@ -1096,7 +1114,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
                             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-4 shadow-inner text-left">
                                 <div className="flex justify-between items-center text-sm font-semibold">
-                                    <span className="text-zinc-300 font-black uppercase tracking-widest text-xs">Artículos de tu Plan</span>
+                                    <span className="text-zinc-300 font-black uppercase tracking-widest text-xs">Bolsa Global de Artículos</span>
                                     <span className="text-orange-400 font-black text-sm sm:text-base">{currentArticleCount} de {isRealAdmin ? 'Ilimitados' : maxArticles} redactados</span>
                                 </div>
                                 <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
@@ -1132,7 +1150,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             </div>
                             <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-inner text-left">
                                 <div className="flex justify-between items-center mb-3">
-                                    <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Consumo de Artículos</span>
+                                    <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Bolsa Global de Artículos</span>
                                     <span className="text-white font-bold text-sm">{currentArticleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">

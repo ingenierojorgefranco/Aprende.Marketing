@@ -221,12 +221,13 @@ router.post('/unlock-single', async (req, res) => {
         if (req.user.role !== 'admin') {
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
-                FROM project_hooks
-                WHERE project_id = ?
-            `, [projectId]);
+                FROM project_hooks h
+                JOIN projects p ON h.project_id = p.id
+                WHERE p.user_id = ?
+            `, [req.user.id]);
             
             if (countRows[0].total >= maxAllowed) {
-                return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} ganchos para este proyecto.` });
+                return res.status(403).json({ error: `Has alcanzado el límite global de ${maxAllowed} ganchos de tu plan.` });
             }
         }
 
@@ -275,12 +276,13 @@ router.post('/unlock-multiple', async (req, res) => {
         if (req.user.role !== 'admin') {
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
-                FROM project_hooks
-                WHERE project_id = ?
-            `, [projectId]);
+                FROM project_hooks h
+                JOIN projects p ON h.project_id = p.id
+                WHERE p.user_id = ?
+            `, [req.user.id]);
             
             if (countRows[0].total + cleanMasterHookIds.length > maxAllowed) {
-                return res.status(403).json({ error: `Esta acción superaría el límite de ${maxAllowed} ganchos para este proyecto.` });
+                return res.status(403).json({ error: `Esta acción superaría tu límite global de ${maxAllowed} ganchos.` });
             }
         }
 
@@ -323,14 +325,15 @@ router.post('/unlock-more/:projectId', async (req, res) => {
         if (req.user.role !== 'admin') {
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
-                FROM project_hooks
-                WHERE project_id = ?
-            `, [projectId]);
+                FROM project_hooks h
+                JOIN projects p ON h.project_id = p.id
+                WHERE p.user_id = ?
+            `, [req.user.id]);
             
             const remaining = maxAllowed - countRows[0].total;
             
             if (remaining <= 0) {
-                return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} ganchos para este proyecto.` });
+                return res.status(403).json({ error: `Has alcanzado el límite global de ${maxAllowed} ganchos de tu plan.` });
             }
             maxToLoad = Math.min(10, remaining);
         }
@@ -459,12 +462,13 @@ router.post('/', async (req, res) => {
         if (req.user.role !== 'admin') {
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
-                FROM project_hooks
-                WHERE project_id = ?
-            `, [projectId]);
+                FROM project_hooks h
+                JOIN projects p ON h.project_id = p.id
+                WHERE p.user_id = ?
+            `, [req.user.id]);
             
             if (countRows[0].total >= maxAllowed) {
-                return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} ganchos para este proyecto.` });
+                return res.status(403).json({ error: `Has alcanzado el límite global de ${maxAllowed} ganchos de tu plan.` });
             }
         }
 

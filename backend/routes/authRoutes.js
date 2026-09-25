@@ -233,8 +233,12 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
                 summary.features = { ...DEFAULT_LIMITS.features, ...customLimitsObj.features };
             }
         } else {
+            const isAnnualUser = (primarySub?.periodicity === 'Anual' || primarySub?.plan_days >= 300 || primarySub?.plan_slug === 'pro_anual');
             relevantSlugs.forEach(slug => {
-                const limits = planDefinitions[slug] || DEFAULT_LIMITS;
+                const basePlanLimits = planDefinitions[slug] || DEFAULT_LIMITS;
+                const limits = ((isAnnualUser || slug === 'pro_anual') && basePlanLimits.annual) 
+                    ? { ...basePlanLimits, ...basePlanLimits.annual } 
+                    : basePlanLimits;
                 
                 // Sum up global capacities (Inventory based)
                 summary.maxProjects += (limits.maxProjects || 0);

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Plan, PlanLimits, User, Project } from '../../../types';
 import { api } from '../../../services/api';
 /* Added LayoutTemplate to fix the 'Cannot find name LayoutTemplate' error - 25/05/2025 18:45 */
-import { Loader2, Plus, Edit, Trash2, CheckCircle, XCircle, Save, X, Star, CreditCard, Tag, Sparkles, LayoutTemplate, User as UserIcon, Search, Power, DollarSign } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, CheckCircle, XCircle, Save, X, Star, CreditCard, Tag, Sparkles, LayoutTemplate, User as UserIcon, Search, Power, DollarSign, Calendar, Copy, Layers, Globe, FileText, Send, MessageSquare, Zap } from 'lucide-react';
 
 const DEFAULT_LIMITS: PlanLimits = {
     planName: 'custom',
@@ -22,6 +22,16 @@ const DEFAULT_LIMITS: PlanLimits = {
         removeBranding: false,
         emailStrategy: false,
         evergreenStrategy: false
+    },
+    annual: {
+        maxProjects: 12,
+        maxLandings: 12,
+        maxArticles: 12,
+        maxDomains: 12,
+        maxEmailSequences: 3,
+        maxEmailSequencesNurturing: 15,
+        maxWhatsAppLaunches: 3,
+        maxHooks: 36
     }
 };
 
@@ -30,6 +40,66 @@ export const AdminPlans: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [editingPlan, setEditingPlan] = useState<Partial<Plan> | null>(null);
     const [activeTab, setActiveTab] = useState<'general' | 'limits' | 'features'>('general');
+    const [limitsSubTab, setLimitsSubTab] = useState<'monthly' | 'annual'>('monthly');
+
+    // Helpers para gestión unificada de Límites Mensuales vs Anuales
+    const getLimitValue = (field: keyof PlanLimits, defaultVal = 0): number => {
+        if (!editingPlan?.limitsConfig) return defaultVal;
+        if (limitsSubTab === 'monthly') {
+            return (editingPlan.limitsConfig[field] as number) ?? defaultVal;
+        } else {
+            const annualObj = editingPlan.limitsConfig.annual as any;
+            if (annualObj && annualObj[field] !== undefined && annualObj[field] !== null) {
+                return annualObj[field] as number;
+            }
+            return (editingPlan.limitsConfig[field] as number) ?? defaultVal;
+        }
+    };
+
+    const updateLimitField = (field: keyof PlanLimits, value: number) => {
+        if (!editingPlan?.limitsConfig) return;
+        if (limitsSubTab === 'monthly') {
+            setEditingPlan({
+                ...editingPlan,
+                limitsConfig: {
+                    ...editingPlan.limitsConfig,
+                    [field]: value
+                }
+            });
+        } else {
+            setEditingPlan({
+                ...editingPlan,
+                limitsConfig: {
+                    ...editingPlan.limitsConfig,
+                    annual: {
+                        ...(editingPlan.limitsConfig.annual || {}),
+                        [field]: value
+                    }
+                }
+            });
+        }
+    };
+
+    const copyMonthlyToAnnual = (multiplier = 1) => {
+        if (!editingPlan?.limitsConfig) return;
+        const m = editingPlan.limitsConfig;
+        setEditingPlan({
+            ...editingPlan,
+            limitsConfig: {
+                ...m,
+                annual: {
+                    maxProjects: (m.maxProjects || 1) * multiplier,
+                    maxLandings: (m.maxLandings || 1) * multiplier,
+                    maxDomains: (m.maxDomains || 1) * multiplier,
+                    maxArticles: (m.maxArticles || 1) * (multiplier > 1 ? 12 : 1),
+                    maxEmailSequences: (m.maxEmailSequences || 1) * multiplier,
+                    maxEmailSequencesNurturing: m.maxEmailSequencesNurturing || 15,
+                    maxWhatsAppLaunches: (m.maxWhatsAppLaunches || 1) * multiplier,
+                    maxHooks: (m.maxHooks || 10) * (multiplier > 1 ? 12 : 1)
+                }
+            }
+        });
+    };
 
     // --- Gestión de Proyectos de Usuarios ---
     const [users, setUsers] = useState<User[]>([]);
@@ -131,17 +201,38 @@ export const AdminPlans: React.FC = () => {
             hotmartIdAnnual: '',
             hotmartOfferAnnual: '',
             hotmartCheckoutModeAnnual: '',
-            limitsConfig: { ...DEFAULT_LIMITS },
+            limitsConfig: { 
+                ...DEFAULT_LIMITS,
+                annual: { ...(DEFAULT_LIMITS.annual || {}) }
+            },
             uiFeatures: [],
             isActive: true,
             isRecommended: false
         });
         setActiveTab('general');
+        setLimitsSubTab('monthly');
     };
 
     const handleEdit = (plan: Plan) => {
         // Ensure defaults if missing properties
-        const safeLimits = { ...DEFAULT_LIMITS, ...plan.limitsConfig, features: { ...DEFAULT_LIMITS.features, ...plan.limitsConfig.features } };
+        const rawLimits = plan.limitsConfig || {};
+        const rawAnnual = (rawLimits as any).annual || {};
+
+        const safeLimits: PlanLimits = { 
+            ...DEFAULT_LIMITS, 
+            ...rawLimits, 
+            features: { ...DEFAULT_LIMITS.features, ...(rawLimits.features || {}) },
+            annual: {
+                maxProjects: rawAnnual.maxProjects !== undefined ? rawAnnual.maxProjects : (rawLimits.maxProjects ? rawLimits.maxProjects * 4 : 12),
+                maxLandings: rawAnnual.maxLandings !== undefined ? rawAnnual.maxLandings : (rawLimits.maxLandings ? rawLimits.maxLandings * 4 : 12),
+                maxDomains: rawAnnual.maxDomains !== undefined ? rawAnnual.maxDomains : (rawLimits.maxDomains ? rawLimits.maxDomains * 4 : 12),
+                maxArticles: rawAnnual.maxArticles !== undefined ? rawAnnual.maxArticles : (rawLimits.maxArticles ? rawLimits.maxArticles * 4 : 12),
+                maxEmailSequences: rawAnnual.maxEmailSequences !== undefined ? rawAnnual.maxEmailSequences : (rawLimits.maxEmailSequences ?? 3),
+                maxEmailSequencesNurturing: rawAnnual.maxEmailSequencesNurturing !== undefined ? rawAnnual.maxEmailSequencesNurturing : (rawLimits.maxEmailSequencesNurturing ?? 15),
+                maxWhatsAppLaunches: rawAnnual.maxWhatsAppLaunches !== undefined ? rawAnnual.maxWhatsAppLaunches : (rawLimits.maxWhatsAppLaunches ?? 3),
+                maxHooks: rawAnnual.maxHooks !== undefined ? rawAnnual.maxHooks : (rawLimits.maxHooks ? rawLimits.maxHooks * 4 : 36)
+            }
+        };
         if (safeLimits.maxDomains === undefined) safeLimits.maxDomains = 1;
         if (safeLimits.maxEmailSequences === undefined) safeLimits.maxEmailSequences = 1;
         if (safeLimits.maxEmailSequencesNurturing === undefined) safeLimits.maxEmailSequencesNurturing = 15;
@@ -160,6 +251,7 @@ export const AdminPlans: React.FC = () => {
             limitsConfig: safeLimits 
         });
         setActiveTab('general');
+        setLimitsSubTab('monthly');
     };
 
     const handleDelete = async (id: string) => {
@@ -549,119 +641,181 @@ export const AdminPlans: React.FC = () => {
 
                             {activeTab === 'limits' && editingPlan.limitsConfig && (
                                 <>
-                                    <div className="bg-blue-900/20 p-4 rounded-lg border border-blue-900/50 mb-4">
-                                        <p className="text-xs text-blue-300">Estos límites se aplican automáticamente en la lógica del sistema.</p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Proyectos</label>
-                                            <input 
-                                                type="number" 
-                                                value={editingPlan.limitsConfig.maxProjects} 
-                                                onChange={(e) => setEditingPlan({
-                                                    ...editingPlan, 
-                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxProjects: parseInt(e.target.value) }
-                                                })}
-                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Landings</label>
-                                            <input 
-                                                type="number" 
-                                                value={editingPlan.limitsConfig.maxLandings} 
-                                                onChange={(e) => setEditingPlan({
-                                                    ...editingPlan, 
-                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxLandings: parseInt(e.target.value) }
-                                                })}
-                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
-                                            />
-                                        </div>
+                                    {/* Selector de periodo: Mensual vs Anual */}
+                                    <div className="flex bg-black/50 p-1.5 rounded-2xl border border-gray-800 mb-5 gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setLimitsSubTab('monthly')}
+                                            className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                                                limitsSubTab === 'monthly'
+                                                    ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/30'
+                                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                            }`}
+                                        >
+                                            <Calendar className="w-4 h-4" /> Límites Plan Mensual (30 días)
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setLimitsSubTab('annual')}
+                                            className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                                                limitsSubTab === 'annual'
+                                                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30'
+                                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                            }`}
+                                        >
+                                            <Sparkles className="w-4 h-4 text-amber-200" /> Límites Plan Anual (365 días)
+                                        </button>
                                     </div>
 
-                                    {/* NEW: Max Domains & Articles & Email Sequences & WA Launches & Hooks Input */}
-                                    <div className="grid grid-cols-2 gap-4 mt-4">
+                                    {/* Banner contextual explicativo */}
+                                    {limitsSubTab === 'monthly' ? (
+                                        <div className="bg-blue-900/20 p-4 rounded-xl border border-blue-500/30 mb-5 flex items-center justify-between">
+                                            <div>
+                                                <p className="text-xs font-bold text-blue-300">Configurando límites para suscriptores en cobro Mensual.</p>
+                                                <p className="text-[11px] text-gray-400 mt-0.5">Se aplican automáticamente cuando el cliente paga la suscripción recurrente mensual (ej: $79 USD).</p>
+                                            </div>
+                                            <span className="px-2.5 py-1 bg-blue-500/20 text-blue-300 text-[10px] font-black uppercase tracking-wider rounded-lg border border-blue-500/30 shrink-0">
+                                                Ciclo: 30 días
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <div className="bg-gradient-to-r from-amber-950/40 to-orange-950/40 p-4 rounded-xl border border-amber-500/40 mb-5 space-y-3">
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                                <div>
+                                                    <p className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                                                        <Sparkles className="w-3.5 h-3.5" /> Límites exclusivos para suscriptores en cobro Anual.
+                                                    </p>
+                                                    <p className="text-[11px] text-gray-400 mt-0.5">Se aplican cuando el cliente paga la suscripción anual completa (ej: $708 USD / 365 días).</p>
+                                                </div>
+                                                <span className="px-2.5 py-1 bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-wider rounded-lg border border-amber-500/40 shrink-0 self-start sm:self-auto">
+                                                    Ciclo: 365 días
+                                                </span>
+                                            </div>
+                                            <div className="pt-2 border-t border-amber-500/20 flex flex-wrap gap-2 items-center">
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Acciones rápidas:</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => copyMonthlyToAnnual(1)}
+                                                    className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-white rounded-lg text-[10px] font-bold transition flex items-center gap-1 border border-white/10"
+                                                >
+                                                    <Copy className="w-3 h-3 text-gray-400" /> Copiar valores de mensual
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => copyMonthlyToAnnual(4)}
+                                                    className="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-lg text-[10px] font-bold transition flex items-center gap-1 border border-amber-500/30"
+                                                >
+                                                    <Sparkles className="w-3 h-3 text-amber-300" /> Multiplicar x4 Proyectos/Dominios
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Grid de campos técnicos */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Dominios Personalizados</label>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                                Máx Proyectos ({limitsSubTab === 'monthly' ? 'Mensual' : 'Anual'})
+                                            </label>
                                             <input 
                                                 type="number" 
-                                                value={editingPlan.limitsConfig.maxDomains || 0} 
-                                                onChange={(e) => setEditingPlan({
-                                                    ...editingPlan, 
-                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxDomains: parseInt(e.target.value) }
-                                                })}
-                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-green-500 outline-none"
+                                                value={getLimitValue('maxProjects', 1)} 
+                                                onChange={(e) => updateLimitField('maxProjects', parseInt(e.target.value) || 0)}
+                                                className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2 text-white outline-none focus:border-orange-500 transition"
+                                            />
+                                            <p className="text-[10px] text-gray-500 mt-1">Negocios digitales creados simultáneamente.</p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                                Máx Landings ({limitsSubTab === 'monthly' ? 'Mensual' : 'Anual'})
+                                            </label>
+                                            <input 
+                                                type="number" 
+                                                value={getLimitValue('maxLandings', 1)} 
+                                                onChange={(e) => updateLimitField('maxLandings', parseInt(e.target.value) || 0)}
+                                                className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2 text-white outline-none focus:border-orange-500 transition"
+                                            />
+                                            <p className="text-[10px] text-gray-500 mt-1">Páginas de captura y embudos de venta.</p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                                Máx Dominios Personalizados ({limitsSubTab === 'monthly' ? 'Mensual' : 'Anual'})
+                                            </label>
+                                            <input 
+                                                type="number" 
+                                                value={getLimitValue('maxDomains', 0)} 
+                                                onChange={(e) => updateLimitField('maxDomains', parseInt(e.target.value) || 0)}
+                                                className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2 text-white focus:border-green-500 outline-none transition"
                                             />
                                             <p className="text-[10px] text-gray-500 mt-1">Dominios propios (ej: .com).</p>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Artículos SEO</label>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                                Máx Artículos SEO ({limitsSubTab === 'monthly' ? 'Mensual' : 'Anual'})
+                                            </label>
                                             <input 
                                                 type="number" 
-                                                value={editingPlan.limitsConfig.maxArticles || 0} 
-                                                onChange={(e) => setEditingPlan({
-                                                    ...editingPlan, 
-                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxArticles: parseInt(e.target.value) }
-                                                })}
-                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-purple-500 outline-none"
+                                                value={getLimitValue('maxArticles', 0)} 
+                                                onChange={(e) => updateLimitField('maxArticles', parseInt(e.target.value) || 0)}
+                                                className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2 text-white focus:border-purple-500 outline-none transition"
                                             />
-                                            <p className="text-[10px] text-gray-500 mt-1">Límite mensual de generación IA.</p>
+                                            <p className="text-[10px] text-gray-500 mt-1">Bolsa global de artículos de blog SEO compartida entre todos los proyectos del usuario.</p>
                                         </div>
-                                        <div className="mt-4">
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Secuencia Email Conversión</label>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                                Secuencia Email Conversión ({limitsSubTab === 'monthly' ? 'Mensual' : 'Anual'})
+                                            </label>
                                             <input 
                                                 type="number" 
-                                                value={editingPlan.limitsConfig.maxEmailSequences || 0} 
-                                                onChange={(e) => setEditingPlan({
-                                                    ...editingPlan, 
-                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxEmailSequences: parseInt(e.target.value) }
-                                                })}
-                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-yellow-500 outline-none"
+                                                value={getLimitValue('maxEmailSequences', 0)} 
+                                                onChange={(e) => updateLimitField('maxEmailSequences', parseInt(e.target.value) || 0)}
+                                                className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2 text-white focus:border-yellow-500 outline-none transition"
                                             />
                                             <p className="text-[10px] text-gray-500 mt-1">Límite de secuencias de conversión.</p>
                                         </div>
-                                        <div className="mt-4">
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Secuencia Emails Nutrición</label>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                                Secuencia Emails Nutrición ({limitsSubTab === 'monthly' ? 'Mensual' : 'Anual'})
+                                            </label>
                                             <input 
                                                 type="number" 
-                                                value={editingPlan.limitsConfig.maxEmailSequencesNurturing || 0} 
-                                                onChange={(e) => setEditingPlan({
-                                                    ...editingPlan, 
-                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxEmailSequencesNurturing: parseInt(e.target.value) }
-                                                })}
-                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-orange-500 outline-none"
+                                                value={getLimitValue('maxEmailSequencesNurturing', 0)} 
+                                                onChange={(e) => updateLimitField('maxEmailSequencesNurturing', parseInt(e.target.value) || 0)}
+                                                className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2 text-white focus:border-orange-500 outline-none transition"
                                             />
                                             <p className="text-[10px] text-gray-500 mt-1">Límite de secuencias de nutrición.</p>
                                         </div>
-                                        <div className="mt-4">
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Lanzamientos WhatsApp</label>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                                Máx Lanzamientos WhatsApp ({limitsSubTab === 'monthly' ? 'Mensual' : 'Anual'})
+                                            </label>
                                             <input 
                                                 type="number" 
-                                                value={editingPlan.limitsConfig.maxWhatsAppLaunches || 0} 
-                                                onChange={(e) => setEditingPlan({
-                                                    ...editingPlan, 
-                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxWhatsAppLaunches: parseInt(e.target.value) }
-                                                })}
-                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-emerald-500 outline-none"
+                                                value={getLimitValue('maxWhatsAppLaunches', 0)} 
+                                                onChange={(e) => updateLimitField('maxWhatsAppLaunches', parseInt(e.target.value) || 0)}
+                                                className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2 text-white focus:border-emerald-500 outline-none transition"
                                             />
                                             <p className="text-[10px] text-gray-500 mt-1">Cupos para lanzamientos de grupos.</p>
                                         </div>
-                                        <div className="mt-4">
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Ganchos de Atracción</label>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                                Máx Ganchos de Atracción ({limitsSubTab === 'monthly' ? 'Mensual' : 'Anual'})
+                                            </label>
                                             <input 
                                                 type="number" 
-                                                value={editingPlan.limitsConfig.maxHooks || 0} 
-                                                onChange={(e) => setEditingPlan({
-                                                    ...editingPlan, 
-                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxHooks: parseInt(e.target.value) }
-                                                })}
-                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-orange-500 outline-none"
+                                                value={getLimitValue('maxHooks', 0)} 
+                                                onChange={(e) => updateLimitField('maxHooks', parseInt(e.target.value) || 0)}
+                                                className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2 text-white focus:border-orange-500 outline-none transition"
                                             />
+                                            <p className="text-[10px] text-gray-500 mt-1">Bolsa global de ganchos IA compartida entre todos los proyectos del usuario.</p>
                                         </div>
                                     </div>
                                     
-                                    <div className="pt-4 border-t border-gray-800 mt-4">
-                                        <h4 className="text-sm font-bold text-white mb-3">Feature Flags</h4>
+                                    <div className="pt-5 border-t border-gray-800 mt-6">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h4 className="text-sm font-bold text-white">Feature Flags (Módulos Especiales)</h4>
+                                            <span className="text-[10px] text-gray-500 uppercase font-bold">Aplica a ambas modalidades</span>
+                                        </div>
                                         <div className="grid grid-cols-2 gap-3">
                                             {Object.entries(editingPlan.limitsConfig.features).map(([key, val]) => (
                                                 <label key={key} className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${val ? 'bg-green-900/10 border-green-500/30' : 'bg-black border-gray-800 hover:border-gray-700'}`}>

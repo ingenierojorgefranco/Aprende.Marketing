@@ -320,11 +320,15 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                                 </div>
                                                 <div className="flex items-center gap-4">
                                                     <div className="p-3 bg-white/5 rounded-2xl text-emerald-400 border border-white/5">
-                                                        <Clock className="w-6 h-6" />
+                                                        {isPro ? <Clock className="w-6 h-6" /> : <ShieldCheck className="w-6 h-6" />}
                                                     </div>
                                                     <div>
-                                                        <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Próxima Renovación</p>
-                                                        <p className="text-lg font-bold text-emerald-400">{renewalDateFormatted}</p>
+                                                        <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                                                            {isPro ? 'Próxima Renovación' : 'Acceso'}
+                                                        </p>
+                                                        <p className="text-base sm:text-lg font-bold text-emerald-400">
+                                                            {isPro ? renewalDateFormatted : 'Gratuito de por vida / Sin cobros'}
+                                                        </p>
                                                     </div>
                                                 </div>
                                                 {isPro && (
@@ -413,7 +417,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <Zap className="w-5 h-5 text-orange-400" />
-                                                        <span className="text-sm font-bold text-white">Ganchos Magnéticos ({resources.hooks.length} / {user.planLimits?.maxHooks || 10})</span>
+                                                        <span className="text-sm font-bold text-white">Ganchos Magnéticos (Bolsa Global: {resources.hooks.length} / {user.planLimits?.maxHooks || 10})</span>
                                                     </div>
                                                     {expandedResource === 'hooks' ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
                                                 </button>
@@ -468,7 +472,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <BookOpen className="w-5 h-5 text-purple-400" />
-                                                        <span className="text-sm font-bold text-white">Artículos SEO ({resources.articles.length} / {user.planLimits?.maxArticles || 2})</span>
+                                                        <span className="text-sm font-bold text-white">Artículos SEO (Bolsa Global: {resources.articles.length} / {user.planLimits?.maxArticles || 2})</span>
                                                     </div>
                                                     {expandedResource === 'articles' ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
                                                 </button>

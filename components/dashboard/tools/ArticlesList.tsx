@@ -208,7 +208,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   {/* Plan Usage Bar */}
                   <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
                       <div className="flex justify-between items-center mb-2 text-sm">
-                          <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Articulos de Blog Creados/Desbloqueados'}</span>
+                          <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Bolsa Global de Artículos (Compartida en tus proyectos)'}</span>
                           <span className="text-white font-bold">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                       </div>
                       <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">

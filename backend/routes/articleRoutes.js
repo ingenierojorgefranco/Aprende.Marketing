@@ -150,7 +150,7 @@ router.post('/articles/unlock-article', authMiddleware, async (req, res) => {
         if (req.user.role !== 'admin') {
             const [countRows] = await pool.query('SELECT COUNT(*) as total FROM articles WHERE user_id = ?', [req.user.id]);
             if (countRows[0].total >= limit) {
-                return res.status(403).json({ error: `Has alcanzado el límite de ${limit} artículos en tu plan.` });
+                return res.status(403).json({ error: `Has alcanzado el límite global de ${limit} artículos de tu plan.` });
             }
         }
 
@@ -226,7 +226,7 @@ router.post('/articles', authMiddleware, async (req, res) => {
     if (req.user.role !== 'admin') {
         const [countRows] = await pool.query('SELECT COUNT(*) as total FROM articles WHERE user_id = ?', [req.user.id]);
         if (countRows[0].total >= limit) {
-            return res.status(403).json({ error: `Has alcanzado el límite de ${limit} artículos en tu plan.` });
+            return res.status(403).json({ error: `Has alcanzado el límite global de ${limit} artículos de tu plan.` });
         }
     }
 
