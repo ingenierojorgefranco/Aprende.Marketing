@@ -2277,6 +2277,181 @@ export const api = {
         return { success: true, ...newRecord };
     },
 
+    getAdminHotmartOrders: async (params?: { search?: string; status?: string; periodicity?: string; page?: number; limit?: number }): Promise<{ orders: any[]; stats: any; pagination: any }> => {
+        const query = new URLSearchParams();
+        if (params?.search) query.append('search', params.search);
+        if (params?.status && params.status !== 'all') query.append('status', params.status);
+        if (params?.periodicity && params.periodicity !== 'all') query.append('periodicity', params.periodicity);
+        if (params?.page) query.append('page', String(params.page));
+        if (params?.limit) query.append('limit', String(params.limit));
+
+        try {
+            const res = await fetchWithFallback(`/admin/hotmart/orders?${query.toString()}`, { headers: getAuthHeaders() });
+            if (res && res.orders) return res;
+        } catch (e) {
+            console.warn("[API] getAdminHotmartOrders fallback to local", e);
+        }
+
+        // Fallback local calculating from cached subscriptions
+        const subs = await api.getSubscriptionsManagement();
+        const search = (params?.search || '').toLowerCase().trim();
+        const statusFilter = params?.status || 'all';
+        const periodicityFilter = params?.periodicity || 'all';
+        const pageNum = params?.page || 1;
+        const limitNum = params?.limit || 50;
+
+        let totalRevenue = 0;
+        let totalOrders = subs.length;
+        let uniqueClients = new Set<string>();
+        let monthlyApprovedCount = 0;
+        let monthlyApprovedRevenue = 0;
+        let annualApprovedCount = 0;
+        let annualApprovedRevenue = 0;
+        let pendingCount = 0;
+        let pendingRevenue = 0;
+
+        subs.forEach((s: any) => {
+            const amount = parseFloat(s.amount || s.planPrice || 0);
+            if (s.buyerEmail) uniqueClients.add(s.buyerEmail.toLowerCase().trim());
+            const isApproved = s.approvalCode === '1' || s.status === 'approved' || s.approvalStatus === 'approved';
+            const isPending = s.approvalCode === '2' || s.approvalCode === '3' || s.status === 'pending_cash' || s.status === 'pending_paypal' || s.status === 'pending';
+            const isAnnual = String(s.planSlug || '').includes('anual') || String(s.periodicity || '').toLowerCase().includes('anual') || amount >= 200;
+
+            if (isApproved) {
+                totalRevenue += amount;
+                if (isAnnual) {
+                    annualApprovedCount++;
+                    annualApprovedRevenue += amount;
+                } else {
+                    monthlyApprovedCount++;
+                    monthlyApprovedRevenue += amount;
+                }
+            } else if (isPending) {
+                pendingCount++;
+                pendingRevenue += amount;
+            }
+        });
+
+        const filtered = subs.filter((s: any) => {
+            if (search) {
+                const matchTx = (s.transactionId || '').toLowerCase().includes(search);
+                const matchName = (s.buyerName || '').toLowerCase().includes(search);
+                const matchEmail = (s.buyerEmail || '').toLowerCase().includes(search);
+                const matchAff = (s.affiliateCode || '').toLowerCase().includes(search);
+                if (!matchTx && !matchName && !matchEmail && !matchAff) return false;
+            }
+
+            if (statusFilter !== 'all') {
+                if (statusFilter === 'approved' && !(s.approvalCode === '1' || s.status === 'approved')) return false;
+                if (statusFilter === 'pending_cash' && !(s.approvalCode === '2' || s.status === 'pending_cash')) return false;
+                if (statusFilter === 'pending_paypal' && !(s.approvalCode === '3' || s.status === 'pending_paypal')) return false;
+            }
+
+            if (periodicityFilter !== 'all') {
+                const isAnnual = String(s.planSlug || '').includes('anual') || String(s.periodicity || '').toLowerCase().includes('anual');
+                if (periodicityFilter === 'mensual' && isAnnual) return false;
+                if (periodicityFilter === 'anual' && !isAnnual) return false;
+            }
+
+            return true;
+        });
+
+        const totalFiltered = filtered.length;
+        const totalPages = Math.ceil(totalFiltered / limitNum) || 1;
+        const offset = (pageNum - 1) * limitNum;
+        const paginated = filtered.slice(offset, offset + limitNum);
+
+        const mappedOrders = paginated.map((s: any) => {
+            const isAnnual = String(s.planSlug || '').includes('anual') || String(s.periodicity || '').toLowerCase().includes('anual');
+            return {
+                id: s.id,
+                transactionId: s.transactionId,
+                buyerName: s.buyerName,
+                buyerEmail: s.buyerEmail,
+                buyerPhone: s.buyerPhone,
+                buyerCountry: s.buyerCountry,
+                approvalCode: s.approvalCode || (s.status === 'approved' ? '1' : '2'),
+                approvalStatus: s.status || s.approvalStatus || 'approved',
+                affiliateCode: s.affiliateCode || '',
+                planName: s.planName || (isAnnual ? 'Plan Pro All-Access (Anual)' : 'Plan Pro All-Access (Mensual)'),
+                planSlug: s.planSlug || (isAnnual ? 'pro_anual' : 'pro_mensual'),
+                periodicity: (s.periodicity || (isAnnual ? 'anual' : 'mensual')).toLowerCase(),
+                durationDays: s.planDays || (isAnnual ? 365 : 30),
+                amount: parseFloat(s.amount || s.planPrice || (isAnnual ? 708 : 79)),
+                currency: s.currency || 'USD',
+                startDate: s.startDate,
+                renewalDate: s.renewalDate,
+                itmSource: s.itmSource || '',
+                itmMedium: s.itmMedium || '',
+                itmCampaign: s.itmCampaign || '',
+                trackingKeys: s.trackingKeys,
+                rawQuery: s.rawQuery,
+                isUserRegistered: !!s.registeredUserId,
+                userId: s.registeredUserId,
+                createdAt: s.createdAt || new Date().toISOString()
+            };
+        });
+
+        return {
+            orders: mappedOrders,
+            stats: {
+                totalRevenue,
+                totalOrders,
+                totalClients: uniqueClients.size,
+                monthlyApprovedCount,
+                monthlyApprovedRevenue,
+                annualApprovedCount,
+                annualApprovedRevenue,
+                pendingCount,
+                pendingRevenue
+            },
+            pagination: {
+                total: totalFiltered,
+                page: pageNum,
+                limit: limitNum,
+                totalPages
+            }
+        };
+    },
+
+    approveAdminHotmartOrder: async (orderId: number | string): Promise<{ success: boolean; message?: string }> => {
+        try {
+            const res = await fetchWithFallback(`/admin/hotmart/orders/${orderId}/approve`, {
+                method: 'POST',
+                headers: getAuthHeaders()
+            });
+            if (res && res.success) return res;
+        } catch (e) {
+            console.warn("[API] approveAdminHotmartOrder fallback", e);
+        }
+
+        await api.updateSubscriptionManagement(String(orderId), {
+            status: 'approved',
+            approvalCode: '1'
+        });
+
+        return { success: true, message: 'Orden aprobada y suscripción sincronizada.' };
+    },
+
+    sendHotmartWebhookTest: async (type: 'mensual' | 'anual', buyerEmail: string, buyerName: string): Promise<any> => {
+        try {
+            const res = await fetchWithFallback('/admin/hotmart/test-webhook', {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ type, buyerEmail, buyerName })
+            });
+            if (res && res.success) return res;
+        } catch (e) {
+            console.warn("[API] sendHotmartWebhookTest fallback", e);
+        }
+
+        return await api.simulateHotmartSubscription({
+            planType: type === 'anual' ? 'annual' : 'monthly',
+            buyerEmail,
+            buyerName
+        });
+    },
+
     activateHotmartAccount: async (data: { email: string; password: string; name?: string; transaction?: string; plan?: string }): Promise<any> => {
         try {
             const res = await fetchWithFallback('/auth/activate-hotmart-account', {
