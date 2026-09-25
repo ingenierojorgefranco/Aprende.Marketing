@@ -310,6 +310,7 @@ export const DashboardLayout = ({
         }] : []),
         { id: 'admin', label: 'Administración', icon: Shield, adminOnly: true, subItems: [
               { label: 'Usuarios', path: '/dashboard/admin', icon: Users },
+              { label: 'Gestión de Suscripciones', path: '/dashboard/admin/subscriptions', icon: Layers },
               { label: 'Panel Hotmart', path: '/dashboard/admin/hotmart', icon: ShoppingCart },
               { label: 'Planes y Precios', path: '/dashboard/admin/plans', icon: CreditCard },
               { label: 'Gestionar Cursos', path: '/dashboard/admin/courses', icon: Video },

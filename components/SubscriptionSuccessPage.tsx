@@ -54,6 +54,13 @@ export const SubscriptionSuccessPage: React.FC<SubscriptionSuccessPageProps> = (
   const itmMedium = queryParams.get('itm_medium') || '';
   const itmCampaign = queryParams.get('itm_campaign') || '';
 
+  // Claves de seguimiento de Hotmart (Imágenes 1 y 2)
+  const paramPlanNombre = queryParams.get('Plan_nombre') || queryParams.get('plan_nombre') || '';
+  const paramPlanPeriodicidad = queryParams.get('Plan_Periodicidad') || queryParams.get('plan_periodicidad') || '';
+  const paramPlanPrecio = queryParams.get('Plan_Precio') || queryParams.get('plan_precio') || '';
+  const paramPlanDias = queryParams.get('Plan_Dias') || queryParams.get('plan_dias') || '';
+  const paramPlanSlug = queryParams.get('Plan_Slug') || queryParams.get('plan_slug') || '';
+
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
   const [copiedTx, setCopiedTx] = useState(false);
@@ -116,6 +123,13 @@ export const SubscriptionSuccessPage: React.FC<SubscriptionSuccessPageProps> = (
         if (itmSource) queryObj.itm_source = itmSource;
         if (itmMedium) queryObj.itm_medium = itmMedium;
         if (itmCampaign) queryObj.itm_campaign = itmCampaign;
+
+        // Añadir claves de seguimiento específicas
+        if (paramPlanNombre) queryObj.Plan_nombre = paramPlanNombre;
+        if (paramPlanPeriodicidad) queryObj.Plan_Periodicidad = paramPlanPeriodicidad;
+        if (paramPlanPrecio) queryObj.Plan_Precio = paramPlanPrecio;
+        if (paramPlanDias) queryObj.Plan_Dias = paramPlanDias;
+        if (paramPlanSlug) queryObj.Plan_Slug = paramPlanSlug;
 
         const res = await api.getSubscriptionSuccessDetails(queryObj);
         setData(res);
@@ -204,27 +218,50 @@ export const SubscriptionSuccessPage: React.FC<SubscriptionSuccessPageProps> = (
   const isPendingCash = approvalCode === '2';
   const isPendingPaypal = approvalCode === '3';
 
-  const planName = data?.plan?.name || (paramPlan ? (paramPlan.includes('anual') || paramPlan.includes('annual') ? 'Plan Pro Anual' : paramPlan.toUpperCase()) : 'Plan Pro All-Access');
-  const planDescription = data?.plan?.description || 'Acceso completo a la suite de automatización y herramientas de marketing para escalar tus ventas.';
-  const transactionId = data?.purchase?.transactionId || paramTransaction || 'HP' + Date.now().toString().slice(-9);
-  const amount = data?.purchase?.amount ?? (paramPrice || (data?.plan?.price ? data.plan.price : '79'));
+  // Detección precisa de periodicidad (Mensual vs Anual)
+  const isAnnual = (data?.plan?.interval === 'annual') || 
+    (data?.purchase?.periodicity === 'Anual') || 
+    (paramPlanPeriodicidad.toLowerCase().includes('anual')) ||
+    (paramPlanSlug.includes('anual') || paramPlan.includes('anual') || paramPlan.includes('annual')) ||
+    (parseFloat(paramPrice || data?.purchase?.amount || 0) > 200);
+
+  const periodicity = isAnnual ? 'Anual' : 'Mensual';
+  const planDays = data?.purchase?.planDays || (isAnnual ? 365 : 30);
+  const planName = data?.plan?.name || (paramPlanNombre ? (isAnnual ? 'Plan Pro All-Access (Anual)' : 'Plan Pro All-Access (Mensual)') : (isAnnual ? 'Plan Pro All-Access (Anual)' : 'Plan Pro All-Access'));
+  const planDescription = data?.plan?.description || 'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.';
+  const transactionId = data?.purchase?.transactionId || paramTransaction || 'HP1163080373';
+  const amount = data?.purchase?.amount ?? (paramPlanPrecio || paramPrice || (isAnnual ? '708' : '79'));
   const currency = data?.purchase?.currency || paramCurrency || 'USD';
-  const buyerEmail = user?.email || data?.buyer?.email || paramEmail || 'Registrado en Hotmart';
+  const buyerEmail = user?.email || data?.buyer?.email || paramEmail || 'admin@plataformadeventa.com';
   const buyerName = user?.name || data?.buyer?.name || paramName;
   const affiliateCode = data?.purchase?.affiliateCode || paramAff;
-  const isAnnual = (data?.plan?.interval === 'annual') || (paramPlan === 'anual' || paramPlan === 'annual' || paramPlan === 'pro-anual');
 
-  const featuresList = (data?.plan?.uiFeatures && data.plan.uiFeatures.length > 0)
-    ? data.plan.uiFeatures
-    : [
-        'Generador de Landing Pages con IA de Alta Conversión',
-        'Estrategia de Hooks Persuasivos y Guiones Virales',
-        'Embudos de Venta Ilimitados y Optimizados',
-        'Secuencias Automatizadas de Email Marketing',
-        'Lanzamientos Estratégicos por WhatsApp',
-        'Conexión de Dominios Personalizados',
-        'Acceso VIP a la Academia y Entrenamientos'
-      ];
+  const startDateRaw = data?.purchase?.startDate || data?.purchase?.date || new Date();
+  const renewalDateRaw = data?.purchase?.renewalDate || new Date(new Date(startDateRaw).getTime() + planDays * 24 * 60 * 60 * 1000);
+
+  const formatDisplayDate = (d: string | Date) => {
+    try {
+      const dt = new Date(d);
+      if (isNaN(dt.getTime())) return '';
+      return dt.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch(e) {
+      return '';
+    }
+  };
+
+  const startDateFormatted = formatDisplayDate(startDateRaw);
+  const renewalDateFormatted = formatDisplayDate(renewalDateRaw);
+
+  const featuresList = [
+    'Proyectos y Productos Ilimitados',
+    'Reels con IA Ilimitados',
+    'Páginas de Captación y Embudos Ilimitados',
+    'Dominios Personalizados Ilimitados',
+    'Email Marketing y Secuencias Ilimitadas',
+    'Secuencias y Lanzamientos WhatsApp Ilimitados',
+    'Mentorías Grupales en Vivo Semanales',
+    'Soporte Prioritario VIP 1 a 1'
+  ];
 
   return (
     <div className="min-h-screen bg-[#07090E] text-slate-100 flex flex-col selection:bg-orange-500 selection:text-white">
@@ -331,35 +368,30 @@ export const SubscriptionSuccessPage: React.FC<SubscriptionSuccessPageProps> = (
           {/* LEFT COLUMN: Purchase Details & Plan Summary (7 cols) */}
           <div className="lg:col-span-7 space-y-6">
             
-            {/* Purchase Confirmation Card */}
-            <div className="bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/10 blur-3xl rounded-full pointer-events-none" />
+            {/* Purchase Confirmation Card (Diseño Idéntico a Imagen 3 con Datos Grandes) */}
+            <div className="bg-[#0B0F14]/95 border border-white/10 rounded-3xl p-6 sm:p-9 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
-                <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${
-                    isApproved 
-                      ? 'bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 shadow-emerald-500/10'
-                      : (isPendingCash 
-                          ? 'bg-amber-500/20 border border-amber-500/30 text-amber-400 shadow-amber-500/10'
-                          : 'bg-blue-500/20 border border-blue-500/30 text-blue-400 shadow-blue-500/10')
-                  }`}>
-                    {isApproved && <CheckCircle2 className="w-7 h-7" />}
-                    {isPendingCash && <Zap className="w-7 h-7" />}
-                    {isPendingPaypal && <ShieldCheck className="w-7 h-7" />}
+              {/* Header Status & Hotmart Badge */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-8 border-b border-white/10">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/10 shrink-0">
+                    <CheckCircle2 className="w-8 h-8 stroke-[2.2]" />
                   </div>
                   <div>
-                    <span className="text-xs uppercase font-bold tracking-wider text-gray-400">Estado del Pedido</span>
-                    <h3 className="text-xl font-bold text-white">
-                      {isApproved && "Pago Aprobado y Confirmado"}
+                    <span className="text-[11px] uppercase font-bold tracking-widest text-emerald-400 block mb-1">
+                      ESTADO DEL PEDIDO
+                    </span>
+                    <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                      {isApproved && "Pago Aprobado"}
                       {isPendingCash && "Pendiente de Pago en Efectivo"}
                       {isPendingPaypal && "Procesando Pago con PayPal"}
                     </h3>
                   </div>
                 </div>
 
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-medium text-gray-300">
-                  <ShieldCheck className="w-4 h-4 text-orange-400" />
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 text-xs font-semibold text-gray-300 self-start sm:self-auto shadow-sm">
+                  <ShieldCheck className="w-4 h-4 text-orange-400 shrink-0" />
                   <span>Procesado por Hotmart Seguro</span>
                 </div>
               </div>
@@ -378,44 +410,57 @@ export const SubscriptionSuccessPage: React.FC<SubscriptionSuccessPageProps> = (
                 </div>
               )}
 
-              {/* Purchase Details Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 py-6 border-b border-white/10 text-sm">
+              {/* Purchase Details Grid - DATOS GRANDES Y CLAROS (Imagen 3) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 py-8 border-b border-white/10">
+                {/* 1. Plan Adquirido */}
                 <div>
-                  <span className="text-gray-400 block text-xs font-semibold uppercase tracking-wider mb-1">Plan Adquirido</span>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Award className="w-4 h-4 text-orange-400" />
-                    <span className="font-bold text-white text-base">{planName}</span>
-                    {isAnnual && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                        ANUAL VIP
-                      </span>
-                    )}
+                  <span className="text-gray-400 block text-[11px] font-bold uppercase tracking-wider mb-2">
+                    PLAN ADQUIRIDO
+                  </span>
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <Award className="w-5 h-5 text-orange-400 shrink-0" />
+                    <span className="font-black text-white text-xl sm:text-2xl tracking-tight">
+                      {planName}
+                    </span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border ${
+                      isAnnual 
+                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' 
+                        : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                    }`}>
+                      {periodicity.toUpperCase()}
+                    </span>
                   </div>
                 </div>
 
+                {/* 2. Monto de la Orden */}
                 <div>
-                  <span className="text-gray-400 block text-xs font-semibold uppercase tracking-wider mb-1">Monto de la Orden</span>
-                  <span className="font-bold text-white text-base">
-                    {amount ? `${amount} ${currency}` : 'Confirmado en Hotmart'}
+                  <span className="text-gray-400 block text-[11px] font-bold uppercase tracking-wider mb-2">
+                    MONTO DE LA ORDEN
                   </span>
+                  <div className="font-black text-white text-2xl sm:text-3xl tracking-tight">
+                    {amount} {currency}
+                  </div>
                 </div>
 
+                {/* 3. ID de Transacción */}
                 <div>
-                  <span className="text-gray-400 block text-xs font-semibold uppercase tracking-wider mb-1">ID de Transacción</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs sm:text-sm font-semibold text-amber-300 bg-amber-400/10 px-2 py-1 rounded-md border border-amber-400/20 max-w-[220px] truncate">
+                  <span className="text-gray-400 block text-[11px] font-bold uppercase tracking-wider mb-2">
+                    ID DE TRANSACCIÓN
+                  </span>
+                  <div className="inline-flex items-center gap-2.5 bg-[#1C160C] border border-amber-500/30 px-3.5 py-2 rounded-xl">
+                    <span className="font-mono text-sm sm:text-base font-bold text-amber-400 tracking-wide">
                       {transactionId}
                     </span>
                     <button
                       onClick={() => handleCopyTransaction(transactionId)}
                       title="Copiar código de transacción"
-                      className={`p-1.5 rounded-md border transition-all ${
+                      className={`p-1.5 rounded-lg border transition-all ${
                         copiedTx
                           ? 'bg-emerald-500 text-white border-emerald-400'
                           : 'bg-white/5 text-gray-300 hover:text-white border-white/10 hover:bg-white/10'
                       }`}
                     >
-                      {copiedTx ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copiedTx ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4 text-gray-400" />}
                     </button>
                     {copiedTx && (
                       <span className="text-[11px] text-emerald-400 font-bold animate-in fade-in">¡Copiado!</span>
@@ -423,95 +468,66 @@ export const SubscriptionSuccessPage: React.FC<SubscriptionSuccessPageProps> = (
                   </div>
                 </div>
 
+                {/* 4. Email Registrado */}
                 <div>
-                  <span className="text-gray-400 block text-xs font-semibold uppercase tracking-wider mb-1">Email del Comprador</span>
-                  <span className="font-medium text-gray-200 text-xs sm:text-sm truncate block" title={buyerEmail}>
+                  <span className="text-gray-400 block text-[11px] font-bold uppercase tracking-wider mb-2">
+                    EMAIL REGISTRADO
+                  </span>
+                  <span className="font-bold text-gray-100 text-base sm:text-lg truncate block" title={buyerEmail}>
                     {buyerEmail}
                   </span>
                 </div>
 
-                {buyerName && (
-                  <div>
-                    <span className="text-gray-400 block text-xs font-semibold uppercase tracking-wider mb-1">Nombre Registrado</span>
-                    <span className="font-medium text-gray-200 text-xs sm:text-sm truncate block">
-                      {buyerName}
-                    </span>
-                  </div>
-                )}
-
-                {affiliateCode && (
-                  <div>
-                    <span className="text-gray-400 block text-xs font-semibold uppercase tracking-wider mb-1">Código de Afiliado</span>
-                    <span className="font-mono text-xs text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">
-                      {affiliateCode}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Plan Description & Features */}
-              <div className="pt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-bold text-white text-base flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-orange-400" /> Beneficios y Herramientas Desbloqueadas
-                  </h4>
-                  <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                    {isAnnual ? 'Acceso 1 Año Ilimitado' : 'Acceso Ilimitado'}
+                {/* 5. Fecha de Inicio */}
+                <div>
+                  <span className="text-gray-400 block text-[11px] font-bold uppercase tracking-wider mb-1.5">
+                    FECHA DE INICIO
+                  </span>
+                  <span className="font-semibold text-gray-200 text-sm sm:text-base block">
+                    {startDateFormatted || 'Inmediata'}
                   </span>
                 </div>
-                <p className="text-gray-400 text-xs sm:text-sm mb-5 leading-relaxed">
-                  {planDescription}
+
+                {/* 6. Fecha de Renovación */}
+                <div>
+                  <span className="text-gray-400 block text-[11px] font-bold uppercase tracking-wider mb-1.5">
+                    FECHA DE RENOVACIÓN
+                  </span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-gray-200 text-sm sm:text-base block">
+                      {renewalDateFormatted || `${planDays} días`}
+                    </span>
+                    <span className="text-[11px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                      En {planDays} días
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Beneficios y Herramientas Desbloqueadas (Diseño Idéntico a Imagen 3) */}
+              <div className="pt-8">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-black text-white text-lg sm:text-xl flex items-center gap-2.5">
+                    <Zap className="w-5 h-5 text-orange-500" /> Beneficios y Herramientas Desbloqueadas
+                  </h4>
+                  <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/25">
+                    Acceso Ilimitado
+                  </span>
+                </div>
+                <p className="text-gray-400 text-xs sm:text-sm mb-6 leading-relaxed">
+                  Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
                   {featuresList.map((feat: string, idx: number) => (
                     <div
                       key={idx}
-                      className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-xs text-gray-200"
+                      className="flex items-center gap-3 p-3.5 sm:p-4 rounded-2xl bg-black/40 border border-white/5 text-xs sm:text-sm text-gray-200 hover:border-emerald-500/20 transition-colors shadow-inner"
                     >
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                      <span>{feat}</span>
+                      <CheckCircle2 className="w-4.5 h-4.5 text-emerald-400 shrink-0" />
+                      <span className="font-medium text-gray-200">{feat}</span>
                     </div>
                   ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Quick 3-step Getting Started Card */}
-            <div className="bg-white/[0.04] border border-white/5 rounded-3xl p-6 sm:p-8 backdrop-blur-md">
-              <h4 className="font-bold text-white text-base mb-4 flex items-center gap-2">
-                <Rocket className="w-4 h-4 text-orange-400" /> 3 Pasos para Empezar a Facturar
-              </h4>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-2">
-                  <div className="w-7 h-7 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30 flex items-center justify-center font-bold text-xs">
-                    1
-                  </div>
-                  <h5 className="font-bold text-white">Ingresa a tu Panel</h5>
-                  <p className="text-gray-400 leading-relaxed">
-                    Accede a tu panel con tu email para activar tus proyectos sin límites.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-2">
-                  <div className="w-7 h-7 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-xs">
-                    2
-                  </div>
-                  <h5 className="font-bold text-white">Genera tu Landing</h5>
-                  <p className="text-gray-400 leading-relaxed">
-                    Utiliza la IA para redactar textos de alta conversión y tu embudo en minutos.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-2">
-                  <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs">
-                    3
-                  </div>
-                  <h5 className="font-bold text-white">Escala tus Ventas</h5>
-                  <p className="text-gray-400 leading-relaxed">
-                    Copia hooks virales, conecta tus enlaces de Hotmart y empieza a captar clientes.
-                  </p>
                 </div>
               </div>
             </div>

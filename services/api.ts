@@ -1936,8 +1936,33 @@ export const api = {
             console.warn("[API] subscription-success endpoint fallback to mock", e);
         }
 
-        const planSlug = (queryParams.plan || 'pro').toLowerCase();
-        const isAnnual = (planSlug === 'annual' || planSlug === 'anual' || planSlug === 'pro-anual' || planSlug === 'yearly');
+        // Extracción tolerante y case-insensitive de parámetros de Hotmart (Imágenes 1 y 2)
+        const getParam = (key: string) => {
+            const lower = key.toLowerCase();
+            for (const k of Object.keys(queryParams)) {
+                if (k.toLowerCase() === lower) return queryParams[k];
+            }
+            return '';
+        };
+
+        const rawPlanName = getParam('Plan_nombre') || getParam('plan_name') || 'Pro_Ilimitado';
+        const rawPeriodicity = getParam('Plan_Periodicidad') || getParam('periodicity') || '';
+        const rawPrice = getParam('Plan_Precio') || queryParams.price || '';
+        const rawDays = getParam('Plan_Dias') || queryParams.days || '';
+        const rawPlanSlug = (getParam('Plan_Slug') || queryParams.plan || queryParams.plan_slug || '').toLowerCase();
+
+        const isAnnual = rawPlanSlug.includes('anual') || rawPlanSlug.includes('annual') || rawPeriodicity.toLowerCase().includes('anual') || (rawDays && parseInt(rawDays, 10) > 60) || (rawPrice && parseFloat(rawPrice) > 200);
+
+        const planSlug = isAnnual ? 'pro_anual' : 'pro_mensual';
+        const planName = isAnnual ? 'Plan Pro All-Access (Anual)' : 'Plan Pro All-Access (Mensual)';
+        const periodicity = isAnnual ? 'Anual' : 'Mensual';
+        const planDays = rawDays ? parseInt(rawDays, 10) : (isAnnual ? 365 : 30);
+        const calculatedAmount = rawPrice ? parseFloat(rawPrice) : (isAnnual ? 708 : 79);
+
+        const now = new Date();
+        const startDate = now;
+        const renewalDate = new Date(startDate.getTime() + (planDays * 24 * 60 * 60 * 1000));
+
         const rawAprobado = String(queryParams.aprobado || queryParams.status || '1');
         const buyerName = queryParams.c_name || queryParams.name || queryParams.buyer_name || 'Comprador Hotmart';
         const buyerEmail = queryParams.email || queryParams.buyer_email || '';
@@ -1960,9 +1985,16 @@ export const api = {
             approvalMessage = 'Estamos a la espera de la confirmación final por parte de PayPal y Hotmart. Una vez acreditado el pago, tu cuenta se activará de forma inmediata.';
         }
 
-        const calculatedAmount = queryParams.price 
-            ? parseFloat(queryParams.price) 
-            : (isAnnual ? 470 : 79);
+        const proUiFeaturesList = [
+            'Proyectos y Productos Ilimitados',
+            'Reels con IA Ilimitados',
+            'Páginas de Captación y Embudos Ilimitados',
+            'Dominios Personalizados Ilimitados',
+            'Email Marketing y Secuencias Ilimitadas',
+            'Secuencias y Lanzamientos WhatsApp Ilimitados',
+            'Mentorías Grupales en Vivo Semanales',
+            'Soporte Prioritario VIP 1 a 1'
+        ];
 
         return {
             success: true,
@@ -1978,31 +2010,38 @@ export const api = {
                 status: approvalStatus,
                 amount: calculatedAmount,
                 currency: queryParams.currency || 'USD',
-                date: new Date().toISOString(),
+                date: startDate.toISOString(),
+                startDate: startDate.toISOString(),
+                renewalDate: renewalDate.toISOString(),
+                periodicity: periodicity,
+                planDays: planDays,
                 paymentMethod: rawAprobado === '2' ? 'Efectivo' : (rawAprobado === '3' ? 'PayPal' : 'Hotmart'),
-                affiliateCode: affCode
+                affiliateCode: affCode,
+                trackingKeys: {
+                    Plan_nombre: rawPlanName,
+                    Plan_Periodicidad: periodicity,
+                    Plan_Precio: calculatedAmount,
+                    Plan_Dias: planDays,
+                    Plan_Slug: planSlug
+                }
             },
             plan: {
                 id: 'pro',
-                name: isAnnual ? 'Plan Pro Anual' : 'Plan Pro All-Access',
-                slug: isAnnual ? 'annual' : 'pro',
+                name: planName,
+                slug: planSlug,
                 interval: isAnnual ? 'annual' : 'monthly',
+                periodicity: periodicity,
+                days: planDays,
+                startDate: startDate.toISOString(),
+                renewalDate: renewalDate.toISOString(),
                 description: isAnnual 
                     ? 'Acceso total durante 1 año con todas las herramientas de automatización, IA y soporte VIP.' 
-                    : 'Acceso completo a la suite de automatización con IA y herramientas para escalar en Hotmart.',
+                    : 'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.',
                 price: calculatedAmount,
                 priceMonthly: 79,
-                priceAnnual: 470,
+                priceAnnual: 708,
                 currency: queryParams.currency || 'USD',
-                uiFeatures: [
-                    'Generador de Landing Pages con IA de Alta Conversión',
-                    'Estrategia de Hooks Persuasivos y Guiones Virales',
-                    'Embudos de Venta Ilimitados y Optimizados',
-                    'Secuencias Automatizadas de Email Marketing',
-                    'Lanzamientos Estratégicos por WhatsApp',
-                    'Conexión de Dominios Personalizados',
-                    'Acceso VIP a la Academia y Entrenamientos'
-                ]
+                uiFeatures: proUiFeaturesList
             },
             buyer: {
                 name: buyerName,
@@ -2012,6 +2051,230 @@ export const api = {
                 isLoggedIn: false
             }
         };
+    },
+
+    getSubscriptionsManagement: async (): Promise<any[]> => {
+        try {
+            const res = await fetchWithFallback('/admin/subscriptions-management', { headers: getAuthHeaders() });
+            if (Array.isArray(res) && res.length > 0) {
+                localStorage.setItem('admin_cached_subscriptions', JSON.stringify(res));
+                return res;
+            }
+        } catch (e) {
+            console.warn("[API] getSubscriptionsManagement fallback", e);
+        }
+
+        // Cargar desde LocalStorage si existe o usar catálogo inicial
+        const local = localStorage.getItem('admin_cached_subscriptions');
+        if (local) {
+            try { return JSON.parse(local); } catch(e) {}
+        }
+
+        const initialMock: any[] = [
+            {
+                id: 'sub-1',
+                transactionId: 'HP1163080373',
+                buyerName: 'Carlos Mendoza',
+                buyerEmail: 'admin@plataformadeventa.com',
+                buyerPhone: '+57 312 8904321',
+                buyerCountry: 'CO',
+                status: 'approved',
+                approvalCode: '1',
+                affiliateCode: 'AF892',
+                planName: 'Plan Pro All-Access (Mensual)',
+                planSlug: 'pro_mensual',
+                periodicity: 'Mensual',
+                planPrice: 79,
+                planDays: 30,
+                amount: 79,
+                currency: 'USD',
+                startDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                renewalDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
+                trackingKeys: {
+                    Plan_nombre: 'Pro_Ilimitado',
+                    Plan_Periodicidad: 'Mensual',
+                    Plan_Precio: 79,
+                    Plan_Dias: 30,
+                    Plan_Slug: 'pro_mensual'
+                },
+                registeredUserId: '1',
+                isUserActive: true,
+                createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                id: 'sub-2',
+                transactionId: 'HP9821374921',
+                buyerName: 'Valentina Restrepo',
+                buyerEmail: 'valentina.mkt@gmail.com',
+                buyerPhone: '+52 55 9821 4410',
+                buyerCountry: 'MX',
+                status: 'approved',
+                approvalCode: '1',
+                affiliateCode: 'AF104',
+                planName: 'Plan Pro All-Access (Anual)',
+                planSlug: 'pro_anual',
+                periodicity: 'Anual',
+                planPrice: 708,
+                planDays: 365,
+                amount: 708,
+                currency: 'USD',
+                startDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+                renewalDate: new Date(Date.now() + 350 * 24 * 60 * 60 * 1000).toISOString(),
+                trackingKeys: {
+                    Plan_nombre: 'Pro_Ilimitado',
+                    Plan_Periodicidad: 'Anual',
+                    Plan_Precio: 708,
+                    Plan_Dias: 365,
+                    Plan_Slug: 'pro_anual'
+                },
+                registeredUserId: '2',
+                isUserActive: true,
+                createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                id: 'sub-3',
+                transactionId: 'HP4491028301',
+                buyerName: 'Mateo Gómez',
+                buyerEmail: 'mateo.emprendedor@outlook.com',
+                buyerPhone: '+54 9 11 6543 2190',
+                buyerCountry: 'AR',
+                status: 'approved',
+                approvalCode: '1',
+                affiliateCode: 'AF892',
+                planName: 'Plan Pro All-Access (Mensual)',
+                planSlug: 'pro_mensual',
+                periodicity: 'Mensual',
+                planPrice: 79,
+                planDays: 30,
+                amount: 79,
+                currency: 'USD',
+                startDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                renewalDate: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString(),
+                trackingKeys: {
+                    Plan_nombre: 'Pro_Ilimitado',
+                    Plan_Periodicidad: 'Mensual',
+                    Plan_Precio: 79,
+                    Plan_Dias: 30,
+                    Plan_Slug: 'pro_mensual'
+                },
+                registeredUserId: '3',
+                isUserActive: true,
+                createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                id: 'sub-4',
+                transactionId: 'HP7720194822',
+                buyerName: 'Sofia Castillo',
+                buyerEmail: 'castillo.sofia@empresa.com',
+                buyerPhone: '+34 612 345 678',
+                buyerCountry: 'ES',
+                status: 'pending_cash',
+                approvalCode: '2',
+                affiliateCode: '',
+                planName: 'Plan Pro All-Access (Mensual)',
+                planSlug: 'pro_mensual',
+                periodicity: 'Mensual',
+                planPrice: 79,
+                planDays: 30,
+                amount: 79,
+                currency: 'USD',
+                startDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                renewalDate: new Date(Date.now() + 29 * 24 * 60 * 60 * 1000).toISOString(),
+                trackingKeys: {
+                    Plan_nombre: 'Pro_Ilimitado',
+                    Plan_Periodicidad: 'Mensual',
+                    Plan_Precio: 79,
+                    Plan_Dias: 30,
+                    Plan_Slug: 'pro_mensual'
+                },
+                registeredUserId: null,
+                isUserActive: false,
+                createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+            }
+        ];
+        localStorage.setItem('admin_cached_subscriptions', JSON.stringify(initialMock));
+        return initialMock;
+    },
+
+    updateSubscriptionManagement: async (id: string, data: any): Promise<void> => {
+        try {
+            await fetchWithFallback(`/admin/subscriptions-management/${id}`, {
+                method: 'PUT',
+                headers: getAuthHeaders(),
+                body: JSON.stringify(data)
+            });
+        } catch (e) {
+            console.warn("[API] updateSubscriptionManagement fallback to localStorage", e);
+        }
+
+        // Sincronizar en localStorage
+        const local = localStorage.getItem('admin_cached_subscriptions');
+        if (local) {
+            try {
+                let subs = JSON.parse(local);
+                subs = subs.map((s: any) => s.id === id || s.transactionId === id ? { ...s, ...data } : s);
+                localStorage.setItem('admin_cached_subscriptions', JSON.stringify(subs));
+            } catch (err) {}
+        }
+    },
+
+    simulateHotmartSubscription: async (data: { planType: 'monthly' | 'annual'; buyerName?: string; buyerEmail?: string; buyerPhone?: string; buyerCountry?: string }): Promise<any> => {
+        try {
+            const res = await fetchWithFallback('/admin/subscriptions-management/simulate', {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify(data)
+            });
+            if (res && res.success) return res;
+        } catch (e) {
+            console.warn("[API] simulateHotmartSubscription fallback", e);
+        }
+
+        const isAnnual = data.planType === 'annual';
+        const planPrice = isAnnual ? 708 : 79;
+        const planDays = isAnnual ? 365 : 30;
+        const planSlug = isAnnual ? 'pro_anual' : 'pro_mensual';
+        const periodicity = isAnnual ? 'Anual' : 'Mensual';
+        const now = new Date();
+        const renewalDate = new Date(now.getTime() + planDays * 24 * 60 * 60 * 1000);
+        const transactionId = 'HP' + Math.floor(1000000000 + Math.random() * 9000000000);
+
+        const newRecord = {
+            id: 'sub-' + transactionId,
+            transactionId,
+            buyerName: data.buyerName || 'Cliente Simulado',
+            buyerEmail: data.buyerEmail || 'simulado@hotmart.com',
+            buyerPhone: data.buyerPhone || '+57 300 0000000',
+            buyerCountry: data.buyerCountry || 'CO',
+            status: 'approved',
+            approvalCode: '1',
+            affiliateCode: 'AF' + Math.floor(100 + Math.random() * 900),
+            planName: isAnnual ? 'Plan Pro All-Access (Anual)' : 'Plan Pro All-Access (Mensual)',
+            planSlug,
+            periodicity,
+            planPrice,
+            planDays,
+            amount: planPrice,
+            currency: 'USD',
+            startDate: now.toISOString(),
+            renewalDate: renewalDate.toISOString(),
+            trackingKeys: {
+                Plan_nombre: 'Pro_Ilimitado',
+                Plan_Periodicidad: periodicity,
+                Plan_Precio: planPrice,
+                Plan_Dias: planDays,
+                Plan_Slug: planSlug
+            },
+            registeredUserId: null,
+            isUserActive: true,
+            createdAt: now.toISOString()
+        };
+
+        const local = localStorage.getItem('admin_cached_subscriptions');
+        const subs = local ? JSON.parse(local) : [];
+        subs.unshift(newRecord);
+        localStorage.setItem('admin_cached_subscriptions', JSON.stringify(subs));
+        return { success: true, ...newRecord };
     },
 
     activateHotmartAccount: async (data: { email: string; password: string; name?: string; transaction?: string; plan?: string }): Promise<any> => {

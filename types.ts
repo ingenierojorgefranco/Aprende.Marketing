@@ -746,3 +746,39 @@ export interface Comment {
   parentId?: string;
   likes?: number;
 }
+
+export interface HotmartTrackingParams {
+  Plan_nombre: string;
+  Plan_Periodicidad: 'Mensual' | 'Anual';
+  Plan_Precio: number;
+  Plan_Dias: number;
+  Plan_Slug: 'pro_mensual' | 'pro_anual' | string;
+}
+
+export interface SubscriptionManagementRecord {
+  id: string;
+  transactionId: string;
+  buyerName: string;
+  buyerEmail: string;
+  buyerPhone?: string;
+  buyerCountry?: string;
+  status: 'approved' | 'active' | 'pending_cash' | 'pending_paypal' | 'canceled' | 'refunded' | string;
+  approvalCode?: string;
+  affiliateCode?: string;
+  planName: string;
+  planSlug: string;
+  periodicity: 'Mensual' | 'Anual';
+  planPrice: number;
+  planDays: number;
+  amount: number;
+  currency: string;
+  startDate: string;
+  renewalDate: string;
+  trackingKeys: HotmartTrackingParams;
+  rawQuery?: any;
+  registeredUserId?: string | null;
+  isUserActive?: boolean | null;
+  lastLoginAt?: string | null;
+  createdAt: string;
+}
+

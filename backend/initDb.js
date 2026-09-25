@@ -604,6 +604,25 @@ const initDb = async () => {
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             KEY idx_hotmart_tx (transaction_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        // Columnas extendidas para tracking de Hotmart (Plan_nombre, Plan_Periodicidad, Plan_Precio, Plan_Dias, Plan_Slug)
+        await addColumnSafe(connection, 'hotmart_orders_log', "plan_name VARCHAR(255)");
+        await addColumnSafe(connection, 'hotmart_orders_log', "plan_periodicity VARCHAR(50)");
+        await addColumnSafe(connection, 'hotmart_orders_log', "plan_price DECIMAL(10, 2)");
+        await addColumnSafe(connection, 'hotmart_orders_log', "plan_days INT DEFAULT 30");
+        await addColumnSafe(connection, 'hotmart_orders_log', "start_date DATETIME");
+        await addColumnSafe(connection, 'hotmart_orders_log', "renewal_date DATETIME");
+        await addColumnSafe(connection, 'hotmart_orders_log', "buyer_phone VARCHAR(50)");
+        await addColumnSafe(connection, 'hotmart_orders_log', "buyer_country VARCHAR(100)");
+        await addColumnSafe(connection, 'hotmart_orders_log', "tracking_keys_json JSON");
+
+        // Columnas para gestión de suscripciones
+        await addColumnSafe(connection, 'user_subscriptions', "periodicity VARCHAR(50)");
+        await addColumnSafe(connection, 'user_subscriptions', "plan_price DECIMAL(10, 2)");
+        await addColumnSafe(connection, 'user_subscriptions', "plan_days INT DEFAULT 30");
+        await addColumnSafe(connection, 'user_subscriptions', "start_date DATETIME");
+        await addColumnSafe(connection, 'user_subscriptions', "renewal_date DATETIME");
+        await addColumnSafe(connection, 'user_subscriptions', "tracking_keys_json JSON");
         ////////// Fin de migraciones Hotmart Orders Log //////////
 
         ////////// Migración para Hooks de Atracción //////////
@@ -794,8 +813,8 @@ const initDb = async () => {
         const [proPlanExists] = await connection.query("SELECT id FROM plans WHERE slug = 'pro'");
         if (proPlanExists.length === 0) {
             await connection.query(
-                `INSERT INTO plans (name, slug, description, price_monthly, currency, stripe_price_id, limits_config, ui_features, is_active, is_recommended)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, 1)`,
+                `INSERT INTO plans (name, slug, description, price_monthly, price_annual, currency, stripe_price_id, limits_config, ui_features, is_active, is_recommended)
+                 VALUES (?, ?, ?, ?, 708.00, ?, ?, ?, ?, 1, 1)`,
                 [
                     'Plan Pro All-Access',
                     'pro',
@@ -809,7 +828,7 @@ const initDb = async () => {
             );
         } else {
             await connection.query(
-                `UPDATE plans SET name = 'Plan Pro All-Access', price_monthly = 79.00, currency = 'USD', description = 'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.', limits_config = ?, ui_features = ?, is_active = 1, is_recommended = 1 WHERE slug = 'pro'`,
+                `UPDATE plans SET name = 'Plan Pro All-Access', price_monthly = 79.00, price_annual = 708.00, currency = 'USD', description = 'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.', limits_config = ?, ui_features = ?, is_active = 1, is_recommended = 1 WHERE slug = 'pro'`,
                 [proLimits, proUiFeatures]
             );
         }
