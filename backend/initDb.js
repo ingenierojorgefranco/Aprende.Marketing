@@ -721,7 +721,7 @@ const initDb = async () => {
                         maxDomains: 0, 
                         maxEmailSequences: 0,
                         maxWhatsAppLaunches: 0,
-                        maxHooks: 3,
+                        maxHooks: 5,
                         features: { 
                             whatsappBot: false, 
                             blogGenerator: false, 
@@ -731,7 +731,7 @@ const initDb = async () => {
                             evergreenStrategy: false
                         }
                     }),
-                    features: JSON.stringify(['1 Proyecto Activo', '1 Página de Captación', '3 Reels de Prueba al mes con IA', '1 Artículo Mensual de Blog', 'Sin Dominio Propio']),
+                    features: JSON.stringify(['1 Proyecto Activo', '1 Página de Captación', '5 Reels de Prueba al mes con IA', '1 Artículo Mensual de Blog', 'Sin Dominio Propio']),
                     is_rec: false
                 },
                 {
