@@ -575,227 +575,212 @@ router.put('/projects/:id', async (req, res) => {
     }
 });
 
+////////// Fin de actualización - 07/06/2025 10:00 //////////
+
 // ======================================================
-//  GESTIÓN DE SUSCRIPCIONES & CLIENTES HOTMART (CONTROL TOTAL)
+//  SISTEMA DE SEGUIMIENTO Y CONTROL DE COMPRAS HOTMART
 // ======================================================
 
-router.get('/subscriptions-management', async (req, res) => {
+router.get('/hotmart-orders', async (req, res) => {
     try {
-        let [rows] = await pool.query(`
+        const { search, status, periodicity, page = 1, limit = 50 } = req.query;
+        const pageNum = parseInt(page, 10) || 1;
+        const limitNum = parseInt(limit, 10) || 50;
+        const offset = (pageNum - 1) * limitNum;
+
+        let whereClauses = [];
+        let params = [];
+
+        if (search && search.trim() !== '') {
+            const term = `%${search.trim()}%`;
+            whereClauses.push('(o.transaction_id LIKE ? OR o.buyer_name LIKE ? OR o.buyer_email LIKE ? OR o.buyer_phone LIKE ? OR o.affiliate_code LIKE ? OR o.plan_name LIKE ?)');
+            params.push(term, term, term, term, term, term);
+        }
+
+        if (status && status !== 'all') {
+            if (status === 'approved' || status === '1') {
+                whereClauses.push('(o.approval_code = "1" OR o.approval_status = "approved")');
+            } else if (status === 'pending_cash' || status === '2') {
+                whereClauses.push('(o.approval_code = "2" OR o.approval_status = "pending_cash")');
+            } else if (status === 'pending_paypal' || status === '3') {
+                whereClauses.push('(o.approval_code = "3" OR o.approval_status = "pending_paypal")');
+            }
+        }
+
+        if (periodicity && periodicity !== 'all') {
+            whereClauses.push('o.periodicity = ?');
+            params.push(periodicity);
+        }
+
+        const whereSQL = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+        // 1. Obtener métricas agregadas globales
+        const [statsRows] = await pool.query(`
             SELECT 
-                h.id,
-                h.transaction_id as transactionId,
-                h.buyer_name as buyerName,
-                h.buyer_email as buyerEmail,
-                h.buyer_phone as buyerPhone,
-                h.buyer_country as buyerCountry,
-                h.approval_code as approvalCode,
-                h.approval_status as status,
-                h.affiliate_code as affiliateCode,
-                h.plan_slug as planSlug,
-                h.plan_name as planName,
-                h.plan_periodicity as periodicity,
-                h.plan_price as planPrice,
-                h.plan_days as planDays,
-                h.start_date as startDate,
-                h.renewal_date as renewalDate,
-                h.amount,
-                h.currency,
-                h.itm_source as itmSource,
-                h.itm_medium as itmMedium,
-                h.itm_campaign as itmCampaign,
-                h.tracking_keys_json as trackingKeys,
-                h.raw_query_json as rawQuery,
-                h.created_at as createdAt,
-                u.id as registeredUserId,
-                u.is_active as isUserActive,
-                u.last_login_at as lastLoginAt
-            FROM hotmart_orders_log h
-            LEFT JOIN users u ON LOWER(TRIM(u.email)) = LOWER(TRIM(h.buyer_email))
-            ORDER BY h.created_at DESC
+                COUNT(*) as totalOrders,
+                COUNT(DISTINCT buyer_email) as totalClients,
+                COALESCE(SUM(CASE WHEN approval_code = '1' OR approval_status = 'approved' THEN amount ELSE 0 END), 0) as totalRevenue,
+                COUNT(CASE WHEN periodicity = 'mensual' AND (approval_code = '1' OR approval_status = 'approved') THEN 1 END) as monthlyApprovedCount,
+                COALESCE(SUM(CASE WHEN periodicity = 'mensual' AND (approval_code = '1' OR approval_status = 'approved') THEN amount ELSE 0 END), 0) as monthlyApprovedRevenue,
+                COUNT(CASE WHEN periodicity = 'anual' AND (approval_code = '1' OR approval_status = 'approved') THEN 1 END) as annualApprovedCount,
+                COALESCE(SUM(CASE WHEN periodicity = 'anual' AND (approval_code = '1' OR approval_status = 'approved') THEN amount ELSE 0 END), 0) as annualApprovedRevenue,
+                COUNT(CASE WHEN approval_code IN ('2', '3') OR approval_status LIKE 'pending%' THEN 1 END) as pendingCount,
+                COALESCE(SUM(CASE WHEN approval_code IN ('2', '3') OR approval_status LIKE 'pending%' THEN amount ELSE 0 END), 0) as pendingRevenue
+            FROM hotmart_orders_log
         `);
 
-        // Normalizar filas y campos calculados
-        const mapped = rows.map(r => {
-            let parsedTracking = null;
-            if (typeof r.trackingKeys === 'string') {
-                try { parsedTracking = JSON.parse(r.trackingKeys); } catch(e) {}
-            } else if (typeof r.trackingKeys === 'object') {
-                parsedTracking = r.trackingKeys;
-            }
+        // 2. Obtener total de registros que coinciden con los filtros actuales
+        const [countRows] = await pool.query(`
+            SELECT COUNT(*) as totalFiltered
+            FROM hotmart_orders_log o
+            ${whereSQL}
+        `, params);
+        const totalFiltered = countRows[0]?.totalFiltered || 0;
 
-            const isAnnual = String(r.planSlug || '').includes('anual') || String(r.periodicity || '').toLowerCase().includes('anual');
-            const periodicity = r.periodicity || (isAnnual ? 'Anual' : 'Mensual');
-            const planDays = r.planDays || (isAnnual ? 365 : 30);
-            const planPrice = r.planPrice || (isAnnual ? 708 : 79);
-            const startDate = r.startDate || r.createdAt || new Date();
-            const renewalDate = r.renewalDate || new Date(new Date(startDate).getTime() + (planDays * 24 * 60 * 60 * 1000));
+        // 3. Obtener listado de órdenes detalladas con usuario vinculado
+        const [orders] = await pool.query(`
+            SELECT 
+                o.*,
+                u.id as linked_user_id,
+                u.name as linked_user_name,
+                u.email as linked_user_email,
+                u.role as linked_user_role,
+                u.is_active as linked_user_active,
+                us.status as subscription_active_status,
+                us.starts_at as sub_starts_at,
+                us.expires_at as sub_expires_at
+            FROM hotmart_orders_log o
+            LEFT JOIN users u ON (o.user_id = u.id OR (o.buyer_email IS NOT NULL AND o.buyer_email != '' AND o.buyer_email = u.email))
+            LEFT JOIN user_subscriptions us ON (u.id = us.user_id AND us.status = 'active')
+            ${whereSQL}
+            ORDER BY o.created_at DESC
+            LIMIT ? OFFSET ?
+        `, [...params, limitNum, offset]);
 
-            return {
-                id: r.id ? String(r.id) : `sub-${r.transactionId}`,
-                transactionId: r.transactionId || 'HP000000000',
-                buyerName: r.buyerName || 'Cliente Hotmart',
-                buyerEmail: r.buyerEmail || 'cliente@hotmart.com',
-                buyerPhone: r.buyerPhone || '',
-                buyerCountry: r.buyerCountry || 'CO',
-                status: r.status || 'approved',
-                approvalCode: r.approvalCode || '1',
-                affiliateCode: r.affiliateCode || '',
-                planName: r.planName || (isAnnual ? 'Pro_Ilimitado (Anual)' : 'Pro_Ilimitado (Mensual)'),
-                planSlug: r.planSlug || (isAnnual ? 'pro_anual' : 'pro_mensual'),
-                periodicity: periodicity,
-                planPrice: parseFloat(planPrice),
-                planDays: parseInt(planDays, 10),
-                amount: parseFloat(r.amount || planPrice),
-                currency: r.currency || 'USD',
-                startDate: new Date(startDate).toISOString(),
-                renewalDate: new Date(renewalDate).toISOString(),
-                trackingKeys: parsedTracking || {
-                    Plan_nombre: 'Pro_Ilimitado',
-                    Plan_Periodicidad: periodicity,
-                    Plan_Precio: planPrice,
-                    Plan_Dias: planDays,
-                    Plan_Slug: isAnnual ? 'pro_anual' : 'pro_mensual'
-                },
-                rawQuery: r.rawQuery,
-                registeredUserId: r.registeredUserId ? String(r.registeredUserId) : null,
-                isUserActive: r.isUserActive !== undefined ? !!r.isUserActive : null,
-                lastLoginAt: r.lastLoginAt,
-                createdAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString()
-            };
-        });
-
-        res.json(mapped);
-    } catch (e) {
-        console.error("[Subscriptions Management Error]", e);
-        res.status(500).json({ error: e.message });
-    }
-});
-
-router.put('/subscriptions-management/:id', async (req, res) => {
-    const { id } = req.params;
-    const { status, renewalDate, planDays, notes } = req.body;
-    try {
-        const updateFields = [];
-        const params = [];
-
-        if (status) {
-            updateFields.push('approval_status = ?');
-            params.push(status);
-        }
-        if (renewalDate) {
-            updateFields.push('renewal_date = ?');
-            params.push(new Date(renewalDate).toISOString().slice(0, 19).replace('T', ' '));
-        }
-        if (planDays) {
-            updateFields.push('plan_days = ?');
-            params.push(parseInt(planDays, 10));
-        }
-
-        if (updateFields.length > 0) {
-            params.push(id);
-            await pool.query(`UPDATE hotmart_orders_log SET ${updateFields.join(', ')}, updated_at = NOW() WHERE id = ? OR transaction_id = ?`, params);
-            
-            // Si el estado cambia a canceled o active, sincronizar con user_subscriptions si existe
-            const [orderRows] = await pool.query('SELECT buyer_email, plan_slug FROM hotmart_orders_log WHERE id = ? OR transaction_id = ? LIMIT 1', [id, id]);
-            if (orderRows.length > 0 && status) {
-                const buyerEmail = orderRows[0].buyer_email;
-                if (buyerEmail) {
-                    const [uRows] = await pool.query('SELECT id FROM users WHERE email = ? LIMIT 1', [buyerEmail]);
-                    if (uRows.length > 0) {
-                        const uid = uRows[0].id;
-                        await pool.query(
-                            'UPDATE user_subscriptions SET status = ?, updated_at = NOW() WHERE user_id = ? AND status IN ("active", "canceled", "pending_cancellation")',
-                            [status === 'approved' ? 'active' : status, uid]
-                        );
-                        if (status === 'canceled') {
-                            await pool.query('UPDATE users SET subscription_status = "canceled" WHERE id = ?', [uid]);
-                        } else if (status === 'approved') {
-                            await pool.query('UPDATE users SET subscription_status = "active" WHERE id = ?', [uid]);
-                        }
-                    }
-                }
-            }
-        }
-
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-router.post('/subscriptions-management/simulate', async (req, res) => {
-    const { 
-        planType = 'monthly', // 'monthly' | 'annual'
-        buyerName = 'Usuario Simulado',
-        buyerEmail = 'test@cliente.com',
-        buyerPhone = '+57 300 1234567',
-        buyerCountry = 'CO'
-    } = req.body;
-
-    try {
-        const isAnnual = planType === 'annual';
-        const planName = 'Pro_Ilimitado';
-        const periodicity = isAnnual ? 'Anual' : 'Mensual';
-        const planPrice = isAnnual ? 708 : 79;
-        const planDays = isAnnual ? 365 : 30;
-        const planSlug = isAnnual ? 'pro_anual' : 'pro_mensual';
-
-        const now = new Date();
-        const startDate = now;
-        const renewalDate = new Date(startDate.getTime() + (planDays * 24 * 60 * 60 * 1000));
-        const transactionId = 'HP' + Math.floor(1000000000 + Math.random() * 9000000000);
-
-        const trackingKeys = {
-            Plan_nombre: planName,
-            Plan_Periodicidad: periodicity,
-            Plan_Precio: planPrice,
-            Plan_Dias: planDays,
-            Plan_Slug: planSlug
-        };
-
-        const formatSqlDate = (d) => d.toISOString().slice(0, 19).replace('T', ' ');
-
-        await pool.query(
-            `INSERT INTO hotmart_orders_log 
-             (transaction_id, buyer_name, buyer_email, buyer_phone, buyer_country, approval_code, approval_status, affiliate_code, plan_slug, plan_name, plan_periodicity, plan_price, plan_days, start_date, renewal_date, amount, currency, tracking_keys_json, raw_query_json) 
-             VALUES (?, ?, ?, ?, ?, '1', 'approved', 'AF789', ?, ?, ?, ?, ?, ?, ?, ?, 'USD', ?, ?)`,
-            [
-                transactionId,
-                buyerName,
-                buyerEmail,
-                buyerPhone,
-                buyerCountry,
-                planSlug,
-                planName,
-                periodicity,
-                planPrice,
-                planDays,
-                formatSqlDate(startDate),
-                formatSqlDate(renewalDate),
-                planPrice,
-                JSON.stringify(trackingKeys),
-                JSON.stringify({ simulated: true, ...trackingKeys })
-            ]
-        );
+        const mappedOrders = orders.map(ord => ({
+            id: ord.id,
+            transactionId: ord.transaction_id,
+            buyerName: ord.buyer_name,
+            buyerEmail: ord.buyer_email,
+            buyerPhone: ord.buyer_phone,
+            approvalCode: ord.approval_code || '1',
+            approvalStatus: ord.approval_status || 'approved',
+            affiliateCode: ord.affiliate_code,
+            planSlug: ord.plan_slug,
+            planName: ord.plan_name || (ord.periodicity === 'anual' ? 'Pro_Ilimitado Anual' : 'Pro_Ilimitado Mensual'),
+            periodicity: ord.periodicity || (ord.amount >= 200 ? 'anual' : 'mensual'),
+            durationDays: ord.duration_days || (ord.periodicity === 'anual' ? 365 : 30),
+            amount: parseFloat(ord.amount || 0),
+            currency: ord.currency || 'USD',
+            startDate: ord.start_date || ord.created_at,
+            renewalDate: ord.renewal_date || ord.sub_expires_at,
+            userId: ord.linked_user_id || ord.user_id,
+            isUserRegistered: !!ord.linked_user_id,
+            userRole: ord.linked_user_role,
+            itmSource: ord.itm_source,
+            itmMedium: ord.itm_medium,
+            itmCampaign: ord.itm_campaign,
+            rawParams: typeof ord.raw_query_json === 'string' ? JSON.parse(ord.raw_query_json) : (ord.raw_query_json || {}),
+            createdAt: ord.created_at,
+            updatedAt: ord.updated_at
+        }));
 
         res.json({
-            success: true,
-            transactionId,
-            planName,
-            periodicity,
-            planPrice,
-            planDays,
-            planSlug,
-            startDate: startDate.toISOString(),
-            renewalDate: renewalDate.toISOString(),
-            trackingKeys
+            stats: statsRows[0] || {},
+            orders: mappedOrders,
+            pagination: {
+                total: totalFiltered,
+                page: pageNum,
+                limit: limitNum,
+                totalPages: Math.ceil(totalFiltered / limitNum) || 1
+            }
         });
     } catch (e) {
+        console.error("[Hotmart Orders Error]", e);
         res.status(500).json({ error: e.message });
     }
 });
 
-////////// Fin de actualización - 07/06/2025 10:00 //////////
+/**
+ * Aprobación manual de un pedido en efectivo o paypal por el administrador
+ */
+router.post('/hotmart-orders/:id/approve', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [orders] = await pool.query('SELECT * FROM hotmart_orders_log WHERE id = ?', [id]);
+        if (orders.length === 0) {
+            return res.status(404).json({ error: 'Orden no encontrada' });
+        }
+        const order = orders[0];
+        const isAnnual = order.periodicity === 'anual' || order.amount >= 200;
+        const durationDays = order.duration_days || (isAnnual ? 365 : 30);
+        const startDate = new Date();
+        const renewalDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+        // 1. Actualizar estado en hotmart_orders_log
+        await pool.query(
+            `UPDATE hotmart_orders_log 
+             SET approval_code = '1', approval_status = 'approved', start_date = ?, renewal_date = ?, updated_at = NOW() 
+             WHERE id = ?`,
+            [startDate, renewalDate, id]
+        );
+
+        // 2. Si el usuario existe en el sistema, activar su suscripción inmediatamente
+        let userId = order.user_id;
+        if (!userId && order.buyer_email) {
+            const [uRows] = await pool.query('SELECT id FROM users WHERE email = ?', [order.buyer_email]);
+            if (uRows.length > 0) userId = uRows[0].id;
+        }
+
+        if (userId) {
+            const planSlug = isAnnual ? 'pro-anual' : 'pro';
+            const planName = order.plan_name || (isAnnual ? 'Pro_Ilimitado Anual' : 'Pro_Ilimitado Mensual');
+
+            const [proPlans] = await pool.query(`SELECT limits_config FROM plans WHERE slug = 'pro' LIMIT 1`);
+            const proLimits = proPlans.length > 0 
+                ? (typeof proPlans[0].limits_config === 'string' ? JSON.parse(proPlans[0].limits_config) : proPlans[0].limits_config)
+                : DEFAULT_LIMITS;
+
+            const [existingSub] = await pool.query('SELECT id FROM user_subscriptions WHERE user_id = ? AND status = "active" LIMIT 1', [userId]);
+            if (existingSub.length > 0) {
+                await pool.query(
+                    `UPDATE user_subscriptions 
+                     SET plan_slug = ?, plan_name = ?, periodicity = ?, price = ?, duration_days = ?, starts_at = ?, expires_at = ?, status = 'active', updated_at = NOW() 
+                     WHERE id = ?`,
+                    [planSlug, planName, order.periodicity, order.amount, durationDays, startDate, renewalDate, existingSub[0].id]
+                );
+            } else {
+                await pool.query(
+                    `INSERT INTO user_subscriptions (user_id, plan_slug, plan_name, periodicity, price, duration_days, starts_at, expires_at, status, hotmart_purchase_id, created_at) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, NOW())`,
+                    [userId, planSlug, planName, order.periodicity, order.amount, durationDays, startDate, renewalDate, order.transaction_id]
+                );
+            }
+
+            await pool.query(
+                `UPDATE users SET subscription_status = 'active', plan_limits = ? WHERE id = ?`,
+                [JSON.stringify(proLimits), userId]
+            );
+            await pool.query(`UPDATE projects SET plan_slug = ? WHERE user_id = ?`, [planSlug, userId]);
+            clearLimitsCache(userId);
+
+            // Registrar en user_payments
+            await pool.query(
+                `INSERT INTO user_payments (user_id, transaction_id, amount, currency, status, payment_method, affiliate_code, buyer_name, approval_code) 
+                 VALUES (?, ?, ?, ?, 'approved', 'hotmart_manual_approval', ?, ?, '1') 
+                 ON DUPLICATE KEY UPDATE status = 'approved', approval_code = '1'`,
+                [userId, order.transaction_id, order.amount, order.currency, order.affiliate_code, order.buyer_name]
+            );
+        }
+
+        const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+        await logSystemActivity(req.user.id, admin[0]?.name, 'ADMIN_APPROVE_HOTMART_ORDER', 'order', order.transaction_id, { orderId: id, buyer: order.buyer_email });
+
+        res.json({ success: true, message: 'Orden aprobada y suscripción activada exitosamente' });
+    } catch (e) {
+        console.error("[Approve Hotmart Order Error]", e);
+        res.status(500).json({ error: e.message });
+    }
+});
 
 export default router;

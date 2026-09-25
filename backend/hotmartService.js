@@ -3,101 +3,6 @@ import pool from './db.js';
 import bcrypt from 'bcryptjs';
 
 /**
- * Extrae y normaliza las claves de seguimiento de Hotmart (Plan_nombre, Plan_Periodicidad, Plan_Precio, Plan_Dias, Plan_Slug)
- * tanto de la estructura del Webhook como de URLs de redirección.
- */
-export const extractHotmartTrackingKeys = (payload = {}, query = {}) => {
-    const data = payload?.data || {};
-    const purchase = data.purchase || {};
-    
-    // Fuentes donde Hotmart puede enviar las claves de seguimiento
-    const candidates = [
-        query,
-        purchase.tracking,
-        data.tracking,
-        purchase.tracking_key,
-        purchase.tracking_parameters,
-        data.custom_tracking,
-        data.custom_fields,
-        purchase.custom_fields,
-        payload.tracking,
-        data.order_tracking,
-        purchase.order_bump,
-        purchase,
-        data,
-        payload
-    ].filter(Boolean);
-
-    const findKey = (targetName) => {
-        const lower = targetName.toLowerCase();
-        for (const candidate of candidates) {
-            if (typeof candidate !== 'object') continue;
-            for (const key of Object.keys(candidate)) {
-                if (key.toLowerCase() === lower && candidate[key] !== undefined && candidate[key] !== null && candidate[key] !== '') {
-                    return candidate[key];
-                }
-            }
-        }
-        return undefined;
-    };
-
-    let rawName = findKey('Plan_nombre') || findKey('plan_nombre') || findKey('planName') || '';
-    let rawPeriodicity = findKey('Plan_Periodicidad') || findKey('plan_periodicidad') || findKey('periodicity') || '';
-    let rawPrice = findKey('Plan_Precio') || findKey('plan_precio') || findKey('price') || purchase.price?.value;
-    let rawDays = findKey('Plan_Dias') || findKey('plan_dias') || findKey('days');
-    let rawSlug = findKey('Plan_Slug') || findKey('plan_slug') || findKey('slug') || '';
-
-    // Determinar periodicidad: Mensual (30 días, $79) vs Anual (365 días, $708)
-    const isAnnual = 
-        String(rawSlug).toLowerCase().includes('anual') || 
-        String(rawSlug).toLowerCase().includes('annual') ||
-        String(rawPeriodicity).toLowerCase().includes('anual') ||
-        String(rawPeriodicity).toLowerCase().includes('annual') ||
-        parseInt(rawDays, 10) > 60 ||
-        parseFloat(rawPrice) > 200;
-
-    const periodicity = isAnnual ? 'Anual' : 'Mensual';
-    const planSlug = isAnnual ? 'pro_anual' : 'pro_mensual';
-    const planName = rawName || (isAnnual ? 'Pro_Ilimitado' : 'Pro_Ilimitado');
-    const planDays = rawDays ? parseInt(rawDays, 10) : (isAnnual ? 365 : 30);
-    const planPrice = rawPrice ? parseFloat(rawPrice) : (isAnnual ? 708 : 79);
-
-    // Fechas: Inicio y Renovación automática calculada
-    const now = new Date();
-    const purchaseDate = purchase.order_date || purchase.approved_date ? new Date(purchase.order_date || purchase.approved_date) : now;
-    const startDate = !isNaN(purchaseDate.getTime()) ? purchaseDate : now;
-    
-    let renewalDate = null;
-    if (purchase.date_next_charge || data.date_next_charge) {
-        const nextCharge = new Date(purchase.date_next_charge || data.date_next_charge);
-        if (!isNaN(nextCharge.getTime())) {
-            renewalDate = nextCharge;
-        }
-    }
-    if (!renewalDate) {
-        renewalDate = new Date(startDate.getTime() + (planDays * 24 * 60 * 60 * 1000));
-    }
-
-    return {
-        planName,
-        periodicity,
-        planPrice,
-        planDays,
-        planSlug,
-        isAnnual,
-        startDate,
-        renewalDate,
-        rawTrackingKeys: {
-            Plan_nombre: planName,
-            Plan_Periodicidad: periodicity,
-            Plan_Precio: planPrice,
-            Plan_Dias: planDays,
-            Plan_Slug: planSlug
-        }
-    };
-};
-
-/**
  * Maneja el Webhook de Hotmart (Postback)
  * Formato esperado: POST con JSON de Hotmart
  */
@@ -114,23 +19,43 @@ export const handleWebhook = async (payload) => {
     const userEmail = data.buyer?.email || data.subscriber?.email;
     const offerCode = data.purchase?.offer?.code;
     
-    // Extracción de claves de seguimiento enviadas por Hotmart
-    const trackingInfo = extractHotmartTrackingKeys(payload);
-    console.log(`[Hotmart Webhook] Parámetros extraídos: Plan=${trackingInfo.planSlug}, Periodicidad=${trackingInfo.periodicity}, Precio=${trackingInfo.planPrice}, Días=${trackingInfo.planDays}`);
+    // Extracción de parámetros clave de tracking y planes (Imagen 1 y Imagen 2: Plan Mensual y Plan Anual)
+    const rawPlanNombre = payload.Plan_nombre || data.Plan_nombre || data.purchase?.plan_nombre || payload.plan_nombre || '';
+    const rawPlanPeriodicidad = (payload.Plan_Periodicidad || data.Plan_Periodicidad || payload.plan_periodicidad || '').toLowerCase();
+    const rawPlanPrecio = payload.Plan_Precio || data.Plan_Precio || payload.plan_precio || data.purchase?.price?.value;
+    const rawPlanDias = payload.Plan_Dias || data.Plan_Dias || payload.plan_dias;
+    
+    // Determinar si es anual
+    const isAnnual = rawPlanPeriodicidad === 'anual' || 
+                     rawPlanPeriodicidad === 'annual' || 
+                     (rawPlanDias && parseInt(rawPlanDias) > 100) ||
+                     (rawPlanPrecio && parseFloat(rawPlanPrecio) > 200) ||
+                     (rawPlanNombre && rawPlanNombre.toLowerCase().includes('anual'));
+
+    const periodicity = isAnnual ? 'anual' : 'mensual';
+    const planName = rawPlanNombre || (isAnnual ? 'Pro_Ilimitado Anual' : 'Pro_Ilimitado Mensual');
+    const durationDays = rawPlanDias ? parseInt(rawPlanDias, 10) : (isAnnual ? 365 : 30);
+    const planPrice = rawPlanPrecio ? parseFloat(rawPlanPrecio) : (isAnnual ? 708.00 : 79.00);
+
+    // Fechas de inicio y renovación calculadas
+    const startDate = new Date();
+    const renewalDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
 
     // Datos adicionales para el historial (Enfoque Híbrido)
-    const buyerPhone = data.buyer?.checkout_phone;
+    const buyerPhone = data.buyer?.checkout_phone || data.buyer?.phone;
     const buyerCountry = data.buyer?.address?.country_iso;
     const transactionId = data.purchase?.transaction;
-    const amount = trackingInfo.planPrice || data.purchase?.price?.value || (trackingInfo.isAnnual ? 708 : 79);
+    const amount = rawPlanPrecio ? parseFloat(rawPlanPrecio) : data.purchase?.price?.value;
     const currency = data.purchase?.price?.currency_value || 'USD';
-    const paymentType = data.purchase?.payment?.type || 'Hotmart';
+    const paymentType = data.purchase?.payment?.type;
     const subscriberCode = data.subscription?.subscriber?.code || data.subscriber?.code;
-    const nextChargeDate = data.purchase?.date_next_charge || data.date_next_charge || trackingInfo.renewalDate;
+    const nextChargeDate = data.purchase?.date_next_charge || data.date_next_charge;
     const buyerData = data.buyer || {};
-    const affiliateCode = data.affiliate?.affiliate_code || data.purchase?.affiliate_code || null;
     
-    // Identificación de usuario por SRC o Email
+    ////////// Lógica reforzada para detección de userId - 25/05/2025 11:30 //////////
+    // Intentamos obtener el ID del usuario desde el parámetro 'src' que enviamos en el link
+    // El formato esperado ahora es "userId-projectId" o simplemente "userId"
+    // Hotmart puede enviarlo en purchase.src o purchase.origin.src
     let rawSrc = data.purchase?.src || data.purchase?.origin?.src || data.affiliate?.src || null;
     let userId = null;
     let projectId = null;
@@ -147,12 +72,14 @@ export const handleWebhook = async (payload) => {
     }
 
     if (!userId && userEmail) {
+        // Fallback 1: Buscar usuario por email si no viene el SRC o es inválido
         console.log(`[Hotmart Webhook] SRC no encontrado o inválido, intentando fallback por email: ${userEmail}`);
         const [uRows] = await pool.query("SELECT id FROM users WHERE email = ?", [userEmail]);
         if (uRows.length > 0) {
             userId = uRows[0].id;
             console.log(`[Hotmart Webhook] Usuario encontrado por email: ${userId}`);
         } else if (status === 'approved' || status === 'complete' || event === 'PURCHASE_APPROVED') {
+            // Auto-crear usuario nuevo que compró directamente en Hotmart para no perder la suscripción
             const buyerName = data.buyer?.name || userEmail.split('@')[0];
             const tempPassword = Math.random().toString(36).slice(-8) + 'Aa1!';
             const passwordHash = await bcrypt.hash(tempPassword, 10);
@@ -166,67 +93,7 @@ export const handleWebhook = async (payload) => {
     }
 
     console.log(`[Hotmart Webhook] Resultado identificación: UserID=${userId || 'No encontrado'}, ProjectID=${projectId || 'N/A'}`);
-
-    // Formatear fechas para MySQL
-    const formatSqlDate = (d) => {
-        if (!d) return null;
-        const dateObj = new Date(d);
-        if (isNaN(dateObj.getTime())) return null;
-        return dateObj.toISOString().slice(0, 19).replace('T', ' ');
-    };
-
-    const sqlStartDate = formatSqlDate(trackingInfo.startDate);
-    const sqlRenewalDate = formatSqlDate(trackingInfo.renewalDate);
-
-    // Registro siempre en 'hotmart_orders_log' para control total del administrador
-    if (transactionId) {
-        try {
-            await pool.query(
-                `INSERT INTO hotmart_orders_log 
-                 (transaction_id, buyer_name, buyer_email, buyer_phone, buyer_country, approval_code, approval_status, affiliate_code, plan_slug, plan_name, plan_periodicity, plan_price, plan_days, start_date, renewal_date, amount, currency, tracking_keys_json, raw_query_json) 
-                 VALUES (?, ?, ?, ?, ?, '1', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
-                 ON DUPLICATE KEY UPDATE 
-                     buyer_name = IF(VALUES(buyer_name) != '', VALUES(buyer_name), buyer_name),
-                     buyer_email = IF(VALUES(buyer_email) != '', VALUES(buyer_email), buyer_email),
-                     buyer_phone = IF(VALUES(buyer_phone) != '', VALUES(buyer_phone), buyer_phone),
-                     buyer_country = IF(VALUES(buyer_country) != '', VALUES(buyer_country), buyer_country),
-                     approval_status = VALUES(approval_status),
-                     plan_slug = VALUES(plan_slug),
-                     plan_name = VALUES(plan_name),
-                     plan_periodicity = VALUES(plan_periodicity),
-                     plan_price = VALUES(plan_price),
-                     plan_days = VALUES(plan_days),
-                     start_date = VALUES(start_date),
-                     renewal_date = VALUES(renewal_date),
-                     amount = VALUES(amount),
-                     tracking_keys_json = VALUES(tracking_keys_json),
-                     raw_query_json = VALUES(raw_query_json),
-                     updated_at = NOW()`,
-                [
-                    transactionId,
-                    data.buyer?.name || userEmail || 'Cliente Hotmart',
-                    userEmail || '',
-                    buyerPhone || '',
-                    buyerCountry || '',
-                    status || 'approved',
-                    affiliateCode,
-                    trackingInfo.planSlug,
-                    trackingInfo.planName,
-                    trackingInfo.periodicity,
-                    trackingInfo.planPrice,
-                    trackingInfo.planDays,
-                    sqlStartDate,
-                    sqlRenewalDate,
-                    amount,
-                    currency,
-                    JSON.stringify(trackingInfo.rawTrackingKeys),
-                    JSON.stringify(payload)
-                ]
-            );
-        } catch (logErr) {
-            console.warn("[Hotmart Orders Log Webhook Insert Error]", logErr.message);
-        }
-    }
+    ////////// Fin de actualización - 25/05/2025 11:30 //////////
 
     if (!userId) {
         console.warn("[Hotmart Webhook] No se pudo identificar al usuario (ni por SRC ni por Email).");
@@ -237,33 +104,46 @@ export const handleWebhook = async (payload) => {
     if (event === 'SUBSCRIPTION_CANCELLATION') {
         console.log(`[Hotmart Webhook] Procesando CANCELACIÓN PROGRAMADA para User ${userId} (Producto ${productId})`);
         
+        // 1. Identificar el plan por el ID de producto (mensual o anual)
         const [planRows] = await pool.query("SELECT slug FROM plans WHERE hotmart_id = ? OR hotmart_id_annual = ? LIMIT 1", [productId, productId]);
-        const planSlug = planRows.length > 0 ? planRows[0].slug : trackingInfo.planSlug;
+        const planSlug = planRows.length > 0 ? planRows[0].slug : null;
 
         if (planSlug) {
-            let expiresAt = sqlRenewalDate;
+            // Convertir timestamp de Hotmart a formato MySQL DATETIME
+            let expiresAt = null;
+            if (nextChargeDate) {
+                expiresAt = new Date(nextChargeDate).toISOString().slice(0, 19).replace('T', ' ');
+            }
 
+            // 2. Marcar la suscripción como 'pending_cancellation' y guardar fecha de expiración
+            // Intentamos primero por subscriber_code (precisión total)
             let updateResult;
             if (subscriberCode) {
+                console.log(`[Hotmart Webhook] Intentando cancelar por subscriber_code: ${subscriberCode}`);
                 [updateResult] = await pool.query(
                     `UPDATE user_subscriptions 
-                     SET status = 'pending_cancellation', expires_at = ?, renewal_date = ?, updated_at = NOW() 
+                     SET status = 'pending_cancellation', expires_at = ?, updated_at = NOW() 
                      WHERE user_id = ? AND subscriber_code = ? AND status = 'active' 
                      LIMIT 1`,
-                    [expiresAt, expiresAt, userId, subscriberCode]
+                    [expiresAt, userId, subscriberCode]
                 );
             }
 
+            // Si no se actualizó nada (o no había code), intentamos por plan_slug (compatibilidad con suscripciones viejas)
             if (!updateResult || updateResult.affectedRows === 0) {
+                console.log(`[Hotmart Webhook] No se encontró suscripción por subscriber_code, intentando por plan_slug: ${planSlug}`);
                 await pool.query(
                     `UPDATE user_subscriptions 
-                     SET status = 'pending_cancellation', expires_at = ?, renewal_date = ?, updated_at = NOW() 
-                     WHERE user_id = ? AND (plan_slug = ? OR plan_slug = 'pro' OR plan_slug = 'pro_mensual' OR plan_slug = 'pro_anual') AND status = 'active' 
+                     SET status = 'pending_cancellation', expires_at = ?, updated_at = NOW() 
+                     WHERE user_id = ? AND plan_slug = ? AND status = 'active' 
                      LIMIT 1`,
-                    [expiresAt, expiresAt, userId, planSlug]
+                    [expiresAt, userId, planSlug]
                 );
             }
 
+            console.log(`[Hotmart Webhook] Suscripción procesada para cancelación programada. Expira el: ${expiresAt}`);
+            
+            // Log de actividad del sistema
             try {
                 const [userRows] = await pool.query("SELECT name FROM users WHERE id = ?", [userId]);
                 const userName = userRows[0]?.name || 'Usuario Hotmart';
@@ -281,104 +161,77 @@ export const handleWebhook = async (payload) => {
 
     // Lógica de activación si la compra es aprobada o renovación exitosa
     if (status === 'approved' || status === 'complete' || event === 'PURCHASE_APPROVED') {
-        console.log(`[Hotmart Webhook] Activando plan para User ${userId} (${trackingInfo.periodicity}: ${trackingInfo.planSlug})`);
+        console.log(`[Hotmart Webhook] Activando plan para User ${userId} (Producto ${productId}, Oferta ${offerCode || 'N/A'})`);
 
-        // 1. Buscar plan en DB (por ID de producto o slug) con fallback inteligente a 'pro'
-        let matchedPlan = null;
-        if (productId) {
-            const [planRows] = await pool.query(
-                `SELECT id, limits_config, slug, name FROM plans 
-                 WHERE (hotmart_id = ? OR hotmart_id_annual = ?) 
-                 AND (
-                     hotmart_offer = ? OR hotmart_offer_annual = ? 
-                     OR (hotmart_offer IS NULL AND hotmart_offer_annual IS NULL)
-                     OR (hotmart_offer = '' AND (hotmart_offer_annual IS NULL OR hotmart_offer_annual = ''))
-                     OR ? IS NULL OR ? = ''
-                 )
-                 ORDER BY (hotmart_offer = ? OR hotmart_offer_annual = ?) DESC LIMIT 1`, 
-                [productId, productId, offerCode, offerCode, offerCode, offerCode, offerCode, offerCode]
-            );
-            if (planRows.length > 0) matchedPlan = planRows[0];
+        // 1. Buscar el plan que coincide con este Hotmart ID y Oferta (tanto mensual como anual)
+        // Priorizamos la coincidencia exacta de la oferta si existe
+        const [planRows] = await pool.query(
+            `SELECT id, limits_config, slug FROM plans 
+             WHERE (hotmart_id = ? OR hotmart_id_annual = ?) 
+             AND (
+                 hotmart_offer = ? OR hotmart_offer_annual = ? 
+                 OR (hotmart_offer IS NULL AND hotmart_offer_annual IS NULL)
+                 OR (hotmart_offer = '' AND (hotmart_offer_annual IS NULL OR hotmart_offer_annual = ''))
+                 OR ? IS NULL OR ? = ''
+             )
+             ORDER BY (hotmart_offer = ? OR hotmart_offer_annual = ?) DESC LIMIT 1`, 
+            [productId, productId, offerCode, offerCode, offerCode, offerCode, offerCode, offerCode]
+        );
+        
+        console.log(`[Hotmart Webhook] Planes encontrados en DB para Producto ${productId}: ${planRows.length}`);
+        
+        let plan = null;
+        if (planRows.length > 0) {
+            plan = planRows[0];
+            console.log(`[Hotmart Webhook] Plan seleccionado por ID/Oferta: ${plan.slug} (ID: ${plan.id})`);
+        } else {
+            console.log(`[Hotmart Webhook] No hubo coincidencia por Hotmart ID (${productId}) u Oferta (${offerCode}), usando fallback automático al Plan Pro`);
+            const [fallbackPlans] = await pool.query("SELECT id, limits_config, slug FROM plans WHERE slug = 'pro' OR is_recommended = 1 LIMIT 1");
+            if (fallbackPlans.length > 0) {
+                plan = fallbackPlans[0];
+            } else {
+                console.error(`[Hotmart Error] No hay ningún plan Pro en base de datos.`);
+                return;
+            }
         }
 
-        if (!matchedPlan) {
-            const [proRows] = await pool.query("SELECT id, limits_config, slug, name FROM plans WHERE slug = 'pro' LIMIT 1");
-            if (proRows.length > 0) matchedPlan = proRows[0];
-        }
+        const limitsConfig = typeof plan.limits_config === 'string' 
+            ? JSON.parse(plan.limits_config) 
+            : plan.limits_config;
 
-        const limitsConfig = matchedPlan?.limits_config 
-            ? (typeof matchedPlan.limits_config === 'string' ? JSON.parse(matchedPlan.limits_config) : matchedPlan.limits_config)
-            : {
-                maxProjects: 9999,
-                maxLandings: 9999,
-                maxArticles: 9999,
-                maxDomains: 9999,
-                maxEmailSequences: 9999,
-                maxEmailSequencesNurturing: 9999,
-                maxWhatsAppLaunches: 9999,
-                maxHooks: 9999
-            };
-
-        // Enriquecer limits con datos del plan específico (mensual o anual)
-        const enrichedLimits = {
-            ...limitsConfig,
-            planName: 'pro',
-            planSlug: trackingInfo.planSlug,
-            planDisplayName: trackingInfo.isAnnual ? 'Pro Ilimitado (Anual)' : 'Pro Ilimitado (Mensual)',
-            periodicity: trackingInfo.periodicity,
-            planPrice: trackingInfo.planPrice,
-            planDays: trackingInfo.planDays,
-            startDate: trackingInfo.startDate.toISOString(),
-            renewalDate: trackingInfo.renewalDate.toISOString()
-        };
-
-        // 2. Gestionar el "Inventario de Suscripciones"
+        // 2. Gestionar el "Inventario de Suscripciones" (Reactivación Fair Play)
+        // Buscamos si ya tiene una suscripción para este plan que esté activa o pendiente de cancelar
         const [existingSub] = await pool.query(
-            "SELECT id FROM user_subscriptions WHERE user_id = ? AND (plan_slug = ? OR plan_slug = 'pro' OR plan_slug = 'pro_mensual' OR plan_slug = 'pro_anual') AND status IN ('active', 'pending_cancellation') LIMIT 1",
-            [userId, trackingInfo.planSlug]
+            "SELECT id FROM user_subscriptions WHERE user_id = ? AND plan_slug = ? AND status IN ('active', 'pending_cancellation') LIMIT 1",
+            [userId, plan.slug]
         );
 
         if (existingSub.length > 0) {
-            console.log(`[Hotmart Webhook] Actualizando suscripción existente ${existingSub[0].id} para ${trackingInfo.planSlug}`);
+            // Reactivamos la suscripción existente con las fechas calculadas
+            console.log(`[Hotmart Webhook] Reactivando suscripción existente ${existingSub[0].id} para el plan ${plan.slug} (${periodicity})`);
             await pool.query(
                 `UPDATE user_subscriptions 
-                 SET status = 'active', plan_slug = ?, periodicity = ?, plan_price = ?, plan_days = ?, start_date = ?, renewal_date = ?, expires_at = ?, hotmart_purchase_id = ?, subscriber_code = ?, offer_code = ?, tracking_keys_json = ?, updated_at = NOW() 
+                 SET status = 'active', 
+                     plan_name = ?,
+                     periodicity = ?,
+                     price = ?,
+                     duration_days = ?,
+                     starts_at = ?,
+                     expires_at = ?, 
+                     hotmart_purchase_id = ?, 
+                     subscriber_code = ?, 
+                     offer_code = ?, 
+                     updated_at = NOW() 
                  WHERE id = ?`,
-                [
-                    trackingInfo.planSlug,
-                    trackingInfo.periodicity,
-                    trackingInfo.planPrice,
-                    trackingInfo.planDays,
-                    sqlStartDate,
-                    sqlRenewalDate,
-                    sqlRenewalDate,
-                    transactionId || null,
-                    subscriberCode,
-                    offerCode,
-                    JSON.stringify(trackingInfo.rawTrackingKeys),
-                    existingSub[0].id
-                ]
+                [planName, periodicity, planPrice, durationDays, startDate, renewalDate, data.purchase?.transaction || null, subscriberCode, offerCode, existingSub[0].id]
             );
         } else {
-            console.log(`[Hotmart Webhook] Creando nueva suscripción para ${trackingInfo.planSlug} (${trackingInfo.periodicity})`);
+            // Insertar una nueva suscripción con fechas calculadas de inicio y renovación
+            console.log(`[Hotmart Webhook] Creando nueva suscripción para el plan ${plan.slug} (${periodicity}, vence: ${renewalDate})`);
             await pool.query(
-                `INSERT INTO user_subscriptions 
-                 (user_id, plan_slug, periodicity, plan_price, plan_days, start_date, renewal_date, expires_at, status, hotmart_purchase_id, subscriber_code, offer_code, tracking_keys_json) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)`,
-                [
-                    userId,
-                    trackingInfo.planSlug,
-                    trackingInfo.periodicity,
-                    trackingInfo.planPrice,
-                    trackingInfo.planDays,
-                    sqlStartDate,
-                    sqlRenewalDate,
-                    sqlRenewalDate,
-                    transactionId || null,
-                    subscriberCode,
-                    offerCode,
-                    JSON.stringify(trackingInfo.rawTrackingKeys)
-                ]
+                `INSERT INTO user_subscriptions (user_id, plan_slug, plan_name, periodicity, price, duration_days, starts_at, expires_at, status, hotmart_purchase_id, subscriber_code, offer_code) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)`,
+                [userId, plan.slug, planName, periodicity, planPrice, durationDays, startDate, renewalDate, data.purchase?.transaction || null, subscriberCode, offerCode]
             );
         }
 
@@ -391,29 +244,80 @@ export const handleWebhook = async (payload) => {
                 country = COALESCE(?, country),
                 hotmart_metadata = ?
              WHERE id = ?`,
-            [JSON.stringify(enrichedLimits), buyerPhone, buyerCountry, JSON.stringify(buyerData), userId]
+            [JSON.stringify(limitsConfig), buyerPhone, buyerCountry, JSON.stringify(buyerData), userId]
         );
 
         // 4. Registrar el pago en el historial financiero
         if (transactionId) {
             await pool.query(
-                `INSERT INTO user_payments (user_id, transaction_id, amount, currency, status, payment_method) 
-                 VALUES (?, ?, ?, ?, 'approved', ?)
-                 ON DUPLICATE KEY UPDATE amount = VALUES(amount), status = 'approved'`,
-                [userId, transactionId, amount, currency, paymentType]
+                `INSERT INTO user_payments (user_id, transaction_id, amount, currency, status, payment_method, affiliate_code, buyer_name, approval_code) 
+                 VALUES (?, ?, ?, ?, 'approved', ?, ?, ?, '1')`,
+                [userId, transactionId, amount, currency, paymentType || 'hotmart', data.affiliate?.code || null, buyerData.name || null]
             );
+
+            // 4.1 Registrar / Actualizar en hotmart_orders_log para total control administrativo
+            try {
+                const buyerFullName = buyerData.name || userEmail.split('@')[0];
+                const affCode = data.affiliate?.code || data.affiliate?.affiliate_code || null;
+                const itmSrc = data.purchase?.origin?.src || data.purchase?.src || data.purchase?.tracking?.source || null;
+                const itmMed = data.purchase?.tracking?.medium || null;
+                const itmCmp = data.purchase?.tracking?.campaign || null;
+
+                await pool.query(
+                    `INSERT INTO hotmart_orders_log 
+                     (transaction_id, buyer_name, buyer_email, buyer_phone, approval_code, approval_status, affiliate_code, plan_slug, plan_name, periodicity, duration_days, amount, currency, start_date, renewal_date, user_id, itm_source, itm_medium, itm_campaign, raw_query_json) 
+                     VALUES (?, ?, ?, ?, '1', 'approved', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+                     ON DUPLICATE KEY UPDATE 
+                         buyer_name = IF(VALUES(buyer_name) != '', VALUES(buyer_name), buyer_name),
+                         buyer_email = IF(VALUES(buyer_email) != '', VALUES(buyer_email), buyer_email),
+                         buyer_phone = IF(VALUES(buyer_phone) != '', VALUES(buyer_phone), buyer_phone),
+                         approval_code = '1',
+                         approval_status = 'approved',
+                         plan_name = VALUES(plan_name),
+                         periodicity = VALUES(periodicity),
+                         duration_days = VALUES(duration_days),
+                         amount = VALUES(amount),
+                         start_date = VALUES(start_date),
+                         renewal_date = VALUES(renewal_date),
+                         user_id = IFNULL(VALUES(user_id), user_id),
+                         raw_query_json = VALUES(raw_query_json),
+                         updated_at = NOW()`,
+                    [
+                        transactionId,
+                        buyerFullName,
+                        userEmail,
+                        buyerPhone || null,
+                        affCode,
+                        plan.slug,
+                        planName,
+                        periodicity,
+                        durationDays,
+                        amount || planPrice,
+                        currency,
+                        startDate,
+                        renewalDate,
+                        userId,
+                        itmSrc,
+                        itmMed,
+                        itmCmp,
+                        JSON.stringify(payload)
+                    ]
+                );
+            } catch (logErr) {
+                console.warn("[Hotmart Orders Log Error]", logErr.message);
+            }
         }
 
         // 5. Actualizar Proyecto Específico si se proporcionó projectId
         if (projectId) {
-            console.log(`[Hotmart Webhook] Actualizando Proyecto ${projectId} con Plan ${trackingInfo.planSlug}`);
+            console.log(`[Hotmart Webhook] Actualizando Proyecto ${projectId} con Plan ${plan.slug}`);
             await pool.query(
                 `UPDATE projects SET plan_id = ?, plan_slug = ? WHERE id = ? AND user_id = ?`,
-                [matchedPlan?.id || 1, 'pro', projectId, userId]
+                [plan.id, plan.slug, projectId, userId]
             );
         }
 
-        // 6. Log System Activity
+        // 4. Log System Activity
         try {
             const [userRows] = await pool.query("SELECT name FROM users WHERE id = ?", [userId]);
             const userName = userRows[0]?.name || 'Usuario Hotmart';
@@ -424,14 +328,8 @@ export const handleWebhook = async (payload) => {
                 [
                     userId, 
                     userName, 
-                    trackingInfo.planSlug, 
-                    JSON.stringify({ 
-                        hotmart_product_id: productId, 
-                        status: status, 
-                        periodicity: trackingInfo.periodicity,
-                        price: trackingInfo.planPrice,
-                        renewal_date: sqlRenewalDate
-                    })
+                    plan.slug, 
+                    JSON.stringify({ hotmart_product_id: productId, status: status })
                 ]
             );
         } catch (e) {
@@ -439,6 +337,7 @@ export const handleWebhook = async (payload) => {
         }
     } 
     else if (status === 'refunded' || status === 'canceled' || status === 'expired') {
+        // Lógica de degradación si el usuario pide reembolso o cancela
         console.log(`[Hotmart Webhook] Degradando plan para User ${userId} por status: ${status}`);
         
         const [starterPlan] = await pool.query("SELECT limits_config FROM plans WHERE slug = 'starter'");
@@ -451,12 +350,6 @@ export const handleWebhook = async (payload) => {
                 `UPDATE users SET subscription_status = 'canceled', plan_limits = ? WHERE id = ?`,
                 [JSON.stringify(limits), userId]
             );
-
-            await pool.query(
-                `UPDATE user_subscriptions SET status = 'canceled', updated_at = NOW() WHERE user_id = ? AND status = 'active'`,
-                [userId]
-            );
         }
     }
 };
-

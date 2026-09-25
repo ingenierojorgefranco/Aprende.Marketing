@@ -4,7 +4,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
-import { extractHotmartTrackingKeys } from '../hotmartService.js';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
@@ -708,22 +707,26 @@ router.get('/subscription-success', async (req, res) => {
             }
         }
 
-        // Extracción de claves de seguimiento enviadas por Hotmart en redirect o query params
-        const trackingInfo = extractHotmartTrackingKeys({}, req.query);
-
         // Parámetros devueltos por Hotmart en el redirect
         const rawTransaction = (req.query.transaction || req.query.transacao || req.query.transaction_id || '').trim();
         const rawEmail = (req.query.email || req.query.buyer_email || req.query.c_email || '').trim().toLowerCase();
         // Hotmart envía el nombre del comprador como 'c_name'
         const rawName = (req.query.c_name || req.query.name || req.query.buyer_name || '').trim();
+        const rawPhone = (req.query.c_phone || req.query.phone || req.query.buyer_phone || '').trim();
         // Código de afiliado
         const rawAff = (req.query.aff || req.query.affiliate || '').trim();
         // Estado de aprobación definido por el usuario: 1 = aprobado, 2 = efectivo pendiente, 3 = paypal pendiente
         const rawAprobado = String(req.query.aprobado || req.query.status || '1').trim();
         const rawSrc = req.query.src || '';
-        const rawPlanSlug = (req.query.plan || req.query.plan_slug || trackingInfo.planSlug || '').trim().toLowerCase();
+        const rawPlanSlug = (req.query.plan || req.query.plan_slug || '').trim().toLowerCase();
         const rawProductId = req.query.product || req.query.prod || req.query.product_id || '';
         const rawOffer = req.query.off || req.query.offer || '';
+
+        // Parámetros directos de Hotmart (Imagen 1: Mensual, Imagen 2: Anual)
+        const rawPlanNombre = (req.query.Plan_nombre || req.query.plan_nombre || req.query.plan_name || '').trim();
+        const rawPlanPeriodicidad = (req.query.Plan_Periodicidad || req.query.plan_periodicidad || req.query.periodicity || '').trim().toLowerCase();
+        const rawPlanPrecio = req.query.Plan_Precio || req.query.plan_precio || req.query.price || req.query.amount;
+        const rawPlanDias = req.query.Plan_Dias || req.query.plan_dias || req.query.days;
 
         // Tracking & UTMs
         const itmSource = req.query.itm_source || req.query.utm_source || '';
@@ -739,15 +742,6 @@ router.get('/subscription-success', async (req, res) => {
             if (/^\d+$/.test(candidateId)) {
                 targetUserId = parseInt(candidateId, 10);
             }
-        }
-
-        // Buscar registro de orden previo en hotmart_orders_log
-        let orderLog = null;
-        if (rawTransaction) {
-            try {
-                const [orderRows] = await pool.query(`SELECT * FROM hotmart_orders_log WHERE transaction_id = ? LIMIT 1`, [rawTransaction]);
-                if (orderRows.length > 0) orderLog = orderRows[0];
-            } catch (e) {}
         }
 
         // Buscar registro de pago en DB por transaction_id si fue proporcionado
@@ -802,6 +796,7 @@ router.get('/subscription-success', async (req, res) => {
         // Buscar información del plan en la tabla 'plans'
         let matchedPlan = null;
 
+        // 1. Coincidencia por producto u oferta de Hotmart
         if (rawProductId || rawOffer) {
             const [pRows] = await pool.query(
                 `SELECT * FROM plans 
@@ -813,8 +808,9 @@ router.get('/subscription-success', async (req, res) => {
             if (pRows.length > 0) matchedPlan = pRows[0];
         }
 
+        // 2. Coincidencia por slug explícito
         if (!matchedPlan && rawPlanSlug) {
-            const normalizedSlug = (rawPlanSlug === 'anual' || rawPlanSlug === 'annual' || rawPlanSlug === 'pro-anual' || rawPlanSlug === 'pro_anual' || rawPlanSlug === 'yearly') ? 'pro' : (rawPlanSlug === 'pro_mensual' ? 'pro' : rawPlanSlug);
+            const normalizedSlug = (rawPlanSlug === 'anual' || rawPlanSlug === 'annual' || rawPlanSlug === 'pro-anual' || rawPlanSlug === 'yearly') ? 'pro' : rawPlanSlug;
             const [pRows] = await pool.query(
                 `SELECT * FROM plans WHERE slug = ? OR name LIKE ? LIMIT 1`,
                 [normalizedSlug, `%${rawPlanSlug}%`]
@@ -822,6 +818,7 @@ router.get('/subscription-success', async (req, res) => {
             if (pRows.length > 0) matchedPlan = pRows[0];
         }
 
+        // 3. Fallback al plan Pro configurado en la base de datos
         if (!matchedPlan) {
             const [fallbackRows] = await pool.query(
                 `SELECT * FROM plans WHERE slug = 'pro' OR is_recommended = 1 ORDER BY price_monthly DESC LIMIT 1`
@@ -829,71 +826,72 @@ router.get('/subscription-success', async (req, res) => {
             if (fallbackRows.length > 0) matchedPlan = fallbackRows[0];
         }
 
-        // Determinar si es suscripción ANUAL o MENSUAL
-        const isAnnualExplicit = trackingInfo.isAnnual || (rawPlanSlug === 'anual' || rawPlanSlug === 'annual' || rawPlanSlug === 'pro-anual' || rawPlanSlug === 'pro_anual' || rawPlanSlug === 'yearly');
+        // Determinar si es suscripción ANUAL o MENSUAL según parámetros de Hotmart (Imagen 1 vs Imagen 2)
+        const isAnnualExplicit = (rawPlanSlug === 'anual' || rawPlanSlug === 'annual' || rawPlanSlug === 'pro-anual' || rawPlanSlug === 'yearly');
+        const isAnnualByParam = rawPlanPeriodicidad === 'anual' || rawPlanPeriodicidad === 'annual' || 
+                                (rawPlanDias && parseInt(rawPlanDias) > 100) ||
+                                (rawPlanPrecio && parseFloat(rawPlanPrecio) > 200) ||
+                                (rawPlanNombre && rawPlanNombre.toLowerCase().includes('anual'));
         const isAnnualByOffer = matchedPlan && (
             (rawOffer && (rawOffer === matchedPlan.hotmart_offer_annual)) ||
             (rawProductId && (rawProductId === matchedPlan.hotmart_id_annual))
         );
         const isAnnualByPayment = paymentRecord && matchedPlan && (
-            parseFloat(paymentRecord.amount) >= 200
+            parseFloat(paymentRecord.amount) >= (parseFloat(matchedPlan.price_annual || 0) * 0.75) &&
+            parseFloat(paymentRecord.amount) > parseFloat(matchedPlan.price_monthly || 0) * 2
         );
-        const isAnnual = isAnnualExplicit || isAnnualByOffer || isAnnualByPayment || (orderLog?.plan_periodicity === 'Anual');
+        const isAnnual = isAnnualByParam || isAnnualExplicit || isAnnualByOffer || isAnnualByPayment;
 
-        // Configuración dinámica del plan
+        // Periodicidad y duración
+        const periodicity = isAnnual ? 'anual' : 'mensual';
+        const durationDays = rawPlanDias ? parseInt(rawPlanDias, 10) : (isAnnual ? 365 : 30);
+
+        // Precios
         const monthlyPrice = matchedPlan ? parseFloat(matchedPlan.price_monthly || 79) : 79;
         const annualPrice = matchedPlan ? parseFloat(matchedPlan.price_annual || 708) : 708;
+        const calculatedPrice = rawPlanPrecio ? parseFloat(rawPlanPrecio) : (isAnnual ? annualPrice : monthlyPrice);
         const currency = paymentRecord?.currency || req.query.currency || matchedPlan?.currency || 'USD';
 
-        const periodicity = isAnnual ? 'Anual' : 'Mensual';
-        const planDays = isAnnual ? 365 : 30;
-        const finalPlanPrice = isAnnual 
-            ? (trackingInfo.planPrice && trackingInfo.planPrice > 200 ? trackingInfo.planPrice : annualPrice)
-            : (trackingInfo.planPrice && trackingInfo.planPrice <= 200 ? trackingInfo.planPrice : monthlyPrice);
+        // Nombre descriptivo
+        const finalPlanName = rawPlanNombre 
+            || (isAnnual 
+                ? (matchedPlan?.name ? (matchedPlan.name.includes('Anual') ? matchedPlan.name : `${matchedPlan.name} (Anual)`) : 'Pro_Ilimitado Anual')
+                : (matchedPlan?.name ? (matchedPlan.name.includes('Mensual') ? matchedPlan.name : `${matchedPlan.name} (Mensual)`) : 'Pro_Ilimitado Mensual'));
 
-        const finalPlanName = isAnnual ? 'Plan Pro All-Access (Anual)' : 'Plan Pro All-Access (Mensual)';
-        const finalPlanSlug = isAnnual ? 'pro_anual' : 'pro_mensual';
-
-        // Cálculo de fechas: inicio y renovación
-        const now = new Date();
-        const purchaseDate = paymentRecord?.created_at || orderLog?.start_date || now;
-        const startDate = new Date(purchaseDate);
-        const renewalDate = new Date(startDate.getTime() + (planDays * 24 * 60 * 60 * 1000));
-
-        const formatSqlDate = (d) => {
-            if (!d) return null;
-            const dateObj = new Date(d);
-            return isNaN(dateObj.getTime()) ? null : dateObj.toISOString().slice(0, 19).replace('T', ' ');
-        };
-
-        const proUiFeaturesList = [
-            'Proyectos y Productos Ilimitados',
-            'Reels con IA Ilimitados',
-            'Páginas de Captación y Embudos Ilimitados',
-            'Dominios Personalizados Ilimitados',
-            'Email Marketing y Secuencias Ilimitadas',
-            'Secuencias y Lanzamientos WhatsApp Ilimitados',
-            'Mentorías Grupales en Vivo Semanales',
-            'Soporte Prioritario VIP 1 a 1'
-        ];
+        // CÁLCULO DE FECHAS: Fecha de inicio y fecha de renovación
+        const startDate = new Date();
+        const renewalDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
 
         const planDetails = {
             id: matchedPlan ? matchedPlan.id.toString() : 'pro',
             name: finalPlanName,
-            slug: finalPlanSlug,
+            slug: isAnnual ? 'pro-anual' : (matchedPlan?.slug || 'pro'),
             interval: isAnnual ? 'annual' : 'monthly',
             periodicity: periodicity,
-            days: planDays,
+            durationDays: durationDays,
             startDate: startDate.toISOString(),
             renewalDate: renewalDate.toISOString(),
-            description: isAnnual 
-                ? 'Acceso total durante 1 año con todas las herramientas de automatización, IA y soporte VIP.' 
-                : 'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.',
-            price: finalPlanPrice,
+            description: matchedPlan?.description || (isAnnual 
+                ? 'Acceso total ilimitado durante 1 año (365 días) con todas las herramientas de automatización, IA y soporte VIP.' 
+                : 'Acceso total ilimitado durante 30 días a proyectos, reels con IA, páginas, embudos y herramientas para escalar en Hotmart.'),
+            price: calculatedPrice,
             priceMonthly: monthlyPrice,
             priceAnnual: annualPrice,
             currency: currency,
-            uiFeatures: proUiFeaturesList,
+            uiFeatures: matchedPlan ? (
+                typeof matchedPlan.ui_features === 'string' 
+                    ? JSON.parse(matchedPlan.ui_features) 
+                    : (matchedPlan.ui_features || [])
+            ) : [
+                'Proyectos y Productos Ilimitados',
+                'Reels con IA Ilimitados',
+                'Páginas de Captación y Embudos Ilimitados',
+                'Dominios Personalizados Ilimitados',
+                'Email Marketing y Secuencias Ilimitadas',
+                'Secuencias y Lanzamientos WhatsApp Ilimitados',
+                'Mentorías Grupales en Vivo Semanales',
+                'Soporte Prioritario VIP 1 a 1'
+            ],
             limitsConfig: matchedPlan ? (
                 typeof matchedPlan.limits_config === 'string'
                     ? JSON.parse(matchedPlan.limits_config)
@@ -903,14 +901,16 @@ router.get('/subscription-success', async (req, res) => {
 
         const finalTransaction = rawTransaction 
             || paymentRecord?.transaction_id 
-            || orderLog?.transaction_id
             || `HP${Date.now().toString().slice(-9)}`;
 
         const finalAmount = paymentRecord?.amount 
             ? parseFloat(paymentRecord.amount)
-            : (req.query.price ? parseFloat(req.query.price) : finalPlanPrice);
+            : calculatedPrice;
 
         // Mapeo detallado de estado según 'aprobado'
+        // 1 = Compra aprobada en tiempo real
+        // 2 = Pago en efectivo (requiere confirmación)
+        // 3 = Pago por PayPal (requiere confirmación)
         let approvalCode = rawAprobado;
         let approvalStatus = 'approved';
         let approvalTitle = '¡Tu Suscripción está 100% Activa!';
@@ -929,116 +929,96 @@ router.get('/subscription-success', async (req, res) => {
             approvalMessage = 'Estamos a la espera de la confirmación final por parte de PayPal y Hotmart. Una vez acreditado el pago, tu cuenta se activará de forma inmediata.';
         }
 
-        const buyerName = userRecord?.name || rawName || orderLog?.buyer_name || 'Cliente Hotmart';
-        const buyerEmail = userRecord?.email || rawEmail || orderLog?.buyer_email || '';
+        const buyerName = userRecord?.name || rawName || 'Cliente Hotmart';
+        const buyerEmail = userRecord?.email || rawEmail || '';
+        const buyerPhone = rawPhone || (userRecord?.phone || '');
+
+        // AUTO-ACTIVACIÓN INMEDIATA SI EL USUARIO YA ESTÁ LOGUEADO O REGISTRADO Y PAGO APROBADO
+        if (targetUserId && rawAprobado === '1') {
+            try {
+                const subPlanSlug = isAnnual ? 'pro-anual' : 'pro';
+                const [existingSub] = await pool.query(
+                    `SELECT id FROM user_subscriptions WHERE user_id = ? AND status = 'active' LIMIT 1`,
+                    [targetUserId]
+                );
+
+                if (existingSub.length > 0) {
+                    await pool.query(
+                        `UPDATE user_subscriptions 
+                         SET plan_slug = ?, plan_name = ?, periodicity = ?, price = ?, duration_days = ?, starts_at = ?, expires_at = ?, hotmart_purchase_id = ?, updated_at = NOW() 
+                         WHERE id = ?`,
+                        [subPlanSlug, finalPlanName, periodicity, calculatedPrice, durationDays, startDate, renewalDate, finalTransaction, existingSub[0].id]
+                    );
+                } else {
+                    await pool.query(
+                        `INSERT INTO user_subscriptions (user_id, plan_slug, plan_name, periodicity, price, duration_days, starts_at, expires_at, status, hotmart_purchase_id, created_at) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, NOW())`,
+                        [targetUserId, subPlanSlug, finalPlanName, periodicity, calculatedPrice, durationDays, startDate, renewalDate, finalTransaction]
+                    );
+                }
+
+                // Desbloquear proyectos y actualizar límites del usuario
+                await pool.query(
+                    `UPDATE users SET subscription_status = 'active', plan_limits = ?, phone = COALESCE(NULLIF(?, ''), phone) WHERE id = ?`,
+                    [JSON.stringify(planDetails.limitsConfig), buyerPhone, targetUserId]
+                );
+                await pool.query(`UPDATE projects SET plan_slug = ? WHERE user_id = ?`, [subPlanSlug, targetUserId]);
+                clearLimitsCache(targetUserId);
+            } catch (actErr) {
+                console.warn("[Auto-Activation Error]", actErr.message);
+            }
+        }
 
         // GUARDAR O ACTUALIZAR EN 'hotmart_orders_log' PARA CONTROL TOTAL DEL ADMINISTRADOR
         if (finalTransaction) {
             try {
                 await pool.query(
                     `INSERT INTO hotmart_orders_log 
-                     (transaction_id, buyer_name, buyer_email, approval_code, approval_status, affiliate_code, plan_slug, plan_name, plan_periodicity, plan_price, plan_days, start_date, renewal_date, amount, currency, itm_source, itm_medium, itm_campaign, tracking_keys_json, raw_query_json) 
+                     (transaction_id, buyer_name, buyer_email, buyer_phone, approval_code, approval_status, affiliate_code, plan_slug, plan_name, periodicity, duration_days, amount, currency, start_date, renewal_date, user_id, itm_source, itm_medium, itm_campaign, raw_query_json) 
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
                      ON DUPLICATE KEY UPDATE 
                          buyer_name = IF(VALUES(buyer_name) != '' AND VALUES(buyer_name) != 'Cliente Hotmart', VALUES(buyer_name), buyer_name),
                          buyer_email = IF(VALUES(buyer_email) != '', VALUES(buyer_email), buyer_email),
+                         buyer_phone = IF(VALUES(buyer_phone) != '', VALUES(buyer_phone), buyer_phone),
                          approval_code = VALUES(approval_code),
                          approval_status = VALUES(approval_status),
                          affiliate_code = IF(VALUES(affiliate_code) != '', VALUES(affiliate_code), affiliate_code),
                          plan_slug = VALUES(plan_slug),
                          plan_name = VALUES(plan_name),
-                         plan_periodicity = VALUES(plan_periodicity),
-                         plan_price = VALUES(plan_price),
-                         plan_days = VALUES(plan_days),
-                         start_date = VALUES(start_date),
-                         renewal_date = VALUES(renewal_date),
+                         periodicity = VALUES(periodicity),
+                         duration_days = VALUES(duration_days),
                          amount = VALUES(amount),
                          currency = VALUES(currency),
-                         tracking_keys_json = VALUES(tracking_keys_json),
+                         start_date = VALUES(start_date),
+                         renewal_date = VALUES(renewal_date),
+                         user_id = IFNULL(VALUES(user_id), user_id),
                          raw_query_json = VALUES(raw_query_json),
                          updated_at = NOW()`,
                     [
                         finalTransaction,
                         buyerName,
                         buyerEmail,
+                        buyerPhone,
                         approvalCode,
                         approvalStatus,
                         rawAff,
-                        finalPlanSlug,
+                        planDetails.slug,
                         finalPlanName,
                         periodicity,
-                        finalPlanPrice,
-                        planDays,
-                        formatSqlDate(startDate),
-                        formatSqlDate(renewalDate),
+                        durationDays,
                         finalAmount,
                         currency,
+                        startDate,
+                        renewalDate,
+                        targetUserId || null,
                         itmSource,
                         itmMedium,
                         itmCampaign,
-                        JSON.stringify(trackingInfo.rawTrackingKeys),
                         JSON.stringify(req.query)
                     ]
                 );
             } catch (logErr) {
                 console.warn("[Hotmart Orders Log Insert Error]", logErr.message);
-            }
-        }
-
-        // Si tenemos targetUserId y la compra está aprobada, activar suscripción del usuario de inmediato
-        if (targetUserId && approvalStatus === 'approved') {
-            try {
-                const userLimitsObj = {
-                    planName: 'pro',
-                    planSlug: finalPlanSlug,
-                    planDisplayName: finalPlanName,
-                    periodicity: periodicity,
-                    planPrice: finalPlanPrice,
-                    planDays: planDays,
-                    startDate: startDate.toISOString(),
-                    renewalDate: renewalDate.toISOString(),
-                    maxProjects: 9999,
-                    maxLandings: 9999,
-                    maxArticles: 9999,
-                    maxDomains: 9999,
-                    maxEmailSequences: 9999,
-                    maxEmailSequencesNurturing: 9999,
-                    maxWhatsAppLaunches: 9999,
-                    maxHooks: 9999
-                };
-
-                await pool.query(
-                    `UPDATE users SET subscription_status = 'active', plan_limits = ? WHERE id = ?`,
-                    [JSON.stringify(userLimitsObj), targetUserId]
-                );
-
-                await pool.query(
-                    `INSERT INTO user_subscriptions 
-                     (user_id, plan_slug, periodicity, plan_price, plan_days, start_date, renewal_date, expires_at, status, hotmart_purchase_id, tracking_keys_json)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)
-                     ON DUPLICATE KEY UPDATE 
-                        plan_slug = VALUES(plan_slug),
-                        periodicity = VALUES(periodicity),
-                        plan_price = VALUES(plan_price),
-                        plan_days = VALUES(plan_days),
-                        renewal_date = VALUES(renewal_date),
-                        expires_at = VALUES(expires_at),
-                        status = 'active'`,
-                    [
-                        targetUserId,
-                        finalPlanSlug,
-                        periodicity,
-                        finalPlanPrice,
-                        planDays,
-                        formatSqlDate(startDate),
-                        formatSqlDate(renewalDate),
-                        formatSqlDate(renewalDate),
-                        finalTransaction,
-                        JSON.stringify(trackingInfo.rawTrackingKeys)
-                    ]
-                );
-            } catch (userSubErr) {
-                console.warn("[User Sub Update in Success Error]", userSubErr.message);
             }
         }
 
@@ -1059,16 +1039,19 @@ router.get('/subscription-success', async (req, res) => {
                 date: startDate.toISOString(),
                 startDate: startDate.toISOString(),
                 renewalDate: renewalDate.toISOString(),
+                durationDays: durationDays,
                 periodicity: periodicity,
-                planDays: planDays,
                 paymentMethod: paymentRecord?.payment_method || (rawAprobado === '2' ? 'Efectivo' : (rawAprobado === '3' ? 'PayPal' : 'Hotmart')),
                 affiliateCode: rawAff,
-                trackingKeys: trackingInfo.rawTrackingKeys
+                itmSource: itmSource,
+                itmMedium: itmMedium,
+                itmCampaign: itmCampaign
             },
             plan: planDetails,
             buyer: {
                 name: buyerName,
                 email: buyerEmail,
+                phone: buyerPhone,
                 affiliateCode: rawAff,
                 isRegistered: !!userRecord,
                 isLoggedIn: !!tokenUserId && (tokenUserId === userRecord?.id)
@@ -1086,7 +1069,18 @@ router.get('/subscription-success', async (req, res) => {
  * Permite a un nuevo comprador definir su contraseña y acceder inmediatamente.
  */
 router.post('/activate-hotmart-account', async (req, res) => {
-    const { email, password, name, transaction, plan } = req.body;
+    const { 
+        email, 
+        password, 
+        name, 
+        phone,
+        transaction, 
+        plan,
+        Plan_nombre,
+        Plan_Periodicidad,
+        Plan_Precio,
+        Plan_Dias
+    } = req.body;
 
     if (!email || !password) {
         return res.status(400).json({ error: 'El email y la contraseña son requeridos' });
@@ -1099,6 +1093,7 @@ router.post('/activate-hotmart-account', async (req, res) => {
     try {
         const cleanEmail = String(email).trim().toLowerCase();
         const cleanName = (name || cleanEmail.split('@')[0]).trim();
+        const cleanPhone = (phone || '').trim();
         const cleanTransaction = (transaction || '').trim();
         const passwordHash = await bcrypt.hash(password, 10);
 
@@ -1111,54 +1106,88 @@ router.post('/activate-hotmart-account', async (req, res) => {
             } catch (e) {}
         }
 
-        const isAnnual = (plan === 'annual' || plan === 'anual') || (orderLog?.plan_slug === 'annual');
+        const rawPeriodicity = (Plan_Periodicidad || orderLog?.periodicity || '').toLowerCase();
+        const isAnnual = (plan === 'annual' || plan === 'anual' || plan === 'pro-anual') || 
+                         (orderLog?.plan_slug === 'annual' || orderLog?.plan_slug === 'pro-anual') ||
+                         rawPeriodicity === 'anual' || rawPeriodicity === 'annual' ||
+                         (Plan_Dias && parseInt(Plan_Dias) > 100) ||
+                         (Plan_Precio && parseFloat(Plan_Precio) > 200);
+
+        const periodicity = isAnnual ? 'anual' : 'mensual';
+        const durationDays = Plan_Dias ? parseInt(Plan_Dias, 10) : (orderLog?.duration_days || (isAnnual ? 365 : 30));
+        const planPrice = Plan_Precio ? parseFloat(Plan_Precio) : (orderLog?.amount || (isAnnual ? 708 : 79));
+        const planName = Plan_nombre || orderLog?.plan_name || (isAnnual ? 'Pro_Ilimitado Anual' : 'Pro_Ilimitado Mensual');
+        const subscriptionSlug = isAnnual ? 'pro-anual' : 'pro';
+
+        const startDate = new Date();
+        const renewalDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+        const [proPlans] = await pool.query(`SELECT limits_config FROM plans WHERE slug = 'pro' LIMIT 1`);
+        const proLimits = proPlans.length > 0 
+            ? (typeof proPlans[0].limits_config === 'string' ? JSON.parse(proPlans[0].limits_config) : proPlans[0].limits_config)
+            : DEFAULT_LIMITS;
 
         const [existing] = await pool.query('SELECT * FROM users WHERE email = ?', [cleanEmail]);
 
         let finalUser = null;
 
         if (existing.length > 0) {
-            // Usuario ya registrado: actualizamos contraseña y activamos
+            // Usuario ya registrado: actualizamos contraseña, plan y activamos
             const userId = existing[0].id;
             await pool.query(
-                `UPDATE users SET password_hash = ?, is_active = 1, last_login_at = NOW() WHERE id = ?`,
-                [passwordHash, userId]
+                `UPDATE users SET password_hash = ?, is_active = 1, subscription_status = 'active', plan_limits = ?, phone = COALESCE(NULLIF(?, ''), phone), last_login_at = NOW() WHERE id = ?`,
+                [passwordHash, JSON.stringify(proLimits), cleanPhone, userId]
             );
-            const limits = await getEffectiveLimits(userId, true);
+
+            // Actualizar o crear suscripción
+            const [userSub] = await pool.query(`SELECT id FROM user_subscriptions WHERE user_id = ? AND status = 'active' LIMIT 1`, [userId]);
+            if (userSub.length > 0) {
+                await pool.query(
+                    `UPDATE user_subscriptions 
+                     SET plan_slug = ?, plan_name = ?, periodicity = ?, price = ?, duration_days = ?, starts_at = ?, expires_at = ?, hotmart_purchase_id = ?, updated_at = NOW() 
+                     WHERE id = ?`,
+                    [subscriptionSlug, planName, periodicity, planPrice, durationDays, startDate, renewalDate, cleanTransaction || null, userSub[0].id]
+                );
+            } else {
+                await pool.query(
+                    `INSERT INTO user_subscriptions (user_id, plan_slug, plan_name, periodicity, price, duration_days, starts_at, expires_at, status, hotmart_purchase_id, created_at) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, NOW())`,
+                    [userId, subscriptionSlug, planName, periodicity, planPrice, durationDays, startDate, renewalDate, cleanTransaction || null]
+                );
+            }
+
+            // Desbloquear proyectos del usuario
+            await pool.query(`UPDATE projects SET plan_slug = ? WHERE user_id = ?`, [subscriptionSlug, userId]);
+            clearLimitsCache(userId);
+
             finalUser = {
                 id: userId.toString(),
                 name: existing[0].name || cleanName,
                 email: cleanEmail,
                 role: existing[0].role || 'user',
-                planLimits: limits,
+                planLimits: proLimits,
                 customRedirectUrl: existing[0].custom_redirect_url
             };
-            await logSystemActivity(userId, finalUser.name, 'HOTMART_ACCOUNT_ACTIVATED', 'user', userId, { email: cleanEmail, transaction: cleanTransaction });
+            await logSystemActivity(userId, finalUser.name, 'HOTMART_ACCOUNT_ACTIVATED', 'user', userId, { email: cleanEmail, transaction: cleanTransaction, plan: planName, periodicity });
         } else {
             // Usuario nuevo creado desde la página de gracias
-            const [proPlans] = await pool.query(`SELECT limits_config FROM plans WHERE slug = 'pro' LIMIT 1`);
-            const defaultLimits = proPlans.length > 0 
-                ? (typeof proPlans[0].limits_config === 'string' ? JSON.parse(proPlans[0].limits_config) : proPlans[0].limits_config)
-                : DEFAULT_LIMITS;
-
             const [insertResult] = await pool.query(
-                `INSERT INTO users (name, email, password_hash, role, is_active, plan_limits, created_at, last_login_at) 
-                 VALUES (?, ?, ?, 'user', 1, ?, NOW(), NOW())`,
-                [cleanName, cleanEmail, passwordHash, JSON.stringify(defaultLimits)]
+                `INSERT INTO users (name, email, password_hash, role, is_active, subscription_status, phone, plan_limits, created_at, last_login_at) 
+                 VALUES (?, ?, ?, 'user', 1, 'active', ?, ?, NOW(), NOW())`,
+                [cleanName, cleanEmail, passwordHash, cleanPhone || null, JSON.stringify(proLimits)]
             );
             const newId = insertResult.insertId;
 
-            // Crear suscripción activa inicial
-            const subscriptionSlug = isAnnual ? 'annual' : 'pro';
+            // Crear suscripción activa inicial con todas las fechas calculadas
             await pool.query(
-                `INSERT INTO user_subscriptions (user_id, plan_slug, status, hotmart_purchase_id, created_at) 
-                 VALUES (?, ?, 'active', ?, NOW())`,
-                [newId, subscriptionSlug, cleanTransaction || null]
+                `INSERT INTO user_subscriptions (user_id, plan_slug, plan_name, periodicity, price, duration_days, starts_at, expires_at, status, hotmart_purchase_id, created_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, NOW())`,
+                [newId, subscriptionSlug, planName, periodicity, planPrice, durationDays, startDate, renewalDate, cleanTransaction || null]
             );
 
             // Registrar pago si hay número de transacción
             if (cleanTransaction) {
-                const payAmount = orderLog?.amount || (isAnnual ? 470 : 79);
+                const payAmount = orderLog?.amount || planPrice;
                 const payCurrency = orderLog?.currency || 'USD';
                 const affCode = orderLog?.affiliate_code || null;
                 const approvalCode = orderLog?.approval_code || '1';
@@ -1175,18 +1204,20 @@ router.post('/activate-hotmart-account', async (req, res) => {
                 name: cleanName,
                 email: cleanEmail,
                 role: 'user',
-                planLimits: defaultLimits,
+                planLimits: proLimits,
                 customRedirectUrl: null
             };
-            await logSystemActivity(newId, cleanName, 'HOTMART_ACCOUNT_CREATED', 'user', newId, { email: cleanEmail, transaction: cleanTransaction });
+            await logSystemActivity(newId, cleanName, 'HOTMART_ACCOUNT_CREATED', 'user', newId, { email: cleanEmail, transaction: cleanTransaction, plan: planName, periodicity });
         }
 
-        // Actualizar el correo en hotmart_orders_log
+        // Vincular y actualizar en hotmart_orders_log
         if (cleanTransaction) {
             try {
                 await pool.query(
-                    `UPDATE hotmart_orders_log SET buyer_email = ?, buyer_name = ? WHERE transaction_id = ?`,
-                    [cleanEmail, cleanName, cleanTransaction]
+                    `UPDATE hotmart_orders_log 
+                     SET buyer_email = ?, buyer_name = ?, buyer_phone = COALESCE(NULLIF(?, ''), buyer_phone), user_id = ?, plan_name = ?, periodicity = ?, duration_days = ?, start_date = ?, renewal_date = ?, updated_at = NOW() 
+                     WHERE transaction_id = ?`,
+                    [cleanEmail, cleanName, cleanPhone, finalUser.id, planName, periodicity, durationDays, startDate, renewalDate, cleanTransaction]
                 );
             } catch (e) {}
         }
