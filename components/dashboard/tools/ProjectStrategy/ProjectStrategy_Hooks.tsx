@@ -932,7 +932,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     handleCopyField(text, fieldId);
   };
 
-  const maxHooks = user?.maxHooks || planLimits?.maxHooks || 30;
+  const maxHooks = planLimits?.maxHooks || user?.maxHooks || 3;
   const currentHooksCount = typeof globalHookCount === 'number' ? globalHookCount : (hookCount ?? hooks.filter(h => h.isGenerated).length);
   const isLimitReached = !isRealAdmin && currentHooksCount >= maxHooks;
   const usagePercent = maxHooks > 0 ? Math.min(100, (currentHooksCount / maxHooks) * 100) : 0;

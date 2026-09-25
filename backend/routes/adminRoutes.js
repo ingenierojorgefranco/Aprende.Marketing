@@ -459,6 +459,7 @@ router.put('/plans/:id', async (req, res) => {
         ////////// Fin de actualización - 25/05/2025 18:45 //////////
         const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
         await logSystemActivity(req.user.id, admin[0]?.name, 'UPDATE_PLAN', 'plan', id, { name });
+        clearLimitsCache();
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -471,6 +472,7 @@ router.delete('/plans/:id', async (req, res) => {
         await pool.query('DELETE FROM plans WHERE id = ?', [id]);
         const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
         await logSystemActivity(req.user.id, admin[0]?.name, 'DELETE_PLAN', 'plan', id, null);
+        clearLimitsCache();
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });

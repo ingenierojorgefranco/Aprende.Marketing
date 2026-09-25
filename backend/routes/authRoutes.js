@@ -18,7 +18,7 @@ export const DEFAULT_LIMITS = {
     maxDomains: 1,
     maxEmailSequences: 1,
     maxWhatsAppLaunches: 1,
-    maxHooks: 10,
+    maxHooks: 3,
     features: {
         whatsappBot: false,
         blogGenerator: false,
@@ -312,7 +312,7 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
             result.planDisplayName = directLimits.planDisplayName || directLimits.subscriptionDetails.planName;
         }
 
-        if (directMaxHooks !== null && directMaxHooks !== undefined) {
+        if (isUserCustom && directMaxHooks !== null && directMaxHooks !== undefined) {
             result.maxHooks = directMaxHooks;
         }
 
@@ -404,7 +404,7 @@ router.post('/login', async (req, res) => {
       birthDate: user.birth_date,
       createdAt: user.created_at,
       customRedirectUrl: user.custom_redirect_url,
-      maxHooks: user.max_hooks,
+      maxHooks: planLimits.maxHooks,
       survey_json: user.survey_json,
       main_goal: user.main_goal,
       experience_level: user.experience_level,
@@ -463,7 +463,7 @@ router.get('/me', authMiddleware, async (req, res) => {
         birthDate: user.birth_date,
         createdAt: user.created_at,
         customRedirectUrl: user.custom_redirect_url,
-        maxHooks: user.max_hooks,
+        maxHooks: planLimits.maxHooks,
         survey_json: user.survey_json,
         main_goal: user.main_goal,
         experience_level: user.experience_level,
@@ -638,7 +638,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
             birthDate: user.birth_date,
             createdAt: user.created_at,
             customRedirectUrl: user.custom_redirect_url,
-            maxHooks: user.max_hooks,
+            maxHooks: planLimits.maxHooks,
             survey_json: user.survey_json,
             main_goal: user.main_goal,
             experience_level: user.experience_level,
