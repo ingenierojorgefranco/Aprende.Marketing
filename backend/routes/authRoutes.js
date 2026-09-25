@@ -9,16 +9,16 @@ import { resolvePlanTracking, formatMySqlDate } from '../planTrackingHelper.js';
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 
-// Default limits for new users
-export const DEFAULT_LIMITS = {
+// Default limits for new users (initially seeded, but will be overwritten by DB starter plan limits)
+export let DEFAULT_LIMITS = {
     planName: 'starter',
-    maxProjects: 1,
-    maxLandings: 1,
-    maxArticles: 1,
-    maxDomains: 1,
-    maxEmailSequences: 1,
-    maxWhatsAppLaunches: 1,
-    maxHooks: 3,
+    maxProjects: 0,
+    maxLandings: 0,
+    maxArticles: 0,
+    maxDomains: 0,
+    maxEmailSequences: 0,
+    maxWhatsAppLaunches: 0,
+    maxHooks: 0,
     features: {
         whatsappBot: false,
         blogGenerator: false,
@@ -28,6 +28,28 @@ export const DEFAULT_LIMITS = {
         evergreenStrategy: false
     }
 };
+
+// Async initialization function to load limits from database plan table
+export const initDefaultLimitsFromDb = async () => {
+    try {
+        const [rows] = await pool.query("SELECT limits_config FROM plans WHERE slug = 'starter'");
+        if (rows && rows.length > 0) {
+            const rawConfig = rows[0].limits_config;
+            const parsed = typeof rawConfig === 'string' ? JSON.parse(rawConfig) : rawConfig;
+            if (parsed) {
+                DEFAULT_LIMITS = { ...DEFAULT_LIMITS, ...parsed };
+                console.log("✅ [DB Limits Config] Loaded DEFAULT_LIMITS directly from plans database table:", DEFAULT_LIMITS);
+            }
+        }
+    } catch (e) {
+        console.error("❌ [DB Limits Config] Error loading limits from starter plan in database:", e);
+    }
+};
+
+// Run initialization immediately on import
+setTimeout(() => {
+    initDefaultLimitsFromDb().catch(err => console.error("Error in initDefaultLimitsFromDb:", err));
+}, 1000);
 
 const createToken = (user) => {
   const payload = {
@@ -61,6 +83,7 @@ const normalizePlanSlug = (slug) => {
 };
 
 export const getEffectiveLimits = async (userId, bypassCache = false) => {
+    await initDefaultLimitsFromDb();
     try {
         const cacheKey = String(userId);
         // Check cache first (short 10-second TTL to guarantee real-time updates)
@@ -318,7 +341,8 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
             result.planDisplayName = directLimits.planDisplayName || directLimits.subscriptionDetails.planName;
         }
 
-        if (isUserCustom && directMaxHooks !== null && directMaxHooks !== undefined) {
+        const isFreeOrStarter = bestPlanSlug === 'starter' || !hasPremiumPlans;
+        if (isUserCustom && directMaxHooks !== null && directMaxHooks !== undefined && !isFreeOrStarter) {
             result.maxHooks = directMaxHooks;
         }
 
@@ -360,10 +384,13 @@ router.post('/register', async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
     const [result] = await pool.query(
-      'INSERT INTO users (name, email, password_hash, role, is_active, plan_limits) VALUES (?, ?, ?, ?, 1, ?)',
-      [name, email, passwordHash, role || 'user', JSON.stringify(DEFAULT_LIMITS)]
+      'INSERT INTO users (name, email, password_hash, role, is_active, plan_limits) VALUES (?, ?, ?, ?, 1, NULL)',
+      [name, email, passwordHash, role || 'user']
     );
-    const newUser = { id: result.insertId, name, email, role: role || 'user', planLimits: DEFAULT_LIMITS };
+
+    // Consultar dinámicamente de inmediato los límites reales desde la tabla plans para el onboarding
+    const dbLimits = await getEffectiveLimits(result.insertId, true);
+    const newUser = { id: result.insertId, name, email, role: role || 'user', planLimits: dbLimits };
     const token = createToken(newUser);
     
     await logSystemActivity(newUser.id, newUser.name, 'REGISTER', 'user', newUser.id, { email });
