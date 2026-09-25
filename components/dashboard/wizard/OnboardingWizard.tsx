@@ -1152,6 +1152,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     setGenerationProgress(0);
     setGenerationStatus("Creando video 1...");
 
+    const maxHooksLimit = user.planLimits?.maxHooks || 5;
+
     // 1. Iniciar la carga/generación en segundo plano de inmediato para no perder tiempo técnico
     const apiPromise = (async () => {
       try {
@@ -1169,7 +1171,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
         if (allHooks.length > 0) {
           const shuffled = [...allHooks].sort(() => 0.5 - Math.random());
-          const selected = shuffled.slice(0, 3);
+          const selected = shuffled.slice(0, maxHooksLimit);
           const masterHookIds = selected.map((h: any) => h.id || h.masterHookId);
 
           if (unlockedProject?.id && masterHookIds.length > 0) {
@@ -1198,33 +1200,21 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       }
     })();
 
-    // 2. Temporizador de cuenta progresiva artificial de exactamente 15 segundos
+    // 2. Temporizador de cuenta progresiva artificial de exactamente 15 segundos, dinámico por límite de ganchos
     const startTime = Date.now();
     const duration = 15000;
 
     const timer = setInterval(() => {
       const elapsedMs = Date.now() - startTime;
 
-      if (elapsedMs < 5000) {
-        // Segundos 0 al 5: "Creando video 1..." y avanzará uniformemente hasta 33%
-        setGenerationStatus("Creando video 1...");
-        const ratio = elapsedMs / 5000;
-        setGenerationProgress(Math.min(33, Math.round(ratio * 33)));
-      } else if (elapsedMs < 10000) {
-        // Segundos 5 al 10: "Creando video 2..." y avanzará del 33% al 66%
-        setGenerationStatus("Creando video 2...");
-        const ratio = (elapsedMs - 5000) / 5000;
-        setGenerationProgress(Math.min(66, 33 + Math.round(ratio * 33)));
-      } else if (elapsedMs < 14000) {
-        // Segundos 10 al 14: "Creando video 3..." y avanzará del 66% al 93%
-        setGenerationStatus("Creando video 3...");
-        const ratio = (elapsedMs - 10000) / 4000;
-        setGenerationProgress(Math.min(93, 66 + Math.round(ratio * 27)));
-      } else if (elapsedMs < duration) {
-        // Último segundo (14 al 15): "Configurando activos de video..."
-        setGenerationStatus("Configurando activos de video...");
-        const ratio = (elapsedMs - 14000) / 1000;
-        setGenerationProgress(Math.min(98, 93 + Math.round(ratio * 5)));
+      if (elapsedMs < duration) {
+        const ratio = elapsedMs / duration;
+        const currentVideoIndex = Math.min(
+          maxHooksLimit,
+          Math.floor(ratio * maxHooksLimit) + 1
+        );
+        setGenerationStatus(`Creando video ${currentVideoIndex}...`);
+        setGenerationProgress(Math.min(98, Math.round(ratio * 98)));
       } else {
         // Cumplidos los 15 segundos, esperamos a que el API resolve
         clearInterval(timer);
