@@ -1936,45 +1936,124 @@ export const api = {
             console.warn("[API] subscription-success endpoint fallback to mock", e);
         }
 
-        const planSlug = queryParams.plan || 'pro';
+        const rawPlanNombre = (queryParams.Plan_nombre || queryParams.plan_nombre || queryParams.plan_name || '').trim();
+        const rawPeriodicity = (queryParams.Plan_Periodicidad || queryParams.plan_periodicidad || queryParams.periodicity || '').toLowerCase();
+        const rawDays = queryParams.Plan_Dias || queryParams.plan_dias || queryParams.days;
+        const rawPrice = queryParams.Plan_Precio || queryParams.plan_precio || queryParams.price || queryParams.amount;
+
+        const planSlug = (queryParams.plan || 'pro').toLowerCase();
+        const isAnnual = (planSlug === 'annual' || planSlug === 'anual' || planSlug === 'pro-anual' || planSlug === 'yearly') ||
+                         rawPeriodicity === 'anual' || rawPeriodicity === 'annual' ||
+                         (rawDays && parseInt(rawDays) > 100) ||
+                         (rawPrice && parseFloat(rawPrice) > 200) ||
+                         (rawPlanNombre && rawPlanNombre.toLowerCase().includes('anual'));
+
+        const periodicity = isAnnual ? 'anual' : 'mensual';
+        const durationDays = rawDays ? parseInt(rawDays, 10) : (isAnnual ? 365 : 30);
+        const calculatedAmount = rawPrice ? parseFloat(rawPrice) : (isAnnual ? 708 : 79);
+        const planName = rawPlanNombre || (isAnnual ? 'Pro_Ilimitado Anual' : 'Pro_Ilimitado Mensual');
+
+        const startDate = new Date();
+        const renewalDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+        const rawAprobado = String(queryParams.aprobado || queryParams.status || '1');
+        const buyerName = queryParams.c_name || queryParams.name || queryParams.buyer_name || 'Jorge Alberto Franco';
+        const buyerEmail = queryParams.email || queryParams.buyer_email || queryParams.c_email || '';
+        const buyerPhone = queryParams.c_phone || queryParams.phone || '';
+        const affCode = queryParams.aff || queryParams.affiliate || '';
+
+        let approvalStatus = 'approved';
+        let approvalTitle = '¡Tu Suscripción está 100% Activa!';
+        let approvalBadge = 'Pago Aprobado';
+        let approvalMessage = 'Hemos procesado tu pedido de Hotmart con éxito. Tu cuenta ya cuenta con todas las herramientas desbloqueadas para que comiences a escalar de inmediato.';
+
+        if (rawAprobado === '2') {
+            approvalStatus = 'pending_cash';
+            approvalTitle = '¡Orden Registrada! Esperando Pago en Efectivo';
+            approvalBadge = 'Pago en Efectivo Pendiente';
+            approvalMessage = 'Tu solicitud de pago en efectivo (Baloto, Efecty, OXXO, Boleto, etc.) ha sido generada correctamente en Hotmart. En cuanto realices el pago y el banco lo confirme (suele tardar de 24 a 48 hs), tu suscripción se activará automáticamente.';
+        } else if (rawAprobado === '3') {
+            approvalStatus = 'pending_paypal';
+            approvalTitle = 'Procesando Pago con PayPal';
+            approvalBadge = 'Confirmación de PayPal Pendiente';
+            approvalMessage = 'Estamos a la espera de la confirmación final por parte de PayPal y Hotmart. Una vez acreditado el pago, tu cuenta se activará de forma inmediata.';
+        }
+
         return {
             success: true,
+            approval: {
+                code: rawAprobado,
+                status: approvalStatus,
+                title: approvalTitle,
+                badge: approvalBadge,
+                message: approvalMessage
+            },
             purchase: {
                 transactionId: queryParams.transaction || `HP${Date.now().toString().slice(-9)}`,
-                status: 'approved',
-                amount: queryParams.price || 79,
+                status: approvalStatus,
+                amount: calculatedAmount,
                 currency: queryParams.currency || 'USD',
-                date: new Date().toISOString(),
-                paymentMethod: 'Hotmart'
+                date: startDate.toISOString(),
+                startDate: startDate.toISOString(),
+                renewalDate: renewalDate.toISOString(),
+                durationDays: durationDays,
+                periodicity: periodicity,
+                paymentMethod: rawAprobado === '2' ? 'Efectivo' : (rawAprobado === '3' ? 'PayPal' : 'Hotmart'),
+                affiliateCode: affCode,
+                itmSource: queryParams.itm_source || '',
+                itmMedium: queryParams.itm_medium || '',
+                itmCampaign: queryParams.itm_campaign || ''
             },
             plan: {
                 id: 'pro',
-                name: planSlug === 'annual' || planSlug === 'anual' ? 'Plan Pro Anual' : 'Plan Pro All-Access',
-                slug: planSlug,
-                description: 'Acceso completo a la suite de automatización con IA y herramientas para escalar en Hotmart.',
+                name: planName,
+                slug: isAnnual ? 'pro-anual' : 'pro',
+                interval: isAnnual ? 'annual' : 'monthly',
+                periodicity: periodicity,
+                durationDays: durationDays,
+                startDate: startDate.toISOString(),
+                renewalDate: renewalDate.toISOString(),
+                description: isAnnual 
+                    ? 'Acceso total durante 1 año (365 días) con todas las herramientas de automatización, IA y soporte VIP.' 
+                    : 'Acceso total durante 30 días a proyectos, reels con IA, páginas, embudos y herramientas para escalar en Hotmart.',
+                price: calculatedAmount,
                 priceMonthly: 79,
-                priceAnnual: 470,
-                currency: 'USD',
+                priceAnnual: 708,
+                currency: queryParams.currency || 'USD',
                 uiFeatures: [
-                    'Generador de Landing Pages con IA de Alta Conversión',
-                    'Estrategia de Hooks Persuasivos y Guiones Virales',
-                    'Embudos de Venta Ilimitados y Optimizados',
-                    'Secuencias Automatizadas de Email Marketing',
-                    'Lanzamientos Estratégicos por WhatsApp',
-                    'Conexión de Dominios Personalizados',
-                    'Acceso VIP a la Academia y Entrenamientos'
+                    'Proyectos y Productos Ilimitados',
+                    'Reels con IA Ilimitados',
+                    'Páginas de Captación y Embudos Ilimitados',
+                    'Dominios Personalizados Ilimitados',
+                    'Email Marketing y Secuencias Ilimitadas',
+                    'Secuencias y Lanzamientos WhatsApp Ilimitados',
+                    'Mentorías Grupales en Vivo Semanales',
+                    'Soporte Prioritario VIP 1 a 1'
                 ]
             },
             buyer: {
-                name: queryParams.name || 'Comprador Hotmart',
-                email: queryParams.email || '',
+                name: buyerName,
+                email: buyerEmail,
+                phone: buyerPhone,
+                affiliateCode: affCode,
                 isRegistered: false,
                 isLoggedIn: false
             }
         };
     },
 
-    activateHotmartAccount: async (data: { email: string; password: string; name?: string; transaction?: string }): Promise<any> => {
+    activateHotmartAccount: async (data: { 
+        email: string; 
+        password: string; 
+        name?: string; 
+        phone?: string;
+        transaction?: string; 
+        plan?: string;
+        Plan_nombre?: string;
+        Plan_Periodicidad?: string;
+        Plan_Precio?: string | number;
+        Plan_Dias?: string | number;
+    }): Promise<any> => {
         try {
             const res = await fetchWithFallback('/auth/activate-hotmart-account', {
                 method: 'POST',
@@ -1986,13 +2065,15 @@ export const api = {
             console.warn("[API] activate-hotmart-account fallback to mock", e);
         }
 
+        const isAnnual = data.plan === 'annual' || data.plan === 'anual' || data.Plan_Periodicidad === 'anual';
         const mockUser: User = {
             id: `usr-${Date.now()}`,
             name: data.name || data.email.split('@')[0],
             email: data.email,
             role: 'user',
+            planSlug: isAnnual ? 'pro-anual' : 'pro',
             planLimits: {
-                planName: 'pro',
+                planName: isAnnual ? 'pro-anual' : 'pro',
                 maxProjects: 9999,
                 maxLandings: 9999,
                 maxArticles: 9999,
@@ -2007,6 +2088,76 @@ export const api = {
         const mockToken = `mock-token-${Date.now()}`;
         localStorage.setItem('plataformadeventacom_token', mockToken);
         return { success: true, user: mockUser, token: mockToken };
+    },
+
+    getAdminHotmartOrders: async (params: { search?: string; status?: string; periodicity?: string; page?: number; limit?: number } = {}): Promise<{
+        stats: any;
+        orders: any[];
+        pagination: { total: number; page: number; limit: number; totalPages: number };
+    }> => {
+        const query = new URLSearchParams();
+        if (params.search) query.set('search', params.search);
+        if (params.status) query.set('status', params.status);
+        if (params.periodicity) query.set('periodicity', params.periodicity);
+        if (params.page) query.set('page', String(params.page));
+        if (params.limit) query.set('limit', String(params.limit));
+
+        try {
+            const url = `/admin/hotmart-orders${query.toString() ? `?${query.toString()}` : ''}`;
+            const res = await fetchWithFallback(url, { headers: getAuthHeaders() });
+            if (res && res.orders) return res;
+        } catch (e) {
+            console.warn("[API] getAdminHotmartOrders fallback", e);
+        }
+
+        // Mock fallback if offline or local dev without DB
+        return {
+            stats: {
+                totalOrders: 1,
+                totalClients: 1,
+                totalRevenue: 79,
+                monthlyApprovedCount: 1,
+                monthlyApprovedRevenue: 79,
+                annualApprovedCount: 0,
+                annualApprovedRevenue: 0,
+                pendingCount: 0,
+                pendingRevenue: 0
+            },
+            orders: [
+                {
+                    id: 1,
+                    transactionId: 'HP1163080373',
+                    buyerName: 'Jorge Alberto Franco',
+                    buyerEmail: 'jorgefranco@ejemplo.com',
+                    buyerPhone: '+57 300 123 4567',
+                    approvalCode: '1',
+                    approvalStatus: 'approved',
+                    affiliateCode: 'L43619849X',
+                    planSlug: 'pro',
+                    planName: 'Pro_Ilimitado Mensual',
+                    periodicity: 'mensual',
+                    durationDays: 30,
+                    amount: 79,
+                    currency: 'USD',
+                    startDate: new Date().toISOString(),
+                    renewalDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    userId: 1,
+                    isUserRegistered: true,
+                    itmSource: 'thankyoupage',
+                    itmMedium: 'internal',
+                    itmCampaign: 'traffic_first-access_button_',
+                    createdAt: new Date().toISOString()
+                }
+            ],
+            pagination: { total: 1, page: 1, limit: 50, totalPages: 1 }
+        };
+    },
+
+    approveAdminHotmartOrder: async (orderId: number | string): Promise<{ success: boolean; message: string }> => {
+        return await fetchWithFallback(`/admin/hotmart-orders/${orderId}/approve`, {
+            method: 'POST',
+            headers: getAuthHeaders()
+        });
     },
   
     getContacts: async (): Promise<CRMContact[]> => {
