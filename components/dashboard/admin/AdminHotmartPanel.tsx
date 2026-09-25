@@ -119,7 +119,7 @@ export const AdminHotmartPanel: React.FC = () => {
   };
 
   const handleApproveOrder = async (orderId: number | string) => {
-    if (!confirm("¿Deseas aprobar este pedido manualmente? Esto activará la suscripción del usuario de inmediato con las fechas calculadas")) {
+    if (!confirm("¿Deseas aprobar este pedido manualmente? Esto activará la suscripción del usuario de inmediato con las fechas calculadas.")) {
       return;
     }
 

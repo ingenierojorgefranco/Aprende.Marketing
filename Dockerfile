@@ -1,4 +1,4 @@
-FROM node:22
+FROM node:18
 
 # Carpeta de trabajo dentro del contenedor
 WORKDIR /app
