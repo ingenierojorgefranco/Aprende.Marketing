@@ -531,6 +531,15 @@ const initDb = async () => {
         await addColumnSafe(connection, 'user_subscriptions', "subscriber_code VARCHAR(255)");
         await addColumnSafe(connection, 'user_subscriptions', "offer_code VARCHAR(255)");
         await addColumnSafe(connection, 'user_subscriptions', "expires_at DATETIME NULL");
+        ////////// Columnas para parámetros de seguimiento y cálculo de fechas (Mensual / Anual) //////////
+        await addColumnSafe(connection, 'user_subscriptions', "plan_name VARCHAR(255) NULL");
+        await addColumnSafe(connection, 'user_subscriptions', "periodicity VARCHAR(50) NULL");
+        await addColumnSafe(connection, 'user_subscriptions', "price DECIMAL(10, 2) NULL");
+        await addColumnSafe(connection, 'user_subscriptions', "plan_days INT NULL");
+        await addColumnSafe(connection, 'user_subscriptions', "start_date DATETIME NULL");
+        await addColumnSafe(connection, 'user_subscriptions', "renewal_date DATETIME NULL");
+        await addColumnSafe(connection, 'user_subscriptions', "tracking_parameters JSON NULL");
+        ////////// Fin de columnas de suscripción //////////
         
         await addColumnSafe(connection, 'user_payments', "transaction_id VARCHAR(255)");
         // --------------------------------------------------
@@ -604,6 +613,15 @@ const initDb = async () => {
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             KEY idx_hotmart_tx (transaction_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        ////////// Columnas para parámetros de seguimiento y fechas en hotmart_orders_log //////////
+        await addColumnSafe(connection, 'hotmart_orders_log', "plan_nombre VARCHAR(255) NULL");
+        await addColumnSafe(connection, 'hotmart_orders_log', "plan_periodicidad VARCHAR(50) NULL");
+        await addColumnSafe(connection, 'hotmart_orders_log', "plan_precio DECIMAL(10, 2) NULL");
+        await addColumnSafe(connection, 'hotmart_orders_log', "plan_dias INT NULL");
+        await addColumnSafe(connection, 'hotmart_orders_log', "start_date DATETIME NULL");
+        await addColumnSafe(connection, 'hotmart_orders_log', "renewal_date DATETIME NULL");
+        await addColumnSafe(connection, 'hotmart_orders_log', "tracking_parameters JSON NULL");
         ////////// Fin de migraciones Hotmart Orders Log //////////
 
         ////////// Migración para Hooks de Atracción //////////
@@ -794,13 +812,14 @@ const initDb = async () => {
         const [proPlanExists] = await connection.query("SELECT id FROM plans WHERE slug = 'pro'");
         if (proPlanExists.length === 0) {
             await connection.query(
-                `INSERT INTO plans (name, slug, description, price_monthly, currency, stripe_price_id, limits_config, ui_features, is_active, is_recommended)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, 1)`,
+                `INSERT INTO plans (name, slug, description, price_monthly, price_annual, currency, stripe_price_id, limits_config, ui_features, is_active, is_recommended)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1)`,
                 [
-                    'Plan Pro All-Access',
+                    'Pro_llimitado',
                     'pro',
                     'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.',
                     79.00,
+                    708.00,
                     'USD',
                     'price_1SdGwIRJVKdziYWKRDtjacOl',
                     proLimits,
@@ -809,7 +828,37 @@ const initDb = async () => {
             );
         } else {
             await connection.query(
-                `UPDATE plans SET name = 'Plan Pro All-Access', price_monthly = 79.00, currency = 'USD', description = 'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.', limits_config = ?, ui_features = ?, is_active = 1, is_recommended = 1 WHERE slug = 'pro'`,
+                `UPDATE plans SET name = 'Pro_llimitado', price_monthly = 79.00, price_annual = 708.00, currency = 'USD', description = 'Acceso total ilimitado a proyectos, reels con IA, páginas, dominios propios y soporte VIP.', limits_config = ?, ui_features = ?, is_active = 1, is_recommended = 1 WHERE slug = 'pro'`,
+                [proLimits, proUiFeatures]
+            );
+        }
+
+        // Plan Pro Mensual (Imagen 1)
+        const [proMensualExists] = await connection.query("SELECT id FROM plans WHERE slug = 'pro_mensual'");
+        if (proMensualExists.length === 0) {
+            await connection.query(
+                `INSERT INTO plans (name, slug, description, price_monthly, price_annual, currency, limits_config, ui_features, is_active, is_recommended)
+                 VALUES ('Pro_llimitado', 'pro_mensual', 'Acceso mensual completo a todas las herramientas ilimitadas con renovación cada 30 días.', 79.00, 708.00, 'USD', ?, ?, 1, 1)`,
+                [proLimits, proUiFeatures]
+            );
+        } else {
+            await connection.query(
+                `UPDATE plans SET name = 'Pro_llimitado', price_monthly = 79.00, price_annual = 708.00, currency = 'USD', limits_config = ?, ui_features = ?, is_active = 1 WHERE slug = 'pro_mensual'`,
+                [proLimits, proUiFeatures]
+            );
+        }
+
+        // Plan Pro Anual (Imagen 2)
+        const [proAnualExists] = await connection.query("SELECT id FROM plans WHERE slug = 'pro_anual'");
+        if (proAnualExists.length === 0) {
+            await connection.query(
+                `INSERT INTO plans (name, slug, description, price_monthly, price_annual, currency, limits_config, ui_features, is_active, is_recommended)
+                 VALUES ('Pro_llimitado', 'pro_anual', 'Acceso anual VIP completo a todas las herramientas ilimitadas con renovación cada 365 días.', 59.00, 708.00, 'USD', ?, ?, 1, 1)`,
+                [proLimits, proUiFeatures]
+            );
+        } else {
+            await connection.query(
+                `UPDATE plans SET name = 'Pro_llimitado', price_monthly = 59.00, price_annual = 708.00, currency = 'USD', limits_config = ?, ui_features = ?, is_active = 1 WHERE slug = 'pro_anual'`,
                 [proLimits, proUiFeatures]
             );
         }
@@ -846,8 +895,8 @@ const initDb = async () => {
             [freeLimits, freeUiFeatures]
         );
 
-        // Desactivar planes que no sean starter ni pro para mantener el modelo limpio de 2 planes
-        await connection.query(`UPDATE plans SET is_active = 0 WHERE slug NOT IN ('starter', 'pro')`);
+        // Desactivar planes que no sean starter, pro, pro_mensual ni pro_anual
+        await connection.query(`UPDATE plans SET is_active = 0 WHERE slug NOT IN ('starter', 'pro', 'pro_mensual', 'pro_anual')`);
         ////////// Fin de configuración de planes //////////
 
         // --- DATOS SEMILLA (SEED DATA) ---

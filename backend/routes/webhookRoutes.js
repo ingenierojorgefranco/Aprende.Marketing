@@ -51,7 +51,7 @@ router.post('/hotmart/webhook', express.json({ limit: '10mb' }), async (req, res
             return res.status(400).json({ error: "Empty body" });
         }
         
-        await hotmartService.handleWebhook(req.body);
+        await hotmartService.handleWebhook(req.body, req.query);
         res.json({ success: true });
     } catch (err) {
         console.error(`[Hotmart Webhook Error]: ${err.message}`);

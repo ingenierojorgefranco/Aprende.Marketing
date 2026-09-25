@@ -68,8 +68,10 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
         if (!name) return 'Gratuito';
         const lower = name.toLowerCase();
         if (lower === 'starter' || lower === 'free' || lower === 'gratuito' || lower === 'gratis') return 'Gratuito';
-        if (lower === 'pro') return 'Pro All-Access';
-        if (lower === 'max') return 'Pro All-Access';
+        if (lower === 'pro_mensual') return 'Pro_llimitado (Mensual)';
+        if (lower === 'pro_anual') return 'Pro_llimitado (Anual)';
+        if (lower === 'pro') return 'Pro_llimitado';
+        if (lower === 'max') return 'Pro_llimitado';
         return name;
     };
 
@@ -272,49 +274,94 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                         )}
 
                         {/* TAB: PLAN (READ ONLY) */}
-                        {activeTab === 'plan' && (
-                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="bg-gradient-to-br from-[#FF5A1F]/10 to-indigo-900/10 p-10 rounded-[2.5rem] border border-white/5 relative overflow-hidden group shadow-2xl">
-                                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
-                                        <Crown className="w-32 h-32 text-white" />
-                                    </div>
-                                    <div className="relative z-10">
-                                        <span className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.3em] mb-2 block">Tu Suscripción</span>
-                                        <h3 className="text-5xl font-black text-white capitalize leading-none mb-6">Plan {formatPlanName(user.planLimits?.planName)}</h3>
-                                        
-                                        <div className="grid md:grid-cols-2 gap-8 pt-8 border-t border-white/5">
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-3 bg-white/5 rounded-2xl text-blue-400 border border-white/5">
-                                                    <Calendar className="w-6 h-6" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Renovación</p>
-                                                    <p className="text-xl font-bold text-white">Automática</p>
-                                                </div>
+                        {activeTab === 'plan' && (() => {
+                            const subDetails = user.planLimits?.subscriptionDetails;
+                            const isPro = !['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free'].includes((user.planLimits?.planName || 'starter').toLowerCase());
+                            const periodicity = subDetails?.periodicity || user.planLimits?.periodicity || (user.planLimits?.planName === 'pro_anual' ? 'Anual' : 'Mensual');
+                            const priceDisplay = subDetails?.price ? `$${subDetails.price} USD` : (periodicity === 'Anual' ? '$708 USD' : '$79 USD');
+                            const planDays = subDetails?.planDays || user.planLimits?.planDays || (periodicity === 'Anual' ? 365 : 30);
+                            const rawStart = subDetails?.startDate || user.planLimits?.startDate;
+                            const startDateFormatted = rawStart
+                                ? new Date(rawStart).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                                : (user.createdAt ? new Date(user.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Hoy');
+                            const rawRenewal = subDetails?.renewalDate || user.planLimits?.renewalDate;
+                            const renewalDateFormatted = rawRenewal
+                                ? new Date(rawRenewal).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                                : new Date(Date.now() + (planDays * 24 * 60 * 60 * 1000)).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+                            return (
+                                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <div className="bg-gradient-to-br from-[#FF5A1F]/10 to-indigo-900/10 p-8 sm:p-10 rounded-[2.5rem] border border-white/5 relative overflow-hidden group shadow-2xl">
+                                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
+                                            <Crown className="w-32 h-32 text-white" />
+                                        </div>
+                                        <div className="relative z-10">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <span className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.3em] block">Tu Suscripción</span>
+                                                {isPro && (
+                                                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest uppercase border ${periodicity === 'Anual' ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' : 'bg-orange-500/20 text-orange-300 border-orange-500/30'}`}>
+                                                        Plan {periodicity}
+                                                    </span>
+                                                )}
                                             </div>
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-3 bg-white/5 rounded-2xl text-emerald-400 border border-white/5">
-                                                    <CreditCard className="w-6 h-6" />
+                                            <h3 className="text-4xl sm:text-5xl font-black text-white capitalize leading-none mb-6">
+                                                {subDetails?.planName || formatPlanName(user.planLimits?.planName)}
+                                            </h3>
+                                            
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6 border-t border-white/5">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="p-3 bg-white/5 rounded-2xl text-blue-400 border border-white/5">
+                                                        <Calendar className="w-6 h-6" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Fecha de Inicio</p>
+                                                        <p className="text-lg font-bold text-white">{startDateFormatted}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Estado</p>
-                                                    <p className="text-xl font-bold text-emerald-400">Activa</p>
+                                                <div className="flex items-center gap-4">
+                                                    <div className="p-3 bg-white/5 rounded-2xl text-emerald-400 border border-white/5">
+                                                        <Clock className="w-6 h-6" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Próxima Renovación</p>
+                                                        <p className="text-lg font-bold text-emerald-400">{renewalDateFormatted}</p>
+                                                    </div>
+                                                </div>
+                                                {isPro && (
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="p-3 bg-white/5 rounded-2xl text-amber-400 border border-white/5">
+                                                            <Sparkles className="w-6 h-6" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Periodicidad ({planDays} días)</p>
+                                                            <p className="text-lg font-bold text-white">{periodicity} ({priceDisplay})</p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                <div className="flex items-center gap-4">
+                                                    <div className="p-3 bg-white/5 rounded-2xl text-purple-400 border border-white/5">
+                                                        <CreditCard className="w-6 h-6" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Estado</p>
+                                                        <p className="text-lg font-bold text-emerald-400">Activa</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free'].includes((user.planLimits?.planName || 'starter').toLowerCase()) && (
-                                    <button 
-                                        onClick={() => setShowUpgrade(true)}
-                                        className="w-full py-6 rounded-2xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-xl shadow-[#FF5A1F]/20 transition-all flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 uppercase"
-                                    >
-                                        <Sparkles className="w-7 h-7 fill-current" /> Actualizar a Plan Pro ($79)
-                                    </button>
-                                )}
-                            </div>
-                        )}
+                                    {!isPro && (
+                                        <button 
+                                            onClick={() => setShowUpgrade(true)}
+                                            className="w-full py-6 rounded-2xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-xl shadow-[#FF5A1F]/20 transition-all flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 uppercase"
+                                        >
+                                            <Sparkles className="w-7 h-7 fill-current" /> Actualizar a Plan Pro ($79)
+                                        </button>
+                                    )}
+                                </div>
+                            );
+                        })()}
 
                         {/* TAB: USAGE STATS */}
                         {activeTab === 'usage' && (

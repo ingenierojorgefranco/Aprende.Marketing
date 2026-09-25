@@ -44,8 +44,11 @@ export const SubscriptionSuccessPage: React.FC<SubscriptionSuccessPageProps> = (
   const paramName = queryParams.get('c_name') || queryParams.get('name') || queryParams.get('buyer_name') || '';
   const paramAff = queryParams.get('aff') || queryParams.get('affiliate') || '';
   const paramAprobado = queryParams.get('aprobado') || queryParams.get('status') || '1';
-  const paramPlan = queryParams.get('plan') || queryParams.get('plan_slug') || '';
-  const paramPrice = queryParams.get('price') || queryParams.get('amount') || '';
+  const paramPlan = queryParams.get('Plan_Slug') || queryParams.get('plan_slug') || queryParams.get('plan') || '';
+  const paramPlanNombre = queryParams.get('Plan_nombre') || queryParams.get('plan_nombre') || '';
+  const paramPeriodicity = queryParams.get('Plan_Periodicidad') || queryParams.get('plan_periodicidad') || '';
+  const paramPrice = queryParams.get('Plan_Precio') || queryParams.get('plan_precio') || queryParams.get('price') || queryParams.get('amount') || '';
+  const paramDays = queryParams.get('Plan_Dias') || queryParams.get('plan_dias') || '';
   const paramCurrency = queryParams.get('currency') || 'USD';
   const paramSrc = queryParams.get('src') || '';
   const paramProduct = queryParams.get('product') || queryParams.get('product_id') || queryParams.get('prod') || '';
@@ -102,13 +105,19 @@ export const SubscriptionSuccessPage: React.FC<SubscriptionSuccessPageProps> = (
       try {
         setLoading(true);
         const queryObj: Record<string, string> = {};
+        queryParams.forEach((value, key) => {
+          queryObj[key] = value;
+        });
         if (paramTransaction) queryObj.transaction = paramTransaction;
         if (paramEmail) queryObj.email = paramEmail;
         if (paramName) queryObj.c_name = paramName;
         if (paramAff) queryObj.aff = paramAff;
         if (paramAprobado) queryObj.aprobado = paramAprobado;
         if (paramPlan) queryObj.plan = paramPlan;
-        if (paramPrice) queryObj.price = paramPrice;
+        if (paramPlanNombre) queryObj.Plan_nombre = paramPlanNombre;
+        if (paramPeriodicity) queryObj.Plan_Periodicidad = paramPeriodicity;
+        if (paramPrice) queryObj.Plan_Precio = paramPrice;
+        if (paramDays) queryObj.Plan_Dias = paramDays;
         if (paramCurrency) queryObj.currency = paramCurrency;
         if (paramSrc) queryObj.src = paramSrc;
         if (paramProduct) queryObj.product = paramProduct;
@@ -204,15 +213,28 @@ export const SubscriptionSuccessPage: React.FC<SubscriptionSuccessPageProps> = (
   const isPendingCash = approvalCode === '2';
   const isPendingPaypal = approvalCode === '3';
 
-  const planName = data?.plan?.name || (paramPlan ? (paramPlan.includes('anual') || paramPlan.includes('annual') ? 'Plan Pro Anual' : paramPlan.toUpperCase()) : 'Plan Pro All-Access');
+  const isAnnual = (data?.plan?.interval === 'annual') || (paramPlan === 'anual' || paramPlan === 'annual' || paramPlan === 'pro-anual') || (data?.plan?.periodicity === 'Anual');
+  const periodicity = data?.plan?.periodicity || (isAnnual ? 'Anual' : 'Mensual');
+  const planDays = data?.plan?.days || (isAnnual ? 365 : 30);
+  const planName = data?.plan?.name || (paramPlanNombre ? `${paramPlanNombre} (${periodicity})` : (isAnnual ? 'Pro_llimitado (Anual)' : 'Pro_llimitado (Mensual)'));
   const planDescription = data?.plan?.description || 'Acceso completo a la suite de automatización y herramientas de marketing para escalar tus ventas.';
   const transactionId = data?.purchase?.transactionId || paramTransaction || 'HP' + Date.now().toString().slice(-9);
-  const amount = data?.purchase?.amount ?? (paramPrice || (data?.plan?.price ? data.plan.price : '79'));
+  const amount = data?.purchase?.amount ?? (paramPrice || (data?.plan?.price ? data.plan.price : (isAnnual ? '708' : '79')));
   const currency = data?.purchase?.currency || paramCurrency || 'USD';
   const buyerEmail = user?.email || data?.buyer?.email || paramEmail || 'Registrado en Hotmart';
   const buyerName = user?.name || data?.buyer?.name || paramName;
   const affiliateCode = data?.purchase?.affiliateCode || paramAff;
-  const isAnnual = (data?.plan?.interval === 'annual') || (paramPlan === 'anual' || paramPlan === 'annual' || paramPlan === 'pro-anual');
+
+  // Fechas de inicio y renovación
+  const rawStartDate = data?.plan?.startDate || data?.purchase?.date;
+  const startDateStr = rawStartDate 
+    ? new Date(rawStartDate).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+  const rawRenewalDate = data?.plan?.renewalDate;
+  const renewalDateStr = rawRenewalDate
+    ? new Date(rawRenewalDate).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : new Date(Date.now() + (planDays * 24 * 60 * 60 * 1000)).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   const featuresList = (data?.plan?.uiFeatures && data.plan.uiFeatures.length > 0)
     ? data.plan.uiFeatures
@@ -390,6 +412,37 @@ export const SubscriptionSuccessPage: React.FC<SubscriptionSuccessPageProps> = (
                         ANUAL VIP
                       </span>
                     )}
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-gray-400 block text-xs font-semibold uppercase tracking-wider mb-1">Periodicidad</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-white text-base">
+                      {periodicity} ({planDays} días)
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                      {isAnnual ? 'Facturación Anual' : 'Facturación Mensual'}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-gray-400 block text-xs font-semibold uppercase tracking-wider mb-1">Fecha de Inicio</span>
+                  <span className="font-bold text-white text-base">
+                    {startDateStr}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-gray-400 block text-xs font-semibold uppercase tracking-wider mb-1">Próxima Renovación</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-emerald-400 text-base">
+                      {renewalDateStr}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
+                      (Automática)
+                    </span>
                   </div>
                 </div>
 

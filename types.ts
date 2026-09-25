@@ -133,6 +133,23 @@ export interface PlanFeatures {
 
 export interface PlanLimits {
   planName: 'free' | 'starter' | 'pro' | 'max' | 'custom' | string;
+  planDisplayName?: string;
+  planSlug?: string;
+  periodicity?: string; // 'Mensual' | 'Anual'
+  price?: number;
+  planDays?: number;
+  startDate?: string;
+  renewalDate?: string;
+  subscriptionDetails?: {
+    planName: string;
+    planSlug: string;
+    periodicity: string;
+    price: number;
+    planDays: number;
+    startDate: string;
+    renewalDate: string;
+    status: string;
+  };
   maxProjects: number;
   maxLandings: number;
   maxDomains: number; // Nuevo límite de dominios
@@ -154,6 +171,7 @@ export interface Plan {
   slug: string; // e.g. 'starter', 'pro'
   description: string;
   priceMonthly: number;
+  priceAnnual?: number;
   currency: string;
   stripePriceId?: string; // NEW: Dynamic ID for Stripe
   ////////// Se añade hotmartId a la interfaz Plan para soporte de Hotmart - 24/05/2025 10:30 //////////
@@ -177,11 +195,17 @@ export interface UserSubscription {
     planId: string;
     planName: string;
     planSlug: string;
-    status: 'active' | 'inactive' | 'canceled';
+    periodicity?: string;
+    price?: number;
+    planDays?: number;
+    startDate?: string | Date;
+    renewalDate?: string | Date;
+    status: 'active' | 'inactive' | 'canceled' | 'pending_cancellation' | 'replaced';
     createdAt: string | Date;
     nextBillingAt?: string | Date;
     amount?: number;
     currency?: string;
+    trackingParams?: Record<string, any>;
 }
 
 export interface User {

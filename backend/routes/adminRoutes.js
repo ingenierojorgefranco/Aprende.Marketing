@@ -183,10 +183,15 @@ router.get('/users/:userId/subscriptions', async (req, res) => {
                 us.id, 
                 us.user_id as userId, 
                 us.plan_slug as planSlug, 
+                COALESCE(us.plan_name, p.name) as planName,
+                us.periodicity,
+                us.price,
+                us.plan_days as planDays,
+                us.start_date as startDate,
+                us.renewal_date as renewalDate,
                 us.status, 
                 us.created_at as createdAt, 
-                us.expires_at as nextBillingAt, 
-                p.name as planName,
+                COALESCE(us.renewal_date, us.expires_at) as nextBillingAt, 
                 p.id as planId
             FROM user_subscriptions us
             LEFT JOIN plans p ON us.plan_slug = p.slug

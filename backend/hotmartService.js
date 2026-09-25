@@ -1,12 +1,14 @@
 
 import pool from './db.js';
 import bcrypt from 'bcryptjs';
+import { resolvePlanTracking } from './planTrackingHelper.js';
+import { clearLimitsCache } from './routes/authRoutes.js';
 
 /**
  * Maneja el Webhook de Hotmart (Postback)
  * Formato esperado: POST con JSON de Hotmart
  */
-export const handleWebhook = async (payload) => {
+export const handleWebhook = async (payload, query = {}) => {
     console.log(`[Hotmart Webhook] Recibida notificación: ${payload.event || 'desconocida'}`);
 
     // Campos clave de Hotmart
@@ -24,11 +26,15 @@ export const handleWebhook = async (payload) => {
     const buyerCountry = data.buyer?.address?.country_iso;
     const transactionId = data.purchase?.transaction;
     const amount = data.purchase?.price?.value;
-    const currency = data.purchase?.price?.currency_value;
+    const currency = data.purchase?.price?.currency_value || 'USD';
     const paymentType = data.purchase?.payment?.type;
     const subscriberCode = data.subscription?.subscriber?.code || data.subscriber?.code;
     const nextChargeDate = data.purchase?.date_next_charge || data.date_next_charge;
     const buyerData = data.buyer || {};
+
+    // 1. Extraer y procesar claves de seguimiento (Mensual vs Anual y cálculo de fechas)
+    const trackingInfo = resolvePlanTracking(payload, query, data.purchase?.order_date || data.purchase?.approved_date);
+    console.log(`[Hotmart Webhook] Plan Detectado: ${trackingInfo.planNombre} | Periodicidad: ${trackingInfo.periodicity} | Días: ${trackingInfo.planDays} | Precio: ${trackingInfo.planPrice} | Inicio: ${trackingInfo.startDateFormatted} | Renovación: ${trackingInfo.renewalDateFormatted}`);
     
     ////////// Lógica reforzada para detección de userId - 25/05/2025 11:30 //////////
     // Intentamos obtener el ID del usuario desde el parámetro 'src' que enviamos en el link
@@ -139,11 +145,10 @@ export const handleWebhook = async (payload) => {
 
     // Lógica de activación si la compra es aprobada o renovación exitosa
     if (status === 'approved' || status === 'complete' || event === 'PURCHASE_APPROVED') {
-        console.log(`[Hotmart Webhook] Activando plan para User ${userId} (Producto ${productId}, Oferta ${offerCode || 'N/A'})`);
+        console.log(`[Hotmart Webhook] Activando plan para User ${userId} (Producto ${productId || 'N/A'}, Oferta ${offerCode || 'N/A'}, Slug ${trackingInfo.planSlug})`);
 
-        // 1. Buscar el plan que coincide con este Hotmart ID y Oferta (tanto mensual como anual)
-        // Priorizamos la coincidencia exacta de la oferta si existe
-        const [planRows] = await pool.query(
+        // 1. Buscar el plan que coincide con Hotmart ID, Oferta o Slug de seguimiento
+        let [planRows] = await pool.query(
             `SELECT id, limits_config, slug FROM plans 
              WHERE (hotmart_id = ? OR hotmart_id_annual = ?) 
              AND (
@@ -156,76 +161,202 @@ export const handleWebhook = async (payload) => {
             [productId, productId, offerCode, offerCode, offerCode, offerCode, offerCode, offerCode]
         );
         
-        console.log(`[Hotmart Webhook] Planes encontrados en DB para Producto ${productId}: ${planRows.length}`);
+        // Si no se encontró por ID de producto / oferta, buscar por el slug de seguimiento (pro_mensual, pro_anual o pro)
+        if (planRows.length === 0) {
+            console.log(`[Hotmart Webhook] Buscando plan por Slug de seguimiento: ${trackingInfo.planSlug}`);
+            [planRows] = await pool.query(
+                `SELECT id, limits_config, slug FROM plans WHERE slug = ? OR slug = 'pro' ORDER BY (slug = ?) DESC LIMIT 1`,
+                [trackingInfo.planSlug, trackingInfo.planSlug]
+            );
+        }
+
+        console.log(`[Hotmart Webhook] Planes encontrados en DB: ${planRows.length}`);
         
         if (planRows.length === 0) {
-            console.error(`[Hotmart Error] No hay ningún plan configurado con el Hotmart ID: ${productId} y Oferta: ${offerCode}`);
+            console.error(`[Hotmart Error] No hay ningún plan configurado en la base de datos.`);
             return;
         }
 
         const plan = planRows[0];
-        console.log(`[Hotmart Webhook] Plan seleccionado: ${plan.slug} (ID: ${plan.id})`);
-        const limitsConfig = typeof plan.limits_config === 'string' 
+        const assignedSlug = trackingInfo.planSlug || plan.slug;
+        console.log(`[Hotmart Webhook] Plan seleccionado: ${assignedSlug} (ID: ${plan.id})`);
+        
+        const baseLimits = typeof plan.limits_config === 'string' 
             ? JSON.parse(plan.limits_config) 
-            : plan.limits_config;
+            : (plan.limits_config || {});
+
+        const limitsConfig = {
+            ...baseLimits,
+            planName: 'pro',
+            planSlug: assignedSlug,
+            planDisplayName: trackingInfo.planNombre,
+            periodicity: trackingInfo.periodicity,
+            price: trackingInfo.planPrice,
+            planDays: trackingInfo.planDays,
+            startDate: trackingInfo.startDate.toISOString(),
+            renewalDate: trackingInfo.renewalDate.toISOString(),
+            subscriptionDetails: {
+                planName: trackingInfo.planNombre,
+                planSlug: assignedSlug,
+                periodicity: trackingInfo.periodicity,
+                price: trackingInfo.planPrice,
+                planDays: trackingInfo.planDays,
+                startDate: trackingInfo.startDate.toISOString(),
+                renewalDate: trackingInfo.renewalDate.toISOString(),
+                status: 'active'
+            }
+        };
 
         // 2. Gestionar el "Inventario de Suscripciones" (Reactivación Fair Play)
-        // Buscamos si ya tiene una suscripción para este plan que esté activa o pendiente de cancelar
+        // Buscamos si ya tiene una suscripción que esté activa o pendiente de cancelar
         const [existingSub] = await pool.query(
-            "SELECT id FROM user_subscriptions WHERE user_id = ? AND plan_slug = ? AND status IN ('active', 'pending_cancellation') LIMIT 1",
-            [userId, plan.slug]
+            "SELECT id FROM user_subscriptions WHERE user_id = ? AND (plan_slug IN (?, 'pro', 'pro_mensual', 'pro_anual') OR status IN ('active', 'pending_cancellation')) LIMIT 1",
+            [userId, assignedSlug]
         );
 
+        const currentTransaction = data.purchase?.transaction || transactionId || `HP${Date.now()}`;
+
         if (existingSub.length > 0) {
-            // Reactivamos la suscripción existente
-            console.log(`[Hotmart Webhook] Reactivando suscripción existente ${existingSub[0].id} para el plan ${plan.slug}`);
+            // Reactivamos y actualizamos la suscripción existente con los datos exactos del plan (Mensual o Anual)
+            console.log(`[Hotmart Webhook] Reactivando/Actualizando suscripción existente ${existingSub[0].id} para ${assignedSlug}`);
             await pool.query(
                 `UPDATE user_subscriptions 
-                 SET status = 'active', expires_at = NULL, hotmart_purchase_id = ?, subscriber_code = ?, offer_code = ?, updated_at = NOW() 
+                 SET status = 'active', 
+                     plan_slug = ?, 
+                     plan_name = ?, 
+                     periodicity = ?, 
+                     price = ?, 
+                     plan_days = ?, 
+                     start_date = ?, 
+                     renewal_date = ?, 
+                     expires_at = ?, 
+                     hotmart_purchase_id = ?, 
+                     subscriber_code = ?, 
+                     offer_code = ?, 
+                     tracking_parameters = ?, 
+                     updated_at = NOW() 
                  WHERE id = ?`,
-                [data.purchase?.transaction || null, subscriberCode, offerCode, existingSub[0].id]
+                [
+                    assignedSlug,
+                    trackingInfo.planNombre,
+                    trackingInfo.periodicity,
+                    trackingInfo.planPrice,
+                    trackingInfo.planDays,
+                    trackingInfo.startDateFormatted,
+                    trackingInfo.renewalDateFormatted,
+                    trackingInfo.renewalDateFormatted,
+                    currentTransaction,
+                    subscriberCode || null,
+                    offerCode || null,
+                    JSON.stringify(trackingInfo.trackingParameters),
+                    existingSub[0].id
+                ]
             );
         } else {
-            // Insertar una nueva suscripción
-            console.log(`[Hotmart Webhook] Creando nueva suscripción para el plan ${plan.slug}`);
+            // Insertar una nueva suscripción con todos los parámetros
+            console.log(`[Hotmart Webhook] Creando nueva suscripción para ${assignedSlug}`);
             await pool.query(
-                `INSERT INTO user_subscriptions (user_id, plan_slug, status, hotmart_purchase_id, subscriber_code, offer_code) 
-                 VALUES (?, ?, 'active', ?, ?, ?)`,
-                [userId, plan.slug, data.purchase?.transaction || null, subscriberCode, offerCode]
+                `INSERT INTO user_subscriptions 
+                    (user_id, plan_slug, plan_name, periodicity, price, plan_days, start_date, renewal_date, expires_at, status, hotmart_purchase_id, subscriber_code, offer_code, tracking_parameters, created_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, NOW())`,
+                [
+                    userId,
+                    assignedSlug,
+                    trackingInfo.planNombre,
+                    trackingInfo.periodicity,
+                    trackingInfo.planPrice,
+                    trackingInfo.planDays,
+                    trackingInfo.startDateFormatted,
+                    trackingInfo.renewalDateFormatted,
+                    trackingInfo.renewalDateFormatted,
+                    currentTransaction,
+                    subscriberCode || null,
+                    offerCode || null,
+                    JSON.stringify(trackingInfo.trackingParameters)
+                ]
             );
         }
 
-        // 3. Actualizar usuario (Lógica Global + CRM Data)
+        // 3. Actualizar usuario (Lógica Global + CRM Data + Fechas de Suscripción)
         await pool.query(
             `UPDATE users SET 
                 subscription_status = 'active',
                 plan_limits = ?,
-                phone = ?,
-                country = ?,
+                phone = COALESCE(?, phone),
+                country = COALESCE(?, country),
                 hotmart_metadata = ?
              WHERE id = ?`,
-            [JSON.stringify(limitsConfig), buyerPhone, buyerCountry, JSON.stringify(buyerData), userId]
+            [
+                JSON.stringify(limitsConfig),
+                buyerPhone || null,
+                buyerCountry || null,
+                JSON.stringify({ ...buyerData, tracking: trackingInfo.trackingParameters }),
+                userId
+            ]
         );
 
+        // Limpiar caché de límites para reflejo inmediato
+        clearLimitsCache(userId);
+
         // 4. Registrar el pago en el historial financiero
-        if (transactionId) {
+        const finalAmount = amount || trackingInfo.planPrice;
+        await pool.query(
+            `INSERT INTO user_payments (user_id, transaction_id, amount, currency, status, payment_method) 
+             VALUES (?, ?, ?, ?, 'approved', ?)
+             ON DUPLICATE KEY UPDATE status = 'approved', amount = VALUES(amount), currency = VALUES(currency)`,
+            [userId, currentTransaction, finalAmount, currency, paymentType || 'hotmart']
+        );
+
+        // 5. Registrar en hotmart_orders_log para conciliar información
+        try {
             await pool.query(
-                `INSERT INTO user_payments (user_id, transaction_id, amount, currency, status, payment_method) 
-                 VALUES (?, ?, ?, ?, 'approved', ?)`,
-                [userId, transactionId, amount, currency, paymentType]
+                `INSERT INTO hotmart_orders_log 
+                 (transaction_id, buyer_name, buyer_email, approval_code, approval_status, affiliate_code, plan_slug, plan_nombre, plan_periodicidad, plan_precio, plan_dias, start_date, renewal_date, amount, currency, tracking_parameters, raw_query_json) 
+                 VALUES (?, ?, ?, '1', 'approved', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+                 ON DUPLICATE KEY UPDATE 
+                     plan_slug = VALUES(plan_slug),
+                     plan_nombre = VALUES(plan_nombre),
+                     plan_periodicidad = VALUES(plan_periodicidad),
+                     plan_precio = VALUES(plan_precio),
+                     plan_dias = VALUES(plan_dias),
+                     start_date = VALUES(start_date),
+                     renewal_date = VALUES(renewal_date),
+                     amount = VALUES(amount),
+                     currency = VALUES(currency),
+                     tracking_parameters = VALUES(tracking_parameters),
+                     updated_at = NOW()`,
+                [
+                    currentTransaction,
+                    data.buyer?.name || userEmail.split('@')[0],
+                    userEmail,
+                    data.affiliate?.code || null,
+                    assignedSlug,
+                    trackingInfo.planNombre,
+                    trackingInfo.periodicity,
+                    trackingInfo.planPrice,
+                    trackingInfo.planDays,
+                    trackingInfo.startDateFormatted,
+                    trackingInfo.renewalDateFormatted,
+                    finalAmount,
+                    currency,
+                    JSON.stringify(trackingInfo.trackingParameters),
+                    JSON.stringify(payload)
+                ]
             );
+        } catch (logErr) {
+            console.warn("[Hotmart Orders Log Error]:", logErr.message);
         }
 
-        // 5. Actualizar Proyecto Específico si se proporcionó projectId
+        // 6. Actualizar Proyecto Específico si se proporcionó projectId
         if (projectId) {
-            console.log(`[Hotmart Webhook] Actualizando Proyecto ${projectId} con Plan ${plan.slug}`);
+            console.log(`[Hotmart Webhook] Actualizando Proyecto ${projectId} con Plan ${assignedSlug}`);
             await pool.query(
                 `UPDATE projects SET plan_id = ?, plan_slug = ? WHERE id = ? AND user_id = ?`,
-                [plan.id, plan.slug, projectId, userId]
+                [plan.id, assignedSlug, projectId, userId]
             );
         }
 
-        // 4. Log System Activity
+        // 7. Log System Activity
         try {
             const [userRows] = await pool.query("SELECT name FROM users WHERE id = ?", [userId]);
             const userName = userRows[0]?.name || 'Usuario Hotmart';
@@ -236,8 +367,17 @@ export const handleWebhook = async (payload) => {
                 [
                     userId, 
                     userName, 
-                    plan.slug, 
-                    JSON.stringify({ hotmart_product_id: productId, status: status })
+                    assignedSlug, 
+                    JSON.stringify({ 
+                        hotmart_product_id: productId, 
+                        status: status, 
+                        plan_nombre: trackingInfo.planNombre,
+                        periodicity: trackingInfo.periodicity,
+                        price: trackingInfo.planPrice,
+                        plan_days: trackingInfo.planDays,
+                        start_date: trackingInfo.startDateFormatted,
+                        renewal_date: trackingInfo.renewalDateFormatted
+                    })
                 ]
             );
         } catch (e) {
