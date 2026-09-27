@@ -128,12 +128,70 @@ export const resolvePlanTracking = (payload = {}, query = {}, fallbackPurchaseDa
         renewalDate = new Date(startDate.getTime() + (planDays * 24 * 60 * 60 * 1000));
     }
 
+    const utm_source = findTrackingValue(['utm_source', 'utmSource', 'src'], payload, query);
+    const utm_medium = findTrackingValue(['utm_medium', 'utmMedium'], payload, query);
+    const utm_campaign = findTrackingValue(['utm_campaign', 'utmCampaign', 'campaign'], payload, query);
+    const utm_content = findTrackingValue(['utm_content', 'utmContent'], payload, query);
+    const utm_term = findTrackingValue(['utm_term', 'utmTerm'], payload, query);
+    const sck = findTrackingValue(['sck'], payload, query);
+    const xc = findTrackingValue(['xc'], payload, query);
+
+    // Buscar metadata de la oferta
+    const offerMetadata = payload?.data?.purchase?.offer?.metadata || {};
+
+    // Buscar comisiones
+    const commissions = payload?.data?.commissions || [];
+    const hotmartFee = commissions.find(c => c.source === 'MARKETPLACE')?.value || null;
+    const producerNet = commissions.find(c => c.source === 'PRODUCER')?.value || null;
+    const affiliateNet = commissions.find(c => c.source === 'AFFILIATE' || c.source === 'AFFILIATION')?.value || null;
+
     const trackingParameters = {
         Plan_nombre: planNombre,
         Plan_Periodicidad: periodicity,
         Plan_Precio: planPrice,
         Plan_Dias: planDays,
-        Plan_Slug: planSlug
+        Plan_Slug: planSlug,
+        
+        // UTMs de seguimiento
+        utm_source: utm_source,
+        utm_medium: utm_medium,
+        utm_campaign: utm_campaign,
+        utm_content: utm_content,
+        utm_term: utm_term,
+        sck: sck,
+        xc: xc,
+
+        // Metadata de la oferta y cupones
+        coupon_code: payload?.data?.purchase?.offer?.coupon_code || null,
+        offer_code: payload?.data?.purchase?.offer?.code || null,
+        offer_metadata: offerMetadata,
+
+        // Método de pago y cuotas
+        payment_type: payload?.data?.purchase?.payment?.type || null,
+        installments_number: payload?.data?.purchase?.payment?.installments_number || null,
+
+        // Order bump
+        is_order_bump: payload?.data?.purchase?.order_bump?.is_order_bump || false,
+        parent_purchase_transaction: payload?.data?.purchase?.order_bump?.parent_purchase_transaction || null,
+
+        // Comisiones y ganancias netas
+        hotmart_fee: hotmartFee,
+        producer_net: producerNet,
+        affiliate_net: affiliateNet,
+        affiliates: payload?.data?.affiliates || [],
+
+        // Datos técnicos y fiscales del comprador
+        buyer_ip: payload?.data?.purchase?.buyer_ip || null,
+        checkout_country_iso: payload?.data?.purchase?.checkout_country?.iso || null,
+        document_type: payload?.data?.buyer?.document_type || null,
+        document: payload?.data?.buyer?.document || null,
+        address: payload?.data?.buyer?.address || null,
+        
+        // Datos de suscripción
+        subscriber_code: payload?.data?.subscription?.subscriber?.code || null,
+        subscription_status: payload?.data?.subscription?.status || null,
+        subscription_plan_id: payload?.data?.subscription?.plan?.id || null,
+        subscription_plan_name: payload?.data?.subscription?.plan?.name || null
     };
 
     return {

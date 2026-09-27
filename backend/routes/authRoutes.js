@@ -1014,6 +1014,63 @@ router.get('/subscription-success', async (req, res) => {
             }
         }
 
+        // SI EL PAGO ESTÁ APROBADO Y TENEMOS UN USUARIO LOGUEADO/IDENTIFICADO, ACTIVAR LA CUENTA DIRECTAMENTE
+        if (approvalStatus === 'approved' && targetUserId) {
+            try {
+                const assignedPlanSlug = trackingInfo.planSlug || 'pro';
+                const assignedPlanName = trackingInfo.planNombre || 'Pro Ilimitado';
+                const assignedPeriodicity = trackingInfo.periodicity || 'Mensual';
+                const assignedPrice = trackingInfo.planPrice || 79;
+                const assignedDays = trackingInfo.planDays || 30;
+                const startDateFormatted = trackingInfo.startDateFormatted;
+                const renewalDateFormatted = trackingInfo.renewalDateFormatted;
+                const trackingJson = JSON.stringify(trackingInfo.trackingParameters);
+
+                // 1. Actualizar usuario: Activo, subscription_status, y mantener plan_limits en NULL para que jale de plans
+                await pool.query(
+                    `UPDATE users SET is_active = 1, subscription_status = 'active', plan_limits = NULL WHERE id = ?`,
+                    [targetUserId]
+                );
+
+                // 2. Insertar o actualizar suscripción activa en user_subscriptions
+                const [existingSub] = await pool.query(
+                    "SELECT id FROM user_subscriptions WHERE user_id = ? AND (plan_slug IN (?, 'pro', 'pro_mensual', 'pro_anual') OR status IN ('active', 'pending_cancellation')) LIMIT 1",
+                    [targetUserId, assignedPlanSlug]
+                );
+
+                if (existingSub.length > 0) {
+                    await pool.query(
+                        `UPDATE user_subscriptions 
+                         SET status = 'active', plan_slug = ?, plan_name = ?, periodicity = ?, price = ?, plan_days = ?, start_date = ?, renewal_date = ?, expires_at = ?, hotmart_purchase_id = ?, tracking_parameters = ?, updated_at = NOW() 
+                         WHERE id = ?`,
+                        [assignedPlanSlug, assignedPlanName, assignedPeriodicity, assignedPrice, assignedDays, startDateFormatted, renewalDateFormatted, renewalDateFormatted, finalTransaction || null, trackingJson, existingSub[0].id]
+                    );
+                } else {
+                    await pool.query(
+                        `INSERT INTO user_subscriptions 
+                         (user_id, plan_slug, plan_name, periodicity, price, plan_days, start_date, renewal_date, expires_at, status, hotmart_purchase_id, tracking_parameters, created_at) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, NOW())`,
+                        [targetUserId, assignedPlanSlug, assignedPlanName, assignedPeriodicity, assignedPrice, assignedDays, startDateFormatted, renewalDateFormatted, renewalDateFormatted, finalTransaction || null, trackingJson]
+                    );
+                }
+
+                // 3. Registrar el pago en user_payments si no existía o actualizarlo a aprobado
+                await pool.query(
+                    `INSERT INTO user_payments (user_id, transaction_id, amount, currency, status, payment_method, affiliate_code, buyer_name, approval_code) 
+                     VALUES (?, ?, ?, ?, 'approved', 'hotmart', ?, ?, ?)
+                     ON DUPLICATE KEY UPDATE status = 'approved', amount = VALUES(amount), currency = VALUES(currency)`,
+                    [targetUserId, finalTransaction, finalAmount, currency, rawAff || null, buyerName, approvalCode]
+                );
+
+                // 4. Limpiar caché de límites y recargar límites efectivos
+                clearLimitsCache(targetUserId);
+                effectiveLimits = await getEffectiveLimits(targetUserId, true);
+                console.log(`[Subscription Auto Activation] Activado usuario ${targetUserId} exitosamente.`);
+            } catch (actErr) {
+                console.error("[Subscription Auto Activation Error]", actErr);
+            }
+        }
+
         res.json({
             success: true,
             approval: {
