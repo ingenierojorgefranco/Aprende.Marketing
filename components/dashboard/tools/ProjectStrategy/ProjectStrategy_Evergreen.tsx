@@ -791,8 +791,8 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                         <div className="w-full max-w-sm space-y-4">
                                             <button 
                                                 onClick={() => isLimitReached ? onUpgrade() : setShowConfirmModal(true)}
-                                                disabled={generatingId === activeEmail.id || (isLimitReached && !activeEmail.isGenerated)}
-                                                className={`w-full py-5 rounded-2xl font-black text-xl uppercase tracking-widest transition-all shadow-xl shadow-orange-900/40 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group ${isLimitReached && !activeEmail.isGenerated ? 'bg-gray-800 text-gray-500' : 'bg-orange-600 hover:bg-orange-500 text-white'}`}
+                                                disabled={generatingId === activeEmail.id}
+                                                className={`w-full py-5 rounded-2xl font-black text-xl uppercase tracking-widest transition-all shadow-xl shadow-orange-900/40 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group ${isLimitReached && !activeEmail.isGenerated ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white' : 'bg-orange-600 hover:bg-orange-500 text-white'}`}
                                             >
                                                 {generatingId === activeEmail.id ? (
                                                     <>
@@ -800,7 +800,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                                     </>
                                                 ) : isLimitReached && !activeEmail.isGenerated ? (
                                                     <>
-                                                        <Crown className="w-6 h-6" /> Límite Alcanzado
+                                                        <Crown className="w-6 h-6 fill-current" /> Actualizar a PRO 👑
                                                     </>
                                                 ) : (
                                                     <>

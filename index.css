@@ -91,3 +91,33 @@ mark {
 .animate-spin-slow {
     animation: spin-slow 8s linear infinite;
 }
+
+/* High Contrast & Premium Styling for Blog Blockquotes / Pro Tips */
+.prose blockquote {
+  background-color: #fffaf5 !important; /* Soft, warm, light orange-tinted background */
+  border-left-color: #ea580c !important; /* Rich Orange left border */
+  border-left-width: 4px !important;
+  padding: 1.5rem 2rem !important;
+  border-radius: 12px !important;
+  margin-top: 2rem !important;
+  margin-bottom: 2rem !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05) !important;
+}
+
+.prose blockquote p {
+  color: #1e293b !important; /* High contrast Slate-800 for perfect legibility */
+  font-size: 1.2rem !important;
+  line-height: 1.8 !important;
+  font-weight: 500 !important;
+}
+
+/* Ensure header text in pro tips is beautifully colored and high contrast */
+.prose blockquote strong,
+.prose blockquote span,
+.prose blockquote h4,
+.prose blockquote h5 {
+  color: #c2410c !important; /* Premium dark orange/rust for highlight text */
+  font-weight: 800 !important;
+  display: inline-block !important;
+}
+

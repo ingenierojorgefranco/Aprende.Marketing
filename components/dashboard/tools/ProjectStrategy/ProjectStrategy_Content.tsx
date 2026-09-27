@@ -730,11 +730,13 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         }
     };
 
+    const planRawName = (planLimits?.planName || user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
+    const isFreeUser = !isRealAdmin && (planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName);
     const maxArticles = planLimits?.maxArticles || user?.planLimits?.maxArticles || 2;
     const currentArticleCount = typeof globalArticleCount === 'number' 
         ? globalArticleCount 
         : (typeof context?.articleCount === 'number' ? context.articleCount : linkedArticles.filter(a => a.isGenerated || a.isUnlocked).length);
-    const isAtLimit = !isRealAdmin && !api.isUsingMockData() && currentArticleCount >= maxArticles;
+    const isAtLimit = isFreeUser || (!isRealAdmin && !api.isUsingMockData() && currentArticleCount >= maxArticles);
 
     const usagePercent = maxArticles > 0 ? Math.min(100, (currentArticleCount / maxArticles) * 100) : 0;
     let progressColor = "bg-green-500";
@@ -980,7 +982,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             className={`w-full py-5 rounded-2xl ${isAtLimit ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110'} text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-950/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70`}
                                         >
                                             {unlockingSingle ? <Loader2 className="w-6 h-6 animate-spin" /> : isAtLimit ? <Crown className="w-6 h-6 fill-current" /> : <Sparkles className="w-6 h-6 group-hover:rotate-12 transition-transform" />}
-                                            {unlockingSingle ? 'Redactando...' : isAtLimit ? 'Límite Alcanzado: Subir a PRO' : 'Redactar Artículo de Blog'}
+                                            {unlockingSingle ? 'Redactando...' : isAtLimit ? 'Actualizar a PRO 👑' : 'Redactar Artículo de Blog'}
                                         </button>
                                         
                                         <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">
@@ -1051,7 +1053,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         {!currentData[activeArticleIdx]?.isGenerated && (
                                             <div className="pt-2">
                                                 {isAtLimit && !currentData[activeArticleIdx]?.isUnlocked ? (
-                                                    <button onClick={onUpgrade} className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02]"><Crown className="w-6 h-6 fill-current" /> Límite Alcanzado: Subir a PRO</button>
+                                                    <button onClick={onUpgrade} className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02]"><Crown className="w-6 h-6 fill-current" /> Actualizar a PRO 👑</button>
                                                 ) : (
                                                     <button 
                                                         onClick={() => {

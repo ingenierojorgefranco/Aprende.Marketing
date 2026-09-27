@@ -536,6 +536,9 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const isRealAdmin = (user?.role === 'admin' || planLimits?.planName === 'admin') && !isSimulating;
     const maxLaunches = planLimits?.maxWhatsAppLaunches || user?.planLimits?.maxWhatsAppLaunches || 1;
     const launchUsed = launchCount;
+    const planRawName = (planLimits?.planName || user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
+    const isFreeUser = !isRealAdmin && (planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName);
+    const isLimitReached = isFreeUser || (!isRealAdmin && launchUsed >= maxLaunches);
     const usagePercent = Math.min(100, (launchUsed / maxLaunches) * 100);
     let progressColor = "bg-green-500";
     if (usagePercent > 50) progressColor = "bg-yellow-500";
@@ -726,10 +729,18 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                     {/* Botón de Generación Superior */}
                                     {!whatsappLaunch.some(m => m.isGenerated) && (
                                         <button 
-                                            onClick={handleStartGenerationFlow}
-                                            className="w-full mb-6 py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                                            onClick={isLimitReached ? onUpgrade : handleStartGenerationFlow}
+                                            className={`w-full mb-6 py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 ${isLimitReached ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white'}`}
                                         >
-                                            <Wand2 className="w-5 h-5" /> Crear Secuencia de Mensajes
+                                            {isLimitReached ? (
+                                                <>
+                                                    <Crown className="w-5 h-5 fill-current" /> Actualizar a PRO 👑
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Wand2 className="w-5 h-5" /> Crear Secuencia de Mensajes
+                                                </>
+                                            )}
                                         </button>
                                     )}
 
@@ -791,10 +802,18 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                         {!whatsappLaunch.some(m => m.isGenerated) && (
                                             <div className="pt-4">
                                                 <button 
-                                                    onClick={handleStartGenerationFlow}
-                                                    className="w-full py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                                                    onClick={isLimitReached ? onUpgrade : handleStartGenerationFlow}
+                                                    className={`w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 ${isLimitReached ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white'}`}
                                                 >
-                                                    <Wand2 className="w-5 h-5" /> Crear Secuencia de Mensajes
+                                                    {isLimitReached ? (
+                                                        <>
+                                                            <Crown className="w-5 h-5 fill-current" /> Actualizar a PRO 👑
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Wand2 className="w-5 h-5" /> Crear Secuencia de Mensajes
+                                                        </>
+                                                    )}
                                                 </button>
                                             </div>
                                         )}

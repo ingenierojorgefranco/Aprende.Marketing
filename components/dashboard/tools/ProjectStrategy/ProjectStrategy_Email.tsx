@@ -473,6 +473,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
     // Lógica de límites
     const isRealAdmin = (user?.role === 'admin' || planLimits?.planName === 'admin') && !isSimulating;
+    const planRawName = (planLimits?.planName || user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
+    const isFreeUser = !isRealAdmin && (planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName);
     
     // Recalcular sequenceUsed basado en la lógica solicitada:
     // En conversión se cuenta por secuencia (si tiene al menos un correo generado)
@@ -746,21 +748,30 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     {/* Botón General de Generación */}
                     {generatedInCurrent < 7 && (
                         <div className="mt-6 pt-6 border-t border-white/5">
-                            <button 
-                                onClick={() => setShowConfirmModal(true)}
-                                disabled={isGenerating}
-                                className="w-full py-5 rounded-2xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-orange-950/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isGenerating ? (
-                                    <>
-                                        <Loader2 className="w-5 h-5 animate-spin" /> Generando Secuencia...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Sparkles className="w-5 h-5" /> Generar Secuencia Completa
-                                    </>
-                                )}
-                            </button>
+                            {isFreeUser ? (
+                                <button 
+                                    onClick={onUpgrade}
+                                    className="w-full py-5 rounded-2xl bg-gradient-to-r from-yellow-600 to-orange-600 hover:brightness-110 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-orange-950/20 flex items-center justify-center gap-3"
+                                >
+                                    <Crown className="w-5 h-5 fill-current" /> Actualizar a PRO 👑
+                                </button>
+                            ) : (
+                                <button 
+                                    onClick={() => setShowConfirmModal(true)}
+                                    disabled={isGenerating}
+                                    className="w-full py-5 rounded-2xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-orange-950/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isGenerating ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 animate-spin" /> Generando Secuencia...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Sparkles className="w-5 h-5" /> Generar Secuencia Completa
+                                        </>
+                                    )}
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>

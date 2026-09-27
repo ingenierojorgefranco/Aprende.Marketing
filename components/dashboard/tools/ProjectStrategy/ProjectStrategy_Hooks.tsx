@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import confetti from 'canvas-confetti';
-import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle, Wand2, Search, Play } from 'lucide-react';
+import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle, Wand2, Search, Play, Crown } from 'lucide-react';
 import { useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { UpgradeModal } from '../../UpgradeModal';
@@ -1268,16 +1268,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                     <button 
                         onClick={isLimitReached ? () => setShowUpgradeModalLocal(true) : handleUnlockSingle}
                         disabled={unlockingSingle}
-                        className={`w-full py-5 rounded-2xl ${isLimitReached ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-orange-600 hover:bg-orange-500'} text-white font-black text-xl uppercase tracking-widest shadow-xl transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70`}
+                        className={`w-full py-5 rounded-2xl ${isLimitReached ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-orange-600 hover:bg-orange-500'} text-white font-black text-xl uppercase tracking-widest shadow-xl transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70`}
                     >
                         {unlockingSingle ? (
                             <Loader2 className="w-6 h-6 animate-spin" />
                         ) : isLimitReached ? (
-                            <Sparkles className="w-6 h-6 group-hover:animate-pulse" />
+                            <Crown className="w-6 h-6 fill-current" />
                         ) : (
                             <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />
                         )}
-                        {unlockingSingle ? 'Desbloqueando...' : isLimitReached ? 'Desbloquear 27 Hooks' : 'Desbloquear Hook'}
+                        {unlockingSingle ? 'Desbloqueando...' : isLimitReached ? 'Actualizar a PRO 👑' : 'Desbloquear Hook'}
                     </button>
                     
                     <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">

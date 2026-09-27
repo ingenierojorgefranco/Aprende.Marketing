@@ -167,11 +167,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               firstUncompleted++;
             }
             if (firstUncompleted <= 9) {
-              if (firstUncompleted >= 6 && isFreeUser && !isAdmin) {
-                setActiveStep(5);
-              } else {
-                setActiveStep(firstUncompleted);
-              }
+              setActiveStep(firstUncompleted);
             }
           }
         }
@@ -187,12 +183,6 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     
     if (stepId < 10) {
       const nextStep = stepId + 1;
-      if (nextStep >= 6 && isFreeUser && !isAdmin) {
-        if (onUpgradeClick) {
-          onUpgradeClick();
-        }
-        return;
-      }
       setActiveStep(nextStep);
       const nextSectionId = stepToSectionMap[nextStep] || 'summary';
       setSearchParams({ section: nextSectionId });
@@ -269,27 +259,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     if (rawSection) {
       const step = sectionToStepMap[rawSection];
       if (step && step !== activeStep) {
-        if (step >= 6 && isFreeUser && !isAdmin) {
-          if (onUpgradeClick) {
-            onUpgradeClick();
-          }
-          setActiveStep(5);
-          setSearchParams({ section: 'hooks' });
-        } else {
-          setActiveStep(step);
-        }
+        setActiveStep(step);
       }
     }
   }, [activeStrategySection, searchParams, isFreeUser, isAdmin, onUpgradeClick]);
 
   const handleStrategySectionClick = (sectionId: string) => {
     const step = sectionToStepMap[sectionId] || 1;
-    if (step >= 6 && isFreeUser && !isAdmin) {
-      if (onUpgradeClick) {
-        onUpgradeClick();
-      }
-      return;
-    }
     setActiveStep(step);
     const normalizedSection = stepToSectionMap[step] || sectionId;
     setSearchParams({ section: normalizedSection });
@@ -385,12 +361,6 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   ];
 
   const handleStepClick = (id: number) => {
-    if (id >= 6 && isFreeUser && !isAdmin) {
-      if (onUpgradeClick) {
-        onUpgradeClick();
-      }
-      return;
-    }
     setActiveStep(id);
     const sectionId = stepToSectionMap[id] || 'summary';
     setSearchParams({ section: sectionId });

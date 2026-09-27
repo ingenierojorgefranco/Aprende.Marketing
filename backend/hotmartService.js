@@ -318,6 +318,10 @@ export const handleWebhook = async (payload, query = {}) => {
                  (transaction_id, buyer_name, buyer_email, approval_code, approval_status, affiliate_code, plan_slug, plan_nombre, plan_periodicidad, plan_precio, plan_dias, start_date, renewal_date, amount, currency, tracking_parameters, raw_query_json) 
                  VALUES (?, ?, ?, '1', 'approved', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
                  ON DUPLICATE KEY UPDATE 
+                     buyer_name = IF(VALUES(buyer_name) != '' AND VALUES(buyer_name) != 'Cliente Hotmart', VALUES(buyer_name), buyer_name),
+                     buyer_email = IF(VALUES(buyer_email) != '', VALUES(buyer_email), buyer_email),
+                     approval_status = VALUES(approval_status),
+                     affiliate_code = IF(VALUES(affiliate_code) IS NOT NULL, VALUES(affiliate_code), affiliate_code),
                      plan_slug = VALUES(plan_slug),
                      plan_nombre = VALUES(plan_nombre),
                      plan_periodicidad = VALUES(plan_periodicidad),
@@ -328,6 +332,7 @@ export const handleWebhook = async (payload, query = {}) => {
                      amount = VALUES(amount),
                      currency = VALUES(currency),
                      tracking_parameters = VALUES(tracking_parameters),
+                     raw_query_json = VALUES(raw_query_json),
                      updated_at = NOW()`,
                 [
                     currentTransaction,

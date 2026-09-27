@@ -142,14 +142,8 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                                         const isCompleted = item.stepNumber ? completedSteps.includes(item.stepNumber) : false;
                                         
                                         const handleItemClick = () => {
-                                            if (item.stepNumber && item.stepNumber >= 6 && isFreeUser && !isAdmin) {
-                                                if (onUpgradeClick) {
-                                                    onUpgradeClick();
-                                                }
-                                            } else {
-                                                if (onSectionChange) {
-                                                    onSectionChange(item.id);
-                                                }
+                                            if (onSectionChange) {
+                                                onSectionChange(item.id);
                                             }
                                         };
 
