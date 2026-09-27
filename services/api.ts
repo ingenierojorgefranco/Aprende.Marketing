@@ -1503,8 +1503,15 @@ export const api = {
         return subscriptions;
     },
 
+    getAllPayments: async (): Promise<any[]> => {
+        return await fetchWithFallback('/admin/all-payments', { headers: getAuthHeaders() });
+    },
+
+    getAllSubscriptions: async (): Promise<any[]> => {
+        return await fetchWithFallback('/admin/all-subscriptions', { headers: getAuthHeaders() });
+    },
+
     adminUpdateSubscription: async (subscriptionId: string, data: any): Promise<void> => {
-        if (isMockMode) return Promise.resolve();
         await fetchWithFallback(`/admin/subscriptions/${subscriptionId}`, { 
             method: 'PUT', 
             headers: getAuthHeaders(), 
@@ -1521,7 +1528,6 @@ export const api = {
     },
 
     adminCreateSubscription: async (userId: string, planId: string): Promise<any> => {
-        if (isMockMode) return Promise.resolve({ id: 'mock-sub-' + Date.now(), planId, userId, status: 'active' });
         const res = await fetchWithFallback(`/admin/users/${userId}/subscriptions`, { 
             method: 'POST', 
             headers: getAuthHeaders(), 

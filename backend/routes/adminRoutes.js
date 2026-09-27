@@ -582,6 +582,48 @@ router.put('/projects/:id', async (req, res) => {
     }
 });
 
+// ======================================================
+//  NUEVO: PANEL DE SUSCRIPCIONES Y TRANSACCIONES
+// ======================================================
+router.get('/all-payments', async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT 
+                up.*, 
+                u.name as userName, 
+                u.email as userEmail 
+            FROM user_payments up 
+            LEFT JOIN users u ON up.user_id = u.id 
+            ORDER BY up.created_at DESC
+        `);
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+router.get('/all-subscriptions', async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT 
+                us.id, 
+                us.user_id as userId, 
+                us.plan_slug as planSlug, 
+                us.status, 
+                us.hotmart_purchase_id as hotmartPurchaseId, 
+                us.created_at as createdAt, 
+                u.name as userName, 
+                u.email as userEmail 
+            FROM user_subscriptions us 
+            LEFT JOIN users u ON us.user_id = u.id 
+            ORDER BY us.created_at DESC
+        `);
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 ////////// Fin de actualización - 07/06/2025 10:00 //////////
 
 export default router;

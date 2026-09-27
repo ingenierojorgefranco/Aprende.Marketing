@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, ChevronLeft, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers, Rocket, Smartphone, Zap, Bell, ChevronsUpDown, User as UserIcon } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, ChevronLeft, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers, Rocket, Smartphone, Zap, Bell, ChevronsUpDown, RefreshCw, User as UserIcon } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
 import { UpgradeModal } from './UpgradeModal';
@@ -311,6 +311,7 @@ export const DashboardLayout = ({
         { id: 'admin', label: 'Administración', icon: Shield, adminOnly: true, subItems: [
               { label: 'Usuarios', path: '/dashboard/admin', icon: Users },
               { label: 'Panel Hotmart', path: '/dashboard/admin/hotmart', icon: ShoppingCart },
+              { label: 'Gestionar Suscripciones', path: '/dashboard/admin/subscriptions', icon: RefreshCw },
               { label: 'Planes y Precios', path: '/dashboard/admin/plans', icon: CreditCard },
               { label: 'Gestionar Cursos', path: '/dashboard/admin/courses', icon: Video },
               { label: 'Gestionar Comentarios', path: '/dashboard/admin/comments', icon: MessageSquare },
