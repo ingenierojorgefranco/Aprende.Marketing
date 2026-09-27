@@ -263,7 +263,30 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
             }
         } else {
             const isAnnualUser = (primarySub?.periodicity === 'Anual' || primarySub?.plan_days >= 300 || primarySub?.plan_slug === 'pro_anual');
+            
+            // Separar planes base de planes add-on de espacio
+            const BASE_PLANS = ['starter', 'free', 'pro', 'max', 'pro_mensual', 'pro_anual'];
+            let highestBaseSlug = 'starter';
+            let highestBaseIdx = -1;
+
             relevantSlugs.forEach(slug => {
+                const normalized = String(slug || '').toLowerCase().trim();
+                if (BASE_PLANS.includes(normalized)) {
+                    const idx = PLAN_ORDER.indexOf(normalized);
+                    if (idx > highestBaseIdx) {
+                        highestBaseIdx = idx;
+                        highestBaseSlug = normalized;
+                    }
+                }
+            });
+
+            // Solo acumulamos límites del plan base más alto activo, y sumamos cualquier add-on que no sea plan base
+            const slugsToSum = relevantSlugs.filter(slug => {
+                const normalized = String(slug || '').toLowerCase().trim();
+                return normalized === highestBaseSlug || !BASE_PLANS.includes(normalized);
+            });
+
+            slugsToSum.forEach(slug => {
                 const basePlanLimits = planDefinitions[slug] || DEFAULT_LIMITS;
                 const limits = ((isAnnualUser || slug === 'pro_anual') && basePlanLimits.annual) 
                     ? { ...basePlanLimits, ...basePlanLimits.annual } 

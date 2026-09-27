@@ -42,6 +42,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
     const [loadingStats, setLoadingStats] = useState(false);
     const [payments, setPayments] = useState<any[]>([]);
     const [loadingPayments, setLoadingPayments] = useState(false);
+    const [expandedPaymentId, setExpandedPaymentId] = useState<any | null>(null);
 
     // Resource Data for Accordion
     const [resources, setResources] = useState<{
@@ -558,38 +559,105 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                         {/* TAB: PAYMENTS */}
                         {activeTab === 'payments' && (
                             <div className="space-y-6 animate-in fade-in duration-500">
-                                <h4 className="text-sm font-black text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-4"><RefreshCw className="w-4 h-4 text-emerald-400" /> Historial de Transacciones</h4>
+                                <h4 className="text-sm font-black text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-4">
+                                    <RefreshCw className="w-4 h-4 text-emerald-400" /> Historial de Transacciones
+                                </h4>
                                 
                                 {loadingPayments ? (
                                     <div className="flex justify-center py-20 text-[#FF5A1F]"><Loader2 className="w-12 h-12 animate-spin" /></div>
                                 ) : payments.length > 0 ? (
                                     <div className="space-y-4">
-                                        {payments.map((payment, i) => (
-                                            <div key={payment.id} className="bg-white/5 border border-white/5 p-6 rounded-2xl flex items-center justify-between group hover:border-[#FF5A1F]/30 transition-all">
-                                                <div className="flex items-center gap-5">
-                                                    <div className="p-3 bg-black/40 rounded-xl text-gray-400 group-hover:text-[#FF5A1F] transition-colors border border-white/5">
-                                                        <CreditCard className="w-6 h-6" />
-                                                    </div>
-                                                    <div>
-                                                        <div className="flex items-center gap-3 mb-1">
-                                                            <span className={`text-sm font-black uppercase tracking-widest ${payment.status === 'succeeded' ? 'text-emerald-400' : 'text-red-400'}`}>
-                                                                {payment.status === 'succeeded' ? 'Éxito' : 'Fallido'}
-                                                            </span>
-                                                            <span className="text-[10px] text-gray-600 font-black uppercase">• {new Date(payment.created_at).toLocaleDateString()}</span>
+                                        <p className="text-xs text-gray-400 mb-2">Haz clic en una transacción para expandir y ver todos sus detalles.</p>
+                                        {payments.map((payment) => {
+                                            const isExpanded = expandedPaymentId === payment.id;
+                                            const isSuccess = payment.status === 'succeeded' || payment.status === 'approved' || payment.status === 'active' || payment.status === 'completed';
+                                            return (
+                                                <div 
+                                                    key={payment.id} 
+                                                    onClick={() => setExpandedPaymentId(isExpanded ? null : payment.id)}
+                                                    className="bg-white/5 border border-white/5 p-6 rounded-2xl flex flex-col gap-4 group hover:border-[#FF5A1F]/30 transition-all cursor-pointer select-none"
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-5">
+                                                            <div className="p-3 bg-black/40 rounded-xl text-gray-400 group-hover:text-[#FF5A1F] transition-colors border border-white/5">
+                                                                <CreditCard className="w-6 h-6" />
+                                                            </div>
+                                                            <div>
+                                                                <div className="flex items-center gap-3 mb-1">
+                                                                    <span className={`text-sm font-black uppercase tracking-widest ${isSuccess ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                                        {isSuccess ? 'Éxito' : 'Fallido'}
+                                                                    </span>
+                                                                    <span className="text-[10px] text-gray-600 font-black uppercase">• {new Date(payment.created_at || payment.createdAt).toLocaleDateString()}</span>
+                                                                </div>
+                                                                <p className="text-xs text-gray-500 font-mono tracking-tighter opacity-50">
+                                                                    ID: {payment.stripe_id || payment.transaction_id || payment.id}
+                                                                </p>
+                                                            </div>
                                                         </div>
-                                                        <p className="text-xs text-gray-500 font-mono tracking-tighter opacity-50">ID: {payment.stripe_id}</p>
+                                                        <div className="text-right">
+                                                            <p className="text-xl font-black text-white leading-none">${payment.amount} <span className="text-xs text-gray-500 font-bold">{payment.currency?.toUpperCase()}</span></p>
+                                                            <p className="text-[9px] text-gray-600 font-black uppercase mt-1.5 tracking-tighter">{payment.payment_method}</p>
+                                                        </div>
                                                     </div>
+
+                                                    {isExpanded && (
+                                                        <div className="border-t border-white/5 pt-4 mt-2 grid grid-cols-2 gap-4 text-xs animate-in slide-in-from-top-2 duration-300">
+                                                            <div className="space-y-1">
+                                                                <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Identificador de Pago</p>
+                                                                <p className="text-gray-300 font-mono text-[11px] select-all break-all">{payment.stripe_id || payment.transaction_id || 'N/A'}</p>
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Método de Pago</p>
+                                                                <p className="text-gray-300">{payment.payment_method || 'Stripe / Hotmart'}</p>
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Estado</p>
+                                                                <p className="text-gray-300 capitalize">{payment.status}</p>
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Fecha Completa</p>
+                                                                <p className="text-gray-300">{new Date(payment.created_at || payment.createdAt).toLocaleString()}</p>
+                                                            </div>
+                                                            {payment.buyer_name && (
+                                                                <div className="space-y-1">
+                                                                    <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Nombre de Comprador</p>
+                                                                    <p className="text-gray-300 font-medium">{payment.buyer_name}</p>
+                                                                </div>
+                                                            )}
+                                                            {payment.approval_code && (
+                                                                <div className="space-y-1">
+                                                                    <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Código de Aprobación</p>
+                                                                    <p className="text-gray-300 font-mono">{payment.approval_code}</p>
+                                                                </div>
+                                                            )}
+                                                            {payment.affiliate_code && (
+                                                                <div className="space-y-1">
+                                                                    <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Código de Afiliado</p>
+                                                                    <p className="text-gray-300 font-mono">{payment.affiliate_code}</p>
+                                                                </div>
+                                                            )}
+                                                            {payment.receipt_url && (
+                                                                <div className="col-span-2 pt-2 border-t border-white/5">
+                                                                    <a 
+                                                                        href={payment.receipt_url} 
+                                                                        target="_blank" 
+                                                                        rel="noreferrer" 
+                                                                        className="inline-flex items-center gap-1.5 text-xs text-[#FF5A1F] hover:text-white transition-colors"
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                    >
+                                                                        Ver Recibo Oficial <ExternalLink className="w-3.5 h-3.5" />
+                                                                    </a>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <div className="text-right">
-                                                    <p className="text-xl font-black text-white leading-none">${payment.amount} <span className="text-xs text-gray-500 font-bold">{payment.currency?.toUpperCase()}</span></p>
-                                                    <p className="text-[9px] text-gray-600 font-black uppercase mt-1.5 tracking-tighter">{payment.payment_method}</p>
-                                                </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 ) : (
                                     <div className="text-center py-20 bg-black/20 rounded-[2.5rem] border border-white/5 border-dashed">
-                                        <p className="text-gray-600 text-sm font-medium italic">No hay registros de facturación asociados a tu cuenta.</p>
+                                        <p className="text-gray-600 text-sm font-medium italic">No hay transacciones disponibles asociadas a tu cuenta.</p>
                                     </div>
                                 )}
                             </div>

@@ -1489,10 +1489,9 @@ export const api = {
     },
   
     getUserPayments: async (userId: string): Promise<any[]> => {
-        if (isMockMode) return Promise.resolve([]);
         if (apiCache.userPayments[userId]) return apiCache.userPayments[userId];
         const payments = await fetchWithFallback(`/admin/users/${userId}/payments`, { headers: getAuthHeaders() });
-        apiCache.userSubscriptions[userId] = payments;
+        apiCache.userPayments[userId] = payments;
         return payments;
     },
 
