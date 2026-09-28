@@ -207,7 +207,7 @@ export const MOCK_HOTMART_HISTORY: HotmartDailyRecord[] = [
   { date: new Date(2026, 8, 9), transactions: 1, cancellations: 0 },
   { date: new Date(2026, 8, 10), transactions: 4, cancellations: 0 },
   { date: new Date(2026, 8, 11), transactions: 3, cancellations: 0 },
-  { date: new Date(2026, 8, 2), transactions: 1, cancellations: 0 },
+  { date: new Date(2026, 8, 12), transactions: 1, cancellations: 0 },
   { date: new Date(2026, 8, 13), transactions: 5, cancellations: 1 },
   { date: new Date(2026, 8, 14), transactions: 1, cancellations: 0 },
   { date: new Date(2026, 8, 15), transactions: 3, cancellations: 0 },
