@@ -440,13 +440,26 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                 }`}
               >
                 <div>
-                  {/* Top: Type & Duration & Video Number + Checked Icon */}
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-slate-400">
-                      <span className="text-slate-300 font-semibold">Video {idx + 1}</span> · {video.type} · {video.duration}
-                    </span>
+                  {/* Top: Video Number Badge (No "Principal", Duration moved to bottom) */}
+                  <div className="flex items-center justify-between mb-3.5">
+                    <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black tracking-wide border shadow-sm transition-all ${
+                      isActive
+                        ? 'bg-[#FF5A1F]/10 border-[#FF5A1F]/40 text-[#FF5A1F]'
+                        : isWatched
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                        : 'bg-[#162238]/90 border-slate-700/50 text-slate-200'
+                    }`}>
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${
+                        isActive
+                          ? 'bg-[#FF5A1F] animate-pulse'
+                          : isWatched
+                          ? 'bg-emerald-500'
+                          : 'bg-slate-400'
+                      }`} />
+                      <span>Video {idx + 1}</span>
+                    </div>
                     {isWatched && (
-                      <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md">
                         <Check className="w-3 h-3 stroke-[3]" />
                       </div>
                     )}
@@ -478,34 +491,42 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                   </div>
                 </div>
 
-                {/* Bottom Badge: Reproduciendo / Visto / Pendiente + Botón Editar */}
+                {/* Bottom Badge: Reproduciendo / Visto / Pendiente + Video Duration on the Right */}
                 <div className="mt-4 pt-2 border-t border-slate-800/40 flex items-center justify-between">
-                  {isActive ? (
-                    <span className="inline-flex items-center gap-1.5 bg-[#FF5A1F] text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
-                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                      REPRODUCIENDO
-                    </span>
-                  ) : isWatched ? (
-                    <span className="inline-flex items-center gap-1 text-emerald-400 text-[11px] font-bold">
-                      <Check className="w-3.5 h-3.5 stroke-[2.5]" /> Visto
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-slate-400 text-[11px] font-medium">
-                      <Clock className="w-3.5 h-3.5" /> Pendiente
-                    </span>
-                  )}
+                  <div>
+                    {isActive ? (
+                      <span className="inline-flex items-center gap-1.5 bg-[#FF5A1F] text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                        REPRODUCIENDO
+                      </span>
+                    ) : isWatched ? (
+                      <span className="inline-flex items-center gap-1 text-emerald-400 text-[11px] font-bold">
+                        <Check className="w-3.5 h-3.5 stroke-[2.5]" /> Visto
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-slate-400 text-[11px] font-medium">
+                        <Clock className="w-3.5 h-3.5" /> Pendiente
+                      </span>
+                    )}
+                  </div>
 
-                  {/* Botón Editar en tarjeta SOLO para Administrador */}
-                  {isUserAdmin && (
-                    <button
-                      onClick={(e) => handleOpenEditModal(video, e)}
-                      className="text-xs text-slate-400 hover:text-white hover:bg-slate-800 px-2 py-1 rounded-md border border-slate-800 hover:border-slate-700 flex items-center gap-1 transition-all"
-                      title="Editar video"
-                    >
-                      <Pencil className="w-3 h-3 text-[#FF5A1F]" />
-                      <span>Editar</span>
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-black text-slate-400 bg-slate-900/60 px-2.5 py-1 rounded-full border border-slate-800/60 shadow-inner">
+                      <Clock className="w-3 h-3 text-slate-500" />
+                      {video.duration}
+                    </span>
+                    {/* Botón Editar en tarjeta SOLO para Administrador */}
+                    {isUserAdmin && (
+                      <button
+                        onClick={(e) => handleOpenEditModal(video, e)}
+                        className="text-[11px] text-slate-400 hover:text-white hover:bg-slate-800 px-2 py-1 rounded-md border border-slate-800 hover:border-slate-700 flex items-center gap-1 transition-all"
+                        title="Editar video"
+                      >
+                        <Pencil className="w-3 h-3 text-[#FF5A1F]" />
+                        <span>Editar</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );
