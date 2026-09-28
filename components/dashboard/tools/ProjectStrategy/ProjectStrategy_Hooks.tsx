@@ -91,7 +91,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [saving, setSaving] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 4;
 
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<'library' | 'generated'>('generated');
@@ -198,6 +198,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         const data = await api.getProjectHooks(projectId);
         setHooks(data);
         setLoadingHooks(false);
+        if (data && data.length === 0) {
+            setActiveTab('library');
+        } else {
+            setActiveTab('generated');
+        }
         return data;
     } catch (e) {
         console.error("Error cargando ganchos dinámicos:", e);
@@ -1045,9 +1050,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 </div>
                 
                 <div className="space-y-4">
-                    <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¡Kit de Contenido Generado!</h3>
+                    <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¡Video Hook Desbloqueado Correctamente!</h3>
                     <p className="text-gray-400 text-lg font-medium leading-relaxed max-w-lg mx-auto">
-                        Tu guion, descripción de anuncios y miniatura sugerida están listos para ser utilizados.
+                        Tu Video Hook, guión y descripción de anuncios y están listos para ser utilizados.
                     </p>
                 </div>
 
@@ -1056,7 +1061,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         onClick={() => setGenerationStatus('idle')}
                         className="w-full py-6 bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-[0.2em] rounded-2xl transition-all shadow-[0_20px_50px_rgba(234,88,12,0.3)] transform hover:scale-105 active:scale-95 flex items-center justify-center gap-4 group"
                     >
-                        Ver mi Kit de Contenido <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                        Ver Hook Desbloqueado <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
                     </button>
                     <p className="text-gray-600 text-[10px] font-black uppercase tracking-widest mt-6 flex items-center justify-center gap-2">
                         <Shield className="w-3 h-3" /> Acceso Instantáneo Desbloqueado
@@ -1228,6 +1233,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
+            )}
+
+            {activeTab === 'generated' && (
+              <button 
+                onClick={() => { setActiveTab('library'); setActiveLibraryHook(0); }}
+                className="w-full mt-6 py-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-950/20"
+              >
+                <span>Desbloquear más Hooks</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
             )}
           </div>
         </div>
@@ -1893,7 +1908,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                       <p className="text-gray-400 text-lg leading-relaxed font-medium">
                         {(!isRealAdmin && currentHooksCount >= maxHooks) 
                           ? "Has alcanzado el límite global de ganchos de tu plan actual. Actualiza tu plan para continuar."
-                          : "Al desbloquear este gancho estratégico se consumirá 1 crédito de tus hooks disponibles."}
+                          : `Al desbloquear este Video Hook consumirás 1 crédito de tus ${maxHooks} hooks disponibles.`}
                       </p>
                       <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left">
                           <div className="flex justify-between items-center mb-3">
