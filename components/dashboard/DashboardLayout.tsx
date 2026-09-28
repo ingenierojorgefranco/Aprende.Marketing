@@ -310,6 +310,7 @@ export const DashboardLayout = ({
         }] : []),
         { id: 'admin', label: 'Administración', icon: Shield, adminOnly: true, subItems: [
               { label: 'Usuarios', path: '/dashboard/admin', icon: Users },
+              { label: 'Tickets de Soporte', path: '/dashboard/admin?tab=tickets', icon: HelpCircle },
               { label: 'Panel Hotmart', path: '/dashboard/admin/hotmart', icon: ShoppingCart },
               { label: 'Gestionar Suscripciones', path: '/dashboard/admin/subscriptions', icon: RefreshCw },
               { label: 'Planes y Precios', path: '/dashboard/admin/plans', icon: CreditCard },
@@ -467,7 +468,7 @@ export const DashboardLayout = ({
     }
  
     const searchParams = new URLSearchParams(location.search);
-    const targetProjId = searchParams.get('projectId') || (typeof window !== 'undefined' ? localStorage.getItem('preselect_wizard_project_id') : null);
+    const targetProjId = searchParams.get('projectId');
     const forcedStep = typeof window !== 'undefined' ? localStorage.getItem('force_wizard_step') : null;
 
     // Si el usuario navega a /onboarding con un projectId, redirigir inmediatamente a /wizard/step-2 preservando el projectId

@@ -806,7 +806,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       loadMasterProjects();
       if (user.role !== 'admin') {
         const searchP = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-        const targetProjId = searchP?.get('projectId') || (typeof window !== 'undefined' ? localStorage.getItem('preselect_wizard_project_id') : null);
+        const targetProjId = searchP?.get('projectId');
         const forcedStep = typeof window !== 'undefined' ? localStorage.getItem('force_wizard_step') : null;
         const isExplicitStep = typeof window !== 'undefined' && (
           window.location.pathname.includes('step-2') || 
@@ -904,7 +904,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   useEffect(() => {
     if (projects.length > 0) {
       const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-      const targetId = params?.get("projectId") || (typeof window !== "undefined" ? (localStorage.getItem("preselect_wizard_project_id") || localStorage.getItem("selected_wizard_project_id")) : null);
+      const targetId = params?.get("projectId");
       if (targetId) {
         const found = projects.find((p) => p.id === targetId || String(p.id) === String(targetId));
         if (found) {

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { User, PlanLimits, Plan, UserUsageStats, SupportTicket } from '../../../types';
 import { api } from '../../../services/api';
 import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X, Rocket, Layout, MessageCircle, Clock, CheckCircle, Wand2 } from 'lucide-react';
@@ -13,7 +14,17 @@ const Input = ({ className, ...props }: React.InputHTMLAttributes<HTMLInputEleme
 );
 
 export const AdminPanel: React.FC = () => {
-    const [viewMode, setViewMode] = useState<'users' | 'tickets'>('users');
+    const [searchParams] = useSearchParams();
+    const tabParam = searchParams.get('tab');
+    const [viewMode, setViewMode] = useState<'users' | 'tickets'>(tabParam === 'tickets' ? 'tickets' : 'users');
+
+    useEffect(() => {
+        if (tabParam === 'tickets') {
+            setViewMode('tickets');
+        } else if (tabParam === 'users') {
+            setViewMode('users');
+        }
+    }, [tabParam]);
     const [users, setUsers] = useState<User[]>([]);
     const [tickets, setTickets] = useState<SupportTicket[]>([]);
     const [plans, setPlans] = useState<Plan[]>([]);

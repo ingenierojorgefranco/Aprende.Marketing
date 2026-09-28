@@ -506,7 +506,7 @@ export const TrainingViewer: React.FC = () => {
           )}
 
           {/* New: Description Block */}
-          {currentLesson && currentLesson.description && currentLesson.description.trim() !== '' && (
+          {currentLesson && currentLesson.description && currentLesson.description.trim() !== '' && currentLesson.description.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() !== '' && (
               <div className="bg-gray-900/40 border border-gray-800 rounded-3xl p-8 backdrop-blur-sm">
                 <h3 className="text-white font-bold mb-6 flex items-center gap-3 text-xl">
                     <div className="bg-blue-500/20 p-2 rounded-lg"><FileText className="w-6 h-6 text-blue-500" /></div>

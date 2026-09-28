@@ -2487,7 +2487,7 @@ export const api = {
         }
         await fetchWithFallback('/support/tickets', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify(data)
         });
         clearCache('supportTickets');
