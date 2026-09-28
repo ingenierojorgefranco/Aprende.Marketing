@@ -19,6 +19,7 @@ export let DEFAULT_LIMITS = {
     maxEmailSequences: 0,
     maxWhatsAppLaunches: 0,
     maxHooks: 0,
+    maxCarousels: 0,
     features: {
         whatsappBot: false,
         blogGenerator: false,
@@ -241,6 +242,7 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
             maxEmailSequencesNurturing: 0,
             maxWhatsAppLaunches: 0,
             maxHooks: 0,
+            maxCarousels: 0,
             features: { ...DEFAULT_LIMITS.features }
         };
 
@@ -258,6 +260,7 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
             summary.maxEmailSequencesNurturing = customLimitsObj.maxEmailSequencesNurturing || 15;
             summary.maxWhatsAppLaunches = customLimitsObj.maxWhatsAppLaunches || 0;
             summary.maxHooks = customLimitsObj.maxHooks || 0;
+            summary.maxCarousels = customLimitsObj.maxCarousels || 0;
             if (customLimitsObj.features) {
                 summary.features = { ...DEFAULT_LIMITS.features, ...customLimitsObj.features };
             }
@@ -307,6 +310,12 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
                 
                 summary.maxWhatsAppLaunches += (limits.maxWhatsAppLaunches || 0);
                 summary.maxHooks += (limits.maxHooks || 0);
+
+                let carouselVal = limits.maxCarousels;
+                if (carouselVal === undefined || carouselVal === null || carouselVal === 0) {
+                    carouselVal = (slug !== 'starter') ? 50 : 0;
+                }
+                summary.maxCarousels += carouselVal;
 
                 // Merge features
                 if (limits.features) {
@@ -367,6 +376,9 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
         const isFreeOrStarter = bestPlanSlug === 'starter' || !hasPremiumPlans;
         if (isUserCustom && directMaxHooks !== null && directMaxHooks !== undefined && !isFreeOrStarter) {
             result.maxHooks = directMaxHooks;
+        }
+        if (isUserCustom && customLimitsObj && customLimitsObj.maxCarousels !== undefined && !isFreeOrStarter) {
+            result.maxCarousels = customLimitsObj.maxCarousels;
         }
 
         limitsCache.set(cacheKey, { data: result, timestamp: Date.now() });

@@ -1,5 +1,5 @@
 
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch, SupportTicket, ProjectHook, MasterStepVideo } from "../types";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch, SupportTicket, ProjectHook, ProjectCarousel, MasterStepVideo } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES, MOCK_MASTER_STRATEGY, MOCK_PROJECT_HOOKS } from "./mockData";
 import { ProjectMasterStrategy } from "./strategySchema";
 
@@ -2576,6 +2576,83 @@ export const api = {
         if (isMockMode) return;
         const cleanId = String(hookId).replace('available-', '');
         await fetchWithFallback(`/hooks/${cleanId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
+    },
+
+    /* Métodos para el nuevo sistema dinámico de Carruseles Magnéticos - 28/09/2026 */
+    getProjectCarousels: async (projectId: string): Promise<ProjectCarousel[]> => {
+        if (isMockMode) return [];
+        return await fetchWithFallback(`/carousels/project/${projectId}`, { headers: getAuthHeaders() });
+    },
+
+    getCarouselsLibrary: async (page: number, limit: number, masterProjectId?: string, projectId?: string): Promise<{ carousels: any[], total: number }> => {
+        if (isMockMode) {
+            return {
+                carousels: [],
+                total: 0
+            };
+        }
+        let url = `/carousels/library?page=${page}&limit=${limit}`;
+        if (masterProjectId) url += `&masterProjectId=${masterProjectId}`;
+        if (projectId) url += `&projectId=${projectId}`;
+        return await fetchWithFallback(url, { headers: getAuthHeaders() });
+    },
+
+    unlockSingleCarousel: async (projectId: string, masterCarouselId: string, isGenerated?: boolean): Promise<{ id: string }> => {
+        if (isMockMode) return { id: `unlocked-${Date.now()}` };
+        const cleanMasterId = String(masterCarouselId).replace('available-', '');
+        return await fetchWithFallback('/carousels/unlock-single', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ projectId, masterCarouselId: cleanMasterId, isGenerated })
+        });
+    },
+
+    unlockMultipleCarousels: async (projectId: string, masterCarouselIds: string[], isGenerated?: boolean): Promise<{ success: boolean; results: any[] }> => {
+        if (isMockMode) return { success: true, results: masterCarouselIds.map(id => ({ id: `unlocked-${id}-${Date.now()}` })) };
+        const cleanIds = masterCarouselIds.map(id => String(id).replace('available-', ''));
+        return await fetchWithFallback('/carousels/unlock-multiple', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ projectId, masterCarouselIds: cleanIds, isGenerated })
+        });
+    },
+
+    unlockMoreCarousels: async (projectId: string): Promise<{ success: boolean; count: number; message: string }> => {
+        if (isMockMode) return { success: true, count: 10, message: "10 nuevos carruseles añadidos a tu estrategia." };
+        const res = await fetchWithFallback(`/carousels/unlock-more/${projectId}`, {
+            method: 'POST',
+            headers: getAuthHeaders()
+        });
+        return res;
+    },
+
+    updateProjectCarousel: async (carouselId: string, data: Partial<ProjectCarousel>): Promise<void> => {
+        if (isMockMode) return;
+        const cleanId = String(carouselId).replace('available-', '');
+        await fetchWithFallback(`/carousels/${cleanId}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(data)
+        });
+    },
+    
+    createProjectCarousel: async (projectId: string, carouselData: any): Promise<any> => {
+        if (isMockMode) return { id: `manual-${Date.now()}`, ...carouselData };
+        const res = await fetchWithFallback('/carousels', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ projectId, ...carouselData })
+        });
+        return res;
+    },
+
+    deleteProjectCarousel: async (carouselId: string): Promise<void> => {
+        if (isMockMode) return;
+        const cleanId = String(carouselId).replace('available-', '');
+        await fetchWithFallback(`/carousels/${cleanId}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
         });

@@ -360,6 +360,22 @@ const initDb = async () => {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
         ////////// Fin de actualización - 01/01/2026 //////////
 
+        ////////// Actualización: Tabla unificada para el sistema dinámico de Carruseles Magnéticos - 28/09/2026 //////////
+        await connection.query(`CREATE TABLE IF NOT EXISTS project_carousels (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            project_id INT NOT NULL,
+            master_carousel_id INT NULL,
+            title VARCHAR(255) NOT NULL,
+            psychological_strategy TEXT,
+            landing_page_url VARCHAR(255),
+            content_json JSON,
+            is_generated BOOLEAN DEFAULT FALSE,
+            is_active BOOLEAN DEFAULT TRUE,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+        ////////// Fin de actualización - 28/09/2026 //////////
+
         // Tablas existentes del sistema (Projects, Pages, etc.)
         await addColumnSafe(connection, 'projects', "plan_id INT NULL");
         await addColumnSafe(connection, 'projects', "plan_slug VARCHAR(50) NULL");

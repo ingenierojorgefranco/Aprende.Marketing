@@ -107,6 +107,22 @@ export interface ProjectHook {
 }
 /* Fin de actualización */
 
+/* Actualización: Interfaz para el nuevo sistema dinámico de Carruseles Magnéticos - 28/09/2026 */
+export interface ProjectCarousel {
+  id: string;
+  projectId: string;
+  masterCarouselId?: string;
+  title: string;
+  psychologicalStrategy: string;
+  landingPageUrl?: string;
+  contentJson: any;
+  isGenerated: boolean;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+/* Fin de actualización */
+
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
   LOGIN = 'LOGIN',
@@ -158,6 +174,7 @@ export interface PlanLimits {
   maxEmailSequencesNurturing: number; // Nuevo límite para nutrición
   maxWhatsAppLaunches: number; // Nuevo límite añadido para control de cuotas
   maxHooks: number; // Nuevo: Límite de Hooks de Atracción
+  maxCarousels?: number; // Nuevo: Límite de Carruseles Magnéticos
   features: PlanFeatures;
   annual?: Partial<PlanLimits>; // Límites específicos para suscripción anual dentro del mismo plan
   allActivePlans?: string[]; // Nuevo: Lista de todos los planes activos del usuario

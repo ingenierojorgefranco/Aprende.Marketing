@@ -20,6 +20,7 @@ import webhookRoutes from './routes/webhookRoutes.js';
 import systemRoutes from './routes/systemRoutes.js';
 import whatsappRoutes from './routes/whatsappRoutes.js';
 import hookRoutes from './routes/hookRoutes.js';
+import carouselRoutes from './routes/carouselRoutes.js';
 import masterStepVideoRoutes from './routes/masterStepVideoRoutes.js';
 import uploadRoutes from "./routes/uploadRoutes.js";
 
@@ -97,6 +98,7 @@ app.use('/api', crmRoutes);
 app.use('/api', systemRoutes);
 app.use('/api/whatsapp-launch', whatsappRoutes);
 app.use('/api/hooks', hookRoutes);
+app.use('/api/carousels', carouselRoutes);
 app.use('/api/master-step-videos', masterStepVideoRoutes);
 app.use('/api/upload', uploadRoutes);
 

@@ -11,6 +11,7 @@ import { ProjectStrategy_AvatarDiagnosis } from "../tools/ProjectStrategy/Projec
 import { ProjectStrategy_WebSystem } from "../tools/ProjectStrategy/ProjectStrategy_WebSystem";
 import { ProjectStrategy_LeadMagnet } from "../tools/ProjectStrategy/ProjectStrategy_LeadMagnet";
 import { ProjectStrategy_Hooks } from "../tools/ProjectStrategy/ProjectStrategy_Hooks";
+import { ProjectStrategy_Carousels } from "../tools/ProjectStrategy/ProjectStrategy_Carousels";
 import { ProjectStrategy_Content } from "../tools/ProjectStrategy/ProjectStrategy_Content";
 import { ProjectStrategy_Email } from "../tools/ProjectStrategy/ProjectStrategy_Email";
 import { ProjectStrategy_Evergreen } from "../tools/ProjectStrategy/ProjectStrategy_Evergreen";
@@ -222,11 +223,12 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     3: 'hotlinks',
     4: 'web',
     5: 'hooks',
-    6: 'content',
-    7: 'leadmagnet',
-    8: 'email',
-    9: 'evergreen',
-    10: 'whatsapp'
+    6: 'carousels',
+    7: 'content',
+    8: 'leadmagnet',
+    9: 'email',
+    10: 'evergreen',
+    11: 'whatsapp'
   };
 
   const sectionToStepMap: Record<string, number> = {
@@ -235,11 +237,12 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     hotlinks: 3,
     web: 4,
     hooks: 5,
-    content: 6,
-    leadmagnet: 7,
-    email: 8,
-    evergreen: 9,
-    whatsapp: 10,
+    carousels: 6,
+    content: 7,
+    leadmagnet: 8,
+    email: 9,
+    evergreen: 10,
+    whatsapp: 11,
     '1': 1,
     '2': 2,
     '3': 3,
@@ -249,7 +252,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     '7': 7,
     '8': 8,
     '9': 9,
-    '10': 10
+    '10': 10,
+    '11': 11
   };
 
   const currentStrategySection = stepToSectionMap[activeStep] || activeStrategySection || searchParams.get('section') || "summary";
@@ -353,11 +357,12 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     
     { id: 4, title: "4. Tu página de captura", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS" },
     { id: 5, title: "5. Tus videos de atracción (Hooks)", stage: 2 },
-    { id: 6, title: "6. Artículos de Blog", stage: 2 },
-    { id: 7, title: "7. LeadMagnet de Whatsapp", stage: 2 },
-    { id: 8, title: "8. Email Marketing (Conversión)", stage: 2 },
-    { id: 9, title: "9. Email Marketing (Nutrición)", stage: 2 },
-    { id: 10, title: "10. Lanzamientos (Estrategia WhatsApp)", stage: 2 },
+    { id: 6, title: "6. Carruseles Magnéticos", stage: 2 },
+    { id: 7, title: "7. Artículos de Blog", stage: 2 },
+    { id: 8, title: "8. LeadMagnet de Whatsapp", stage: 2 },
+    { id: 9, title: "9. Email Marketing (Conversión)", stage: 2 },
+    { id: 10, title: "10. Email Marketing (Nutrición)", stage: 2 },
+    { id: 11, title: "11. Lanzamientos (Estrategia WhatsApp)", stage: 2 },
   ];
 
   const handleStepClick = (id: number) => {
@@ -1030,8 +1035,16 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 6: Tu Estrategia de Contenidos */}
+            {/* Paso 6: Carruseles Magnéticos */}
             {activeStep === 6 && (
+              <ProjectStrategy_Carousels 
+                totalSteps={stepsList.length}
+                strategyData={strategyData}
+              />
+            )}
+
+            {/* Paso 7: Tu Estrategia de Contenidos */}
+            {activeStep === 7 && (
               <ProjectStrategy_Content 
                 totalSteps={stepsList.length}
                 contentData={strategyData?.modules?.content || []}
@@ -1040,8 +1053,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 7: LeadMagnet de Whatsapp */}
-            {activeStep === 7 && (
+            {/* Paso 8: LeadMagnet de Whatsapp */}
+            {activeStep === 8 && (
               <ProjectStrategy_LeadMagnet 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
@@ -1051,8 +1064,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 8: Email Marketing */}
-            {activeStep === 8 && (
+            {/* Paso 9: Email Marketing */}
+            {activeStep === 9 && (
               <ProjectStrategy_Email 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || undefined}
@@ -1063,8 +1076,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 9: Secuencia de Confianza (Evergreen) */}
-            {activeStep === 9 && (
+            {/* Paso 10: Secuencia de Confianza (Evergreen) */}
+            {activeStep === 10 && (
               <ProjectStrategy_Evergreen 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
@@ -1072,13 +1085,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                 avatars={strategyData?.avatars || []}
                 linkedArticles={strategyData?.modules?.content || []}
                 onUpgrade={onUpgradeClick || (() => {})}
-                onGoToContent={() => setActiveStep(6)}
+                onGoToContent={() => setActiveStep(7)}
                 planLimits={user?.planLimits}
               />
             )}
 
-            {/* Paso 10: Scripts de WhatsApp (Cierre) */}
-            {activeStep === 10 && (
+            {/* Paso 11: Scripts de WhatsApp (Cierre) */}
+            {activeStep === 11 && (
               <ProjectStrategy_WhatsApp 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
@@ -1088,8 +1101,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Dinámico para otros pasos (Paso 11+) */}
-            {activeStep > 10 && (
+            {/* Dinámico para otros pasos (Paso 12+) */}
+            {activeStep > 11 && (
               <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-8 text-center space-y-6 shadow-xl">
                 
                 <div className="max-w-md mx-auto space-y-4">

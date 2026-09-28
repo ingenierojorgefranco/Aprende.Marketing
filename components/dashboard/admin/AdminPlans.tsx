@@ -342,6 +342,7 @@ export const AdminPlans: React.FC = () => {
                             <p>Email Nutrición: <strong>{plan.limitsConfig.maxEmailSequencesNurturing || 0}</strong></p>
                             <p>Lanzamientos WA: <strong>{plan.limitsConfig.maxWhatsAppLaunches || 0}</strong></p>
                             <p>Ganchos IA: <strong>{plan.limitsConfig.maxHooks || 0}</strong></p>
+                            <p>Carruseles Magnéticos: <strong>{plan.limitsConfig.maxCarousels || 0}</strong></p>
                             <p>Features: {Object.values(plan.limitsConfig.features).filter(Boolean).length} activas</p>
                             {plan.stripePriceId && (
                                 <p className="text-xs text-blue-400 truncate mt-2 bg-blue-950/20 p-1.5 rounded border border-blue-500/20">
@@ -808,6 +809,18 @@ export const AdminPlans: React.FC = () => {
                                                 className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2 text-white focus:border-orange-500 outline-none transition"
                                             />
                                             <p className="text-[10px] text-gray-500 mt-1">Bolsa global de ganchos IA compartida entre todos los proyectos del usuario.</p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                                Máx Carruseles ({limitsSubTab === 'monthly' ? 'Mensual' : 'Anual'})
+                                            </label>
+                                            <input 
+                                                type="number" 
+                                                value={getLimitValue('maxCarousels', 0)} 
+                                                onChange={(e) => updateLimitField('maxCarousels', parseInt(e.target.value) || 0)}
+                                                className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2 text-white focus:border-orange-500 outline-none transition"
+                                            />
+                                            <p className="text-[10px] text-gray-500 mt-1">Bolsa global de carruseles de marca compartida entre todos los proyectos del usuario.</p>
                                         </div>
                                     </div>
                                     
