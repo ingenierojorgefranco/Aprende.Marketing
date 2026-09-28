@@ -125,13 +125,13 @@ export const generateFullArticle = async (
     6. KEYWORD PRINCIPAL: Debe aparecer de manera natural e integrada en el Título SEO, el primer párrafo de introducción, en el slug si corresponde, y sutilmente en el cuerpo. PROHIBIDO el keyword stuffing o repetir artificialmente la palabra clave.
     7. ELEMENTOS OBLIGATORIOS DE FORMATO Y RIQUEZA VISUAL (VIÑETAS, CAJAS Y EJEMPLOS PRÁCTICOS):
        a) LISTAS Y VIÑETAS (<ul> y <ol>): Incluye obligatoriamente al menos 2 listas con viñetas o listas numeradas en las secciones donde enumeres factores, pasos, recomendaciones o checklists para maximizar la legibilidad y escaneo rápido.
-       b) CAJAS DESTACADAS DE "CONSEJO PROFESIONAL" O "DATO CLAVE": Inserta al menos 1 o 2 cajas destacadas estilizadas en HTML dentro del artículo para resaltar tips críticos o advertencias de la industria. Usa exactamente esta estructura HTML con estilo integrado:
-          <div style="margin: 2.25rem 0; padding: 1.5rem 1.75rem; border-radius: 1.25rem; background-color: rgba(255, 90, 31, 0.08); border: 1px solid rgba(255, 90, 31, 0.25); border-left: 5px solid #FF5A1F;">
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-              <span style="font-size: 1.25rem;">💡</span>
-              <strong style="color: #FF5A1F; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;">CONSEJO PROFESIONAL:</strong>
+       b) CAJAS DESTACADAS DE "CONSEJO PROFESIONAL" O "DATO CLAVE": Inserta al menos 1 o 2 cajas destacadas estilizadas en HTML dentro del artículo para resaltar tips críticos o advertencias de la industria. Usa exactamente esta estructura HTML con estilo integrado (con el fondo claro, título en negrita grande y texto de contenido de color negro para alto contraste):
+          <div style="margin: 2.25rem 0; padding: 1.5rem 1.75rem; border-radius: 1.25rem; background-color: #FFF3EB; border: 1px solid rgba(255, 90, 31, 0.25); border-left: 6px solid #FF5A1F;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+              <span style="font-size: 1.5rem;">💡</span>
+              <strong style="color: #FF5A1F; font-size: 1.25rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; display: inline-block;">CONSEJO PROFESIONAL:</strong>
             </div>
-            <p style="margin: 0; font-size: 1.05rem; color: #d1d5db; line-height: 1.625; font-weight: 400;">[Explicación práctica del consejo o secreto del profesional con ejemplo real...]</p>
+            <p style="margin: 0; font-size: 1.1rem; color: #000000; line-height: 1.625; font-weight: 600;">[Explicación práctica del consejo o secreto del profesional con ejemplo real...]</p>
           </div>
        c) PROFUNDIDAD Y EJEMPLOS PRÁCTICOS: Genera un artículo completo y bien nutrido (extensión ideal de 1.000 a 1.500 palabras). Cada H2 y H3 debe incluir escenarios o casos prácticos de la vida real para ilustrar la teoría de forma enriquecedora y sustancial, manteniendo párrafos breves de 1 a 3 líneas.
 

@@ -7,6 +7,20 @@ import { api } from '../../../../services/api';
 import { StepHeaderCard } from '../../wizard/StepHeaderCard';
 import { StepVideoContainer } from '../../wizard/StepVideoContainer';
 
+const getThankYouPageUrl = (project: any, pages: any[]) => {
+    if (!project) return '';
+    const projPages = (pages || []).filter(p => String(p.projectId) === String(project.id));
+    if (projPages.length > 0) {
+        const page = projPages[0];
+        if (page.customDomain) {
+            return `https://${page.customDomain}/gracias`;
+        }
+        const sub = page.subdomain ? page.subdomain.split('.')[0] : '';
+        return `/admin/lp/${sub}/gracias`;
+    }
+    return `/admin/lp/${project.slug || 'proyecto'}/gracias`;
+};
+
 interface ProjectStrategy_EmailProps {
     emailData?: any[];
     avatars?: any[];
@@ -207,38 +221,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 setLocalPurpose(currentStatic.objective || '');
             }
 
-            // 2. Lógica de Redirección (Prioridad: Pendiente > Real > Defecto)
-            const pending = pendingConfigs[activeEmail];
-            
-            if (pending) {
-                setLocalRedirectType(pending.type);
-                setLocalRedirectUrl(pending.url);
-            } else if (currentReal) {
-                // Estrategia: Días 1-3 Lead Magnet, Días 4-7 Hotlink
-                const strategicType = activeEmail < 3 ? 'lead_magnet' : 'hotlink';
-                const defaultType = currentReal.redirectType || strategicType;
-                setLocalRedirectType(defaultType);
-                
-                if (currentReal.redirectUrl) {
-                    setLocalRedirectUrl(currentReal.redirectUrl);
-                } else if (defaultType === 'lead_magnet' && currentProject?.leadMagnetUrl) {
-                    setLocalRedirectUrl(currentProject.leadMagnetUrl);
-                } else if (defaultType === 'hotlink' && projectLinks.length > 0) {
-                    // Por defecto el primer link real (segundo de la lista visual)
-                    setLocalRedirectUrl(projectLinks[0].url);
-                } else {
-                    setLocalRedirectUrl(undefined);
-                }
-            } else {
-                // Estrategia para correos no generados aún
-                const strategicType = activeEmail < 3 ? 'lead_magnet' : 'hotlink';
-                setLocalRedirectType(strategicType);
-                if (strategicType === 'lead_magnet') {
-                    setLocalRedirectUrl(currentProject?.leadMagnetUrl || undefined);
-                } else {
-                    setLocalRedirectUrl(projectLinks.length > 0 ? projectLinks[0].url : undefined);
-                }
-            }
+            // 2. Lógica de Redirección (Siempre redirigir a la página de gracias por defecto)
+            const tyUrl = getThankYouPageUrl(currentProject, userPages);
+            setLocalRedirectType('landing');
+            setLocalRedirectUrl(tyUrl);
 
             setIsTypeLocked(true);
             lastActiveEmailRef.current = activeEmail;
@@ -396,30 +382,17 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         setIsGenerating(true);
         try {
             // Recopilamos la configuración de los 7 días
+            const tyUrl = getThankYouPageUrl(currentProject, userPages);
             const sequenceData = emailData.map((email, idx) => {
                 const real = realMessages.find(m => m.dayIndex === idx + 1);
-                const pending = pendingConfigs[idx];
                 
-                // Estrategia: Días 1-3 Lead Magnet, Días 4-7 Hotlink
-                const strategicType = idx < 3 ? 'lead_magnet' : 'hotlink';
-                const finalType = pending?.type || real?.redirectType || strategicType;
-                let finalUrl = pending?.url || real?.redirectUrl;
-
-                if (!finalUrl) {
-                    if (finalType === 'lead_magnet') {
-                        finalUrl = currentProject?.leadMagnetUrl || '';
-                    } else if (finalType === 'hotlink' && projectLinks.length > 0) {
-                        finalUrl = projectLinks[0].url;
-                    }
-                }
-
                 return {
                     dayIndex: idx + 1,
                     subject: real?.subject || email.subject,
                     pilarType: real?.pilarType || email.type,
                     purpose: real?.purpose || email.objective,
-                    redirectType: finalType,
-                    redirectUrl: finalUrl
+                    redirectType: 'landing',
+                    redirectUrl: tyUrl
                 };
             });
 
@@ -679,7 +652,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         </div>
                     </div>
 
-                    <div className="space-y-4 flex-1 pr-2">
+                    <div className="space-y-4 pr-2">
                         {emailData.map((email: any, idx: number) => {
                             const isDayGenerated = realMessages.some(m => m.dayIndex === idx + 1 && m.isGenerated);
                             const isActive = activeEmail === idx;
@@ -747,7 +720,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
                     {/* Botón General de Generación */}
                     {generatedInCurrent < 7 && (
-                        <div className="mt-6 pt-6 border-t border-white/5">
+                        <div className="mt-4">
                             {isFreeUser ? (
                                 <button 
                                     onClick={onUpgrade}
@@ -1011,187 +984,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                         />
                                     </div>
 
-                                    <div className="space-y-6">
-                                        <label className="block text-sm font-bold text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                            <Target className="w-4 h-4 text-orange-500" /> ¿Dónde dirigir a tu audiencia?
-                                        </label>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div 
-                                                onClick={() => {
-                                                    if (!currentProject?.leadMagnetUrl) {
-                                                        alert("Para usar esta opción, primero debes configurar tu Lead Magnet en la sección de Hotlinks.");
-                                                        navigate(`/dashboard/projects/${projectId}/strategy?section=hotlinks`);
-                                                        return;
-                                                    }
-                                                    handleUpdateMessage('redirectType', 'lead_magnet');
-                                                }}
-                                                className={`p-6 rounded-3xl border transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${localRedirectType === 'lead_magnet' ? 'bg-emerald-600/10 border-emerald-500 ring-4 ring-emerald-500/5' : 'bg-white/5 border-white/5 hover:border-white/10'}`}
-                                            >
-                                                <div className={`p-4 rounded-2xl transition-colors ${localRedirectType === 'lead_magnet' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-gray-500'}`}>
-                                                    <Gift className="w-6 h-6" />
-                                                </div>
-                                                <div>
-                                                    <h4 className={`font-bold text-sm uppercase tracking-widest mb-1 ${localRedirectType === 'lead_magnet' ? 'text-white' : 'text-gray-400'}`}>Lead Magnet</h4>
-                                                    <p className="text-xs text-gray-500 font-medium leading-relaxed">
-                                                        {currentProject?.leadMagnetUrl 
-                                                            ? `Regalo: ${currentProject.leadMagnetType || 'Configurado'}` 
-                                                            : 'Configurar enlace'}
-                                                    </p>
-                                                </div>
-                                            </div>
 
-                                            <div 
-                                                onClick={() => handleUpdateMessage('redirectType', 'landing')}
-                                                className={`p-6 rounded-3xl border transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${localRedirectType === 'landing' ? 'bg-orange-600/10 border-[#FF5D1E] ring-4 ring-orange-500/5' : 'bg-white/5 border-white/5 hover:border-white/10'}`}
-                                            >
-                                                <div className={`p-4 rounded-2xl transition-colors ${localRedirectType === 'landing' ? 'bg-[#FF5D1E] text-white shadow-lg shadow-orange-500/20' : 'bg-white/5 text-gray-500'}`}>
-                                                    <Globe className="w-6 h-6" />
-                                                </div>
-                                                <div>
-                                                    <h4 className={`font-bold text-sm uppercase tracking-widest mb-1 ${localRedirectType === 'landing' ? 'text-white' : 'text-gray-400'}`}>Landing Page</h4>
-                                                    <p className="text-xs text-gray-500 font-medium leading-relaxed">Envía el tráfico a una de tus páginas internas creadas.</p>
-                                                </div>
-                                            </div>
-                                            
-                                            <div 
-                                                onClick={() => handleUpdateMessage('redirectType', 'hotlink')}
-                                                className={`p-6 rounded-3xl border transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${localRedirectType === 'hotlink' ? 'bg-orange-600/10 border-orange-500 ring-4 ring-orange-500/5' : 'bg-white/5 border-white/5 hover:border-white/10'}`}
-                                            >
-                                                <div className={`p-4 rounded-2xl transition-colors ${localRedirectType === 'hotlink' ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20' : 'bg-white/5 text-gray-500'}`}>
-                                                    <LinkIcon className="w-6 h-6" />
-                                                </div>
-                                                <div>
-                                                    <h4 className={`font-bold text-sm uppercase tracking-widest mb-1 ${localRedirectType === 'hotlink' ? 'text-white' : 'text-gray-400'}`}>Hotlink Proyecto</h4>
-                                                    <p className="text-xs text-gray-500 font-medium leading-relaxed">Usa directamente tus enlaces de afiliado de Hotmart.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="mt-4">
-                                            {localRedirectType === 'landing' && (
-                                                <div className="animate-in fade-in slide-in-from-top-2">
-                                                    <select
-                                                        value={userPages.find(p => (p.customDomain ? `https://${p.customDomain}` : `https://${p.subdomain}`) === localRedirectUrl)?.id || ''}
-                                                        onChange={(e) => {
-                                                            const page = userPages.find(p => p.id === e.target.value);
-                                                            if (page) handleUpdateMessage('redirectUrl', page.customDomain ? `https://${page.customDomain}` : `https://${page.subdomain}`);
-                                                        }}
-                                                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-[#FF5D1E] appearance-none cursor-pointer"
-                                                    >
-                                                        <option value="" disabled>-- Selecciona una Landing Page --</option>
-                                                        {userPages.map(p => (
-                                                            <option key={p.id} value={p.id}>{p.name}</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                            )}
-                                            
-                                            {localRedirectType === 'hotlink' && (
-                                                <div className="animate-in fade-in slide-in-from-top-2 space-y-4">
-                                                    {isAddingNewLink ? (
-                                                        <div className="p-6 bg-black border border-white/10 rounded-2xl space-y-4 shadow-xl">
-                                                            <div className="flex justify-between items-center mb-2">
-                                                                <h5 className="text-white font-bold text-sm">Nuevo Hotlink para Proyecto</h5>
-                                                                <button onClick={() => setIsAddingNewLink(false)}><X className="w-4 h-4 text-gray-500"/></button>
-                                                            </div>
-                                                            <div className="grid grid-cols-2 gap-4">
-                                                                <div className="space-y-1">
-                                                                    <label className="text-[10px] text-gray-500 font-black uppercase">Nombre del Enlace</label>
-                                                                    <input 
-                                                                        type="text" 
-                                                                        value={newLinkLabel}
-                                                                        onChange={e => setNewLinkLabel(e.target.value)}
-                                                                        className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-white text-sm focus:border-[#FF5D1E] outline-none"
-                                                                        placeholder="Ej: Checkout Pro"
-                                                                    />
-                                                                </div>
-                                                                <div className="space-y-1">
-                                                                    <label className="text-[10px] text-gray-500 font-black uppercase">URL Hotmart</label>
-                                                                    <input 
-                                                                        type="text" 
-                                                                        value={newLinkUrl}
-                                                                        onChange={e => setNewLinkUrl(e.target.value)}
-                                                                        className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-emerald-400 text-sm focus:border-[#FF5D1E] outline-none"
-                                                                        placeholder="https://go.hotmart.com/..."
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                            <button 
-                                                                onClick={handleAddNewHotlink}
-                                                                disabled={savingNewLink}
-                                                                className="w-full py-3 bg-[#FF5D1E] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-orange-600 transition flex items-center justify-center gap-2"
-                                                            >
-                                                                {savingNewLink ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}
-                                                                Guardar en el Proyecto
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className={`relative ${!localRedirectUrl ? 'ring-2 ring-red-500/50 rounded-xl' : ''}`}>
-                                                            <select
-                                                                value={localRedirectUrl || ''}
-                                                                className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5D1E] outline-none transition appearance-none cursor-pointer"
-                                                                onChange={(e) => {
-                                                                    if (e.target.value === 'ADD_NEW') {
-                                                                        setIsAddingNewLink(true);
-                                                                    } else {
-                                                                        handleUpdateMessage('redirectUrl', e.target.value);
-                                                                    }
-                                                                }}
-                                                            >
-                                                                <option value="">-- Elige un Hotlink --</option>
-                                                                {projectLinks.map((link, i) => (
-                                                                    <option key={i} value={link.url}>{link.label}</option>
-                                                                ))}
-                                                                <option value="ADD_NEW" className="text-[#FF5D1E] font-bold">+ Añadir nuevo Hotlink</option>
-                                                            </select>
-                                                            {!localRedirectUrl && (
-                                                                <div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse">
-                                                                    <AlertTriangle className="w-3 h-3" /> Link de destino obligatorio
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Sección de Link Externo */}
-                                        <div className="mt-8 pt-6 border-t border-white/5">
-                                            {localRedirectType !== 'external' ? (
-                                                <button 
-                                                    onClick={() => handleUpdateMessage('redirectType', 'external')}
-                                                    className="text-sm font-bold text-gray-500 hover:text-white transition-all flex items-center gap-2 ml-1 group"
-                                                >
-                                                    <div className="p-2 rounded-lg bg-white/5 group-hover:bg-orange-500/20 transition-all">
-                                                        <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-orange-400" />
-                                                    </div>
-                                                    ¿Tienes un enlace externo?
-                                                </button>
-                                            ) : (
-                                                <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
-                                                    <div className="flex items-center justify-between ml-1">
-                                                        <span className="text-xs font-bold text-orange-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                                                            <ExternalLink className="w-4 h-4" /> Enlace Externo Seleccionado
-                                                        </span>
-                                                        <button 
-                                                            onClick={() => handleUpdateMessage('redirectType', 'hotlink')}
-                                                            className="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-white transition-all"
-                                                        >
-                                                            [ Cambiar ]
-                                                        </button>
-                                                    </div>
-                                                    <p className="text-xs text-gray-500 font-medium ml-1">Cualquier otra página web externa que desees promocionar.</p>
-                                                    <input
-                                                        type="text"
-                                                        value={localRedirectUrl || ''}
-                                                        onChange={(e) => handleUpdateMessage('redirectUrl', e.target.value)}
-                                                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5D1E] outline-none transition"
-                                                        placeholder="Escribe tu enlace externo"
-                                                    />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>

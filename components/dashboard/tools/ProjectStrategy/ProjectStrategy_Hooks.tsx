@@ -969,7 +969,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             <StepHeaderCard
                 stepNumber={5}
                 totalSteps={totalSteps}
-                stageNumber={1}
+                stageNumber={2}
                 categoryTitle="5. Tus videos de atracción (Hooks)"
                 title={<>Video Hooks <span className="text-[#FF5A1F]">de Atracción</span></>}
                 description="Crea videos con hooks de atracción para captar la atención desde los primeros segundos, despertar interés y llevar más personas hacia tu oferta."

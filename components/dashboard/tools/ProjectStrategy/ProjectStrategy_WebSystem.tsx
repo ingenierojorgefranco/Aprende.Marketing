@@ -724,7 +724,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 <StepHeaderCard
                     stepNumber={4}
                     totalSteps={totalSteps}
-                    stageNumber={1}
+                    stageNumber={2}
                     categoryTitle="Mira tu Página de Captura"
                     title={<>Activa tu <span className="text-[#FF5A1F]">Página Web de Captura</span></>}
                     description="Activa tu página web de captura para atraer personas interesadas, recopilar sus datos y convertir visitantes en oportunidades reales de venta."

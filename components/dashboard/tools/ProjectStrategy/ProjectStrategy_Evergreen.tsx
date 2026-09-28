@@ -462,7 +462,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     <div className="max-w-md mx-auto">
                         <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-4">Sin artículos de blog generados</h4>
                         <p className="text-gray-400 font-medium leading-relaxed">
-                            Para activar la secuencia de Nutrición (Evergreen), primero debes redactar al menos un artículo SEO en la etapa <strong>7. Artículos de Blog</strong>.
+                            Para activar la secuencia de Nutrición (Evergreen), primero debes redactar al menos un artículo SEO en la etapa <strong>6. Artículos de Blog</strong>.
                         </p>
                     </div>
                     <button 

@@ -222,8 +222,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     3: 'hotlinks',
     4: 'web',
     5: 'hooks',
-    6: 'leadmagnet',
-    7: 'content',
+    6: 'content',
+    7: 'leadmagnet',
     8: 'email',
     9: 'evergreen',
     10: 'whatsapp'
@@ -235,8 +235,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     hotlinks: 3,
     web: 4,
     hooks: 5,
-    leadmagnet: 6,
-    content: 7,
+    content: 6,
+    leadmagnet: 7,
     email: 8,
     evergreen: 9,
     whatsapp: 10,
@@ -350,11 +350,11 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     { id: 1, title: "1. Bienvenida e introducción", stage: 1, stageTitle: "ETAPA 1 — Activa tu sistema" },
     { id: 2, title: "2. Tu comprador ideal", stage: 1 },
     { id: 3, title: "3. Tus enlaces de afiliados", stage: 1 },
-    { id: 4, title: "4. Tu página de captura", stage: 1 },
-    { id: 5, title: "5. Tus videos de atracción (Hooks)", stage: 1 },
     
-    { id: 6, title: "6. LeadMagnet de Whatsapp", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS" },
-    { id: 7, title: "7. Artículos de Blog", stage: 2 },
+    { id: 4, title: "4. Tu página de captura", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS" },
+    { id: 5, title: "5. Tus videos de atracción (Hooks)", stage: 2 },
+    { id: 6, title: "6. Artículos de Blog", stage: 2 },
+    { id: 7, title: "7. LeadMagnet de Whatsapp", stage: 2 },
     { id: 8, title: "8. Email Marketing (Conversión)", stage: 2 },
     { id: 9, title: "9. Email Marketing (Nutrición)", stage: 2 },
     { id: 10, title: "10. Lanzamientos (Estrategia WhatsApp)", stage: 2 },
@@ -1030,24 +1030,24 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 6: LeadMagnet de Whatsapp */}
+            {/* Paso 6: Tu Estrategia de Contenidos */}
             {activeStep === 6 && (
+              <ProjectStrategy_Content 
+                totalSteps={stepsList.length}
+                contentData={strategyData?.modules?.content || []}
+                planLimits={user?.planLimits}
+                onUpgrade={onUpgradeClick}
+              />
+            )}
+
+            {/* Paso 7: LeadMagnet de Whatsapp */}
+            {activeStep === 7 && (
               <ProjectStrategy_LeadMagnet 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
                 strategyData={strategyData}
                 onUpgrade={onUpgradeClick || (() => {})}
                 user={user}
-              />
-            )}
-
-            {/* Paso 7: Tu Estrategia de Contenidos */}
-            {activeStep === 7 && (
-              <ProjectStrategy_Content 
-                totalSteps={stepsList.length}
-                contentData={strategyData?.modules?.content || []}
-                planLimits={user?.planLimits}
-                onUpgrade={onUpgradeClick}
               />
             )}
 
@@ -1072,7 +1072,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                 avatars={strategyData?.avatars || []}
                 linkedArticles={strategyData?.modules?.content || []}
                 onUpgrade={onUpgradeClick || (() => {})}
-                onGoToContent={() => setActiveStep(7)}
+                onGoToContent={() => setActiveStep(6)}
                 planLimits={user?.planLimits}
               />
             )}
