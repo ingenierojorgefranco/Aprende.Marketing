@@ -10,6 +10,7 @@ import { api } from '../../../../services/api';
 import { UpgradeModal } from '../../UpgradeModal';
 import { ProjectCarousel } from '../../../../types';
 import { StepHeaderCard } from '../../wizard/StepHeaderCard';
+import { StepVideoContainer } from '../../wizard/StepVideoContainer';
 
 // Default/Fallback carousels for mock mode or empty library
 const DEFAULT_CAROUSELS_MOCK: ProjectCarousel[] = [
@@ -129,6 +130,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     const [currentSlideIdx, setCurrentSlideIdx] = useState(0);
 
     const [activeKitTab, setActiveKitTab] = useState<'slides' | 'caption'>('slides');
+    const [searchTerm, setSearchTerm] = useState('');
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [localTitle, setLocalTitle] = useState('');
     const [localStrategy, setLocalStrategy] = useState('');
@@ -301,6 +303,63 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         setTimeout(() => setCopiedIndex(null), 2500);
     };
 
+    // Delete carousel
+    const handleDeleteCarousel = async (carouselId: string) => {
+        if (!carouselId) return;
+        if (window.confirm("¿Deseas eliminar este carrusel? No se puede recuperar")) {
+            setSaving(true);
+            try {
+                await api.deleteProjectCarousel(carouselId);
+                await fetchCarousels();
+                setActiveCarouselIdx(0);
+                alert("Carrusel eliminado correctamente.");
+            } catch (e: any) {
+                alert("Error al eliminar: " + e.message);
+            } finally {
+                setSaving(false);
+            }
+        }
+    };
+
+    // Create manual carousel
+    const handleCreateManualCarousel = async () => {
+        if (unlockedCount >= maxCarousels && !isRealAdmin) {
+            setShowUpgradeModalLocal(true);
+            return;
+        }
+        if (window.confirm("¿Deseas crear el carrusel manualmente?")) {
+            setSaving(true);
+            try {
+                const now = new Date().toISOString();
+                const carouselData = {
+                    title: 'Nuevo Carrusel Manual',
+                    psychological_strategy: 'Aprende de forma visual y rápida.',
+                    contentJson: {
+                        slides: [
+                            {
+                                slideNumber: 1,
+                                title: "Slide 1: Título llamativo",
+                                description: "Descripción del primer slide para retener audiencia.",
+                                image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675"
+                            }
+                        ],
+                        caption: "¡Aquí va la descripción o caption para tu post de Instagram/Facebook!"
+                    },
+                    isGenerated: false,
+                    updatedAt: now
+                };
+                await api.createProjectCarousel(projectId, carouselData);
+                await fetchCarousels();
+                setActiveCarouselIdx(0);
+                alert("¡Carrusel manual creado!");
+            } catch (e: any) {
+                alert("Error al crear carrusel: " + e.message);
+            } finally {
+                setSaving(false);
+            }
+        }
+    };
+
     // Plan limits and counts
     const isStarter = planLimits?.planName === 'starter';
     const unlockedCount = carousels.filter(c => c.masterCarouselId).length;
@@ -310,14 +369,36 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     return (
         <div className="space-y-8 animate-in fade-in duration-300">
             {/* Header matches Hooks style perfectly */}
-            <StepHeaderCard
-                stepNumber={6}
-                totalSteps={totalSteps}
-                stageNumber={2}
-                categoryTitle="Carruseles Magnéticos de Alta Conversión"
-                title={<>Descarga tus <span className="text-[#FF5A1F]">Carruseles Magnéticos</span></>}
-                description="Usa carruseles visuales de Instagram y Facebook diseñados por profesionales para captar la atención de tu audiencia, educar de forma visual rápida y conseguir conversiones automáticas."
-            />
+            {!overrideProjectId ? (
+                <div className="space-y-6">
+                    <StepHeaderCard
+                        stepNumber={6}
+                        totalSteps={totalSteps}
+                        stageNumber={2}
+                        categoryTitle="Carruseles Magnéticos de Alta Conversión"
+                        title={<>Descarga tus <span className="text-[#FF5A1F]">Carruseles Magnéticos</span></>}
+                        description="Usa carruseles visuales de Instagram y Facebook diseñados por profesionales para captar la atención de tu audiencia, educar de forma visual rápida y conseguir conversiones automáticas."
+                    />
+
+                    {/* --- VIDEO TUTORIAL --- */}
+                    <div className="bg-[#0f172a]/40 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-8 shadow-xl">
+                        <StepVideoContainer 
+                            stepNumber={6}
+                            videoUrl="https://www.youtube.com/embed/bTV5aFTchJ8?rel=0&controls=1&showinfo=0"
+                            title="Video Tutorial Carruseles"
+                        />
+                    </div>
+                </div>
+            ) : (
+                <StepHeaderCard
+                    stepNumber={6}
+                    totalSteps={totalSteps}
+                    stageNumber={2}
+                    categoryTitle="Carruseles Magnéticos de Alta Conversión"
+                    title={<>Descarga tus <span className="text-[#FF5A1F]">Carruseles Magnéticos</span></>}
+                    description="Usa carruseles visuales de Instagram y Facebook diseñados por profesionales para captar la atención de tu audiencia, educar de forma visual rápida y conseguir conversiones automáticas."
+                />
+            )}
 
             {/* Limits and Progress bar */}
             {!isRealAdmin && (
