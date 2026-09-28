@@ -77,6 +77,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     console.log(">>> Project Info:", { projectId, userEmail: user?.email });
     const [activeLibraryArticle, setActiveLibraryArticle] = useState(0);
     const [activeGeneratedArticle, setActiveGeneratedArticle] = useState(0);
+    const [project, setProject] = useState<any | null>(null);
     const [libraryData, setLibraryData] = useState<any[]>([]);
     const [generatedData, setGeneratedData] = useState<any[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
@@ -137,18 +138,19 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         if (!projectId) return;
         setLoadingLocal(true);
         try {
-            const [pages, articles, project] = await Promise.all([
+            const [pages, articles, projectObj] = await Promise.all([
                 api.getPages(),
                 api.getArticlesByProject(projectId),
                 api.getProjectById(projectId)
             ]);
+            setProject(projectObj);
 
             const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
             setLinkedPages(projectPages);
             
             const projectArts = articles.filter(a => 
                 String(a.projectId) === String(projectId) || 
-                (project?.masterParentId && String(a.projectId) === String(project.masterParentId)) ||
+                (projectObj?.masterParentId && String(a.projectId) === String(projectObj.masterParentId)) ||
                 projectPages.some(p => String(p.id) === String(a.pageId))
             );
             setLinkedArticles(projectArts);
@@ -953,20 +955,16 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     <div className="flex flex-col items-center text-center relative animate-in zoom-in-95 w-full">
                                         <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-orange-500" /></div>
                                         
-                                        <div className="w-full text-left mb-8">
-                                            <h3 className="text-white mb-6 font-bold transition-colors" style={{ fontSize: '1.6rem', lineHeight: '2rem', paddingTop: '1em', paddingBottom: '0.3em' }}>{currentData[activeArticleIdx].title}</h3>
-                                            
-                                            
-
-                                            <div className="bg-orange-500/5 rounded-2xl p-6 border border-orange-500/20 backdrop-blur-sm mb-8">
-                                                <div className="flex items-center gap-2 mb-3">
-                                                    <Target className="w-5 h-5 text-orange-400" />
-                                                    <span className="text-white font-bold text-xs uppercase tracking-widest">Estado de Consciencia</span>
-                                                </div>
-                                                <p className="text-orange-300 font-bold text-lg text-center">
-                                                    {currentData[activeArticleIdx].searchIntent || 'Por determinar'}
-                                                </p>
+                                        <div className="w-full text-left mb-8 bg-black/40 border border-white/5 rounded-3xl p-6 shadow-inner relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                                                <FileText className="w-24 h-24 text-orange-500" />
                                             </div>
+                                            <span className="inline-flex items-center gap-1.5 text-orange-400 text-[10px] font-black uppercase bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20 mb-3 tracking-widest">
+                                                <FileText className="w-3 h-3 text-orange-400" /> TÍTULO DEL ARTÍCULO DE BLOG
+                                            </span>
+                                            <h3 className="text-white font-black text-2xl sm:text-3xl leading-snug transition-colors">
+                                                “{currentData[activeArticleIdx].title}”
+                                            </h3>
                                         </div>
 
                                         <div className="w-20 h-20 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-6 border border-orange-500/20 shadow-lg animate-pulse">
@@ -974,7 +972,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         </div>
 
                                         <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Artículos Disponibles para Redactar</h4>
-                                        <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro sistema ha generado la estructura para este Artículo por ti. Haz clic en Redactar para ver todo el contenido.</p>
+                                        <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestra inteligencia artificial escribirá un artículo de blog profesional que te ayudará a atraer personas interesadas en "{project?.niche || 'este nicho'}"</p>
 
                                         <button 
                                             onClick={isAtLimit ? onUpgrade : () => setShowUnlockConfirmModal(true)}
@@ -982,12 +980,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             className={`w-full py-5 rounded-2xl ${isAtLimit ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110'} text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-950/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70`}
                                         >
                                             {unlockingSingle ? <Loader2 className="w-6 h-6 animate-spin" /> : isAtLimit ? <Crown className="w-6 h-6 fill-current" /> : <Sparkles className="w-6 h-6 group-hover:rotate-12 transition-transform" />}
-                                            {unlockingSingle ? 'Redactando...' : isAtLimit ? 'Actualizar a PRO 👑' : 'Redactar Artículo de Blog'}
+                                            {unlockingSingle ? 'Escribiendo...' : isAtLimit ? 'Actualizar a PRO 👑' : 'Escribir artículo de blog'}
                                         </button>
-                                        
-                                        <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">
-                                            <Shield className="w-3 h-3" /> Redacción Instantánea con Inteligencia Artificial
-                                        </div>
                                     </div>
                                 ) : (
                                 <>
@@ -1108,7 +1102,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         "Como Administrador tienes acceso ilimitado para redactar todos los artículos que desees."
                                     ) : (
                                         <>
-                                            Tienes disponible la creación de <strong className="text-orange-500 font-black text-lg sm:text-xl px-1">{Math.max(0, maxArticles - currentArticleCount)} {Math.max(0, maxArticles - currentArticleCount) === 1 ? 'artículo' : 'artículos'}</strong> en tu bolsa global.
+                                            Tienes disponible la creación de <strong className="text-orange-500 font-black text-lg sm:text-xl px-1">{Math.max(0, maxArticles - currentArticleCount)} {Math.max(0, maxArticles - currentArticleCount) === 1 ? 'artículo' : 'artículos'}</strong> para tu proyecto.
                                         </>
                                     )}
                                 </p>
@@ -1125,7 +1119,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             </div>
 
                             <p className="text-xs sm:text-sm text-zinc-300 text-center leading-relaxed font-semibold bg-white/[0.03] p-4 rounded-xl border border-white/5 shadow-inner">
-                                Al confirmar, nuestra Inteligencia Artificial comenzará la redacción automática y optimización SEO de inmediato. No tendrás que pasar por menús o configurar nada más.
+                                Al confirmar, nuestra Inteligencia Artificial comenzará la redacción automática y optimización SEO de inmediato.
                             </p>
                         </div>
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">

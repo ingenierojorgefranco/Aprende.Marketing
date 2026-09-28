@@ -8,6 +8,7 @@ import { StepHeaderCard } from '../../wizard/StepHeaderCard';
 import { StepVideoContainer } from '../../wizard/StepVideoContainer';
 import { api } from '../../../../services/api';
 import { User, Plan, LandingPage, Project } from '../../../../types';
+import { UpgradeModal } from '../../UpgradeModal';
 
 interface LeadMagnetItem {
     name: string;
@@ -60,6 +61,8 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
     const [selectedLeadMagnetIndex, setSelectedLeadMagnetIndex] = useState<number>(0);
     const [isSaving, setIsSaving] = useState(false);
     const [copiedMessage, setCopiedMessage] = useState(false);
+    const [showLockModal, setShowLockModal] = useState(false);
+    const [showUpgradeModalLocal, setShowUpgradeModalLocal] = useState(false);
 
     // Permisos de Plan
     const isRealAdmin = (activePlanLimits?.planName === 'admin' || activeUser?.role === 'admin') && !contextIsSimulating;
@@ -385,12 +388,29 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                                                 {currentLM.name || "Sin título"}
                                             </h4>
 
-                                            {currentLM.description ? (
-                                                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
-                                                    {currentLM.description}
-                                                </p>
-                                            ) : (
-                                                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                                            {currentLM.description ? (() => {
+                                                const sentences = currentLM.description.split(/(?<=\.)\s+/).filter(Boolean);
+                                                return (
+                                                    <div className="space-y-3 mt-2 max-w-2xl bg-white/[0.02] border border-white/5 p-4 rounded-xl">
+                                                        {sentences.map((sentence, idx) => {
+                                                            if (idx === 0) {
+                                                                return (
+                                                                    <p key={idx} className="text-xs sm:text-sm text-slate-200 font-extrabold leading-relaxed border-l-2 border-amber-500 pl-3">
+                                                                        {sentence}
+                                                                    </p>
+                                                                );
+                                                            }
+                                                            return (
+                                                                <p key={idx} className="text-xs sm:text-sm text-slate-300 leading-relaxed flex items-start gap-2.5 pl-3 animate-in fade-in">
+                                                                    <span className="text-amber-500 shrink-0 mt-1">•</span>
+                                                                    <span>{sentence}</span>
+                                                                </p>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                );
+                                            })() : (
+                                                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed bg-white/[0.02] border border-white/5 p-4 rounded-xl">
                                                     Guía práctica y material de alto valor en formato PDF descargable listo para compartir.
                                                 </p>
                                             )}
@@ -399,16 +419,28 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
 
                                     {/* Botón de apertura / descarga centrado verticalmente */}
                                     {currentLM.url && (
-                                        <a
-                                            href={currentLM.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="w-full sm:w-auto self-stretch sm:self-center px-6 py-3.5 sm:py-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 text-sm sm:text-base shadow-lg shadow-amber-500/20 cursor-pointer shrink-0 border border-amber-300"
-                                            title="Ver y Descargar LeadMagnet"
-                                        >
-                                            <Download className="w-5 h-5 text-slate-950 stroke-[2.5]" />
-                                            <span>Ver y Descargar LeadMagnet</span>
-                                        </a>
+                                        isPro ? (
+                                            <a
+                                                href={currentLM.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="w-full sm:w-auto self-stretch sm:self-center px-6 py-3.5 sm:py-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 text-sm sm:text-base shadow-lg shadow-amber-500/20 cursor-pointer shrink-0 border border-amber-300"
+                                                title="Ver y Descargar LeadMagnet"
+                                            >
+                                                <Download className="w-5 h-5 text-slate-950 stroke-[2.5]" />
+                                                <span>Ver y Descargar LeadMagnet</span>
+                                            </a>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowLockModal(true)}
+                                                className="w-full sm:w-auto self-stretch sm:self-center px-6 py-3.5 sm:py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:brightness-110 text-slate-950 font-black rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 text-sm sm:text-base shadow-lg shadow-amber-500/20 cursor-pointer shrink-0 border border-amber-300"
+                                                title="Ver y Descargar LeadMagnet [Plan PRO]"
+                                            >
+                                                <Lock className="w-5 h-5 text-slate-950" />
+                                                <span>Ver y Descargar LeadMagnet</span>
+                                            </button>
+                                        )
                                     )}
                                 </div>
                             </div>
@@ -508,6 +540,65 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                 )}
 
             </div>
+
+            {showLockModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowLockModal(false)}>
+                    <div className="bg-[#0B0B0B] border border-amber-500/20 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-[#FF5D1E]"></div>
+                        <div className="p-8 md:p-10 space-y-6 flex-1 overflow-y-auto text-center">
+                            <div className="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-lg shadow-amber-950/20 animate-pulse">
+                                <Lock className="w-8 h-8" />
+                            </div>
+                            
+                            <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">
+                                Característica Exclusiva <span className="text-amber-400">Plan PRO</span>
+                            </h2>
+                            
+                            <div className="space-y-4 text-slate-300 text-sm sm:text-base leading-relaxed text-left bg-white/[0.02] border border-white/5 p-5 rounded-2xl">
+                                <p className="font-bold text-white text-center text-base mb-2">
+                                    ¡Multiplica por 5 tu atracción de clientes! 🚀
+                                </p>
+                                <p>
+                                    Configurar y descargar este Lead Magnet aumentará drásticamente las probabilidades de que las personas se unan a tu grupo de WhatsApp.
+                                </p>
+                                <p className="border-t border-white/5 pt-3">
+                                    Adquiriendo el <strong className="text-amber-400 font-black">Plan PRO</strong> recibirás <strong className="text-white font-extrabold">5 Lead Magnets profesionales</strong> diseñados estratégicamente, con los que incrementarás por 5 la posibilidad de atraer usuarios altamente interesados a tu grupo de WhatsApp.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button 
+                                onClick={() => setShowLockModal(false)} 
+                                className="flex-1 py-4 rounded-xl bg-white/5 text-gray-300 font-black text-xs sm:text-sm uppercase tracking-widest hover:bg-white/10 transition-all"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    setShowLockModal(false);
+                                    if (onUpgrade) {
+                                        onUpgrade();
+                                    } else {
+                                        setShowUpgradeModalLocal(true);
+                                    }
+                                }} 
+                                className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#FF5D1E] text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-amber-900/20 transform hover:scale-[1.02] active:scale-[0.98] transition-all animate-pulse"
+                            >
+                                👑 Obtener Plan PRO
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showUpgradeModalLocal && (
+                <UpgradeModal 
+                    isOpen={showUpgradeModalLocal} 
+                    onClose={() => setShowUpgradeModalLocal(false)} 
+                    currentPlan={activePlanLimits?.planName}
+                />
+            )}
         </div>
     );
 };
