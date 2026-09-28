@@ -382,10 +382,16 @@ export const DashboardLayout = ({
   const currentPlan = effectiveUser.planLimits?.planName || 'starter';
   const isFreePlan = ['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free'].includes(currentPlan.toLowerCase());
 
-  const handleHelpSubmit = (e: React.FormEvent) => {
+  const handleHelpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSendingHelp(true);
-    setTimeout(() => {
+    try {
+        await api.submitSupportTicket({
+            itemName: helpForm.reason,
+            reason: helpForm.message,
+            userName: effectiveUser.name,
+            userEmail: effectiveUser.email
+        });
         setSendingHelp(false);
         setHelpSuccess(true);
         setTimeout(() => {
@@ -393,7 +399,10 @@ export const DashboardLayout = ({
             setShowHelpModal(false);
             setHelpForm({ reason: 'Soporte Técnico', message: '' });
         }, 2000);
-    }, 1500);
+    } catch (err) {
+        console.error("Error al enviar ticket:", err);
+        setSendingHelp(false);
+    }
   };
 
   const hasCompletedSurvey = useMemo(() => {

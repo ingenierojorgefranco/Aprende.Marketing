@@ -36,9 +36,11 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
     onDomainSaved,
     initialEditMode = false
 }) => {
-    // Accordion state: default step 3 open for direct domain configuration, or step 1
-    const [activeAccordion, setActiveAccordion] = useState<number | null>(3);
+    // Accordion state: default steps collapsed for manual step-by-step
+    const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
     const [domainInput, setDomainInput] = useState<string>('');
+    const [isFinishing, setIsFinishing] = useState<boolean>(false);
+    const [configFinalized, setConfigFinalized] = useState<boolean>(false);
     const [savedDomain, setSavedDomain] = useState<string>('');
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -50,7 +52,14 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
     useEffect(() => {
         if (isOpen) {
             setFeedbackMsg(null);
-            setActiveAccordion(3);
+            setActiveAccordion(null);
+            
+            if (projectId) {
+                const finalized = localStorage.getItem(`domain_config_finalized_${projectId}`) === 'true';
+                setConfigFinalized(finalized);
+            } else {
+                setConfigFinalized(false);
+            }
             
             if (user) {
                 setCurrentUser(user);
@@ -119,6 +128,38 @@ export const CustomDomainModal: React.FC<CustomDomainModalProps> = ({
 Por favor, ayúdenme a añadirlo a Aprende Marketing para tenerlo operativo.`;
 
     const whatsappUrl = `https://wa.me/34641941902?text=${encodeURIComponent(whatsappText)}`;
+
+    const handleFinishConfiguration = async () => {
+        setIsFinishing(true);
+        try {
+            const domainName = savedDomain || cleanDomain(domainInput) || "No especificado";
+            const userEmail = currentUser?.email || "No especificado";
+            const userName = currentUser?.name || "Usuario Demo";
+            
+            await api.submitSupportTicket({
+                itemName: "Configuración de Dominio Finalizada",
+                reason: `El usuario ha finalizado la configuración de su dominio personalizado en la plataforma.
+📌 Detalles de vinculación:
+- Dominio registrado: ${domainName}
+- Nombre de usuario: ${userName}
+- Email: ${userEmail}
+- ID de usuario: ${currentUser?.id || "No especificado"}
+
+Por favor, revisa el dominio y los registros DNS en el servidor de Google Cloud para activarlo.`,
+                userName,
+                userEmail
+            });
+            
+            if (projectId) {
+                localStorage.setItem(`domain_config_finalized_${projectId}`, 'true');
+            }
+            setConfigFinalized(true);
+        } catch (e) {
+            console.error("Error al finalizar configuración de dominio:", e);
+        } finally {
+            setIsFinishing(false);
+        }
+    };
 
     const handleSaveDomain = async () => {
         setFeedbackMsg(null);
@@ -298,42 +339,42 @@ Por favor, ayúdenme a añadirlo a Aprende Marketing para tenerlo operativo.`;
                                             <tr className="bg-black/40">
                                                 <td className="p-4 font-bold text-blue-400">A</td>
                                                 <td className="p-4">@</td>
-                                                <td className="p-4">151.101.1.195</td>
+                                                <td className="p-4">216.239.32.21</td>
                                             </tr>
                                             <tr className="bg-black/20">
                                                 <td className="p-4 font-bold text-blue-400">A</td>
                                                 <td className="p-4">@</td>
-                                                <td className="p-4">151.101.65.195</td>
+                                                <td className="p-4">216.239.34.21</td>
                                             </tr>
                                             <tr className="bg-black/40">
                                                 <td className="p-4 font-bold text-blue-400">A</td>
                                                 <td className="p-4">@</td>
-                                                <td className="p-4">151.101.129.195</td>
+                                                <td className="p-4">216.239.36.21</td>
                                             </tr>
                                             <tr className="bg-black/20">
                                                 <td className="p-4 font-bold text-blue-400">A</td>
                                                 <td className="p-4">@</td>
-                                                <td className="p-4">151.101.193.195</td>
+                                                <td className="p-4">216.239.38.21</td>
                                             </tr>
                                             <tr className="bg-black/40">
                                                 <td className="p-4 font-bold text-purple-400">AAAA</td>
                                                 <td className="p-4">@</td>
-                                                <td className="p-4">2a04:4e42::403</td>
+                                                <td className="p-4">2001:4860:4802:32::15</td>
                                             </tr>
                                             <tr className="bg-black/20">
                                                 <td className="p-4 font-bold text-purple-400">AAAA</td>
                                                 <td className="p-4">@</td>
-                                                <td className="p-4">2a04:4e42:200::403</td>
+                                                <td className="p-4">2001:4860:4802:34::15</td>
                                             </tr>
                                             <tr className="bg-black/40">
                                                 <td className="p-4 font-bold text-purple-400">AAAA</td>
                                                 <td className="p-4">@</td>
-                                                <td className="p-4">2a04:4e42:400::403</td>
+                                                <td className="p-4">2001:4860:4802:36::15</td>
                                             </tr>
                                             <tr className="bg-black/20">
                                                 <td className="p-4 font-bold text-purple-400">AAAA</td>
                                                 <td className="p-4">@</td>
-                                                <td className="p-4">2a04:4e42:600::403</td>
+                                                <td className="p-4">2001:4860:4802:38::15</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -468,20 +509,46 @@ Por favor, ayúdenme a añadirlo a Aprende Marketing para tenerlo operativo.`;
                         </button>
                         {activeAccordion === 4 && (
                             <div className="p-8 bg-black/30 border-t border-gray-800 animate-in slide-in-from-top-2 text-center">
-                                <p className="text-gray-300 text-lg leading-relaxed mb-8">
-                                    Para completar la vinculación y poder utilizar tu dominio en <strong className="text-white font-bold">Aprende Marketing</strong>, ponte en contacto con nuestro equipo de soporte técnico. Envíanos un mensaje por WhatsApp haciendo clic en el botón de abajo con los datos de tu dominio, correo e ID de usuario para que procedamos a añadirlo y dejarlo 100% operativo.
-                                </p>
-                                <a 
-                                    href={whatsappUrl}
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
-                                    className="inline-flex items-center gap-3 px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg rounded-2xl shadow-xl shadow-emerald-900/20 transition-all transform hover:scale-105 active:scale-95 mb-4"
-                                >
-                                    <MessageCircle className="w-6 h-6" /> Quiero configurar mi dominio
-                                </a>
-                                <p className="text-center text-[10px] text-gray-600 font-bold uppercase tracking-[0.3em] mt-4">
-                                    Activación técnica inmediata vía soporte
-                                </p>
+                                {configFinalized ? (
+                                    <div className="space-y-6 py-4 animate-in zoom-in-95">
+                                        <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20">
+                                            <Check className="w-8 h-8 stroke-[3]" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-xl font-black text-white uppercase tracking-tight">¡Configuración Finalizada!</h4>
+                                            <p className="text-gray-300 text-base leading-relaxed mt-4 max-w-md mx-auto">
+                                                Nuestro equipo técnico evaluará la información registrada para el dominio <strong className="text-white">{savedDomain || cleanDomain(domainInput) || 'tu dominio'}</strong> y procederá a configurarlo en nuestro servidor. Te notificaremos de inmediato.
+                                            </p>
+                                        </div>
+                                        <div className="inline-block px-6 py-2.5 bg-emerald-500/10 text-emerald-400 text-xs font-black uppercase tracking-wider rounded-lg border border-emerald-500/20">
+                                            En proceso de activación por soporte
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <p className="text-gray-300 text-base sm:text-lg leading-relaxed mb-8">
+                                            Para completar la vinculación y poder utilizar tu dominio en <strong className="text-white font-bold">Aprende Marketing</strong>, confirma que has configurado los registros DNS. Nuestro equipo técnico evaluará la información registrada y procederá a configurar el dominio en nuestro servidor de inmediato.
+                                        </p>
+                                        <button 
+                                            onClick={handleFinishConfiguration}
+                                            disabled={isFinishing}
+                                            className="inline-flex items-center gap-3 px-10 py-5 bg-primary hover:bg-[#FF5A1F]/90 disabled:opacity-50 text-white font-black text-lg rounded-2xl shadow-xl shadow-primary/20 transition-all transform hover:scale-105 active:scale-95 mb-4"
+                                        >
+                                            {isFinishing ? (
+                                                <>
+                                                    <Loader2 className="w-6 h-6 animate-spin" /> Finalizando...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <CheckCircle className="w-6 h-6" /> Finalizar Configuración
+                                                </>
+                                            )}
+                                        </button>
+                                        <p className="text-center text-[10px] text-gray-600 font-bold uppercase tracking-[0.3em] mt-4">
+                                            Activación técnica en nuestro servidor
+                                        </p>
+                                    </>
+                                )}
                             </div>
                         )}
                     </div>

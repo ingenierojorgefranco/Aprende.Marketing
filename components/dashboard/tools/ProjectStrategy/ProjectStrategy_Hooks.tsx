@@ -54,6 +54,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const initialSelectionDone = useRef(false);
   const skipReset = useRef(false);
   const sessionSeed = useRef(Math.random());
+  const initialTabSet = useRef(false);
   
   const [hooks, setHooks] = useState<ProjectHook[]>([]);
   const [loadingHooks, setLoadingHooks] = useState(true);
@@ -198,10 +199,13 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         const data = await api.getProjectHooks(projectId);
         setHooks(data);
         setLoadingHooks(false);
-        if (data && data.length === 0) {
-            setActiveTab('library');
-        } else {
-            setActiveTab('generated');
+        if (!initialTabSet.current) {
+            if (data && data.length === 0) {
+                setActiveTab('library');
+            } else {
+                setActiveTab('generated');
+            }
+            initialTabSet.current = true;
         }
         return data;
     } catch (e) {

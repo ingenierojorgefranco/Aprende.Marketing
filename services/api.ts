@@ -27,6 +27,28 @@ let localPages: LandingPage[] = [...MOCK_PAGES];
 let localArticles: Article[] = [...MOCK_ARTICLES];
 let localProjects: Project[] = [...MOCK_PROJECTS];
 let localLeads: Lead[] = [...MOCK_LEADS];
+let localSupportTickets: SupportTicket[] = [
+  {
+    id: "ticket-1",
+    userId: "user-1",
+    userName: "Marta Gómez",
+    userEmail: "marta@example.com",
+    itemName: "Facturación",
+    reason: "Quiero cambiar mi tarjeta de crédito para el cobro de mi plan mensual.",
+    status: "pending",
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: "ticket-2",
+    userId: "user-2",
+    userName: "Carlos Sánchez",
+    userEmail: "carlos@example.com",
+    itemName: "Soporte Técnico",
+    reason: "No puedo descargar el video del hook generado, me sale un error de carga.",
+    status: "resolved",
+    createdAt: new Date(Date.now() - 86400000).toISOString()
+  }
+];
 
 const getStoredCourses = (): Course[] => {
     if (typeof window !== 'undefined') {
@@ -2447,9 +2469,20 @@ export const api = {
     },
 
     ////////// Actualización: Métodos para Tickets de Soporte - 12/06/2025 //////////
-    submitSupportTicket: async (data: { itemName: string; reason: string }): Promise<void> => {
+    submitSupportTicket: async (data: { itemName: string; reason: string; userName?: string; userEmail?: string }): Promise<void> => {
         if (isMockMode) {
             console.log("Mock Support Ticket Submitted:", data);
+            const newTicket: SupportTicket = {
+                id: `ticket-${Date.now()}`,
+                userId: "user-1",
+                userName: data.userName || MOCK_USER.name || "Usuario Demo",
+                userEmail: data.userEmail || MOCK_USER.email || "beta@gmail.com",
+                itemName: data.itemName,
+                reason: data.reason,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            };
+            localSupportTickets = [newTicket, ...localSupportTickets];
             return Promise.resolve();
         }
         await fetchWithFallback('/support/tickets', {
@@ -2461,7 +2494,7 @@ export const api = {
     },
 
     getAdminSupportTickets: async (): Promise<SupportTicket[]> => {
-        if (isMockMode) return [];
+        if (isMockMode) return localSupportTickets;
         if (apiCache.supportTickets) return apiCache.supportTickets;
         const tickets = await fetchWithFallback('/admin/support/tickets', { headers: getAuthHeaders() });
         apiCache.supportTickets = tickets;
