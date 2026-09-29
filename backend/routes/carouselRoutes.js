@@ -2,8 +2,11 @@ import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
 import { DEFAULT_LIMITS, getEffectiveLimits } from './authRoutes.js';
+import { Storage } from '@google-cloud/storage';
 
 const router = express.Router();
+const storage = new Storage();
+const bucketName = process.env.GCS_BUCKET_NAME || 'am-multimedia-assets';
 router.use(authMiddleware);
 
 const safeParseJson = (data) => {
@@ -493,6 +496,25 @@ router.delete('/:id', async (req, res) => {
         return res.status(400).json({ error: "ID de carrusel inválido" });
     }
     try {
+        // 1. Obtener el projectId antes de eliminar el registro
+        const [rows] = await pool.query('SELECT project_id FROM project_carousels WHERE id = ?', [cleanId]);
+        
+        if (rows.length > 0) {
+            const projectId = rows[0].project_id;
+            
+            // 2. Eliminar físicamente todos los archivos subidos al bucket bajo el prefijo del proyecto
+            try {
+                const prefix = `Proyect/${projectId}/carrouseles/`;
+                const bucket = storage.bucket(bucketName);
+                await bucket.deleteFiles({ prefix });
+                console.log(`[GCS Clean] Eliminados todos los archivos bajo el prefijo: ${prefix}`);
+            } catch (gcsError) {
+                // No detenemos el flujo si falla GCS para evitar que se bloquee el borrado del carrusel
+                console.error('[GCS Clean Error] Error al eliminar archivos del bucket:', gcsError);
+            }
+        }
+
+        // 3. Eliminar el registro de la base de datos
         await pool.query('DELETE FROM project_carousels WHERE id = ?', [cleanId]);
         res.json({ success: true });
     } catch (e) {

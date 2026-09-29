@@ -63,6 +63,84 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     const [localStrategy, setLocalStrategy] = useState('');
     const [saving, setSaving] = useState(false);
 
+    const [strategyItems, setStrategyItems] = useState<string[]>([
+        "Atrae atención rápido.",
+        "Educa y genera confianza.",
+        "Convierte vistas en clientes."
+    ]);
+
+    const parseStrategyItems = (strategyRaw: any): string[] => {
+        if (!strategyRaw) {
+            return [
+                "Atrae atención rápido.",
+                "Educa y genera confianza.",
+                "Convierte vistas en clientes."
+            ];
+        }
+        if (Array.isArray(strategyRaw)) {
+            const items = strategyRaw.map(s => String(s).trim()).filter(Boolean);
+            while (items.length < 3) items.push("");
+            return items.slice(0, 3);
+        }
+        if (typeof strategyRaw === 'string') {
+            const trimmed = strategyRaw.trim();
+            if (trimmed.startsWith('[')) {
+                try {
+                    const arr = JSON.parse(trimmed);
+                    if (Array.isArray(arr)) {
+                        const items = arr.map(s => String(s).trim()).filter(Boolean);
+                        while (items.length < 3) items.push("");
+                        return items.slice(0, 3);
+                    }
+                } catch(e) {}
+            }
+            // Split by semicolon, newlines, bullet points, or dashes
+            const separators = [';', '\n', '•', '-'];
+            let items: string[] = [];
+            for (const sep of separators) {
+                if (trimmed.includes(sep)) {
+                    items = trimmed.split(sep).map(s => s.trim()).filter(Boolean);
+                    break;
+                }
+            }
+            if (items.length === 0) {
+                // split by sentence dots
+                items = trimmed.split('.').map(s => s.trim()).filter(s => s.length > 2);
+            }
+            while (items.length < 3) items.push("");
+            return items.slice(0, 3);
+        }
+        return [
+            "Atrae atención rápido.",
+            "Educa y genera confianza.",
+            "Convierte vistas en clientes."
+        ];
+    };
+
+    const updateStrategyItem = (idx: number, val: string) => {
+        setStrategyItems(prev => {
+            const copy = [...prev];
+            copy[idx] = val;
+            return copy;
+        });
+    };
+
+    const handleBlurStrategyItems = async (updatedItems: string[]) => {
+        if (!currentCarousel) return;
+        const jsonStr = JSON.stringify(updatedItems);
+        try {
+            await api.updateProjectCarousel(currentCarousel.id, {
+                psychologicalStrategy: jsonStr
+            });
+            setCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, psychologicalStrategy: jsonStr } : c));
+            if (activeTab === 'library') {
+                setLibraryCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, psychologicalStrategy: jsonStr } : c));
+            }
+        } catch (e) {
+            console.error("Error updating strategy items:", e);
+        }
+    };
+
     const activeCarousel = useMemo(() => {
         return carousels[activeCarouselIdx];
     }, [carousels, activeCarouselIdx]);
@@ -184,10 +262,13 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         setCurrentSlideIdx(0);
         if (currentCarousel) {
             setLocalTitle(currentCarousel.title || '');
-            setLocalStrategy(currentCarousel.psychologicalStrategy || '');
+            const strat = currentCarousel.psychologicalStrategy || '';
+            setLocalStrategy(strat);
+            setStrategyItems(parseStrategyItems(strat));
         } else {
             setLocalTitle('');
             setLocalStrategy('');
+            setStrategyItems(["Atrae atención rápido.", "Educa y genera confianza.", "Convierte vistas en clientes."]);
         }
     }, [currentCarousel]);
 
@@ -577,9 +658,6 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                     {!isRealAdmin && !isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
                                                     {carousel.title}
                                                 </h4>
-                                                <p className="text-xs text-slate-500 line-clamp-1">
-                                                    {carousel.psychologicalStrategy || "Visual y educativo."}
-                                                </p>
                                             </div>
                                             {isRealAdmin && (
                                                 <div 
@@ -648,8 +726,13 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                         <Brain className="w-5 h-5 text-orange-400" />
                                         <span className="text-white font-bold text-xs uppercase tracking-widest">Estrategia Psicológica</span>
                                     </div>
-                                    <div className="text-zinc-200 text-xs md:text-sm leading-relaxed">
-                                        {currentCarousel.psychologicalStrategy || "Aprende de forma visual y rápida."}
+                                    <div className="space-y-2 text-xs md:text-sm">
+                                        {parseStrategyItems(currentCarousel.psychologicalStrategy || "").map((item, idx) => (
+                                            <div key={idx} className="flex items-center gap-2.5">
+                                                <CheckCircle2 className="w-4 h-4 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
+                                                <span className="text-zinc-200 font-normal">{item}</span>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -758,6 +841,41 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                             </h2>
                                         </div>
                                     )}
+
+                                    {/* --- Estrategia Psicológica (como en Hooks) --- */}
+                                    <div className="border-t border-white/[0.06] pt-5 mt-4">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h4 className="text-sm font-medium text-white">Estrategia Psicológica</h4>
+                                            {isRealAdmin && (
+                                                <span className="text-[10px] text-orange-400 font-medium bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded">
+                                                    Editable por Admin
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="space-y-2.5 text-xs md:text-sm">
+                                            {[0, 1, 2].map((idx) => {
+                                                const parsed = parseStrategyItems(localStrategy || currentCarousel.psychologicalStrategy || "");
+                                                const val = strategyItems[idx] !== undefined ? strategyItems[idx] : (parsed[idx] || "");
+                                                return (
+                                                    <div key={idx} className="flex items-center gap-2.5">
+                                                        <CheckCircle2 className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
+                                                        {isRealAdmin ? (
+                                                            <input
+                                                                type="text"
+                                                                value={val}
+                                                                onChange={(e) => updateStrategyItem(idx, e.target.value)}
+                                                                onBlur={() => handleBlurStrategyItems(strategyItems)}
+                                                                className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-1.5 text-zinc-100 text-xs md:text-sm font-normal outline-none focus:border-[#FF5D1E] focus:ring-1 focus:ring-[#FF5D1E] transition-all"
+                                                                placeholder={`Ítem ${idx + 1} de la estrategia...`}
+                                                            />
+                                                        ) : (
+                                                            <span className="text-zinc-300 font-normal">{val}</span>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

@@ -403,7 +403,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-[270px_minmax(0,1fr)] xl:grid-cols-[310px_minmax(0,1fr)] 2xl:grid-cols-[350px_minmax(0,1fr)] gap-4 lg:gap-5 xl:gap-6 items-start">
           
           {/* COLUMNA IZQUIERDA: Menús Laterales (Índice Estratégico + Guía de implementación) */}
-          <aside className="space-y-4 lg:sticky lg:top-3 max-h-[calc(100vh-20px)] overflow-y-auto custom-scrollbar pr-1.5">
+          <aside className="space-y-4 lg:sticky lg:top-3 max-h-[calc(100vh-20px)] overflow-y-auto custom-scrollbar pr-1.5 pb-32">
             
             {/* 1. Menú Índice Estratégico (Imagen 1) */}
             <ProjectStrategy_Sidebar 

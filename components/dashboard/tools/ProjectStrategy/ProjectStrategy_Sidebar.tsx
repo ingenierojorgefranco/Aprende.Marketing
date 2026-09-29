@@ -122,7 +122,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
             </div>
 
             {/* --- LISTADO DE SECCIONES (LECCIONES) --- */}
-            <div className="flex-1 divide-y divide-slate-800">
+            <div className="flex-1 divide-y divide-slate-800 pb-10">
                 {menuItems.map((group, gIdx) => {
                     const isOpen = openGroups.includes(gIdx);
                     return (
