@@ -740,7 +740,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                             {activeKitTab === 'slides' && (
                                 <div className="space-y-6 text-left">
                                     {currentCarousel.contentJson?.slides && currentCarousel.contentJson.slides.length > 0 ? (
-                                        <div className="space-y-8 bg-black/40 border border-white/5 p-6 rounded-[20px] max-w-2xl mx-auto">
+                                        <div className="space-y-8 bg-black/40 border border-white/5 p-6 rounded-[20px] max-w-4xl mx-auto w-full">
                                             {currentCarousel.contentJson.slides.map((slide: any, idx: number) => (
                                                 <div key={idx} className="space-y-4 border-b border-white/10 pb-6 last:border-b-0 last:pb-0">
                                                     
@@ -765,32 +765,32 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                                         setCurrentSlideIdx(0);
                                                                     }
                                                                 }}
-                                                                className="py-1 px-2.5 bg-red-950/40 hover:bg-red-900/40 border border-red-900/30 text-red-400 hover:text-red-300 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer"
+                                                                className="p-1.5 bg-red-950/40 hover:bg-red-900/40 border border-red-900/30 text-red-400 hover:text-red-300 rounded-full transition-all cursor-pointer flex items-center justify-center"
+                                                                title="Eliminar Slide"
                                                             >
-                                                                <Trash2 className="w-3 h-3" />
-                                                                Eliminar Slide
+                                                                <X className="w-4 h-4" />
                                                             </button>
                                                         )}
                                                     </div>
 
                                                     {/* Display Image if it exists */}
                                                     {slide.image ? (
-                                                        <div className="relative group rounded-xl overflow-hidden border border-white/10 max-w-sm">
+                                                        <div className="relative group rounded-xl overflow-hidden border border-white/10 w-full max-w-2xl">
                                                             <img
                                                                 src={slide.image}
                                                                 alt={`Slide ${idx + 1}`}
-                                                                className="w-full h-44 object-cover"
+                                                                className="w-full h-64 object-cover"
                                                             />
                                                         </div>
                                                     ) : (
-                                                        <div className="p-4 bg-slate-900/30 border border-dashed border-slate-800 rounded-xl text-center text-slate-500 text-xs max-w-sm">
+                                                        <div className="p-6 bg-slate-900/30 border border-dashed border-slate-800 rounded-xl text-center text-slate-500 text-xs w-full max-w-2xl">
                                                             Sin imagen cargada. {isRealAdmin ? 'Sube una o escribe su URL abajo.' : ''}
                                                         </div>
                                                     )}
 
                                                     {/* Admin Controls to edit image URL and upload directly to GCS bucket */}
                                                     {isRealAdmin && (
-                                                        <div className="space-y-3 max-w-sm bg-white/5 p-4 rounded-xl border border-white/5">
+                                                        <div className="space-y-3 w-full max-w-2xl bg-white/5 p-4 rounded-xl border border-white/5">
                                                             <div className="space-y-1">
                                                                 <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">URL de la Imagen</label>
                                                                 <div className="flex gap-2">
@@ -860,10 +860,10 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
                                             {/* Add Slide Button at the very bottom for Admin */}
                                             {isRealAdmin && (
-                                                <div className="pt-4 border-t border-white/5">
+                                                <div className="pt-4 border-t border-white/5 flex justify-center w-full">
                                                     <button
                                                         onClick={handleAddSlide}
-                                                        className="py-3 px-6 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-md"
+                                                        className="py-3 px-6 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-md mx-auto"
                                                     >
                                                         <Plus className="w-4 h-4" />
                                                         Añadir Slide
@@ -872,16 +872,18 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                             )}
                                         </div>
                                     ) : (
-                                        <div className="p-8 text-center bg-slate-900/30 rounded-3xl text-slate-500 max-w-2xl mx-auto">
+                                        <div className="p-8 text-center bg-slate-900/30 rounded-3xl text-slate-500 max-w-4xl mx-auto w-full">
                                             <p className="mb-4">No hay slides en este carrusel.</p>
                                             {isRealAdmin && (
-                                                <button
-                                                    onClick={handleAddSlide}
-                                                    className="py-2.5 px-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-md mx-auto"
-                                                >
-                                                    <Plus className="w-4 h-4" />
-                                                    Añadir primer Slide
-                                                </button>
+                                                <div className="flex justify-center">
+                                                    <button
+                                                        onClick={handleAddSlide}
+                                                        className="py-2.5 px-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-md mx-auto"
+                                                    >
+                                                        <Plus className="w-4 h-4" />
+                                                        Añadir primer Slide
+                                                    </button>
+                                                </div>
                                             )}
                                         </div>
                                     )}
@@ -890,7 +892,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
                             {/* TAB PANEL 2: Feed caption / Copy */}
                             {activeKitTab === 'caption' && (
-                                <div className="space-y-4">
+                                <div className="space-y-4 text-left">
                                     <div className="flex justify-between items-center ml-1">
                                         <span className="text-[10px] font-black uppercase text-[#FF5A1F] tracking-widest">Texto Recomendado para el Feed</span>
                                         <button
@@ -914,9 +916,34 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                             )}
                                         </button>
                                     </div>
-                                    <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-6 text-left whitespace-pre-wrap font-mono text-xs sm:text-sm text-slate-300 leading-relaxed max-h-[300px] overflow-y-auto">
-                                        {currentCarousel.contentJson?.feedCopy || currentCarousel.contentJson?.caption || "No hay copia de feed disponible."}
-                                    </div>
+                                    {isRealAdmin ? (
+                                        <textarea
+                                            value={currentCarousel.contentJson?.feedCopy || currentCarousel.contentJson?.caption || ''}
+                                            onChange={async (e) => {
+                                                const val = e.target.value;
+                                                const newContentJson = {
+                                                    ...(currentCarousel.contentJson || {}),
+                                                    feedCopy: val,
+                                                    caption: val
+                                                };
+                                                try {
+                                                    await api.updateProjectCarousel(currentCarousel.id, {
+                                                        contentJson: newContentJson
+                                                    });
+                                                    setCarousels(prev => prev.map((c, i) => i === activeCarouselIdx ? { ...c, contentJson: newContentJson } : c));
+                                                } catch (err) {
+                                                    console.error("Error saving caption:", err);
+                                                }
+                                            }}
+                                            rows={8}
+                                            placeholder="Escribe el texto recomendado para el feed aquí..."
+                                            className="w-full bg-slate-950/80 border border-slate-800 rounded-2xl p-6 text-left font-mono text-xs sm:text-sm text-slate-300 leading-relaxed outline-none focus:border-orange-500"
+                                        />
+                                    ) : (
+                                        <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-6 text-left whitespace-pre-wrap font-mono text-xs sm:text-sm text-slate-300 leading-relaxed max-h-[300px] overflow-y-auto">
+                                            {currentCarousel.contentJson?.feedCopy || currentCarousel.contentJson?.caption || "No hay copia de feed disponible."}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
