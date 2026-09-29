@@ -898,11 +898,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
                                                     {art.title || (isRealAdmin ? 'Sin Título' : '')}
                                                 </h4>
-                                                {art.unlockedAt && (
-                                                    <p className="text-[0.9em] font-bold opacity-60 mt-1 pt-[10px]">
-                                                        Desbloqueado: {formatRelativeTime(art.unlockedAt)}
-                                                    </p>
-                                                )}
+
                                                 {isGenerated && (
                                                     <p className={`text-[0.9em] font-bold opacity-60 mt-1 ${isActive ? 'text-white' : 'text-emerald-400'}`}>
                                                         Redactado: {formatRelativeTime(art.publishedAt || art.updatedAt || art.createdAt)}

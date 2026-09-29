@@ -271,6 +271,9 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
             try {
                 const article = await api.getArticleById(editArticleId);
                 if (article) {
+                    if (article.projectId) {
+                        setSelectedProject(String(article.projectId));
+                    }
                     setArticleContent(article.contentHtml);
                     setSelectedTitle({ title: article.title, description: article.description });
                     setArticleTitle(article.title);

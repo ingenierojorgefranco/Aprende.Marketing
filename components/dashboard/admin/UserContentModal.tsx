@@ -14,9 +14,10 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void, onUserUpdate
         emails: any[] | null;
         whatsapp: any[] | null;
         hooks: any[] | null;
-    }>({ plans: null, systemPlans: null, projects: null, pages: null, articles: null, emails: null, whatsapp: null, hooks: null });
+        carousels: any[] | null;
+    }>({ plans: null, systemPlans: null, projects: null, pages: null, articles: null, emails: null, whatsapp: null, hooks: null, carousels: null });
 
-    const [expandedSection, setExpandedSection] = useState<'user-data' | 'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks' | null>(null);
+    const [expandedSection, setExpandedSection] = useState<'user-data' | 'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks' | 'carousels' | null>(null);
     const [loadingSection, setLoadingSection] = useState<string | null>(null);
 
     const formatRelativeTime = (dateInput: any) => {
@@ -39,8 +40,10 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void, onUserUpdate
     // Pagination and Filtering states
     const [selectedProjectArticles, setSelectedProjectArticles] = useState<string>('all');
     const [selectedProjectHooks, setSelectedProjectHooks] = useState<string>('all');
+    const [selectedProjectCarousels, setSelectedProjectCarousels] = useState<string>('all');
     const [currentPageArticles, setCurrentPageArticles] = useState(1);
     const [currentPageHooks, setCurrentPageHooks] = useState(1);
+    const [currentPageCarousels, setCurrentPageCarousels] = useState(1);
     const itemsPerPage = 10;
 
     // Email Messages states
@@ -48,7 +51,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void, onUserUpdate
     const [sequenceMessages, setSequenceMessages] = useState<EmailMessage[]>([]);
     const [loadingMessages, setLoadingMessages] = useState(false);
 
-    const toggleSection = async (section: 'user-data' | 'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks') => {
+    const toggleSection = async (section: 'user-data' | 'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks' | 'carousels') => {
         if (expandedSection === section) {
             setExpandedSection(null);
             return;
@@ -141,6 +144,15 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void, onUserUpdate
                     if (loadedData.projects === null) {
                         setLoadedData(prev => ({ ...prev, projects }));
                     }
+                } else if (section === 'carousels') {
+                    const [carouselsData, projects] = await Promise.all([
+                        api.getAdminUserResources(user.id, 'carousels'),
+                        loadedData.projects === null ? api.getAdminUserResources(user.id, 'projects') : Promise.resolve(loadedData.projects)
+                    ]);
+                    data = carouselsData;
+                    if (loadedData.projects === null) {
+                        setLoadedData(prev => ({ ...prev, projects }));
+                    }
                 } else {
                     data = await api.getAdminUserResources(user.id, section);
                 }
@@ -218,7 +230,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void, onUserUpdate
         }
     };
 
-    const handleDeleteAsset = async (type: 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks', id: string, name: string) => {
+    const handleDeleteAsset = async (type: 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks' | 'carousels', id: string, name: string) => {
         if (!window.confirm(`¿Estás seguro de eliminar "${name}" permanentemente? Esta acción no se puede deshacer.`)) return;
         
         try {
@@ -275,6 +287,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void, onUserUpdate
             else if (type === 'emails') await api.deleteEmailSequence(id);
             else if (type === 'whatsapp') await api.deleteWhatsAppLaunch(id);
             else if (type === 'hooks') await api.deleteProjectHook(id);
+            else if (type === 'carousels') await api.deleteProjectCarousel(id);
             
             // Actualizar estado local
             setLoadedData(prev => ({
@@ -890,6 +903,113 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void, onUserUpdate
                                     </>
                                 ) : (
                                     <p className="text-sm text-gray-500 italic text-center">No hay hooks generados.</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Carousels Section */}
+                    <div className="border border-gray-700 rounded-xl overflow-hidden">
+                        <button 
+                            onClick={() => toggleSection('carousels')}
+                            className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 transition text-left"
+                        >
+                            <div className="flex items-center gap-3 font-bold text-white">
+                                <BookOpen className="w-5 h-5 text-orange-400" /> Carruseles Magnéticos
+                            </div>
+                            {expandedSection === 'carousels' ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+                        </button>
+                        
+                        {expandedSection === 'carousels' && (
+                            <div className="bg-black/50 p-4 border-t border-gray-700 animate-in slide-in-from-top-2">
+                                {loadingSection === 'carousels' ? (
+                                    <div className="flex justify-center py-4"><Loader2 className="w-6 h-6 animate-spin text-orange-400" /></div>
+                                ) : loadedData.carousels && loadedData.carousels.length > 0 ? (
+                                    <>
+                                        {/* Project Filter */}
+                                        <div className="mb-4 flex items-center gap-3">
+                                            <label className="text-xs text-gray-400 uppercase font-bold">Filtrar por Proyecto:</label>
+                                            <select 
+                                                value={selectedProjectCarousels}
+                                                onChange={(e) => {
+                                                    setSelectedProjectCarousels(e.target.value);
+                                                    setCurrentPageCarousels(1);
+                                                }}
+                                                className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-blue-500"
+                                            >
+                                                <option value="all">Todos los proyectos</option>
+                                                {loadedData.projects?.map(p => (
+                                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <table className="w-full text-xs text-left">
+                                            <thead className="text-gray-500 uppercase">
+                                                <tr>
+                                                    <th className="pb-2 pl-2">Id Carrusel</th>
+                                                    <th className="pb-2">Título del Carrusel</th>
+                                                    <th className="pb-2">Id Proyecto</th>
+                                                    <th className="pb-2">Estrategia</th>
+                                                    <th className="pb-2">Estado</th>
+                                                    <th className="pb-2">Fecha</th>
+                                                    <th className="pb-2 text-right pr-2">Acción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="text-gray-300 divide-y divide-gray-800">
+                                                {loadedData.carousels
+                                                    .filter(c => selectedProjectCarousels === 'all' || String(c.project_id || c.projectId) === String(selectedProjectCarousels))
+                                                    .slice((currentPageCarousels - 1) * itemsPerPage, currentPageCarousels * itemsPerPage)
+                                                    .map((c: any) => (
+                                                        <tr key={c.id} className="hover:bg-white/[0.02]">
+                                                            <td className="py-2 pl-2 font-mono text-gray-400">{c.id}</td>
+                                                            <td className="py-2 font-medium">{c.title}</td>
+                                                            <td className="py-2 font-mono text-yellow-500">{c.project_id || c.projectId || "N/A"}</td>
+                                                            <td className="py-2 text-gray-400 italic">{c.psychological_strategy || c.psychologicalStrategy || "Visual y educativo."}</td>
+                                                            <td className="py-2">
+                                                                <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${(c.is_generated || c.isGenerated) ? 'bg-green-900/30 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
+                                                                    {(c.is_generated || c.isGenerated) ? 'Generado' : 'Manual'}
+                                                                </span>
+                                                            </td>
+                                                            <td className="py-2 text-gray-400">{formatRelativeTime(c.created_at || c.createdAt)}</td>
+                                                            <td className="py-2 text-right pr-2">
+                                                                <button 
+                                                                    onClick={() => handleDeleteAsset('carousels', c.id, c.title)}
+                                                                    className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
+                                                                >
+                                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                            </tbody>
+                                        </table>
+
+                                        {/* Pagination */}
+                                        {Math.ceil((loadedData.carousels?.filter(c => selectedProjectCarousels === 'all' || String(c.project_id || c.projectId) === String(selectedProjectCarousels)).length || 0) / itemsPerPage) > 1 && (
+                                            <div className="mt-4 flex items-center justify-between px-2">
+                                                <span className="text-[10px] text-gray-500 uppercase">Página {currentPageCarousels} de {Math.ceil((loadedData.carousels?.filter(c => selectedProjectCarousels === 'all' || String(c.project_id || c.projectId) === String(selectedProjectCarousels)).length || 0) / itemsPerPage)}</span>
+                                                <div className="flex gap-2">
+                                                    <button 
+                                                        disabled={currentPageCarousels === 1}
+                                                        onClick={() => setCurrentPageCarousels(prev => prev - 1)}
+                                                        className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-[10px] text-gray-400 hover:text-white disabled:opacity-50"
+                                                    >
+                                                        Anterior
+                                                    </button>
+                                                    <button 
+                                                        disabled={currentPageCarousels >= Math.ceil((loadedData.carousels?.filter(c => selectedProjectCarousels === 'all' || String(c.project_id || c.projectId) === String(selectedProjectCarousels)).length || 0) / itemsPerPage)}
+                                                        onClick={() => setCurrentPageCarousels(prev => prev + 1)}
+                                                        className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-[10px] text-gray-400 hover:text-white disabled:opacity-50"
+                                                    >
+                                                        Siguiente
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <p className="text-sm text-gray-500 italic text-center">No hay carruseles creados.</p>
                                 )}
                             </div>
                         )}

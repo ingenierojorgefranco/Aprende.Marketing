@@ -152,6 +152,8 @@ router.get('/users/:userId/resources', async (req, res) => {
             [rows] = await pool.query('SELECT id, name, status, created_at FROM whatsapp_lanzamientos WHERE user_id = ? ORDER BY created_at DESC', [userId]);
         } else if (type === 'hooks') {
             [rows] = await pool.query('SELECT ph.id, ph.title, ph.psychological_strategy, ph.created_at, p.name as project_name, p.id as project_id FROM project_hooks ph JOIN projects p ON ph.project_id = p.id WHERE p.user_id = ? ORDER BY ph.created_at DESC', [userId]);
+        } else if (type === 'carousels') {
+            [rows] = await pool.query('SELECT pc.id, pc.title, pc.psychological_strategy, pc.created_at, pc.content_json, p.name as project_name, p.id as project_id FROM project_carousels pc JOIN projects p ON pc.project_id = p.id WHERE p.user_id = ? ORDER BY pc.created_at DESC', [userId]);
         } else {
             return res.status(400).json({ error: 'Invalid resource type' });
         }

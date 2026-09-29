@@ -1496,7 +1496,7 @@ export const api = {
         clearCache('usersList');
     },
   
-    getAdminUserResources: async (userId: string, type: 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks'): Promise<any[]> => {
+    getAdminUserResources: async (userId: string, type: 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks' | 'carousels'): Promise<any[]> => {
         if (isMockMode) {
             if (type === 'projects') return Promise.resolve([...localProjects]);
             if (type === 'pages') return Promise.resolve([...localPages]);
