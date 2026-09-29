@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { 
     Layers, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, 
@@ -125,6 +125,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     const [libraryTotal, setLibraryTotal] = useState(0);
     const [loadingLibrary, setLoadingLibrary] = useState(false);
     const [libraryPage, setLibraryPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
     const [activeCarouselIdx, setActiveCarouselIdx] = useState(0);
     const [activeLibraryIdx, setActiveLibraryIdx] = useState(0);
     const [currentSlideIdx, setCurrentSlideIdx] = useState(0);
@@ -136,8 +137,44 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     const [localStrategy, setLocalStrategy] = useState('');
     const [saving, setSaving] = useState(false);
 
-    const activeCarousel = carousels[activeCarouselIdx];
-    const activeLibraryCarousel = libraryCarousels[activeLibraryIdx];
+    const activeCarousel = useMemo(() => {
+        return carousels[activeCarouselIdx];
+    }, [carousels, activeCarouselIdx]);
+
+    const activeLibraryCarousel = useMemo(() => {
+        return libraryCarousels[activeLibraryIdx];
+    }, [libraryCarousels, activeLibraryIdx]);
+
+    const filteredCarousels = useMemo(() => {
+        const currentData = activeTab === 'library' ? libraryCarousels : carousels;
+        if (!searchTerm.trim()) return currentData;
+        return currentData.filter(c => 
+            (c.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            ((c as any).psychological_strategy || c.psychologicalStrategy || '').toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [activeTab, libraryCarousels, carousels, searchTerm]);
+
+    const totalPages = useMemo(() => {
+        return activeTab === 'library' 
+            ? Math.ceil(libraryTotal / itemsPerPage) 
+            : Math.ceil(filteredCarousels.length / itemsPerPage);
+    }, [activeTab, libraryTotal, filteredCarousels, itemsPerPage]);
+
+    const paginatedCarousels = useMemo(() => {
+        return activeTab === 'library'
+            ? filteredCarousels // library is already paginated by backend
+            : filteredCarousels.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    }, [activeTab, filteredCarousels, currentPage, itemsPerPage]);
+
+    const currentCarousel = useMemo(() => {
+        return activeTab === 'library' 
+            ? filteredCarousels[activeLibraryIdx] 
+            : filteredCarousels[activeCarouselIdx];
+    }, [activeTab, filteredCarousels, activeLibraryIdx, activeCarouselIdx]);
+
+    const isCurrentUnlocked = useMemo(() => {
+        return activeTab === 'generated' || (currentCarousel && (currentCarousel as any).isUnlocked) || isRealAdmin;
+    }, [activeTab, currentCarousel, isRealAdmin]);
 
     // Check project context
     useEffect(() => {
@@ -453,94 +490,253 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 </div>
             )}
 
-            {/* TAB SELECTOR: Generated vs Library */}
-            <div className="flex border-b border-slate-800">
-                <button
-                    onClick={() => {
-                        setActiveTab('generated');
-                        setCurrentSlideIdx(0);
-                    }}
-                    className={`py-4 px-6 font-bold text-sm uppercase tracking-wider flex items-center gap-2 border-b-2 transition ${activeTab === 'generated' ? 'border-[#FF5A1F] text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
-                >
-                    <CheckCircle2 className="w-4 h-4" />
-                    Mis Carruseles ({carousels.length})
-                </button>
-                {isClone && (
-                    <button
-                        onClick={() => {
-                            setActiveTab('library');
-                            setCurrentSlideIdx(0);
-                        }}
-                        className={`py-4 px-6 font-bold text-sm uppercase tracking-wider flex items-center gap-2 border-b-2 transition ${activeTab === 'library' ? 'border-[#FF5A1F] text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
-                    >
-                        <Layers className="w-4 h-4" />
-                        Explorar Biblioteca Maestra ({libraryTotal})
-                    </button>
-                )}
-            </div>
+            {/* MAIN GRID LAYOUT ALIGNED WITH HOOKS DESIGN */}
+            <div className="grid lg:grid-cols-12 gap-8">
+                {/* LEFT COLUMN: LISTADO DE CARRUSELES */}
+                <div className="lg:col-span-5 space-y-6 sticky top-24 self-start">
+                    <div className="bg-[#111] p-6 rounded-[2.5rem] border border-white/5 flex flex-col shadow-xl">
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-orange-900/30 rounded-lg text-orange-400 border border-orange-900/50">
+                                    <Layers className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h4 className="text-xl font-bold text-white">Carruseles Magnéticos</h4>
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={handleCreateManualCarousel}
+                                    disabled={saving}
+                                    className="p-2 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] rounded-xl hover:bg-[#FF5A1F] hover:text-white transition-all group"
+                                    title="Añadir Manualmente"
+                                >
+                                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+                                </button>
+                            </div>
+                        </div>
 
-            {/* MAIN INTERFACE: Tab Generated */}
-            {activeTab === 'generated' && (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    {/* Left column list (lg:col-span-4) */}
-                    <div className="lg:col-span-4 space-y-3">
-                        <h3 className="text-xs font-black uppercase text-slate-500 tracking-widest ml-1 mb-2">Lista de Carruseles</h3>
-                        <div className="space-y-3 max-h-[550px] overflow-y-auto pr-1">
-                            {loadingCarousels ? (
-                                <div className="p-8 text-center bg-slate-900/30 border border-slate-800 rounded-3xl">
-                                    <Loader2 className="w-8 h-8 animate-spin text-orange-500 mx-auto mb-2" />
-                                    <span className="text-xs font-bold text-slate-500 uppercase">Cargando carruseles...</span>
+                        {/* Barra de Progreso de Carruseles */}
+                        <div className="w-full mb-6">
+                            <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
+                                <div className="flex justify-between items-center mb-2 text-sm">
+                                    <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Carruseles Disponibles</span>
+                                    <span className="text-white font-bold">{unlockedCount} / {isRealAdmin ? '∞' : maxCarousels}</span>
                                 </div>
-                            ) : carousels.length === 0 ? (
-                                <div className="p-8 text-center bg-slate-900/30 border border-slate-800 rounded-3xl text-slate-500">
-                                    No tienes carruseles desbloqueados todavía.
+                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                    <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-orange-500" style={{ width: `${isRealAdmin ? (unlockedCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                 </div>
-                            ) : (
-                                carousels.map((carousel, i) => {
-                                    const isActive = activeCarouselIdx === i;
+                            </div>
+                        </div>
+
+                        {/* Buscador de Carruseles */}
+                        <div className="relative mb-6">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <Search className="h-4 w-4 text-gray-500" />
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Buscar Carruseles por titulo"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="block w-full pl-11 pr-4 py-3 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all"
+                            />
+                            {searchTerm && (
+                                <button 
+                                    onClick={() => setSearchTerm('')}
+                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white transition-colors"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Selector de Pestañas */}
+                        <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
+                            <button 
+                                onClick={() => { setActiveTab('generated'); setActiveCarouselIdx(0); }}
+                                className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
+                            >
+                                Mis Carruseles
+                            </button>
+                            {isClone && (
+                                <button 
+                                    onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); }}
+                                    className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-orange-600 text-white shadow-lg shadow-orange-900/40' : 'text-gray-500 hover:text-white'}`}
+                                >
+                                    Biblioteca
+                                </button>
+                            )}
+                        </div>
+                        
+                        <div className="space-y-4">
+                            {(activeTab === 'library' ? loadingLibrary : loadingCarousels) ? (
+                                <div className="flex justify-center py-10"><Loader2 className="animate-spin text-orange-400" /></div>
+                            ) : paginatedCarousels.length > 0 ? (
+                                paginatedCarousels.map((carousel: any, idxInPage: number) => {
+                                    const globalIdx = activeTab === 'library' ? idxInPage : (currentPage - 1) * itemsPerPage + idxInPage;
+                                    const isCardSelected = activeTab === 'library' ? activeLibraryIdx === globalIdx : activeCarouselIdx === globalIdx;
+                                    const isUnlocked = activeTab === 'generated' || (carousel as any).isUnlocked || isRealAdmin;
+                                    const isCarouselActive = carousel.isActive !== false && (carousel.isActive as any) !== 0;
+
                                     return (
-                                        <div
-                                            key={carousel.id || i}
-                                            onClick={() => setActiveCarouselIdx(i)}
-                                            className={`p-4 rounded-2xl border transition-all cursor-pointer text-left space-y-2 group ${isActive ? 'bg-[#FF5A1F]/10 border-[#FF5A1F] ring-4 ring-[#FF5A1F]/5' : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'}`}
+                                        <div 
+                                            key={carousel.id || idxInPage} 
+                                            onClick={() => activeTab === 'library' ? setActiveLibraryIdx(globalIdx) : setActiveCarouselIdx(globalIdx)}
+                                            className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${
+                                                isCardSelected 
+                                                    ? (activeTab === 'library' ? 'bg-orange-900/40 border-orange-500/50' : 'bg-emerald-900/40 border-emerald-500/50') 
+                                                    : 'bg-black/20 border-gray-800 hover:border-gray-700'
+                                            } ${isCardSelected ? 'translate-x-2' : ''} ${(!isRealAdmin && !isUnlocked && (carousel as any).masterCarouselId) ? 'opacity-60 grayscale' : ''}`}
                                         >
-                                            <h4 className={`font-bold text-sm truncate ${isActive ? 'text-white' : 'text-slate-300'}`}>
-                                                {carousel.title}
-                                            </h4>
-                                            <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                                                {carousel.psychologicalStrategy || "Aprende de forma visual y rápida."}
-                                            </p>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light truncate ${
+                                                    isCardSelected 
+                                                        ? (activeTab === 'library' ? 'text-orange-300' : 'text-emerald-300') 
+                                                        : 'text-white group-hover:text-white'
+                                                } flex items-center gap-2`}>
+                                                    {!isRealAdmin && !isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
+                                                    {carousel.title}
+                                                </h4>
+                                                <p className="text-xs text-slate-500 line-clamp-1">
+                                                    {carousel.psychologicalStrategy || "Visual y educativo."}
+                                                </p>
+                                            </div>
+                                            <div 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (isRealAdmin) {
+                                                        const nextActive = !isCarouselActive;
+                                                        api.updateProjectCarousel(carousel.id, { isActive: nextActive })
+                                                            .then(() => fetchCarousels());
+                                                    }
+                                                }}
+                                                className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300 grayscale-0 shrink-0 ${
+                                                    isCarouselActive
+                                                        ? 'bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-500/20'
+                                                        : 'border-zinc-600 bg-zinc-900/80 hover:border-zinc-400 text-transparent'
+                                                }`}>
+                                                <Check className={`w-4 h-4 font-bold stroke-[3] transition-opacity ${isCarouselActive ? 'text-white opacity-100' : 'opacity-0'}`} />
+                                            </div>
                                         </div>
                                     );
                                 })
+                            ) : (
+                                <div className="py-10 text-center text-gray-500 italic">No hay carruseles disponibles.</div>
                             )}
                         </div>
-                    </div>
 
-                    {/* Right column detailed viewer (lg:col-span-8) */}
-                    <div className="lg:col-span-8">
-                        {activeCarousel ? (
-                            <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 lg:p-8 space-y-6 shadow-2xl backdrop-blur-sm">
-                                {/* Title and Edit */}
-                                <div className="space-y-4 border-b border-slate-800 pb-6">
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-800">
+                                <button 
+                                    disabled={activeTab === 'library' ? libraryPage === 1 : currentPage === 1} 
+                                    onClick={() => activeTab === 'library' ? setLibraryPage(prev => prev - 1) : setCurrentPage(prev => prev - 1)} 
+                                    className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                </button>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                                    Pág. {activeTab === 'library' ? libraryPage : currentPage} de {totalPages}
+                                </span>
+                                <button 
+                                    disabled={activeTab === 'library' ? libraryPage === totalPages : currentPage === totalPages} 
+                                    onClick={() => activeTab === 'library' ? setLibraryPage(prev => prev + 1) : setCurrentPage(prev => prev + 1)} 
+                                    className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"
+                                >
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* RIGHT COLUMN: DETALLE Y RESULTADO */}
+                <div className="lg:col-span-7 space-y-8">
+                    {/* VISTA DE CARRUSEL BLOQUEADO */}
+                    {!isCurrentUnlocked && currentCarousel && !isRealAdmin && (
+                        <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-gray-800 rounded-[2.5rem] p-8 md:p-12 flex flex-col items-center text-center relative overflow-hidden shadow-2xl animate-in zoom-in-95">
+                            <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-orange-500" /></div>
+                            
+                            <div className="w-full text-left mb-8">
+                                <h3 className="text-white mb-6 font-bold tracking-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem' }}>{currentCarousel.title}</h3>
+                                
+                                <div className="bg-orange-500/5 rounded-2xl p-6 border border-orange-500/20 backdrop-blur-sm mb-8">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <Brain className="w-5 h-5 text-orange-400" />
+                                        <span className="text-white font-bold text-xs uppercase tracking-widest">Estrategia Psicológica</span>
+                                    </div>
+                                    <div className="text-zinc-200 text-xs md:text-sm leading-relaxed">
+                                        {currentCarousel.psychologicalStrategy || "Aprende de forma visual y rápida."}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="w-20 h-20 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-6 border border-orange-500/20 shadow-lg animate-pulse">
+                                <Lock className="w-10 h-10 text-orange-500" />
+                            </div>
+
+                            <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Carruseles Disponibles para Desbloquear</h4>
+                            <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro equipo de marketing ha redactado y diseñado esta plantilla para ti. Haz clic en Desbloquear para añadirla a tu colección.</p>
+
+                            <button 
+                                onClick={unlockedCount >= maxCarousels && !isRealAdmin ? () => setShowUpgradeModalLocal(true) : () => handleUnlockSingle(currentCarousel.id)}
+                                disabled={unlockingSingle}
+                                className={`w-full py-5 rounded-2xl ${unlockedCount >= maxCarousels && !isRealAdmin ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-orange-600 hover:bg-orange-500'} text-white font-black text-xl uppercase tracking-widest shadow-xl transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70`}
+                            >
+                                {unlockingSingle ? (
+                                    <Loader2 className="w-6 h-6 animate-spin" />
+                                ) : unlockedCount >= maxCarousels && !isRealAdmin ? (
+                                    <Crown className="w-6 h-6 fill-current" />
+                                ) : (
+                                    <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                                )}
+                                {unlockingSingle ? 'Desbloqueando...' : unlockedCount >= maxCarousels && !isRealAdmin ? 'Actualizar a PRO 👑' : 'Desbloquear Carrusel'}
+                            </button>
+                            
+                            <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">
+                                <Shield className="w-3 h-3" /> Acceso Instantáneo tras Desbloqueo
+                            </div>
+                        </div>
+                    )}
+
+                    {/* VISTA DE CARRUSEL DESBLOQUEADO */}
+                    {isCurrentUnlocked && currentCarousel && (
+                        <div className="bg-[#08080c] border border-white/10 rounded-[24px] p-6 md:p-8 space-y-6 shadow-2xl mb-8 text-left">
+                            <div className="bg-[#0c0c11]/80 border border-white/10 p-5 md:p-6 rounded-[20px] flex flex-col justify-between gap-4 shadow-2xl">
+                                <div className="space-y-2 text-left">
+                                    <div className="flex items-center justify-between w-full">
+                                        <span className="text-[10px] md:text-xs font-black tracking-widest text-[#FF5D1E] uppercase">
+                                            CARRUSEL ACTIVO #{currentCarousel.id || (activeTab === 'library' ? activeLibraryIdx : activeCarouselIdx) + 1}
+                                        </span>
+                                        <button
+                                            onClick={() => handleDeleteCarousel(currentCarousel.id)}
+                                            className="text-[10px] md:text-xs font-black text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-full border border-red-500/30 transition-all cursor-pointer flex items-center gap-1.5 uppercase shrink-0"
+                                            title="Eliminar Carrusel completo"
+                                        >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                            <span>Eliminar Carrusel</span>
+                                        </button>
+                                    </div>
+
                                     {isEditingTitle ? (
-                                        <div className="space-y-4">
+                                        <div className="w-full max-w-3xl my-1 space-y-4">
                                             <div className="space-y-1">
                                                 <label className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Título del Carrusel</label>
                                                 <input
+                                                    autoFocus
                                                     type="text"
                                                     value={localTitle}
                                                     onChange={e => setLocalTitle(e.target.value)}
-                                                    className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-3 text-white text-sm outline-none"
+                                                    className="w-full bg-black/80 border border-orange-500 rounded-xl px-4 py-3 text-white font-bold text-sm outline-none"
                                                 />
                                             </div>
                                             <div className="space-y-1">
-                                                <label className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Estrategia Detrás del Copy</label>
+                                                <label className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Estrategia Psicológica</label>
                                                 <textarea
                                                     value={localStrategy}
                                                     onChange={e => setLocalStrategy(e.target.value)}
                                                     rows={2}
-                                                    className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-3 text-white text-sm outline-none resize-none"
+                                                    className="w-full bg-black/80 border border-orange-500 rounded-xl px-4 py-3 text-white text-sm outline-none resize-none"
                                                 />
                                             </div>
                                             <div className="flex gap-2 justify-end">
@@ -556,314 +752,225 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                     className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
                                                 >
                                                     {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                                                    Guardar Cambios
+                                                    Guardar
                                                 </button>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div className="space-y-1 flex-1">
-                                                <h3 className="text-xl font-black text-white leading-tight">{activeCarousel.title}</h3>
-                                                <p className="text-xs font-bold text-slate-500 flex items-center gap-1.5 leading-relaxed">
-                                                    <Brain className="w-3.5 h-3.5 text-[#FF5A1F]" />
-                                                    Estrategia: <span className="font-normal text-slate-400">{activeCarousel.psychologicalStrategy || "Visual y educativo."}</span>
-                                                </p>
-                                            </div>
-                                            {!isStarter && (
-                                                <button
-                                                    onClick={() => {
-                                                        setLocalTitle(activeCarousel.title);
-                                                        setLocalStrategy(activeCarousel.psychologicalStrategy || '');
-                                                        setIsEditingTitle(true);
-                                                    }}
-                                                    className="p-3 bg-slate-800/40 hover:bg-slate-800 text-slate-400 hover:text-white rounded-2xl transition shadow-sm border border-slate-800/60"
-                                                    title="Editar Información"
-                                                >
-                                                    <PenTool className="w-4 h-4" />
-                                                </button>
-                                            )}
+                                        <div className="relative group/maintitle max-w-3xl">
+                                            <h2
+                                                onClick={() => !isStarter && setIsEditingTitle(true)}
+                                                className={`text-sm sm:text-base md:text-lg font-bold text-white tracking-tight leading-relaxed flex items-center gap-2 ${
+                                                    !isStarter ? 'cursor-pointer hover:text-orange-400 transition-colors' : ''
+                                                }`}
+                                            >
+                                                <span>{localTitle || currentCarousel.title || ""}</span>
+                                                {!isStarter && (
+                                                    <span className="opacity-0 group-hover/maintitle:opacity-100 transition-opacity text-[10px] font-medium text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded shrink-0">
+                                                        Editar
+                                                    </span>
+                                                )}
+                                            </h2>
+                                            <p className="text-xs font-bold text-slate-500 flex items-center gap-1.5 mt-2 leading-relaxed">
+                                                <Brain className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                                                Estrategia: <span className="font-normal text-slate-400">{currentCarousel.psychologicalStrategy || "Visual y educativo."}</span>
+                                            </p>
                                         </div>
                                     )}
                                 </div>
+                            </div>
 
-                                {/* CAROUSEL TABS */}
-                                <div className="flex gap-2 border-b border-slate-800/40 pb-px">
-                                    <button
-                                        onClick={() => setActiveKitTab('slides')}
-                                        className={`pb-3 px-4 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 border-b-2 transition ${activeKitTab === 'slides' ? 'border-[#FF5A1F] text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
-                                    >
-                                        <ImageIcon className="w-4 h-4" />
-                                        Visualizar Slides ({activeCarousel.contentJson?.slides?.length || 0})
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveKitTab('caption')}
-                                        className={`pb-3 px-4 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 border-b-2 transition ${activeKitTab === 'caption' ? 'border-[#FF5A1F] text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
-                                    >
-                                        <FileText className="w-4 h-4" />
-                                        Texto de Publicación (Caption)
-                                    </button>
-                                </div>
+                            {/* Sub-tabs row inside details (same style as Hooks tabs!) */}
+                            <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-white/[0.08]">
+                                {[
+                                    { id: 'slides', label: 'Visualizar Slides' },
+                                    { id: 'caption', label: 'Texto de Publicacion (Caption)' }
+                                ].map((tab) => {
+                                    const isActive = activeKitTab === tab.id;
+                                    return (
+                                        <button
+                                            key={tab.id}
+                                            onClick={() => setActiveKitTab(tab.id as any)}
+                                            className={`px-4 py-2 text-xs md:text-sm font-bold whitespace-nowrap border-b-2 transition-all cursor-pointer duration-200 tracking-wide ${
+                                                isActive
+                                                    ? "border-[#FF5D1E] text-[#FF5D1E]"
+                                                    : "border-transparent text-zinc-400 hover:text-white"
+                                            }`}
+                                        >
+                                            {tab.label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
 
-                                {/* TAB PANEL 1: Slides Slider */}
-                                {activeKitTab === 'slides' && (
-                                    <div className="space-y-6">
-                                        {activeCarousel.contentJson?.slides && activeCarousel.contentJson.slides.length > 0 ? (
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                                                {/* Mobile Device / Post Preview Simulator */}
-                                                <div className="bg-slate-950 border border-slate-800 rounded-[2.5rem] p-4 pt-10 pb-6 w-full max-w-[280px] mx-auto shadow-2xl relative overflow-hidden flex flex-col gap-3 group">
-                                                    {/* Notch */}
-                                                    <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-24 h-5 bg-slate-900 border border-slate-800 rounded-full flex items-center justify-center">
-                                                        <span className="w-1.5 h-1.5 bg-slate-800 rounded-full"></span>
-                                                    </div>
-
-                                                    {/* Simulated Post Header */}
-                                                    <div className="flex items-center justify-between px-1">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-[10px] text-white">AM</div>
-                                                            <span className="text-[10px] font-black text-white">aprende.marketing</span>
-                                                        </div>
-                                                        <span className="text-[10px] font-black text-slate-500">···</span>
-                                                    </div>
-
-                                                    {/* Simulated Post Image Container */}
-                                                    <div className="aspect-square bg-slate-900 rounded-3xl relative overflow-hidden border border-slate-800">
-                                                        <img
-                                                            src={activeCarousel.contentJson.slides[currentSlideIdx].image}
-                                                            alt={`Slide ${currentSlideIdx + 1}`}
-                                                            className="w-full h-full object-cover select-none"
-                                                        />
-                                                        {/* Dark Overlay for Copy */}
-                                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-end p-4 text-left space-y-1">
-                                                            <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest bg-orange-950/40 border border-orange-900/30 px-1.5 py-0.5 rounded-md self-start">Slide {currentSlideIdx + 1}</span>
-                                                            <h4 className="text-xs font-black text-white leading-tight">
-                                                                {activeCarousel.contentJson.slides[currentSlideIdx].title}
-                                                            </h4>
-                                                            <p className="text-[9px] text-slate-300 font-normal leading-normal line-clamp-2">
-                                                                {activeCarousel.contentJson.slides[currentSlideIdx].description}
-                                                            </p>
-                                                        </div>
-
-                                                        {/* Step Dots Indicators */}
-                                                        <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-[9px] font-black text-white px-2 py-0.5 rounded-full select-none">
-                                                            {currentSlideIdx + 1}/{activeCarousel.contentJson.slides.length}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Simulator controls */}
-                                                    <div className="flex justify-between items-center px-1">
-                                                        <div className="flex gap-2">
-                                                            <span className="text-[10px]">❤️</span>
-                                                            <span className="text-[10px]">💬</span>
-                                                            <span className="text-[10px]">✈️</span>
-                                                        </div>
-                                                        {/* Indicator dots */}
-                                                        <div className="flex gap-1">
-                                                            {activeCarousel.contentJson.slides.map((_: any, idx: number) => (
-                                                                <span 
-                                                                    key={idx} 
-                                                                    className={`w-1.5 h-1.5 rounded-full transition-all ${idx === currentSlideIdx ? 'bg-orange-500 scale-125' : 'bg-slate-800'}`}
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                        <span className="text-[10px]">🔖</span>
-                                                    </div>
+                            {/* TAB PANEL 1: Slides Slider */}
+                            {activeKitTab === 'slides' && (
+                                <div className="space-y-6">
+                                    {currentCarousel.contentJson?.slides && currentCarousel.contentJson.slides.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-black/40 border border-white/5 p-6 rounded-[20px]">
+                                            {/* Mobile Device / Post Preview Simulator */}
+                                            <div className="bg-slate-950 border border-slate-800 rounded-[2.5rem] p-4 pt-10 pb-6 w-full max-w-[280px] mx-auto shadow-2xl relative overflow-hidden flex flex-col gap-3 group">
+                                                {/* Notch */}
+                                                <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-24 h-5 bg-slate-900 border border-slate-800 rounded-full flex items-center justify-center">
+                                                    <span className="w-1.5 h-1.5 bg-slate-800 rounded-full"></span>
                                                 </div>
 
-                                                {/* Controls and Slide descriptions */}
-                                                <div className="space-y-6 text-left flex flex-col justify-center">
-                                                    <div className="space-y-2">
-                                                        <span className="text-[10px] font-black uppercase text-[#FF5A1F] tracking-widest bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 px-2 py-1 rounded-lg">CONTENIDO DEL SLIDE ACTUAL</span>
-                                                        <h4 className="text-lg font-black text-white leading-tight mt-1">
-                                                            Slide {currentSlideIdx + 1}: {activeCarousel.contentJson.slides[currentSlideIdx].title}
+                                                {/* Simulated Post Header */}
+                                                <div className="flex items-center justify-between px-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-[10px] text-white">AM</div>
+                                                        <span className="text-[10px] font-black text-white">aprende.marketing</span>
+                                                    </div>
+                                                    <span className="text-[10px] font-black text-slate-500">···</span>
+                                                </div>
+
+                                                {/* Simulated Post Image Container */}
+                                                <div className="aspect-square bg-slate-900 rounded-3xl relative overflow-hidden border border-slate-800">
+                                                    <img
+                                                        src={currentCarousel.contentJson.slides[currentSlideIdx]?.image}
+                                                        alt={`Slide ${currentSlideIdx + 1}`}
+                                                        className="w-full h-full object-cover select-none"
+                                                    />
+                                                    {/* Dark Overlay for Copy */}
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-end p-4 text-left space-y-1">
+                                                        <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest bg-orange-950/40 border border-orange-900/30 px-1.5 py-0.5 rounded-md self-start">Slide {currentSlideIdx + 1}</span>
+                                                        <h4 className="text-xs font-black text-white leading-tight">
+                                                            {currentCarousel.contentJson.slides[currentSlideIdx]?.title}
                                                         </h4>
-                                                        <p className="text-sm text-slate-400 font-normal leading-relaxed">
-                                                            {activeCarousel.contentJson.slides[currentSlideIdx].description}
+                                                        <p className="text-[9px] text-slate-300 font-normal leading-normal line-clamp-2">
+                                                            {currentCarousel.contentJson.slides[currentSlideIdx]?.description}
                                                         </p>
                                                     </div>
 
-                                                    {/* Slider Buttons */}
-                                                    <div className="flex items-center gap-4">
-                                                        <button
-                                                            onClick={() => setCurrentSlideIdx(prev => Math.max(0, prev - 1))}
-                                                            disabled={currentSlideIdx === 0}
-                                                            className="p-3 bg-slate-800 border border-slate-700 hover:border-orange-500 rounded-xl disabled:opacity-40 disabled:hover:border-slate-700 transition"
-                                                        >
-                                                            <ChevronLeft className="w-5 h-5 text-white" />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setCurrentSlideIdx(prev => Math.min(activeCarousel.contentJson.slides.length - 1, prev + 1))}
-                                                            disabled={currentSlideIdx === activeCarousel.contentJson.slides.length - 1}
-                                                            className="p-3 bg-slate-800 border border-slate-700 hover:border-orange-500 rounded-xl disabled:opacity-40 disabled:hover:border-slate-700 transition"
-                                                        >
-                                                            <ChevronRight className="w-5 h-5 text-white" />
-                                                        </button>
-                                                        <span className="text-xs font-bold text-slate-500 uppercase">Haz clic para avanzar</span>
-                                                    </div>
-
-                                                    <div className="pt-4 border-t border-slate-800/60">
-                                                        <a
-                                                            href={activeCarousel.contentJson.slides[currentSlideIdx].image}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-xs font-bold text-orange-400 hover:text-orange-300 uppercase tracking-widest flex items-center gap-1.5"
-                                                        >
-                                                            <Download className="w-4 h-4" />
-                                                            Descargar Imagen de Alta Calidad (Slide {currentSlideIdx + 1})
-                                                        </a>
+                                                    {/* Step Dots Indicators */}
+                                                    <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-[9px] font-black text-white px-2 py-0.5 rounded-full select-none">
+                                                        {currentSlideIdx + 1}/{currentCarousel.contentJson.slides.length}
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ) : (
-                                            <div className="p-8 text-center bg-slate-900/30 rounded-3xl text-slate-500">
-                                                No hay slides en este carrusel.
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
 
-                                {/* TAB PANEL 2: Feed caption / Copy */}
-                                {activeKitTab === 'caption' && (
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center ml-1">
-                                            <span className="text-[10px] font-black uppercase text-[#FF5A1F] tracking-widest">Texto Recomendado para el Feed</span>
-                                            <button
-                                                onClick={() => handleCopyText(activeCarousel.contentJson?.feedCopy || '', 0)}
-                                                className="text-xs font-black text-orange-400 hover:text-orange-300 uppercase tracking-widest flex items-center gap-1.5"
-                                            >
-                                                {copiedIndex === 0 ? (
-                                                    <>
-                                                        <Check className="w-4 h-4 text-emerald-500" />
-                                                        Copiado
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Copy className="w-4 h-4" />
-                                                        Copiar texto completo
-                                                    </>
-                                                )}
-                                            </button>
-                                        </div>
-                                        <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-6 text-left whitespace-pre-wrap font-mono text-xs sm:text-sm text-slate-300 leading-relaxed max-h-[300px] overflow-y-auto">
-                                            {activeCarousel.contentJson?.feedCopy || "No hay copia de feed disponible."}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="h-full flex items-center justify-center p-12 bg-slate-900/10 border border-dashed border-slate-800 rounded-3xl text-slate-500">
-                                Selecciona un carrusel de la lista para ver su detalle.
-                             </div>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {/* MAIN INTERFACE: Tab Library */}
-            {activeTab === 'library' && (
-                <div className="space-y-6">
-                    <div className="flex justify-between items-center mb-2">
-                        <h3 className="text-xs font-black uppercase text-slate-500 tracking-widest ml-1">Colección Maestra de Plantillas</h3>
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs text-slate-500">Mostrando {libraryCarousels.length} de {libraryTotal} disponibles</span>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {loadingLibrary ? (
-                            <div className="col-span-2 p-12 text-center bg-slate-900/30 border border-slate-800 rounded-3xl">
-                                <Loader2 className="w-8 h-8 animate-spin text-orange-500 mx-auto mb-2" />
-                                <span className="text-xs font-bold text-slate-500 uppercase">Cargando biblioteca maestra...</span>
-                            </div>
-                        ) : libraryCarousels.length === 0 ? (
-                            <div className="col-span-2 p-12 text-center bg-slate-900/30 border border-slate-800 rounded-3xl text-slate-500">
-                                No hay más carruseles disponibles en la biblioteca para desbloquear en este momento.
-                            </div>
-                        ) : (
-                            libraryCarousels.map((carousel, i) => {
-                                const previewImage = carousel.contentJson?.slides?.[0]?.image || "https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&q=80&w=800";
-                                return (
-                                    <div 
-                                        key={carousel.id || i}
-                                        className="bg-slate-900/40 border border-slate-800/80 hover:border-slate-700/80 rounded-3xl overflow-hidden transition-all duration-300 flex flex-col md:flex-row group"
-                                    >
-                                        {/* Cover Image Preview */}
-                                        <div className="w-full md:w-2/5 aspect-square md:aspect-auto bg-slate-950 relative overflow-hidden border-b md:border-b-0 md:border-r border-slate-800 shrink-0">
-                                            <img
-                                                src={previewImage}
-                                                alt={carousel.title}
-                                                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
-                                            />
-                                            {/* Slides count badge */}
-                                            <span className="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-[9px] font-black uppercase text-white px-2 py-0.5 rounded-full">
-                                                {carousel.contentJson?.slides?.length || 0} Slides
-                                            </span>
-                                        </div>
-
-                                        {/* Meta Information */}
-                                        <div className="p-5 flex flex-col justify-between flex-1 gap-4 text-left">
-                                            <div className="space-y-2">
-                                                <h4 className="font-extrabold text-base text-white line-clamp-1 leading-snug">{carousel.title}</h4>
-                                                <p className="text-xs text-slate-500 leading-normal line-clamp-2">
-                                                    {carousel.psychologicalStrategy || "Visual y educativo."}
-                                                </p>
+                                                {/* Simulator controls */}
+                                                <div className="flex justify-between items-center px-1">
+                                                    <div className="flex gap-2">
+                                                        <span className="text-[10px]">❤️</span>
+                                                        <span className="text-[10px]">💬</span>
+                                                        <span className="text-[10px]">✈️</span>
+                                                    </div>
+                                                    {/* Indicator dots */}
+                                                    <div className="flex gap-1">
+                                                        {currentCarousel.contentJson.slides.map((_: any, idx: number) => (
+                                                            <span 
+                                                                key={idx} 
+                                                                className={`w-1.5 h-1.5 rounded-full transition-all ${idx === currentSlideIdx ? 'bg-orange-500 scale-125' : 'bg-slate-800'}`}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                    <span className="text-[10px]">🔖</span>
+                                                </div>
                                             </div>
 
-                                            <div className="pt-4 border-t border-slate-800/60 flex items-center justify-between gap-4">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Estado</span>
-                                                    <span className="text-xs font-bold text-amber-500 flex items-center gap-1">
-                                                        <Lock className="w-3.5 h-3.5 stroke-[2.5]" />
-                                                        Bloqueado
-                                                    </span>
+                                            {/* Controls and Slide descriptions */}
+                                            <div className="space-y-6 text-left flex flex-col justify-center">
+                                                <div className="space-y-2">
+                                                    <span className="text-[10px] font-black uppercase text-[#FF5A1F] tracking-widest bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 px-2 py-1 rounded-lg">CONTENIDO DEL SLIDE ACTUAL</span>
+                                                    <h4 className="text-lg font-black text-white leading-tight mt-1">
+                                                        Slide {currentSlideIdx + 1}: {currentCarousel.contentJson.slides[currentSlideIdx]?.title}
+                                                    </h4>
+                                                    <p className="text-sm text-slate-400 font-normal leading-relaxed">
+                                                        {currentCarousel.contentJson.slides[currentSlideIdx]?.description}
+                                                    </p>
                                                 </div>
 
-                                                <button
-                                                    onClick={() => handleUnlockSingle(carousel.id)}
-                                                    disabled={unlockingSingle || unlockedCount >= maxCarousels || isStarter}
-                                                    className="bg-orange-500 hover:bg-orange-400 disabled:bg-slate-800 disabled:text-slate-500 disabled:border-slate-800 border border-transparent text-white font-extrabold text-[10px] uppercase tracking-wider py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all shadow-md active:scale-95 shrink-0"
-                                                >
-                                                    {unlockingSingle ? (
-                                                        <>
-                                                            <Loader2 className="w-3 h-3 animate-spin" />
-                                                            Procesando...
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Unlock className="w-3 h-3" />
-                                                            Desbloquear
-                                                        </>
-                                                    )}
-                                                </button>
+                                                {/* Slider Navigation Buttons */}
+                                                <div className="flex items-center gap-4">
+                                                    <button
+                                                        onClick={() => setCurrentSlideIdx(prev => Math.max(0, prev - 1))}
+                                                        disabled={currentSlideIdx === 0}
+                                                        className="p-3 bg-zinc-800 border border-white/10 hover:border-orange-500 rounded-xl disabled:opacity-40 disabled:hover:border-zinc-800 transition"
+                                                    >
+                                                        <ChevronLeft className="w-5 h-5 text-white" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setCurrentSlideIdx(prev => Math.min(currentCarousel.contentJson.slides.length - 1, prev + 1))}
+                                                        disabled={currentSlideIdx === currentCarousel.contentJson.slides.length - 1}
+                                                        className="p-3 bg-zinc-800 border border-white/10 hover:border-orange-500 rounded-xl disabled:opacity-40 disabled:hover:border-zinc-800 transition"
+                                                    >
+                                                        <ChevronRight className="w-5 h-5 text-white" />
+                                                    </button>
+                                                    <span className="text-xs font-bold text-slate-500 uppercase">Haz clic para avanzar</span>
+                                                </div>
+
+                                                {/* Download and Copy Actions footer (Matches Hooks style!) */}
+                                                <div className="pt-6 border-t border-white/[0.08] flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            const copyText = `${currentCarousel.contentJson.slides[currentSlideIdx]?.title}\n${currentCarousel.contentJson.slides[currentSlideIdx]?.description}`;
+                                                            handleCopyText(copyText, currentSlideIdx);
+                                                        }}
+                                                        className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm ${
+                                                            copiedIndex === currentSlideIdx
+                                                                ? 'bg-emerald-600 text-white border border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.35)]'
+                                                                : 'bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-zinc-200 hover:text-white'
+                                                        }`}
+                                                    >
+                                                        {copiedIndex === currentSlideIdx ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
+                                                        <span>{copiedIndex === currentSlideIdx ? '¡Copiado!' : 'Copiar Texto Slide'}</span>
+                                                    </button>
+
+                                                    <a
+                                                        href={currentCarousel.contentJson.slides[currentSlideIdx]?.image}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-xs font-bold transition-all shadow-[0_2px_8px_rgba(255,93,30,0.25)] cursor-pointer"
+                                                    >
+                                                        <Download className="w-3.5 h-3.5" />
+                                                        <span>Descargar Imagen</span>
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                );
-                            })
-                        )}
-                    </div>
+                                    ) : (
+                                        <div className="p-8 text-center bg-slate-900/30 rounded-3xl text-slate-500">
+                                            No hay slides en este carrusel.
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
-                    {/* Pagination */}
-                    {libraryTotal > itemsPerPage && (
-                        <div className="flex justify-center items-center gap-4 pt-4">
-                            <button
-                                onClick={() => setLibraryPage(prev => Math.max(1, prev - 1))}
-                                disabled={libraryPage === 1}
-                                className="px-4 py-2 bg-slate-850 hover:bg-slate-800 border border-slate-800 text-slate-300 disabled:opacity-40 rounded-xl text-xs font-bold uppercase tracking-wider transition"
-                            >
-                                Anterior
-                            </button>
-                            <span className="text-xs font-extrabold text-slate-500 uppercase tracking-widest">Página {libraryPage} de {Math.ceil(libraryTotal / itemsPerPage)}</span>
-                            <button
-                                onClick={() => setLibraryPage(prev => Math.min(Math.ceil(libraryTotal / itemsPerPage), prev + 1))}
-                                disabled={libraryPage === Math.ceil(libraryTotal / itemsPerPage)}
-                                className="px-4 py-2 bg-slate-850 hover:bg-slate-800 border border-slate-800 text-slate-300 disabled:opacity-40 rounded-xl text-xs font-bold uppercase tracking-wider transition"
-                            >
-                                Siguiente
-                            </button>
+                            {/* TAB PANEL 2: Feed caption / Copy */}
+                            {activeKitTab === 'caption' && (
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center ml-1">
+                                        <span className="text-[10px] font-black uppercase text-[#FF5A1F] tracking-widest">Texto Recomendado para el Feed</span>
+                                        <button
+                                            onClick={() => handleCopyText(currentCarousel.contentJson?.feedCopy || currentCarousel.contentJson?.caption || '', 999)}
+                                            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm ${
+                                                copiedIndex === 999
+                                                    ? 'bg-emerald-600 text-white border border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.35)]'
+                                                    : 'bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-zinc-200 hover:text-white'
+                                            }`}
+                                        >
+                                            {copiedIndex === 999 ? (
+                                                <>
+                                                    <Check className="w-3.5 h-3.5 text-white" />
+                                                    <span>¡Copiado!</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Copy className="w-3.5 h-3.5" />
+                                                    <span>Copiar texto completo</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                    <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-6 text-left whitespace-pre-wrap font-mono text-xs sm:text-sm text-slate-300 leading-relaxed max-h-[300px] overflow-y-auto">
+                                        {currentCarousel.contentJson?.feedCopy || currentCarousel.contentJson?.caption || "No hay copia de feed disponible."}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
-            )}
+            </div>
 
             {/* Upgrade Plan Modal dialog */}
             <UpgradeModal
