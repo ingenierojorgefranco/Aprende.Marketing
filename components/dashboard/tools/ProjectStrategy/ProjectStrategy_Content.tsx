@@ -783,17 +783,18 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <FileText className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="text-xl font-bold text-white">Estrategias Sugeridas</h4>
-                                        <p className="text-sm text-gray-400">Selecciona la que desees redactar.</p>
+                                        <h4 className="text-xl font-bold text-white">Artículos de Blog</h4>
                                     </div>
                                 </div>
-                                <button 
-                                    onClick={handleAddManual}
-                                    className="p-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-xl hover:bg-[#FF5D1E] hover:text-white transition-all group"
-                                    title="Añadir Manualmente"
-                                >
-                                    <Plus className="w-5 h-5" />
-                                </button>
+                                {isRealAdmin && (
+                                    <button 
+                                        onClick={handleAddManual}
+                                        className="p-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-xl hover:bg-[#FF5D1E] hover:text-white transition-all group"
+                                        title="Añadir Manualmente"
+                                    >
+                                        <Plus className="w-5 h-5" />
+                                    </button>
+                                )}
                             </div>
 
                             {/* Barra de Progreso de Artículos */}

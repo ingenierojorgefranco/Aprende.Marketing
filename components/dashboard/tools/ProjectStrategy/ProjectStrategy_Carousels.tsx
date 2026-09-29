@@ -75,8 +75,8 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             currentData = libraryCarousels;
         } else {
             // For 'generated' (Mis Carruseles) tab:
-            // Only show generated carousels OR those unlocked from a template (having masterCarouselId)
-            currentData = carousels.filter(c => c.isGenerated || c.masterCarouselId);
+            // Only show carousels that are unlocked
+            currentData = carousels.filter(c => (c as any).isUnlocked);
         }
         if (!searchTerm.trim()) return currentData;
         return currentData.filter(c => 

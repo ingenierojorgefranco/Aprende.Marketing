@@ -1088,16 +1088,18 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                   <h4 className="text-xl font-bold text-white">Hooks de Atracción</h4>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <button 
-                    onClick={handleCreateManualHook}
-                    disabled={saving}
-                    className="p-2 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] rounded-xl hover:bg-[#FF5A1F] hover:text-white transition-all group"
-                    title="Añadir Manualmente"
-                >
-                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
-                </button>
-              </div>
+              {isRealAdmin && (
+                <div className="flex gap-2">
+                  <button 
+                      onClick={handleCreateManualHook}
+                      disabled={saving}
+                      className="p-2 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] rounded-xl hover:bg-[#FF5A1F] hover:text-white transition-all group"
+                      title="Añadir Manualmente"
+                  >
+                      {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Barra de Progreso de Hooks */}
