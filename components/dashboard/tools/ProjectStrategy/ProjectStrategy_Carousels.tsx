@@ -202,6 +202,9 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             });
             // Update in local state
             setCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, title: localTitle, psychologicalStrategy: localStrategy } : c));
+            if (activeTab === 'library') {
+                setLibraryCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, title: localTitle, psychologicalStrategy: localStrategy } : c));
+            }
             setIsEditingTitle(false);
             
             // Trigger confetti
@@ -236,6 +239,9 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 contentJson: newContentJson
             });
             setCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, contentJson: newContentJson } : c));
+            if (activeTab === 'library') {
+                setLibraryCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, contentJson: newContentJson } : c));
+            }
         } catch (err) {
             console.error("Error updating slide field:", err);
         }
@@ -259,6 +265,9 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 contentJson: newContentJson
             });
             setCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, contentJson: newContentJson } : c));
+            if (activeTab === 'library') {
+                setLibraryCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, contentJson: newContentJson } : c));
+            }
             setCurrentSlideIdx(updatedSlides.length - 1);
         } catch (err) {
             console.error("Error adding slide:", err);
@@ -422,7 +431,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
     // Plan limits and counts
     const isStarter = planLimits?.planName === 'starter';
-    const unlockedCount = carousels.filter(c => c.masterCarouselId).length;
+    const unlockedCount = carousels.filter(c => (c as any).isUnlocked).length;
     const maxCarousels = planLimits?.maxCarousels || 50;
     const usagePercent = Math.min(100, (unlockedCount / maxCarousels) * 100);
 
@@ -801,6 +810,9 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                                         };
                                                                         await api.updateProjectCarousel(currentCarousel.id, { contentJson: newContentJson });
                                                                         setCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, contentJson: newContentJson } : c));
+                                                                        if (activeTab === 'library') {
+                                                                            setLibraryCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, contentJson: newContentJson } : c));
+                                                                        }
                                                                         setCurrentSlideIdx(0);
                                                                     }
                                                                 }}
@@ -970,6 +982,9 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                         contentJson: newContentJson
                                                     });
                                                     setCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, contentJson: newContentJson } : c));
+                                                    if (activeTab === 'library') {
+                                                        setLibraryCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, contentJson: newContentJson } : c));
+                                                    }
                                                 } catch (err) {
                                                     console.error("Error saving caption:", err);
                                                 }
