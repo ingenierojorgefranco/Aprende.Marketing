@@ -91,6 +91,8 @@ router.post('/', upload.single('file'), async (req, res) => {
         ? String(rawArticleId).trim()
         : 'temp_article';
       destinationBlobName = `Proyect/${projectId}/images/articles/${articleId}/${cleanFileName}`;
+    } else if (folderType === 'carrouseles' || folderType === 'carousels') {
+      destinationBlobName = `Proyect/${projectId}/carrouseles/${cleanFileName}`;
     } else {
       destinationBlobName = `Proyect/${projectId}/images/${cleanFileName}`;
     }

@@ -647,6 +647,11 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       }
   };
 
+  const activeProjectId = selectedProject || preSelectedProjectId || embeddedProjectId;
+  const backDestination = activeProjectId 
+    ? `/dashboard/projects/${activeProjectId}/strategy?section=content` 
+    : '/dashboard/articles';
+
   const isRealAdmin = user.role === 'admin' && !isSimulating;
   return (
     <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step > 0 ? 'max-w-[98%] xl:max-w-[90rem]' : 'max-w-5xl'}`}>
@@ -657,7 +662,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
       <UpgradeModal 
           isOpen={showUpgradeModal} 
-          onClose={() => onClose ? onClose() : navigate('/dashboard/articles')} 
+          onClose={() => onClose ? onClose() : navigate(backDestination)} 
           user={user}
           userId={user.id}
           currentPlan={upgradeProjectId ? (userProjects.find(p => p.id === upgradeProjectId)?.planSlug || 'starter') : 'starter'}
@@ -666,7 +671,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       />
 
       <div className={`bg-purple-600/10 p-8 text-center border-b border-purple-500/10 relative ${showUpgradeModal || (loading && generationStatus !== 'generating') ? 'opacity-30 pointer-events-none' : ''}`}>
-        <button onClick={() => onClose ? onClose() : navigate('/dashboard/articles')} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+        <button onClick={() => onClose ? onClose() : navigate(backDestination)} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
             <ArrowLeft className="w-6 h-6" />
         </button>
         {onClose && (
@@ -1066,7 +1071,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
                 {step === 3 && <Step2Titles titleIdeas={titleIdeas} onSelectTitle={handleSelectTitle} onBack={() => setStep(2)} loading={loading} />}
                 {step === 4 && <Step3Outline outline={outline} setOutline={setOutline} ctaLink={ctaLink} setCtaLink={setCtaLink} onGenerate={handleGenerateArticle} onBack={() => setStep(3)} loading={loading} userPages={filteredUserPages} selectedPageId={selectedPageId} onSelectPage={setSelectedPageId} />}
-                {step === 5 && <Step4Editor articleContent={articleContent} setArticleContent={setArticleContent} selectedTitle={selectedTitle} articleTitle={articleTitle} setArticleTitle={setArticleTitle} slug={slug} setSlug={setSlug} selectedPageId={selectedPageId} setSelectedPageId={setSelectedPageId} userPages={filteredUserPages} status={status} setStatus={setStatus} publishDate={publishDate} setPublishDate={setPublishDate} featuredImage={featuredImage} setFeaturedImage={setFeaturedImage} keyword={keyword} setKeyword={setKeyword} seoScore={seoScore} setSeoScore={setSeoScore} metaDescription={metaDescription} setMetaDescription={setMetaDescription} onSave={handleSaveArticle} saving={saveStatus === 'saving'} onBack={() => editArticleId ? navigate('/dashboard/articles') : setStep(4)} isEditing={!!editArticleId} projectId={selectedProject || preSelectedProjectId || undefined} articleId={activeArticleId || editArticleId || preFilledData?.articleId || undefined} />}
+                {step === 5 && <Step4Editor articleContent={articleContent} setArticleContent={setArticleContent} selectedTitle={selectedTitle} articleTitle={articleTitle} setArticleTitle={setArticleTitle} slug={slug} setSlug={setSlug} selectedPageId={selectedPageId} setSelectedPageId={setSelectedPageId} userPages={filteredUserPages} status={status} setStatus={setStatus} publishDate={publishDate} setPublishDate={setPublishDate} featuredImage={featuredImage} setFeaturedImage={setFeaturedImage} keyword={keyword} setKeyword={setKeyword} seoScore={seoScore} setSeoScore={setSeoScore} metaDescription={metaDescription} setMetaDescription={setMetaDescription} onSave={handleSaveArticle} saving={saveStatus === 'saving'} onBack={() => editArticleId ? navigate(backDestination) : setStep(4)} isEditing={!!editArticleId} projectId={selectedProject || preSelectedProjectId || undefined} articleId={activeArticleId || editArticleId || preFilledData?.articleId || undefined} />}
                 <SaveLogModal isOpen={isLogModalOpen} saveStatus={saveStatus} saveLogs={saveLogs} onClose={() => setIsLogModalOpen(false)} onRetry={handleSaveArticle} />
             </>
         )}

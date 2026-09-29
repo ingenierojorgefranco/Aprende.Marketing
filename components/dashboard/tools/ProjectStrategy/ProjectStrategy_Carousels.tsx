@@ -3,7 +3,8 @@ import confetti from 'canvas-confetti';
 import { 
     Layers, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, 
     ChevronLeft, ChevronRight, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, 
-    Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle, Search, Crown, FileText
+    Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle, Search, Crown, FileText,
+    UploadCloud
 } from 'lucide-react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
@@ -53,6 +54,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     const [activeCarouselIdx, setActiveCarouselIdx] = useState(0);
     const [activeLibraryIdx, setActiveLibraryIdx] = useState(0);
     const [currentSlideIdx, setCurrentSlideIdx] = useState(0);
+    const [uploadingImageIdx, setUploadingImageIdx] = useState<number | null>(null);
 
     const [activeKitTab, setActiveKitTab] = useState<'slides' | 'caption'>('slides');
     const [searchTerm, setSearchTerm] = useState('');
@@ -208,6 +210,53 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             console.error("Error updating carousel:", e);
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleUpdateSlideField = async (field: 'title' | 'description' | 'image', value: string, slideIdx: number) => {
+        if (!activeCarousel) return;
+        const updatedSlides = [...(activeCarousel.contentJson?.slides || [])];
+        if (updatedSlides[slideIdx]) {
+            updatedSlides[slideIdx] = {
+                ...updatedSlides[slideIdx],
+                [field]: value
+            };
+        }
+        const newContentJson = {
+            ...(activeCarousel.contentJson || {}),
+            slides: updatedSlides
+        };
+        try {
+            await api.updateProjectCarousel(activeCarousel.id, {
+                contentJson: newContentJson
+            });
+            setCarousels(prev => prev.map((c, i) => i === activeCarouselIdx ? { ...c, contentJson: newContentJson } : c));
+        } catch (err) {
+            console.error("Error updating slide field:", err);
+        }
+    };
+
+    const handleAddSlide = async () => {
+        if (!activeCarousel) return;
+        const currentSlides = activeCarousel.contentJson?.slides || [];
+        const newSlide = {
+            title: `Slide ${currentSlides.length + 1}: Título llamativo`,
+            description: `Descripción del slide ${currentSlides.length + 1} para retener audiencia.`,
+            image: ''
+        };
+        const updatedSlides = [...currentSlides, newSlide];
+        const newContentJson = {
+            ...(activeCarousel.contentJson || {}),
+            slides: updatedSlides
+        };
+        try {
+            await api.updateProjectCarousel(activeCarousel.id, {
+                contentJson: newContentJson
+            });
+            setCarousels(prev => prev.map((c, i) => i === activeCarouselIdx ? { ...c, contentJson: newContentJson } : c));
+            setCurrentSlideIdx(updatedSlides.length - 1);
+        } catch (err) {
+            console.error("Error adding slide:", err);
         }
     };
 
@@ -754,14 +803,139 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
                                             {/* Controls and Slide descriptions */}
                                             <div className="space-y-6 text-left flex flex-col justify-center">
-                                                <div className="space-y-2">
-                                                    <span className="text-[10px] font-black uppercase text-[#FF5A1F] tracking-widest bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 px-2 py-1 rounded-lg">CONTENIDO DEL SLIDE ACTUAL</span>
-                                                    <h4 className="text-lg font-black text-white leading-tight mt-1">
-                                                        Slide {currentSlideIdx + 1}: {currentCarousel.contentJson.slides[currentSlideIdx]?.title}
-                                                    </h4>
-                                                    <p className="text-sm text-slate-400 font-normal leading-relaxed">
-                                                        {currentCarousel.contentJson.slides[currentSlideIdx]?.description}
-                                                    </p>
+                                                <div className="space-y-3">
+                                                    <span className="text-[10px] font-black uppercase text-[#FF5A1F] tracking-widest bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 px-2.5 py-1 rounded-lg inline-block self-start">
+                                                        Slide {currentSlideIdx + 1}
+                                                    </span>
+
+                                                    {/* Display Image if it exists */}
+                                                    {currentCarousel.contentJson.slides[currentSlideIdx]?.image && (
+                                                        <div className="relative group rounded-xl overflow-hidden border border-white/10 max-w-sm">
+                                                            <img
+                                                                src={currentCarousel.contentJson.slides[currentSlideIdx].image}
+                                                                alt={`Slide ${currentSlideIdx + 1} Preview`}
+                                                                className="w-full h-32 object-cover"
+                                                            />
+                                                        </div>
+                                                    )}
+
+                                                    {/* Admin Controls to edit fields and upload directly to GCS bucket */}
+                                                    {isRealAdmin ? (
+                                                        <div className="space-y-3 max-w-sm bg-white/5 p-4 rounded-xl border border-white/5">
+                                                            <div className="space-y-1">
+                                                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">URL de la Imagen</label>
+                                                                <div className="flex gap-2">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={currentCarousel.contentJson.slides[currentSlideIdx]?.image || ''}
+                                                                        onChange={e => handleUpdateSlideField('image', e.target.value, currentSlideIdx)}
+                                                                        placeholder="Escribe la URL o sube un archivo..."
+                                                                        className="flex-1 bg-black border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500"
+                                                                    />
+                                                                    <input
+                                                                        type="file"
+                                                                        accept="image/*"
+                                                                        id={`slide-file-input-${currentSlideIdx}`}
+                                                                        className="hidden"
+                                                                        onChange={async (e) => {
+                                                                            const file = e.target.files?.[0];
+                                                                            if (!file) return;
+                                                                            setUploadingImageIdx(currentSlideIdx);
+                                                                            try {
+                                                                                const res = await api.uploadFile(file, {
+                                                                                    projectId: projectId,
+                                                                                    folderType: 'carrouseles'
+                                                                                });
+                                                                                await handleUpdateSlideField('image', res.url, currentSlideIdx);
+                                                                            } catch (err: any) {
+                                                                                alert('Error al subir: ' + err.message);
+                                                                            } finally {
+                                                                                setUploadingImageIdx(null);
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                    <button
+                                                                        type="button"
+                                                                        disabled={uploadingImageIdx === currentSlideIdx}
+                                                                        onClick={() => document.getElementById(`slide-file-input-${currentSlideIdx}`)?.click()}
+                                                                        className="p-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl border border-slate-700 flex items-center justify-center cursor-pointer disabled:opacity-40"
+                                                                        title="Subir archivo"
+                                                                    >
+                                                                        {uploadingImageIdx === currentSlideIdx ? (
+                                                                            <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+                                                                        ) : (
+                                                                            <UploadCloud className="w-4 h-4" />
+                                                                        )}
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="space-y-1">
+                                                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Título del Slide</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={currentCarousel.contentJson.slides[currentSlideIdx]?.title || ''}
+                                                                    onChange={e => handleUpdateSlideField('title', e.target.value, currentSlideIdx)}
+                                                                    placeholder="Título de la diapositiva"
+                                                                    className="w-full bg-black border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500"
+                                                                />
+                                                            </div>
+
+                                                            <div className="space-y-1">
+                                                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Descripción del Slide</label>
+                                                                <textarea
+                                                                    value={currentCarousel.contentJson.slides[currentSlideIdx]?.description || ''}
+                                                                    onChange={e => handleUpdateSlideField('description', e.target.value, currentSlideIdx)}
+                                                                    placeholder="Descripción de la diapositiva..."
+                                                                    rows={2}
+                                                                    className="w-full bg-black border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500 resize-none"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="space-y-2">
+                                                            <h4 className="text-lg font-black text-white leading-tight mt-1">
+                                                                {currentCarousel.contentJson.slides[currentSlideIdx]?.title}
+                                                            </h4>
+                                                            <p className="text-sm text-slate-400 font-normal leading-relaxed">
+                                                                {currentCarousel.contentJson.slides[currentSlideIdx]?.description}
+                                                            </p>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Add and Delete Slide Buttons for Admin */}
+                                                    {isRealAdmin && (
+                                                        <div className="flex flex-col sm:flex-row gap-2 max-w-sm pt-2">
+                                                            <button
+                                                                onClick={handleAddSlide}
+                                                                className="flex-1 py-2.5 px-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+                                                            >
+                                                                <Plus className="w-4 h-4" />
+                                                                Añadir Slide
+                                                            </button>
+
+                                                            {currentCarousel.contentJson.slides.length > 1 && (
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        if (confirm('¿Estás seguro de eliminar este slide?')) {
+                                                                            const updatedSlides = currentCarousel.contentJson.slides.filter((_: any, idx: number) => idx !== currentSlideIdx);
+                                                                            const newContentJson = {
+                                                                                ...(currentCarousel.contentJson || {}),
+                                                                                slides: updatedSlides
+                                                                            };
+                                                                            await api.updateProjectCarousel(currentCarousel.id, { contentJson: newContentJson });
+                                                                            setCarousels(prev => prev.map((c, i) => i === activeCarouselIdx ? { ...c, contentJson: newContentJson } : c));
+                                                                            setCurrentSlideIdx(Math.max(0, currentSlideIdx - 1));
+                                                                        }
+                                                                    }}
+                                                                    className="py-2.5 px-4 bg-red-950/40 hover:bg-red-900/40 border border-red-900/30 text-red-400 hover:text-red-300 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                    Eliminar
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 {/* Slider Navigation Buttons */}
