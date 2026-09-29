@@ -77,9 +77,8 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             currentData = libraryCarousels;
         } else {
             // For 'generated' (Mis Carruseles) tab:
-            // Admin only sees generated items here. Normal users see unlocked templates.
             if (isRealAdmin) {
-                currentData = carousels.filter(c => c.isGenerated);
+                currentData = carousels;
             } else {
                 currentData = carousels.filter(c => (c as any).isUnlocked);
             }
@@ -268,16 +267,22 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         if (!projectId || unlockingSingle) return;
         setUnlockingSingle(true);
         try {
-            await api.unlockSingleCarousel(projectId, masterId);
+            const res = await api.unlockSingleCarousel(projectId, masterId);
             confetti({
                 particleCount: 100,
                 spread: 80,
                 origin: { y: 0.6 }
             });
-            await fetchCarousels();
+            const data = await api.getProjectCarousels(projectId);
+            setCarousels(data || []);
             setActiveTab('generated');
-            // Select the newly unlocked item (usually at the end or beginning depending on server sort)
-            setActiveCarouselIdx(0);
+            // Select the newly unlocked item in the list
+            const newIdx = (data || []).findIndex((c: any) => String(c.id) === String(res.id) || String(c.masterCarouselId) === String(masterId).replace('available-', ''));
+            if (newIdx !== -1) {
+                setActiveCarouselIdx(newIdx);
+            } else {
+                setActiveCarouselIdx(0);
+            }
         } catch (err: any) {
             console.error("Error unlocking single carousel:", err);
             if (err.message && err.message.includes("límite")) {
@@ -295,13 +300,14 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         if (!projectId || unlockingMore) return;
         setUnlockingMore(true);
         try {
-            const res = await api.unlockMoreCarousels(projectId);
+            await api.unlockMoreCarousels(projectId);
             confetti({
                 particleCount: 150,
                 spread: 100,
                 origin: { y: 0.5 }
             });
-            await fetchCarousels();
+            const data = await api.getProjectCarousels(projectId);
+            setCarousels(data || []);
             setActiveTab('generated');
             setActiveCarouselIdx(0);
         } catch (err: any) {
@@ -330,7 +336,8 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             setSaving(true);
             try {
                 await api.deleteProjectCarousel(carouselId);
-                await fetchCarousels();
+                const data = await api.getProjectCarousels(projectId);
+                setCarousels(data || []);
                 setActiveCarouselIdx(0);
                 alert("Carrusel eliminado correctamente.");
             } catch (e: any) {
@@ -368,9 +375,20 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                     isGenerated: false,
                     updatedAt: now
                 };
-                await api.createProjectCarousel(projectId, carouselData);
-                await fetchCarousels();
-                setActiveCarouselIdx(0);
+                const created = await api.createProjectCarousel(projectId, carouselData);
+                const data = await api.getProjectCarousels(projectId);
+                if (data && data.length > 0) {
+                    setCarousels(data);
+                    const newIdx = data.findIndex((c: any) => String(c.id) === String(created.id));
+                    if (newIdx !== -1) {
+                        setActiveCarouselIdx(newIdx);
+                    } else {
+                        setActiveCarouselIdx(0);
+                    }
+                } else {
+                    setCarousels([]);
+                    setActiveCarouselIdx(0);
+                }
                 alert("¡Carrusel manual creado!");
             } catch (e: any) {
                 alert("Error al crear carrusel: " + e.message);
