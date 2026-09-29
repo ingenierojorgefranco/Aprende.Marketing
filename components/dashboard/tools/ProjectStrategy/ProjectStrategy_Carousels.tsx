@@ -738,115 +738,84 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
                             {/* TAB PANEL 1: Slides Slider */}
                             {activeKitTab === 'slides' && (
-                                <div className="space-y-6">
+                                <div className="space-y-6 text-left">
                                     {currentCarousel.contentJson?.slides && currentCarousel.contentJson.slides.length > 0 ? (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-black/40 border border-white/5 p-6 rounded-[20px]">
-                                            {/* Mobile Device / Post Preview Simulator */}
-                                            <div className="bg-slate-950 border border-slate-800 rounded-[2.5rem] p-4 pt-10 pb-6 w-full max-w-[280px] mx-auto shadow-2xl relative overflow-hidden flex flex-col gap-3 group">
-                                                {/* Notch */}
-                                                <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-24 h-5 bg-slate-900 border border-slate-800 rounded-full flex items-center justify-center">
-                                                    <span className="w-1.5 h-1.5 bg-slate-800 rounded-full"></span>
-                                                </div>
-
-                                                {/* Simulated Post Header */}
-                                                <div className="flex items-center justify-between px-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-[10px] text-white">AM</div>
-                                                        <span className="text-[10px] font-black text-white">aprende.marketing</span>
+                                        <div className="space-y-8 bg-black/40 border border-white/5 p-6 rounded-[20px] max-w-2xl mx-auto">
+                                            {currentCarousel.contentJson.slides.map((slide: any, idx: number) => (
+                                                <div key={idx} className="space-y-4 border-b border-white/10 pb-6 last:border-b-0 last:pb-0">
+                                                    
+                                                    {/* Badge Slide X & Delete button */}
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-[10px] font-black uppercase text-[#FF5A1F] tracking-widest bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 px-2.5 py-1 rounded-lg">
+                                                            Slide {idx + 1}
+                                                        </span>
+                                                        
+                                                        {/* Delete Slide Button for Admin */}
+                                                        {isRealAdmin && currentCarousel.contentJson.slides.length > 1 && (
+                                                            <button
+                                                                onClick={async () => {
+                                                                    if (confirm(`¿Estás seguro de eliminar el Slide ${idx + 1}?`)) {
+                                                                        const updatedSlides = currentCarousel.contentJson.slides.filter((_: any, sIdx: number) => sIdx !== idx);
+                                                                        const newContentJson = {
+                                                                            ...(currentCarousel.contentJson || {}),
+                                                                            slides: updatedSlides
+                                                                        };
+                                                                        await api.updateProjectCarousel(currentCarousel.id, { contentJson: newContentJson });
+                                                                        setCarousels(prev => prev.map((c, cIdx) => cIdx === activeCarouselIdx ? { ...c, contentJson: newContentJson } : c));
+                                                                        setCurrentSlideIdx(0);
+                                                                    }
+                                                                }}
+                                                                className="py-1 px-2.5 bg-red-950/40 hover:bg-red-900/40 border border-red-900/30 text-red-400 hover:text-red-300 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer"
+                                                            >
+                                                                <Trash2 className="w-3 h-3" />
+                                                                Eliminar Slide
+                                                            </button>
+                                                        )}
                                                     </div>
-                                                    <span className="text-[10px] font-black text-slate-500">···</span>
-                                                </div>
-
-                                                {/* Simulated Post Image Container */}
-                                                <div className="aspect-square bg-slate-900 rounded-3xl relative overflow-hidden border border-slate-800">
-                                                    <img
-                                                        src={currentCarousel.contentJson.slides[currentSlideIdx]?.image}
-                                                        alt={`Slide ${currentSlideIdx + 1}`}
-                                                        className="w-full h-full object-cover select-none"
-                                                    />
-                                                    {/* Dark Overlay for Copy */}
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-end p-4 text-left space-y-1">
-                                                        <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest bg-orange-950/40 border border-orange-900/30 px-1.5 py-0.5 rounded-md self-start">Slide {currentSlideIdx + 1}</span>
-                                                        <h4 className="text-xs font-black text-white leading-tight">
-                                                            {currentCarousel.contentJson.slides[currentSlideIdx]?.title}
-                                                        </h4>
-                                                        <p className="text-[9px] text-slate-300 font-normal leading-normal line-clamp-2">
-                                                            {currentCarousel.contentJson.slides[currentSlideIdx]?.description}
-                                                        </p>
-                                                    </div>
-
-                                                    {/* Step Dots Indicators */}
-                                                    <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-[9px] font-black text-white px-2 py-0.5 rounded-full select-none">
-                                                        {currentSlideIdx + 1}/{currentCarousel.contentJson.slides.length}
-                                                    </div>
-                                                </div>
-
-                                                {/* Simulator controls */}
-                                                <div className="flex justify-between items-center px-1">
-                                                    <div className="flex gap-2">
-                                                        <span className="text-[10px]">❤️</span>
-                                                        <span className="text-[10px]">💬</span>
-                                                        <span className="text-[10px]">✈️</span>
-                                                    </div>
-                                                    {/* Indicator dots */}
-                                                    <div className="flex gap-1">
-                                                        {currentCarousel.contentJson.slides.map((_: any, idx: number) => (
-                                                            <span 
-                                                                key={idx} 
-                                                                className={`w-1.5 h-1.5 rounded-full transition-all ${idx === currentSlideIdx ? 'bg-orange-500 scale-125' : 'bg-slate-800'}`}
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                    <span className="text-[10px]">🔖</span>
-                                                </div>
-                                            </div>
-
-                                            {/* Controls and Slide descriptions */}
-                                            <div className="space-y-6 text-left flex flex-col justify-center">
-                                                <div className="space-y-3">
-                                                    <span className="text-[10px] font-black uppercase text-[#FF5A1F] tracking-widest bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 px-2.5 py-1 rounded-lg inline-block self-start">
-                                                        Slide {currentSlideIdx + 1}
-                                                    </span>
 
                                                     {/* Display Image if it exists */}
-                                                    {currentCarousel.contentJson.slides[currentSlideIdx]?.image && (
+                                                    {slide.image ? (
                                                         <div className="relative group rounded-xl overflow-hidden border border-white/10 max-w-sm">
                                                             <img
-                                                                src={currentCarousel.contentJson.slides[currentSlideIdx].image}
-                                                                alt={`Slide ${currentSlideIdx + 1} Preview`}
-                                                                className="w-full h-32 object-cover"
+                                                                src={slide.image}
+                                                                alt={`Slide ${idx + 1}`}
+                                                                className="w-full h-44 object-cover"
                                                             />
+                                                        </div>
+                                                    ) : (
+                                                        <div className="p-4 bg-slate-900/30 border border-dashed border-slate-800 rounded-xl text-center text-slate-500 text-xs max-w-sm">
+                                                            Sin imagen cargada. {isRealAdmin ? 'Sube una o escribe su URL abajo.' : ''}
                                                         </div>
                                                     )}
 
-                                                    {/* Admin Controls to edit fields and upload directly to GCS bucket */}
-                                                    {isRealAdmin ? (
+                                                    {/* Admin Controls to edit image URL and upload directly to GCS bucket */}
+                                                    {isRealAdmin && (
                                                         <div className="space-y-3 max-w-sm bg-white/5 p-4 rounded-xl border border-white/5">
                                                             <div className="space-y-1">
                                                                 <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">URL de la Imagen</label>
                                                                 <div className="flex gap-2">
                                                                     <input
                                                                         type="text"
-                                                                        value={currentCarousel.contentJson.slides[currentSlideIdx]?.image || ''}
-                                                                        onChange={e => handleUpdateSlideField('image', e.target.value, currentSlideIdx)}
+                                                                        value={slide.image || ''}
+                                                                        onChange={e => handleUpdateSlideField('image', e.target.value, idx)}
                                                                         placeholder="Escribe la URL o sube un archivo..."
                                                                         className="flex-1 bg-black border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500"
                                                                     />
                                                                     <input
                                                                         type="file"
                                                                         accept="image/*"
-                                                                        id={`slide-file-input-${currentSlideIdx}`}
+                                                                        id={`slide-file-input-${idx}`}
                                                                         className="hidden"
                                                                         onChange={async (e) => {
                                                                             const file = e.target.files?.[0];
                                                                             if (!file) return;
-                                                                            setUploadingImageIdx(currentSlideIdx);
+                                                                            setUploadingImageIdx(idx);
                                                                             try {
                                                                                 const res = await api.uploadFile(file, {
                                                                                     projectId: projectId,
                                                                                     folderType: 'carrouseles'
                                                                                 });
-                                                                                await handleUpdateSlideField('image', res.url, currentSlideIdx);
+                                                                                await handleUpdateSlideField('image', res.url, idx);
                                                                             } catch (err: any) {
                                                                                 alert('Error al subir: ' + err.message);
                                                                             } finally {
@@ -856,12 +825,12 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                                     />
                                                                     <button
                                                                         type="button"
-                                                                        disabled={uploadingImageIdx === currentSlideIdx}
-                                                                        onClick={() => document.getElementById(`slide-file-input-${currentSlideIdx}`)?.click()}
+                                                                        disabled={uploadingImageIdx === idx}
+                                                                        onClick={() => document.getElementById(`slide-file-input-${idx}`)?.click()}
                                                                         className="p-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl border border-slate-700 flex items-center justify-center cursor-pointer disabled:opacity-40"
                                                                         title="Subir archivo"
                                                                     >
-                                                                        {uploadingImageIdx === currentSlideIdx ? (
+                                                                        {uploadingImageIdx === idx ? (
                                                                             <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
                                                                         ) : (
                                                                             <UploadCloud className="w-4 h-4" />
@@ -869,126 +838,51 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                                     </button>
                                                                 </div>
                                                             </div>
-
-                                                            <div className="space-y-1">
-                                                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Título del Slide</label>
-                                                                <input
-                                                                    type="text"
-                                                                    value={currentCarousel.contentJson.slides[currentSlideIdx]?.title || ''}
-                                                                    onChange={e => handleUpdateSlideField('title', e.target.value, currentSlideIdx)}
-                                                                    placeholder="Título de la diapositiva"
-                                                                    className="w-full bg-black border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500"
-                                                                />
-                                                            </div>
-
-                                                            <div className="space-y-1">
-                                                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Descripción del Slide</label>
-                                                                <textarea
-                                                                    value={currentCarousel.contentJson.slides[currentSlideIdx]?.description || ''}
-                                                                    onChange={e => handleUpdateSlideField('description', e.target.value, currentSlideIdx)}
-                                                                    placeholder="Descripción de la diapositiva..."
-                                                                    rows={2}
-                                                                    className="w-full bg-black border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500 resize-none"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="space-y-2">
-                                                            <h4 className="text-lg font-black text-white leading-tight mt-1">
-                                                                {currentCarousel.contentJson.slides[currentSlideIdx]?.title}
-                                                            </h4>
-                                                            <p className="text-sm text-slate-400 font-normal leading-relaxed">
-                                                                {currentCarousel.contentJson.slides[currentSlideIdx]?.description}
-                                                            </p>
                                                         </div>
                                                     )}
 
-                                                    {/* Add and Delete Slide Buttons for Admin */}
-                                                    {isRealAdmin && (
-                                                        <div className="flex flex-col sm:flex-row gap-2 max-w-sm pt-2">
-                                                            <button
-                                                                onClick={handleAddSlide}
-                                                                className="flex-1 py-2.5 px-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+                                                    {/* Download Slide button if image exists */}
+                                                    {slide.image && (
+                                                        <div className="pt-1">
+                                                            <a
+                                                                href={slide.image}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-xs font-bold transition-all shadow-[0_2px_8px_rgba(255,93,30,0.25)] cursor-pointer"
                                                             >
-                                                                <Plus className="w-4 h-4" />
-                                                                Añadir Slide
-                                                            </button>
-
-                                                            {currentCarousel.contentJson.slides.length > 1 && (
-                                                                <button
-                                                                    onClick={async () => {
-                                                                        if (confirm('¿Estás seguro de eliminar este slide?')) {
-                                                                            const updatedSlides = currentCarousel.contentJson.slides.filter((_: any, idx: number) => idx !== currentSlideIdx);
-                                                                            const newContentJson = {
-                                                                                ...(currentCarousel.contentJson || {}),
-                                                                                slides: updatedSlides
-                                                                            };
-                                                                            await api.updateProjectCarousel(currentCarousel.id, { contentJson: newContentJson });
-                                                                            setCarousels(prev => prev.map((c, i) => i === activeCarouselIdx ? { ...c, contentJson: newContentJson } : c));
-                                                                            setCurrentSlideIdx(Math.max(0, currentSlideIdx - 1));
-                                                                        }
-                                                                    }}
-                                                                    className="py-2.5 px-4 bg-red-950/40 hover:bg-red-900/40 border border-red-900/30 text-red-400 hover:text-red-300 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                                                                >
-                                                                    <Trash2 className="w-4 h-4" />
-                                                                    Eliminar
-                                                                </button>
-                                                            )}
+                                                                <Download className="w-3.5 h-3.5" />
+                                                                <span>Descargar Slide {idx + 1}</span>
+                                                            </a>
                                                         </div>
                                                     )}
                                                 </div>
+                                            ))}
 
-                                                {/* Slider Navigation Buttons */}
-                                                <div className="flex items-center gap-4">
+                                            {/* Add Slide Button at the very bottom for Admin */}
+                                            {isRealAdmin && (
+                                                <div className="pt-4 border-t border-white/5">
                                                     <button
-                                                        onClick={() => setCurrentSlideIdx(prev => Math.max(0, prev - 1))}
-                                                        disabled={currentSlideIdx === 0}
-                                                        className="p-3 bg-zinc-800 border border-white/10 hover:border-orange-500 rounded-xl disabled:opacity-40 disabled:hover:border-zinc-800 transition"
+                                                        onClick={handleAddSlide}
+                                                        className="py-3 px-6 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-md"
                                                     >
-                                                        <ChevronLeft className="w-5 h-5 text-white" />
+                                                        <Plus className="w-4 h-4" />
+                                                        Añadir Slide
                                                     </button>
-                                                    <button
-                                                        onClick={() => setCurrentSlideIdx(prev => Math.min(currentCarousel.contentJson.slides.length - 1, prev + 1))}
-                                                        disabled={currentSlideIdx === currentCarousel.contentJson.slides.length - 1}
-                                                        className="p-3 bg-zinc-800 border border-white/10 hover:border-orange-500 rounded-xl disabled:opacity-40 disabled:hover:border-zinc-800 transition"
-                                                    >
-                                                        <ChevronRight className="w-5 h-5 text-white" />
-                                                    </button>
-                                                    <span className="text-xs font-bold text-slate-500 uppercase">Haz clic para avanzar</span>
                                                 </div>
-
-                                                {/* Download and Copy Actions footer (Matches Hooks style!) */}
-                                                <div className="pt-6 border-t border-white/[0.08] flex items-center gap-2">
-                                                    <button
-                                                        onClick={() => {
-                                                            const copyText = `${currentCarousel.contentJson.slides[currentSlideIdx]?.title}\n${currentCarousel.contentJson.slides[currentSlideIdx]?.description}`;
-                                                            handleCopyText(copyText, currentSlideIdx);
-                                                        }}
-                                                        className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm ${
-                                                            copiedIndex === currentSlideIdx
-                                                                ? 'bg-emerald-600 text-white border border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.35)]'
-                                                                : 'bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-zinc-200 hover:text-white'
-                                                        }`}
-                                                    >
-                                                        {copiedIndex === currentSlideIdx ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
-                                                        <span>{copiedIndex === currentSlideIdx ? '¡Copiado!' : 'Copiar Texto Slide'}</span>
-                                                    </button>
-
-                                                    <a
-                                                        href={currentCarousel.contentJson.slides[currentSlideIdx]?.image}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-xs font-bold transition-all shadow-[0_2px_8px_rgba(255,93,30,0.25)] cursor-pointer"
-                                                    >
-                                                        <Download className="w-3.5 h-3.5" />
-                                                        <span>Descargar Imagen</span>
-                                                    </a>
-                                                </div>
-                                            </div>
+                                            )}
                                         </div>
                                     ) : (
-                                        <div className="p-8 text-center bg-slate-900/30 rounded-3xl text-slate-500">
-                                            No hay slides en este carrusel.
+                                        <div className="p-8 text-center bg-slate-900/30 rounded-3xl text-slate-500 max-w-2xl mx-auto">
+                                            <p className="mb-4">No hay slides en este carrusel.</p>
+                                            {isRealAdmin && (
+                                                <button
+                                                    onClick={handleAddSlide}
+                                                    className="py-2.5 px-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-md mx-auto"
+                                                >
+                                                    <Plus className="w-4 h-4" />
+                                                    Añadir primer Slide
+                                                </button>
+                                            )}
                                         </div>
                                     )}
                                 </div>
