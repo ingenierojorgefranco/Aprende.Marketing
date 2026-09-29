@@ -470,8 +470,8 @@ router.post('/', async (req, res) => {
         }
 
         const [result] = await pool.query(
-            `INSERT INTO project_carousels (project_id, title, psychological_strategy, content_json, is_generated)
-             VALUES (?, ?, ?, ?, 0)`,
+            `INSERT INTO project_carousels (project_id, title, psychological_strategy, content_json, is_generated, is_active)
+             VALUES (?, ?, ?, ?, 0, 1)`,
             [projectId, title, psychologicalStrategy, contentJson ? (typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson)) : null]
         );
         res.json({ id: result.insertId, success: true });

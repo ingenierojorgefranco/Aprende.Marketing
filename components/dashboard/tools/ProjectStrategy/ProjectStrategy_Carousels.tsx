@@ -12,82 +12,6 @@ import { ProjectCarousel } from '../../../../types';
 import { StepHeaderCard } from '../../wizard/StepHeaderCard';
 import { StepVideoContainer } from '../../wizard/StepVideoContainer';
 
-// Default/Fallback carousels for mock mode or empty library
-const DEFAULT_CAROUSELS_MOCK: ProjectCarousel[] = [
-    {
-        id: 'carousel-1',
-        projectId: 'mock-proj',
-        title: "Cómo generar $1.000 extras al mes en estética",
-        psychologicalStrategy: "Apela al deseo de ingresos extras en tiempo libre sin abandonar la seguridad actual.",
-        isGenerated: true,
-        contentJson: {
-            slides: [
-                {
-                    slideNumber: 1,
-                    image: "https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&q=80&w=800",
-                    title: "¿Te gustaría generar $1.000 extras al mes?",
-                    description: "Desliza para ver el método paso a paso que puedes iniciar en tus tiempos libres."
-                },
-                {
-                    slideNumber: 2,
-                    image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800",
-                    title: "Paso 1: Domina la técnica correcta",
-                    description: "El microblading de cejas es el sector mejor pagado de la belleza."
-                },
-                {
-                    slideNumber: 3,
-                    image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=800",
-                    title: "Paso 2: Consigue tus primeros clientes",
-                    description: "Usa nuestra plantilla de mensajes de WhatsApp para agendar tu primera cita."
-                },
-                {
-                    slideNumber: 4,
-                    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=800",
-                    title: "Paso 3: Escala tu negocio",
-                    description: "Únete a nuestra Masterclass Gratuita para aprender a escalar de 0 a $1.000 extras."
-                }
-            ],
-            feedCopy: "🔥 ¿Te gustaría generar $1.000 extras al mes sin dejar tu trabajo actual?\n\nAquí tienes el paso a paso detallado para lograrlo. Desliza las imágenes y descubre cómo puedes empezar hoy mismo en tu tiempo libre.\n\n🔗 Regístrate gratis en el enlace de mi perfil para acceder a la formación completa."
-        }
-    },
-    {
-        id: 'carousel-2',
-        projectId: 'mock-proj',
-        title: "3 Errores fatales al diseñar cejas perfectas",
-        psychologicalStrategy: "Apela al temor de cometer errores comunes que arruinan la reputación.",
-        isGenerated: true,
-        contentJson: {
-            slides: [
-                {
-                    slideNumber: 1,
-                    image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=800",
-                    title: "3 Errores fatales al diseñar cejas",
-                    description: "Si cometes uno de estos, podrías estar perdiendo clientes sin darte cuenta. ¡Desliza!"
-                },
-                {
-                    slideNumber: 2,
-                    image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800",
-                    title: "1. No medir la simetría facial",
-                    description: "Cada rostro es único. Usar una plantilla genérica arruina la armonía natural."
-                },
-                {
-                    slideNumber: 3,
-                    image: "https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&q=80&w=800",
-                    title: "2. Excederse con el grosor inicial",
-                    description: "Siempre es más fácil rellenar que remover. Empieza con trazos suaves."
-                },
-                {
-                    slideNumber: 4,
-                    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=800",
-                    title: "3. Usar pigmentos inadecuados",
-                    description: "La subtonalidad de la piel determina el color. Evita los tonos grisáceos."
-                }
-            ],
-            feedCopy: "❌ ¿Estás cometiendo alguno de estos 3 errores al diseñar cejas?\n\nLa ceja perfecta no es una plantilla, es una obra de arte simétrica diseñada para cada tipo de rostro.\n\nDesliza para ver la explicación detallada y evítalos hoy mismo.\n\n🔗 Únete a mi clase gratis en vivo pulsando el enlace de mi biografía."
-        }
-    }
-];
-
 interface ProjectStrategy_CarouselsProps {
     totalSteps?: number;
     strategyData?: any;
@@ -176,26 +100,6 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         return activeTab === 'generated' || (currentCarousel && (currentCarousel as any).isUnlocked) || isRealAdmin;
     }, [activeTab, currentCarousel, isRealAdmin]);
 
-    // Check project context
-    useEffect(() => {
-        if (!projectId) return;
-        const checkProject = async () => {
-            try {
-                const proj = await api.getProjectById(projectId);
-                if (proj) {
-                    setIsClone(!!proj.masterParentId);
-                    setIsMaster(!!proj.isMaster);
-                    setMasterParentId(proj.masterParentId || null);
-                }
-            } catch (e) {
-                console.error("Error checking project:", e);
-            } finally {
-                setProjectChecked(true);
-            }
-        };
-        checkProject();
-    }, [projectId]);
-
     // Fetch user's unlocked carousels
     const fetchCarousels = async () => {
         if (!projectId) return;
@@ -205,22 +109,22 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             if (data && data.length > 0) {
                 setCarousels(data);
             } else {
-                setCarousels(DEFAULT_CAROUSELS_MOCK);
+                setCarousels([]);
             }
         } catch (e) {
             console.error("Error fetching carousels:", e);
-            setCarousels(DEFAULT_CAROUSELS_MOCK);
+            setCarousels([]);
         } finally {
             setLoadingHooks(false);
         }
     };
 
     // Fetch library carousels
-    const fetchLibrary = async (page: number) => {
+    const fetchLibrary = async (page: number, mParentId?: string | null) => {
         if (!projectId) return;
         setLoadingLibrary(true);
         try {
-            const data = await api.getCarouselsLibrary(page, 4, masterParentId || undefined, projectId);
+            const data = await api.getCarouselsLibrary(page, 4, mParentId !== undefined ? (mParentId || undefined) : (masterParentId || undefined), projectId);
             if (data && data.carousels) {
                 setLibraryCarousels(data.carousels);
                 setLibraryTotal(data.total);
@@ -232,17 +136,33 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         }
     };
 
+    // Check project context and load carousels
     useEffect(() => {
-        if (projectChecked) {
-            fetchCarousels();
-        }
-    }, [projectId, projectChecked]);
-
-    useEffect(() => {
-        if (activeTab === 'library' && projectChecked) {
-            fetchLibrary(libraryPage);
-        }
-    }, [activeTab, libraryPage, projectChecked]);
+        const checkProjectAndLoad = async () => {
+            if (!projectId) return;
+            try {
+                const proj = await api.getProjectById(projectId);
+                let mParentId: string | null = null;
+                if (proj) {
+                    setIsClone(!!proj.masterParentId);
+                    setIsMaster(!!proj.isMaster);
+                    mParentId = proj.masterParentId || null;
+                    setMasterParentId(mParentId);
+                }
+                
+                await fetchCarousels();
+                
+                if (activeTab === 'library') {
+                    await fetchLibrary(libraryPage, mParentId);
+                }
+            } catch (e) {
+                console.error("Error checking project:", e);
+            } finally {
+                setProjectChecked(true);
+            }
+        };
+        checkProjectAndLoad();
+    }, [projectId, activeTab, libraryPage]);
 
     // Reset slide index when active carousel changes
     useEffect(() => {
@@ -437,59 +357,6 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 />
             )}
 
-            {/* Limits and Progress bar */}
-            {!isRealAdmin && (
-                <div className="bg-[#0f172a]/40 border border-slate-800 rounded-3xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl backdrop-blur-sm">
-                    <div className="space-y-2 flex-1">
-                        <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-slate-400">
-                            <span>Consumo de Carruseles Desbloqueados</span>
-                            <span className="text-orange-500 font-extrabold">{unlockedCount} / {isStarter ? 0 : maxCarousels} Desbloqueados</span>
-                        </div>
-                        <div className="w-full h-3 bg-slate-900 border border-slate-800 rounded-full overflow-hidden">
-                            <div 
-                                className={`h-full rounded-full transition-all duration-500 ${isStarter ? 'w-0 bg-red-500' : 'bg-gradient-to-r from-orange-500 to-amber-500'}`}
-                                style={{ width: `${isStarter ? 0 : usagePercent}%` }}
-                            />
-                        </div>
-                        <p className="text-[11px] text-slate-500 leading-normal">
-                            {isStarter 
-                                ? "Tu plan Starter no incluye carruseles magnéticos listos para usar." 
-                                : `Cada carrusel cuenta para tu límite global de plan (${maxCarousels} carruseles de marca).`}
-                        </p>
-                    </div>
-
-                    {isStarter ? (
-                        <button 
-                            onClick={() => setShowUpgradeModalLocal(true)}
-                            className="bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-xs uppercase tracking-widest px-6 py-4 rounded-2xl flex items-center gap-2 hover:scale-[1.03] transition-all shadow-lg shrink-0"
-                        >
-                            <Crown className="w-4 h-4 fill-current animate-pulse" />
-                            Actualizar a PRO 👑
-                        </button>
-                    ) : (
-                        isClone && (
-                            <button
-                                onClick={handleUnlockMore}
-                                disabled={unlockingMore || unlockedCount >= maxCarousels}
-                                className="bg-slate-800 border border-slate-700 hover:border-orange-500 hover:text-orange-400 text-white font-bold text-xs uppercase tracking-widest px-6 py-4 rounded-2xl flex items-center gap-2 transition shadow-md"
-                            >
-                                {unlockingMore ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
-                                        Desbloqueando lote...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Unlock className="w-4 h-4 text-orange-400" />
-                                        Desbloquear 10 nuevos
-                                    </>
-                                )}
-                            </button>
-                        )
-                    )}
-                </div>
-            )}
-
             {/* MAIN GRID LAYOUT ALIGNED WITH HOOKS DESIGN */}
             <div className="grid lg:grid-cols-12 gap-8">
                 {/* LEFT COLUMN: LISTADO DE CARRUSELES */}
@@ -559,14 +426,12 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                             >
                                 Mis Carruseles
                             </button>
-                            {isClone && (
-                                <button 
-                                    onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); }}
-                                    className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-orange-600 text-white shadow-lg shadow-orange-900/40' : 'text-gray-500 hover:text-white'}`}
-                                >
-                                    Biblioteca
-                                </button>
-                            )}
+                            <button 
+                                onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); }}
+                                className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-orange-600 text-white shadow-lg shadow-orange-900/40' : 'text-gray-500 hover:text-white'}`}
+                            >
+                                Biblioteca
+                            </button>
                         </div>
                         
                         <div className="space-y-4">
