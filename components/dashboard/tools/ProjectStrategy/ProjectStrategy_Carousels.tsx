@@ -70,7 +70,14 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     }, [libraryCarousels, activeLibraryIdx]);
 
     const filteredCarousels = useMemo(() => {
-        const currentData = activeTab === 'library' ? libraryCarousels : carousels;
+        let currentData = carousels;
+        if (activeTab === 'library') {
+            currentData = libraryCarousels;
+        } else {
+            // For 'generated' (Mis Carruseles) tab:
+            // Only show generated carousels OR those unlocked from a template (having masterCarouselId)
+            currentData = carousels.filter(c => c.isGenerated || c.masterCarouselId);
+        }
         if (!searchTerm.trim()) return currentData;
         return currentData.filter(c => 
             (c.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -371,16 +378,18 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                     <h4 className="text-xl font-bold text-white">Carruseles Magnéticos</h4>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
-                                <button 
-                                    onClick={handleCreateManualCarousel}
-                                    disabled={saving}
-                                    className="p-2 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] rounded-xl hover:bg-[#FF5A1F] hover:text-white transition-all group"
-                                    title="Añadir Manualmente"
-                                >
-                                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
-                                </button>
-                            </div>
+                            {isRealAdmin && (
+                                <div className="flex gap-2">
+                                    <button 
+                                        onClick={handleCreateManualCarousel}
+                                        disabled={saving}
+                                        className="p-2 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] rounded-xl hover:bg-[#FF5A1F] hover:text-white transition-all group"
+                                        title="Añadir Manualmente"
+                                    >
+                                        {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         {/* Barra de Progreso de Carruseles */}
@@ -467,22 +476,26 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                     {carousel.psychologicalStrategy || "Visual y educativo."}
                                                 </p>
                                             </div>
-                                            <div 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    if (isRealAdmin) {
+                                            {isRealAdmin && (
+                                                <div 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
                                                         const nextActive = !isCarouselActive;
                                                         api.updateProjectCarousel(carousel.id, { isActive: nextActive })
-                                                            .then(() => fetchCarousels());
-                                                    }
-                                                }}
-                                                className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300 grayscale-0 shrink-0 ${
-                                                    isCarouselActive
-                                                        ? 'bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-500/20'
-                                                        : 'border-zinc-600 bg-zinc-900/80 hover:border-zinc-400 text-transparent'
-                                                }`}>
-                                                <Check className={`w-4 h-4 font-bold stroke-[3] transition-opacity ${isCarouselActive ? 'text-white opacity-100' : 'opacity-0'}`} />
-                                            </div>
+                                                            .then(() => {
+                                                                fetchCarousels();
+                                                                fetchLibrary(libraryPage);
+                                                            });
+                                                    }}
+                                                    className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300 grayscale-0 shrink-0 ${
+                                                        isCarouselActive
+                                                            ? 'bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-500/20'
+                                                            : 'border-zinc-600 bg-zinc-900/80 hover:border-zinc-400 text-transparent'
+                                                    }`}
+                                                >
+                                                    <Check className={`w-4 h-4 font-bold stroke-[3] transition-opacity ${isCarouselActive ? 'text-white opacity-100' : 'opacity-0'}`} />
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })
@@ -573,14 +586,16 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                         <span className="text-[10px] md:text-xs font-black tracking-widest text-[#FF5D1E] uppercase">
                                             CARRUSEL ACTIVO #{currentCarousel.id || (activeTab === 'library' ? activeLibraryIdx : activeCarouselIdx) + 1}
                                         </span>
-                                        <button
-                                            onClick={() => handleDeleteCarousel(currentCarousel.id)}
-                                            className="text-[10px] md:text-xs font-black text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-full border border-red-500/30 transition-all cursor-pointer flex items-center gap-1.5 uppercase shrink-0"
-                                            title="Eliminar Carrusel completo"
-                                        >
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                            <span>Eliminar Carrusel</span>
-                                        </button>
+                                        {isRealAdmin && (
+                                            <button
+                                                onClick={() => handleDeleteCarousel(currentCarousel.id)}
+                                                className="text-[10px] md:text-xs font-black text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-full border border-red-500/30 transition-all cursor-pointer flex items-center gap-1.5 uppercase shrink-0"
+                                                title="Eliminar Carrusel completo"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                                <span>Eliminar Carrusel</span>
+                                            </button>
+                                        )}
                                     </div>
 
                                     {isEditingTitle ? (
