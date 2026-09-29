@@ -78,7 +78,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         } else {
             // For 'generated' (Mis Carruseles) tab:
             if (isRealAdmin) {
-                currentData = carousels;
+                currentData = carousels.filter(c => c.isGenerated);
             } else {
                 currentData = carousels.filter(c => (c as any).isUnlocked);
             }
@@ -133,16 +133,19 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
     // Fetch library carousels
     const fetchLibrary = async (page: number, mParentId?: string | null) => {
-        if (!projectId) return;
+        if (!projectId) return [];
         setLoadingLibrary(true);
         try {
             const data = await api.getCarouselsLibrary(page, 4, mParentId !== undefined ? (mParentId || undefined) : (masterParentId || undefined), projectId);
             if (data && data.carousels) {
                 setLibraryCarousels(data.carousels);
                 setLibraryTotal(data.total);
+                return data.carousels;
             }
+            return [];
         } catch (e) {
             console.error("Error fetching library:", e);
+            return [];
         } finally {
             setLoadingLibrary(false);
         }
@@ -338,7 +341,13 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 await api.deleteProjectCarousel(carouselId);
                 const data = await api.getProjectCarousels(projectId);
                 setCarousels(data || []);
-                setActiveCarouselIdx(0);
+                
+                if (isRealAdmin) {
+                    await fetchLibrary(libraryPage);
+                    setActiveLibraryIdx(0);
+                } else {
+                    setActiveCarouselIdx(0);
+                }
                 alert("Carrusel eliminado correctamente.");
             } catch (e: any) {
                 alert("Error al eliminar: " + e.message);
@@ -377,17 +386,30 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 };
                 const created = await api.createProjectCarousel(projectId, carouselData);
                 const data = await api.getProjectCarousels(projectId);
-                if (data && data.length > 0) {
-                    setCarousels(data);
-                    const newIdx = data.findIndex((c: any) => String(c.id) === String(created.id));
-                    if (newIdx !== -1) {
-                        setActiveCarouselIdx(newIdx);
+                setCarousels(data || []);
+                
+                if (isRealAdmin) {
+                    setActiveTab('library');
+                    const fetchedLib = await fetchLibrary(libraryPage);
+                    if (fetchedLib && fetchedLib.length > 0) {
+                        const newIdx = fetchedLib.findIndex((c: any) => String(c.id) === String(created.id));
+                        if (newIdx !== -1) {
+                            setActiveLibraryIdx(newIdx);
+                        } else {
+                            setActiveLibraryIdx(0);
+                        }
+                    }
+                } else {
+                    if (data && data.length > 0) {
+                        const newIdx = data.findIndex((c: any) => String(c.id) === String(created.id));
+                        if (newIdx !== -1) {
+                            setActiveCarouselIdx(newIdx);
+                        } else {
+                            setActiveCarouselIdx(0);
+                        }
                     } else {
                         setActiveCarouselIdx(0);
                     }
-                } else {
-                    setCarousels([]);
-                    setActiveCarouselIdx(0);
                 }
                 alert("¡Carrusel manual creado!");
             } catch (e: any) {
