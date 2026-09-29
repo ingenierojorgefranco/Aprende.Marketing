@@ -180,23 +180,26 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     // Reset slide index when active carousel changes
     useEffect(() => {
         setCurrentSlideIdx(0);
-        if (activeCarousel) {
-            setLocalTitle(activeCarousel.title || '');
-            setLocalStrategy(activeCarousel.psychologicalStrategy || '');
+        if (currentCarousel) {
+            setLocalTitle(currentCarousel.title || '');
+            setLocalStrategy(currentCarousel.psychologicalStrategy || '');
+        } else {
+            setLocalTitle('');
+            setLocalStrategy('');
         }
-    }, [activeCarouselIdx, carousels]);
+    }, [currentCarousel]);
 
     // Handle Title and Strategy Update
     const handleSaveChanges = async () => {
-        if (!activeCarousel || saving) return;
+        if (!currentCarousel || saving) return;
         setSaving(true);
         try {
-            await api.updateProjectCarousel(activeCarousel.id, {
+            await api.updateProjectCarousel(currentCarousel.id, {
                 title: localTitle,
                 psychologicalStrategy: localStrategy
             });
             // Update in local state
-            setCarousels(prev => prev.map((c, i) => i === activeCarouselIdx ? { ...c, title: localTitle, psychologicalStrategy: localStrategy } : c));
+            setCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, title: localTitle, psychologicalStrategy: localStrategy } : c));
             setIsEditingTitle(false);
             
             // Trigger confetti
@@ -214,8 +217,8 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     };
 
     const handleUpdateSlideField = async (field: 'title' | 'description' | 'image', value: string, slideIdx: number) => {
-        if (!activeCarousel) return;
-        const updatedSlides = [...(activeCarousel.contentJson?.slides || [])];
+        if (!currentCarousel) return;
+        const updatedSlides = [...(currentCarousel.contentJson?.slides || [])];
         if (updatedSlides[slideIdx]) {
             updatedSlides[slideIdx] = {
                 ...updatedSlides[slideIdx],
@@ -223,22 +226,22 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             };
         }
         const newContentJson = {
-            ...(activeCarousel.contentJson || {}),
+            ...(currentCarousel.contentJson || {}),
             slides: updatedSlides
         };
         try {
-            await api.updateProjectCarousel(activeCarousel.id, {
+            await api.updateProjectCarousel(currentCarousel.id, {
                 contentJson: newContentJson
             });
-            setCarousels(prev => prev.map((c, i) => i === activeCarouselIdx ? { ...c, contentJson: newContentJson } : c));
+            setCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, contentJson: newContentJson } : c));
         } catch (err) {
             console.error("Error updating slide field:", err);
         }
     };
 
     const handleAddSlide = async () => {
-        if (!activeCarousel) return;
-        const currentSlides = activeCarousel.contentJson?.slides || [];
+        if (!currentCarousel) return;
+        const currentSlides = currentCarousel.contentJson?.slides || [];
         const newSlide = {
             title: `Slide ${currentSlides.length + 1}: Título llamativo`,
             description: `Descripción del slide ${currentSlides.length + 1} para retener audiencia.`,
@@ -246,14 +249,14 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         };
         const updatedSlides = [...currentSlides, newSlide];
         const newContentJson = {
-            ...(activeCarousel.contentJson || {}),
+            ...(currentCarousel.contentJson || {}),
             slides: updatedSlides
         };
         try {
-            await api.updateProjectCarousel(activeCarousel.id, {
+            await api.updateProjectCarousel(currentCarousel.id, {
                 contentJson: newContentJson
             });
-            setCarousels(prev => prev.map((c, i) => i === activeCarouselIdx ? { ...c, contentJson: newContentJson } : c));
+            setCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, contentJson: newContentJson } : c));
             setCurrentSlideIdx(updatedSlides.length - 1);
         } catch (err) {
             console.error("Error adding slide:", err);
@@ -357,7 +360,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                 slideNumber: 1,
                                 title: "Slide 1: Título llamativo",
                                 description: "Descripción del primer slide para retener audiencia.",
-                                image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675"
+                                image: ""
                             }
                         ],
                         caption: "¡Aquí va la descripción o caption para tu post de Instagram/Facebook!"
@@ -704,10 +707,6 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                     </span>
                                                 )}
                                             </h2>
-                                            <p className="text-xs font-bold text-slate-500 flex items-center gap-1.5 mt-2 leading-relaxed">
-                                                <Brain className="w-3.5 h-3.5 text-[#FF5A1F]" />
-                                                Estrategia: <span className="font-normal text-slate-400">{currentCarousel.psychologicalStrategy || "Visual y educativo."}</span>
-                                            </p>
                                         </div>
                                     )}
                                 </div>
@@ -761,7 +760,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                                             slides: updatedSlides
                                                                         };
                                                                         await api.updateProjectCarousel(currentCarousel.id, { contentJson: newContentJson });
-                                                                        setCarousels(prev => prev.map((c, cIdx) => cIdx === activeCarouselIdx ? { ...c, contentJson: newContentJson } : c));
+                                                                        setCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, contentJson: newContentJson } : c));
                                                                         setCurrentSlideIdx(0);
                                                                     }
                                                                 }}
@@ -843,14 +842,14 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
                                                     {/* Download Slide button if image exists */}
                                                     {slide.image && (
-                                                        <div className="pt-1">
+                                                        <div className="pt-2 flex justify-center w-full max-w-2xl">
                                                             <a
                                                                 href={slide.image}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-xs font-bold transition-all shadow-[0_2px_8px_rgba(255,93,30,0.25)] cursor-pointer"
+                                                                className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-sm font-black uppercase tracking-wider transition-all shadow-[0_4px_12px_rgba(255,93,30,0.3)] cursor-pointer"
                                                             >
-                                                                <Download className="w-3.5 h-3.5" />
+                                                                <Download className="w-5 h-5" />
                                                                 <span>Descargar Slide {idx + 1}</span>
                                                             </a>
                                                         </div>
@@ -930,7 +929,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                     await api.updateProjectCarousel(currentCarousel.id, {
                                                         contentJson: newContentJson
                                                     });
-                                                    setCarousels(prev => prev.map((c, i) => i === activeCarouselIdx ? { ...c, contentJson: newContentJson } : c));
+                                                    setCarousels(prev => prev.map(c => c.id === currentCarousel.id ? { ...c, contentJson: newContentJson } : c));
                                                 } catch (err) {
                                                     console.error("Error saving caption:", err);
                                                 }
