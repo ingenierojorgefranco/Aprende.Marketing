@@ -80,9 +80,20 @@ router.post('/', upload.single('file'), async (req, res) => {
       : 'temp';
 
     const rawFolder = req.body?.folderType || req.query?.folderType || 'images';
-    const folderType = String(rawFolder).toLowerCase().includes('leadmagnet') ? 'leadmagnets' : 'images';
+    const folderType = String(rawFolder).trim().toLowerCase();
 
-    const destinationBlobName = `Proyect/${projectId}/${folderType}/${cleanFileName}`;
+    let destinationBlobName;
+    if (folderType.includes('leadmagnet')) {
+      destinationBlobName = `Proyect/${projectId}/leadmagnets/${cleanFileName}`;
+    } else if (folderType === 'articles') {
+      const rawArticleId = req.body?.articleId || req.query?.articleId || 'temp_article';
+      const articleId = (rawArticleId && String(rawArticleId).trim() !== '' && String(rawArticleId).trim() !== 'undefined')
+        ? String(rawArticleId).trim()
+        : 'temp_article';
+      destinationBlobName = `Proyect/${projectId}/images/articles/${articleId}/${cleanFileName}`;
+    } else {
+      destinationBlobName = `Proyect/${projectId}/images/${cleanFileName}`;
+    }
 
     const bucket = storage.bucket(bucketName);
     const blob = bucket.file(destinationBlobName);

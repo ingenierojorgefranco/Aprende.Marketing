@@ -1175,17 +1175,20 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             embeddedProjectId={projectId}
                             onClose={handleCloseAndReload}
                             onSave={async (article) => {
+                                let savedId = article.id;
                                 if (article.id && String(article.id).startsWith('available-')) {
                                     const masterId = String(article.id).replace('available-', '');
                                     const unlockRes = await api.unlockArticle(projectId!, masterId);
                                     await api.updateArticle(unlockRes.id, article);
+                                    savedId = unlockRes.id;
                                 } else if (article.id && !String(article.id).startsWith('json-')) {
                                     await api.updateArticle(article.id!, article);
                                 } else {
                                     const { id, ...dataToSave } = article;
-                                    await api.saveArticle(dataToSave);
+                                    const savedResult = await api.saveArticle(dataToSave);
+                                    savedId = savedResult.id;
                                 }
-                                handleCloseAndReload();
+                                return savedId;
                             }}
                         />
                     </div>

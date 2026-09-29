@@ -2840,7 +2840,7 @@ export const api = {
         return localWatched;
     },
 
-    uploadFile: async (file: File, options?: { projectId?: string | number; folderType?: 'images' | 'leadmagnets' }): Promise<{ url: string; fileName: string }> => {
+    uploadFile: async (file: File, options?: { projectId?: string | number; folderType?: string; articleId?: string }): Promise<{ url: string; fileName: string }> => {
         const formData = new FormData();
         formData.append("file", file);
         if (options?.projectId) {
@@ -2848,6 +2848,9 @@ export const api = {
         }
         if (options?.folderType) {
             formData.append("folderType", options.folderType);
+        }
+        if (options?.articleId) {
+            formData.append("articleId", String(options.articleId));
         }
         const token = localStorage.getItem('plataformadeventacom_token');
         const res = await fetchWithFallback("/upload", {
@@ -2860,8 +2863,8 @@ export const api = {
         return { url: res.url, fileName: res.fileName || file.name };
     },
 
-    uploadImage: async (file: File, options?: { projectId?: string | number; folderType?: 'images' | 'leadmagnets' }): Promise<string> => {
-        const res = await api.uploadFile(file, { projectId: options?.projectId, folderType: options?.folderType || 'images' });
+    uploadImage: async (file: File, options?: { projectId?: string | number; folderType?: string; articleId?: string }): Promise<string> => {
+        const res = await api.uploadFile(file, { projectId: options?.projectId, folderType: options?.folderType || 'images', articleId: options?.articleId });
         return res.url;
     },
 

@@ -16,7 +16,7 @@ import { SaveLogModal } from './content-generator/SaveLogModal';
 import { ProjectStrategy_Content } from './ProjectStrategy/ProjectStrategy_Content';
 
 interface ContentGeneratorProps {
-    onSave?: (article: any) => Promise<void>;
+    onSave?: (article: any) => Promise<any>;
     preFilledData?: {
         topic: string;
         objective: string;
@@ -597,13 +597,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
     try {
       addLog("Validando datos...");
-      await onSave(articlePayload);
+      const savedId = await onSave(articlePayload);
+      if (savedId) {
+          setActiveArticleId(String(savedId));
+      }
       addLog("Guardado exitoso en base de datos.");
       setSaveStatus('success');
       setTimeout(() => {
         setIsLogModalOpen(false);
-        if (onClose) onClose();
-        else navigate('/dashboard/articles');
       }, 1500);
     } catch (e: any) {
       addLog("❌ ERROR CRÍTICO");
@@ -1065,7 +1066,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
                 {step === 3 && <Step2Titles titleIdeas={titleIdeas} onSelectTitle={handleSelectTitle} onBack={() => setStep(2)} loading={loading} />}
                 {step === 4 && <Step3Outline outline={outline} setOutline={setOutline} ctaLink={ctaLink} setCtaLink={setCtaLink} onGenerate={handleGenerateArticle} onBack={() => setStep(3)} loading={loading} userPages={filteredUserPages} selectedPageId={selectedPageId} onSelectPage={setSelectedPageId} />}
-                {step === 5 && <Step4Editor articleContent={articleContent} setArticleContent={setArticleContent} selectedTitle={selectedTitle} articleTitle={articleTitle} setArticleTitle={setArticleTitle} slug={slug} setSlug={setSlug} selectedPageId={selectedPageId} setSelectedPageId={setSelectedPageId} userPages={filteredUserPages} status={status} setStatus={setStatus} publishDate={publishDate} setPublishDate={setPublishDate} featuredImage={featuredImage} setFeaturedImage={setFeaturedImage} keyword={keyword} setKeyword={setKeyword} seoScore={seoScore} setSeoScore={setSeoScore} metaDescription={metaDescription} setMetaDescription={setMetaDescription} onSave={handleSaveArticle} saving={saveStatus === 'saving'} onBack={() => editArticleId ? navigate('/dashboard/articles') : setStep(4)} isEditing={!!editArticleId} />}
+                {step === 5 && <Step4Editor articleContent={articleContent} setArticleContent={setArticleContent} selectedTitle={selectedTitle} articleTitle={articleTitle} setArticleTitle={setArticleTitle} slug={slug} setSlug={setSlug} selectedPageId={selectedPageId} setSelectedPageId={setSelectedPageId} userPages={filteredUserPages} status={status} setStatus={setStatus} publishDate={publishDate} setPublishDate={setPublishDate} featuredImage={featuredImage} setFeaturedImage={setFeaturedImage} keyword={keyword} setKeyword={setKeyword} seoScore={seoScore} setSeoScore={setSeoScore} metaDescription={metaDescription} setMetaDescription={setMetaDescription} onSave={handleSaveArticle} saving={saveStatus === 'saving'} onBack={() => editArticleId ? navigate('/dashboard/articles') : setStep(4)} isEditing={!!editArticleId} projectId={selectedProject || preSelectedProjectId || undefined} articleId={activeArticleId || editArticleId || preFilledData?.articleId || undefined} />}
                 <SaveLogModal isOpen={isLogModalOpen} saveStatus={saveStatus} saveLogs={saveLogs} onClose={() => setIsLogModalOpen(false)} onRetry={handleSaveArticle} />
             </>
         )}

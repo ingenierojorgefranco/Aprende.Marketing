@@ -75,8 +75,12 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             currentData = libraryCarousels;
         } else {
             // For 'generated' (Mis Carruseles) tab:
-            // Only show carousels that are unlocked
-            currentData = carousels.filter(c => (c as any).isUnlocked);
+            // Admin only sees generated items here. Normal users see unlocked templates.
+            if (isRealAdmin) {
+                currentData = carousels.filter(c => c.isGenerated);
+            } else {
+                currentData = carousels.filter(c => (c as any).isUnlocked);
+            }
         }
         if (!searchTerm.trim()) return currentData;
         return currentData.filter(c => 

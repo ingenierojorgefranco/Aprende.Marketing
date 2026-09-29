@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArticleTitleIdea } from '../../../../services/geminiService';
 import { LandingPage } from '../../../../types';
-import { FileText, Save, Copy, Download, RefreshCw, Globe, BarChart, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Undo, Redo, Type, Palette, Eraser, Heading2, Heading3, Check, X, Calendar, Search, ArrowLeft, ExternalLink } from 'lucide-react';
+import { FileText, Save, Copy, Download, RefreshCw, Globe, BarChart, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Undo, Redo, Type, Palette, Eraser, Heading2, Heading3, Check, X, Calendar, Search, ArrowLeft, ExternalLink, Loader2, UploadCloud } from 'lucide-react';
+import { api } from '../../../../services/api';
 
 interface Step4EditorProps {
   articleContent: string;
@@ -30,6 +31,8 @@ interface Step4EditorProps {
   saving: boolean;
   onBack: () => void;
   isEditing: boolean;
+  projectId?: string;
+  articleId?: string;
 }
 
 interface SeoCheckItem {
@@ -46,15 +49,36 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
   featuredImage, setFeaturedImage,
   keyword, setKeyword, seoScore, setSeoScore,
   metaDescription, setMetaDescription,
-  onSave, saving, isEditing, onBack
+  onSave, saving, isEditing, onBack,
+  projectId, articleId
 }) => {
   /* */ /* Actualización: Ajuste de ancho de barra lateral de lg:w-80 a lg:w-[420px], incremento de legibilidad en tipografía (text-sm/bold), mayor espaciado entre bloques (space-y-8) y optimización visual del checklist SEO para mejorar la experiencia de redacción - 07/06/2025 21:15 */
   const editorRef = useRef<HTMLDivElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [wordCount, setWordCount] = useState(0);
   const [showSourceCode, setShowSourceCode] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [activeFormats, setActiveFormats] = useState<string[]>([]);
   const [seoChecklist, setSeoChecklist] = useState<SeoCheckItem[]>([]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setUploadingImage(true);
+      try {
+          const res = await api.uploadFile(file, {
+              projectId: projectId,
+              folderType: 'articles',
+              articleId: articleId || 'temp_article'
+          });
+          setFeaturedImage(res.url);
+      } catch (err: any) {
+          alert('Error al subir la imagen: ' + err.message);
+      } finally {
+          setUploadingImage(false);
+      }
+  };
 
   // Initialize Editor Content
   useEffect(() => {
@@ -501,15 +525,41 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                 {/* 7. Featured Image */}
                 <div>
                 <label className="text-sm font-bold text-gray-400 block mb-2">Imagen Destacada (URL)</label>
-                <div className="flex gap-3">
+                <div className="flex gap-2 items-center">
                     <input
-                    type="text"
-                    value={featuredImage}
-                    onChange={(e) => setFeaturedImage(e.target.value)}
-                    placeholder="https://..."
-                    className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500"
+                        ref={imageInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
                     />
-                    {featuredImage && <img src={featuredImage} className="w-10 h-10 rounded-lg object-cover border border-gray-700 bg-black" alt="Preview" />}
+                    <input
+                        type="text"
+                        value={featuredImage}
+                        onChange={(e) => setFeaturedImage(e.target.value)}
+                        placeholder="Escribe la URL o sube un archivo..."
+                        className="flex-1 bg-black border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500"
+                    />
+                    <button
+                        type="button"
+                        disabled={uploadingImage}
+                        onClick={() => imageInputRef.current?.click()}
+                        className="p-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl border border-gray-700 flex items-center justify-center transition-all shrink-0 cursor-pointer"
+                        title="Subir Imagen al Bucket"
+                    >
+                        {uploadingImage ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+                        ) : (
+                            <UploadCloud className="w-4 h-4" />
+                        )}
+                    </button>
+                    {featuredImage && (
+                        <img 
+                            src={featuredImage} 
+                            className="w-10 h-10 rounded-lg object-cover border border-gray-700 bg-black shrink-0" 
+                            alt="Preview" 
+                        />
+                    )}
                 </div>
                 </div>
 
