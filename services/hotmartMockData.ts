@@ -224,12 +224,48 @@ export const MOCK_HOTMART_HISTORY: HotmartDailyRecord[] = [
   { date: new Date(2026, 8, 26), transactions: 1, cancellations: 0 },
   { date: new Date(2026, 8, 27), transactions: 4, cancellations: 0 },
   { date: new Date(2026, 8, 28), transactions: 1, cancellations: 1 },
-  { date: new Date(2026, 8, 29), transactions: 3, cancellations: 0 },
-  { date: new Date(2026, 8, 30), transactions: 5, cancellations: 0 },
+  { date: new Date(2026, 8, 29), transactions: 2, cancellations: 0 },
+  { date: new Date(2026, 8, 30), transactions: 1, cancellations: 1 },
 
   // --- Octubre 2026 ---
-  { date: new Date(2026, 9, 1), transactions: 5, cancellations: 0 },
-  { date: new Date(2026, 9, 15), transactions: 3, cancellations: 0 },
+
+  { date: new Date(2026, 9, 1), transactions: 0, cancellations: 1 },
+  { date: new Date(2026, 9, 2), transactions: 0, cancellations: 0 },
+  { date: new Date(2026, 9, 3), transactions: 1, cancellations: 0 },
+  { date: new Date(2026, 9, 4), transactions: 1, cancellations: 2 },
+  { date: new Date(2026, 9, 5), transactions: 0, cancellations: 0 },
+  { date: new Date(2026, 9, 6), transactions: 2, cancellations: 0 },
+  { date: new Date(2026, 9, 7), transactions: 2, cancellations: 1 },
+  { date: new Date(2026, 9, 8), transactions: 0, cancellations: 0 },
+  { date: new Date(2026, 9, 9), transactions: 1, cancellations: 0 },
+  { date: new Date(2026, 9, 10), transactions: 0, cancellations: 0 },
+  { date: new Date(2026, 9, 11), transactions: 0, cancellations: 0 },
+  { date: new Date(2026, 9, 12), transactions: 0, cancellations: 0 },
+  { date: new Date(2026, 9, 13), transactions: 1, cancellations: 0 },
+  { date: new Date(2026, 9, 14), transactions: 1, cancellations: 0 },
+  { date: new Date(2026, 9, 15), transactions: 2, cancellations: 0 },
+  { date: new Date(2026, 9, 16), transactions: 1, cancellations: 0 },
+  { date: new Date(2026, 9, 17), transactions: 1, cancellations: 1 },
+  { date: new Date(2026, 9, 18), transactions: 3, cancellations: 2 },
+  { date: new Date(2026, 9, 19), transactions: 0, cancellations: 0 },
+  { date: new Date(2026, 9, 20), transactions: 0, cancellations: 0 },
+  { date: new Date(2026, 9, 21), transactions: 2, cancellations: 0 },
+  { date: new Date(2026, 9, 22), transactions: 3, cancellations: 0 },
+  { date: new Date(2026, 9, 23), transactions: 1, cancellations: 0 },
+  { date: new Date(2026, 9, 24), transactions: 0, cancellations: 0 },
+  { date: new Date(2026, 9, 25), transactions: 0, cancellations: 0 },
+  { date: new Date(2026, 9, 26), transactions: 0, cancellations: 0 },
+  { date: new Date(2026, 9, 27), transactions: 2, cancellations: 0 },
+  { date: new Date(2026, 9, 28), transactions: 2, cancellations: 0 },
+  { date: new Date(2026, 9, 29), transactions: 1, cancellations: 1 },
+  { date: new Date(2026, 9, 30), transactions: 2, cancellations: 0 },
+
+
+
+
+
+
+
 
   // --- Noviembre 2026 ---
   { date: new Date(2026, 10, 5), transactions: 4, cancellations: 0 },
