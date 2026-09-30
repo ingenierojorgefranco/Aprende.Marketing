@@ -297,7 +297,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
   // Helper for view link
   const linkedPage = userPages.find(p => p.id === selectedPageId);
   const pageSlug = linkedPage?.subdomain ? linkedPage.subdomain.split('.')[0] : selectedPageId;
-  const viewUrl = `/admin/lp/${pageSlug}/blog/${slug}`;
+  const viewUrl = `/lp/${pageSlug}/blog/${slug}`;
 
   return (
     <div className="flex flex-col gap-4 h-[calc(100vh-100px)] animate-in fade-in zoom-in-95 duration-500">

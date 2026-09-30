@@ -1271,7 +1271,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       ? createdPageSubdomain.split(".")[0]
       : "";
     if (subdomainPart) {
-      return `https://aprende.marketing/admin/lp/${subdomainPart}`;
+      return `https://aprende.marketing/lp/${subdomainPart}`;
     }
     return "https://microblading.aprende.marketing";
   })();
@@ -1286,8 +1286,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         (window.location.hostname === "localhost" ||
           window.location.hostname.includes("ais-dev"));
       return isLocal
-        ? `/admin/lp/${subdomainPart}`
-        : `https://aprende.marketing/admin/lp/${subdomainPart}`;
+        ? `/lp/${subdomainPart}`
+        : `https://aprende.marketing/lp/${subdomainPart}`;
     } else if (unlockedProject) {
       return `/dashboard/projects/${unlockedProject.id}/strategy?section=web`;
     }
@@ -2094,8 +2094,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     (window.location.hostname === "localhost" ||
                       window.location.hostname.includes("ais-dev"));
                   const url = isLocal
-                    ? `/admin/lp/${subdomainPart}`
-                    : `https://aprende.marketing/admin/lp/${subdomainPart}`;
+                    ? `/lp/${subdomainPart}`
+                    : `https://aprende.marketing/lp/${subdomainPart}`;
                   window.open(url, "_blank");
                 } else if (unlockedProject) {
                   window.open(
@@ -2537,11 +2537,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                           {(() => {
                             const subdomainPart = createdPageSubdomain ? createdPageSubdomain.split(".")[0] : "microblading-demo";
                             const displayedUrl = selectedLandingPageTab === "captacion"
-                              ? `aprende.marketing/admin/lp/${subdomainPart}`
-                              : `aprende.marketing/admin/lp/${subdomainPart}/gracias`;
+                              ? `aprende.marketing/lp/${subdomainPart}`
+                              : `aprende.marketing/lp/${subdomainPart}/gracias`;
                             const absoluteUrl = selectedLandingPageTab === "captacion"
-                              ? `https://aprende.marketing/admin/lp/${subdomainPart}`
-                              : `https://aprende.marketing/admin/lp/${subdomainPart}/gracias`;
+                              ? `https://aprende.marketing/lp/${subdomainPart}`
+                              : `https://aprende.marketing/lp/${subdomainPart}/gracias`;
                             
                             return (
                               <>
@@ -2614,8 +2614,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                                 {(() => {
                                   const subdomainPart = createdPageSubdomain ? createdPageSubdomain.split(".")[0] : "microblading-demo";
                                   return selectedLandingPageTab === "captacion"
-                                    ? `aprende.marketing/admin/lp/${subdomainPart}`
-                                    : `aprende.marketing/admin/lp/${subdomainPart}/gracias`;
+                                    ? `aprende.marketing/lp/${subdomainPart}`
+                                    : `aprende.marketing/lp/${subdomainPart}/gracias`;
                                 })()}
                               </div>
                             </div>

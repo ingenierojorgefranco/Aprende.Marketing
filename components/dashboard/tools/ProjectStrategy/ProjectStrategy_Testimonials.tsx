@@ -419,7 +419,7 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
                 {linkedLanding && (
                     <div className="flex justify-center mt-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                         <a 
-                            href={`/admin/lp/${linkedLanding.subdomain.split('.')[0]}#testimonios`}
+                            href={`/lp/${linkedLanding.subdomain.split('.')[0]}#testimonios`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="px-10 py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl uppercase tracking-widest rounded-2xl transition-all shadow-2xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-4 transform hover:scale-[1.05] active:scale-95"

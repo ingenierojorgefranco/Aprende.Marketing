@@ -426,8 +426,8 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                 </button>
                 {localArticles.map((article) => {
                     const basePageSlug = article.pageSubdomain ? article.pageSubdomain.split(".")[0] : article.pageId;
-                    const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${article.slug}` : '#';
-                    const landingUrl = basePageSlug ? `/admin/lp/${basePageSlug}` : '#';
+                    const articleUrl = basePageSlug ? `/lp/${basePageSlug}/blog/${article.slug}` : '#';
+                    const landingUrl = basePageSlug ? `/lp/${basePageSlug}` : '#';
 
                     return (
                         <div key={article.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col h-full overflow-hidden shadow-2xl relative cursor-pointer">

@@ -205,7 +205,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     if (redirectType === 'landing' && selectedPageId) {
       const page = userPages.find(p => String(p.id) === String(selectedPageId));
       if (page) {
-        const url = page.customDomain ? `https://${page.customDomain}` : `https://aprende.marketing/admin/lp/${page.subdomain}/`;
+        const url = page.customDomain ? `https://${page.customDomain}` : `https://aprende.marketing/lp/${page.subdomain}/`;
         setCtaLink(url);
         setValidationError(false);
       }
@@ -329,7 +329,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       if (projectPages.length === 1) {
           const firstPage = projectPages[0];
           setSelectedPageId(firstPage.id);
-          const url = firstPage.customDomain ? `https://${firstPage.customDomain}` : `https://aprende.marketing/admin/lp/${firstPage.subdomain}/`;
+          const url = firstPage.customDomain ? `https://${firstPage.customDomain}` : `https://aprende.marketing/lp/${firstPage.subdomain}/`;
           setCtaLink(url);
       } else {
           setSelectedPageId('');
@@ -621,7 +621,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     setValidationError(false);
     const page = userPages.find(p => String(p.id) === String(pageId));
     if (page) {
-        const url = page.customDomain ? `https://${page.customDomain}` : `https://aprende.marketing/admin/lp/${page.subdomain}/`;
+        const url = page.customDomain ? `https://${page.customDomain}` : `https://aprende.marketing/lp/${page.subdomain}/`;
         setCtaLink(url);
     } else {
         setCtaLink('');
@@ -780,7 +780,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                             <button 
                                 onClick={() => { 
                                     const basePageSlug = selectedPageId ? userPages.find(p => p.id === selectedPageId)?.subdomain?.split('.')[0] : null; 
-                                    const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${savedArticleResult?.slug}` : '#'; 
+                                    const articleUrl = basePageSlug ? `/lp/${basePageSlug}/blog/${savedArticleResult?.slug}` : '#'; 
                                     window.open(articleUrl, '_blank'); 
                                 }} 
                                 className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"

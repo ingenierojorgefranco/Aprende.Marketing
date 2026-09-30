@@ -659,7 +659,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                                 {/* Fila 1 (Visualización) */}
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <a 
-                                        href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}`}
+                                        href={`/lp/${generatedPageResult.subdomain.split('.')[0]}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
@@ -667,7 +667,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                                         <ExternalLink className="w-5 h-5" /> Ver Página de Captura
                                     </a>
                                     <a 
-                                        href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}/gracias`}
+                                        href={`/lp/${generatedPageResult.subdomain.split('.')[0]}/gracias`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex-1 bg-emerald-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-emerald-500 transform hover:scale-[1.03] active:scale-95"

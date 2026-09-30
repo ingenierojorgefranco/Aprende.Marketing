@@ -233,7 +233,7 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
     ? `/lp/${userSlug}/${activeSlug}` 
     : forcedSlug 
         ? '' // Root if forced (custom domain) 
-        : `/admin/lp/${activeSlug}`; // or /lp/slug
+        : `/lp/${activeSlug}`;
 
   // USAMOS EL MOTOR DE RENDERIZADO "LivePage"
   return <LivePage 

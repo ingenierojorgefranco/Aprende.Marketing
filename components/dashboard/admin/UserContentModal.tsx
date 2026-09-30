@@ -640,7 +640,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void, onUserUpdate
                                                         <button 
                                                             onClick={() => {
                                                                 const pageSlug = slugify(p.name);
-                                                                window.open(`https://aprende.marketing/admin/lp/${p.id}-${pageSlug}`, '_blank');
+                                                                window.open(`https://aprende.marketing/lp/${p.id}-${pageSlug}`, '_blank');
                                                             }}
                                                             className="p-1.5 text-blue-400 hover:bg-blue-900/20 rounded transition"
                                                             title="Ver Página"

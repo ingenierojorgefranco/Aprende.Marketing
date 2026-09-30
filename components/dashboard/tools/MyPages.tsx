@@ -365,7 +365,7 @@ export const MyPages: React.FC = () => {
                         // ACTUALIZADO: El subdominio ya contiene el ID antepuesto por el backend.
                         // Limpiamos el subdominio para obtener el slug exacto para el enlace.
                         const baseSlug = page.subdomain ? page.subdomain.split(".")[0] : page.id;
-                        const publicUrl = `/admin/lp/${baseSlug}`;
+                        const publicUrl = `/lp/${baseSlug}`;
 
                         return (
                             /* Actualización: Rediseño Premium Dark con bordes redondeados [2.5rem], fondo #111 y efectos de iluminación suaves al pasar el ratón para una experiencia de usuario más sofisticada */

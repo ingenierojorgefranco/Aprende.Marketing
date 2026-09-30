@@ -16,9 +16,9 @@ const getThankYouPageUrl = (project: any, pages: any[]) => {
             return `https://${page.customDomain}/gracias`;
         }
         const sub = page.subdomain ? page.subdomain.split('.')[0] : '';
-        return `/admin/lp/${sub}/gracias`;
+        return `/lp/${sub}/gracias`;
     }
-    return `/admin/lp/${project.slug || 'proyecto'}/gracias`;
+    return `/lp/${project.slug || 'proyecto'}/gracias`;
 };
 
 interface ProjectStrategy_EmailProps {

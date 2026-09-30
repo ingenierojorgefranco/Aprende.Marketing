@@ -410,7 +410,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
 
   // URL calculation
   const baseSlug = page.subdomain ? page.subdomain.split('.')[0] : page.id;
-  const publicUrl = `/admin/lp/${baseSlug}`;
+  const publicUrl = `/lp/${baseSlug}`;
 
   // --- HELPER FUNCTIONS ---
   const updateNestedField = (section: keyof GeneratedPageContent, field: string, value: string) => {

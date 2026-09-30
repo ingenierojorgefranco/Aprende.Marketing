@@ -1320,7 +1320,7 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
             articleUrl = `https://${page.custom_domain}/blog/${articleSlug}`;
         } else {
             const pageSlug = slugify(page.name);
-            articleUrl = `https://aprende.marketing/admin/lp/${page.id}-${pageSlug}/blog/${articleSlug}`;
+            articleUrl = `https://aprende.marketing/lp/${page.id}-${pageSlug}/blog/${articleSlug}`;
         }
     }
 

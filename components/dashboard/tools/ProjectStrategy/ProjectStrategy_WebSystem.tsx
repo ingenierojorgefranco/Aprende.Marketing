@@ -314,7 +314,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     const handleCopyLpUrl = () => {
         const subdomain = linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo';
-        const url = `aprende.marketing/admin/lp/${subdomain}`;
+        const url = `aprende.marketing/lp/${subdomain}`;
         navigator.clipboard.writeText(`https://${url}`);
         setCopiedLpUrl(true);
         setTimeout(() => setCopiedLpUrl(false), 2000);
@@ -322,7 +322,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     const handleCopyTyUrl = () => {
         const subdomain = linkedPages.length > 0 ? linkedPages[0].subdomain.split('.')[0] : 'microblading-demo';
-        const url = `aprende.marketing/admin/lp/${subdomain}/gracias`;
+        const url = `aprende.marketing/lp/${subdomain}/gracias`;
         navigator.clipboard.writeText(`https://${url}`);
         setCopiedTyUrl(true);
         setTimeout(() => setCopiedTyUrl(false), 2000);
@@ -334,7 +334,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         if (!page) {
             const fallback = projectId || 'microblading-demo';
             const cleanPath = path ? (path.startsWith('/') ? path : `/${path}`) : '';
-            return `/admin/lp/${fallback}${cleanPath}${queryParams}`;
+            return `/lp/${fallback}${cleanPath}${queryParams}`;
         }
         if (page.customDomain && page.customDomain.trim()) {
             const cleanDomain = page.customDomain.trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '');
@@ -343,7 +343,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         }
         const cleanSubdomain = page.subdomain ? page.subdomain.split('.')[0] : (projectId || 'microblading-demo');
         const cleanPath = path ? (path.startsWith('/') ? path : `/${path}`) : '';
-        return `/admin/lp/${cleanSubdomain}${cleanPath}${queryParams}`;
+        return `/lp/${cleanSubdomain}${cleanPath}${queryParams}`;
     };
 
     // Estados para edición en línea
@@ -788,7 +788,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             {/* Contenido de la Landing Page en vista previa */}
                             {linkedPages.length > 0 ? (
                                 <iframe 
-                                    src={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`} 
+                                    src={`/lp/${linkedPages[0].subdomain.split('.')[0]}`} 
                                     className="w-full h-[580px] border-0 bg-white"
                                     title="Vista previa página de captura"
                                 />
@@ -934,7 +934,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         {/* Campo de URL con botón copiar y botón abrir URL dinámica */}
                                         <div className="flex items-start bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-1.5 min-w-0">
                                             <span className="break-all whitespace-normal flex-1 select-all leading-relaxed py-0.5">
-                                                aprende.marketing/admin/lp/{linkedPages[0].subdomain.split('.')[0]}
+                                                aprende.marketing/lp/{linkedPages[0].subdomain.split('.')[0]}
                                             </span>
                                             <div className="flex items-center gap-0.5 shrink-0">
                                                 <button 
@@ -945,7 +945,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                                     {copiedLpUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                                                 </button>
                                                 <a 
-                                                    href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`}
+                                                    href={`/lp/${linkedPages[0].subdomain.split('.')[0]}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0 cursor-pointer"
@@ -1112,7 +1112,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             {linkedPages.length > 0 ? (
                                 <iframe 
                                     key={iframeKey}
-                                    src={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`} 
+                                    src={`/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`} 
                                     className="w-full h-[580px] border-0 bg-white"
                                     title="Vista previa página de gracias"
                                 />
@@ -1191,7 +1191,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         {/* Campo de URL con botón copiar y botón abrir URL dinámica */}
                                         <div className="flex items-start bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-1.5 min-w-0">
                                             <span className="break-all whitespace-normal flex-1 select-all leading-relaxed py-0.5">
-                                                aprende.marketing/admin/lp/{linkedPages[0].subdomain.split('.')[0]}/gracias
+                                                aprende.marketing/lp/{linkedPages[0].subdomain.split('.')[0]}/gracias
                                             </span>
                                             <div className="flex items-center gap-0.5 shrink-0 mt-0.5">
                                                 <button 
@@ -1202,7 +1202,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                                     {copiedTyUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                                                 </button>
                                                 <a 
-                                                    href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`}
+                                                    href={`/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0 cursor-pointer"

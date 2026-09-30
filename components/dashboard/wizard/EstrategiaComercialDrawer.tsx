@@ -169,8 +169,8 @@ export const EstrategiaComercialDrawer: React.FC<EstrategiaComercialDrawerProps>
           window.location.hostname.includes("ais-dev") ||
           window.location.hostname.includes("run.app"));
       const base = isLocal
-        ? `/admin/lp/${subdomainPart}`
-        : `https://aprende.marketing/admin/lp/${subdomainPart}`;
+        ? `/lp/${subdomainPart}`
+        : `https://aprende.marketing/lp/${subdomainPart}`;
       return `${base}#testimonios`;
     }
 
