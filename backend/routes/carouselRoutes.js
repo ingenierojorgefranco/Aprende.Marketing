@@ -502,12 +502,12 @@ router.delete('/:id', async (req, res) => {
         if (rows.length > 0) {
             const projectId = rows[0].project_id;
             
-            // 2. Eliminar físicamente todos los archivos subidos al bucket bajo el prefijo del proyecto
+            // 2. Eliminar físicamente todos los archivos subidos al bucket bajo la subcarpeta del carrusel específico
             try {
-                const prefix = `Proyect/${projectId}/carrouseles/`;
+                const prefix = `Proyect/${projectId}/carrouseles/${cleanId}/`;
                 const bucket = storage.bucket(bucketName);
                 await bucket.deleteFiles({ prefix });
-                console.log(`[GCS Clean] Eliminados todos los archivos bajo el prefijo: ${prefix}`);
+                console.log(`[GCS Clean] Eliminados todos los archivos bajo el prefijo del carrusel: ${prefix}`);
             } catch (gcsError) {
                 // No detenemos el flujo si falla GCS para evitar que se bloquee el borrado del carrusel
                 console.error('[GCS Clean Error] Error al eliminar archivos del bucket:', gcsError);

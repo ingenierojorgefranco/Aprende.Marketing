@@ -2840,7 +2840,7 @@ export const api = {
         return localWatched;
     },
 
-    uploadFile: async (file: File, options?: { projectId?: string | number; folderType?: string; articleId?: string }): Promise<{ url: string; fileName: string }> => {
+    uploadFile: async (file: File, options?: { projectId?: string | number; folderType?: string; articleId?: string; carouselId?: string | number }): Promise<{ url: string; fileName: string }> => {
         const formData = new FormData();
         formData.append("file", file);
         if (options?.projectId) {
@@ -2851,6 +2851,9 @@ export const api = {
         }
         if (options?.articleId) {
             formData.append("articleId", String(options.articleId));
+        }
+        if (options?.carouselId) {
+            formData.append("carouselId", String(options.carouselId));
         }
         const token = localStorage.getItem('plataformadeventacom_token');
         const res = await fetchWithFallback("/upload", {

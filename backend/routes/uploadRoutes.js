@@ -92,7 +92,11 @@ router.post('/', upload.single('file'), async (req, res) => {
         : 'temp_article';
       destinationBlobName = `Proyect/${projectId}/images/articles/${articleId}/${cleanFileName}`;
     } else if (folderType === 'carrouseles' || folderType === 'carousels') {
-      destinationBlobName = `Proyect/${projectId}/carrouseles/${cleanFileName}`;
+      const rawCarouselId = req.body?.carouselId || req.query?.carouselId || req.body?.carrouselId || req.query?.carrouselId;
+      const carouselId = (rawCarouselId && String(rawCarouselId).trim() !== '' && String(rawCarouselId).trim() !== 'undefined')
+        ? String(rawCarouselId).trim()
+        : 'temp_carousel';
+      destinationBlobName = `Proyect/${projectId}/carrouseles/${carouselId}/${cleanFileName}`;
     } else {
       destinationBlobName = `Proyect/${projectId}/images/${cleanFileName}`;
     }

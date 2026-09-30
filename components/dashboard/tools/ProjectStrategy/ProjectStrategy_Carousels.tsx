@@ -1000,7 +1000,8 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                                             try {
                                                                                 const res = await api.uploadFile(file, {
                                                                                     projectId: projectId,
-                                                                                    folderType: 'carrouseles'
+                                                                                    folderType: 'carrouseles',
+                                                                                    carouselId: currentCarousel.id
                                                                                 });
                                                                                 await handleUpdateSlideField('image', res.url, idx);
                                                                             } catch (err: any) {
