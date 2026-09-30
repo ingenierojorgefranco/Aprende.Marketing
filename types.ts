@@ -704,6 +704,13 @@ export interface Project {
     descriptiveImages?: string[];
     instructorImage?: string;
     whatsappGroupUrl?: string;
+    instructor?: {
+      name?: string;
+      bio?: string;
+      title?: string;
+      statsStudents?: string;
+      statsRating?: string;
+    };
     leadMagnets?: { 
       name: string; 
       url: string; 

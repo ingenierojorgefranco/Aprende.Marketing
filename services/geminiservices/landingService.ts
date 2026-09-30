@@ -475,6 +475,16 @@ export const generateLandingPageContent = async (
             if (pStrategy?.teacher?.image && content.instructor) {
                 content.instructor.imageUrl = pStrategy.teacher.image;
             }
+
+            // 6. INYECCIÓN DEL INSTRUCTOR CENTRALIZADO DESDE EL EDITOR DE PROYECTOS (MULTIMEDIA_JSON)
+            const mm = projectContext.multimedia_json;
+            if (mm && mm.instructor && content.instructor) {
+                if (mm.instructor.name) content.instructor.name = mm.instructor.name;
+                if (mm.instructor.bio) content.instructor.bio = mm.instructor.bio;
+                if (mm.instructor.title) content.instructor.title = mm.instructor.title;
+                if (mm.instructor.statsStudents) content.instructor.statsStudents = mm.instructor.statsStudents;
+                if (mm.instructor.statsRating) content.instructor.statsRating = mm.instructor.statsRating;
+            }
         }
 
         // Aplicar la imagen de persona misteriosa solo si después de todo sigue vacía

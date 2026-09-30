@@ -482,6 +482,13 @@ export const ProjectWizard: React.FC = () => {
         descriptiveImages: string[], 
         instructorImage?: string,
         leadMagnets?: { name: string; url: string; imageUrl?: string; description?: string; fromMaster?: boolean; }[],
+        instructor?: {
+            name: string;
+            bio: string;
+            title: string;
+            statsStudents: string;
+            statsRating: string;
+        },
         thankYouPage?: {
             videoUrl?: string;
             videoTitle?: string;
@@ -512,6 +519,13 @@ export const ProjectWizard: React.FC = () => {
         descriptiveImages: [],
         instructorImage: '',
         leadMagnets: [],
+        instructor: {
+            name: 'Ariana Zamora',
+            bio: 'Microblading Artist · Phibrows Artist · Certificada en PMU · 1,560+ Alumnas. Después de dirigir tres estudios propios en Buenos Aires, decidió perfeccionarse internacionalmente. Actualmente opera su propio estudio en Estados Unidos, aplicando diariamente la técnica hiperrealista que enseña a sus alumnas en todo el mundo.',
+            title: 'Conoce a tu Mentor',
+            statsStudents: '+500 Alumnos',
+            statsRating: '5.0 Estrellas'
+        },
         thankYouPage: {
             videoUrl: '',
             videoTitle: '',
@@ -1006,11 +1020,22 @@ export const ProjectWizard: React.FC = () => {
                 }
                 if (proj.multimedia_json) {
                     const loadedTy = (proj.multimedia_json as any).thankYouPage || {};
+                    const loadedInstructor = (proj.multimedia_json as any).instructor 
+                        || (proj.strategy_json as any)?.teacher 
+                        || (proj.strategy_json as any)?.instructor 
+                        || {};
                     setMultimedia({
                         heroImages: proj.multimedia_json.heroImages || [],
                         videoUrls: proj.multimedia_json.videoUrls || ((proj.multimedia_json as any).videoUrl ? [(proj.multimedia_json as any).videoUrl] : []),
                         descriptiveImages: proj.multimedia_json.descriptiveImages || [],
                         instructorImage: proj.multimedia_json.instructorImage || '',
+                        instructor: {
+                            name: loadedInstructor.name || 'Ariana Zamora',
+                            bio: loadedInstructor.bio || loadedInstructor.bioText || 'Microblading Artist · Phibrows Artist · Certificada en PMU · 1,560+ Alumnas. Después de dirigir tres estudios propios en Buenos Aires, decidió perfeccionarse internacionalmente. Actualmente opera su propio estudio en Estados Unidos, aplicando diariamente la técnica hiperrealista que enseña a sus alumnas en todo el mundo.',
+                            title: loadedInstructor.title || 'Conoce a tu Mentor',
+                            statsStudents: loadedInstructor.statsStudents || loadedInstructor.students || '+500 Alumnos',
+                            statsRating: loadedInstructor.statsRating || loadedInstructor.rating || '5.0 Estrellas'
+                        },
                         leadMagnets: Array.isArray((proj.multimedia_json as any).leadMagnets)
                             ? (proj.multimedia_json as any).leadMagnets.map((lm: any) => typeof lm === 'string' ? { name: 'Lead Magnet', url: lm } : lm)
                             : (proj.leadMagnetUrl ? [{ name: 'Lead Magnet Principal', url: proj.leadMagnetUrl }] : []),
@@ -1048,12 +1073,22 @@ export const ProjectWizard: React.FC = () => {
                         }
                     });
                 } else if (proj.leadMagnetUrl) {
+                    const loadedInstructor = (proj.strategy_json as any)?.teacher 
+                        || (proj.strategy_json as any)?.instructor 
+                        || {};
                     setMultimedia({
                         heroImages: [],
                         videoUrls: [],
                         descriptiveImages: [],
                         instructorImage: '',
                         leadMagnets: [{ name: 'Lead Magnet Principal', url: proj.leadMagnetUrl }],
+                        instructor: {
+                            name: loadedInstructor.name || 'Ariana Zamora',
+                            bio: loadedInstructor.bio || loadedInstructor.bioText || 'Microblading Artist · Phibrows Artist · Certificada en PMU · 1,560+ Alumnas. Después de dirigir tres estudios propios en Buenos Aires, decidió perfeccionarse internacionalmente. Actualmente opera su propio estudio en Estados Unidos, aplicando diariamente la técnica hiperrealista que enseña a sus alumnas en todo el mundo.',
+                            title: loadedInstructor.title || 'Conoce a tu Mentor',
+                            statsStudents: loadedInstructor.statsStudents || loadedInstructor.students || '+500 Alumnos',
+                            statsRating: loadedInstructor.statsRating || loadedInstructor.rating || '5.0 Estrellas'
+                        },
                         thankYouPage: {
                             videoUrl: '',
                             videoTitle: '',
@@ -1180,9 +1215,7 @@ export const ProjectWizard: React.FC = () => {
             hotmart_rating: hotmartRating,
             hotmart_temperature: hotmartTemperature,
             hotmart_blueprint: hotmartBlueprint,
-            multimedia_json: (user.role === 'admin' && !isSimulating) 
-                ? { ...multimedia, whatsappGroupUrl: whatsappGroupUrl.trim() } 
-                : undefined,
+            multimedia_json: { ...multimedia, whatsappGroupUrl: whatsappGroupUrl.trim() },
             strategy_json: currentStrategy
         };
 
@@ -1495,53 +1528,7 @@ export const ProjectWizard: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* INSTRUCTOR IMAGE */}
-                                    <div className="space-y-4 pt-4 border-t border-blue-500/10">
-                                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Foto del Profesor / Tutor (Biblioteca)</label>
-                                        <div className="flex gap-3 items-center">
-                                            <div className="w-16 h-16 rounded-xl bg-black border border-gray-800 overflow-hidden flex-shrink-0">
-                                                {multimedia.instructorImage ? (
-                                                    <img src={multimedia.instructorImage} alt="Profesor" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-gray-700">
-                                                        <UserIcon className="w-8 h-8" />
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <input 
-                                                type="text" 
-                                                value={multimedia.instructorImage || ''} 
-                                                onChange={(e) => setMultimedia({ ...multimedia, instructorImage: e.target.value })}
-                                                className="flex-1 bg-black border border-gray-800 rounded-xl px-4 py-3 text-xs text-blue-300 outline-none focus:border-blue-500"
-                                                placeholder="URL de la foto del profesor..."
-                                            />
-                                            <label className="p-3 bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 rounded-xl cursor-pointer transition-colors flex items-center justify-center relative">
-                                                {uploadingState?.type === 'instructorImage' ? (
-                                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                                ) : (
-                                                    <Upload className="w-5 h-5" />
-                                                )}
-                                                <input 
-                                                    type="file" 
-                                                    className="hidden" 
-                                                    accept="image/*"
-                                                    disabled={uploadingState !== null}
-                                                    onChange={(e) => handleImageUpload(e, 'instructorImage')}
-                                                />
-                                            </label>
-                                            {multimedia.instructorImage && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleDeleteImage('instructorImage')}
-                                                    className="p-3 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-xl cursor-pointer transition-colors"
-                                                    title="Eliminar foto del profesor"
-                                                >
-                                                    <Trash2 className="w-5 h-5" />
-                                                </button>
-                                            )}
-                                        </div>
-                                        <p className="text-[10px] text-gray-500 italic">Esta imagen aparecerá en la "Biblioteca" del editor web para que el usuario pueda seleccionarla fácilmente.</p>
-                                    </div>
+
 
                                     {/* URL del Producto Digital (SOLO ADMIN) */}
                                     <div className="space-y-4 pt-4 border-t border-blue-500/10">
@@ -2504,6 +2491,86 @@ export const ProjectWizard: React.FC = () => {
                                     onChange={val => setDescription(val)} 
                                     placeholder="Describe brevemente de qué trata para que la IA genere el copy..."
                                 />
+                            </div>
+
+                            {/* SECCIÓN DEDICADA AL INSTRUCTOR / EXPERTO */}
+                            <div className="bg-[#0B1120] border border-slate-800/80 rounded-2xl p-5 sm:p-6 space-y-4">
+                                <div className="border-b border-gray-800 pb-3 flex items-center gap-2">
+                                    <UserIcon className="w-5 h-5 text-indigo-400" />
+                                    <div>
+                                        <h4 className="text-sm font-bold text-white uppercase tracking-wider">Perfil del Instructor / Experto</h4>
+                                        <p className="text-[11px] text-gray-500">Configura el nombre, biografía y estadísticas del tutor. Estos datos alimentarán tus páginas de forma directa sin requerir una imagen.</p>
+                                    </div>
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wide">Título de Sección</label>
+                                        <input 
+                                            type="text" 
+                                            value={multimedia.instructor?.title || ''} 
+                                            onChange={e => setMultimedia({ 
+                                                ...multimedia, 
+                                                instructor: { ...multimedia.instructor, title: e.target.value } as any
+                                            })} 
+                                            className="w-full bg-black border border-gray-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-primary outline-none transition-all placeholder:text-gray-700" 
+                                            placeholder="Ej: Conoce a tu Mentor" 
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wide">Nombre Completo del Instructor</label>
+                                        <input 
+                                            type="text" 
+                                            value={multimedia.instructor?.name || ''} 
+                                            onChange={e => setMultimedia({ 
+                                                ...multimedia, 
+                                                instructor: { ...multimedia.instructor, name: e.target.value } as any
+                                            })} 
+                                            className="w-full bg-black border border-gray-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-primary outline-none transition-all placeholder:text-gray-700" 
+                                            placeholder="Ej: Ariana Zamora" 
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wide">Biografía / Trayectoria del Instructor</label>
+                                    <textarea 
+                                        value={multimedia.instructor?.bio || ''} 
+                                        onChange={e => setMultimedia({ 
+                                            ...multimedia, 
+                                            instructor: { ...multimedia.instructor, bio: e.target.value } as any
+                                        })} 
+                                        rows={4}
+                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-xs text-white focus:border-primary outline-none transition-all placeholder:text-gray-700 resize-none leading-relaxed" 
+                                        placeholder="Describe la experiencia y estudios del instructor..."
+                                    />
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wide">Estadística de Alumnos</label>
+                                        <input 
+                                            type="text" 
+                                            value={multimedia.instructor?.statsStudents || ''} 
+                                            onChange={e => setMultimedia({ 
+                                                ...multimedia, 
+                                                instructor: { ...multimedia.instructor, statsStudents: e.target.value } as any
+                                            })} 
+                                            className="w-full bg-black border border-gray-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-primary outline-none transition-all placeholder:text-gray-700" 
+                                            placeholder="Ej: +500 Alumnos" 
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wide">Estadística de Calificación</label>
+                                        <input 
+                                            type="text" 
+                                            value={multimedia.instructor?.statsRating || ''} 
+                                            onChange={e => setMultimedia({ 
+                                                ...multimedia, 
+                                                instructor: { ...multimedia.instructor, statsRating: e.target.value } as any
+                                            })} 
+                                            className="w-full bg-black border border-gray-700 rounded-xl px-4 py-2.5 text-xs text-white focus:border-primary outline-none transition-all placeholder:text-gray-700" 
+                                            placeholder="Ej: 5.0 Estrellas" 
+                                        />
+                                    </div>
+                                </div>
                             </div>
                             <div className="bg-[#0B1120] border border-slate-800/80 rounded-2xl p-5 sm:p-6 space-y-4">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
