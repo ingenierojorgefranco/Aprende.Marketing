@@ -19,6 +19,24 @@ interface ProjectStrategy_CarouselsProps {
     overrideProjectId?: string;
 }
 
+const forceDownloadImage = async (url: string, filename: string) => {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+        console.error("Error downloading image directly, falling back to opening in new tab:", error);
+        window.open(url, '_blank');
+    }
+};
+
 export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps> = ({
     totalSteps,
     strategyData,
@@ -649,8 +667,8 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                     : 'bg-black/20 border-gray-800 hover:border-gray-700'
                                             } ${isCardSelected ? 'translate-x-2' : ''} ${(!isRealAdmin && !isUnlocked && (carousel as any).masterCarouselId) ? 'opacity-60 grayscale' : ''}`}
                                         >
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light truncate ${
+                                            <div className="flex-1">
+                                                <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light whitespace-normal break-words ${
                                                     isCardSelected 
                                                         ? (activeTab === 'library' ? 'text-orange-300' : 'text-emerald-300') 
                                                         : 'text-white group-hover:text-white'
@@ -1010,18 +1028,34 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                         </div>
                                                     )}
 
-                                                    {/* Download Slide button if image exists */}
+                                                    {/* Download & View Slide buttons if image exists */}
                                                     {slide.image && (
-                                                        <div className="pt-2 flex justify-center w-full max-w-2xl">
+                                                        <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-2xl px-4">
+                                                            {/* Ver Slide Button */}
                                                             <a
                                                                 href={slide.image}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-sm font-black uppercase tracking-wider transition-all shadow-[0_4px_12px_rgba(255,93,30,0.3)] cursor-pointer"
+                                                                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 hover:text-white text-zinc-200 text-sm font-bold uppercase tracking-wider transition-all border border-white/5 shadow-md cursor-pointer"
+                                                            >
+                                                                <ImageIcon className="w-4 h-4 text-orange-400" />
+                                                                <span>Ver Slide {idx + 1}</span>
+                                                            </a>
+
+                                                            {/* Descargar Slide Button */}
+                                                            <button
+                                                                onClick={() => {
+                                                                    const titleSanitized = (currentCarousel?.title || "slide")
+                                                                        .toLowerCase()
+                                                                        .replace(/[^a-z0-9]/g, "-")
+                                                                        .substring(0, 30);
+                                                                    forceDownloadImage(slide.image, `${titleSanitized}-slide-${idx + 1}.png`);
+                                                                }}
+                                                                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-sm font-black uppercase tracking-wider transition-all shadow-[0_4px_12px_rgba(255,93,30,0.3)] cursor-pointer"
                                                             >
                                                                 <Download className="w-5 h-5" />
                                                                 <span>Descargar Slide {idx + 1}</span>
-                                                            </a>
+                                                            </button>
                                                         </div>
                                                     )}
                                                 </div>
