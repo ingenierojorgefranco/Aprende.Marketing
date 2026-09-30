@@ -449,6 +449,9 @@ export const ProjectWizard: React.FC = () => {
     const [masterParentId, setMasterParentId] = useState<string | undefined>(undefined);
     
     const [niche, setNiche] = useState('');
+    const [hotmartRating, setHotmartRating] = useState('');
+    const [hotmartTemperature, setHotmartTemperature] = useState('');
+    const [hotmartBlueprint, setHotmartBlueprint] = useState('');
     const [targetAudience, setTargetAudience] = useState('');
     const [mainGoal, setMainGoal] = useState('Venta Directa');
     const [painPoints, setPainPoints] = useState<string[]>([]);
@@ -918,6 +921,9 @@ export const ProjectWizard: React.FC = () => {
                 setDigitalProductUrl(proj.digitalProductUrl || '');
                 setSalesPageUrl(proj.salesPageUrl || '');
                 setNiche(proj.niche || '');
+                setHotmartRating(proj.hotmart_rating || proj.hotmartRating || '');
+                setHotmartTemperature(proj.hotmart_temperature || proj.hotmartTemperature || '');
+                setHotmartBlueprint(proj.hotmart_blueprint || proj.hotmartBlueprint || '');
                 setTargetAudience(proj.targetAudience || '');
                 setMainGoal(proj.mainGoal || 'Venta Directa');
                 setPainPoints(proj.painPoints || []);
@@ -1171,6 +1177,9 @@ export const ProjectWizard: React.FC = () => {
             keyBenefits: keyBenefits,
             affiliateLinks: affiliateLinks.filter(l => (l.url || '').trim() !== ''),
             isMaster: (user.role === 'admin' && !isSimulating) ? isMaster : false,
+            hotmart_rating: hotmartRating,
+            hotmart_temperature: hotmartTemperature,
+            hotmart_blueprint: hotmartBlueprint,
             multimedia_json: (user.role === 'admin' && !isSimulating) 
                 ? { ...multimedia, whatsappGroupUrl: whatsappGroupUrl.trim() } 
                 : undefined,
@@ -2450,6 +2459,44 @@ export const ProjectWizard: React.FC = () => {
                                 <input type="text" value={shortDescription} onChange={e => setShortDescription(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700" placeholder="Ej: Domina la técnica de cejas y crea un servicio rentable con alta demanda." />
                                 <p className="text-[11px] text-gray-500 mt-1">Este resumen corto de 1 o 2 frases aparecerá debajo del título del producto en las tarjetas de selección.</p>
                             </div>
+
+                            {/* Hotmart Metrics (Rating, Temperature, Blueprint) */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Calificación Hotmart</label>
+                                    <input 
+                                        type="text" 
+                                        value={hotmartRating} 
+                                        onChange={e => setHotmartRating(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700" 
+                                        placeholder="Ej: 5.0" 
+                                    />
+                                    <p className="text-[10px] text-gray-500 mt-1">Nota/Rating de satisfacción del producto.</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Temperatura Hotmart</label>
+                                    <input 
+                                        type="text" 
+                                        value={hotmartTemperature} 
+                                        onChange={e => setHotmartTemperature(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700" 
+                                        placeholder="Ej: 57°" 
+                                    />
+                                    <p className="text-[10px] text-gray-500 mt-1">Nivel de ventas del producto.</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Blueprint Hotmart</label>
+                                    <input 
+                                        type="text" 
+                                        value={hotmartBlueprint} 
+                                        onChange={e => setHotmartBlueprint(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700" 
+                                        placeholder="Ej: 89%" 
+                                    />
+                                    <p className="text-[10px] text-gray-500 mt-1">Calificación de calidad otorgada por Hotmart.</p>
+                                </div>
+                            </div>
+
                             <div>
                                 <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Descripción del Producto (Editor Visual)</label>
                                 <VisualEditor 

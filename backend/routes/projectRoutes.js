@@ -103,8 +103,8 @@ router.post('/unlock/:id', async (req, res) => {
         const finalAffiliateLinks = (affiliateLinks && affiliateLinks.length > 0) ? affiliateLinks : DEFAULT_AFFILIATE_LINKS;
 
         const [result] = await pool.query(
-            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, is_master, master_parent_id, digital_product_url, whatsapp_group_url, plan_id, plan_slug, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, NOW(), NOW())`,
+            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, is_master, master_parent_id, digital_product_url, whatsapp_group_url, plan_id, plan_slug, hotmart_rating, hotmart_temperature, hotmart_blueprint, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
             [
                 req.user.id, 
                 master.name, 
@@ -126,7 +126,10 @@ router.post('/unlock/:id', async (req, res) => {
                 null, // No guardamos la URL en el duplicado, se heredará dinámicamente
                 master.whatsapp_group_url || null,
                 planId,
-                planSlug
+                planSlug,
+                master.hotmart_rating,
+                master.hotmart_temperature,
+                master.hotmart_blueprint
             ]
         );
         const newProjectId = result.insertId;
@@ -464,7 +467,7 @@ router.patch('/:id/toggle-active', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, leadMagnetUrl, salesPageUrl, digitalProductUrl, whatsappGroupUrl, whatsapp_group_url, isMaster } = req.body;
+  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, leadMagnetUrl, salesPageUrl, digitalProductUrl, whatsappGroupUrl, whatsapp_group_url, isMaster, hotmart_rating, hotmart_temperature, hotmart_blueprint, hotmartRating, hotmartTemperature, hotmartBlueprint } = req.body;
   try {
     // Verificar límites del usuario de forma dinámica
     const [userProjects] = await pool.query('SELECT id FROM projects WHERE user_id = ? AND is_master = 0', [req.user.id]);
@@ -485,10 +488,14 @@ router.post('/', async (req, res) => {
     const finalAffiliateLinks = (affiliateLinks && affiliateLinks.length > 0) ? affiliateLinks : DEFAULT_AFFILIATE_LINKS;
     const finalWhatsappGroupUrl = whatsappGroupUrl !== undefined ? whatsappGroupUrl : (whatsapp_group_url || '');
 
+    const finalRating = hotmart_rating || hotmartRating || null;
+    const finalTemperature = hotmart_temperature || hotmartTemperature || null;
+    const finalBlueprint = hotmart_blueprint || hotmartBlueprint || null;
+
     const [result] = await pool.query(
-      `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, multimedia_json, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, digital_product_url, whatsapp_group_url, is_master, plan_id, plan_slug, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-      [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(finalAffiliateLinks), strategy_json ? JSON.stringify(strategy_json) : null, req.body.multimedia_json ? JSON.stringify(req.body.multimedia_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', digitalProductUrl || '', finalWhatsappGroupUrl, isMasterFinal, planId, planSlug]
+      `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, multimedia_json, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, digital_product_url, whatsapp_group_url, is_master, plan_id, plan_slug, hotmart_rating, hotmart_temperature, hotmart_blueprint, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(finalAffiliateLinks), strategy_json ? JSON.stringify(strategy_json) : null, req.body.multimedia_json ? JSON.stringify(req.body.multimedia_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', digitalProductUrl || '', finalWhatsappGroupUrl, isMasterFinal, planId, planSlug, finalRating, finalTemperature, finalBlueprint]
     );
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name });
     clearLimitsCache(req.user.id);
@@ -552,12 +559,16 @@ router.put('/:id', async (req, res) => {
     const isActiveFinal = (req.user.role === 'admin' && body.isActive !== undefined) ? (body.isActive ? 1 : 0) : (existing.is_active === 0 ? 0 : 1);
     const finalDigitalProductUrl = existing.master_parent_id ? null : (body.digitalProductUrl !== undefined ? body.digitalProductUrl : existing.digital_product_url);
 
+    const hotmartRating = body.hotmart_rating !== undefined ? body.hotmart_rating : (body.hotmartRating !== undefined ? body.hotmartRating : existing.hotmart_rating);
+    const hotmartTemperature = body.hotmart_temperature !== undefined ? body.hotmart_temperature : (body.hotmartTemperature !== undefined ? body.hotmartTemperature : existing.hotmart_temperature);
+    const hotmartBlueprint = body.hotmart_blueprint !== undefined ? body.hotmart_blueprint : (body.hotmartBlueprint !== undefined ? body.hotmartBlueprint : existing.hotmart_blueprint);
+
     // Log detallado para depuración
     console.log(`[PROJECT UPDATE] ID: ${id}, Role: ${req.user.role}, Incoming isActive: ${body.isActive}, Final is_active: ${isActiveFinal}`);
 
     await pool.query(
-      `UPDATE projects SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, multimedia_json=?, full_price=?, commission_rate=?, lead_magnet_type=?, lead_magnet_url=?, sales_page_url=?, digital_product_url=?, whatsapp_group_url=?, is_master=?, is_active=?, updated_at=NOW() WHERE id=?`,
-      [name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, multimedia_json, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', finalDigitalProductUrl, whatsappGroupUrl || '', isMasterFinal, isActiveFinal, id]
+      `UPDATE projects SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, multimedia_json=?, full_price=?, commission_rate=?, lead_magnet_type=?, lead_magnet_url=?, sales_page_url=?, digital_product_url=?, whatsapp_group_url=?, is_master=?, is_active=?, hotmart_rating=?, hotmart_temperature=?, hotmart_blueprint=?, updated_at=NOW() WHERE id=?`,
+      [name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, multimedia_json, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', finalDigitalProductUrl, whatsappGroupUrl || '', isMasterFinal, isActiveFinal, hotmartRating, hotmartTemperature, hotmartBlueprint, id]
     );
 
     // Si se actualizó el enlace de whatsapp, sincronizarlo automáticamente con thankyoupage_json de las páginas del proyecto

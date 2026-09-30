@@ -690,6 +690,13 @@ export interface Project {
   limitsConfig?: PlanLimits; // NEW: Specific limits for this project
   isActive?: boolean; // NEW: Status of the project plan
   
+  hotmart_rating?: string;
+  hotmart_temperature?: string;
+  hotmart_blueprint?: string;
+  hotmartRating?: string;
+  hotmartTemperature?: string;
+  hotmartBlueprint?: string;
+  
   strategy_json?: StrategyJSON | any; // Updated to accept both types
   multimedia_json?: {
     heroImages?: string[];

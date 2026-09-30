@@ -501,6 +501,9 @@ const initDb = async () => {
         ////////// Fin de actualización - 05/03/2025 10:00 //////////
         await addColumnSafe(connection, 'projects', "digital_product_url VARCHAR(500)");
         await addColumnSafe(connection, 'projects', "whatsapp_group_url VARCHAR(500)");
+        await addColumnSafe(connection, 'projects', "hotmart_rating VARCHAR(50) NULL");
+        await addColumnSafe(connection, 'projects', "hotmart_temperature VARCHAR(50) NULL");
+        await addColumnSafe(connection, 'projects', "hotmart_blueprint VARCHAR(50) NULL");
         await addColumnSafe(connection, 'course_modules', "is_expanded_default BOOLEAN DEFAULT FALSE");
         
         /* */ /* Actualización: Eliminación de la creación de la columna redundante short_description en la tabla projects, centralizando su almacenamiento dentro de strategy_json - 25/06/2024 11:30 */

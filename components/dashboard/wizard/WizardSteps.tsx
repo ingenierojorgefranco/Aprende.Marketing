@@ -301,6 +301,30 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                                 </div>
 
+                                {/* Hotmart Badges aligned to the right, below the image */}
+                                {(project.hotmart_rating || project.hotmart_temperature || project.hotmart_blueprint) && (
+                                    <div className="flex items-center justify-end gap-2 pt-0.5 px-1 shrink-0 select-none">
+                                        {project.hotmart_rating && (
+                                            <div className="flex items-center gap-1 px-2.5 py-0.5 bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 text-[10px] md:text-xs font-bold rounded-full" title="Calificación">
+                                                <span className="text-yellow-400">★</span>
+                                                <span>{project.hotmart_rating}</span>
+                                            </div>
+                                        )}
+                                        {project.hotmart_temperature && (
+                                            <div className="flex items-center gap-1 px-2.5 py-0.5 bg-red-500/10 border border-red-500/30 text-red-500 text-[10px] md:text-xs font-bold rounded-full" title="Temperatura">
+                                                <span className="text-red-400">🔥</span>
+                                                <span>{project.hotmart_temperature}</span>
+                                            </div>
+                                        )}
+                                        {project.hotmart_blueprint && (
+                                            <div className="flex items-center gap-1 px-2.5 py-0.5 bg-blue-500/10 border border-blue-500/30 text-blue-500 text-[10px] md:text-xs font-bold rounded-full" title="Blueprint">
+                                                <span className="text-blue-400">📊</span>
+                                                <span>{project.hotmart_blueprint}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                                 {/* Content Block */}
                                 <div className="space-y-2 text-left flex-grow">
                                     <h3 className={`text-lg md:text-xl font-extrabold leading-snug tracking-tight ${isSelected ? 'text-[#FF5A1F]' : 'text-white'} group-hover:text-[#FF5A1F] transition-colors line-clamp-2`}>
@@ -459,9 +483,46 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                             <div className="bg-[#101012] border border-zinc-800/80 rounded-2xl p-5 md:p-6 space-y-5">
                                 {/* Category Badge & Title */}
                                 <div className="space-y-2">
-                                    <span className="px-3 py-1 bg-orange-950/50 border border-orange-500/40 text-[#FF5A1F] text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-lg inline-block">
-                                        {categoryLabel}
-                                    </span>
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <span className="px-3 py-1 bg-orange-950/50 border border-orange-500/40 text-[#FF5A1F] text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-lg inline-block">
+                                            {categoryLabel}
+                                        </span>
+                                        {/* Hotmart Badges for the Modal with Tooltips */}
+                                        {(confirmingProject.hotmart_rating || confirmingProject.hotmart_temperature || confirmingProject.hotmart_blueprint) && (
+                                            <div className="flex items-center gap-2 select-none">
+                                                {confirmingProject.hotmart_rating && (
+                                                    <div className="group relative flex items-center gap-1 px-2.5 py-0.5 bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 text-[10px] md:text-xs font-bold rounded-full cursor-help">
+                                                        <span className="text-yellow-400">★</span>
+                                                        <span>{confirmingProject.hotmart_rating}</span>
+                                                        {/* Tooltip */}
+                                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-zinc-950 border border-zinc-800 text-white text-[10px] rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-normal">
+                                                            Calificación
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {confirmingProject.hotmart_temperature && (
+                                                    <div className="group relative flex items-center gap-1 px-2.5 py-0.5 bg-red-500/10 border border-red-500/30 text-red-500 text-[10px] md:text-xs font-bold rounded-full cursor-help">
+                                                        <span className="text-red-400">🔥</span>
+                                                        <span>{confirmingProject.hotmart_temperature}</span>
+                                                        {/* Tooltip */}
+                                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-zinc-950 border border-zinc-800 text-white text-[10px] rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-normal">
+                                                            Temperatura
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {confirmingProject.hotmart_blueprint && (
+                                                    <div className="group relative flex items-center gap-1 px-2.5 py-0.5 bg-blue-500/10 border border-blue-500/30 text-blue-500 text-[10px] md:text-xs font-bold rounded-full cursor-help">
+                                                        <span className="text-blue-400">📊</span>
+                                                        <span>{confirmingProject.hotmart_blueprint}</span>
+                                                        {/* Tooltip */}
+                                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-zinc-950 border border-zinc-800 text-white text-[10px] rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-normal">
+                                                            Blueprint
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
                                     <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-snug">
                                         {displayTitle}
                                     </h3>
