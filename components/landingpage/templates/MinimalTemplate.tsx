@@ -92,15 +92,13 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, project,
 
              <div className="max-w-3xl mx-auto px-6">
                  {/* 6. Instructor */}
-                 <section className="mb-24 flex flex-col md:flex-row gap-10 items-center bg-slate-50 p-10 rounded-3xl border border-slate-100">
-                    <div className="w-40 h-40 rounded-full overflow-hidden flex-shrink-0 border-4 border-white shadow-xl">
-                        <img src={content.instructor.imageUrl} alt={content.instructor.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                    </div>
-                    <div>
+                 <section className="mb-24 flex flex-col items-center text-center bg-slate-50 p-10 rounded-3xl border border-slate-100 max-w-2xl mx-auto">
+
+                    <div className="w-full">
                         <span className="text-primary font-bold text-sm uppercase tracking-widest mb-2 block">Tu Instructor</span>
                         <h2 className="text-3xl font-bold mb-4 text-slate-900">{content.instructor.name}</h2>
                         <p className="text-slate-600 leading-relaxed italic mb-4">"{content.instructor.bio}"</p>
-                        <div className="flex gap-4">
+                        <div className="flex gap-4 justify-center">
                             <div className="flex items-center gap-2 text-sm text-slate-500">
                                 <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                                 <span>{content.instructor.statsRating || "4.9/5 Calificación"}</span>

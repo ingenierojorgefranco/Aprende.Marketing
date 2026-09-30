@@ -1205,31 +1205,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                             <div><Label>Nombre Completo</Label><Input value={content.instructor.name} onChange={(e) => updateNestedField('instructor', 'name', e.target.value)} /></div>
                             <div><Label>Biografía Corta</Label><RichTextArea value={content.instructor.bio} onChange={(e) => updateNestedField('instructor', 'bio', e.target.value)} className="h-24" /></div>
                             
-                            <div className="pt-2">
-                                <Label>Foto del Instructor (URL)</Label>
-                                <div className="flex gap-2 items-center">
-                                    <Input 
-                                        value={content.instructor.imageUrl || ''} 
-                                        onChange={(e) => updateNestedField('instructor', 'imageUrl', e.target.value)} 
-                                        placeholder="Pega la URL de la foto..." 
-                                    />
-                                    <button 
-                                        type="button"
-                                        onClick={() => setLibraryModal({
-                                            isOpen: true,
-                                            images: masterProject?.multimedia_json?.instructorImage ? [masterProject.multimedia_json.instructorImage] : (linkedProject?.multimedia_json?.instructorImage ? [linkedProject.multimedia_json.instructorImage] : []),
-                                            videos: [],
-                                            onSelect: (url) => updateNestedField('instructor', 'imageUrl', url)
-                                        })}
-                                        className="px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-gray-400 hover:text-white transition-all flex items-center gap-2 shrink-0 text-xs font-bold uppercase tracking-widest h-[38px]"
-                                    >
-                                        <Library className="w-4 h-4 text-primary" /> Biblioteca
-                                    </button>
-                                </div>
-                            </div>
                             <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-800">
-                                <div><Label>Badge Superior</Label><Input value={content.instructor.badgeText || ''} onChange={(e) => updateNestedField('instructor', 'badgeText', e.target.value)} placeholder="Ej: Master" /></div>
-                                <div><Label>Subtítulo Badge</Label><Input value={content.instructor.badgeSubtext || ''} onChange={(e) => updateNestedField('instructor', 'badgeSubtext', e.target.value)} placeholder="Ej: Certificado" /></div>
                                 <div><Label>Stats 1 (Alumnos)</Label><Input value={content.instructor.statsStudents || ''} onChange={(e) => updateNestedField('instructor', 'statsStudents', e.target.value)} placeholder="Ej: +1000 Alumnos" /></div>
                                 <div><Label>Stats 2 (Rating)</Label><Input value={content.instructor.statsRating || ''} onChange={(e) => updateNestedField('instructor', 'statsRating', e.target.value)} placeholder="Ej: 5.0" /></div>
                             </div>
