@@ -14,7 +14,7 @@ import { getCurrentUser } from '../../services/auth';
 import { NewsHistoryModal } from './NewsHistoryModal';
 import { UnlockProjectModal } from './UnlockProjectModal';
 
-const getOnboardingCardImage = (project: Project) => {
+const getOnboardingCardImage = (project: Project, library: Project[] = []) => {
     let mm: any = project.multimedia_json;
     if (typeof mm === 'string') {
         try { mm = JSON.parse(mm); } catch { mm = null; }
@@ -22,6 +22,19 @@ const getOnboardingCardImage = (project: Project) => {
     if (mm?.heroImages?.[0]) return mm.heroImages[0];
     if ((project as any).image) return (project as any).image;
     if (project.strategy_json?.visualIdentity?.logoUrl) return project.strategy_json.visualIdentity.logoUrl;
+
+    if (project.masterParentId && library && library.length > 0) {
+        const parent = library.find(m => String(m.id) === String(project.masterParentId));
+        if (parent) {
+            let parentMm: any = parent.multimedia_json;
+            if (typeof parentMm === 'string') {
+                try { parentMm = JSON.parse(parentMm); } catch { parentMm = null; }
+            }
+            if (parentMm?.heroImages?.[0]) return parentMm.heroImages[0];
+            if ((parent as any).image) return (parent as any).image;
+        }
+    }
+
     const lower = (project.name || '').toLowerCase();
     if (lower.includes('microblading') || lower.includes('cejas')) {
         return 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=800&q=80';
@@ -66,6 +79,7 @@ export const DashboardHome: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [allPages, setAllPages] = useState<any[]>([]);
   const [allArticles, setAllArticles] = useState<any[]>([]);
+  const [projectHooksMap, setProjectHooksMap] = useState<Record<string, any[]>>({});
   const [masterLibrary, setMasterLibrary] = useState<Project[]>([]);
   const [academyCourses, setAcademyCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,6 +150,22 @@ export const DashboardHome: React.FC = () => {
             setAllArticles(userArticles || []);
             setMasterLibrary(library || []);
             setAcademyCourses((courses || []).slice(0, 3));
+
+            // Fetch real hooks for each active project dynamically from DB
+            const hooksPromises = projectsList.map(async (p: Project) => {
+                try {
+                    const hks = await api.getProjectHooks(p.id);
+                    return { projectId: p.id, hooks: hks };
+                } catch {
+                    return { projectId: p.id, hooks: [] };
+                }
+            });
+            const hooksResults = await Promise.all(hooksPromises);
+            const map: Record<string, any[]> = {};
+            hooksResults.forEach(res => {
+                map[res.projectId] = res.hooks;
+            });
+            setProjectHooksMap(map);
 
             const rate = summary.totalVisits > 0 
                 ? ((summary.totalConversions / summary.totalVisits) * 100).toFixed(1) 
@@ -499,7 +529,7 @@ export const DashboardHome: React.FC = () => {
               ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {projects.map((project) => {
-                          const projectImg = getOnboardingCardImage(project);
+                          const projectImg = getOnboardingCardImage(project, masterLibrary);
                           const title = project.name || "Proyecto Sin Nombre";
                           const categoryLabel = project.niche ? project.niche.toUpperCase() : "PRODUCTO DIGITAL";
                           
@@ -519,20 +549,9 @@ export const DashboardHome: React.FC = () => {
                               
                           const articlesCount = allArticles.filter(a => String(a.projectId) === String(project.id)).length;
                           
-                          // Hooks Count
-                          let hooksCount = 0;
-                          if (project.strategy_json) {
-                              try {
-                                  const strategy = typeof project.strategy_json === 'string' ? JSON.parse(project.strategy_json) : project.strategy_json;
-                                  if (strategy.hooks && Array.isArray(strategy.hooks)) {
-                                      hooksCount = strategy.hooks.length;
-                                  } else if (strategy.attractionHooks && Array.isArray(strategy.attractionHooks)) {
-                                      hooksCount = strategy.attractionHooks.length;
-                                  } else if (strategy.copywriting?.attractionHooks && Array.isArray(strategy.copywriting.attractionHooks)) {
-                                      hooksCount = strategy.copywriting.attractionHooks.length;
-                                  }
-                              } catch (e) {}
-                          }
+                          // Hooks Count (Real hooks fetched from database and stored in projectHooksMap)
+                          const projectHooks = projectHooksMap[project.id] || [];
+                          const hooksCount = projectHooks.filter(h => h.isUnlocked).length;
 
                           return (
                               <div
@@ -655,7 +674,7 @@ export const DashboardHome: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {lockedLibraryProjects.slice(0, 6).map((project) => {
                           const isAlreadyUnlocked = Boolean(project.isUnlocked) || projects.some(p => String(p.masterParentId) === String(project.id));
-                          const projectImg = getOnboardingCardImage(project);
+                          const projectImg = getOnboardingCardImage(project, masterLibrary);
                           const title = getOnboardingCardTitle(project);
                           const desc = getOnboardingCardDesc(project);
 

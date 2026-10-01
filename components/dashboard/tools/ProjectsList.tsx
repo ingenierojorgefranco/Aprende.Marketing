@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useOutletContext, useLocation } from 'react-router-dom';
 import { api } from '../../../services/api';
-import { Project, User, AffiliateLink, Plan } from '../../../types';
+import { Project, User, AffiliateLink, Plan, ProjectHook } from '../../../types';
 import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check, Gift, ShoppingCart as CartIcon, Info, Crown as CornerCrown, Settings, FileText, Star, Play, Users, Eye, ChevronRight, Clock, Activity, Folder, Globe, Award, Compass, GraduationCap, ShieldCheck, Package, Layers } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
@@ -42,6 +42,7 @@ export const ProjectsList: React.FC = () => {
     const [plans, setPlans] = useState<Plan[]>([]);
     const [allPages, setAllPages] = useState<any[]>([]);
     const [allArticles, setAllArticles] = useState<any[]>([]);
+    const [projectHooksMap, setProjectHooksMap] = useState<Record<string, ProjectHook[]>>({});
     const [loading, setLoading] = useState(true);
     const [unlockingId, setUnlockingId] = useState<string | null>(null);
     
@@ -98,6 +99,23 @@ export const ProjectsList: React.FC = () => {
             setPlans(allPlans);
             setAllPages(userPages);
             setAllArticles(userArticles);
+
+            // Fetch real hooks for each project dynamically from DB
+            const hooksPromises = myProjects.map(async (proj) => {
+                try {
+                    const hks = await api.getProjectHooks(proj.id);
+                    return { projectId: proj.id, hooks: hks };
+                } catch {
+                    return { projectId: proj.id, hooks: [] };
+                }
+            });
+            const hooksResults = await Promise.all(hooksPromises);
+            const map: Record<string, ProjectHook[]> = {};
+            hooksResults.forEach(res => {
+                map[res.projectId] = res.hooks;
+            });
+            setProjectHooksMap(map);
+
         } catch (error) {
             console.error(error);
         } finally {
@@ -187,13 +205,26 @@ export const ProjectsList: React.FC = () => {
         });
     }, [masterLibrary, activeOnboardingCategory, user.role]);
 
-    const getOnboardingCardImage = (project: Project) => {
+    const getOnboardingCardImage = (project: Project, library: Project[] = []) => {
         let mm: any = project.multimedia_json;
         if (typeof mm === 'string') {
             try { mm = JSON.parse(mm); } catch { mm = null; }
         }
         if (mm?.heroImages?.[0]) return mm.heroImages[0];
         if ((project as any).image) return (project as any).image;
+
+        if (project.masterParentId && library && library.length > 0) {
+            const parent = library.find(m => String(m.id) === String(project.masterParentId));
+            if (parent) {
+                let parentMm: any = parent.multimedia_json;
+                if (typeof parentMm === 'string') {
+                    try { parentMm = JSON.parse(parentMm); } catch { parentMm = null; }
+                }
+                if (parentMm?.heroImages?.[0]) return parentMm.heroImages[0];
+                if ((parent as any).image) return (parent as any).image;
+            }
+        }
+
         const lower = (project.name || '').toLowerCase();
         if (lower.includes('microblading') || lower.includes('cejas')) {
             return 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=800&q=80';
@@ -521,7 +552,7 @@ export const ProjectsList: React.FC = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {projects.map((project) => {
-                            const projectImg = getOnboardingCardImage(project);
+                            const projectImg = getOnboardingCardImage(project, masterLibrary);
                             const title = project.name || "Proyecto Sin Nombre";
                             const categoryLabel = project.niche ? project.niche.toUpperCase() : "PRODUCTO DIGITAL";
                             
@@ -541,20 +572,9 @@ export const ProjectsList: React.FC = () => {
                                 
                             const articlesCount = allArticles.filter(a => String(a.projectId) === String(project.id)).length;
                             
-                            // Hooks Count
-                            let hooksCount = 0;
-                            if (project.strategy_json) {
-                                try {
-                                    const strategy = typeof project.strategy_json === 'string' ? JSON.parse(project.strategy_json) : project.strategy_json;
-                                    if (strategy.hooks && Array.isArray(strategy.hooks)) {
-                                        hooksCount = strategy.hooks.length;
-                                    } else if (strategy.attractionHooks && Array.isArray(strategy.attractionHooks)) {
-                                        hooksCount = strategy.attractionHooks.length;
-                                    } else if (strategy.copywriting?.attractionHooks && Array.isArray(strategy.copywriting.attractionHooks)) {
-                                        hooksCount = strategy.copywriting.attractionHooks.length;
-                                    }
-                                } catch (e) {}
-                            }
+                            // Hooks Count (Real hooks fetched from database and stored in projectHooksMap)
+                            const projectHooks = projectHooksMap[project.id] || [];
+                            const hooksCount = projectHooks.filter(h => h.isUnlocked).length;
 
                             return (
                                 <div
@@ -733,7 +753,7 @@ export const ProjectsList: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
                             {filteredOnboardingProjects.map((project) => {
                                 const isAlreadyUnlocked = project.isUnlocked || user.role === 'admin';
-                                const projectImg = getOnboardingCardImage(project);
+                                const projectImg = getOnboardingCardImage(project, masterLibrary);
                                 const title = getOnboardingCardTitle(project);
                                 const desc = getOnboardingCardDesc(project);
                                 const category = project.niche || "General";
