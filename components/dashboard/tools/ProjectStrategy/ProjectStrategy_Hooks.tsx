@@ -1244,10 +1244,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             {activeTab === 'generated' && (
               <button 
                 onClick={() => { setActiveTab('library'); setActiveLibraryHook(0); }}
-                className="w-full mt-6 py-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-950/20"
+                className="w-full mt-6 py-5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-950/20 cursor-pointer"
               >
-                <span>Desbloquear más Hooks</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>CREAR MÁS HOOKS</span>
+                <ArrowRight className="w-4 h-4 stroke-[3]" />
               </button>
             )}
           </div>

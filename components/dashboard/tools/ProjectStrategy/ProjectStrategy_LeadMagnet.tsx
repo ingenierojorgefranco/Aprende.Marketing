@@ -182,11 +182,6 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
 
     // Manejar selección de Lead Magnet y persistencia
     const handleSelectLeadMagnet = async (index: number) => {
-        if (!isPro && index !== selectedLeadMagnetIndex && availableLeadMagnets.length > 1) {
-            onUpgrade?.();
-            return;
-        }
-
         setSelectedLeadMagnetIndex(index);
         const chosen = availableLeadMagnets[index];
         if (!chosen) return;
@@ -244,8 +239,8 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
 
     // Texto sugerido para enviar por WhatsApp
     const defaultWhatsAppMessage = currentLM 
-        ? `¡Hola! 👋 ¡Muchísimas gracias por unirte a nuestro grupo de WhatsApp! 🎉\n\nAquí tienes tu material y guía de *${currentLM.name}* totalmente gratis para que puedas descargarla y aprovecharla al máximo.\n\n¡Esperamos que este contenido de alto valor sea de muchísima utilidad para ti! Si tienes cualquier consulta, escríbenos directamente por aquí.`
-        : `¡Hola! 👋 ¡Muchísimas gracias por unirte a nuestro grupo de WhatsApp! 🎉\n\nAquí tienes tu material y guía totalmente gratis para que puedas descargarla y aprovecharla al máximo.\n\n¡Esperamos que este contenido de alto valor sea de muchísima utilidad para ti! Si tienes cualquier consulta, escríbenos directamente por aquí.`;
+        ? `¡Hola! 👋 Qué alegría tenerte en nuestro grupo de WhatsApp. ¡Te doy la bienvenida! 🎉\n\nTal como lo prometido, aquí tienes tu acceso para ver y descargar tu material gratuito de alto valor:\n\n🎁 *${currentLM.name}*\n👉 Descárgalo aquí: ${currentLM.url || '(Enlace del Lead Magnet)'}\n\n¡Espero que te sea de muchísima utilidad para acelerar tus resultados! 🚀 Si tienes cualquier duda o consulta, puedes escribirme directamente por aquí. ¡Estamos para ayudarte! 🤝`
+        : `¡Hola! 👋 Qué alegría tenerte en nuestro grupo de WhatsApp. ¡Te doy la bienvenida! 🎉\n\nTal como lo prometido, aquí tienes tu acceso para ver y descargar tu material gratuito de alto valor.\n\n👉 Descárgalo aquí: (Enlace del Lead Magnet)\n\n¡Espero que te sea de muchísima utilidad para acelerar tus resultados! 🚀 Si tienes cualquier duda o consulta, puedes escribirme directamente por aquí. ¡Estamos para ayudarte! 🤝`;
 
     const handleCopyMessage = () => {
         if (!defaultWhatsAppMessage) return;
@@ -323,9 +318,9 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                                 <label className="block text-xs sm:text-sm font-black text-slate-200 uppercase tracking-wide">
                                     SELECCIONAR LEAD MAGNET
                                 </label>
-                                {!isPro && availableLeadMagnets.length > 1 && (
+                                {!isPro && (
                                     <span className="text-xs text-amber-400 font-bold flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">
-                                        <Lock className="w-3.5 h-3.5" /> 1 de {availableLeadMagnets.length} Desbloqueado (Plan Básico)
+                                        Plan Básico — Selección libre
                                     </span>
                                 )}
                             </div>
@@ -338,10 +333,9 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                                     className="w-full bg-[#080d18] border border-slate-700 hover:border-slate-600 text-white rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-amber-500 appearance-none cursor-pointer pr-10 transition shadow-inner"
                                 >
                                     {availableLeadMagnets.map((lm, idx) => {
-                                        const isLocked = !isPro && idx !== selectedLeadMagnetIndex && availableLeadMagnets.length > 1;
                                         return (
                                             <option key={idx} value={idx} className="bg-slate-900 text-white py-2.5">
-                                                {`Leadmagnet ${idx + 1}: ${lm.name || 'Sin título'}${lm.fromMaster ? ' (Proyecto Maestro)' : ''}${isLocked ? ' [🔒 Plan PRO]' : ''}`}
+                                                {`Leadmagnet ${idx + 1}: ${lm.name || 'Sin título'}${lm.fromMaster ? ' (Proyecto Maestro)' : ''}`}
                                             </option>
                                         );
                                     })}
@@ -377,9 +371,9 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                                                         Proyecto Maestro
                                                     </span>
                                                 )}
-                                                {!isPro && availableLeadMagnets.length > 1 && (
-                                                    <span className="text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 inline-block">
-                                                        Asignado (Plan Básico)
+                                                {!isPro && (
+                                                    <span className="text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/25 inline-block">
+                                                        Plan Básico
                                                     </span>
                                                 )}
                                             </div>
@@ -435,10 +429,10 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                                                 type="button"
                                                 onClick={() => setShowLockModal(true)}
                                                 className="w-full sm:w-auto self-stretch sm:self-center px-6 py-3.5 sm:py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:brightness-110 text-slate-950 font-black rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 text-sm sm:text-base shadow-lg shadow-amber-500/20 cursor-pointer shrink-0 border border-amber-300"
-                                                title="Ver y Descargar LeadMagnet [Plan PRO]"
+                                                title="Actualiza a PRO"
                                             >
                                                 <Lock className="w-5 h-5 text-slate-950" />
-                                                <span>Ver y Descargar LeadMagnet</span>
+                                                <span>Actualiza a PRO</span>
                                             </button>
                                         )
                                     )}
@@ -446,26 +440,7 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                             </div>
                         )}
 
-                        {/* Banner de restricción para Plan Básico */}
-                        {!isPro && availableLeadMagnets.length > 1 && (
-                            <div className="bg-amber-500/10 border border-amber-500/25 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
-                                        <Lock className="w-5 h-5" />
-                                    </div>
-                                    <p className="text-xs sm:text-sm text-amber-200 leading-relaxed">
-                                        Como usuario básico tienes 1 Lead Magnet asignado al azar. Desbloquea todos y cámbialos a tu gusto con el <strong className="text-amber-400 font-extrabold">Plan PRO</strong>.
-                                    </p>
-                                </div>
-                                <button 
-                                    type="button" 
-                                    onClick={() => onUpgrade?.()}
-                                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-wide shrink-0 transition shadow-lg cursor-pointer"
-                                >
-                                    Mejorar a PRO
-                                </button>
-                            </div>
-                        )}
+
 
                         {/* 4. MENSAJE SUGERIDO PARA WHATSAPP (Ampliado a todo el ancho) */}
                         {currentLM && (

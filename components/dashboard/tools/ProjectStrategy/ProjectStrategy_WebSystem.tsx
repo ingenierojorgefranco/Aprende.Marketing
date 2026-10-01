@@ -55,6 +55,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [showDomainModal, setShowDomainModal] = useState(false);
     const [domainModalEditMode, setDomainModalEditMode] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [showLockModal, setShowLockModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [domainCount, setDomainCount] = useState(0);
@@ -121,11 +122,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     const handleOpenDomainModal = (isEdit: boolean = false) => {
         if (!isPro) {
-            if (onUpgrade) {
-                onUpgrade();
-            } else {
-                setShowUpgradeModal(true);
-            }
+            setShowLockModal(true);
             return;
         }
         setDomainModalEditMode(isEdit);
@@ -1527,6 +1524,57 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     userId={(strategy as any)?.userId || ''}
                     reason="El plan Starter no incluye dominios personalizados. Actualiza a Pro para conectar tu propio dominio y profesionalizar tu marca."
                 />
+            )}
+
+            {showLockModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowLockModal(false)}>
+                    <div className="bg-[#0B0B0B] border border-amber-500/20 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-[#FF5D1E]"></div>
+                        <div className="p-8 md:p-10 space-y-6 flex-1 overflow-y-auto text-center">
+                            <div className="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-lg shadow-amber-950/20 animate-pulse">
+                                <Lock className="w-8 h-8" />
+                            </div>
+                            
+                            <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">
+                                Característica Exclusiva <span className="text-amber-400">Plan PRO</span>
+                            </h2>
+                            
+                            <div className="space-y-4 text-slate-300 text-sm sm:text-base leading-relaxed text-left bg-white/[0.02] border border-white/5 p-5 rounded-2xl">
+                                <p className="font-bold text-white text-center text-base mb-2">
+                                    ¡Conecta tu propio Dominio Personalizado! 🌐
+                                </p>
+                                <p>
+                                    Asociar tu propio dominio (ej. tu-marca.com) es clave para generar confianza, profesionalizar tu negocio digital y aumentar exponencialmente las conversiones de tu página de captura.
+                                </p>
+                                <p className="border-t border-white/5 pt-3">
+                                    Adquiriendo el <strong className="text-amber-400 font-black">Plan PRO</strong> podrás configurar dominios personalizados para tus landing pages, eliminando nuestra marca y posicionando tu propio nombre en Internet de forma 100% profesional.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button 
+                                onClick={() => setShowLockModal(false)} 
+                                className="flex-1 py-4 rounded-xl bg-white/5 text-gray-300 font-black text-xs sm:text-sm uppercase tracking-widest hover:bg-white/10 transition-all cursor-pointer"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    setShowLockModal(false);
+                                    if (onUpgrade) {
+                                        onUpgrade();
+                                    } else {
+                                        setShowUpgradeModal(true);
+                                    }
+                                }} 
+                                className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#FF5D1E] text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-amber-900/20 transform hover:scale-[1.02] active:scale-[0.98] transition-all animate-pulse cursor-pointer"
+                            >
+                                👑 Obtener Plan PRO
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </>
     );

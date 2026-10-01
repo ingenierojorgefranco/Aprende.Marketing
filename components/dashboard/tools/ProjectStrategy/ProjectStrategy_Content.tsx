@@ -941,6 +941,16 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)} className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"><ChevronRight className="w-5 h-5" /></button>
                                 </div>
                             )}
+
+                            {activeTab === 'generated' && (
+                                <button 
+                                    onClick={() => { setActiveTab('library'); setActiveLibraryArticle(0); }}
+                                    className="w-full mt-6 py-5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-950/20 cursor-pointer"
+                                >
+                                    <span>CREAR MÁS ARTÍCULOS</span>
+                                    <ArrowRight className="w-4 h-4 stroke-[3]" />
+                                </button>
+                            )}
                         </div>
                     </div>
                     <div id="psd-content-detail-card" className="lg:col-span-7 bg-gradient-to-br from-gray-900 via-gray-900 to-orange-950/20 border border-gray-800 rounded-2xl p-8 flex flex-col relative overflow-hidden h-full min-h-[500px] shadow-2xl">

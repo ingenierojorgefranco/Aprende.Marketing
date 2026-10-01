@@ -59,6 +59,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     const [masterParentId, setMasterParentId] = useState<string | null>(null);
     const [projectChecked, setProjectChecked] = useState(false);
     const [showUpgradeModalLocal, setShowUpgradeModalLocal] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
     const itemsPerPage = 4;
@@ -726,6 +727,16 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                 </button>
                             </div>
                         )}
+
+                        {activeTab === 'generated' && (
+                            <button 
+                                onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); }}
+                                className="w-full mt-6 py-5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-950/20 cursor-pointer"
+                            >
+                                <span>CREAR MÁS CARRUSELES</span>
+                                <ArrowRight className="w-4 h-4 stroke-[3]" />
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -763,9 +774,9 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                             <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro equipo de marketing ha redactado y diseñado esta plantilla para ti. Haz clic en Desbloquear para añadirla a tu colección.</p>
 
                             <button 
-                                onClick={unlockedCount >= maxCarousels && !isRealAdmin ? () => setShowUpgradeModalLocal(true) : () => handleUnlockSingle(currentCarousel.id)}
+                                onClick={unlockedCount >= maxCarousels && !isRealAdmin ? () => setShowUpgradeModalLocal(true) : () => setShowConfirmModal(true)}
                                 disabled={unlockingSingle}
-                                className={`w-full py-5 rounded-2xl ${unlockedCount >= maxCarousels && !isRealAdmin ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-orange-600 hover:bg-orange-500'} text-white font-black text-xl uppercase tracking-widest shadow-xl transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70`}
+                                className={`w-full py-5 rounded-2xl ${unlockedCount >= maxCarousels && !isRealAdmin ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-orange-600 hover:bg-orange-500'} text-white font-black text-xl uppercase tracking-widest shadow-xl transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70 cursor-pointer`}
                             >
                                 {unlockingSingle ? (
                                     <Loader2 className="w-6 h-6 animate-spin" />
@@ -1157,6 +1168,49 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                     )}
                 </div>
             </div>
+
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowConfirmModal(false)}>
+                    <div className="bg-[#0B0B0B] border border-orange-500/20 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5D1E] to-amber-500"></div>
+                        <div className="p-8 md:p-10 space-y-6 flex-1 overflow-y-auto">
+                            <div className="flex flex-col items-center text-center space-y-5">
+                                <div className="w-16 h-16 bg-orange-500/10 text-orange-400 rounded-2xl flex items-center justify-center mx-auto border border-orange-500/20 shadow-lg shadow-orange-950/20 animate-pulse"><Sparkles className="w-8 h-8" /></div>
+                                <h1 className="text-2xl md:text-3xl font-black text-white leading-tight mb-1">
+                                    ¿Quieres diseñar este <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">Carrusel?</span>
+                                </h1>
+                                <p className="text-zinc-200 text-base md:text-lg leading-relaxed font-medium">
+                                    {isRealAdmin ? (
+                                        "Como Administrador tienes acceso ilimitado para diseñar todos los carruseles que desees."
+                                    ) : (
+                                        <>
+                                            Tienes disponible la creación de <strong className="text-orange-500 font-black text-lg sm:text-xl px-1">{Math.max(0, maxCarousels - unlockedCount)} {Math.max(0, maxCarousels - unlockedCount) === 1 ? 'carrusel' : 'carruseles'}</strong> para tu proyecto.
+                                        </>
+                                    )}
+                                </p>
+                            </div>
+
+                            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-4 shadow-inner text-left">
+                                <div className="flex justify-between items-center text-sm font-semibold">
+                                    <span className="text-zinc-300 font-black uppercase tracking-widest text-xs">Carruseles disponibles</span>
+                                    <span className="text-orange-400 font-black text-sm sm:text-base">{unlockedCount} de {isRealAdmin ? 'Ilimitados' : maxCarousels} diseñados</span>
+                                </div>
+                                <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
+                                    <div className="h-full bg-gradient-to-r from-[#FF5D1E] to-orange-500 rounded-full transition-all duration-[1500ms] ease-out shadow-lg" style={{ width: `${isRealAdmin ? (unlockedCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                </div>
+                            </div>
+
+                            <p className="text-xs sm:text-sm text-zinc-300 text-center leading-relaxed font-semibold bg-white/[0.03] p-4 rounded-xl border border-white/5 shadow-inner">
+                                Al confirmar, nuestra Inteligencia Artificial comenzará el diseño estratégico de inmediato.
+                            </p>
+                        </div>
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-300 font-black text-xs sm:text-sm uppercase tracking-widest hover:bg-white/10 transition-all cursor-pointer">No, cancelar</button>
+                            <button onClick={() => { setShowConfirmModal(false); handleUnlockSingle(currentCarousel.id); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-orange-900/20 transform hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer">Sí, Diseñar Carrusel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Upgrade Plan Modal dialog */}
             <UpgradeModal

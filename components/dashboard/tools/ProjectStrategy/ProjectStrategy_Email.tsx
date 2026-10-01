@@ -128,6 +128,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [localPurpose, setLocalPurpose] = useState('');
     const [isTypeLocked, setIsTypeLocked] = useState(true);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showLockModal, setShowLockModal] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [secondsElapsed, setSecondsElapsed] = useState(0);
     const [progress, setProgress] = useState(0);
@@ -445,8 +446,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     };
 
     // Lógica de límites
-    const isRealAdmin = (user?.role === 'admin' || planLimits?.planName === 'admin') && !isSimulating;
-    const planRawName = (planLimits?.planName || user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
+    const activePlanLimits = planLimits || user?.planLimits;
+    const isRealAdmin = (user?.role === 'admin' || activePlanLimits?.planName === 'admin') && !isSimulating;
+    const planRawName = (activePlanLimits?.planName || user?.plan || 'starter').toLowerCase();
     const isFreeUser = !isRealAdmin && (planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName);
     
     // Recalcular sequenceUsed basado en la lógica solicitada:
@@ -457,14 +459,16 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         : allSequences.filter(s => s.type === 'nurturing').reduce((acc, s) => acc + (s.generatedDays?.length || 0), 0);
 
     const maxSequences = activeType === 'conversion'
-        ? (planLimits?.maxEmailSequences || 5)
-        : (planLimits?.maxEmailSequencesNurturing || 20);
+        ? (activePlanLimits?.maxEmailSequences !== undefined ? activePlanLimits.maxEmailSequences : 5)
+        : (activePlanLimits?.maxEmailSequencesNurturing !== undefined ? activePlanLimits.maxEmailSequencesNurturing : 20);
 
     const generatedInCurrent = realMessages.filter(m => m.isGenerated).length;
-    const usagePercent = Math.min(100, (sequenceUsed / maxSequences) * 100);
+    const usagePercent = maxSequences > 0 ? Math.min(100, (sequenceUsed / maxSequences) * 100) : 100;
     let progressColor = "bg-[#FF5D1E]";
     if (usagePercent > 50) progressColor = "bg-orange-500";
     if (usagePercent > 85) progressColor = isRealAdmin ? "bg-orange-500" : "bg-red-500";
+
+    const hasAvailability = isRealAdmin || (sequenceUsed < maxSequences);
 
     const currentMsg = realMessages.find(m => m.dayIndex === activeEmail + 1);
     const isCurrentGenerated = !!currentMsg?.isGenerated;
@@ -721,18 +725,18 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     {/* Botón General de Generación */}
                     {generatedInCurrent < 7 && (
                         <div className="mt-4">
-                            {isFreeUser ? (
+                            {!hasAvailability ? (
                                 <button 
-                                    onClick={onUpgrade}
-                                    className="w-full py-5 rounded-2xl bg-gradient-to-r from-yellow-600 to-orange-600 hover:brightness-110 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-orange-950/20 flex items-center justify-center gap-3"
+                                    onClick={() => setShowLockModal(true)}
+                                    className="w-full py-5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:brightness-110 text-slate-950 font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-orange-950/20 flex items-center justify-center gap-3 cursor-pointer"
                                 >
-                                    <Crown className="w-5 h-5 fill-current" /> Actualizar a PRO 👑
+                                    <Crown className="w-5 h-5 fill-current text-slate-950 animate-pulse" /> Actualiza a PRO 👑
                                 </button>
                             ) : (
                                 <button 
                                     onClick={() => setShowConfirmModal(true)}
                                     disabled={isGenerating}
-                                    className="w-full py-5 rounded-2xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-orange-950/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full py-5 rounded-2xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-orange-950/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                 >
                                     {isGenerating ? (
                                         <>
@@ -1025,6 +1029,53 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
                             <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">Revisar de nuevo</button>
                             <button onClick={handleGenerateFullSequence} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-orange-950/20 transform hover:scale-105 active:scale-95 transition-all">Generar Secuencia Completa</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showLockModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowLockModal(false)}>
+                    <div className="bg-[#0B0B0B] border border-amber-500/20 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-[#FF5D1E]"></div>
+                        <div className="p-8 md:p-10 space-y-6 flex-1 overflow-y-auto text-center">
+                            <div className="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-lg shadow-amber-950/20 animate-pulse">
+                                <Lock className="w-8 h-8" />
+                            </div>
+                            
+                            <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">
+                                Característica Exclusiva <span className="text-amber-400">Plan PRO</span>
+                            </h2>
+                            
+                            <div className="space-y-4 text-slate-300 text-sm sm:text-base leading-relaxed text-left bg-white/[0.02] border border-white/5 p-5 rounded-2xl">
+                                <p className="font-bold text-white text-center text-base mb-2">
+                                    ¡Automatiza tus Ventas en Piloto Automático! 🚀
+                                </p>
+                                <p>
+                                    Configurar y generar esta secuencia completa de Email Marketing aumentará drásticamente las conversiones de tus leads, guiándolos hacia la compra de manera automática.
+                                </p>
+                                <p className="border-t border-white/5 pt-3">
+                                    Adquiriendo el <strong className="text-amber-400 font-black">Plan PRO</strong> recibirás acceso completo para generar secuencias ilimitadas de conversión y nutrición por IA, optimizadas profesionalmente por copywriters expertos para disparar tus ventas.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button 
+                                onClick={() => setShowLockModal(false)} 
+                                className="flex-1 py-4 rounded-xl bg-white/5 text-gray-300 font-black text-xs sm:text-sm uppercase tracking-widest hover:bg-white/10 transition-all cursor-pointer"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    setShowLockModal(false);
+                                    onUpgrade();
+                                }} 
+                                className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#FF5D1E] text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-amber-900/20 transform hover:scale-[1.02] active:scale-[0.98] transition-all animate-pulse cursor-pointer"
+                            >
+                                👑 Obtener Plan PRO
+                            </button>
                         </div>
                     </div>
                 </div>
