@@ -299,6 +299,9 @@ export const DashboardLayout = ({
         { id: 'projects', label: 'Proyectos', icon: Briefcase, path: '/dashboard/projects' },
         { id: 'training', label: 'Academia', icon: GraduationCap, path: '/dashboard/training' },
         { id: 'crm', label: 'Leads Capturados', icon: Users, path: '/dashboard/crm' },
+        { id: 'whatsapp-community', label: 'Comunidad WhatsApp', icon: Smartphone, onClick: () => {
+            window.open("https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4", "_blank");
+        } },
         ...(SHOW_TU_SISTEMA_MENU ? [{ id: 'sistema', label: 'Tu Sistema', icon: Layers, subItems: [
             { label: 'Mis Proyectos', path: '/dashboard/projects', icon: Briefcase },
             { label: 'Hooks de Atracción', path: '/dashboard/hooks', icon: Zap },
