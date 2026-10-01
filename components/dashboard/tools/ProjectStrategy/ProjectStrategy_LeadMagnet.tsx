@@ -239,8 +239,8 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
 
     // Texto sugerido para enviar por WhatsApp
     const defaultWhatsAppMessage = currentLM 
-        ? `¡Hola! 👋 Qué alegría tenerte en nuestro grupo de WhatsApp. ¡Te doy la bienvenida! 🎉\n\nTal como lo prometido, aquí tienes tu acceso para ver y descargar tu material gratuito de alto valor:\n\n🎁 *${currentLM.name}*\n👉 Descárgalo aquí: ${currentLM.url || '(Enlace del Lead Magnet)'}\n\n¡Espero que te sea de muchísima utilidad para acelerar tus resultados! 🚀 Si tienes cualquier duda o consulta, puedes escribirme directamente por aquí. ¡Estamos para ayudarte! 🤝`
-        : `¡Hola! 👋 Qué alegría tenerte en nuestro grupo de WhatsApp. ¡Te doy la bienvenida! 🎉\n\nTal como lo prometido, aquí tienes tu acceso para ver y descargar tu material gratuito de alto valor.\n\n👉 Descárgalo aquí: (Enlace del Lead Magnet)\n\n¡Espero que te sea de muchísima utilidad para acelerar tus resultados! 🚀 Si tienes cualquier duda o consulta, puedes escribirme directamente por aquí. ¡Estamos para ayudarte! 🤝`;
+        ? `¡Hola! 👋 ¡Qué gran alegría tenerte en nuestro grupo! Te doy la más cordial bienvenida. 🎉\n\nTal como te lo prometí, aquí tienes el acceso inmediato para descargar y disfrutar de tu material de alto valor:\n\n🎁 *${currentLM.name}*\n\n👉 Haz clic en el siguiente enlace para descargarlo ahora mismo:\n🔗 ${currentLM.url || '(Enlace del Lead Magnet)'}\n\nEspero de corazón que esta guía te aporte muchísimo valor y te ayude a dar el siguiente gran paso. 🚀\n\n¡Mantente atento al grupo! Estaré compartiendo más consejos prácticos, recursos exclusivos y novedades muy pronto. Si tienes alguna duda o quieres compartir tu opinión al leerlo, puedes escribirme directamente por aquí. ¡Estoy para ayudarte! 🤝`
+        : `¡Hola! 👋 ¡Qué gran alegría tenerte en nuestro grupo! Te doy la más cordial bienvenida. 🎉\n\nTal como te lo prometí, aquí tienes el acceso inmediato para descargar y disfrutar de tu material de alto valor.\n\n👉 Haz clic en el siguiente enlace para descargarlo ahora mismo:\n🔗 (Enlace del Lead Magnet)\n\nEspero de corazón que esta guía te aporte muchísimo valor y te ayude a dar el siguiente gran paso. 🚀\n\n¡Mantente atento al grupo! Estaré compartiendo más consejos prácticos, recursos exclusivos y novedades muy pronto. Si tienes alguna duda o quieres compartir tu opinión al leerlo, puedes escribirme directamente por aquí. ¡Estoy para ayudarte! 🤝`;
 
     const handleCopyMessage = () => {
         if (!defaultWhatsAppMessage) return;
@@ -318,11 +318,7 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                                 <label className="block text-xs sm:text-sm font-black text-slate-200 uppercase tracking-wide">
                                     SELECCIONAR LEAD MAGNET
                                 </label>
-                                {!isPro && (
-                                    <span className="text-xs text-amber-400 font-bold flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">
-                                        Plan Básico — Selección libre
-                                    </span>
-                                )}
+                                {/* No badges here */}
                             </div>
 
                             <div className="relative">
@@ -371,11 +367,7 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
                                                         Proyecto Maestro
                                                     </span>
                                                 )}
-                                                {!isPro && (
-                                                    <span className="text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/25 inline-block">
-                                                        Plan Básico
-                                                    </span>
-                                                )}
+                                                {/* No plan badge here */}
                                             </div>
 
                                             <h4 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
