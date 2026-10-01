@@ -504,31 +504,7 @@ export const ProjectsList: React.FC = () => {
                             )}
                         </div>
 
-                        {/* Botón Nuevo Proyecto centrado y con estilo limpio */}
-                        <div className="w-full">
-                            {isAtLimit ? (
-                                <button
-                                    onClick={() => setShowUpgradeModal(true)}
-                                    className="group relative px-6 py-3.5 rounded-xl font-bold text-base shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20 w-full"
-                                >
-                                    <span className="relative z-10 flex items-center justify-center gap-2">
-                                        <CornerCrown className="w-5 h-5 fill-current" /> 
-                                        Límite Alcanzado: Actualiza a PRO
-                                    </span>
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={() => setShowCreateOptionsModal(true)}
-                                    className="group relative px-6 py-3.5 rounded-xl font-bold text-base shadow-lg transition-all overflow-hidden bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 hover:-translate-y-0.5 w-full cursor-pointer"
-                                >
-                                    <span className="relative z-10 flex items-center justify-center gap-2">
-                                        <Plus className="w-5 h-5" /> 
-                                        Nuevo Proyecto
-                                    </span>
-                                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                                </button>
-                            )}
-                        </div>
+                        {/* El botón de crear nuevo proyecto ha sido removido de esta sección */}
                     </div>
                 </div>
             </div>

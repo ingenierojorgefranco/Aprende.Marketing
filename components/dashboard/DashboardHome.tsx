@@ -409,7 +409,7 @@ export const DashboardHome: React.FC = () => {
                       </div>
                       
                       {/* CARACTERÍSTICAS DISPONIBLES */}
-                      <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
                           {[
                               { label: 'Proyectos', key: 'projects', actual: realCounts.projects, max: user?.planLimits?.maxProjects || 1, icon: Folder },
                               { label: 'Páginas de Captura', key: 'pages', actual: realCounts.pages, max: user?.planLimits?.maxLandings || 1, icon: Layers },
@@ -423,14 +423,14 @@ export const DashboardHome: React.FC = () => {
                           ].map((item) => (
                               <div 
                                   key={item.key} 
-                                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/60 border border-slate-800/70 text-xs hover:border-[#FF5A1F]/30 transition-colors"
+                                  className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-900/60 border border-slate-800/70 text-[11px] hover:border-[#FF5A1F]/30 transition-colors"
                               >
-                                  <div className="flex items-center gap-2.5 min-w-0">
-                                      <item.icon className="w-4 h-4 text-[#FF5A1F] shrink-0" />
-                                      <span className="text-gray-300 font-medium truncate">{item.label}</span>
+                                  <div className="flex items-center gap-2 min-w-0">
+                                      <item.icon className="w-3.5 h-3.5 text-[#FF5A1F] shrink-0" />
+                                      <span className="text-gray-300 font-semibold truncate leading-none">{item.label}</span>
                                   </div>
-                                  <span className="font-bold text-white shrink-0 ml-2">
-                                      {item.actual} / {item.max >= 9999 || isRealAdmin ? 'Ilimitado' : item.max}
+                                  <span className="font-extrabold text-white shrink-0 ml-1.5 whitespace-nowrap">
+                                      {item.actual}/{item.max >= 9999 || isRealAdmin ? 'Ilimitado' : item.max}
                                   </span>
                               </div>
                           ))}

@@ -87,15 +87,60 @@ export const generateFullArticle = async (
     
     let projectStrategy = "";
     if (projectContext) {
+        let teacherInfo = "";
+        let avatarsInfo = "";
+        if (projectContext.strategy_json) {
+            try {
+                const strategy = typeof projectContext.strategy_json === 'string' 
+                    ? JSON.parse(projectContext.strategy_json) 
+                    : projectContext.strategy_json;
+                
+                if (strategy.teacher) {
+                    const t = strategy.teacher;
+                    teacherInfo = `\n- Instructor/Profesor: "${t.name}" (${t.title || 'Especialista'}). Su promesa: "${t.promise || ''}"`;
+                }
+                
+                if (strategy.avatars && Array.isArray(strategy.avatars)) {
+                    avatarsInfo = strategy.avatars.map((a: any, i: number) => {
+                        const age = a.ageRange || a.age || a.age_range || '';
+                        const occ = a.archetype || a.occupation || a.profession || a.job || '';
+                        return `  * Avatar ${i + 1}: ${a.name} (Edad: ${age}, Ocupación: ${occ})
+    - Dolor principal: "${a.pain || a.frustrations?.[0] || ''}"
+    - Gran deseo: "${a.desire || a.desires?.[0] || ''}"
+    - Título de transformación sugerido: "${a.transformation_title || ''}"`;
+                    }).join('\n\n');
+                } else if (strategy.avatar) {
+                    const av = strategy.avatar;
+                    avatarsInfo = `  * Avatar: ${av.name || ''}
+    - Frustraciones: ${av.frustrations?.join(", ") || ''}
+    - Deseos: ${av.desires?.join(", ") || ''}
+    - Historia: "${av.story || ''}"`;
+                }
+            } catch (e) {
+                console.error("Error parseando strategy_json en generateFullArticle:", e);
+            }
+        }
+
         projectStrategy = `
-        CONTEXTO DEL PROYECTO:
-        - Tono de Voz: "${projectContext.brandTone}"
-        - Producto a promocionar: "${projectContext.productName}"
-        - Puntos de Dolor: ${projectContext.painPoints?.join(", ")}.
-        - Beneficios Clave: ${projectContext.keyBenefits?.join(", ")}.
-        - Público Objetivo (Cliente Ideal): "${projectContext.targetAudience || ''}"
+        CONTEXTO DETALLADO DEL PROYECTO:
+        - Tono de Voz del Autor/Marca: "${projectContext.brandTone}"
+        - Producto Digital/Servicio a promocionar: "${projectContext.productName}"
+        - Descripción del Producto: "${projectContext.description}"
+        - Puntos de Dolor Generales del Proyecto: ${projectContext.painPoints?.join(", ")}.
+        - Beneficios Clave del Proyecto: ${projectContext.keyBenefits?.join(", ")}.
+        - Público Objetivo General: "${projectContext.targetAudience || ''}"${teacherInfo}
+
+        AVATARES DEFINIDOS (CLIENTES IDEALES ESPECÍFICOS A LOS QUE DEBES DIRIGIRTE):
+        ${avatarsInfo || 'No hay avatares específicos definidos. Utiliza el público objetivo general.'}
         
-        Usa este contexto para que el artículo no sea genérico, sino enfocado en vender este producto específico.
+        INSTRUCCIÓN CRÍTICA DE ENFOQUE DEL ARTÍCULO BASADA EN AVATARES (OBLIGATORIA):
+        El sistema ha analizado previamente y definido los avatares objetivo descritos anteriormente. ¡Asegúrate de que el artículo NO esté dirigido a un cliente final del tratamiento de belleza (por ejemplo, alguien que solo quiere hacerse el tratamiento en sus cejas), sino que esté adaptado de forma rigurosa y persuasiva para resolver las dudas, miedos y deseos de los AVATARES DEFINIDOS (quienes en este caso son personas interesadas en aprender la técnica, especializarse, emprender, crear un negocio rentable en estética o multiplicar sus ingresos)!
+        
+        Sigue estas pautas para lograr el enfoque adecuado:
+        1. ENFOQUE EMPRENDEDOR / PROFESIONAL: Restructura todo el contenido (conceptos, comparativas, explicaciones de herramientas y duración) para que sea útil para alguien que quiere dominar la técnica profesionalmente.
+        2. CONECTAR CONCEPTOS TÉCNICOS CON NEGOCIO: Al explicar la diferencia entre técnicas (como Tebori vs Dermógrafo), no hables solo de la sensación en la piel de un cliente; explica el costo del material, el tiempo que toma el servicio, la curva de aprendizaje, la facilidad para cobrar tarifas premium (por ejemplo, de 250€ a 500€ por servicio) y la rentabilidad del negocio.
+        3. RESOLVER DOLORES DE LOS AVATARES: Incorpora respuestas a los dolores de tus avatares (por ejemplo, si temen no tener talento para dibujar, aclara que la técnica tiene plantillas o diseño de mirada que cualquiera puede dominar con la certificación adecuada; si no tienen tiempo, muestra cómo estas técnicas les permiten ganar más trabajando menos horas).
+        4. LLAMADOS A LA ACCIÓN CONTEXTUALIZADOS: Los banners de llamado a la acción deben alinearse perfectamente con la motivación de los avatares (por ejemplo, invitándoles a registrarse a la clase gratuita o entrenamiento profesional para convertirse en artistas certificadas, en lugar de invitarles a agendar una cita estética).
         `;
     }
 
