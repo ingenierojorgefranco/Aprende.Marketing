@@ -407,8 +407,10 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
             {confirmingProject && (() => {
                 const rawCommission = confirmingProject.commissionRate || 58;
                 const displayCommission = rawCommission < 1 ? Math.round(rawCommission * 100) : Math.round(rawCommission);
-                const price = confirmingProject.price || 200;
-                const profit = Math.round((price * displayCommission) / 100);
+                const price = confirmingProject.fullPrice || confirmingProject.price || 200;
+                const calculatedProfit = (price * displayCommission) / 100;
+                const formattedPrice = Number(price) % 1 === 0 ? Math.round(price) : Number(price).toFixed(2);
+                const formattedProfit = Number(calculatedProfit) % 1 === 0 ? Math.round(calculatedProfit) : Number(calculatedProfit).toFixed(2);
                 const heroImage = confirmingProject.multimedia_json?.heroImages?.[0];
                 const categoryLabel = confirmingProject.niche 
                     ? confirmingProject.niche.toUpperCase() 
@@ -552,29 +554,29 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                     </div>
 
                                     {/* Right Column: 3 Detail Metric Boxes */}
-                                    <div className="space-y-3">
-                                        {/* Box 1: Precio de Venta */}
-                                        <div className="bg-[#141417] border border-zinc-800/90 rounded-2xl p-3.5 sm:p-4 flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
-                                                <Tag className="w-5 h-5 text-[#FF5A1F]" />
+                                    <div className="space-y-3.5">
+                                        {/* Box 1: Precio de Venta (Blue/Cyan styling) */}
+                                        <div className="bg-gradient-to-r from-blue-500/5 to-cyan-500/5 border border-blue-500/25 hover:border-blue-500/40 rounded-2xl p-3.5 sm:p-4 flex items-center gap-4 transition-all duration-300">
+                                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                                                <Tag className="w-5 h-5 text-blue-400" />
                                             </div>
                                             <div>
-                                                <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase tracking-wider block">
+                                                <span className="text-[10px] md:text-xs font-bold text-blue-300 uppercase tracking-wider block">
                                                     Precio en el que se venderá tu Producto
                                                 </span>
                                                 <span className="text-base md:text-lg font-black text-white">
-                                                    USD {price}
+                                                    USD {formattedPrice}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        {/* Box 2: Tu Comisión */}
-                                        <div className="bg-[#141417] border border-zinc-800/90 rounded-2xl p-3.5 sm:p-4 flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
-                                                <Percent className="w-5 h-5 text-[#FF5A1F]" />
+                                        {/* Box 2: Tu Comisión (Purple/Pink styling) */}
+                                        <div className="bg-gradient-to-r from-purple-500/5 to-pink-500/5 border border-purple-500/25 hover:border-purple-500/40 rounded-2xl p-3.5 sm:p-4 flex items-center gap-4 transition-all duration-300">
+                                            <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                                                <Percent className="w-5 h-5 text-purple-400" />
                                             </div>
                                             <div>
-                                                <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase tracking-wider block">
+                                                <span className="text-[10px] md:text-xs font-bold text-purple-300 uppercase tracking-wider block">
                                                     % de Comisión por recomendarlo
                                                 </span>
                                                 <span className="text-base md:text-lg font-black text-white">
@@ -583,17 +585,17 @@ export const ProjectSelectionStep: React.FC<StepProps & { projects: any[], loadi
                                             </div>
                                         </div>
 
-                                        {/* Box 3: Ganancia Estimada (Highlighted with Orange Border) */}
-                                        <div className="bg-[#181414] border-2 border-[#FF5A1F] shadow-[0_0_20px_rgba(255,90,31,0.2)] rounded-2xl p-3.5 sm:p-4 flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center shrink-0">
+                                        {/* Box 3: Ganancia Estimada (Highlighted with Orange Border and Glow) */}
+                                        <div className="bg-gradient-to-r from-orange-500/10 to-[#FF5A1F]/5 border-2 border-[#FF5A1F] shadow-[0_0_25px_rgba(255,90,31,0.25)] rounded-2xl p-3.5 sm:p-4 flex items-center gap-4 transition-all duration-300 transform scale-[1.02]">
+                                            <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/20 border border-[#FF5A1F]/30 flex items-center justify-center shrink-0">
                                                 <TrendingUp className="w-5 h-5 text-[#FF5A1F]" />
                                             </div>
                                             <div>
-                                                <span className="text-[10px] md:text-xs font-bold text-zinc-300 uppercase tracking-wider block">
+                                                <span className="text-[10px] md:text-xs font-bold text-orange-200 uppercase tracking-wider block">
                                                     ¿Cuánto ganarás por cada venta?
                                                 </span>
                                                 <span className="text-lg md:text-xl font-black text-white">
-                                                    USD {profit}
+                                                    USD {formattedProfit}
                                                 </span>
                                             </div>
                                         </div>
