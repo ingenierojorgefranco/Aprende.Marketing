@@ -333,7 +333,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             const cleanPath = path ? (path.startsWith('/') ? path : `/${path}`) : '';
             return `/lp/${fallback}${cleanPath}${queryParams}`;
         }
-        if (page.customDomain && page.customDomain.trim()) {
+        if (page.customDomain && page.customDomain.trim() && isPro) {
             const cleanDomain = page.customDomain.trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '');
             const cleanPath = path ? (path.startsWith('/') ? path : `/${path}`) : '';
             return `https://${cleanDomain}${cleanPath}${queryParams}`;
@@ -954,7 +954,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         </div>
 
                                         {/* Dominio Registrado con Botón Editar (Diseño Imagen 4) */}
-                                        {linkedPages[0].customDomain && (
+                                        {linkedPages[0].customDomain && isPro && (
                                             <div className="bg-[#051914] border border-emerald-500/40 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-lg shadow-emerald-950/30 animate-in fade-in">
                                                 <div className="flex items-center gap-3 min-w-0">
                                                     <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
@@ -977,6 +977,34 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                                 >
                                                     <Edit2 className="w-3.5 h-3.5" />
                                                     <span>Editar</span>
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {/* Dominio Suspendido (si tienen dominio pero no son PRO) */}
+                                        {linkedPages[0].customDomain && !isPro && (
+                                            <div className="bg-[#1f1008] border border-orange-500/40 rounded-2xl p-3.5 sm:p-4 flex flex-col gap-3 shadow-lg shadow-orange-950/20 animate-in fade-in">
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 shrink-0">
+                                                        <AlertTriangle className="w-5 h-5 text-orange-400 animate-pulse" />
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="text-[10px] font-black text-orange-400 uppercase tracking-widest leading-none mb-1">
+                                                            DOMINIO SUSPENDIDO
+                                                         </p>
+                                                        <p className="text-sm sm:text-base font-bold text-white font-mono tracking-tight truncate sm:break-all">
+                                                            {linkedPages[0].customDomain}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <p className="text-[11px] sm:text-xs text-orange-300 leading-normal font-medium text-left">
+                                                    Tu dominio personalizado está inactivo porque no cuentas con un plan PRO activo. Tu embudo sigue disponible bajo la URL compartida de aprende.marketing.
+                                                </p>
+                                                <button 
+                                                    onClick={() => onUpgrade && onUpgrade()}
+                                                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:brightness-110 text-slate-950 font-black text-[11px] uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
+                                                >
+                                                    <Crown className="w-3.5 h-3.5 fill-current" /> Activar Plan PRO para restaurar
                                                 </button>
                                             </div>
                                         )}

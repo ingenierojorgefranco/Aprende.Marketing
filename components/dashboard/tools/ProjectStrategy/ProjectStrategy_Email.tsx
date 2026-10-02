@@ -353,12 +353,28 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         }
     };
 
+    const resolveSmartUrl = (content: string): string => {
+        if (!content || !userPages || !projectId) return content;
+        // Encontrar la página publicada de este proyecto
+        const projectPage = userPages.find(p => String(p.projectId) === String(projectId) && p.isPublished);
+        if (projectPage && projectPage.customDomain) {
+            const subdomainPart = projectPage.subdomain ? projectPage.subdomain.split('.')[0] : '';
+            if (subdomainPart) {
+                // Reemplazar de forma insensible a mayúsculas/minúsculas y global
+                const pattern = new RegExp(`https://aprende\\.marketing/lp/${subdomainPart}`, 'gi');
+                return content.replace(pattern, `https://${projectPage.customDomain}`);
+            }
+        }
+        return content;
+    };
+
     const handleCopyEmail = () => {
         const email = realMessages.find(m => m.dayIndex === activeEmail + 1);
         if (!email?.contentHtml) return;
         
-        const htmlContent = `<div>${email.contentHtml}</div>`;
-        const plainText = email.contentHtml.replace(/<[^>]*>/g, '');
+        const resolvedContent = resolveSmartUrl(email.contentHtml);
+        const htmlContent = `<div>${resolvedContent}</div>`;
+        const plainText = resolvedContent.replace(/<[^>]*>/g, '');
         const blobHtml = new Blob([htmlContent], { type: 'text/html' });
         const blobText = new Blob([plainText], { type: 'text/plain' });
         const data = [new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })];

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X, Loader2, Copy, Lock, Unlock, Search, BarChart, Eye, Target, Brain, Shield, Edit3, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, CheckCircle2, Wand2, Code, AlertCircle, Play } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { PlanFeatures, PlanLimits, Plan, Article, EmailMessage } from '../../../../types';
+import { PlanFeatures, PlanLimits, Plan, Article, EmailMessage, LandingPage } from '../../../../types';
 import { api } from '../../../../services/api';
 import { StepHeaderCard } from '../../wizard/StepHeaderCard';
 import { StepVideoContainer } from '../../wizard/StepVideoContainer';
@@ -43,6 +43,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     const [loadingMessages, setLoadingMessages] = useState(true);
     const [localArticles, setLocalArticles] = useState<Article[]>([]);
     const [loadingArticles, setLoadingArticles] = useState(true);
+    const [userPages, setUserPages] = useState<LandingPage[]>([]);
 
     // Estados para el flujo de generación profesional
     const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success' | 'error'>('idle');
@@ -96,6 +97,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 api.getArticlesByProject(projectId).catch(() => []),
                 api.getArticles().catch(() => [])
             ]).then(([allPages, projectSpecificArticles, allArticles]) => {
+                setUserPages(allPages || []);
                 const projectPages = Array.isArray(allPages) ? allPages.filter((p: any) => String(p.projectId) === String(projectId)) : [];
                 const combinedArticles = [
                     ...(Array.isArray(projectSpecificArticles) ? projectSpecificArticles : []),
@@ -355,13 +357,29 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         }
     };
 
+    const resolveSmartUrl = (content: string): string => {
+        if (!content || !userPages || !projectId) return content;
+        // Encontrar la página publicada de este proyecto
+        const projectPage = userPages.find(p => String(p.projectId) === String(projectId) && p.isPublished);
+        if (projectPage && projectPage.customDomain) {
+            const subdomainPart = projectPage.subdomain ? projectPage.subdomain.split('.')[0] : '';
+            if (subdomainPart) {
+                // Reemplazar de forma insensible a mayúsculas/minúsculas y global
+                const pattern = new RegExp(`https://aprende\\.marketing/lp/${subdomainPart}`, 'gi');
+                return content.replace(pattern, `https://${projectPage.customDomain}`);
+            }
+        }
+        return content;
+    };
+
     const handleCopyEmail = () => {
         const dayNum = 8 + (activeEvergreenEmail * 2);
         const email = nurturingMessages.find(m => m.dayIndex === dayNum);
         if (!email?.contentHtml) return;
         
-        const htmlContent = `<div>${email.contentHtml}</div>`;
-        const plainText = email.contentHtml.replace(/<[^>]*>/g, '');
+        const resolvedContent = resolveSmartUrl(email.contentHtml);
+        const htmlContent = `<div>${resolvedContent}</div>`;
+        const plainText = resolvedContent.replace(/<[^>]*>/g, '');
         const blobHtml = new Blob([htmlContent], { type: 'text/html' });
         const blobText = new Blob([plainText], { type: 'text/plain' });
         const data = [new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })];
