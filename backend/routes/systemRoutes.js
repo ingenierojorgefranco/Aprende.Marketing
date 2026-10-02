@@ -57,7 +57,7 @@ router.get('/email/sequences', authMiddleware, async (req, res) => {
         const sequencesWithDays = [];
         for (const seq of rows) {
             const [msgRows] = await pool.query(
-                `SELECT day_index, type FROM email_messages WHERE sequence_id = ? AND is_generated = 1`,
+                `SELECT day_index, type FROM email_messages WHERE sequence_id = ? AND (is_generated = 1 OR (content_html IS NOT NULL AND content_html != ""))`,
                 [seq.id]
             );
             

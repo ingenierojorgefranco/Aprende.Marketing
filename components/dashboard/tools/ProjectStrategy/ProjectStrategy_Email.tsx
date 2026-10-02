@@ -204,7 +204,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
     // Sincronizar estados locales solo cuando realmente cambiamos de correo
     useEffect(() => {
-        const currentReal = realMessages.find(m => m.dayIndex === activeEmail + 1);
+        const currentReal = realMessages.find(m => Number(m.dayIndex) === activeEmail + 1);
         const currentStatic = emailData[activeEmail];
         
         // Solo reseteamos los estados locales si el índice del correo ha cambiado o si los datos reales acaban de cargar
@@ -310,7 +310,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         if (field === 'pilarType') setLocalPilar(value);
         if (field === 'purpose') setLocalPurpose(value);
 
-        const currentReal = realMessages.find(m => m.dayIndex === activeEmail + 1);
+        const currentReal = realMessages.find(m => Number(m.dayIndex) === activeEmail + 1);
         if (!currentReal) return;
 
         setSaveIndicator('saving');
@@ -369,7 +369,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     };
 
     const handleCopyEmail = () => {
-        const email = realMessages.find(m => m.dayIndex === activeEmail + 1);
+        const email = realMessages.find(m => Number(m.dayIndex) === activeEmail + 1);
         if (!email?.contentHtml) return;
         
         const resolvedContent = resolveSmartUrl(email.contentHtml);
@@ -401,7 +401,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             // Recopilamos la configuración de los 7 días
             const tyUrl = getThankYouPageUrl(currentProject, userPages);
             const sequenceData = emailData.map((email, idx) => {
-                const real = realMessages.find(m => m.dayIndex === idx + 1);
+                const real = realMessages.find(m => Number(m.dayIndex) === idx + 1);
                 
                 return {
                     dayIndex: idx + 1,
@@ -493,7 +493,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         ? (activePlanLimits?.maxEmailSequences !== undefined ? activePlanLimits.maxEmailSequences : 5)
         : (activePlanLimits?.maxEmailSequencesNurturing !== undefined ? activePlanLimits.maxEmailSequencesNurturing : 20);
 
-    const generatedInCurrent = realMessages.filter(m => m.isGenerated).length;
+    const generatedInCurrent = realMessages.filter(m => m.contentHtml && m.contentHtml.trim() !== '').length;
     const usagePercent = maxSequences > 0 ? Math.min(100, (sequenceUsed / maxSequences) * 100) : 100;
     let progressColor = "bg-[#FF5D1E]";
     if (usagePercent > 50) progressColor = "bg-orange-500";
@@ -501,8 +501,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
     const hasAvailability = isRealAdmin || (sequenceUsed < maxSequences);
 
-    const currentMsg = realMessages.find(m => m.dayIndex === activeEmail + 1);
-    const isCurrentGenerated = !!currentMsg?.isGenerated;
+    const currentMsg = realMessages.find(m => Number(m.dayIndex) === activeEmail + 1);
+    const isCurrentGenerated = !!(currentMsg?.contentHtml && currentMsg.contentHtml.trim() !== '');
     const currentRealContent = currentMsg?.contentHtml || '';
 
     // Auto-resize subject on load
@@ -689,7 +689,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
                     <div className="space-y-4 pr-2">
                         {emailData.map((email: any, idx: number) => {
-                            const isDayGenerated = realMessages.some(m => m.dayIndex === idx + 1 && m.isGenerated);
+                            const isDayGenerated = realMessages.some(m => Number(m.dayIndex) === idx + 1 && m.contentHtml && m.contentHtml.trim() !== '');
                             const isActive = activeEmail === idx;
                             return (
                                 <div 
