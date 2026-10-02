@@ -142,10 +142,15 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
 
         // 4. Actualizar los mensajes en la base de datos con el contenido generado
         for (const email of generatedEmails) {
-            await pool.query(
-                'UPDATE email_messages SET content_html = ?, is_generated = 1 WHERE sequence_id = ? AND day_index = ?',
-                [email.contentHtml, sequenceId, email.dayIndex]
-            );
+            const dayIndex = email.dayIndex !== undefined ? email.dayIndex : email.day_index;
+            const contentHtml = email.contentHtml !== undefined ? email.contentHtml : email.content_html;
+            
+            if (dayIndex !== undefined && dayIndex !== null) {
+                await pool.query(
+                    'UPDATE email_messages SET content_html = ?, is_generated = 1 WHERE sequence_id = ? AND day_index = ?',
+                    [contentHtml || '', sequenceId, Number(dayIndex)]
+                );
+            }
         }
 
         res.json({ success: true, sequenceId });

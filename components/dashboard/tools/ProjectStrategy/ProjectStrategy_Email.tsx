@@ -399,6 +399,21 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
             await api.generateFullEmailSequence(projectId, sequenceData, activeType);
             
+            // Sync local sequences and messages state immediately
+            try {
+                const updatedSequences = await api.getEmailSequences();
+                setAllSequences(updatedSequences);
+                
+                const projectSequence = updatedSequences.find(s => String(s.projectId) === String(projectId) && s.type === activeType);
+                if (projectSequence) {
+                    setSequenceId(projectSequence.id);
+                    const messages = await api.getSequenceMessages(projectSequence.id);
+                    setRealMessages(messages.filter((m: any) => m.type === activeType));
+                }
+            } catch (err) {
+                console.error("Error refreshing after generate:", err);
+            }
+            
             // Éxito: Mostrar confeti antes de recargar
             setProgress(100);
             setIsGenerating(false);

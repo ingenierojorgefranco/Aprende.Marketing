@@ -864,7 +864,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const handleCreateManualHook = async () => {
     if (isLimitReached) {
-        setShowUpgradeModalLocal(true);
+        setShowLockModal(true);
         return;
     }
     if (window.confirm("¿Deseas crear el hook manualmente?")) {
@@ -1930,7 +1930,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                   <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
                       <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
                       {(!isRealAdmin && currentHooksCount >= maxHooks) ? (
-                          <button onClick={() => { setShowConfirmModal(false); setShowUpgradeModalLocal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Actualizar Plan</button>
+                          <button onClick={() => { setShowConfirmModal(false); setShowLockModal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#FF5D1E] text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Actualizar Plan</button>
                       ) : (
                           <button onClick={executeUnlock} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Desbloquear</button>
                       )}

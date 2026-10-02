@@ -396,10 +396,10 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             } else {
                 setActiveCarouselIdx(0);
             }
-        } catch (err: any) {
+                } catch (err: any) {
             console.error("Error unlocking single carousel:", err);
             if (err.message && err.message.includes("límite")) {
-                setShowUpgradeModalLocal(true);
+                setShowLockModal(true);
             } else {
                 alert(err.message || "Error al desbloquear el carrusel.");
             }
@@ -426,7 +426,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         } catch (err: any) {
             console.error("Error unlocking carousels batch:", err);
             if (err.message && err.message.includes("límite")) {
-                setShowUpgradeModalLocal(true);
+                setShowLockModal(true);
             } else {
                 alert(err.message || "Error al desbloquear más carruseles.");
             }
@@ -470,7 +470,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     // Create manual carousel
     const handleCreateManualCarousel = async () => {
         if (unlockedCount >= maxCarousels && !isRealAdmin) {
-            setShowUpgradeModalLocal(true);
+            setShowLockModal(true);
             return;
         }
         if (window.confirm("¿Deseas crear el carrusel manualmente?")) {
