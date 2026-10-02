@@ -140,12 +140,38 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
         // 3. Generar contenido con IA
         const generatedEmails = await generateEmailSequenceContent(projectId, sequenceData, type);
 
-        // 4. Actualizar los mensajes en la base de datos con el contenido generado
-        for (const email of generatedEmails) {
-            const dayIndex = email.dayIndex !== undefined ? email.dayIndex : email.day_index;
+        // 4. Actualizar los mensajes en la base de datos con el contenido generado (Normalización robusta)
+        let emailsArray = [];
+        if (Array.isArray(generatedEmails)) {
+            emailsArray = generatedEmails;
+        } else if (generatedEmails && typeof generatedEmails === 'object') {
+            const possibleArray = Object.values(generatedEmails).find(val => Array.isArray(val));
+            if (possibleArray) {
+                emailsArray = possibleArray;
+            } else {
+                emailsArray = [generatedEmails];
+            }
+        }
+
+        for (const email of emailsArray) {
+            const dayIndexRaw = email.dayIndex !== undefined ? email.dayIndex : email.day_index;
             const contentHtml = email.contentHtml !== undefined ? email.contentHtml : email.content_html;
             
-            if (dayIndex !== undefined && dayIndex !== null) {
+            let dayIndex = null;
+            if (dayIndexRaw !== undefined && dayIndexRaw !== null) {
+                if (typeof dayIndexRaw === 'number') {
+                    dayIndex = dayIndexRaw;
+                } else if (typeof dayIndexRaw === 'string') {
+                    const match = dayIndexRaw.match(/\d+/);
+                    if (match) {
+                        dayIndex = Number(match[0]);
+                    } else {
+                        dayIndex = Number(dayIndexRaw);
+                    }
+                }
+            }
+            
+            if (dayIndex !== undefined && dayIndex !== null && !isNaN(dayIndex)) {
                 await pool.query(
                     'UPDATE email_messages SET content_html = ?, is_generated = 1 WHERE sequence_id = ? AND day_index = ?',
                     [contentHtml || '', sequenceId, Number(dayIndex)]
