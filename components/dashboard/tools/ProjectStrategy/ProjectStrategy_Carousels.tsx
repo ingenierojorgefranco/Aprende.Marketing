@@ -59,6 +59,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     const [masterParentId, setMasterParentId] = useState<string | null>(null);
     const [projectChecked, setProjectChecked] = useState(false);
     const [showUpgradeModalLocal, setShowUpgradeModalLocal] = useState(false);
+    const [showLockModal, setShowLockModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
@@ -774,14 +775,14 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                             <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro equipo de marketing ha redactado y diseñado esta plantilla para ti. Haz clic en Desbloquear para añadirla a tu colección.</p>
 
                             <button 
-                                onClick={unlockedCount >= maxCarousels && !isRealAdmin ? () => setShowUpgradeModalLocal(true) : () => setShowConfirmModal(true)}
+                                onClick={unlockedCount >= maxCarousels && !isRealAdmin ? () => setShowLockModal(true) : () => setShowConfirmModal(true)}
                                 disabled={unlockingSingle}
-                                className={`w-full py-5 rounded-2xl ${unlockedCount >= maxCarousels && !isRealAdmin ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-orange-600 hover:bg-orange-500'} text-white font-black text-xl uppercase tracking-widest shadow-xl transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70 cursor-pointer`}
+                                className={`w-full py-5 rounded-2xl ${unlockedCount >= maxCarousels && !isRealAdmin ? 'bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110' : 'bg-orange-600 hover:bg-orange-500'} text-white font-black text-xl uppercase tracking-widest shadow-xl transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70 cursor-pointer`}
                             >
                                 {unlockingSingle ? (
                                     <Loader2 className="w-6 h-6 animate-spin" />
                                 ) : unlockedCount >= maxCarousels && !isRealAdmin ? (
-                                    <Crown className="w-6 h-6 fill-current" />
+                                    <Crown className="w-6 h-6 fill-current text-white animate-pulse" />
                                 ) : (
                                     <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />
                                 )}
@@ -1218,6 +1219,53 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 onClose={() => setShowUpgradeModalLocal(false)}
                 reason="Las plantillas completas de Carruseles de Instagram y Facebook diseñadas profesionalmente por nuestro equipo de expertos están reservadas para usuarios del Plan PRO."
             />
+
+            {showLockModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowLockModal(false)}>
+                    <div className="bg-[#0B0B0B] border border-amber-500/20 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-[#FF5D1E]"></div>
+                        <div className="p-8 md:p-10 space-y-6 flex-1 overflow-y-auto text-center">
+                            <div className="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-lg shadow-amber-950/20 animate-pulse">
+                                <Lock className="w-8 h-8" />
+                            </div>
+                            
+                            <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">
+                                Característica Exclusiva <span className="text-amber-400">Plan PRO</span>
+                            </h2>
+                            
+                            <div className="space-y-4 text-slate-300 text-sm sm:text-base leading-relaxed text-left bg-white/[0.02] border border-white/5 p-5 rounded-2xl">
+                                <p className="font-bold text-white text-center text-base mb-2">
+                                    ¡Diseña Carruseles que Detengan el Scroll! 🚀
+                                </p>
+                                <p>
+                                    Generar Carruseles Magnéticos interactivos aumentará drásticamente el engagement y la autoridad de tu marca en redes sociales.
+                                </p>
+                                <p className="border-t border-white/5 pt-3">
+                                    Adquiriendo el <strong className="text-amber-400 font-black">Plan PRO</strong> recibirás acceso completo para generar y diseñar carruseles persuasivos completos por IA, optimizados por expertos para convertir seguidores en compradores.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button 
+                                onClick={() => setShowLockModal(false)} 
+                                className="flex-1 py-4 rounded-xl bg-white/5 text-gray-300 font-black text-xs sm:text-sm uppercase tracking-widest hover:bg-white/10 transition-all cursor-pointer"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    setShowLockModal(false);
+                                    setShowUpgradeModalLocal(true);
+                                }} 
+                                className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#FF5D1E] text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-amber-900/20 transform hover:scale-[1.02] active:scale-[0.98] transition-all animate-pulse cursor-pointer"
+                            >
+                                👑 Obtener Plan PRO
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
