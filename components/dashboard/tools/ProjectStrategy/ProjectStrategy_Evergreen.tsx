@@ -297,7 +297,8 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
             const result = await api.generateEvergreenEmail(projectId, {
                 title: article.title,
                 description: article.description,
-                contentHtml: article.contentHtml
+                contentHtml: article.contentHtml,
+                slug: article.slug
             });
 
             // --- ASOCIAR SOLO CON email_messages de tipo 'nurturing' ---

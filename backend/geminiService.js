@@ -1305,9 +1305,9 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
     if (projectRows.length === 0) throw new Error("Proyecto no encontrado");
     const project = projectRows[0];
 
-    // Obtener la landing page asociada para construir la URL correcta
+    // Obtener la landing page asociada para construir la URL correcta (priorizando la publicada y más reciente)
     const [pageRows] = await pool.query(
-        "SELECT id, name, custom_domain FROM landing_pages WHERE project_id = ? LIMIT 1",
+        "SELECT id, name, custom_domain FROM landing_pages WHERE project_id = ? ORDER BY is_published DESC, created_at DESC LIMIT 1",
         [projectId]
     );
     const page = pageRows[0];
@@ -1370,7 +1370,7 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
         2. Usa [Firstname] para el saludo.
         3. El botón de acción debe decir algo como "Leer artículo completo" o "Ver el post ahora".
         4. DEBES usar la URL DEL ARTÍCULO proporcionada (${articleUrl}) en el atributo href del botón.
-        5. Incluye una firma profesional al final con el nombre del autor: <strong>${teacherInfo.name}</strong> y su cargo ${teacherInfo.title}.
+        5. NO incluyas ninguna firma profesional, despedida formal, nombre del autor/profesor, ni datos del tutor al final del correo. Pasa directamente del cuerpo al posdata (P.S.).
         6. Incluye una Posdata (P.S.) persuasiva basada en: ${teacherInfo.transformation_tip}.
         
         Responde estrictamente en formato JSON:

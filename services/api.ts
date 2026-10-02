@@ -2380,7 +2380,7 @@ export const api = {
         clearCache('projectDetails', projectId);
     },
 
-    generateEvergreenEmail: async (projectId: string, articleData: { title: string, description: string, contentHtml: string }): Promise<any> => {
+    generateEvergreenEmail: async (projectId: string, articleData: { title: string, description: string, contentHtml: string, slug?: string }): Promise<any> => {
         if (isMockMode) {
             await new Promise(resolve => setTimeout(resolve, 2000));
             return { subject: "Email de Nutrición (Mock)", body: "<p>Contenido del correo generado en modo mock.</p>" };
