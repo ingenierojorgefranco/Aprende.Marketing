@@ -154,8 +154,23 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
         }
 
         for (const email of emailsArray) {
-            const dayIndexRaw = email.dayIndex !== undefined ? email.dayIndex : email.day_index;
-            const contentHtml = email.contentHtml !== undefined ? email.contentHtml : email.content_html;
+            // Buscador de Claves Tolerante para el día index (dayIndex, day_index, day, dia, index)
+            let dayIndexRaw = undefined;
+            for (const key of ['dayIndex', 'day_index', 'day', 'dia', 'index', 'dayIndexRaw']) {
+                if (email[key] !== undefined && email[key] !== null) {
+                    dayIndexRaw = email[key];
+                    break;
+                }
+            }
+
+            // Buscador de Claves Tolerante para el contenido HTML (contentHtml, content_html, content, body, html, text)
+            let contentHtml = '';
+            for (const key of ['contentHtml', 'content_html', 'content', 'body', 'html', 'text']) {
+                if (email[key] !== undefined && email[key] !== null) {
+                    contentHtml = email[key];
+                    break;
+                }
+            }
             
             let dayIndex = null;
             if (dayIndexRaw !== undefined && dayIndexRaw !== null) {
