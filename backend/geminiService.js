@@ -1307,7 +1307,7 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
 
     // Obtener la landing page asociada para construir la URL correcta (priorizando la publicada y más reciente)
     const [pageRows] = await pool.query(
-        "SELECT id, name, custom_domain FROM landing_pages WHERE project_id = ? ORDER BY is_published DESC, created_at DESC LIMIT 1",
+        "SELECT id, name, custom_domain, subdomain FROM landing_pages WHERE project_id = ? ORDER BY is_published DESC, created_at DESC LIMIT 1",
         [projectId]
     );
     const page = pageRows[0];
@@ -1319,8 +1319,8 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
         if (page.custom_domain) {
             articleUrl = `https://${page.custom_domain}/blog/${articleSlug}`;
         } else {
-            const pageSlug = slugify(page.name);
-            articleUrl = `https://aprende.marketing/lp/${page.id}-${pageSlug}/blog/${articleSlug}`;
+            const pageSubdomain = page.subdomain ? page.subdomain.split('.')[0] : page.id;
+            articleUrl = `https://aprende.marketing/lp/${pageSubdomain}/blog/${articleSlug}`;
         }
     }
 
