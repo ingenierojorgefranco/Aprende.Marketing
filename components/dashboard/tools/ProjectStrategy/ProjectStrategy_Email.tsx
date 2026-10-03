@@ -16,9 +16,9 @@ const getThankYouPageUrl = (project: any, pages: any[]) => {
             return `https://${page.customDomain}/gracias`;
         }
         const sub = page.subdomain ? page.subdomain.split('.')[0] : '';
-        return `/lp/${sub}/gracias`;
+        return `https://aprende.marketing/lp/${sub}/gracias`;
     }
-    return `/lp/${project.slug || 'proyecto'}/gracias`;
+    return `https://aprende.marketing/lp/${project.slug || 'proyecto'}/gracias`;
 };
 
 interface ProjectStrategy_EmailProps {
@@ -100,26 +100,17 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     setEmailData(strategy.modules?.emails?.nurture || []);
                 }
 
-                console.log("[EMAIL DIAGNOSTIC] - Iniciando carga autónoma para:", { projectId, activeType });
-                console.log("[EMAIL DIAGNOSTIC] - Secuencias totales encontradas en la cuenta:", sequences);
-
                 const activeProjectIds = new Set(sequences.filter(s => s.generatedDays && s.generatedDays.length > 0).map(s => s.projectId));
                 setSequenceCount(activeProjectIds.size);
                 
                 const projectSequence = sequences.find(s => String(s.projectId) === String(projectId) && s.type === activeType);
-                console.log("[EMAIL DIAGNOSTIC] - projectSequence encontrado:", projectSequence);
 
                 if (projectSequence) {
                     setSequenceId(projectSequence.id);
                     const messages = await api.getSequenceMessages(projectSequence.id);
-                    console.log("[EMAIL DIAGNOSTIC] - Mensajes brutos devueltos por la API para la secuencia " + projectSequence.id + ":", messages);
-                    
                     const filteredMessages = messages.filter((m: any) => m.type === activeType);
-                    console.log("[EMAIL DIAGNOSTIC] - Mensajes filtrados por tipo '" + activeType + "':", filteredMessages);
-                    
                     setRealMessages(filteredMessages);
                 } else {
-                    console.warn("[EMAIL DIAGNOSTIC] - No se encontró projectSequence para activeType '" + activeType + "' y proyecto " + projectId);
                     setSequenceId(null);
                     setRealMessages([]);
                 }
@@ -242,14 +233,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             lastActiveEmailRef.current = activeEmail;
         }
     }, [activeEmail, emailData, realMessages, projectLinks, pendingConfigs]);
-
-    // Log inteligente seguro que se dispara únicamente cuando de verdad cambia realMessages
-    useEffect(() => {
-        console.log("[EMAIL DIAGNOSTIC SAFE] - realMessages actualizadas en el estado local:", {
-            length: realMessages.length,
-            messages: realMessages
-        });
-    }, [realMessages]);
 
     useEffect(() => {
         let timer: any;
@@ -432,35 +415,23 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 };
             });
 
-            console.log("[EMAIL DIAGNOSTIC] - Enviando datos de secuencia a generar al backend:", { projectId, activeType, sequenceData });
-
             await api.generateFullEmailSequence(projectId, sequenceData, activeType);
-            
-            console.log("[EMAIL DIAGNOSTIC] - Petición de generación finalizada con éxito. Sincronizando estado inmediatamente...");
             
             // Sync local sequences and messages state immediately
             try {
                 const updatedSequences = await api.getEmailSequences();
-                console.log("[EMAIL DIAGNOSTIC] - Secuencias actualizadas del usuario cargadas tras generación:", updatedSequences);
                 setAllSequences(updatedSequences);
                 
                 const projectSequence = updatedSequences.find(s => String(s.projectId) === String(projectId) && s.type === activeType);
-                console.log("[EMAIL DIAGNOSTIC] - projectSequence encontrado tras generación:", projectSequence);
                 
                 if (projectSequence) {
                     setSequenceId(projectSequence.id);
                     const messages = await api.getSequenceMessages(projectSequence.id);
-                    console.log("[EMAIL DIAGNOSTIC] - Mensajes cargados tras generación para secuencia " + projectSequence.id + ":", messages);
-                    
                     const filteredMessages = messages.filter((m: any) => m.type === activeType);
-                    console.log("[EMAIL DIAGNOSTIC] - Mensajes filtrados por tipo tras generación:", filteredMessages);
-                    
                     setRealMessages(filteredMessages);
-                } else {
-                    console.warn("[EMAIL DIAGNOSTIC] - No se encontró projectSequence tras generación!");
                 }
             } catch (err) {
-                console.error("[EMAIL DIAGNOSTIC] - Error de sincronización post-generación:", err);
+                console.error("Error de sincronización post-generación:", err);
             }
             
             // Éxito: Mostrar confeti antes de recargar

@@ -1272,8 +1272,8 @@ export const generateEmailSequenceContent = async (projectId, sequenceData, type
       Si el enlace es REGALO/LEAD MAGNET: Usa "Ver Clase Ahora", "Descargar Regalo", "Acceder al Contenido".
       Si el enlace es OFERTA/HOTLINK: Usa "Quiero mi acceso ahora", "Unirme al programa", "Aprovechar oferta".
       Prohibido usar textos genéricos como "Haga clic aquí".
-    - FIRMA: Al final del cuerpo, añade una despedida cordial con el nombre de la profesora "<strong>${teacherInfo.name}</strong>" y en la línea de abajo su cargo "${teacherInfo.title || 'Especialista'}". No añadas textos adicionales de ayuda.
-    - POSDATA (Pdta:): Después de la firma, añade una posdata usando estrictamente el prefijo "<strong>Pdta:</strong>". El contenido debe ser un consejo directo y persuasivo basado en: "${teacherInfo.transformation_tip}". No incluyas el texto "Tip de transformación".
+    - FIRMA: Al final del cuerpo, añade una despedida cordial genérica sin mencionar ningún nombre propio de persona (está prohibido usar nombres propios como Dylan o similares). En su lugar, despídete en nombre del producto o marca, por ejemplo: "Un abrazo,\nEl equipo de ${project.product_name}". No añadas textos adicionales de ayuda.
+    - POSDATA (Pdta:): Después de la firma, añade una posdata usando estrictamente el prefijo "<strong>Pdta:</strong>". El contenido debe ser un consejo final muy directo, breve y persuasivo para incentivar a tomar acción y acceder a los enlaces correspondientes, sin hacer referencia a tutores personales.
     
     REGLAS ADICIONALES:
     - El contenido debe ser altamente persuasivo, usando técnicas de copywriting (AIDA, PAS).

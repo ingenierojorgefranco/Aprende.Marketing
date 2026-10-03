@@ -94,7 +94,6 @@ router.get('/email/sequences', authMiddleware, async (req, res) => {
 // Generar secuencia completa de correos con IA
 router.post('/email/sequences/generate-full', authMiddleware, async (req, res) => {
     const { projectId, sequenceData, type = 'conversion' } = req.body;
-    console.log("[BACKEND DIAGNOSTIC] - POST /email/sequences/generate-full llamado:", { projectId, type, sequenceDataLength: sequenceData?.length });
     if (!projectId) return res.status(400).json({ error: "Falta ID de proyecto" });
 
     try {
@@ -103,7 +102,6 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
             'SELECT id FROM email_sequences WHERE user_id = ? AND project_id = ? LIMIT 1',
             [req.user.id, projectId]
         );
-        console.log("[BACKEND DIAGNOSTIC] - Resultado búsqueda secuencia:", seqRows);
 
         let sequenceId;
 
@@ -111,24 +109,20 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
             // Si no existe, la creamos automáticamente
             const [projectRows] = await pool.query('SELECT name FROM projects WHERE id = ?', [projectId]);
             const projectName = projectRows[0]?.name || 'Secuencia Nueva';
-            console.log("[BACKEND DIAGNOSTIC] - Creando secuencia nueva en la BD:", { projectName, user_id: req.user.id, projectId });
 
             const [result] = await pool.query(
                 'INSERT INTO email_sequences (user_id, project_id, name, status) VALUES (?, ?, ?, "borrador")',
                 [req.user.id, projectId, projectName]
             );
             sequenceId = result.insertId;
-            console.log("[BACKEND DIAGNOSTIC] - Secuencia creada con éxito, insertId:", sequenceId);
         } else {
             sequenceId = seqRows[0].id;
-            console.log("[BACKEND DIAGNOSTIC] - Usando secuencia existente ID:", sequenceId);
         }
 
         // 2. Inicializar o actualizar los mensajes basados en sequenceData (Upsert)
         if (sequenceData && Array.isArray(sequenceData)) {
-            console.log("[BACKEND DIAGNOSTIC] - Iniciando Upsert de mensajes. Cantidad:", sequenceData.length);
             for (const p of sequenceData) {
-                const [upsertRes] = await pool.query(
+                await pool.query(
                     `INSERT INTO email_messages (sequence_id, day_index, pilar_type, subject, purpose, type, redirect_type, redirect_url, content_html, is_generated) 
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, "", 0)
                      ON DUPLICATE KEY UPDATE 
@@ -140,14 +134,11 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
                         redirect_url = VALUES(redirect_url)`,
                     [sequenceId, p.dayIndex, p.pilarType, p.subject, p.purpose, type, p.redirectType || null, p.redirectUrl || null]
                 );
-                console.log(`[BACKEND DIAGNOSTIC] - Upsert mensaje Día ${p.dayIndex}:`, { affectedRows: upsertRes.affectedRows, changedRows: upsertRes.changedRows });
             }
         }
 
         // 3. Generar contenido con IA
-        console.log("[BACKEND DIAGNOSTIC] - Llamando a generateEmailSequenceContent...");
         const generatedEmails = await generateEmailSequenceContent(projectId, sequenceData, type);
-        console.log("[BACKEND DIAGNOSTIC] - Respuesta de generateEmailSequenceContent recibida:", generatedEmails);
 
         // 4. Actualizar los mensajes en la base de datos con el contenido generado (Normalización robusta)
         let emailsArray = [];
@@ -161,7 +152,6 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
                 emailsArray = [generatedEmails];
             }
         }
-        console.log("[BACKEND DIAGNOSTIC] - emailsArray normalizado para iteración:", { length: emailsArray.length, isArray: Array.isArray(emailsArray) });
 
         for (const email of emailsArray) {
             // Buscador de Claves Tolerante para el día index (dayIndex, day_index, day, dia, index)
@@ -196,24 +186,11 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
                 }
             }
             
-            console.log("[BACKEND DIAGNOSTIC] - Procesando correo normalizado de la IA:", {
-                dayIndexRaw,
-                resolvedDayIndex: dayIndex,
-                contentHtmlLength: contentHtml ? contentHtml.length : 0,
-                contentHtmlPreview: contentHtml ? contentHtml.substring(0, 100) + "..." : "vacío"
-            });
-            
             if (dayIndex !== undefined && dayIndex !== null && !isNaN(dayIndex)) {
-                const [updateResult] = await pool.query(
+                await pool.query(
                     'UPDATE email_messages SET content_html = ?, is_generated = 1 WHERE sequence_id = ? AND day_index = ?',
                     [contentHtml || '', sequenceId, Number(dayIndex)]
                 );
-                console.log(`[BACKEND DIAGNOSTIC] - Resultado UPDATE en BD para secuencia_id ${sequenceId} y day_index ${dayIndex}:`, {
-                    affectedRows: updateResult.affectedRows,
-                    changedRows: updateResult.changedRows
-                });
-            } else {
-                console.warn("[BACKEND DIAGNOSTIC] - Se ignoró la actualización en BD porque el dayIndex no pudo resolverse:", { dayIndexRaw });
             }
         }
 
