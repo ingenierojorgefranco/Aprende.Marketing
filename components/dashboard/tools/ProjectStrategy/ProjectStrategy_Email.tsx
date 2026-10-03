@@ -243,6 +243,14 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         }
     }, [activeEmail, emailData, realMessages, projectLinks, pendingConfigs]);
 
+    // Log inteligente seguro que se dispara únicamente cuando de verdad cambia realMessages
+    useEffect(() => {
+        console.log("[EMAIL DIAGNOSTIC SAFE] - realMessages actualizadas en el estado local:", {
+            length: realMessages.length,
+            messages: realMessages
+        });
+    }, [realMessages]);
+
     useEffect(() => {
         let timer: any;
         let prog: any;
@@ -716,12 +724,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         {emailData.map((email: any, idx: number) => {
                             const matchingMsg = realMessages.find(m => Number(m.dayIndex) === idx + 1);
                             const isDayGenerated = !!(matchingMsg && matchingMsg.contentHtml && matchingMsg.contentHtml.trim() !== '');
-                            console.log("[EMAIL DIAGNOSTIC RENDER] - Día " + (idx + 1) + ":", {
-                                subject: email.subject,
-                                matchingMsg: matchingMsg,
-                                contentHtmlLength: matchingMsg?.contentHtml ? matchingMsg.contentHtml.length : 0,
-                                isDayGenerated: isDayGenerated
-                            });
                             const isActive = activeEmail === idx;
                             return (
                                 <div 
