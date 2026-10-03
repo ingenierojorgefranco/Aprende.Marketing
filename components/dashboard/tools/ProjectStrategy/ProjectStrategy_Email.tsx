@@ -69,10 +69,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [activeType, setActiveTypeInternal] = useState<'conversion' | 'nurturing'>(initialActiveType);
     const [isLoadingInternal, setIsLoadingInternal] = useState(false);
 
-    // Sincronizar props iniciales si cambian
-    useEffect(() => { if (initialEmailData) setEmailData(initialEmailData); }, [initialEmailData]);
-    useEffect(() => { if (initialAvatars) setAvatars(initialAvatars); }, [initialAvatars]);
-    useEffect(() => { if (initialRealMessages) setRealMessages(initialRealMessages); }, [initialRealMessages]);
+    // Sincronizar props iniciales si cambian (con protección para no sobrescribir datos cargados localmente)
+    useEffect(() => { if (initialEmailData && initialEmailData.length > 0) setEmailData(initialEmailData); }, [initialEmailData]);
+    useEffect(() => { if (initialAvatars && initialAvatars.length > 0) setAvatars(initialAvatars); }, [initialAvatars]);
+    useEffect(() => { if (initialRealMessages && initialRealMessages.length > 0) setRealMessages(initialRealMessages); }, [initialRealMessages]);
     useEffect(() => { if (initialSequenceId) setSequenceId(initialSequenceId); }, [initialSequenceId]);
     useEffect(() => { if (initialSequenceCount) setSequenceCount(initialSequenceCount); }, [initialSequenceCount]);
     useEffect(() => { if (initialActiveType) setActiveTypeInternal(initialActiveType); }, [initialActiveType]);
