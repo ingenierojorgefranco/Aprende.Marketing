@@ -259,10 +259,10 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
         <div id="psd-leadmagnet-whatsapp-section" className="space-y-6 text-left animate-in fade-in duration-500">
             {/* 1. HEADER CARD */}
             <StepHeaderCard
-                stepNumber={7}
+                stepNumber={9}
                 totalSteps={totalSteps}
                 stageNumber={2}
-                categoryTitle="7. LeadMagnet de Whatsapp"
+                categoryTitle="9. LeadMagnet de Whatsapp"
                 title={<>LeadMagnet <span className="text-[#FF5A1F]">de WhatsApp</span></>}
                 description="Configura y descarga tu recurso gratuito (Lead Magnet) para entregarlo por WhatsApp, romper el hielo con tus prospectos y generar confianza desde el primer contacto."
             />
@@ -270,7 +270,7 @@ export const ProjectStrategy_LeadMagnet: React.FC<ProjectStrategy_LeadMagnetProp
             {/* 2. VIDEO TUTORIAL */}
             <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                 <StepVideoContainer 
-                    stepNumber={7}
+                    stepNumber={9}
                     videoUrl="https://www.youtube.com/embed/WUqaWRJG92c?rel=0&controls=1&showinfo=0"
                     title="Video Tutorial: LeadMagnet de WhatsApp"
                 />

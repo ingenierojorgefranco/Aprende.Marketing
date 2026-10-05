@@ -968,10 +968,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         <div className="space-y-6">
             {/* --- HEADER CARD --- */}
             <StepHeaderCard
-                stepNumber={5}
+                stepNumber={6}
                 totalSteps={totalSteps}
                 stageNumber={2}
-                categoryTitle="5. Tus videos de atracción (Hooks)"
+                categoryTitle="6. Tus videos de atracción (Hooks)"
                 title={<>Video Hooks <span className="text-[#FF5A1F]">de Atracción</span></>}
                 description="Crea videos con hooks de atracción para captar la atención desde los primeros segundos, despertar interés y llevar más personas hacia tu oferta."
             />
@@ -979,7 +979,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             {/* --- VIDEO TUTORIAL --- */}
             <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                 <StepVideoContainer 
-                    stepNumber={5}
+                    stepNumber={6}
                     videoUrl="https://www.youtube.com/embed/bTV5aFTchJ8?rel=0&controls=1&showinfo=0"
                     title="Video Tutorial Hooks"
                 />

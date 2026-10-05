@@ -649,10 +649,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={8}
+                        stepNumber={10}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="8. Email Marketing (Conversión)"
+                        categoryTitle="10. Email Marketing (Conversión)"
                         title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Conversión</span></>}
                         description="Configura tu secuencia de Email Marketing para convertir a tus prospectos desde el primer momento, generar confianza y guiarlos paso a paso."
                     />
@@ -660,7 +660,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
-                            stepNumber={8}
+                            stepNumber={10}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial Email"
                         />

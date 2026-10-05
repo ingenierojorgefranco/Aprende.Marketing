@@ -423,16 +423,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 {!hideHeader && (
                     <div className="space-y-6">
                         <StepHeaderCard
-                            stepNumber={9}
+                            stepNumber={11}
                             totalSteps={totalSteps}
                             stageNumber={2}
-                            categoryTitle="9. Email Marketing (Nutrición)"
+                            categoryTitle="11. Email Marketing (Nutrición)"
                             title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                             description="Configura tu secuencia de nutrición por email para mantener el interés de tus prospectos, aportar valor y fortalecer la confianza hasta que estén listos para comprar."
                         />
                         <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                             <StepVideoContainer 
-                                stepNumber={9}
+                                stepNumber={11}
                                 videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                                 title="Video Tutorial Evergreen"
                             />
@@ -454,16 +454,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 {!hideHeader && (
                     <div className="space-y-6">
                         <StepHeaderCard
-                            stepNumber={9}
+                            stepNumber={11}
                             totalSteps={totalSteps}
                             stageNumber={2}
-                            categoryTitle="9. Email Marketing (Nutrición)"
+                            categoryTitle="11. Email Marketing (Nutrición)"
                             title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                             description="Configura tu secuencia de nutrición por email para mantener el interés de tus prospectos, aportar valor y fortalecer la confianza hasta que estén listos para comprar."
                         />
                         <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                             <StepVideoContainer 
-                                stepNumber={9}
+                                stepNumber={11}
                                 videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                                 title="Video Tutorial Evergreen"
                             />
@@ -508,10 +508,10 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={9}
+                        stepNumber={11}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="9. Email Marketing (Nutrición)"
+                        categoryTitle="11. Email Marketing (Nutrición)"
                         title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                         description={`Tienes ${effectiveArticles.length} artículos vinculados. El sistema ha programado estos correos para enviarse a partir del Día 8, manteniendo tu oferta presente sin ser invasivo.`}
                     />
@@ -519,7 +519,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
-                            stepNumber={9}
+                            stepNumber={11}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial Evergreen"
                         />

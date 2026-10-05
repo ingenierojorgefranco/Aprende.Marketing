@@ -890,7 +890,7 @@ const initDb = async () => {
         }
         ////////// Fin de actualización - 07/06/2025 10:00 //////////
 
-        // --- DATOS SEMILLA PARA MASTER_STEP_VIDEOS (Pasos 1 al 10) ---
+        // --- DATOS SEMILLA PARA MASTER_STEP_VIDEOS (Pasos 1 al 12) ---
         console.log('[DB Init] 🌱 Iniciando comprobación de datos semilla para todos los pasos de la Guía de Implementación...');
         const stepTitles = {
             1: 'Bienvenida e introducción',
@@ -902,10 +902,12 @@ const initDb = async () => {
             7: 'Carruseles Magnéticos',
             8: 'Artículos de Blog',
             9: 'LeadMagnet de Whatsapp',
-            10: 'Email Marketing (Conversión)'
+            10: 'Email Marketing (Conversión)',
+            11: 'Email Marketing (Nutrición)',
+            12: 'Lanzamientos (Estrategia WhatsApp)'
         };
 
-        for (let step = 1; step <= 10; step++) {
+        for (let step = 1; step <= 12; step++) {
             const [rows] = await connection.query("SELECT id FROM master_step_videos WHERE step_number = ?", [step]);
             if (rows.length === 0) {
                 console.log(`[DB Init] 🎬 El Paso ${step} está vacío. Creando videos globales semilla...`);
