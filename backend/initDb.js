@@ -890,20 +890,74 @@ const initDb = async () => {
         }
         ////////// Fin de actualización - 07/06/2025 10:00 //////////
 
-        // --- DATOS SEMILLA PARA MASTER_STEP_VIDEOS ---
-        const [existingMasterVideos] = await connection.query("SELECT id FROM master_step_videos LIMIT 1");
-        if (existingMasterVideos.length === 0) {
-            console.log('[DB Init] 🌱 Insertando datos semilla de master_step_videos...');
-            const defaultStep1Videos = [
-                ['v1', 1, 'Principal', 'Entiende tu proyecto', 'Resumen del producto, público y recorrido', '4:36', 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675', 1],
-                ['v2', 1, 'Complementario', 'Cómo interpretar tu comisión', 'Precio, porcentaje y ganancia por venta', '2:18', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675', 2],
-                ['v3', 1, 'Complementario', 'Cómo funciona tu sistema', 'Del contenido a la posible comisión', '3:05', 'https://www.youtube.com/embed/L_LUpnjgPso?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200&h=675', 3]
-            ];
-            for (const v of defaultStep1Videos) {
-                await connection.query(
-                    `INSERT INTO master_step_videos (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    v
-                );
+        // --- DATOS SEMILLA PARA MASTER_STEP_VIDEOS (Pasos 1 al 10) ---
+        console.log('[DB Init] 🌱 Iniciando comprobación de datos semilla para todos los pasos de la Guía de Implementación...');
+        const stepTitles = {
+            1: 'Bienvenida e introducción',
+            2: 'Tu comprador ideal',
+            3: 'Tus enlaces de afiliados',
+            4: 'Leads capturados',
+            5: 'Tu página de captura',
+            6: 'Tus videos de atracción (Hooks)',
+            7: 'Carruseles Magnéticos',
+            8: 'Artículos de Blog',
+            9: 'LeadMagnet de Whatsapp',
+            10: 'Email Marketing (Conversión)'
+        };
+
+        for (let step = 1; step <= 10; step++) {
+            const [rows] = await connection.query("SELECT id FROM master_step_videos WHERE step_number = ?", [step]);
+            if (rows.length === 0) {
+                console.log(`[DB Init] 🎬 El Paso ${step} está vacío. Creando videos globales semilla...`);
+                const title = stepTitles[step] || `Paso ${step}`;
+                
+                if (step === 1) {
+                    const defaultStep1Videos = [
+                        ['v1', 1, 'Principal', 'Entiende tu proyecto', 'Resumen del producto, público y recorrido', '4:36', 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675', 1],
+                        ['v2', 1, 'Complementario', 'Cómo interpretar tu comisión', 'Precio, porcentaje y ganancia por venta', '2:18', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675', 2],
+                        ['v3', 1, 'Complementario', 'Cómo funciona tu sistema', 'Del contenido a la posible comisión', '3:05', 'https://www.youtube.com/embed/L_LUpnjgPso?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200&h=675', 3]
+                    ];
+                    for (const v of defaultStep1Videos) {
+                        await connection.query(
+                            `INSERT INTO master_step_videos (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            v
+                        );
+                    }
+                } else {
+                    // Video Principal
+                    await connection.query(
+                        `INSERT INTO master_step_videos (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        [
+                            `step_${step}_v1`, 
+                            step, 
+                            'Principal', 
+                            `Video Tutorial - ${title}`, 
+                            'Resumen del módulo, objetivos y recorrido paso a paso', 
+                            '4:36', 
+                            'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0', 
+                            'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675', 
+                            1
+                        ]
+                    );
+
+                    // Video Complementario
+                    await connection.query(
+                        `INSERT INTO master_step_videos (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        [
+                            `step_${step}_v2`, 
+                            step, 
+                            'Complementario', 
+                            `Guía Complementaria - Paso ${step}`, 
+                            'Recomendaciones avanzadas y mejores prácticas del sistema', 
+                            '2:18', 
+                            'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0', 
+                            'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675', 
+                            2
+                        ]
+                    );
+                }
             }
         }
 
