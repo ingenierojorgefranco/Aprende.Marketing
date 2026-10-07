@@ -259,7 +259,28 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
   useEffect(() => {
     const fullPath = location.pathname + location.hash + location.search;
+
+    const validStep2Substeps: WizardStep[] = [
+      "selection",
+      "generating_strategy",
+      "strategy_ready",
+      "creating_web",
+      "landing_success",
+      "show_avatars",
+      "show_landing_prep"
+    ];
+
+    const validStep3Substeps: WizardStep[] = [
+      "unlock",
+      "generating_hooks",
+      "show_hooks",
+      "success"
+    ];
+
     if (fullPath.includes("step-3") || fullPath.includes("unlock")) {
+      if (validStep3Substeps.includes(step)) {
+        return;
+      }
       const forced = localStorage.getItem("force_wizard_step");
       if (forced === "success" || step === "success") {
         if (step !== "success") setStep("success");
@@ -270,6 +291,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         }
       }
     } else if (fullPath.includes("onboarding") || fullPath.includes("step-2") || fullPath.includes("selection")) {
+      if (validStep2Substeps.includes(step)) {
+        return;
+      }
       if (step !== "selection") {
         setStep("selection");
         setRevealedSections(["selection"]);
