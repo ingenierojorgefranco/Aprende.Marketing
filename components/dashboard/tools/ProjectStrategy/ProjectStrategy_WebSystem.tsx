@@ -55,7 +55,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [showDomainModal, setShowDomainModal] = useState(false);
     const [domainModalEditMode, setDomainModalEditMode] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-    const [showLockModal, setShowLockModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [domainCount, setDomainCount] = useState(0);
@@ -122,7 +121,11 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     const handleOpenDomainModal = (isEdit: boolean = false) => {
         if (!isPro) {
-            setShowLockModal(true);
+            if (onUpgrade) {
+                onUpgrade();
+            } else {
+                setShowUpgradeModal(true);
+            }
             return;
         }
         setDomainModalEditMode(isEdit);
@@ -333,7 +336,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             const cleanPath = path ? (path.startsWith('/') ? path : `/${path}`) : '';
             return `/lp/${fallback}${cleanPath}${queryParams}`;
         }
-        if (page.customDomain && page.customDomain.trim() && isPro) {
+        if (page.customDomain && page.customDomain.trim()) {
             const cleanDomain = page.customDomain.trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '');
             const cleanPath = path ? (path.startsWith('/') ? path : `/${path}`) : '';
             return `https://${cleanDomain}${cleanPath}${queryParams}`;
@@ -954,7 +957,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         </div>
 
                                         {/* Dominio Registrado con Botón Editar (Diseño Imagen 4) */}
-                                        {linkedPages[0].customDomain && isPro && (
+                                        {linkedPages[0].customDomain && (
                                             <div className="bg-[#051914] border border-emerald-500/40 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-lg shadow-emerald-950/30 animate-in fade-in">
                                                 <div className="flex items-center gap-3 min-w-0">
                                                     <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
@@ -977,34 +980,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                                 >
                                                     <Edit2 className="w-3.5 h-3.5" />
                                                     <span>Editar</span>
-                                                </button>
-                                            </div>
-                                        )}
-
-                                        {/* Dominio Suspendido (si tienen dominio pero no son PRO) */}
-                                        {linkedPages[0].customDomain && !isPro && (
-                                            <div className="bg-[#1f1008] border border-orange-500/40 rounded-2xl p-3.5 sm:p-4 flex flex-col gap-3 shadow-lg shadow-orange-950/20 animate-in fade-in">
-                                                <div className="flex items-center gap-3 min-w-0">
-                                                    <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 shrink-0">
-                                                        <AlertTriangle className="w-5 h-5 text-orange-400 animate-pulse" />
-                                                    </div>
-                                                    <div className="min-w-0">
-                                                        <p className="text-[10px] font-black text-orange-400 uppercase tracking-widest leading-none mb-1">
-                                                            DOMINIO SUSPENDIDO
-                                                         </p>
-                                                        <p className="text-sm sm:text-base font-bold text-white font-mono tracking-tight truncate sm:break-all">
-                                                            {linkedPages[0].customDomain}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <p className="text-[11px] sm:text-xs text-orange-300 leading-normal font-medium text-left">
-                                                    Tu dominio personalizado está inactivo porque no cuentas con un plan PRO activo. Tu embudo sigue disponible bajo la URL compartida de aprende.marketing.
-                                                </p>
-                                                <button 
-                                                    onClick={() => onUpgrade && onUpgrade()}
-                                                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:brightness-110 text-slate-950 font-black text-[11px] uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
-                                                >
-                                                    <Crown className="w-3.5 h-3.5 fill-current" /> Activar Plan PRO para restaurar
                                                 </button>
                                             </div>
                                         )}
@@ -1552,57 +1527,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     userId={(strategy as any)?.userId || ''}
                     reason="El plan Starter no incluye dominios personalizados. Actualiza a Pro para conectar tu propio dominio y profesionalizar tu marca."
                 />
-            )}
-
-            {showLockModal && (
-                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowLockModal(false)}>
-                    <div className="bg-[#0B0B0B] border border-amber-500/20 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-[#FF5D1E]"></div>
-                        <div className="p-8 md:p-10 space-y-6 flex-1 overflow-y-auto text-center">
-                            <div className="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-lg shadow-amber-950/20 animate-pulse">
-                                <Lock className="w-8 h-8" />
-                            </div>
-                            
-                            <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">
-                                Característica Exclusiva <span className="text-amber-400">Plan PRO</span>
-                            </h2>
-                            
-                            <div className="space-y-4 text-slate-300 text-sm sm:text-base leading-relaxed text-left bg-white/[0.02] border border-white/5 p-5 rounded-2xl">
-                                <p className="font-bold text-white text-center text-base mb-2">
-                                    ¡Conecta tu propio Dominio Personalizado! 🌐
-                                </p>
-                                <p>
-                                    Asociar tu propio dominio (ej. tu-marca.com) es clave para generar confianza, profesionalizar tu negocio digital y aumentar exponencialmente las conversiones de tu página de captura.
-                                </p>
-                                <p className="border-t border-white/5 pt-3">
-                                    Adquiriendo el <strong className="text-amber-400 font-black">Plan PRO</strong> podrás configurar dominios personalizados para tus landing pages, eliminando nuestra marca y posicionando tu propio nombre en Internet de forma 100% profesional.
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
-                            <button 
-                                onClick={() => setShowLockModal(false)} 
-                                className="flex-1 py-4 rounded-xl bg-white/5 text-gray-300 font-black text-xs sm:text-sm uppercase tracking-widest hover:bg-white/10 transition-all cursor-pointer"
-                            >
-                                Cancelar
-                            </button>
-                            <button 
-                                onClick={() => {
-                                    setShowLockModal(false);
-                                    if (onUpgrade) {
-                                        onUpgrade();
-                                    } else {
-                                        setShowUpgradeModal(true);
-                                    }
-                                }} 
-                                className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#FF5D1E] text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-amber-900/20 transform hover:scale-[1.02] active:scale-[0.98] transition-all animate-pulse cursor-pointer"
-                            >
-                                👑 Obtener Plan PRO
-                            </button>
-                        </div>
-                    </div>
-                </div>
             )}
         </>
     );

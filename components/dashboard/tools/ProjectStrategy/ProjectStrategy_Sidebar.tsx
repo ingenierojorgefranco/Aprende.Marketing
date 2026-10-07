@@ -3,7 +3,7 @@ import {
     LayoutDashboard, TrendingUp, Map, UserSearch, 
     Globe, FileText, Mail, Calendar, MessageCircle,
     ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity, MessageSquare,
-    Link as LinkIcon, CheckCircle2, Gift, Lock, Layers, Users
+    Link as LinkIcon, CheckCircle2, Gift, Lock, Layers
 } from 'lucide-react';
 import { ImplementationGuideContext } from '../../wizard/ImplementationGuideContext';
 
@@ -44,20 +44,19 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                 { id: 'summary', label: '1. Bienvenida e introducción', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema", stepNumber: 1 },
                 { id: 'avatar', label: '2. Tu comprador ideal', icon: UserSearch, module: "FUNDAMENTOS", description: "Llega al Público Correcto", stepNumber: 2 },
                 { id: 'hotlinks', label: '3. Tus enlaces de afiliados', icon: LinkIcon, module: "FUNDAMENTOS", description: "Tus enlaces de afiliado", stepNumber: 3 },
-                { id: 'leads', label: '4. Leads capturados', icon: Users, module: "FUNDAMENTOS", description: "Base de datos de prospectos", stepNumber: 4 },
             ]
         },
         {
             module: "ETAPA 2: TU SISTEMA DE VENTAS",
             items: [
-                { id: 'web', label: '5. Tu página de captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura", stepNumber: 5 },
-                { id: 'hooks', label: '6. Tus videos de atracción (Hooks)', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos", stepNumber: 6 },
-                { id: 'carousels', label: '7. Carruseles Magnéticos', icon: Layers, module: "SISTEMA DE VENTAS", description: "Imágenes de alta conversión", stepNumber: 7 },
-                { id: 'content', label: '8. Artículos de Blog', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO", stepNumber: 8 },
-                { id: 'leadmagnet', label: '9. LeadMagnet de Whatsapp', icon: Gift, module: "SISTEMA DE VENTAS", description: "Entrega manual por WhatsApp", stepNumber: 9 },
-                { id: 'email', label: '10. Email Marketing (Conversión)', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial", stepNumber: 10 },
-                { id: 'evergreen', label: '11. Email Marketing (Nutrición)', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo", stepNumber: 11 },
-                { id: 'whatsapp', label: '12. Lanzamientos (Estrategia WhatsApp)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta", stepNumber: 12 },
+                { id: 'web', label: '4. Tu página de captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura", stepNumber: 4 },
+                { id: 'hooks', label: '5. Tus videos de atracción (Hooks)', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos", stepNumber: 5 },
+                { id: 'carousels', label: '6. Carruseles Magnéticos', icon: Layers, module: "SISTEMA DE VENTAS", description: "Imágenes de alta conversión", stepNumber: 6 },
+                { id: 'content', label: '7. Artículos de Blog', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO", stepNumber: 7 },
+                { id: 'leadmagnet', label: '8. LeadMagnet de Whatsapp', icon: Gift, module: "SISTEMA DE VENTAS", description: "Entrega manual por WhatsApp", stepNumber: 8 },
+                { id: 'email', label: '9. Email Marketing (Conversión)', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial", stepNumber: 9 },
+                { id: 'evergreen', label: '10. Email Marketing (Nutrición)', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo", stepNumber: 10 },
+                { id: 'whatsapp', label: '11. Lanzamientos (Estrategia WhatsApp)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta", stepNumber: 11 },
             ]
         }
     ].filter(group => group.items.length > 0);
@@ -66,19 +65,17 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         '1': 'summary',
         '2': 'avatar',
         '3': 'hotlinks',
-        '4': 'leads',
-        '5': 'web',
-        '6': 'hooks',
-        '7': 'carousels',
-        '8': 'content',
-        '9': 'leadmagnet',
-        '10': 'email',
-        '11': 'evergreen',
-        '12': 'whatsapp',
+        '4': 'web',
+        '5': 'hooks',
+        '6': 'carousels',
+        '7': 'content',
+        '8': 'leadmagnet',
+        '9': 'email',
+        '10': 'evergreen',
+        '11': 'whatsapp',
         summary: 'summary',
         avatar: 'avatar',
         hotlinks: 'hotlinks',
-        leads: 'leads',
         web: 'web',
         hooks: 'hooks',
         carousels: 'carousels',
@@ -174,7 +171,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                                                 </div>
                                                 
                                                 {/* PRO Badge */}
-                                                {item.stepNumber && item.stepNumber >= 5 && (
+                                                {item.stepNumber && item.stepNumber >= 4 && (
                                                     <span className="flex items-center gap-1 bg-[#F59E0B] text-[#0B1120] px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider uppercase shrink-0 shadow-sm">
                                                         <Lock className="w-2.5 h-2.5 stroke-[3]" />
                                                         PRO

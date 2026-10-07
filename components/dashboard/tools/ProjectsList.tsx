@@ -2,8 +2,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useOutletContext, useLocation } from 'react-router-dom';
 import { api } from '../../../services/api';
-import { Project, User, AffiliateLink, Plan, ProjectHook } from '../../../types';
-import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check, Gift, ShoppingCart as CartIcon, Info, Crown as CornerCrown, Settings, FileText, Star, Play, Users, Eye, ChevronRight, Clock, Activity, Folder, Globe, Award, Compass, GraduationCap, ShieldCheck, Package, Layers } from 'lucide-react';
+import { Project, User, AffiliateLink, Plan } from '../../../types';
+import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check, Gift, ShoppingCart as CartIcon, Info, Crown as CornerCrown, Settings, FileText, Star, Play, Users, Eye, ChevronRight, Clock, Activity, Folder, Globe, Award, Compass, GraduationCap, ShieldCheck, Package } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 import { UnlockProjectModal } from '../UnlockProjectModal';
@@ -40,9 +40,6 @@ export const ProjectsList: React.FC = () => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [masterLibrary, setMasterLibrary] = useState<Project[]>([]);
     const [plans, setPlans] = useState<Plan[]>([]);
-    const [allPages, setAllPages] = useState<any[]>([]);
-    const [allArticles, setAllArticles] = useState<any[]>([]);
-    const [projectHooksMap, setProjectHooksMap] = useState<Record<string, ProjectHook[]>>({});
     const [loading, setLoading] = useState(true);
     const [unlockingId, setUnlockingId] = useState<string | null>(null);
     
@@ -87,35 +84,14 @@ export const ProjectsList: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [myProjects, library, allPlans, userPages, userArticles] = await Promise.all([
+            const [myProjects, library, allPlans] = await Promise.all([
                 api.getProjects(),
                 api.getMasterLibrary().catch(() => []),
-                api.getPublicPlans().catch(() => []),
-                api.getPages().catch(() => []),
-                api.getArticles().catch(() => [])
+                api.getPublicPlans().catch(() => [])
             ]);
             setProjects(myProjects);
             setMasterLibrary(library);
             setPlans(allPlans);
-            setAllPages(userPages);
-            setAllArticles(userArticles);
-
-            // Fetch real hooks for each project dynamically from DB
-            const hooksPromises = myProjects.map(async (proj) => {
-                try {
-                    const hks = await api.getProjectHooks(proj.id);
-                    return { projectId: proj.id, hooks: hks };
-                } catch {
-                    return { projectId: proj.id, hooks: [] };
-                }
-            });
-            const hooksResults = await Promise.all(hooksPromises);
-            const map: Record<string, ProjectHook[]> = {};
-            hooksResults.forEach(res => {
-                map[res.projectId] = res.hooks;
-            });
-            setProjectHooksMap(map);
-
         } catch (error) {
             console.error(error);
         } finally {
@@ -205,26 +181,13 @@ export const ProjectsList: React.FC = () => {
         });
     }, [masterLibrary, activeOnboardingCategory, user.role]);
 
-    const getOnboardingCardImage = (project: Project, library: Project[] = []) => {
+    const getOnboardingCardImage = (project: Project) => {
         let mm: any = project.multimedia_json;
         if (typeof mm === 'string') {
             try { mm = JSON.parse(mm); } catch { mm = null; }
         }
         if (mm?.heroImages?.[0]) return mm.heroImages[0];
         if ((project as any).image) return (project as any).image;
-
-        if (project.masterParentId && library && library.length > 0) {
-            const parent = library.find(m => String(m.id) === String(project.masterParentId));
-            if (parent) {
-                let parentMm: any = parent.multimedia_json;
-                if (typeof parentMm === 'string') {
-                    try { parentMm = JSON.parse(parentMm); } catch { parentMm = null; }
-                }
-                if (parentMm?.heroImages?.[0]) return parentMm.heroImages[0];
-                if ((parent as any).image) return (parent as any).image;
-            }
-        }
-
         const lower = (project.name || '').toLowerCase();
         if (lower.includes('microblading') || lower.includes('cejas')) {
             return 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=800&q=80';
@@ -535,169 +498,34 @@ export const ProjectsList: React.FC = () => {
                             )}
                         </div>
 
-                        {/* El botón de crear nuevo proyecto ha sido removido de esta sección */}
+                        {/* Botón Nuevo Proyecto centrado y con estilo limpio */}
+                        <div className="w-full">
+                            {isAtLimit ? (
+                                <button
+                                    onClick={() => setShowUpgradeModal(true)}
+                                    className="group relative px-6 py-3.5 rounded-xl font-bold text-base shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20 w-full"
+                                >
+                                    <span className="relative z-10 flex items-center justify-center gap-2">
+                                        <CornerCrown className="w-5 h-5 fill-current" /> 
+                                        Límite Alcanzado: Actualiza a PRO
+                                    </span>
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => setShowCreateOptionsModal(true)}
+                                    className="group relative px-6 py-3.5 rounded-xl font-bold text-base shadow-lg transition-all overflow-hidden bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 hover:-translate-y-0.5 w-full cursor-pointer"
+                                >
+                                    <span className="relative z-10 flex items-center justify-center gap-2">
+                                        <Plus className="w-5 h-5" /> 
+                                        Nuevo Proyecto
+                                    </span>
+                                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
-
-            {/* --- SECCIÓN: TUS PROYECTOS ACTIVOS / DESBLOQUEADOS --- */}
-            {projects.length > 0 && (
-                <div className="space-y-8 bg-[#0B1120] p-6 sm:p-8 rounded-[2rem] border border-slate-800 shadow-xl text-left">
-                    <div className="flex justify-between items-center border-b border-slate-800 pb-4">
-                        <h2 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">
-                            <Briefcase className="w-4 h-4 text-[#FF5A1F]" /> 
-                            Tus Proyectos Activos <span className="text-gray-500">/ Estrategias Desbloqueadas</span>
-                        </h2>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {projects.map((project) => {
-                            const projectImg = getOnboardingCardImage(project, masterLibrary);
-                            const title = project.name || "Proyecto Sin Nombre";
-                            const categoryLabel = project.niche ? project.niche.toUpperCase() : "PRODUCTO DIGITAL";
-                            
-                            // Calculate project-specific stats
-                            const projectPages = allPages.filter(p => String(p.projectId) === String(project.id));
-                            const pagesCount = projectPages.length;
-                            
-                            let totalVisits = 0;
-                            let totalConversions = 0;
-                            projectPages.forEach(p => {
-                                totalVisits += (p.visits || 0);
-                                totalConversions += (p.conversions || 0);
-                            });
-                            const conversionRate = totalVisits > 0 
-                                ? ((totalConversions / totalVisits) * 100).toFixed(1) 
-                                : '0';
-                                
-                            const articlesCount = allArticles.filter(a => String(a.projectId) === String(project.id)).length;
-                            
-                            // Hooks Count (Real hooks fetched from database and stored in projectHooksMap)
-                            const projectHooks = projectHooksMap[project.id] || [];
-                            const hooksCount = projectHooks.filter(h => h.isUnlocked).length;
-
-                            return (
-                                <div
-                                    key={`active-project-${project.id}`}
-                                    onClick={() => navigate(`/dashboard/projects/${project.id}/strategy`)}
-                                    className="bg-gradient-to-b from-[#0F172A] to-[#070B16] rounded-[2.5rem] border border-slate-800 hover:border-[#FF5A1F]/40 hover:shadow-[0_0_30px_rgba(255,90,31,0.15)] transition-all duration-300 p-6 flex flex-col justify-between h-full relative group cursor-pointer"
-                                >
-                                    <div>
-                                        {/* Header Niche */}
-                                        <div className="flex items-center justify-between mb-4">
-                                            <span className="px-3 py-1 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-[10px] font-black tracking-widest uppercase rounded-lg">
-                                                {categoryLabel}
-                                            </span>
-                                            <span className="px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                                Listo
-                                            </span>
-                                        </div>
-
-                                        {/* Image Cover */}
-                                        <div className="h-44 sm:h-48 bg-zinc-950 relative overflow-hidden rounded-2xl border border-zinc-800/80 mb-4 shrink-0">
-                                            {projectImg ? (
-                                                <img
-                                                    src={projectImg}
-                                                    alt={title}
-                                                    referrerPolicy="no-referrer"
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-zinc-950 text-slate-800">
-                                                    <Folder className="w-12 h-12" />
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Project Name */}
-                                        <h3 className="text-lg font-black text-white group-hover:text-[#FF5A1F] transition-colors leading-tight line-clamp-2">
-                                            {title}
-                                        </h3>
-
-                                        {/* Stats Grid */}
-                                        <div className="grid grid-cols-3 gap-2 bg-black/40 p-3.5 rounded-2xl border border-slate-800/60 text-center my-4">
-                                            <div>
-                                                <p className="text-sm font-black text-white">{totalVisits}</p>
-                                                <p className="text-[9px] text-gray-500 uppercase font-black tracking-wider">Visitas</p>
-                                            </div>
-                                            <div className="border-x border-slate-800/80">
-                                                <p className="text-sm font-black text-emerald-400">{totalConversions}</p>
-                                                <p className="text-[9px] text-gray-500 uppercase font-black tracking-wider">Leads</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-black text-[#FF5A1F]">{conversionRate}%</p>
-                                                <p className="text-[9px] text-gray-500 uppercase font-black tracking-wider">Conversión</p>
-                                            </div>
-                                        </div>
-
-                                        {/* Assets Info List */}
-                                        <div className="space-y-2.5 text-xs text-slate-300 bg-slate-900/30 p-4 rounded-2xl border border-slate-800/50">
-                                            <div className="flex items-center justify-between">
-                                                <span className="flex items-center gap-2 text-slate-400 font-medium">
-                                                    <Layers className="w-3.5 h-3.5 text-[#FF5A1F]" /> Páginas de Captura:
-                                                </span>
-                                                <span className="font-extrabold text-white">{pagesCount} creadas</span>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <span className="flex items-center gap-2 text-slate-400 font-medium">
-                                                    <Sparkles className="w-3.5 h-3.5 text-purple-400" /> Hooks de Video:
-                                                </span>
-                                                <span className="font-extrabold text-white">{hooksCount} listos</span>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <span className="flex items-center gap-2 text-slate-400 font-medium">
-                                                    <FileText className="w-3.5 h-3.5 text-blue-400" /> Artículos de Blog:
-                                                </span>
-                                                <span className="font-extrabold text-white">{articlesCount} creados</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Action row with Admin capabilities */}
-                                    <div className="mt-5 space-y-3">
-                                        <button
-                                            type="button"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                navigate(`/dashboard/projects/${project.id}/strategy`);
-                                            }}
-                                            className="w-full py-3 bg-gradient-to-r from-[#FF5A1F] to-orange-600 hover:brightness-110 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
-                                        >
-                                            <span>Gestionar Embudo</span>
-                                            <ArrowRight className="w-4 h-4 shrink-0" />
-                                        </button>
-
-                                        {user.role === 'admin' && (
-                                            <div className="flex items-center justify-between gap-2.5 pt-2 border-t border-white/5">
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        navigate(`/dashboard/projects/edit/${project.id}`);
-                                                    }}
-                                                    className="flex-1 py-2 px-3 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                                                >
-                                                    <Edit2 className="w-3.5 h-3.5 shrink-0" />
-                                                    <span>Editar</span>
-                                                </button>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => handleDelete(project, e)}
-                                                    className="flex-1 py-2 px-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                                                >
-                                                    <Trash2 className="w-3.5 h-3.5 shrink-0" />
-                                                    <span>Eliminar</span>
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
 
             {/* --- SECCIÓN: SELECTOR DE PRODUCTOS DIGITALES --- */}
             <div id="seleccion-productos-onboarding" className="space-y-10 pt-14 pb-16 sm:pt-16 sm:pb-20 border-t border-white/10">
@@ -749,11 +577,11 @@ export const ProjectsList: React.FC = () => {
                         <p className="text-zinc-500 text-xs mt-1">Prueba seleccionando otra categoría o la opción "Todos".</p>
                     </div>
                 ) : (
-                    <div className="w-full max-w-full px-4 sm:px-6 lg:px-8 mx-auto">
+                    <div className="w-full max-w-[90%] mx-auto px-2 sm:px-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
                             {filteredOnboardingProjects.map((project) => {
                                 const isAlreadyUnlocked = project.isUnlocked || user.role === 'admin';
-                                const projectImg = getOnboardingCardImage(project, masterLibrary);
+                                const projectImg = getOnboardingCardImage(project);
                                 const title = getOnboardingCardTitle(project);
                                 const desc = getOnboardingCardDesc(project);
                                 const category = project.niche || "General";

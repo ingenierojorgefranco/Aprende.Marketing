@@ -131,10 +131,9 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
         let directMaxHooks = null;
         let isUserCustom = false;
         let customLimitsObj = null;
-        let directLimits = null;
         if (userRows && userRows.length > 0) {
             const row = userRows[0];
-            directLimits = row.plan_limits;
+            let directLimits = row.plan_limits;
             if (typeof directLimits === 'string') {
                 try {
                     directLimits = JSON.parse(directLimits);

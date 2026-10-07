@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Article, User, Project } from '../../../types';
-import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus, Briefcase, Unlock, ArrowLeft, ChevronRight, Lock } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus, Briefcase, Unlock, ArrowLeft, ChevronRight } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { UpgradeModal } from '../UpgradeModal';
@@ -45,7 +45,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   
   // Modals States
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [showLockModal, setShowLockModal] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
   
   // --- Nuevo Estado para Restricción de Eliminación ---
@@ -148,7 +147,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       
       // Check Limit before creating (unless real admin)
       if (!isRealAdmin && articleCount >= maxArticles) {
-          setShowLockModal(true);
+          setShowUpgradeModal(true);
           return;
       }
 
@@ -187,53 +186,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
           currentPlan={user.planLimits?.planName}
           reason="Has alcanzado tu cupo mensual de artículos. Actualiza tu plan para seguir generando contenido SEO."
       />
-
-      {showLockModal && (
-          <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowLockModal(false)}>
-              <div className="bg-[#0B0B0B] border border-amber-500/20 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-[#FF5D1E]"></div>
-                  <div className="p-8 md:p-10 space-y-6 flex-1 overflow-y-auto text-center">
-                      <div className="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-lg shadow-amber-950/20 animate-pulse">
-                          <Lock className="w-8 h-8" />
-                      </div>
-                      
-                      <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">
-                          Característica Exclusiva <span className="text-amber-400">Plan PRO</span>
-                      </h2>
-                      
-                      <div className="space-y-4 text-slate-300 text-sm sm:text-base leading-relaxed text-left bg-white/[0.02] border border-white/5 p-5 rounded-2xl">
-                          <p className="font-bold text-white text-center text-base mb-2">
-                              ¡Atrae Clientes con Artículos de Blog Magnéticos! 🚀
-                          </p>
-                          <p>
-                              Redactar artículos de blog altamente optimizados para SEO y persuasivos con Inteligencia Artificial aumentará de forma exponencial tus visitas orgánicas en Google y capturará leads calificados en automático.
-                          </p>
-                          <p className="border-t border-white/5 pt-3">
-                              Adquiriendo el <strong className="text-amber-400 font-black">Plan PRO</strong> recibirás acceso ilimitado para generar, redactar y publicar artículos de blog optimizados y de alta calidad orientados a la conversión.
-                          </p>
-                      </div>
-                  </div>
-                  
-                  <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
-                      <button 
-                          onClick={() => setShowLockModal(false)} 
-                          className="flex-1 py-4 rounded-xl bg-white/5 text-gray-300 font-black text-xs sm:text-sm uppercase tracking-widest hover:bg-white/10 transition-all cursor-pointer"
-                      >
-                          Cancelar
-                      </button>
-                      <button 
-                          onClick={() => {
-                              setShowLockModal(false);
-                              setShowUpgradeModal(true);
-                          }} 
-                          className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#FF5D1E] text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-amber-900/20 transform hover:scale-[1.02] active:scale-[0.98] transition-all animate-pulse cursor-pointer"
-                      >
-                          👑 Obtener Plan PRO
-                      </button>
-                  </div>
-              </div>
-          </div>
-      )}
 
       {/* HERO HEADER */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-purple-950/20 to-black border border-gray-800 shadow-2xl">
@@ -289,7 +241,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   <div className="flex flex-col gap-3">
                       {isAtLimit ? (
                         <button
-                            onClick={() => setShowLockModal(true)}
+                            onClick={() => setShowUpgradeModal(true)}
                             className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20 w-full"
                         >
                             <span className="relative z-10 flex items-center justify-center gap-2">

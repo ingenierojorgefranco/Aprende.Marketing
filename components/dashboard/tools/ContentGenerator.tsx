@@ -4,7 +4,7 @@ import { generateArticleTitles, generateArticleOutline, generateFullArticle, Art
 import { api } from '../../../services/api';
 import { Article, Project, LandingPage, User, AffiliateLink } from '../../../types';
 import { useParams, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
-import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle, Zap, Link as LinkIcon, ExternalLink, MousePointerClick, X, CheckCircle, Target, Wand2, PenTool, Eye, Gift, Lock } from 'lucide-react';
+import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle, Zap, Link as LinkIcon, ExternalLink, MousePointerClick, X, CheckCircle, Target, Wand2, PenTool, Eye, Gift } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 // Importing Sub-Components from relative sibling folder
@@ -57,7 +57,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
   // Limit Check State
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [showLockModal, setShowLockModal] = useState(false);
   const [upgradeProjectId, setUpgradeProjectId] = useState<string | undefined>(undefined);
   const [isPageSelectorOpen, setIsPageSelectorOpen] = useState(false);
   
@@ -117,7 +116,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       }
       if (selectedArticles.includes(index)) setSelectedArticles(prev => prev.filter(i => i !== index));
       else if (selectedArticles.length < (user.planLimits?.maxArticles || 2)) setSelectedArticles(prev => [...prev, index]);
-      else { setShowLockModal(true); }
+      else { alert("Límite de artículos alcanzado."); setShowUpgradeModal(true); }
   };
 
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
@@ -149,7 +148,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
               if (projectArticles.length >= limit) {
                   setUpgradeProjectId(selectedProject);
-                  setShowLockModal(true);
+                  setShowUpgradeModal(true);
               }
           } catch (e) {
               console.error(e);
@@ -674,57 +673,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
           reason="Has alcanzado el límite de artículos para este proyecto. Actualiza para generar más contenido."
       />
 
-      {showLockModal && (
-          <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowLockModal(false)}>
-              <div className="bg-[#0B0B0B] border border-amber-500/20 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-[#FF5D1E]"></div>
-                  <div className="p-8 md:p-10 space-y-6 flex-1 overflow-y-auto text-center">
-                      <div className="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-lg shadow-amber-950/20 animate-pulse">
-                          <Lock className="w-8 h-8" />
-                      </div>
-                      
-                      <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">
-                          Característica Exclusiva <span className="text-amber-400">Plan PRO</span>
-                      </h2>
-                      
-                      <div className="space-y-4 text-slate-300 text-sm sm:text-base leading-relaxed text-left bg-white/[0.02] border border-white/5 p-5 rounded-2xl">
-                          <p className="font-bold text-white text-center text-base mb-2">
-                              ¡Atrae Clientes con Artículos de Blog Magnéticos! 🚀
-                          </p>
-                          <p>
-                              Redactar artículos de blog altamente optimizados para SEO y persuasivos con Inteligencia Artificial aumentará de forma exponencial tus visitas orgánicas en Google y capturará leads calificados en automático.
-                          </p>
-                          <p className="border-t border-white/5 pt-3">
-                              Adquiriendo el <strong className="text-amber-400 font-black">Plan PRO</strong> recibirás acceso ilimitado para generar, redactar y publicar artículos de blog optimizados y de alta calidad orientados a la conversión.
-                          </p>
-                      </div>
-                  </div>
-                  
-                  <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
-                      <button 
-                          onClick={() => {
-                              setShowLockModal(false);
-                              onClose ? onClose() : navigate(backDestination);
-                          }} 
-                          className="flex-1 py-4 rounded-xl bg-white/5 text-gray-300 font-black text-xs sm:text-sm uppercase tracking-widest hover:bg-white/10 transition-all cursor-pointer"
-                      >
-                          Cancelar
-                      </button>
-                      <button 
-                          onClick={() => {
-                              setShowLockModal(false);
-                              setShowUpgradeModal(true);
-                          }} 
-                          className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#FF5D1E] text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-amber-900/20 transform hover:scale-[1.02] active:scale-[0.98] transition-all animate-pulse cursor-pointer"
-                      >
-                          👑 Obtener Plan PRO
-                      </button>
-                  </div>
-              </div>
-          </div>
-      )}
-
-      <div className={`bg-purple-600/10 p-8 text-center border-b border-purple-500/10 relative ${showUpgradeModal || showLockModal || (loading && generationStatus !== 'generating') ? 'opacity-30 pointer-events-none' : ''}`}>
+      <div className={`bg-purple-600/10 p-8 text-center border-b border-purple-500/10 relative ${showUpgradeModal || (loading && generationStatus !== 'generating') ? 'opacity-30 pointer-events-none' : ''}`}>
         <button onClick={() => onClose ? onClose() : navigate(backDestination)} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
             <ArrowLeft className="w-6 h-6" />
         </button>
@@ -750,7 +699,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         </div>
       </div>
 
-      <div className={`p-8 flex-1 overflow-y-auto relative transition-colors duration-500 ${showUpgradeModal || showLockModal ? 'opacity-30 pointer-events-none' : ''}`}>
+      <div className={`p-8 flex-1 overflow-y-auto relative transition-colors duration-500 ${showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}`}>
         {tooltipState.visible && (
             <div className="fixed z-[300] w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-700 p-5 rounded-2xl shadow-2xl pointer-events-none" style={{ top: tooltipState.y, left: tooltipState.x }}>
                 {tooltipState.content.map((text, i) => <p key={i} className="text-sm text-gray-300">{text}</p>)}

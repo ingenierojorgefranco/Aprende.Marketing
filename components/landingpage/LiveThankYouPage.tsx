@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { GeneratedPageContent, ThankYouPageConfig } from '../../types';
 import { getDesignSystem } from './designSystem';
 import { FormationMockup, GuideMockup } from './ThankYouMockups';
@@ -153,12 +153,6 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   basePath,
   project
 }) => {
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.scrollTo(0, 0);
-    }
-  }, []);
-
   const activeDs = ds || getDesignSystem(content.palette);
   const projTyConfig: Partial<ThankYouPageConfig> = (project?.multimedia_json as any)?.thankYouPage || {};
   const pageTyConfig: Partial<ThankYouPageConfig> = content.thankYouPage || {};
@@ -216,18 +210,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
     if (lowerUrl.includes('aprende.marketing/dashboard') || lowerUrl.includes('projects/edit') || lowerUrl.includes('aprende.marketing/admin')) {
       return false;
     }
-    // Evitar enlaces que no pertenezcan a WhatsApp (como Canva, Google Drive, descargas, etc.)
-    if (
-      lowerUrl.includes('canva.com') ||
-      lowerUrl.includes('canva.link') ||
-      lowerUrl.includes('drive.google') ||
-      lowerUrl.includes('dropbox') ||
-      lowerUrl.includes('pdf')
-    ) {
-      return false;
-    }
-    // Para ser un enlace de WhatsApp válido, debe ser una URL de WhatsApp (ej: chat.whatsapp.com, wa.me, api.whatsapp.com, wa.link, whatsapp.com)
-    return lowerUrl.includes('whatsapp') || lowerUrl.includes('wa.me') || lowerUrl.includes('wa.link');
+    return true;
   };
 
   const rawWhatsapp = 

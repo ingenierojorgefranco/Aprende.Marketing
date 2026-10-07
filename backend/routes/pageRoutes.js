@@ -474,31 +474,6 @@ router.get('/public/pages/by-domain', async (req, res) => {
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Página no encontrada' });
     const page = rows[0];
-
-    // Obtener los límites de plan del dueño para verificar si tiene un plan PRO activo
-    const [userRows] = await pool.query(
-      `SELECT role, plan_limits FROM users WHERE id = ?`,
-      [page.user_id]
-    );
-    
-    let isOwnerPro = false;
-    if (userRows.length > 0) {
-        const owner = userRows[0];
-        let planLimits = {};
-        if (owner.plan_limits) {
-            planLimits = typeof owner.plan_limits === 'string' ? JSON.parse(owner.plan_limits) : owner.plan_limits;
-        }
-        const planName = (planLimits.planName || '').toLowerCase();
-        isOwnerPro = (owner.role === 'admin' || planName === 'admin' || (planName !== 'starter' && planName !== 'free' && planName !== ''));
-    }
-    
-    if (!isOwnerPro) {
-        return res.status(403).json({ 
-            error: 'Suscripción suspendida', 
-            message: 'El dominio personalizado está suspendido porque el propietario no cuenta con un plan PRO activo.' 
-        });
-    }
-
     const skipVisit = req.query.skipVisit !== 'false'; // Por defecto true para evitar visitas dobles al resolver dominio en App.tsx
     if (!skipVisit && shouldRecordVisit(req, page)) { await recordVisit(page.id); }
     if (typeof page.content === 'string') { try { page.content = JSON.parse(page.content); } catch {} }

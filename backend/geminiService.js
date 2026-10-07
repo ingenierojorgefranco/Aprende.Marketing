@@ -1272,8 +1272,8 @@ export const generateEmailSequenceContent = async (projectId, sequenceData, type
       Si el enlace es REGALO/LEAD MAGNET: Usa "Ver Clase Ahora", "Descargar Regalo", "Acceder al Contenido".
       Si el enlace es OFERTA/HOTLINK: Usa "Quiero mi acceso ahora", "Unirme al programa", "Aprovechar oferta".
       Prohibido usar textos genéricos como "Haga clic aquí".
-    - FIRMA: Al final del cuerpo, añade una despedida cordial genérica sin mencionar ningún nombre propio de persona (está prohibido usar nombres propios como Dylan o similares). En su lugar, despídete en nombre del producto o marca, por ejemplo: "Un abrazo,\nEl equipo de ${project.product_name}". No añadas textos adicionales de ayuda.
-    - POSDATA (Pdta:): Después de la firma, añade una posdata usando estrictamente el prefijo "<strong>Pdta:</strong>". El contenido debe ser un consejo final muy directo, breve y persuasivo para incentivar a tomar acción y acceder a los enlaces correspondientes, sin hacer referencia a tutores personales.
+    - FIRMA: Al final del cuerpo, añade una despedida cordial con el nombre de la profesora "<strong>${teacherInfo.name}</strong>" y en la línea de abajo su cargo "${teacherInfo.title || 'Especialista'}". No añadas textos adicionales de ayuda.
+    - POSDATA (Pdta:): Después de la firma, añade una posdata usando estrictamente el prefijo "<strong>Pdta:</strong>". El contenido debe ser un consejo directo y persuasivo basado en: "${teacherInfo.transformation_tip}". No incluyas el texto "Tip de transformación".
     
     REGLAS ADICIONALES:
     - El contenido debe ser altamente persuasivo, usando técnicas de copywriting (AIDA, PAS).
@@ -1305,9 +1305,9 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
     if (projectRows.length === 0) throw new Error("Proyecto no encontrado");
     const project = projectRows[0];
 
-    // Obtener la landing page asociada para construir la URL correcta (priorizando la publicada y más reciente)
+    // Obtener la landing page asociada para construir la URL correcta
     const [pageRows] = await pool.query(
-        "SELECT id, name, custom_domain, subdomain FROM landing_pages WHERE project_id = ? ORDER BY is_published DESC, created_at DESC LIMIT 1",
+        "SELECT id, name, custom_domain FROM landing_pages WHERE project_id = ? LIMIT 1",
         [projectId]
     );
     const page = pageRows[0];
@@ -1319,8 +1319,8 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
         if (page.custom_domain) {
             articleUrl = `https://${page.custom_domain}/blog/${articleSlug}`;
         } else {
-            const pageSubdomain = page.subdomain ? page.subdomain.split('.')[0] : page.id;
-            articleUrl = `https://aprende.marketing/lp/${pageSubdomain}/blog/${articleSlug}`;
+            const pageSlug = slugify(page.name);
+            articleUrl = `https://aprende.marketing/lp/${page.id}-${pageSlug}/blog/${articleSlug}`;
         }
     }
 
@@ -1370,7 +1370,7 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
         2. Usa [Firstname] para el saludo.
         3. El botón de acción debe decir algo como "Leer artículo completo" o "Ver el post ahora".
         4. DEBES usar la URL DEL ARTÍCULO proporcionada (${articleUrl}) en el atributo href del botón.
-        5. NO incluyas ninguna firma profesional, despedida formal, nombre del autor/profesor, ni datos del tutor al final del correo. Pasa directamente del cuerpo al posdata (P.S.).
+        5. Incluye una firma profesional al final con el nombre del autor: <strong>${teacherInfo.name}</strong> y su cargo ${teacherInfo.title}.
         6. Incluye una Posdata (P.S.) persuasiva basada en: ${teacherInfo.transformation_tip}.
         
         Responde estrictamente en formato JSON:

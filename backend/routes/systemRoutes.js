@@ -57,7 +57,7 @@ router.get('/email/sequences', authMiddleware, async (req, res) => {
         const sequencesWithDays = [];
         for (const seq of rows) {
             const [msgRows] = await pool.query(
-                `SELECT day_index, type FROM email_messages WHERE sequence_id = ? AND (is_generated = 1 OR (content_html IS NOT NULL AND content_html != ""))`,
+                `SELECT day_index, type FROM email_messages WHERE sequence_id = ? AND is_generated = 1`,
                 [seq.id]
             );
             
@@ -140,58 +140,12 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
         // 3. Generar contenido con IA
         const generatedEmails = await generateEmailSequenceContent(projectId, sequenceData, type);
 
-        // 4. Actualizar los mensajes en la base de datos con el contenido generado (Normalización robusta)
-        let emailsArray = [];
-        if (Array.isArray(generatedEmails)) {
-            emailsArray = generatedEmails;
-        } else if (generatedEmails && typeof generatedEmails === 'object') {
-            const possibleArray = Object.values(generatedEmails).find(val => Array.isArray(val));
-            if (possibleArray) {
-                emailsArray = possibleArray;
-            } else {
-                emailsArray = [generatedEmails];
-            }
-        }
-
-        for (const email of emailsArray) {
-            // Buscador de Claves Tolerante para el día index (dayIndex, day_index, day, dia, index)
-            let dayIndexRaw = undefined;
-            for (const key of ['dayIndex', 'day_index', 'day', 'dia', 'index', 'dayIndexRaw']) {
-                if (email[key] !== undefined && email[key] !== null) {
-                    dayIndexRaw = email[key];
-                    break;
-                }
-            }
-
-            // Buscador de Claves Tolerante para el contenido HTML (contentHtml, content_html, content, body, html, text)
-            let contentHtml = '';
-            for (const key of ['contentHtml', 'content_html', 'content', 'body', 'html', 'text']) {
-                if (email[key] !== undefined && email[key] !== null) {
-                    contentHtml = email[key];
-                    break;
-                }
-            }
-            
-            let dayIndex = null;
-            if (dayIndexRaw !== undefined && dayIndexRaw !== null) {
-                if (typeof dayIndexRaw === 'number') {
-                    dayIndex = dayIndexRaw;
-                } else if (typeof dayIndexRaw === 'string') {
-                    const match = dayIndexRaw.match(/\d+/);
-                    if (match) {
-                        dayIndex = Number(match[0]);
-                    } else {
-                        dayIndex = Number(dayIndexRaw);
-                    }
-                }
-            }
-            
-            if (dayIndex !== undefined && dayIndex !== null && !isNaN(dayIndex)) {
-                await pool.query(
-                    'UPDATE email_messages SET content_html = ?, is_generated = 1 WHERE sequence_id = ? AND day_index = ?',
-                    [contentHtml || '', sequenceId, Number(dayIndex)]
-                );
-            }
+        // 4. Actualizar los mensajes en la base de datos con el contenido generado
+        for (const email of generatedEmails) {
+            await pool.query(
+                'UPDATE email_messages SET content_html = ?, is_generated = 1 WHERE sequence_id = ? AND day_index = ?',
+                [email.contentHtml, sequenceId, email.dayIndex]
+            );
         }
 
         res.json({ success: true, sequenceId });
