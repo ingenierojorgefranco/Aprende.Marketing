@@ -311,6 +311,7 @@ const initDb = async () => {
             status VARCHAR(50) DEFAULT 'borrador',
             data_json LONGTEXT, -- Almacena el array de los 14 momentos inmersos
             launch_date DATE, -- Añadido: Fecha de lanzamiento persistente
+            launch_time VARCHAR(50) DEFAULT '10:00', -- Añadido: Hora del evento persistente
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -602,8 +603,9 @@ const initDb = async () => {
         // NEW: PROJECT ID IN LANDING PAGES
         await addColumnSafe(connection, 'landing_pages', "project_id INT NULL");
 
-        ////////// Migración para WhatsApp Lanzamientos: Fecha de inicio persistente //////////
+        ////////// Migración para WhatsApp Lanzamientos: Fecha y hora de inicio persistente //////////
         await addColumnSafe(connection, 'whatsapp_lanzamientos', "launch_date DATE");
+        await addColumnSafe(connection, 'whatsapp_lanzamientos', "launch_time VARCHAR(50) DEFAULT '10:00'");
         ////////// Fin de migración //////////
 
         ////////// Migraciones para Hotmart Orders Log y Parámetros de Retorno //////////

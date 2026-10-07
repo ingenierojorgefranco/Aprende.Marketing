@@ -143,7 +143,7 @@ router.post('/launches/generate-message', authMiddleware, async (req, res) => {
 
         REGLAS CRÍTICAS ADICIONALES:
         1. Usa *negrita* de WhatsApp para resaltar palabras clave y beneficios.
-        2. Si el mensaje requiere un enlace, usa el placeholder [LINK].
+        2. ÚNICAMENTE si el ID del momento es "wl7" (Mensaje "Link en Vivo"), puedes usar el placeholder [LINK] o mencionar que se unan al enlace en vivo. Para CUALQUIER otro momento (wl1, wl2, wl3, wl4, wl5, wl6, wl8, wl9, wl10, wl11, wl12), está ESTRICTAMENTE PROHIBIDO usar el placeholder [LINK] o mencionar links, enlaces, URLs, de modo que ningún otro mensaje mencione ni requiera un link.
         3. Si es un mensaje de confirmación de fecha, usa [FECHA_CLASE].
         4. Si es un mensaje con horario, usa [HORA_EVENTO].
         5. Mantén el mensaje estructurado para que sea fácil de leer en móviles.
@@ -215,7 +215,7 @@ router.post('/launches/generate-full-sequence', authMiddleware, async (req, res)
 
             REGLAS CRÍTICAS ADICIONALES:
             1. Usa *negrita* de WhatsApp para resaltar palabras clave y beneficios.
-            2. Si el mensaje requiere un enlace, usa el placeholder [LINK].
+            2. ÚNICAMENTE si el ID del momento es "wl7" (Mensaje "Link en Vivo"), puedes usar el placeholder [LINK] o mencionar que se unan al enlace en vivo. Para CUALQUIER otro momento (wl1, wl2, wl3, wl4, wl5, wl6, wl8, wl9, wl10, wl11, wl12), está ESTRICTAMENTE PROHIBIDO usar el placeholder [LINK] o mencionar links, enlaces, URLs, de modo que ningún otro mensaje mencione ni requiera un link.
             3. Si es un mensaje de confirmación de fecha, usa [FECHA_CLASE].
             4. Si es un mensaje con horario, usa [HORA_EVENTO].
             5. Mantén el mensaje estructurado para que sea fácil de leer en móviles.
@@ -264,7 +264,7 @@ router.post('/launches/generate-full-sequence', authMiddleware, async (req, res)
 
 // Actualizar lanzamiento
 router.put('/launches/:id', authMiddleware, async (req, res) => {
-    const { name, status, data_json, launch_date } = req.body;
+    const { name, status, data_json, launch_date, launch_time } = req.body;
     try {
         const [check] = await pool.query('SELECT id, user_id FROM whatsapp_lanzamientos WHERE id = ?', [req.params.id]);
         if (check.length === 0 || (check[0].user_id !== req.user.id && req.user.role !== 'admin')) return res.status(403).json({ error: 'No autorizado' });
@@ -274,9 +274,10 @@ router.put('/launches/:id', authMiddleware, async (req, res) => {
                 name = COALESCE(?, name),
                 status = COALESCE(?, status),
                 data_json = COALESCE(?, data_json),
-                launch_date = COALESCE(?, launch_date)
+                launch_date = COALESCE(?, launch_date),
+                launch_time = COALESCE(?, launch_time)
              WHERE id = ?`,
-            [name, status, data_json, launch_date, req.params.id]
+            [name, status, data_json, launch_date, launch_time, req.params.id]
         );
         res.json({ success: true });
     } catch (e) {

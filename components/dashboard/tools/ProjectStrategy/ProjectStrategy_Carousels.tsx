@@ -89,6 +89,12 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         "Convierte vistas en clientes."
     ]);
 
+    const hasInitializedTab = useRef(false);
+
+    useEffect(() => {
+        hasInitializedTab.current = false;
+    }, [projectId]);
+
     const parseStrategyItems = (strategyRaw: any): string[] => {
         if (!strategyRaw) {
             return [
@@ -218,12 +224,24 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             const data = await api.getProjectCarousels(projectId);
             if (data && data.length > 0) {
                 setCarousels(data);
+                if (!hasInitializedTab.current) {
+                    setActiveTab('generated');
+                    hasInitializedTab.current = true;
+                }
             } else {
                 setCarousels([]);
+                if (!hasInitializedTab.current) {
+                    setActiveTab('library');
+                    hasInitializedTab.current = true;
+                }
             }
         } catch (e) {
             console.error("Error fetching carousels:", e);
             setCarousels([]);
+            if (!hasInitializedTab.current) {
+                setActiveTab('library');
+                hasInitializedTab.current = true;
+            }
         } finally {
             setLoadingHooks(false);
         }
