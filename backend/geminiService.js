@@ -323,10 +323,8 @@ export const generateFullStrategy = async (projectId) => {
         
 
         INSTRUCCIONES PARA CONTENIDOS DE EMAIL emails (OBLIGATORIO):
-        Actúa como un Copywriter Senior experto en Marketing de Respuesta Directa. Tu misión es redactar una secuencia de titulos y contenidos de 7 correos electrónicos (Día 1 al Día 7) diseñada para convertir prospectos en compradores del producto.
-         
-        REGLA ANTI-ALUCINACIÓN DE REGALOS (ESTRICTA Y OBLIGATORIA): Está terminantemente prohibido inventar o prometer regalos secundarios ficticios como "calculadoras de regalo", "hojas de Excel", "plantillas", "checklists" o "Ebooks" adicionales a menos que se hayan configurado o mencionado de verdad. Los títulos y asuntos deben alinearse de forma exclusiva con el Lead Magnet real del proyecto: "${leadMagnetType}".
-
+       Actúa como un Copywriter Senior experto en Marketing de Respuesta Directa. Tu misión es redactar una secuencia de titulos y contenidos de 7 correos electrónicos (Día 1 al Día 7) diseñada para convertir prospectos en compradores del producto.
+        
         ESTRATEGIA DE ENLACES (CRÍTICA):
         - Días 1, 2 y 3: El objetivo es la ENTREGA DE VALOR. Los correos deben dirigir al Lead Magnet (Clase Gratuita/Regalo). Los títulos y el cuerpo deben generar deseo de consumo del regalo.
         - Días 4, 5, 6 y 7: El objetivo es la CONVERSIÓN/VENTA. Los correos deben dirigir al Hotlink (Página de Ventas/Checkout). Los títulos y el cuerpo deben enfocarse en la oferta, beneficios del producto de pago, escasez y urgencia.
@@ -334,7 +332,7 @@ export const generateFullStrategy = async (projectId) => {
         REGLA DE COHERENCIA DE VERBOS:
         Si el Lead Magnet es un PDF, Guía o Ebook, utiliza verbos como "Descargar", "Leer", "Revisar el archivo".
         Si el Lead Magnet es una Clase, Webinar o VSL, utiliza verbos como "Ver ahora", "Asistir", "Reproducir", "Mirar".
-        El correo del Día 1 y los recordatorios posteriores deben ser consistentes con esta acción. No asumas ni menciones nunca otros regalos ajenos.
+        El correo del Día 1 y los recordatorios posteriores deben ser consistentes con esta acción.
         
         para ello el sistema tendra el siguiente enfoque segun los dias de envio.
 
@@ -1277,8 +1275,7 @@ export const generateEmailSequenceContent = async (projectId, sequenceData, type
     - FIRMA: Al final del cuerpo, añade una despedida cordial genérica sin mencionar ningún nombre propio de persona (está prohibido usar nombres propios como Dylan o similares). En su lugar, despídete en nombre del producto o marca, por ejemplo: "Un abrazo,\nEl equipo de ${project.product_name}". No añadas textos adicionales de ayuda.
     - POSDATA (Pdta:): Después de la firma, añade una posdata usando estrictamente el prefijo "<strong>Pdta:</strong>". El contenido debe ser un consejo final muy directo, breve y persuasivo para incentivar a tomar acción y acceder a los enlaces correspondientes, sin hacer referencia a tutores personales.
     
-    REGLAS ADICIONALES (OBLIGATORIAS):
-    - REGLA ANTI-ALUCINACIÓN DE REGALOS (CRÍTICA): Queda estrictamente prohibido inventar, simular o prometer regalos secundarios o adicionales como "calculadoras de regalo", "hojas de Excel", "plantillas", "checklists" o "Ebooks" en el cuerpo de los correos si no forman parte real de la descripción. Si el enlace es de tipo REGALO / LEAD MAGNET, redacta el cuerpo enfocándote de forma exclusiva en el material real del proyecto (Clase Gratuita o Guía PDF/Ebook según corresponda). No inventes complementos ficticios en ningún párrafo.
+    REGLAS ADICIONALES:
     - El contenido debe ser altamente persuasivo, usando técnicas de copywriting (AIDA, PAS).
     - No incluyas el asunto en el contentHtml, solo el cuerpo.
     - Asegúrate de que el JSON sea válido y no incluyas markdown adicional.`;
