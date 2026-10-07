@@ -188,7 +188,7 @@ router.post('/', async (req, res) => {
 });
 
 /**
- * Actualizar un video existente en master_step_videos o crearlo si no existe (Soporte para videos estáticos por defecto)
+ * Actualizar un video existente en master_step_videos
  */
 router.put('/:id', async (req, res) => {
     try {
@@ -205,70 +205,44 @@ router.put('/:id', async (req, res) => {
         } = req.body;
 
         const [existing] = await pool.query('SELECT * FROM master_step_videos WHERE id = ?', [id]);
-        
-        let finalStepNumber = stepNumber;
-        let finalType = type;
-        let finalTitle = title;
-        let finalSubtitle = subtitle;
-        let finalDuration = duration;
-        let finalVideoUrl = videoUrl;
-        let finalPosterImage = posterImage;
-        let finalPositionOrder = positionOrder;
-
         if (existing.length === 0) {
-            // Si el video no existe (es un video por defecto estático de la UI), lo insertamos para persistirlo
-            finalStepNumber = stepNumber !== undefined ? stepNumber : 1;
-            finalType = type !== undefined ? type : 'Complementario';
-            finalTitle = title || 'Video Tutorial';
-            finalSubtitle = subtitle || '';
-            finalDuration = duration || '3:00';
-            finalVideoUrl = videoUrl || 'https://www.youtube.com/embed/dQw4w9WgXcQ';
-            finalPosterImage = posterImage || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200';
-            finalPositionOrder = positionOrder !== undefined ? positionOrder : 0;
-
-            await pool.query(
-                `INSERT INTO master_step_videos 
-                (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [id, finalStepNumber, finalType, finalTitle, finalSubtitle, finalDuration, finalVideoUrl, finalPosterImage, finalPositionOrder]
-            );
-        } else {
-            // Si ya existe, lo actualizamos normalmente
-            const current = existing[0];
-            finalType = type !== undefined ? type : current.type;
-            finalTitle = title !== undefined ? title : current.title;
-            finalSubtitle = subtitle !== undefined ? subtitle : current.subtitle;
-            finalDuration = duration !== undefined ? duration : current.duration;
-            finalVideoUrl = videoUrl !== undefined ? videoUrl : current.video_url;
-            finalPosterImage = posterImage !== undefined ? posterImage : current.poster_image;
-            finalPositionOrder = positionOrder !== undefined ? positionOrder : current.position_order;
-            finalStepNumber = stepNumber !== undefined ? stepNumber : current.step_number;
-
-            await pool.query(
-                `UPDATE master_step_videos SET 
-                    type = ?,
-                    title = ?,
-                    subtitle = ?,
-                    duration = ?,
-                    video_url = ?,
-                    poster_image = ?,
-                    position_order = ?,
-                    step_number = ?
-                WHERE id = ?`,
-                [finalType, finalTitle, finalSubtitle, finalDuration, finalVideoUrl, finalPosterImage, finalPositionOrder, finalStepNumber, id]
-            );
+            return res.status(404).json({ error: 'Video no encontrado' });
         }
+
+        const current = existing[0];
+        const updatedType = type !== undefined ? type : current.type;
+        const updatedTitle = title !== undefined ? title : current.title;
+        const updatedSubtitle = subtitle !== undefined ? subtitle : current.subtitle;
+        const updatedDuration = duration !== undefined ? duration : current.duration;
+        const updatedVideoUrl = videoUrl !== undefined ? videoUrl : current.video_url;
+        const updatedPosterImage = posterImage !== undefined ? posterImage : current.poster_image;
+        const updatedPositionOrder = positionOrder !== undefined ? positionOrder : current.position_order;
+        const updatedStepNumber = stepNumber !== undefined ? stepNumber : current.step_number;
+
+        await pool.query(
+            `UPDATE master_step_videos SET 
+                type = ?,
+                title = ?,
+                subtitle = ?,
+                duration = ?,
+                video_url = ?,
+                poster_image = ?,
+                position_order = ?,
+                step_number = ?
+            WHERE id = ?`,
+            [updatedType, updatedTitle, updatedSubtitle, updatedDuration, updatedVideoUrl, updatedPosterImage, updatedPositionOrder, updatedStepNumber, id]
+        );
 
         res.json({
             id,
-            stepNumber: Number(finalStepNumber),
-            type: finalType,
-            title: finalTitle,
-            subtitle: finalSubtitle,
-            duration: finalDuration,
-            videoUrl: finalVideoUrl,
-            posterImage: finalPosterImage,
-            positionOrder: finalPositionOrder
+            stepNumber: Number(updatedStepNumber),
+            type: updatedType,
+            title: updatedTitle,
+            subtitle: updatedSubtitle,
+            duration: updatedDuration,
+            videoUrl: updatedVideoUrl,
+            posterImage: updatedPosterImage,
+            positionOrder: updatedPositionOrder
         });
     } catch (error) {
         console.error(`Error al actualizar video ${req.params.id}:`, error);
@@ -282,9 +256,12 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        await pool.query('DELETE FROM master_step_videos WHERE id = ?', [id]);
+        const [result] = await pool.query('DELETE FROM master_step_videos WHERE id = ?', [id]);
         
-        // Retornamos éxito siempre, incluso si no estaba en la BD, para que el frontend complete el borrado local
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Video no encontrado' });
+        }
+
         res.json({ success: true, id });
     } catch (error) {
         console.error(`Error al eliminar video ${req.params.id}:`, error);

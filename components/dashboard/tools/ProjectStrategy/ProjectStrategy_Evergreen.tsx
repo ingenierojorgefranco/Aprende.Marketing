@@ -129,16 +129,22 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         }
     }, [projectId]);
 
-    // Hook 3: Sincronizar estados locales cuando cambiamos de correo o se cargan los mensajes
+    // Hook 3: Sincronizar estados locales cuando cambiamos de correo
     useEffect(() => {
         const dayNum = 8 + (activeEvergreenEmail * 2);
         const dbMessage = nurturingMessages.find(m => m.dayIndex === dayNum);
-        const targetSubject = dbMessage?.subject || `Día ${dayNum}`;
         
-        setLocalSubject(targetSubject);
-        setIsPreviewMode(true);
-        lastActiveEmailRef.current = activeEvergreenEmail;
-    }, [activeEvergreenEmail, nurturingMessages]);
+        if (lastActiveEmailRef.current !== activeEvergreenEmail || localSubject === '' || (dbMessage && !localSubject)) {
+            const tabName = `Día ${dayNum}`;
+            if (dbMessage) {
+                setLocalSubject(dbMessage.subject || tabName);
+            } else {
+                setLocalSubject(tabName);
+            }
+            setIsPreviewMode(true);
+            lastActiveEmailRef.current = activeEvergreenEmail;
+        }
+    }, [activeEvergreenEmail, nurturingMessages, linkedArticles]);
 
     // Hook 4: Auto-resize subject
     useEffect(() => {
@@ -417,16 +423,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 {!hideHeader && (
                     <div className="space-y-6">
                         <StepHeaderCard
-                            stepNumber={11}
+                            stepNumber={9}
                             totalSteps={totalSteps}
                             stageNumber={2}
-                            categoryTitle="11. Email Marketing (Nutrición)"
+                            categoryTitle="9. Email Marketing (Nutrición)"
                             title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                             description="Configura tu secuencia de nutrición por email para mantener el interés de tus prospectos, aportar valor y fortalecer la confianza hasta que estén listos para comprar."
                         />
                         <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                             <StepVideoContainer 
-                                stepNumber={11}
+                                stepNumber={9}
                                 videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                                 title="Video Tutorial Evergreen"
                             />
@@ -448,16 +454,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 {!hideHeader && (
                     <div className="space-y-6">
                         <StepHeaderCard
-                            stepNumber={11}
+                            stepNumber={9}
                             totalSteps={totalSteps}
                             stageNumber={2}
-                            categoryTitle="11. Email Marketing (Nutrición)"
+                            categoryTitle="9. Email Marketing (Nutrición)"
                             title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                             description="Configura tu secuencia de nutrición por email para mantener el interés de tus prospectos, aportar valor y fortalecer la confianza hasta que estén listos para comprar."
                         />
                         <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                             <StepVideoContainer 
-                                stepNumber={11}
+                                stepNumber={9}
                                 videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                                 title="Video Tutorial Evergreen"
                             />
@@ -502,10 +508,10 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={11}
+                        stepNumber={9}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="11. Email Marketing (Nutrición)"
+                        categoryTitle="9. Email Marketing (Nutrición)"
                         title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                         description={`Tienes ${effectiveArticles.length} artículos vinculados. El sistema ha programado estos correos para enviarse a partir del Día 8, manteniendo tu oferta presente sin ser invasivo.`}
                     />
@@ -513,7 +519,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
-                            stepNumber={11}
+                            stepNumber={9}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial Evergreen"
                         />

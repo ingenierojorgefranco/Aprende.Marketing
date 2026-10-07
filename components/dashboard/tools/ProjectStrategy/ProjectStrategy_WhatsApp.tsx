@@ -229,15 +229,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
             if (waLaunchDb) {
                 setLaunchId(waLaunchDb.id);
                 if (waLaunchDb.launchDate) {
-                    let dateOnly = '';
-                    if (typeof waLaunchDb.launchDate === 'string') {
-                        dateOnly = waLaunchDb.launchDate.split('T')[0];
-                    } else if (waLaunchDb.launchDate instanceof Date) {
-                        const yr = waLaunchDb.launchDate.getFullYear();
-                        const mo = String(waLaunchDb.launchDate.getMonth() + 1).padStart(2, '0');
-                        const dy = String(waLaunchDb.launchDate.getDate()).padStart(2, '0');
-                        dateOnly = `${yr}-${mo}-${dy}`;
-                    }
+                    const dateOnly = typeof waLaunchDb.launchDate === 'string' ? waLaunchDb.launchDate.split('T')[0] : waLaunchDb.launchDate.toISOString().split('T')[0];
                     setLaunchDate(dateOnly);
                 }
                 if (waLaunchDb.launchTime) {
@@ -546,7 +538,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const launchUsed = launchCount;
     const planRawName = (planLimits?.planName || user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
     const isFreeUser = !isRealAdmin && (planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName);
-    const isLimitReached = !isRealAdmin && launchUsed >= maxLaunches;
+    const isLimitReached = isFreeUser || (!isRealAdmin && launchUsed >= maxLaunches);
     const usagePercent = Math.min(100, (launchUsed / maxLaunches) * 100);
     let progressColor = "bg-green-500";
     if (usagePercent > 50) progressColor = "bg-yellow-500";
@@ -665,10 +657,10 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={12}
+                        stepNumber={10}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="12. Lanzamientos (Estrategia WhatsApp)"
+                        categoryTitle="10. Lanzamientos (Estrategia WhatsApp)"
                         title={<>Secuencia de Lanzamiento <span className="text-[#FF5A1F]">vía WhatsApp</span></>}
                         description="Configura tu secuencia de lanzamiento por WhatsApp para generar expectativa, mantener el interés de tus prospectos y guiarlos estratégicamente hacia la compra."
                     />
@@ -676,7 +668,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
-                            stepNumber={12}
+                            stepNumber={10}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial WhatsApp"
                         />
@@ -996,23 +988,15 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                 onClick={async () => {
                                     setLaunchDate(tempLaunchDate);
                                     setLaunchTime(tempLaunchTime);
-                                    try {
-                                        let currentLaunchId = launchId;
-                                        if (!currentLaunchId && projectId) {
-                                            const createRes = await api.createWhatsAppLaunch(projectId, `Lanzamiento: ${user?.name || 'Mi proyecto'}`);
-                                            if (createRes && createRes.id) {
-                                                currentLaunchId = createRes.id;
-                                                setLaunchId(createRes.id);
-                                            }
-                                        }
-                                        if (currentLaunchId) {
-                                            await api.updateWhatsAppLaunch(currentLaunchId, { 
+                                    if (launchId) {
+                                        try {
+                                            await api.updateWhatsAppLaunch(launchId, { 
                                                 launchDate: tempLaunchDate,
                                                 launchTime: tempLaunchTime 
                                             });
+                                        } catch (error) {
+                                            console.error(error);
                                         }
-                                    } catch (error) {
-                                        console.error("Error al guardar fecha/hora de lanzamiento:", error);
                                     }
                                     setShowDateTimeModal(false);
                                     if (isPendingGeneration) {

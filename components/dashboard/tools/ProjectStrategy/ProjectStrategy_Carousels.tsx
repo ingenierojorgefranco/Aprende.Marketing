@@ -89,12 +89,6 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         "Convierte vistas en clientes."
     ]);
 
-    const hasInitializedTab = useRef(false);
-
-    useEffect(() => {
-        hasInitializedTab.current = false;
-    }, [projectId]);
-
     const parseStrategyItems = (strategyRaw: any): string[] => {
         if (!strategyRaw) {
             return [
@@ -224,24 +218,12 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             const data = await api.getProjectCarousels(projectId);
             if (data && data.length > 0) {
                 setCarousels(data);
-                if (!hasInitializedTab.current) {
-                    setActiveTab('generated');
-                    hasInitializedTab.current = true;
-                }
             } else {
                 setCarousels([]);
-                if (!hasInitializedTab.current) {
-                    setActiveTab('library');
-                    hasInitializedTab.current = true;
-                }
             }
         } catch (e) {
             console.error("Error fetching carousels:", e);
             setCarousels([]);
-            if (!hasInitializedTab.current) {
-                setActiveTab('library');
-                hasInitializedTab.current = true;
-            }
         } finally {
             setLoadingHooks(false);
         }
@@ -560,7 +542,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             {!overrideProjectId ? (
                 <div className="space-y-6">
                     <StepHeaderCard
-                        stepNumber={7}
+                        stepNumber={6}
                         totalSteps={totalSteps}
                         stageNumber={2}
                         categoryTitle="Carruseles Magnéticos de Alta Conversión"
@@ -571,7 +553,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0f172a]/40 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
-                            stepNumber={7}
+                            stepNumber={6}
                             videoUrl="https://www.youtube.com/embed/bTV5aFTchJ8?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial Carruseles"
                         />
@@ -579,7 +561,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 </div>
             ) : (
                 <StepHeaderCard
-                    stepNumber={7}
+                    stepNumber={6}
                     totalSteps={totalSteps}
                     stageNumber={2}
                     categoryTitle="Carruseles Magnéticos de Alta Conversión"

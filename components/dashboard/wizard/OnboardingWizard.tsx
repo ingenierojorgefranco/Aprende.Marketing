@@ -218,8 +218,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       if (forced === "success") return "success";
       if (forced === "unlock") return "unlock";
       if (forced === "selection") return "selection";
-      if (forced === "generating_hooks") return "generating_hooks";
-      if (forced === "generating_strategy") return "generating_strategy";
     }
     return "welcome";
   });
@@ -700,17 +698,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   const successRef = useRef<HTMLDivElement>(null);
   const limitReachedRef = useRef<HTMLDivElement>(null);
 
-  const activeTimerRef = useRef<any>(null);
-
-  // Clean up interval timer on unmount
-  useEffect(() => {
-    return () => {
-      if (activeTimerRef.current) {
-        clearInterval(activeTimerRef.current);
-      }
-    };
-  }, []);
-
   const isGenerating =
     step === "generating_strategy" ||
     step === "creating_web" ||
@@ -1162,9 +1149,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
   const handleUnlockHooks = async () => {
     setStep("generating_hooks");
-    if (typeof window !== "undefined") {
-      localStorage.setItem("force_wizard_step", "generating_hooks");
-    }
     setGenerationProgress(0);
     setGenerationStatus("Creando video 1...");
 
@@ -1220,10 +1204,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     const startTime = Date.now();
     const duration = 15000;
 
-    if (activeTimerRef.current) {
-      clearInterval(activeTimerRef.current);
-    }
-
     const timer = setInterval(() => {
       const elapsedMs = Date.now() - startTime;
 
@@ -1238,7 +1218,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       } else {
         // Cumplidos los 15 segundos, esperamos a que el API resolve
         clearInterval(timer);
-        activeTimerRef.current = null;
 
         apiPromise.then((finalizedHooks) => {
           if (finalizedHooks && finalizedHooks.length > 0) {
@@ -1260,17 +1239,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         });
       }
     }, 100);
-
-    activeTimerRef.current = timer;
   };
-
-  // Automatic recovery effect: If the page reloaded mid-generation, resume immediately
-  useEffect(() => {
-    if (step === "generating_hooks") {
-      console.log("♻️ [RECUPERACIÓN] Reanudando generación de reels/videos interrumpida de forma automática.");
-      handleUnlockHooks();
-    }
-  }, [step]);
 
   const activeProjectName =
     selectedProject?.name ||
