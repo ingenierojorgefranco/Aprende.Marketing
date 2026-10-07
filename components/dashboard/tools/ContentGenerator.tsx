@@ -40,7 +40,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { id: editArticleId } = useParams() as { id: string };
+  const { id: routeId } = useParams() as { id: string };
+  const editArticleId = embeddedProjectId ? undefined : routeId;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const preSelectedProjectId = embeddedProjectId || searchParams.get('projectId');
