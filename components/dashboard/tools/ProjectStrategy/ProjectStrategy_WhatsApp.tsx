@@ -538,7 +538,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const launchUsed = launchCount;
     const planRawName = (planLimits?.planName || user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
     const isFreeUser = !isRealAdmin && (planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName);
-    const isLimitReached = isFreeUser || (!isRealAdmin && launchUsed >= maxLaunches);
+    const isLimitReached = !isRealAdmin && launchUsed >= maxLaunches;
     const usagePercent = Math.min(100, (launchUsed / maxLaunches) * 100);
     let progressColor = "bg-green-500";
     if (usagePercent > 50) progressColor = "bg-yellow-500";

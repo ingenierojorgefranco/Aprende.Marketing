@@ -129,22 +129,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         }
     }, [projectId]);
 
-    // Hook 3: Sincronizar estados locales cuando cambiamos de correo
+    // Hook 3: Sincronizar estados locales cuando cambiamos de correo o se cargan los mensajes
     useEffect(() => {
         const dayNum = 8 + (activeEvergreenEmail * 2);
         const dbMessage = nurturingMessages.find(m => m.dayIndex === dayNum);
+        const targetSubject = dbMessage?.subject || `Día ${dayNum}`;
         
-        if (lastActiveEmailRef.current !== activeEvergreenEmail || localSubject === '' || (dbMessage && !localSubject)) {
-            const tabName = `Día ${dayNum}`;
-            if (dbMessage) {
-                setLocalSubject(dbMessage.subject || tabName);
-            } else {
-                setLocalSubject(tabName);
-            }
-            setIsPreviewMode(true);
-            lastActiveEmailRef.current = activeEvergreenEmail;
-        }
-    }, [activeEvergreenEmail, nurturingMessages, linkedArticles]);
+        setLocalSubject(targetSubject);
+        setIsPreviewMode(true);
+        lastActiveEmailRef.current = activeEvergreenEmail;
+    }, [activeEvergreenEmail, nurturingMessages]);
 
     // Hook 4: Auto-resize subject
     useEffect(() => {
