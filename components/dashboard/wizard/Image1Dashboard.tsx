@@ -183,6 +183,15 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                       <span>{item.name}</span>
                     </button>
                   ))}
+                  <a
+                    href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full hover:bg-emerald-500/10 text-emerald-400 hover:text-emerald-300 h-12 px-4 rounded-[14px] flex items-center gap-3 text-[14px] font-semibold text-left transition-all group"
+                  >
+                    <MessageSquare className="w-5 h-5 text-emerald-500 group-hover:text-emerald-400 transition-colors shrink-0" />
+                    <span>Comunidad WhatsApp</span>
+                  </a>
                 </nav>
               </div>
 
@@ -587,6 +596,9 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                     btnText: "Explorar",
                     btnColor: "bg-[#FF5A1F] hover:bg-orange-600 shadow-[0_4px_12px_rgba(255,90,31,0.15)]",
                     key: "strategy",
+                    glowColor: "group-hover:shadow-[0_0_30px_rgba(255,90,31,0.2)] group-hover:border-orange-500/40",
+                    bgGradient: "bg-gradient-to-br from-[#0F1117] via-[#0F1117] to-[#1C120E]/20 hover:from-[#13151D] hover:to-[#221611]/30",
+                    accentColor: "text-[#FF5A1F]"
                   },
                   {
                     title: "Pagina Web de Captura",
@@ -598,6 +610,9 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                     btnText: "Explorar",
                     btnColor: "bg-[#1E5AF3] hover:bg-blue-600 shadow-[0_4px_12px_rgba(30,90,243,0.15)]",
                     key: "landing",
+                    glowColor: "group-hover:shadow-[0_0_30px_rgba(30,90,243,0.2)] group-hover:border-blue-500/40",
+                    bgGradient: "bg-gradient-to-br from-[#0F1117] via-[#0F1117] to-[#0D1527]/20 hover:from-[#13151D] hover:to-[#111A30]/30",
+                    accentColor: "text-[#1E5AF3]"
                   },
                   {
                     title: "Video Hooks de Atraccion",
@@ -609,6 +624,9 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                     btnText: "Explorar",
                     btnColor: "bg-[#FF5A1F] hover:bg-orange-600 shadow-[0_4px_12px_rgba(255,90,31,0.15)]",
                     key: "reels",
+                    glowColor: "group-hover:shadow-[0_0_30px_rgba(255,90,31,0.2)] group-hover:border-orange-500/40",
+                    bgGradient: "bg-gradient-to-br from-[#0F1117] via-[#0F1117] to-[#1C120E]/20 hover:from-[#13151D] hover:to-[#221611]/30",
+                    accentColor: "text-[#FF5A1F]"
                   },
                   {
                     title: "Artículos de Blog (SEO)",
@@ -620,6 +638,9 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                     btnText: "Explorar",
                     btnColor: "bg-[#7C3AED] hover:bg-purple-600 shadow-[0_4px_12px_rgba(124,58,237,0.15)]",
                     key: "blog",
+                    glowColor: "group-hover:shadow-[0_0_30px_rgba(124,58,237,0.2)] group-hover:border-purple-500/40",
+                    bgGradient: "bg-gradient-to-br from-[#0F1117] via-[#0F1117] to-[#171124]/20 hover:from-[#13151D] hover:to-[#22163B]/30",
+                    accentColor: "text-[#7C3AED]"
                   },
                   {
                     title: "Email Marketing Automatizado",
@@ -631,6 +652,9 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                     btnText: "Explorar",
                     btnColor: "bg-[#D97706] hover:bg-amber-650 shadow-[0_4px_12px_rgba(217,119,6,0.15)]",
                     key: "email",
+                    glowColor: "group-hover:shadow-[0_0_30px_rgba(217,119,6,0.2)] group-hover:border-amber-500/40",
+                    bgGradient: "bg-gradient-to-br from-[#0F1117] via-[#0F1117] to-[#1A140D]/20 hover:from-[#13151D] hover:to-[#261F12]/30",
+                    accentColor: "text-[#D97706]"
                   },
                   {
                     title: "Secuencias de WhatsApp",
@@ -642,23 +666,26 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
                     btnText: "Explorar",
                     btnColor: "bg-[#10B981] hover:bg-emerald-600 shadow-[0_4px_12px_rgba(16,185,129,0.15)]",
                     key: "avatar",
+                    glowColor: "group-hover:shadow-[0_0_30px_rgba(16,185,129,0.2)] group-hover:border-emerald-500/40",
+                    bgGradient: "bg-gradient-to-br from-[#0F1117] via-[#0F1117] to-[#0D1A14]/20 hover:from-[#13151D] hover:to-[#11261B]/30",
+                    accentColor: "text-[#10B981]"
                   },
                 ].map((card, idx) => (
                   <div
                     key={idx}
                     onClick={() => onNavigateToSection?.(card.key)}
-                    className="bg-[#0F1117] border border-white/[0.04] p-6 rounded-[24px] flex flex-col justify-between hover:bg-[#13151D] hover:border-white/[0.08] transition-all cursor-pointer group hover:-translate-y-1 relative overflow-hidden"
+                    className={`${card.bgGradient} ${card.glowColor} border border-white/[0.04] p-6 rounded-[24px] flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-1 relative overflow-hidden`}
                   >
                     {/* Watermark / Icono de background gigante */}
-                    <div className="absolute -bottom-6 -right-6 text-white/[0.02] group-hover:text-white/[0.04]/70 group-hover:scale-110 transition-all duration-500 pointer-events-none z-0">
+                    <div className="absolute -bottom-6 -right-6 text-white/[0.015] group-hover:text-white/[0.035]/70 group-hover:scale-110 transition-all duration-500 pointer-events-none z-0">
                       <card.infoIcon className="w-32 h-32" />
                     </div>
 
                     <div className="space-y-4 relative z-10">
                       {/* Cabecera de la tarjeta: Icono estilizado circular de color sutil + Textos */}
                       <div className="flex items-start gap-4">
-                        <div className="w-11 h-11 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-center text-zinc-450 group-hover:scale-105 transition-transform shrink-0">
-                          <card.infoIcon className="w-5 h-5 text-zinc-350" />
+                        <div className={`w-11 h-11 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-center ${card.accentColor} group-hover:scale-105 transition-transform shrink-0`}>
+                          <card.infoIcon className="w-5 h-5" />
                         </div>
                         <div className="space-y-1 text-left">
                           <h4 className="text-white text-[15px] font-bold tracking-tight">
@@ -694,38 +721,6 @@ export const Image1Dashboard: React.FC<Image1DashboardProps> = ({
 
                   </div>
                 ))}
-              </div>
-
-              {/* Bloque Premium: Comunidad de WhatsApp */}
-              <div className="mt-8 bg-[#0F1117]/80 border-2 border-emerald-500/25 rounded-[24px] p-8 relative overflow-hidden flex flex-col md:flex-row gap-6 justify-between items-center shadow-lg shadow-black/25">
-                {/* Decorative emerald glows */}
-                <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/5 blur-3xl rounded-full pointer-events-none"></div>
-                <div className="absolute bottom-0 right-0 w-64 h-64 bg-emerald-500/5 blur-3xl rounded-full pointer-events-none"></div>
-                
-                <div className="flex-1 flex flex-col space-y-3 relative z-10 text-left">
-                  <div className="flex items-center gap-2 text-emerald-400">
-                    <span className="text-xl font-bold">💬</span>
-                    <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">Comunidad de Alta Fidelidad</span>
-                  </div>
-                  <h3 className="text-white font-extrabold text-[24px] leading-tight tracking-tight">
-                    Únete a nuestra Comunidad de WhatsApp
-                  </h3>
-                  <p className="text-zinc-300 font-light text-[14px] md:text-[15px] leading-relaxed max-w-[720px]">
-                    Aprende junto a otros emprendedores de nuestra comunidad a utilizar todas las herramientas del sistema, comparte tus avances, recibe retroalimentación de expertos y obtén un seguimiento/soporte personalizado para acelerar tus resultados.
-                  </p>
-                </div>
-
-                <div className="shrink-0 relative z-10 w-full md:w-auto">
-                  <a
-                    href="https://chat.whatsapp.com/invite"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex w-full md:w-auto h-[50px] rounded-full bg-emerald-500 px-8 text-white font-black text-sm uppercase tracking-wider items-center justify-center gap-2 hover:bg-emerald-600 transition-all cursor-pointer shadow-[0_4px_15px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] hover:-translate-y-0.5 active:translate-y-0 duration-200"
-                  >
-                    <span>Unirse a la Comunidad</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </a>
-                </div>
               </div>
             </div>
 

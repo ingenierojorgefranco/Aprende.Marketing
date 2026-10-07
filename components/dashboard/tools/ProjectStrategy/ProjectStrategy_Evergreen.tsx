@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X, Loader2, Copy, Lock, Unlock, Search, BarChart, Eye, Target, Brain, Shield, Edit3, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, CheckCircle2, Wand2, Code, AlertCircle, Play } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { PlanFeatures, PlanLimits, Plan, Article, EmailMessage } from '../../../../types';
+import { PlanFeatures, PlanLimits, Plan, Article, EmailMessage, LandingPage } from '../../../../types';
 import { api } from '../../../../services/api';
 import { StepHeaderCard } from '../../wizard/StepHeaderCard';
 import { StepVideoContainer } from '../../wizard/StepVideoContainer';
@@ -43,6 +43,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     const [loadingMessages, setLoadingMessages] = useState(true);
     const [localArticles, setLocalArticles] = useState<Article[]>([]);
     const [loadingArticles, setLoadingArticles] = useState(true);
+    const [userPages, setUserPages] = useState<LandingPage[]>([]);
 
     // Estados para el flujo de generación profesional
     const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success' | 'error'>('idle');
@@ -96,6 +97,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 api.getArticlesByProject(projectId).catch(() => []),
                 api.getArticles().catch(() => [])
             ]).then(([allPages, projectSpecificArticles, allArticles]) => {
+                setUserPages(allPages || []);
                 const projectPages = Array.isArray(allPages) ? allPages.filter((p: any) => String(p.projectId) === String(projectId)) : [];
                 const combinedArticles = [
                     ...(Array.isArray(projectSpecificArticles) ? projectSpecificArticles : []),
@@ -127,22 +129,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         }
     }, [projectId]);
 
-    // Hook 3: Sincronizar estados locales cuando cambiamos de correo
+    // Hook 3: Sincronizar estados locales cuando cambiamos de correo o se cargan los mensajes
     useEffect(() => {
         const dayNum = 8 + (activeEvergreenEmail * 2);
         const dbMessage = nurturingMessages.find(m => m.dayIndex === dayNum);
+        const targetSubject = dbMessage?.subject || `Día ${dayNum}`;
         
-        if (lastActiveEmailRef.current !== activeEvergreenEmail || localSubject === '' || (dbMessage && !localSubject)) {
-            const tabName = `Día ${dayNum}`;
-            if (dbMessage) {
-                setLocalSubject(dbMessage.subject || tabName);
-            } else {
-                setLocalSubject(tabName);
-            }
-            setIsPreviewMode(true);
-            lastActiveEmailRef.current = activeEvergreenEmail;
-        }
-    }, [activeEvergreenEmail, nurturingMessages, linkedArticles]);
+        setLocalSubject(targetSubject);
+        setIsPreviewMode(true);
+        lastActiveEmailRef.current = activeEvergreenEmail;
+    }, [activeEvergreenEmail, nurturingMessages]);
 
     // Hook 4: Auto-resize subject
     useEffect(() => {
@@ -297,7 +293,8 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
             const result = await api.generateEvergreenEmail(projectId, {
                 title: article.title,
                 description: article.description,
-                contentHtml: article.contentHtml
+                contentHtml: article.contentHtml,
+                slug: article.slug
             });
 
             // --- ASOCIAR SOLO CON email_messages de tipo 'nurturing' ---
@@ -354,13 +351,29 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         }
     };
 
+    const resolveSmartUrl = (content: string): string => {
+        if (!content || !userPages || !projectId) return content;
+        // Encontrar la página publicada de este proyecto
+        const projectPage = userPages.find(p => String(p.projectId) === String(projectId) && p.isPublished);
+        if (projectPage && projectPage.customDomain) {
+            const subdomainPart = projectPage.subdomain ? projectPage.subdomain.split('.')[0] : '';
+            if (subdomainPart) {
+                // Reemplazar de forma insensible a mayúsculas/minúsculas y global
+                const pattern = new RegExp(`https://aprende\\.marketing/lp/${subdomainPart}`, 'gi');
+                return content.replace(pattern, `https://${projectPage.customDomain}`);
+            }
+        }
+        return content;
+    };
+
     const handleCopyEmail = () => {
         const dayNum = 8 + (activeEvergreenEmail * 2);
         const email = nurturingMessages.find(m => m.dayIndex === dayNum);
         if (!email?.contentHtml) return;
         
-        const htmlContent = `<div>${email.contentHtml}</div>`;
-        const plainText = email.contentHtml.replace(/<[^>]*>/g, '');
+        const resolvedContent = resolveSmartUrl(email.contentHtml);
+        const htmlContent = `<div>${resolvedContent}</div>`;
+        const plainText = resolvedContent.replace(/<[^>]*>/g, '');
         const blobHtml = new Blob([htmlContent], { type: 'text/html' });
         const blobText = new Blob([plainText], { type: 'text/plain' });
         const data = [new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })];
@@ -404,16 +417,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 {!hideHeader && (
                     <div className="space-y-6">
                         <StepHeaderCard
-                            stepNumber={9}
+                            stepNumber={11}
                             totalSteps={totalSteps}
                             stageNumber={2}
-                            categoryTitle="9. Email Marketing (Nutrición)"
+                            categoryTitle="11. Email Marketing (Nutrición)"
                             title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                             description="Configura tu secuencia de nutrición por email para mantener el interés de tus prospectos, aportar valor y fortalecer la confianza hasta que estén listos para comprar."
                         />
                         <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                             <StepVideoContainer 
-                                stepNumber={9}
+                                stepNumber={11}
                                 videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                                 title="Video Tutorial Evergreen"
                             />
@@ -435,16 +448,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 {!hideHeader && (
                     <div className="space-y-6">
                         <StepHeaderCard
-                            stepNumber={9}
+                            stepNumber={11}
                             totalSteps={totalSteps}
                             stageNumber={2}
-                            categoryTitle="9. Email Marketing (Nutrición)"
+                            categoryTitle="11. Email Marketing (Nutrición)"
                             title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                             description="Configura tu secuencia de nutrición por email para mantener el interés de tus prospectos, aportar valor y fortalecer la confianza hasta que estén listos para comprar."
                         />
                         <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                             <StepVideoContainer 
-                                stepNumber={9}
+                                stepNumber={11}
                                 videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                                 title="Video Tutorial Evergreen"
                             />
@@ -489,10 +502,10 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={9}
+                        stepNumber={11}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="9. Email Marketing (Nutrición)"
+                        categoryTitle="11. Email Marketing (Nutrición)"
                         title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                         description={`Tienes ${effectiveArticles.length} artículos vinculados. El sistema ha programado estos correos para enviarse a partir del Día 8, manteniendo tu oferta presente sin ser invasivo.`}
                     />
@@ -500,7 +513,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
-                            stepNumber={9}
+                            stepNumber={11}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial Evergreen"
                         />

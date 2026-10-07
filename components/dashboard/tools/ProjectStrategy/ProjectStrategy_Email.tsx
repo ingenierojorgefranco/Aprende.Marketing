@@ -16,9 +16,9 @@ const getThankYouPageUrl = (project: any, pages: any[]) => {
             return `https://${page.customDomain}/gracias`;
         }
         const sub = page.subdomain ? page.subdomain.split('.')[0] : '';
-        return `/lp/${sub}/gracias`;
+        return `https://aprende.marketing/lp/${sub}/gracias`;
     }
-    return `/lp/${project.slug || 'proyecto'}/gracias`;
+    return `https://aprende.marketing/lp/${project.slug || 'proyecto'}/gracias`;
 };
 
 interface ProjectStrategy_EmailProps {
@@ -69,10 +69,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [activeType, setActiveTypeInternal] = useState<'conversion' | 'nurturing'>(initialActiveType);
     const [isLoadingInternal, setIsLoadingInternal] = useState(false);
 
-    // Sincronizar props iniciales si cambian
-    useEffect(() => { if (initialEmailData) setEmailData(initialEmailData); }, [initialEmailData]);
-    useEffect(() => { if (initialAvatars) setAvatars(initialAvatars); }, [initialAvatars]);
-    useEffect(() => { if (initialRealMessages) setRealMessages(initialRealMessages); }, [initialRealMessages]);
+    // Sincronizar props iniciales si cambian (con protección para no sobrescribir datos cargados localmente)
+    useEffect(() => { if (initialEmailData && initialEmailData.length > 0) setEmailData(initialEmailData); }, [initialEmailData]);
+    useEffect(() => { if (initialAvatars && initialAvatars.length > 0) setAvatars(initialAvatars); }, [initialAvatars]);
+    useEffect(() => { if (initialRealMessages && initialRealMessages.length > 0) setRealMessages(initialRealMessages); }, [initialRealMessages]);
     useEffect(() => { if (initialSequenceId) setSequenceId(initialSequenceId); }, [initialSequenceId]);
     useEffect(() => { if (initialSequenceCount) setSequenceCount(initialSequenceCount); }, [initialSequenceCount]);
     useEffect(() => { if (initialActiveType) setActiveTypeInternal(initialActiveType); }, [initialActiveType]);
@@ -104,10 +104,12 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 setSequenceCount(activeProjectIds.size);
                 
                 const projectSequence = sequences.find(s => String(s.projectId) === String(projectId) && s.type === activeType);
+
                 if (projectSequence) {
                     setSequenceId(projectSequence.id);
                     const messages = await api.getSequenceMessages(projectSequence.id);
-                    setRealMessages(messages.filter((m: any) => m.type === activeType));
+                    const filteredMessages = messages.filter((m: any) => m.type === activeType);
+                    setRealMessages(filteredMessages);
                 } else {
                     setSequenceId(null);
                     setRealMessages([]);
@@ -128,6 +130,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [localPurpose, setLocalPurpose] = useState('');
     const [isTypeLocked, setIsTypeLocked] = useState(true);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showLockModal, setShowLockModal] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [secondsElapsed, setSecondsElapsed] = useState(0);
     const [progress, setProgress] = useState(0);
@@ -203,7 +206,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
     // Sincronizar estados locales solo cuando realmente cambiamos de correo
     useEffect(() => {
-        const currentReal = realMessages.find(m => m.dayIndex === activeEmail + 1);
+        const currentReal = realMessages.find(m => Number(m.dayIndex) === activeEmail + 1);
         const currentStatic = emailData[activeEmail];
         
         // Solo reseteamos los estados locales si el índice del correo ha cambiado o si los datos reales acaban de cargar
@@ -309,7 +312,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         if (field === 'pilarType') setLocalPilar(value);
         if (field === 'purpose') setLocalPurpose(value);
 
-        const currentReal = realMessages.find(m => m.dayIndex === activeEmail + 1);
+        const currentReal = realMessages.find(m => Number(m.dayIndex) === activeEmail + 1);
         if (!currentReal) return;
 
         setSaveIndicator('saving');
@@ -352,12 +355,28 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         }
     };
 
+    const resolveSmartUrl = (content: string): string => {
+        if (!content || !userPages || !projectId) return content;
+        // Encontrar la página publicada de este proyecto
+        const projectPage = userPages.find(p => String(p.projectId) === String(projectId) && p.isPublished);
+        if (projectPage && projectPage.customDomain) {
+            const subdomainPart = projectPage.subdomain ? projectPage.subdomain.split('.')[0] : '';
+            if (subdomainPart) {
+                // Reemplazar de forma insensible a mayúsculas/minúsculas y global
+                const pattern = new RegExp(`https://aprende\\.marketing/lp/${subdomainPart}`, 'gi');
+                return content.replace(pattern, `https://${projectPage.customDomain}`);
+            }
+        }
+        return content;
+    };
+
     const handleCopyEmail = () => {
-        const email = realMessages.find(m => m.dayIndex === activeEmail + 1);
+        const email = realMessages.find(m => Number(m.dayIndex) === activeEmail + 1);
         if (!email?.contentHtml) return;
         
-        const htmlContent = `<div>${email.contentHtml}</div>`;
-        const plainText = email.contentHtml.replace(/<[^>]*>/g, '');
+        const resolvedContent = resolveSmartUrl(email.contentHtml);
+        const htmlContent = `<div>${resolvedContent}</div>`;
+        const plainText = resolvedContent.replace(/<[^>]*>/g, '');
         const blobHtml = new Blob([htmlContent], { type: 'text/html' });
         const blobText = new Blob([plainText], { type: 'text/plain' });
         const data = [new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })];
@@ -384,7 +403,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             // Recopilamos la configuración de los 7 días
             const tyUrl = getThankYouPageUrl(currentProject, userPages);
             const sequenceData = emailData.map((email, idx) => {
-                const real = realMessages.find(m => m.dayIndex === idx + 1);
+                const real = realMessages.find(m => Number(m.dayIndex) === idx + 1);
                 
                 return {
                     dayIndex: idx + 1,
@@ -397,6 +416,23 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             });
 
             await api.generateFullEmailSequence(projectId, sequenceData, activeType);
+            
+            // Sync local sequences and messages state immediately
+            try {
+                const updatedSequences = await api.getEmailSequences();
+                setAllSequences(updatedSequences);
+                
+                const projectSequence = updatedSequences.find(s => String(s.projectId) === String(projectId) && s.type === activeType);
+                
+                if (projectSequence) {
+                    setSequenceId(projectSequence.id);
+                    const messages = await api.getSequenceMessages(projectSequence.id);
+                    const filteredMessages = messages.filter((m: any) => m.type === activeType);
+                    setRealMessages(filteredMessages);
+                }
+            } catch (err) {
+                console.error("Error de sincronización post-generación:", err);
+            }
             
             // Éxito: Mostrar confeti antes de recargar
             setProgress(100);
@@ -445,8 +481,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     };
 
     // Lógica de límites
-    const isRealAdmin = (user?.role === 'admin' || planLimits?.planName === 'admin') && !isSimulating;
-    const planRawName = (planLimits?.planName || user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
+    const activePlanLimits = planLimits || user?.planLimits;
+    const isRealAdmin = (user?.role === 'admin' || activePlanLimits?.planName === 'admin') && !isSimulating;
+    const planRawName = (activePlanLimits?.planName || user?.plan || 'starter').toLowerCase();
     const isFreeUser = !isRealAdmin && (planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName);
     
     // Recalcular sequenceUsed basado en la lógica solicitada:
@@ -457,17 +494,19 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         : allSequences.filter(s => s.type === 'nurturing').reduce((acc, s) => acc + (s.generatedDays?.length || 0), 0);
 
     const maxSequences = activeType === 'conversion'
-        ? (planLimits?.maxEmailSequences || 5)
-        : (planLimits?.maxEmailSequencesNurturing || 20);
+        ? (activePlanLimits?.maxEmailSequences !== undefined ? activePlanLimits.maxEmailSequences : 5)
+        : (activePlanLimits?.maxEmailSequencesNurturing !== undefined ? activePlanLimits.maxEmailSequencesNurturing : 20);
 
-    const generatedInCurrent = realMessages.filter(m => m.isGenerated).length;
-    const usagePercent = Math.min(100, (sequenceUsed / maxSequences) * 100);
+    const generatedInCurrent = realMessages.filter(m => m.contentHtml && m.contentHtml.trim() !== '').length;
+    const usagePercent = maxSequences > 0 ? Math.min(100, (sequenceUsed / maxSequences) * 100) : 100;
     let progressColor = "bg-[#FF5D1E]";
     if (usagePercent > 50) progressColor = "bg-orange-500";
     if (usagePercent > 85) progressColor = isRealAdmin ? "bg-orange-500" : "bg-red-500";
 
-    const currentMsg = realMessages.find(m => m.dayIndex === activeEmail + 1);
-    const isCurrentGenerated = !!currentMsg?.isGenerated;
+    const hasAvailability = isRealAdmin || (sequenceUsed < maxSequences);
+
+    const currentMsg = realMessages.find(m => Number(m.dayIndex) === activeEmail + 1);
+    const isCurrentGenerated = !!(currentMsg?.contentHtml && currentMsg.contentHtml.trim() !== '');
     const currentRealContent = currentMsg?.contentHtml || '';
 
     // Auto-resize subject on load
@@ -610,10 +649,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={8}
+                        stepNumber={10}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="8. Email Marketing (Conversión)"
+                        categoryTitle="10. Email Marketing (Conversión)"
                         title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Conversión</span></>}
                         description="Configura tu secuencia de Email Marketing para convertir a tus prospectos desde el primer momento, generar confianza y guiarlos paso a paso."
                     />
@@ -621,7 +660,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
-                            stepNumber={8}
+                            stepNumber={10}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial Email"
                         />
@@ -654,7 +693,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
                     <div className="space-y-4 pr-2">
                         {emailData.map((email: any, idx: number) => {
-                            const isDayGenerated = realMessages.some(m => m.dayIndex === idx + 1 && m.isGenerated);
+                            const matchingMsg = realMessages.find(m => Number(m.dayIndex) === idx + 1);
+                            const isDayGenerated = !!(matchingMsg && matchingMsg.contentHtml && matchingMsg.contentHtml.trim() !== '');
                             const isActive = activeEmail === idx;
                             return (
                                 <div 
@@ -721,18 +761,18 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     {/* Botón General de Generación */}
                     {generatedInCurrent < 7 && (
                         <div className="mt-4">
-                            {isFreeUser ? (
+                            {!hasAvailability ? (
                                 <button 
-                                    onClick={onUpgrade}
-                                    className="w-full py-5 rounded-2xl bg-gradient-to-r from-yellow-600 to-orange-600 hover:brightness-110 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-orange-950/20 flex items-center justify-center gap-3"
+                                    onClick={() => setShowLockModal(true)}
+                                    className="w-full py-5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:brightness-110 text-slate-950 font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-orange-950/20 flex items-center justify-center gap-3 cursor-pointer"
                                 >
-                                    <Crown className="w-5 h-5 fill-current" /> Actualizar a PRO 👑
+                                    <Crown className="w-5 h-5 fill-current text-slate-950 animate-pulse" /> Actualiza a PRO 👑
                                 </button>
                             ) : (
                                 <button 
                                     onClick={() => setShowConfirmModal(true)}
                                     disabled={isGenerating}
-                                    className="w-full py-5 rounded-2xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-orange-950/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full py-5 rounded-2xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-orange-950/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                 >
                                     {isGenerating ? (
                                         <>
@@ -1025,6 +1065,53 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
                             <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">Revisar de nuevo</button>
                             <button onClick={handleGenerateFullSequence} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5D1E] to-orange-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-orange-950/20 transform hover:scale-105 active:scale-95 transition-all">Generar Secuencia Completa</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showLockModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowLockModal(false)}>
+                    <div className="bg-[#0B0B0B] border border-amber-500/20 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-[#FF5D1E]"></div>
+                        <div className="p-8 md:p-10 space-y-6 flex-1 overflow-y-auto text-center">
+                            <div className="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-lg shadow-amber-950/20 animate-pulse">
+                                <Lock className="w-8 h-8" />
+                            </div>
+                            
+                            <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">
+                                Característica Exclusiva <span className="text-amber-400">Plan PRO</span>
+                            </h2>
+                            
+                            <div className="space-y-4 text-slate-300 text-sm sm:text-base leading-relaxed text-left bg-white/[0.02] border border-white/5 p-5 rounded-2xl">
+                                <p className="font-bold text-white text-center text-base mb-2">
+                                    ¡Automatiza tus Ventas en Piloto Automático! 🚀
+                                </p>
+                                <p>
+                                    Configurar y generar esta secuencia completa de Email Marketing aumentará drásticamente las conversiones de tus leads, guiándolos hacia la compra de manera automática.
+                                </p>
+                                <p className="border-t border-white/5 pt-3">
+                                    Adquiriendo el <strong className="text-amber-400 font-black">Plan PRO</strong> recibirás acceso completo para generar secuencias ilimitadas de conversión y nutrición por IA, optimizadas profesionalmente por copywriters expertos para disparar tus ventas.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button 
+                                onClick={() => setShowLockModal(false)} 
+                                className="flex-1 py-4 rounded-xl bg-white/5 text-gray-300 font-black text-xs sm:text-sm uppercase tracking-widest hover:bg-white/10 transition-all cursor-pointer"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    setShowLockModal(false);
+                                    onUpgrade();
+                                }} 
+                                className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#FF5D1E] text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-amber-900/20 transform hover:scale-[1.02] active:scale-[0.98] transition-all animate-pulse cursor-pointer"
+                            >
+                                👑 Obtener Plan PRO
+                            </button>
                         </div>
                     </div>
                 </div>

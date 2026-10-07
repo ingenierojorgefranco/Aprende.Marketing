@@ -102,6 +102,7 @@ export interface ProjectHook {
   contentJson: any;
   isGenerated: boolean;
   isActive?: boolean;
+  isUnlocked?: boolean; // Added dynamically for library status
   createdAt?: string;
   updatedAt?: string;
 }

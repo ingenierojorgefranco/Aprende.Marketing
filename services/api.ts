@@ -2380,7 +2380,7 @@ export const api = {
         clearCache('projectDetails', projectId);
     },
 
-    generateEvergreenEmail: async (projectId: string, articleData: { title: string, description: string, contentHtml: string }): Promise<any> => {
+    generateEvergreenEmail: async (projectId: string, articleData: { title: string, description: string, contentHtml: string, slug?: string }): Promise<any> => {
         if (isMockMode) {
             await new Promise(resolve => setTimeout(resolve, 2000));
             return { subject: "Email de Nutrición (Mock)", body: "<p>Contenido del correo generado en modo mock.</p>" };
@@ -2403,7 +2403,8 @@ export const api = {
             projectName: l.project_name,
             createdAt: new Date(l.created_at),
             messages: typeof l.data_json === 'string' ? JSON.parse(l.data_json) : (l.data_json || []),
-            launchDate: l.launch_date ? new Date(l.launch_date) : undefined
+            launchDate: l.launch_date ? new Date(l.launch_date) : undefined,
+            launchTime: l.launch_time || undefined
         }));
         apiCache.waLaunches = mapped;
         return mapped;

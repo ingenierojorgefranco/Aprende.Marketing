@@ -76,6 +76,17 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
   ////////// Estado para el menú móvil y acordeón de FAQ - 27/05/2025 10:00 //////////
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // Estados para el efecto premium interactivo de la sección Hero sin imágenes
+  const [heroMousePos, setHeroMousePos] = useState({ x: 0, y: 0 });
+  const [isHeroHovered, setIsHeroHovered] = useState(false);
+
+  const handleHeroMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setHeroMousePos({ x, y });
+  };
   ////////// Fin de actualización - 27/05/2025 10:00 //////////
 
   useEffect(() => {
@@ -114,6 +125,21 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
           display: inline-flex;
           white-space: nowrap;
           animation: marquee 30s linear infinite;
+        }
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient-shift {
+          background-size: 200% 200%;
+          animation: gradientShift 10s ease infinite;
+        }
+        @keyframes shine {
+          100% { transform: translateX(100%); }
+        }
+        .animate-shine {
+          animation: shine 2s ease-in-out infinite;
         }
       `}</style>
       {/* ////////// Fin de actualización - 03/06/2025 15:45 ////////// */}
@@ -199,84 +225,87 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
         {/* ////////// Fin de actualización - 27/05/2025 15:30 ////////// */}
       </nav>
 
-      {/* Hero Section - DARK BACKGROUND */}
-      <header className="relative pt-32 pb-16 lg:pt-48 lg:pb-24 z-10 overflow-hidden bg-[#0B0B0B]">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#FF5A1F]/5 rounded-full blur-[150px]" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/5 rounded-full blur-[150px]" />
+      {/* Hero Section - DARK BACKGROUND WITH COSMIC SUPERNOVA & AI EFFECTS */}
+      <header 
+        onMouseMove={handleHeroMouseMove}
+        onMouseEnter={() => setIsHeroHovered(true)}
+        onMouseLeave={() => setIsHeroHovered(false)}
+        className="relative pt-36 pb-20 lg:pt-52 lg:pb-36 z-10 overflow-hidden bg-[#020203] transition-all duration-1000"
+        style={{
+          backgroundImage: 'radial-gradient(circle at 50% 50%, #150f1e 0%, #08070d 60%, #020203 100%)',
+        }}
+      >
+        {/* Pulsing Supernova - Stellar Explosion Glow Core */}
+        <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[750px] bg-gradient-to-r from-orange-600 via-[#FF5A1F] to-pink-600 rounded-full blur-[220px] opacity-30 animate-pulse duration-[8000ms] pointer-events-none mix-blend-screen z-0" />
+        
+        {/* Glow interactivo que sigue el mouse con colores cambiantes y dinámicos */}
+        {isHeroHovered && (
+          <div 
+            className="absolute pointer-events-none transition-all duration-300 ease-out rounded-full blur-[130px] z-0"
+            style={{
+              left: heroMousePos.x - 300,
+              top: heroMousePos.y - 300,
+              width: '600px',
+              height: '600px',
+              background: 'radial-gradient(circle, rgba(255,90,31,0.22) 0%, rgba(139,92,246,0.15) 50%, rgba(236,72,153,0) 100%)',
+              mixBlendMode: 'screen',
+            }}
+          />
+        )}
+
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+            {/* Ambient Nebula Light & Stars dust */}
+            <div className="absolute top-[20%] left-[15%] w-2 h-2 bg-white rounded-full opacity-60 animate-ping duration-[4000ms]" />
+            <div className="absolute top-[40%] right-[20%] w-1.5 h-1.5 bg-indigo-300 rounded-full opacity-40 animate-ping duration-[6000ms]" />
+            <div className="absolute bottom-[30%] left-[30%] w-1 h-1 bg-pink-400 rounded-full opacity-50 animate-ping duration-[5000ms]" />
+            <div className="absolute top-[10%] right-[40%] w-[350px] h-[350px] bg-indigo-500/10 rounded-full blur-[100px] animate-pulse duration-[9000ms]" />
+            <div className="absolute bottom-[10%] left-[10%] w-[450px] h-[450px] bg-[#FF5A1F]/5 rounded-full blur-[120px] animate-pulse duration-[11000ms]" />
         </div>
 
-        <div className="container mx-auto px-6 relative max-w-7xl">
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+        <div className="container mx-auto px-6 relative max-w-5xl text-center z-10">
+          <div className="flex flex-col items-center justify-center max-w-4xl mx-auto">
             
-            {/* Columna Izquierda: Mensaje y Acción */}
-            <div className="w-full lg:w-1/2 flex flex-col justify-center text-center lg:text-left">
-              {/* Badge superior */}
-              <div className="mx-auto lg:mx-0 inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black uppercase tracking-widest mb-6 w-fit animate-fade-in-up">
-                <span className="flex h-2 w-2 rounded-full bg-[#FF5A1F] animate-pulse"></span>
-                <span>Plataforma para afiliados de Hotmart</span>
-              </div>
+            {/* Badge superior */}
+            <div className="mx-auto inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black uppercase tracking-widest mb-8 w-fit animate-fade-in-up">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-[#FF5A1F] animate-pulse"></span>
+              <span>Plataforma para afiliados de Hotmart</span>
+            </div>
 
-              {/* Título de Gran Impacto */}
-              <h1 className="text-[2.6rem] sm:text-5xl md:text-6xl lg:text-[3.8rem] font-extrabold tracking-tight text-white leading-[1.1] animate-fade-in-up">
-                Lanza tu estrategia de afiliación en <span className="text-[#FF5A1F]">Hotmart</span> <span className="text-[#FF5A1F]">sin empezar desde cero</span>
-              </h1>
+            {/* Título de Gran Impacto Centrado */}
+            <h1 className="text-[2.8rem] sm:text-5xl md:text-6xl lg:text-[4.2rem] font-extrabold tracking-tight text-white leading-[1.1] animate-fade-in-up">
+              Lanza tu estrategia de afiliación en <span className="text-[#FF5A1F] bg-gradient-to-r from-[#FF5A1F] via-orange-400 to-[#FF5A1F] bg-clip-text text-transparent animate-gradient-shift">Hotmart</span> <span className="text-[#FF5A1F]">sin empezar desde cero</span>
+            </h1>
 
-              {/* Descripción */}
-              <p className="text-white font-light text-lg md:text-xl md:leading-relaxed mt-6 animate-fade-in-up">
-                Elige un producto analizado, define tu audiencia y crea tu página, contenidos y seguimiento desde una sola plataforma.
-              </p>
+            {/* Descripción Centrada */}
+            <p className="text-zinc-300 font-light text-lg md:text-xl md:leading-relaxed mt-8 max-w-3xl mx-auto animate-fade-in-up">
+              Elige un producto analizado, define tu audiencia y crea tu página, contenidos y seguimiento desde una sola plataforma.
+            </p>
 
-              {/* Botón CTA y Seguridad */}
-              <div className="mt-8 flex flex-col items-center lg:items-start animate-fade-in-up">
-                <button
-                  onClick={() => user ? navigate('/dashboard') : navigate('/register')}
-                  className="w-full sm:w-auto px-10 py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl rounded-2xl transition-all duration-300 shadow-[0_20px_40px_-10px_rgba(255,90,31,0.4)] transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3 cursor-pointer group"
-                >
+            {/* Botón CTA y Seguridad Centrado (ULTRA SHINY SUPERNOVA & AI ACCENTED) */}
+            <div className="mt-12 flex flex-col items-center animate-fade-in-up w-full">
+              <div 
+                onClick={() => user ? navigate('/dashboard') : navigate('/register')}
+                className="w-full sm:w-auto p-[1.5px] rounded-2xl bg-gradient-to-r from-orange-400 via-pink-500 to-indigo-500 shadow-[0_0_35px_rgba(255,90,31,0.45)] hover:shadow-[0_0_60px_rgba(255,90,31,0.65)] hover:scale-[1.03] active:scale-95 transform transition-all duration-500 cursor-pointer group relative overflow-hidden"
+              >
+                {/* Shine Sweep Effect Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent -translate-x-full group-hover:animate-shine z-10" style={{ transitionDuration: '2s' }} />
+                
+                {/* Glow ring backing */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-orange-500 to-pink-600 rounded-2xl blur-lg opacity-30 group-hover:opacity-60 transition duration-500" />
+                
+                {/* Main Button Body with Cosmic shifting gradient */}
+                <div className="px-12 py-5.5 rounded-[15px] bg-gradient-to-r from-[#FF5D1E] via-pink-600 to-orange-500 bg-[size:200%_auto] hover:bg-right transition-all duration-700 text-white font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 select-none">
                   <span>Crear mi cuenta gratis</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-                
-                <div className="mt-4 flex items-center gap-2 text-zinc-500 font-semibold text-sm justify-center lg:justify-start">
-                  <CheckCircle className="w-4 h-4 text-[#FF5A1F]" />
-                  <span>Sin tarjeta de crédito. Configura tu primer proyecto paso a paso.</span>
+                  <ArrowRight className="w-6 h-6 group-hover:translate-x-1.5 transition-transform" />
                 </div>
               </div>
-            </div>
-
-            {/* Columna Derecha: Captura de pantalla de la Plataforma */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center animate-fade-in-up relative">
-              {/* Resplandor naranja de fondo */}
-              <div className="absolute -inset-1 bg-gradient-to-tr from-[#FF5A1F] to-indigo-600 rounded-[2rem] blur-2xl opacity-10 pointer-events-none"></div>
               
-              {/* Contenedor del Navegador/Applicación simulando marco prémium */}
-              <div className="relative w-full rounded-[2rem] border border-white/10 overflow-hidden bg-[#121212]/90 shadow-[0_0_60px_rgba(255,90,31,0.12)] p-2 backdrop-blur-xl group hover:border-[#FF5A1F]/30 transition-all duration-500">
-                
-                {/* Cabecera del Navegador */}
-                <div className="flex items-center justify-between px-4 py-3 bg-[#0B0B0B]/80 border-b border-white/5 rounded-t-[1.7rem]">
-                  <div className="flex gap-2">
-                    <span className="w-3 h-3 rounded-full bg-red-500/20 group-hover:bg-red-500/80 transition duration-300"></span>
-                    <span className="w-3 h-3 rounded-full bg-yellow-500/20 group-hover:bg-yellow-500/80 transition duration-300"></span>
-                    <span className="w-3 h-3 rounded-full bg-green-500/20 group-hover:bg-green-500/80 transition duration-300"></span>
-                  </div>
-                  <div className="bg-white/5 rounded-full px-8 py-1 text-[11px] font-mono text-zinc-500 border border-white/5">
-                    aprende.marketing/onboarding/wizard
-                  </div>
-                  <div className="w-6"></div>
-                </div>
-
-                {/* Imagen de Captura de pantalla del Producto Real */}
-                <div className="relative overflow-hidden rounded-b-[1.7rem]">
-                  <img 
-                    src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200" 
-                    alt="Plataforma de Afiliados Aprende Marketing" 
-                    className="w-full h-auto object-cover grayscale-[10%] group-hover:grayscale-0 transition duration-500"
-                  />
-                  {/* Overlay gradiente suave superior */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                </div>
+              <div className="mt-6 flex items-center gap-2 text-zinc-500 font-semibold text-sm justify-center">
+                <CheckCircle className="w-4 h-4 text-[#FF5A1F]" />
+                <span>Sin tarjeta de crédito. Configura tu primer proyecto paso a paso.</span>
               </div>
             </div>
+
           </div>
 
             {/* Barra de Características / Pilares en el Pie del Hero */}

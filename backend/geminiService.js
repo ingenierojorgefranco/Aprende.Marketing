@@ -323,8 +323,10 @@ export const generateFullStrategy = async (projectId) => {
         
 
         INSTRUCCIONES PARA CONTENIDOS DE EMAIL emails (OBLIGATORIO):
-       Actúa como un Copywriter Senior experto en Marketing de Respuesta Directa. Tu misión es redactar una secuencia de titulos y contenidos de 7 correos electrónicos (Día 1 al Día 7) diseñada para convertir prospectos en compradores del producto.
-        
+        Actúa como un Copywriter Senior experto en Marketing de Respuesta Directa. Tu misión es redactar una secuencia de titulos y contenidos de 7 correos electrónicos (Día 1 al Día 7) diseñada para convertir prospectos en compradores del producto.
+         
+        REGLA ANTI-ALUCINACIÓN DE REGALOS (ESTRICTA Y OBLIGATORIA): Está terminantemente prohibido inventar o prometer regalos secundarios ficticios como "calculadoras de regalo", "hojas de Excel", "plantillas", "checklists" o "Ebooks" adicionales a menos que se hayan configurado o mencionado de verdad. Los títulos y asuntos deben alinearse de forma exclusiva con el Lead Magnet real del proyecto: "${leadMagnetType}".
+
         ESTRATEGIA DE ENLACES (CRÍTICA):
         - Días 1, 2 y 3: El objetivo es la ENTREGA DE VALOR. Los correos deben dirigir al Lead Magnet (Clase Gratuita/Regalo). Los títulos y el cuerpo deben generar deseo de consumo del regalo.
         - Días 4, 5, 6 y 7: El objetivo es la CONVERSIÓN/VENTA. Los correos deben dirigir al Hotlink (Página de Ventas/Checkout). Los títulos y el cuerpo deben enfocarse en la oferta, beneficios del producto de pago, escasez y urgencia.
@@ -332,7 +334,7 @@ export const generateFullStrategy = async (projectId) => {
         REGLA DE COHERENCIA DE VERBOS:
         Si el Lead Magnet es un PDF, Guía o Ebook, utiliza verbos como "Descargar", "Leer", "Revisar el archivo".
         Si el Lead Magnet es una Clase, Webinar o VSL, utiliza verbos como "Ver ahora", "Asistir", "Reproducir", "Mirar".
-        El correo del Día 1 y los recordatorios posteriores deben ser consistentes con esta acción.
+        El correo del Día 1 y los recordatorios posteriores deben ser consistentes con esta acción. No asumas ni menciones nunca otros regalos ajenos.
         
         para ello el sistema tendra el siguiente enfoque segun los dias de envio.
 
@@ -1272,10 +1274,11 @@ export const generateEmailSequenceContent = async (projectId, sequenceData, type
       Si el enlace es REGALO/LEAD MAGNET: Usa "Ver Clase Ahora", "Descargar Regalo", "Acceder al Contenido".
       Si el enlace es OFERTA/HOTLINK: Usa "Quiero mi acceso ahora", "Unirme al programa", "Aprovechar oferta".
       Prohibido usar textos genéricos como "Haga clic aquí".
-    - FIRMA: Al final del cuerpo, añade una despedida cordial con el nombre de la profesora "<strong>${teacherInfo.name}</strong>" y en la línea de abajo su cargo "${teacherInfo.title || 'Especialista'}". No añadas textos adicionales de ayuda.
-    - POSDATA (Pdta:): Después de la firma, añade una posdata usando estrictamente el prefijo "<strong>Pdta:</strong>". El contenido debe ser un consejo directo y persuasivo basado en: "${teacherInfo.transformation_tip}". No incluyas el texto "Tip de transformación".
+    - FIRMA: Al final del cuerpo, añade una despedida cordial genérica sin mencionar ningún nombre propio de persona (está prohibido usar nombres propios como Dylan o similares). En su lugar, despídete en nombre del producto o marca, por ejemplo: "Un abrazo,\nEl equipo de ${project.product_name}". No añadas textos adicionales de ayuda.
+    - POSDATA (Pdta:): Después de la firma, añade una posdata usando estrictamente el prefijo "<strong>Pdta:</strong>". El contenido debe ser un consejo final muy directo, breve y persuasivo para incentivar a tomar acción y acceder a los enlaces correspondientes, sin hacer referencia a tutores personales.
     
-    REGLAS ADICIONALES:
+    REGLAS ADICIONALES (OBLIGATORIAS):
+    - REGLA ANTI-ALUCINACIÓN DE REGALOS (CRÍTICA): Queda estrictamente prohibido inventar, simular o prometer regalos secundarios o adicionales como "calculadoras de regalo", "hojas de Excel", "plantillas", "checklists" o "Ebooks" en el cuerpo de los correos si no forman parte real de la descripción. Si el enlace es de tipo REGALO / LEAD MAGNET, redacta el cuerpo enfocándote de forma exclusiva en el material real del proyecto (Clase Gratuita o Guía PDF/Ebook según corresponda). No inventes complementos ficticios en ningún párrafo.
     - El contenido debe ser altamente persuasivo, usando técnicas de copywriting (AIDA, PAS).
     - No incluyas el asunto en el contentHtml, solo el cuerpo.
     - Asegúrate de que el JSON sea válido y no incluyas markdown adicional.`;
@@ -1305,9 +1308,9 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
     if (projectRows.length === 0) throw new Error("Proyecto no encontrado");
     const project = projectRows[0];
 
-    // Obtener la landing page asociada para construir la URL correcta
+    // Obtener la landing page asociada para construir la URL correcta (priorizando la publicada y más reciente)
     const [pageRows] = await pool.query(
-        "SELECT id, name, custom_domain FROM landing_pages WHERE project_id = ? LIMIT 1",
+        "SELECT id, name, custom_domain, subdomain FROM landing_pages WHERE project_id = ? ORDER BY is_published DESC, created_at DESC LIMIT 1",
         [projectId]
     );
     const page = pageRows[0];
@@ -1319,8 +1322,8 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
         if (page.custom_domain) {
             articleUrl = `https://${page.custom_domain}/blog/${articleSlug}`;
         } else {
-            const pageSlug = slugify(page.name);
-            articleUrl = `https://aprende.marketing/lp/${page.id}-${pageSlug}/blog/${articleSlug}`;
+            const pageSubdomain = page.subdomain ? page.subdomain.split('.')[0] : page.id;
+            articleUrl = `https://aprende.marketing/lp/${pageSubdomain}/blog/${articleSlug}`;
         }
     }
 
@@ -1370,7 +1373,7 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
         2. Usa [Firstname] para el saludo.
         3. El botón de acción debe decir algo como "Leer artículo completo" o "Ver el post ahora".
         4. DEBES usar la URL DEL ARTÍCULO proporcionada (${articleUrl}) en el atributo href del botón.
-        5. Incluye una firma profesional al final con el nombre del autor: <strong>${teacherInfo.name}</strong> y su cargo ${teacherInfo.title}.
+        5. NO incluyas ninguna firma profesional, despedida formal, nombre del autor/profesor, ni datos del tutor al final del correo. Pasa directamente del cuerpo al posdata (P.S.).
         6. Incluye una Posdata (P.S.) persuasiva basada en: ${teacherInfo.transformation_tip}.
         
         Responde estrictamente en formato JSON:
