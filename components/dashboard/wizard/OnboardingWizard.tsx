@@ -1026,8 +1026,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         }
         setStep("limit_reached");
       } else {
-        setGenerationStatus("Error. Reintentando...");
-        setTimeout(() => setStep("selection"), 2000);
+        setGenerationStatus("Error de comunicación de IA de Google. Reintentando...");
+        setTimeout(() => setStep("selection"), 5000);
       }
     }
   };

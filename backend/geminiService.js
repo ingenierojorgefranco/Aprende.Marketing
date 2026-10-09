@@ -960,8 +960,7 @@ h2:
 
     try {
         const step1Res = await generateContent('gemini-3-flash-preview', step1Prompt, { 
-            responseMimeType: "application/json",
-            thinkingConfig: { thinkingBudget: 0 }
+            responseMimeType: "application/json"
         });
 
         if (!step1Res) throw new Error("Gemini devolvió vacío en Etapa 1");
