@@ -217,21 +217,36 @@ router.post('/unlock/:id', async (req, res) => {
             }
             
             await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), newProjectId]);
+            
+            // Registrar actividad de sistema
+            await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_MASTER_STRATEGY_GEN', 'project', newProjectId, { masterName: master.name });
+
+            // Retornar el ID del nuevo proyecto generado
+            res.json({ id: String(newProjectId), success: true, message: 'Tu Estrategia Maestra única ha sido generada correctamente.' });
         } catch (genError) {
-            console.error("[Unlock Strategy Gen Error]", genError);
-            // Si falla la IA, devolvemos el ID del proyecto creado para que el frontend pueda manejarlo (reintentar o borrar)
-            return res.status(500).json({ 
-                error: 'Error al generar la estrategia personalizada por la IA. Puedes reintentar.',
-                projectId: String(newProjectId),
-                details: genError.message
-            });
+            console.error("⚠️ [Unlock Strategy Gen Error] La generación por IA falló:", genError);
+            
+            // FALLBACK SEGURO: Copiar la estrategia del proyecto maestro directamente para evitar que el onboarding se interrumpa
+            try {
+                process.stdout.write(`⚠️ [FALLBACK ACTIVADO] Copiando estrategia maestra pre-diseñada para Proyecto ID: ${newProjectId} debido a fallo de IA: ${genError.message}\n`);
+                await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [master.strategy_json, newProjectId]);
+                
+                await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_MASTER_STRATEGY_FALLBACK', 'project', newProjectId, { masterName: master.name, error: genError.message });
+                
+                return res.json({ 
+                    id: String(newProjectId), 
+                    success: true, 
+                    warning: 'La generación por IA falló temporalmente, por lo que se aplicó la estrategia maestra pre-generada optimizada.',
+                    errorDetails: genError.message || String(genError)
+                });
+            } catch (fallbackError) {
+                console.error("❌ [Unlock Strategy Fallback Error] Error fatal al aplicar estrategia de respaldo:", fallbackError);
+                return res.status(500).json({ 
+                    error: 'Error al aplicar el plan de respaldo para el proyecto. Puedes reintentar.',
+                    details: fallbackError.message
+                });
+            }
         }
-
-        // Registrar actividad de sistema
-        await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_MASTER_STRATEGY_GEN', 'project', newProjectId, { masterName: master.name });
-
-        // 5. Retornar el ID del nuevo proyecto generado
-        res.json({ id: String(newProjectId), success: true, message: 'Tu Estrategia Maestra única ha sido generada correctamente.' });
     } catch (error) {
         console.error("[Unlock Error]", error);
         res.status(500).json({ error: error.message || 'Error al generar la estrategia personalizada' });

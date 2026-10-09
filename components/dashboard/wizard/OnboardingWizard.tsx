@@ -986,6 +986,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         registered_via: "wizard",
         initial_setup: true,
       });
+
+      if (unlocked && (unlocked as any).warning) {
+        console.warn("⚠️ [CONVALECENCIA DE IA] La generación personalizada falló de forma transitoria. Detalles:");
+        console.error("🔍 ERROR RETORNADO POR GEMINI:", (unlocked as any).errorDetails);
+        console.info("🛡️ [PLAN DE RESPALDO ACTIVO] Se aplicó la estrategia pre-diseñada optimizada del sistema maestro para asegurar un onboarding ininterrumpido.");
+      }
+
       const fullUnlockedProject = await api.getProjectById(unlocked.id);
       setUnlockedProject(
         fullUnlockedProject || {
