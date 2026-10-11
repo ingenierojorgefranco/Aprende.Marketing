@@ -204,14 +204,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     }
     if (typeof window !== "undefined") {
       const fullPath = window.location.pathname + window.location.hash + window.location.search;
-      if (fullPath.includes("onboarding") || fullPath.includes("step-2") || fullPath.includes("selection")) {
+      if (fullPath.includes("step-3") || fullPath.includes("unlock")) {
+        return "unlock";
+      }
+      if (fullPath.includes("step-2") || fullPath.includes("selection")) {
         return "selection";
       }
       if (fullPath.includes("step-1") || fullPath.includes("welcome")) {
         return "welcome";
-      }
-      if (fullPath.includes("step-3") || fullPath.includes("unlock")) {
-        return "unlock";
       }
 
       const forced = localStorage.getItem("force_wizard_step");
@@ -293,7 +293,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           setRevealedSections(["unlock"]);
         }
       }
-    } else if (fullPath.includes("onboarding") || fullPath.includes("step-2") || fullPath.includes("selection")) {
+    } else if (fullPath.includes("step-2") || fullPath.includes("selection")) {
       if (validStep2Substeps.includes(step)) {
         return;
       }
@@ -301,7 +301,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         setStep("selection");
         setRevealedSections(["selection"]);
       }
-    } else if (fullPath.includes("step-1") || fullPath.includes("welcome")) {
+    } else if (fullPath.includes("step-1") || fullPath.includes("welcome") || fullPath.endsWith("/onboarding") || fullPath.endsWith("/onboarding/")) {
       if (step !== "welcome") {
         setStep("welcome");
         setRevealedSections(["welcome"]);
@@ -965,6 +965,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     setSelectedProject(project);
     if (typeof window !== "undefined") {
       localStorage.setItem("selected_wizard_project_id", project.id);
+      localStorage.setItem("force_wizard_step", "generating_strategy");
     }
     const isUnderOnboarding = location.pathname.startsWith('/onboarding');
     const step2Path = isUnderOnboarding ? '/onboarding/step-2' : '/wizard/step-2';
@@ -1018,6 +1019,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
       setGenerationProgress(100);
       setGenerationStatus("¡Estrategia Lista!");
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("force_wizard_step", "strategy_ready");
+      }
 
       setTimeout(() => {
         setStep("strategy_ready");

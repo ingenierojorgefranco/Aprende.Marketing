@@ -82,6 +82,15 @@ router.post('/unlock/:id', async (req, res) => {
         
         const master = projRows[0];
         
+        // 1b. Si el usuario YA tiene un proyecto derivado de este proyecto maestro o ya lo desbloqueó, retornarlo de inmediato
+        const [existingUserProject] = await pool.query(
+            'SELECT * FROM projects WHERE user_id = ? AND (master_parent_id = ? OR id = ?) AND is_master = 0 ORDER BY id DESC LIMIT 1',
+            [req.user.id, projectId, projectId]
+        );
+        if (existingUserProject.length > 0) {
+            return res.json(existingUserProject[0]);
+        }
+        
         // 2. Verificar límites del usuario de forma dinámica
         const [userProjects] = await pool.query('SELECT id FROM projects WHERE user_id = ? AND is_master = 0', [req.user.id]);
         const effectiveLimits = await getEffectiveLimits(req.user.id);
