@@ -925,6 +925,75 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     fetchArticles();
   }, [unlockedProject?.id]);
 
+  // Efecto de restauración automática del proyecto activo en el Wizard (evita que el step 3 quede en "Cargando producto...")
+  useEffect(() => {
+    if (selectedProject && unlockedProject && strategyData && unlockedHooks.length > 0) return;
+
+    const restoreWizardProject = async () => {
+      try {
+        const myProjects = await api.getProjects();
+        if (!myProjects || myProjects.length === 0) return;
+
+        const savedId = typeof window !== "undefined" ? localStorage.getItem("selected_wizard_project_id") : null;
+        let proj = myProjects.find((p: any) => String(p.id) === String(savedId));
+        
+        if (!proj) {
+          proj = myProjects.find((p: any) => p.registered_via === "wizard" || p.master_parent_id) || myProjects[0];
+        }
+
+        if (proj) {
+          if (!selectedProject) setSelectedProject(proj);
+          if (!unlockedProject) setUnlockedProject(proj);
+
+          // Restaurar estrategia
+          let currentStrategy = strategyData;
+          if (!currentStrategy) {
+            try {
+              currentStrategy = await api.getProjectStrategy(proj.id);
+              if (currentStrategy) setStrategyData(currentStrategy);
+            } catch (err) {
+              console.error("Error cargando estrategia recuperada:", err);
+            }
+          }
+
+          // Restaurar subdominio de landing page si ya fue creada
+          if (!createdPageSubdomain) {
+            try {
+              const pages = await api.getPages();
+              const projPage = pages.find((pg: any) => pg.projectId === proj.id);
+              if (projPage && projPage.subdomain) {
+                setCreatedPageSubdomain(projPage.subdomain);
+                setActivePage(projPage);
+                setIsLandingCreated(true);
+              }
+            } catch (err) {
+              console.error("Error cargando páginas recuperadas:", err);
+            }
+          }
+
+          // Restaurar biblioteca de ganchos/reels
+          if (unlockedHooks.length === 0) {
+            try {
+              const library = await api.getHooksLibrary(1, 50, undefined, proj.id);
+              if (library && library.hooks && library.hooks.length > 0) {
+                setUnlockedHooks(library.hooks);
+                setIsHooksUnlocked(true);
+              } else if (currentStrategy?.modules?.hooks && currentStrategy.modules.hooks.length > 0) {
+                setUnlockedHooks(currentStrategy.modules.hooks);
+              }
+            } catch (err) {
+              console.error("Error cargando hooks recuperados:", err);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error restaurando proyecto del wizard:", err);
+      }
+    };
+
+    restoreWizardProject();
+  }, [selectedProject?.id, unlockedProject?.id, strategyData]);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const projectPanelRef = useRef<HTMLDivElement>(null);
 
@@ -1320,6 +1389,12 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       handleUnlockHooks();
     }
   }, [step]);
+
+  useEffect(() => {
+    if (step === "unlock" && unlockedHooks.length > 0 && isHooksUnlocked) {
+      setStep("show_hooks");
+    }
+  }, [step, unlockedHooks.length, isHooksUnlocked]);
 
   const activeProjectName =
     selectedProject?.name ||
