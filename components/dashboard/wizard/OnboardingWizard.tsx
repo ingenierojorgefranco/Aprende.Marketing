@@ -225,21 +225,24 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   });
 
   const goToStep = (s: number | WizardStep) => {
+    const isUnderOnboarding = location.pathname.startsWith('/onboarding');
+    const prefix = isUnderOnboarding ? '/onboarding' : '/wizard';
+
     if (s === 1 || s === "welcome") {
       setStep("welcome");
       setRevealedSections(["welcome"]);
       localStorage.setItem("force_wizard_step", "welcome");
-      navigate("/wizard/step-1");
+      navigate(`${prefix}/step-1`);
     } else if (s === 2 || s === "selection") {
       setStep("selection");
       setRevealedSections(["selection"]);
       localStorage.setItem("force_wizard_step", "selection");
-      navigate("/wizard/step-2");
+      navigate(`${prefix}/step-2`);
     } else if (s === 3 || s === "unlock") {
       setStep("unlock");
       setRevealedSections(["unlock"]);
       localStorage.setItem("force_wizard_step", "unlock");
-      navigate("/wizard/step-3");
+      navigate(`${prefix}/step-3`);
     }
   };
 
@@ -963,6 +966,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     if (typeof window !== "undefined") {
       localStorage.setItem("selected_wizard_project_id", project.id);
     }
+    const isUnderOnboarding = location.pathname.startsWith('/onboarding');
+    const step2Path = isUnderOnboarding ? '/onboarding/step-2' : '/wizard/step-2';
+    if (!location.pathname.includes('step-2')) {
+      navigate(step2Path);
+    }
     setStep("generating_strategy");
     await processStrategyUnlock(project);
   };
@@ -1195,6 +1203,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     setStep("generating_hooks");
     if (typeof window !== "undefined") {
       localStorage.setItem("force_wizard_step", "generating_hooks");
+    }
+    const isUnderOnboarding = location.pathname.startsWith('/onboarding');
+    const step3Path = isUnderOnboarding ? '/onboarding/step-3' : '/wizard/step-3';
+    if (!location.pathname.includes('step-3')) {
+      navigate(step3Path);
     }
     setGenerationProgress(0);
     setGenerationStatus("Creando video 1...");
