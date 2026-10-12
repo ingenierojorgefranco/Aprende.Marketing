@@ -427,6 +427,34 @@ const App: React.FC = () => {
         />
 
         <Route 
+          path="/onboarding/step-4" 
+          element={
+            <ProtectedRoute>
+              <DashboardLayout
+                user={user!}
+                onLogout={handleLogout}
+                isOffline={isOffline}
+                onUpdateUser={setUser}
+              />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/onboarding/step-5" 
+          element={
+            <ProtectedRoute>
+              <DashboardLayout
+                user={user!}
+                onLogout={handleLogout}
+                isOffline={isOffline}
+                onUpdateUser={setUser}
+              />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
           path="/wizard/step-1" 
           element={
             <ProtectedRoute>
@@ -456,6 +484,34 @@ const App: React.FC = () => {
 
         <Route 
           path="/wizard/step-3" 
+          element={
+            <ProtectedRoute>
+              <DashboardLayout
+                user={user!}
+                onLogout={handleLogout}
+                isOffline={isOffline}
+                onUpdateUser={setUser}
+              />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/wizard/step-4" 
+          element={
+            <ProtectedRoute>
+              <DashboardLayout
+                user={user!}
+                onLogout={handleLogout}
+                isOffline={isOffline}
+                onUpdateUser={setUser}
+              />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/wizard/step-5" 
           element={
             <ProtectedRoute>
               <DashboardLayout

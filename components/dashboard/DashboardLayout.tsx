@@ -474,28 +474,16 @@ export const DashboardLayout = ({
     const targetProjId = searchParams.get('projectId');
     const forcedStep = typeof window !== 'undefined' ? localStorage.getItem('force_wizard_step') : null;
 
-    // Si el usuario navega a /onboarding con un projectId, redirigir inmediatamente a /onboarding/step-2 preservando el projectId
+    // Si el usuario navega a /onboarding directamente con un projectId, redirigir a /onboarding/step-2
     if (location.pathname === '/onboarding') {
       if (targetProjId) {
         navigate(`/onboarding/step-2?projectId=${targetProjId}`, { replace: true });
         return;
-      } else if (hasUserActivity && user.role !== 'admin' && forcedStep !== 'selection' && forcedStep !== 'unlock' && forcedStep !== 'generating_hooks') {
-        navigate('/dashboard', { replace: true });
-        return;
       }
     }
 
-    // Si el usuario YA TIENE proyectos o actividad, y se encuentra en la pantalla de bienvenida del wizard (/wizard/step-1, /wizard, /onboarding/step-1 o /onboarding),
-    // SOLO redirigir al dashboard si NO tiene la intención explícita de desbloquear un proyecto
-    if (
-      user.role !== 'admin' &&
-      hasUserActivity &&
-      !targetProjId &&
-      forcedStep !== 'selection' &&
-      forcedStep !== 'unlock' &&
-      (location.pathname === '/wizard/step-1' || location.pathname === '/wizard' || location.pathname === '/onboarding/step-1' || location.pathname === '/onboarding')
-    ) {
-      navigate('/dashboard', { replace: true });
+    // Si el usuario se encuentra explícitamente en cualquier ruta del wizard (/onboarding/* o /wizard/*), NO expulsar al dashboard
+    if (isWizardRoute) {
       return;
     }
 
