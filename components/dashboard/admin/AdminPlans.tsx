@@ -686,7 +686,7 @@ export const AdminPlans: React.FC = () => {
                                                     <p className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
                                                         <Sparkles className="w-3.5 h-3.5" /> Límites exclusivos para suscriptores en cobro Anual.
                                                     </p>
-                                                    <p className="text-[11px] text-gray-400 mt-0.5">Se aplican cuando el cliente paga la suscripción anual completa (ej: $708 USD / 365 días).</p>
+                                                    <p className="text-[11px] text-gray-400 mt-0.5">Se aplican cuando el cliente paga la suscripción anual completa (ej: $297 USD / 365 días).</p>
                                                 </div>
                                                 <span className="px-2.5 py-1 bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-wider rounded-lg border border-amber-500/40 shrink-0 self-start sm:self-auto">
                                                     Ciclo: 365 días

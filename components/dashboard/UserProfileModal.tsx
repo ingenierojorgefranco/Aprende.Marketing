@@ -279,7 +279,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                             const subDetails = user.planLimits?.subscriptionDetails;
                             const isPro = !['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free'].includes((user.planLimits?.planName || 'starter').toLowerCase());
                             const periodicity = subDetails?.periodicity || user.planLimits?.periodicity || (user.planLimits?.planName === 'pro_anual' ? 'Anual' : 'Mensual');
-                            const priceDisplay = subDetails?.price ? `$${subDetails.price} USD` : (periodicity === 'Anual' ? '$708 USD' : '$79 USD');
+                            const priceDisplay = subDetails?.price ? `$${subDetails.price} USD` : (periodicity === 'Anual' ? '$297 USD' : '$39 USD');
                             const planDays = subDetails?.planDays || user.planLimits?.planDays || (periodicity === 'Anual' ? 365 : 30);
                             const rawStart = subDetails?.startDate || user.planLimits?.startDate;
                             const startDateFormatted = rawStart
@@ -361,7 +361,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                             onClick={() => setShowUpgrade(true)}
                                             className="w-full py-6 rounded-2xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-xl shadow-[#FF5A1F]/20 transition-all flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 uppercase"
                                         >
-                                            <Sparkles className="w-7 h-7 fill-current" /> Actualizar a Plan Pro ($79)
+                                            <Sparkles className="w-7 h-7 fill-current" /> Actualizar a Plan Pro ($39 USD - 50% OFF)
                                         </button>
                                     )}
                                 </div>

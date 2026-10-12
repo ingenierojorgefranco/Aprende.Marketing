@@ -459,37 +459,49 @@ Referencias de estilo:
 - Deseo oculto del avatar
 
 --------------------------------------------------
+MARCOS DE COPYWRITING DE ALTA CONVERSIÓN PARA H1 Y H2 (OBLIGATORIO ELEGIR UNO)
+--------------------------------------------------
+
+Debes evaluar la psicología dominante del avatar para el nicho (${niche}) y aplicar OBLIGATORIAMENTE uno de los siguientes 3 marcos para construir el Titular (h1) y Subtitular (h2):
+
+OPCIÓN 1: IMPACTO DIRECTO Y DESEO TANGIBLE (Ideal cuando la mayor objeción es el miedo a empezar sin experiencia)
+- Estructura h1: [Resultado Final Deseado / Negocio] + [Eliminación de Objeción / Sin Experiencia]
+  (Ejemplo: "Crea tu Negocio de Uñas Acrílicas desde Casa Sin Necesidad de Experiencia Previa")
+- Estructura h2: [Mecanismo / Método Paso a Paso] + [Calidad del Resultado / Acabados Premium] + [Llamado a la Clase Gratuita]
+  (Ejemplo: "Accede al método paso a paso para lograr acabados de nivel profesional y atraer tus primeras clientas en esta clase 100% gratuita.")
+
+OPCIÓN 2: RESULTADO + CURIOSIDAD / MECANISMO ESPECÍFICO (Ideal cuando el mercado busca dominar una técnica o diferenciarse)
+- Estructura h1: [El Método o Técnica Específica] + [Resultado o Estándar Profesional Increíble]
+  (Ejemplo: "El Método de Acabados Premium en Uñas Acrílicas que Factura con Clientes Recurrentes")
+- Estructura h2: [Lo que descubrirás en la sesión] + [Garantía de Simplicidad/Rapidez] + [Invitación Directa a Registrarse]
+  (Ejemplo: "Descubre la técnica exacta para aplicar acrílico perfecto sin burbujas ni desprendimientos. Reserva tu lugar antes de que cerremos cupos.")
+
+OPCIÓN 3: DE FRUSTRACIÓN A TRANSFORMACIÓN PROFESIONAL (Ideal cuando el avatar se siente estancado o con resultados amateurs)
+- Estructura h1: Pasa de [Punto A: Situación Actual/Amateur] a [Punto B: Estado Profesional Deseado]
+  (Ejemplo: "Pasa de Diseños Básicos a Acabados Profesionales y Clientes que Valoren tu Trabajo")
+- Estructura h2: [La Ruta Exacta para Dominar la Técnica] + [Mención del Nicho Específico] + [Acceso Gratuito Inmediato]
+  (Ejemplo: "La ruta exacta para dominar la estructura, el limado y la retención en ${niche}. Regístrate gratis y asegura tu pase directo.")
+
+--------------------------------------------------
 PROCESO INTERNO OBLIGATORIO
 --------------------------------------------------
 
 Antes de generar el resultado final:
 
-- Crea mentalmente 3 ángulos distintos.
-- Evalúa cuál es el más fuerte, específico y menos genérico.
-- Entrega únicamente la mejor versión.
+- Evalúa cuál de las 3 Opciones (Opción 1, Opción 2 u Opción 3) conecta con más fuerza con la psicología del avatar.
+- Aplica rigurosamente la estructura del h1 y h2 elegida.
+- GARANTIZA un tono sumamente profesional, fluido y elegante. CERO frases genéricas o encadenadas de forma tosca.
+- Entrega únicamente la versión más potente de esa opción elegida.
 
 --------------------------------------------------
-PRIORIDADES
+PRIORIDADES Y REGLAS DE FORMATO
 --------------------------------------------------
 
-1. Deseo principal del avatar.
-2. Transformación concreta.
-3. Claridad instantánea.
-4. Credibilidad.
-5. Curiosidad natural.
-6. Originalidad estratégica.
-
---------------------------------------------------
-LO MÁS IMPORTANTE
---------------------------------------------------
-
-- Usa imágenes mentales concretas y situaciones reales del nicho.
-- Evita frases aspiracionales vacías.
-- El resultado debe sentirse visible, social y tangible.
-- Prioriza escenas reales sobre promesas abstractas.
-
-El copy debe parecer escrito por alguien que trabaja dentro del nicho, no por un marketer.
-
+1. Deseo principal del avatar y claridad instantánea.
+2. h1: Longitud ideal entre 50 y 85 caracteres (máximo 95 caracteres). Directo, contundente y legible sin sobrecargar la pantalla.
+3. h2: Longitud ideal entre 100 y 135 caracteres. Fluidez natural, lenguaje técnico/elegante del nicho (${niche}), beneficio directo de la clase gratuita.
+4. PROHIBIDO: Frases genéricas tipo "Domina el arte de... y crea un negocio rentable... con la clase gratis ahora" o conectores torpes.
+5. PROHIBIDO: Incluir nombres de cursos comerciales o marcas registradas en h1/h2.
 
 --------------------------------------------------
 OUTPUT
@@ -499,19 +511,13 @@ Genera para:
 landingPageTabs -> hero
 
 h1:
-- Debe capturar atención inmediata.
-- Debe activar el deseo principal del avatar.
-- Debe generar curiosidad natural.
-- Máximo ideal: 115 caracteres.
-- Puede superar ligeramente el límite si el impacto lo justifica.
-- debe tener una longitud de 100 caracteres
+- Genera el titular h1 de impacto aplicando estrictamente la OPCIÓN 1, OPCIÓN 2 u OPCIÓN 3 elegida.
+- Debe ser directo, profesional y entre 50 y 90 caracteres.
 
 h2:
-- Debe tener una longitud concisa y directa de Entre 110 y 140 caracteres.
-- Debe confirmar y reforzar el título principal (h1) comunicando un beneficio claro de la clase gratuita o entrenamiento.
-- Debe motivar a la persona a registrarse inmediatamente sin rodeos.
-- REGLA ESTRICTA: PROHIBIDO incluir nombres de proyectos, productos de pago o cursos de marca registrada (como 'Manicurista Profesional® Premium' o nombres comerciales similares). Solo hablar del beneficio y la clase o sesión gratuita.
-- Debes incluir el nombre exacto del nicho, por ejemplo si es Microblading de Cejas ponerlo igual no microblading pelo a pelo, si es Resina Epoxica en Suelos ponerlo asi y no ponerlo Resina para pisos espejo etc
+- Genera el subtítulo h2 que refuerce la promesa bajo la estructura de la OPCIÓN elegida.
+- Entre 100 y 135 caracteres con fluidez impecable.
+- REGLA ESTRICTA: PROHIBIDO incluir nombres de proyectos o marcas registradas. Mencion el nicho exacto: ${niche}.
 
 
 

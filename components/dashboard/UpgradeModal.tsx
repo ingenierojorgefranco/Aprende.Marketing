@@ -82,7 +82,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
           id: slug,
           slug: slug,
           name: billingPeriod === 'monthly' ? 'Plan Pro Mensual' : 'Plan Pro Anual (12 Proyectos activos al año)',
-          priceMonthly: billingPeriod === 'monthly' ? 79 : 708,
+          priceMonthly: billingPeriod === 'monthly' ? 39 : 297,
           currency: 'USD',
           description: billingPeriod === 'monthly' 
             ? 'Desbloquea hasta 3 negocios digitales listos para usar y gestiona todo su sistema de marketing desde un solo lugar.'
@@ -397,8 +397,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                     </div>
                   ) : (
                     <div className="absolute -top-4 left-7 sm:left-10 z-20">
-                      <span className="bg-gradient-to-r from-amber-500 to-[#FF5A1F] text-white text-xs sm:text-sm font-black px-5 py-2 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-2 font-mono whitespace-nowrap">
-                        <Crown className="w-4 h-4 fill-current text-white" /> MÁS POPULAR
+                      <span className="bg-gradient-to-r from-red-600 via-amber-500 to-[#FF5A1F] text-white text-xs sm:text-sm font-black px-5 py-2 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-2 font-mono whitespace-nowrap border border-yellow-300/40 shadow-[#FF5A1F]/40 animate-pulse">
+                        <Sparkles className="w-4 h-4 fill-white text-yellow-200" /> 🔥 50% OFF · OFERTA DE LANZAMIENTO
                       </span>
                     </div>
                   )}
@@ -417,18 +417,27 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                         <div>
                           <div className="flex flex-wrap items-center justify-between gap-5 mt-3">
                             <div>
-                              <div className="flex items-baseline gap-2">
-                                <span className="text-6xl sm:text-7xl lg:text-8xl font-black text-white tracking-tight">$708</span>
-                                <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-400">/año</span>
+                              <div className="flex items-baseline gap-3">
+                                {/* Precio Regular Anual Tachado */}
+                                <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-500 line-through decoration-red-500 decoration-[4px] opacity-80">
+                                  $948
+                                </span>
+                                {/* Precio Promocional Anual */}
+                                <div className="flex items-baseline gap-1">
+                                  <span className="text-6xl sm:text-7xl lg:text-8xl font-black text-[#00DF8F] tracking-tight drop-shadow-[0_0_25px_rgba(0,223,143,0.3)]">
+                                    $297
+                                  </span>
+                                  <span className="text-2xl sm:text-3xl font-extrabold text-gray-300">/año</span>
+                                </div>
                               </div>
                               <p className="text-[#00DF8F] text-xl sm:text-2xl lg:text-3xl font-black mt-2.5 tracking-tight flex items-center gap-2 flex-wrap">
-                                <span>Equivale a $59/mes</span>
+                                <span>Equivale a $24.75/mes</span>
                                 <span className="text-[#00DF8F]/50">•</span>
-                                <span>Ahorra $240 al año</span>
+                                <span className="text-yellow-300">¡Sólo $0.81 al día!</span>
                               </p>
                             </div>
 
-                            {/* Badge verde de Ahorro con icono de etiqueta (Exacto a Imagen 1) */}
+                            {/* Badge verde de Ahorro Masivo */}
                             <div className="border-2 border-[#00DF8F] bg-[#00DF8F]/10 rounded-2xl px-6 py-3.5 flex items-center gap-4 shadow-[0_0_30px_rgba(0,223,143,0.18)]">
                               <div className="w-11 h-11 rounded-xl bg-[#00DF8F] flex items-center justify-center text-black shrink-0 -rotate-12 shadow-sm">
                                 <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
@@ -436,17 +445,36 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                                 </svg>
                               </div>
                               <div className="text-left font-mono">
-                                <span className="text-xs font-black text-[#00DF8F] uppercase tracking-wider block">AHORRA</span>
-                                <span className="text-2xl sm:text-3xl font-black text-white block leading-none my-0.5">$240</span>
-                                <span className="text-[11px] font-black text-[#00DF8F] uppercase tracking-wider block">AL AÑO</span>
+                                <span className="text-xs font-black text-[#00DF8F] uppercase tracking-wider block">AHORRAS</span>
+                                <span className="text-2xl sm:text-3xl font-black text-white block leading-none my-0.5">$651</span>
+                                <span className="text-[11px] font-black text-[#00DF8F] uppercase tracking-wider block">AL AÑO (68% OFF)</span>
                               </div>
                             </div>
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-baseline gap-1 mt-2">
-                          <span className="text-5xl sm:text-6xl font-black text-white">$79</span>
-                          <span className="text-lg sm:text-xl font-medium text-gray-400">/mes</span>
+                        <div className="mt-3">
+                          <div className="flex flex-wrap items-baseline gap-3">
+                            {/* Precio Original Tachado */}
+                            <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-500 line-through decoration-red-500 decoration-[4px] opacity-80">
+                              $79
+                            </span>
+                            {/* Precio Promocional 50% OFF */}
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-6xl sm:text-7xl lg:text-8xl font-black text-[#00DF8F] tracking-tight drop-shadow-[0_0_25px_rgba(0,223,143,0.3)]">
+                                $39
+                              </span>
+                              <span className="text-2xl sm:text-3xl font-extrabold text-gray-300">/mes</span>
+                            </div>
+                          </div>
+
+                          {/* Pill de Ahorro Directo */}
+                          <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-red-500/20 via-amber-500/20 to-emerald-500/20 border border-emerald-500/50 shadow-[0_0_20px_rgba(0,223,143,0.15)]">
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#00DF8F] animate-ping" />
+                            <span className="text-xs sm:text-sm font-black text-[#00DF8F] uppercase tracking-wide">
+                              Ahorras $40 USD al mes con la Oferta de Lanzamiento
+                            </span>
+                          </div>
                         </div>
                       )}
 
@@ -635,15 +663,15 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                         </>
                       ) : (
                         <>
-                          <span>{billingPeriod === 'monthly' ? 'Empezar con Pro' : 'Elegir Pro Anual'}</span>
+                          <span>{billingPeriod === 'monthly' ? 'Aprovechar Oferta de $39/mes' : 'Elegir Pro Anual'}</span>
                           <ArrowRight className="w-6 h-6" />
                         </>
                       )}
                     </button>
-                    <p className="text-sm sm:text-base text-gray-400 text-center mt-3 font-medium">
+                    <p className="text-sm sm:text-base text-gray-300 text-center mt-3 font-medium">
                       {billingPeriod === 'monthly'
-                        ? 'Facturado $79 al mes · Cancela cuando quieras'
-                        : 'Pago anual de $708 • Equivale a $59/mes (Ahorras $240 al año)'}
+                        ? 'Precio promocional de $39 USD/mes (Precio regular $79/mes) · Cancela cuando quieras'
+                        : 'Pago único de $297 USD/año • Equivale a $24.75/mes (¡Ahorras $651 al año - 68% OFF!)'}
                     </p>
                   </div>
                 </motion.div>
@@ -689,7 +717,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                   <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
                     {billingPeriod === 'yearly'
                       ? 'Plan Pro Mensual vs. Plan Pro Anual'
-                      : 'Plan Gratuito vs. Plan Pro Mensual ($79/mes)'}
+                      : 'Plan Gratuito vs. Plan Pro Mensual ($39/mes - Oferta de Lanzamiento)'}
                   </h3>
                   <p className="text-sm sm:text-base text-zinc-400 font-normal leading-relaxed max-w-3xl">
                     {billingPeriod === 'yearly'
@@ -719,7 +747,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                           <div className="space-y-1 bg-white/[0.03] border-t border-x border-white/10 rounded-t-2xl py-3 px-3">
                             {billingPeriod === 'yearly' ? (
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-                                AHORRAS $240 AL AÑO
+                                AHORRAS $651 AL AÑO (68% OFF)
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 text-[#FF8552]">
@@ -730,7 +758,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                               {billingPeriod === 'yearly' ? 'Plan Pro Anual' : 'Plan Pro Mensual'}
                             </span>
                             <span className="text-[11px] font-mono text-zinc-300 font-medium block">
-                              {billingPeriod === 'yearly' ? '$59 USD / mes eq. ($708/año)' : '$79 USD / mes'}
+                              {billingPeriod === 'yearly' ? '$24.75 USD / mes eq. ($297/año)' : '$39 USD / mes'}
                             </span>
                           </div>
                         </th>
@@ -776,10 +804,10 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                         },
                         { 
                           feature: "Precio y facturación", 
-                          col2: "$79 USD / mes ($948 al año)", 
-                          col3: "$59 USD / mes eq. ($708 al año — Ahorras $240)",
+                          col2: "$39 USD / mes ($468 al año)", 
+                          col3: "$24.75 USD / mes eq. ($297 al año — Ahorras $651)",
                           highlightCol3: true,
-                          badge: "Ahorra $240"
+                          badge: "Ahorras 68%"
                         },
                         { 
                           feature: "Mentorías grupales y formación en vivo", 
@@ -935,8 +963,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                   >
                     <span>
                       {billingPeriod === 'yearly'
-                        ? 'Desbloquear Plan Anual ($59/mes eq.)'
-                        : 'Desbloquear Plan Pro ($79/mes)'}
+                        ? 'Desbloquear Plan Anual ($24.75/mes eq.)'
+                        : 'Desbloquear Plan Pro ($39/mes)'}
                     </span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
@@ -951,7 +979,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                   {[
                     { 
                       q: "¿Cuál es la diferencia entre el Plan Mensual y el Plan Anual?", 
-                      a: "El Plan Mensual ($79/mes) te permite gestionar hasta 3 proyectos o nichos activos con 30 reels por proyecto al mes (hasta 90 reels) y 3 dominios propios. El Plan Anual ($708/año, equivalente a $59/mes) te da acceso completo a 12 proyectos activos al año, 360 reels con IA cada mes (30 por proyecto), 12 dominios propios con SSL, hasta 48 artículos de blog para SEO al mes y un ahorro directo de $240 al año." 
+                      a: "El Plan Mensual ($39/mes en oferta) te permite gestionar hasta 3 proyectos o nichos activos con 30 reels por proyecto al mes (hasta 90 reels) y 3 dominios propios. El Plan Anual ($297/año, equivalente a sólo $24.75/mes) te da acceso completo a 12 proyectos activos al año, 360 reels con IA cada mes (30 por proyecto), 12 dominios propios con SSL, hasta 48 artículos de blog para SEO al mes y un ahorro masivo de $651 al año (68% OFF)." 
                     },
                     { 
                       q: "¿Puedo desbloquear más de un proyecto en el Plan Mensual?", 
