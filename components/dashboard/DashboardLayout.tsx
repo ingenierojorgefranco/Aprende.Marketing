@@ -474,16 +474,11 @@ export const DashboardLayout = ({
     const targetProjId = searchParams.get('projectId');
     const forcedStep = typeof window !== 'undefined' ? localStorage.getItem('force_wizard_step') : null;
 
-    // Si el usuario navega a /onboarding directamente con un projectId, redirigir a /onboarding/step-2
-    if (location.pathname === '/onboarding') {
-      if (targetProjId) {
+    // Si el usuario está en el wizard u onboarding, NUNCA expulsarlo al dashboard mientras esté navegando en los pasos del asistente
+    if (location.pathname.startsWith('/onboarding') || location.pathname.startsWith('/wizard')) {
+      if (location.pathname === '/onboarding' && targetProjId) {
         navigate(`/onboarding/step-2?projectId=${targetProjId}`, { replace: true });
-        return;
       }
-    }
-
-    // Si el usuario se encuentra explícitamente en cualquier ruta del wizard (/onboarding/* o /wizard/*), NO expulsar al dashboard
-    if (isWizardRoute) {
       return;
     }
 
