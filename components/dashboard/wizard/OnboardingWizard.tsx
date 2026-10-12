@@ -204,7 +204,16 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     }
     if (typeof window !== "undefined") {
       const fullPath = window.location.pathname + window.location.hash + window.location.search;
-      if (fullPath.includes("step-3") || fullPath.includes("unlock")) {
+      if (fullPath.includes("step-5") || fullPath.includes("success")) {
+        return "success";
+      }
+      if (fullPath.includes("step-4") || fullPath.includes("hooks")) {
+        return "show_hooks";
+      }
+      if (fullPath.includes("step-3") || fullPath.includes("strategy_ready")) {
+        return "strategy_ready";
+      }
+      if (fullPath.includes("unlock")) {
         return "unlock";
       }
       if (fullPath.includes("step-2") || fullPath.includes("selection")) {
@@ -216,6 +225,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
       const forced = localStorage.getItem("force_wizard_step");
       if (forced === "success") return "success";
+      if (forced === "show_hooks") return "show_hooks";
+      if (forced === "strategy_ready") return "strategy_ready";
       if (forced === "unlock") return "unlock";
       if (forced === "selection") return "selection";
       if (forced === "generating_hooks") return "generating_hooks";
@@ -921,8 +932,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   // Cargar artículos reales de la estrategia maestra/proyecto cuando se desbloquee (1 sola vez por ID)
   useEffect(() => {
     const fetchArticles = async () => {
-      if (unlockedProject?.id && fetchedArticlesProjectIdRef.current !== unlockedProject.id) {
-        fetchedArticlesProjectIdRef.current = unlockedProject.id;
+      if (unlockedProject?.id && String(fetchedArticlesProjectIdRef.current) !== String(unlockedProject.id)) {
+        fetchedArticlesProjectIdRef.current = String(unlockedProject.id);
         console.log("🔍 [PROYECTO DESBLOQUEADO] Cargando artículos desde el backend para proyecto ID:", unlockedProject.id);
         try {
           const articles = await api.getArticlesByProject(unlockedProject.id);
