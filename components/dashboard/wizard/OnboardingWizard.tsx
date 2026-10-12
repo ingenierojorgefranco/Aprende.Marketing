@@ -929,11 +929,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     if (step === "limit_reached") scrollTo(limitReachedRef);
   }, [step]);
 
-  // Cargar artículos reales de la estrategia maestra/proyecto cuando se desbloquee (1 sola vez por ID)
+  // Cargar artículos reales de la estrategia maestra/proyecto cuando se desbloquee (1 sola vez por ID de proyecto vía sessionStorage)
   useEffect(() => {
     const fetchArticles = async () => {
-      if (unlockedProject?.id && String(fetchedArticlesProjectIdRef.current) !== String(unlockedProject.id)) {
-        fetchedArticlesProjectIdRef.current = String(unlockedProject.id);
+      if (unlockedProject?.id) {
+        const storageKey = `wizard_articles_loaded_${unlockedProject.id}`;
+        if (typeof window !== "undefined" && sessionStorage.getItem(storageKey)) {
+          return;
+        }
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(storageKey, "true");
+        }
         console.log("🔍 [PROYECTO DESBLOQUEADO] Cargando artículos desde el backend para proyecto ID:", unlockedProject.id);
         try {
           const articles = await api.getArticlesByProject(unlockedProject.id);
@@ -1404,25 +1410,18 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     // 1. Iniciar la carga/generación en segundo plano de inmediato para no perder tiempo técnico
     const apiPromise = (async () => {
       try {
-        // 1. Primero intentar cargar ganchos ya desbloqueados para este proyecto en el backend
-        if (targetProjectId) {
-          try {
-            const library = await api.getHooksLibrary(1, 50, undefined, targetProjectId);
-            if (library && library.hooks && library.hooks.length > 0) {
-              console.log("✅ [HOOKS REUTILIZADOS] Se encontraron ganchos desbloqueados para el proyecto:", library.hooks.length);
-              return library.hooks.map((h: any) => ({ ...h, isGenerated: true }));
-            }
-          } catch (libErr) {
-            console.warn("⚠️ Error consultando ganchos existentes del proyecto:", libErr);
-          }
-        }
+        const freeHooksLimit = Math.min(3, user.planLimits?.maxHooks || 3);
 
-        // 2. Si no hay ganchos en la biblioteca del proyecto, buscar candidatos en la estrategia o catálogo
+        // Buscar candidatos en la estrategia o catálogo
         let candidateHooks = strategyData?.modules?.hooks || [];
 
         if (candidateHooks.length === 0 && selectedProject) {
-          const library = await api.getHooksLibrary(1, 50, selectedProject.id);
-          candidateHooks = library.hooks || [];
+          try {
+            const library = await api.getHooksLibrary(1, 50, selectedProject.id);
+            candidateHooks = library.hooks || [];
+          } catch (e) {
+            console.warn("Error cargando librería de ganchos del catálogo:", e);
+          }
         }
 
         candidateHooks = candidateHooks.filter(
@@ -1437,11 +1436,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           ];
         }
 
-        const selected = candidateHooks.slice(0, maxHooksLimit);
+        const selected = candidateHooks.slice(0, freeHooksLimit);
         const masterHookIds = selected.map((h: any) => h.id || h.masterHookId).filter(Boolean);
 
+        // Ejecutar desbloqueo explícito de los 3 ganchos para el proyecto del usuario
         if (targetProjectId && masterHookIds.length > 0) {
           try {
+            console.log("🔓 [DESBLOQUEANDO HOOKS GRATUITOS] Ejecutando unlockMultipleHooks para 3 ganchos:", masterHookIds);
             const response = await api.unlockMultipleHooks(
               targetProjectId,
               masterHookIds,
@@ -1456,7 +1457,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               }));
             }
           } catch (unlockErr: any) {
-            console.warn("⚠️ Warning/Límite al desbloquear ganchos en backend. Usando candidato estructurado:", unlockErr?.message || unlockErr);
+            console.warn("⚠️ Notificación de límite/registro al desbloquear ganchos en backend. Estructurando los 3 ganchos para el usuario:", unlockErr?.message || unlockErr);
           }
         }
 
