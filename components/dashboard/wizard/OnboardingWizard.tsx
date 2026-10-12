@@ -280,6 +280,22 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       "success"
     ];
 
+    if (validStep2Substeps.includes(step)) {
+      if (!fullPath.includes("step-2") && !fullPath.includes("selection")) {
+        const prefix = location.pathname.startsWith('/onboarding') ? '/onboarding' : '/wizard';
+        navigate(`${prefix}/step-2`, { replace: true });
+      }
+      return;
+    }
+
+    if (validStep3Substeps.includes(step)) {
+      if (!fullPath.includes("step-3") && !fullPath.includes("unlock")) {
+        const prefix = location.pathname.startsWith('/onboarding') ? '/onboarding' : '/wizard';
+        navigate(`${prefix}/step-3`, { replace: true });
+      }
+      return;
+    }
+
     if (fullPath.includes("step-3") || fullPath.includes("unlock")) {
       if (validStep3Substeps.includes(step)) {
         return;
@@ -301,7 +317,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         setStep("selection");
         setRevealedSections(["selection"]);
       }
-    } else if (fullPath.includes("step-1") || fullPath.includes("welcome") || fullPath.endsWith("/onboarding") || fullPath.endsWith("/onboarding/")) {
+    } else if (fullPath.includes("step-1") || fullPath.includes("welcome")) {
       if (step !== "welcome") {
         setStep("welcome");
         setRevealedSections(["welcome"]);
