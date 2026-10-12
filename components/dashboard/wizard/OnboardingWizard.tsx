@@ -1173,12 +1173,22 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     setGenerationProgress(0);
     setGenerationStatus("Estoy creando tu Página Web de Captura");
 
+    const startTime = Date.now();
+    console.group(`🚀 [LANDING PAGE TRACE] INICIANDO CREACIÓN DE PÁGINA WEB DE CAPTURA`);
+    console.log("📌 Contexto del Proyecto y Objetivos:", {
+      selectedProject: selectedProject ? { id: selectedProject.id, name: selectedProject.productName || selectedProject.name } : null,
+      unlockedProject: unlockedProject ? { id: unlockedProject.id, name: unlockedProject.productName || unlockedProject.name } : null,
+      hasStrategyData: !!strategyData,
+      step
+    });
+    console.log("⏱️ Timestamp de Inicio:", new Date().toISOString());
+
     try {
       setGenerationProgress(20);
       setGenerationStatus("Configurando servidor de captación...");
 
       // Obtener datos reales de la estrategia para la landing (Contexto Psicológico Profundo)
-      const niche = selectedProject?.niche || "Marketing Digital";
+      const niche = selectedProject?.niche || unlockedProject?.niche || "Marketing Digital";
 
       let targetAudience = strategyData?.avatars?.[0]?.name || "Emprendedores";
       if (strategyData) {
@@ -1207,6 +1217,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           .join(". ");
       }
 
+      console.log("⏩ [PASO 1/3] Generando contenido IA con prompt contextualizado...");
       setGenerationProgress(50);
       setGenerationStatus("Estoy creando tu Página Web Profesional");
 
@@ -1228,13 +1239,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
       // Generar contenido con todo el contexto estratégico y multimedia del proyecto maestro
       const projectWithStrategy = {
-        ...(unlockedProject || {}),
-        productName: selectedProject?.productName || selectedProject?.name,
-        brandTone: selectedProject?.brandTone,
-        description: selectedProject?.description,
-        painPoints: selectedProject?.painPoints,
-        keyBenefits: selectedProject?.keyBenefits,
-        strategy_json: strategyData,
+        ...(unlockedProject || selectedProject || {}),
+        productName: selectedProject?.productName || selectedProject?.name || unlockedProject?.productName || unlockedProject?.name,
+        brandTone: selectedProject?.brandTone || unlockedProject?.brandTone,
+        description: selectedProject?.description || unlockedProject?.description,
+        painPoints: selectedProject?.painPoints || unlockedProject?.painPoints,
+        keyBenefits: selectedProject?.keyBenefits || unlockedProject?.keyBenefits,
+        strategy_json: strategyData || unlockedProject?.strategy_json || selectedProject?.strategy_json,
         multimedia_json:
           unlockedProject?.multimedia_json?.heroImages?.length > 0
             ? unlockedProject.multimedia_json
@@ -1248,6 +1259,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       const content = await generateLandingPageContent(
         selectedProject?.productName ||
           selectedProject?.name ||
+          unlockedProject?.productName ||
+          unlockedProject?.name ||
           "Producto Digital",
         "Venta Directa / Carta de Ventas", // Forzamos objetivo de carta clásica
         targetAudience,
@@ -1263,6 +1276,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         projectWithStrategy,
       );
 
+      console.log("✅ [PASO 1/3 COMPLETADO] Contenido IA generado correctamente:", {
+        hasHero: !!content?.hero,
+        sectionsCount: content?.sections?.length || 0,
+        palette: content?.palette
+      });
+
+      console.log("⏩ [PASO 2/3] Preparando datos de guardado y subdominio...");
       setGenerationProgress(80);
       setGenerationStatus("Publicando en nube segura...");
 
@@ -1277,26 +1297,34 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           .replace(/[^a-z0-9-]/g, "")
           .replace(/--+/g, "-");
       const cleanProjectName = slugify(
-        selectedProject?.productName || selectedProject?.name || "producto",
+        selectedProject?.productName || selectedProject?.name || unlockedProject?.productName || unlockedProject?.name || "producto",
       );
       const randomCode = Math.floor(Math.random() * 1000);
       const generatedSubdomain = `${cleanProjectName}-${randomCode}.generatorlanding.com`;
 
+      const targetProjectId = unlockedProject?.id || selectedProject?.id;
+      if (!targetProjectId) {
+        console.warn("⚠️ [LANDING TRACE] Advertencia: No se encontró un ID de proyecto válido, usando ID temporal.");
+      }
+
       // Crear la página - Sincronizado exactamente con las especificaciones de generación estándar
       const newPage = {
-        name: `Web Oficial - ${selectedProject?.productName || selectedProject?.name}`,
-        niche: selectedProject?.productName || selectedProject?.name || niche,
+        name: `Web Oficial - ${selectedProject?.productName || selectedProject?.name || unlockedProject?.productName || unlockedProject?.name || "Producto"}`,
+        niche: selectedProject?.productName || selectedProject?.name || unlockedProject?.productName || unlockedProject?.name || niche,
         goal: "Registro a Webinar / Clase",
         subdomain: generatedSubdomain,
         content: content,
-        projectId: unlockedProject.id,
+        projectId: targetProjectId,
         isPublished: true,
       };
 
+      console.log("⏩ [PASO 3/3] Guardando página de captura vía api.createPage...", newPage);
       const savedPage = await api.createPage(
         newPage as any,
         projectWithStrategy as any,
       );
+      console.log("✅ [PASO 3/3 COMPLETADO] Respuesta de api.createPage:", savedPage);
+
       if (savedPage && savedPage.subdomain) {
         setCreatedPageSubdomain(savedPage.subdomain);
         setActivePage(savedPage);
@@ -1309,17 +1337,25 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       setGenerationStatus("Página Publicada");
       setIsLandingCreated(true);
 
+      const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+      console.log(`🎉 [LANDING PAGE TRACE SUCCESS] ¡Página de captura creada y publicada con éxito en ${totalTime}s! Subdominio: ${savedPage?.subdomain || newPage.subdomain}`);
+      console.groupEnd();
+
       setTimeout(() => {
         setStep("landing_success");
       }, 800);
     } catch (error: any) {
-      console.error("❌ [ERROR CRÍTICO EN CREACIÓN DE WEB DE ONBOARDING]:", {
+      const durationSec = ((Date.now() - startTime) / 1000).toFixed(2);
+      console.error(`❌ [ERROR CRÍTICO DETECTADO EN CREACIÓN DE LANDING PAGE] Falló tras ${durationSec}s.`);
+      console.error("🔍 DETALLES DE DIAGNÓSTICO DEL ERROR EN LANDING:", {
         mensaje: error?.message || String(error),
-        status: error?.status,
-        body: error?.body,
-        stackTrace: error?.stack,
-        errorObj: error
+        codigoStatus: error?.status || "N/A",
+        cuerpoRespuesta: error?.body || "N/A",
+        stackTrace: error?.stack || "Sin stack trace disponible",
+        errorCompleto: error
       });
+      console.groupEnd();
+
       setIsLandingCreated(true);
       setStep("landing_success");
     }
@@ -2390,57 +2426,55 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               createdPageSubdomain={createdPageSubdomain}
             />
           </div>
-        ) : (
-          <div className="flex flex-col">
-            {/* Confirmation Modals */}
-            <AnimatePresence>
-              {showCreateLandingConfirm && (
-                <div
-                  className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in"
-                  onClick={() => setShowCreateLandingConfirm(false)}
-                >
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="bg-[#0B0B0B] border border-[#FF5A1F]/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden relative text-center"
-                  >
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-500"></div>
-                    <div className="p-10 space-y-8">
-                      <div className="w-20 h-20 bg-[#FF5A1F]/10 text-[#FF5A1F] rounded-3xl flex items-center justify-center mx-auto border border-[#FF5A1F]/20 shadow-lg">
-                        <Target className="w-10 h-10" />
-                      </div>
-                      <div className="space-y-4">
-                        <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">
-                          ¿Estás seguro?
-                        </h3>
-                        <p className="text-gray-400 text-lg leading-relaxed font-medium">
-                          ¿Estás seguro de que deseas crear tu página de captura
-                          ahora mismo?
-                        </p>
-                      </div>
-                      <div className="flex flex-col gap-4">
-                        <button
-                          onClick={handleCreateWeb}
-                          className="w-full py-5 rounded-2xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-lg shadow-xl shadow-[#FF5A1F]/20 transition-all transform hover:scale-[1.02] active:scale-95"
-                        >
-                          SÍ, CREAR MI PÁGINA
-                        </button>
-                        <button
-                          onClick={() => setShowCreateLandingConfirm(false)}
-                          className="w-full py-5 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-bold text-sm uppercase tracking-widest transition-all"
-                        >
-                          No, cancelar
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
+        ) : null}
+
+        {/* Global Confirmation Modals */}
+        <AnimatePresence>
+          {showCreateLandingConfirm && (
+            <div
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in"
+              onClick={() => setShowCreateLandingConfirm(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-[#0B0B0B] border border-[#FF5A1F]/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden relative text-center"
+              >
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-500"></div>
+                <div className="p-10 space-y-8">
+                  <div className="w-20 h-20 bg-[#FF5A1F]/10 text-[#FF5A1F] rounded-3xl flex items-center justify-center mx-auto border border-[#FF5A1F]/20 shadow-lg">
+                    <Target className="w-10 h-10" />
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">
+                      ¿Estás seguro?
+                    </h3>
+                    <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                      ¿Estás seguro de que deseas crear tu página de captura
+                      ahora mismo?
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    <button
+                      onClick={handleCreateWeb}
+                      className="w-full py-5 rounded-2xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-lg shadow-xl shadow-[#FF5A1F]/20 transition-all transform hover:scale-[1.02] active:scale-95"
+                    >
+                      SÍ, CREAR MI PÁGINA
+                    </button>
+                    <button
+                      onClick={() => setShowCreateLandingConfirm(false)}
+                      className="w-full py-5 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-bold text-sm uppercase tracking-widest transition-all"
+                    >
+                      No, cancelar
+                    </button>
+                  </div>
                 </div>
-              )}
-            </AnimatePresence>
-          </div>
-        )}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
 
       <Suspense fallback={null}>
