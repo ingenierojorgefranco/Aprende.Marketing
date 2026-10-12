@@ -653,18 +653,37 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
                         {/* Selector de Pestañas */}
                         <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
-                            <button 
-                                onClick={() => { setActiveTab('generated'); setActiveCarouselIdx(0); }}
-                                className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
-                            >
-                                Mis Carruseles
-                            </button>
-                            <button 
-                                onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); }}
-                                className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-orange-600 text-white shadow-lg shadow-orange-900/40' : 'text-gray-500 hover:text-white'}`}
-                            >
-                                Biblioteca
-                            </button>
+                            {carousels.length === 0 ? (
+                                <>
+                                    <button 
+                                        onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); }}
+                                        className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
+                                    >
+                                        Biblioteca
+                                    </button>
+                                    <button 
+                                        onClick={() => { setActiveTab('generated'); setActiveCarouselIdx(0); }}
+                                        className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
+                                    >
+                                        Mis Carruseles
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button 
+                                        onClick={() => { setActiveTab('generated'); setActiveCarouselIdx(0); }}
+                                        className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
+                                    >
+                                        Mis Carruseles
+                                    </button>
+                                    <button 
+                                        onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); }}
+                                        className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
+                                    >
+                                        Biblioteca
+                                    </button>
+                                </>
+                            )}
                         </div>
                         
                         <div className="space-y-4">

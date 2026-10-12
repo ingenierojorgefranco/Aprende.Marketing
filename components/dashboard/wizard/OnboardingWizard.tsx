@@ -1053,9 +1053,23 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
   const processStrategyUnlock = async (targetProject?: Project) => {
     const proj = targetProject || selectedProject;
-    if (!proj) return;
+    if (!proj) {
+      console.warn("⚠️ [ONBOARDING TRACE] No se especificó ningún proyecto objetivo para desbloquear.");
+      return;
+    }
+
+    const startTime = Date.now();
+    console.group(`🚀 [ONBOARDING TRACE] INICIANDO PROCESO DE GENERACIÓN Y DESBLOQUEO`);
+    console.log("📌 Información del Proyecto:", {
+      id: proj.id,
+      name: proj.productName || proj.name,
+      niche: proj.niche,
+      masterParentId: (proj as any).masterParentId
+    });
+    console.log("⏱️ Timestamp de Inicio:", new Date().toISOString());
 
     try {
+      console.log("⏩ [PASO 1/3] Invocando API api.unlockProject(projectId)...");
       setGenerationProgress(10);
       setGenerationStatus("Estoy creando tu estrategia de Ventas");
 
@@ -1065,13 +1079,21 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         initial_setup: true,
       });
 
+      console.log("✅ [PASO 1/3 COMPLETADO] Respuesta recibida de api.unlockProject:", unlocked);
+
       if (unlocked && (unlocked as any).warning) {
         console.warn("⚠️ [CONVALECENCIA DE IA] La generación personalizada falló de forma transitoria. Detalles:");
         console.error("🔍 ERROR RETORNADO POR GEMINI:", (unlocked as any).errorDetails);
         console.info("🛡️ [PLAN DE RESPALDO ACTIVO] Se aplicó la estrategia pre-diseñada optimizada del sistema maestro para asegurar un onboarding ininterrumpido.");
       }
 
+      console.log("⏩ [PASO 2/3] Solicitando detalles actualizados del proyecto via api.getProjectById...");
       const fullUnlockedProject = await api.getProjectById(unlocked.id);
+      console.log("✅ [PASO 2/3 COMPLETADO] Detalle de proyecto obtenido:", {
+        id: fullUnlockedProject?.id,
+        hasStrategyJson: !!fullUnlockedProject?.strategy_json
+      });
+
       setUnlockedProject(
         fullUnlockedProject || {
           ...unlocked,
@@ -1082,9 +1104,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       setGenerationProgress(40);
       setGenerationStatus("Extrayendo arquitectura psicológica...");
 
+      console.log("⏩ [PASO 3/3] Obteniendo objeto de Estrategia via api.getProjectStrategy...");
       // 2. Obtener estrategia real
       const strategy = await api.getProjectStrategy(unlocked.id);
       setStrategyData(strategy);
+      console.log("✅ [PASO 3/3 COMPLETADO] Objeto de Estrategia cargado exitosamente:", {
+        avatarsCount: Array.isArray(strategy?.avatars) ? strategy.avatars.length : 0,
+        hasPsychology: !!strategy?.psychology,
+        hasModules: !!strategy?.modules
+      });
 
       setGenerationProgress(100);
       setGenerationStatus("¡Estrategia Lista!");
@@ -1093,11 +1121,24 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         localStorage.setItem("force_wizard_step", "strategy_ready");
       }
 
+      const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+      console.log(`🎉 [ONBOARDING TRACE SUCCESS] ¡Generación de Estrategia completada con éxito en ${totalTime}s! Avanzando a 'strategy_ready'...`);
+      console.groupEnd();
+
       setTimeout(() => {
         setStep("strategy_ready");
       }, 600);
     } catch (error: any) {
-      console.error("Error en desbloqueo:", error);
+      const durationSec = ((Date.now() - startTime) / 1000).toFixed(2);
+      console.error(`❌ [ERROR CRÍTICO DETECTADO EN ONBOARDING] El proceso falló tras ${durationSec}s.`);
+      console.error("🔍 DETALLES DE DIAGNÓSTICO DEL ERROR:", {
+        mensaje: error?.message || String(error),
+        codigoStatus: error?.status || "N/A",
+        cuerpoRespuesta: error?.body || "N/A",
+        stackTrace: error?.stack || "Sin stack trace disponible",
+        errorCompleto: error
+      });
+
       const errorMsg = error?.message || error?.toString() || "";
       const isLimitError =
         errorMsg.includes("403") ||
@@ -1107,6 +1148,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         errorMsg.includes("cupo");
 
       if (isLimitError) {
+        console.warn("⚠️ [DIAGNÓSTICO] Error clasificado como Límite de Proyectos alcanzado. Redirigiendo a pantalla de límite...");
+        console.groupEnd();
         try {
           const myProjects = await api.getProjects();
           setUserActiveProjects(myProjects);
@@ -1115,6 +1158,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         }
         setStep("limit_reached");
       } else {
+        console.warn(`🔄 [DIAGNÓSTICO] Redirigiendo a la pantalla de selección ('selection') en 5 segundos debido al error reportado arriba.`);
+        console.warn(`👉 [CONSEJO]: Revisa los mensajes de arriba en este mismo grupo para ver en cuál de los pasos (PASO 1/3, 2/3 o 3/3) se interrumpió el proceso.`);
+        console.groupEnd();
         setGenerationStatus("Error de comunicación de IA de Google. Reintentando...");
         setTimeout(() => setStep("selection"), 5000);
       }
@@ -1266,8 +1312,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       setTimeout(() => {
         setStep("landing_success");
       }, 800);
-    } catch (error) {
-      console.error("Error en creación de web:", error);
+    } catch (error: any) {
+      console.error("❌ [ERROR CRÍTICO EN CREACIÓN DE WEB DE ONBOARDING]:", {
+        mensaje: error?.message || String(error),
+        status: error?.status,
+        body: error?.body,
+        stackTrace: error?.stack,
+        errorObj: error
+      });
       setIsLandingCreated(true);
       setStep("landing_success");
     }
