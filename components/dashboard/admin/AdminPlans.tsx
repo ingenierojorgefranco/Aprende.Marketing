@@ -243,10 +243,10 @@ export const AdminPlans: React.FC = () => {
             ...plan, 
             stripePriceId: plan.stripePriceId || '',
             hotmartId: plan.hotmartId || '',
-            hotmartOffer: plan.hotmartOffer || '',
+            hotmartOffer: plan.hotmartOffer || 'lanza',
             hotmartCheckoutMode: plan.hotmartCheckoutMode || '',
             hotmartIdAnnual: plan.hotmartIdAnnual || '',
-            hotmartOfferAnnual: plan.hotmartOfferAnnual || '',
+            hotmartOfferAnnual: plan.hotmartOfferAnnual || 'lanza',
             hotmartCheckoutModeAnnual: plan.hotmartCheckoutModeAnnual || '',
             limitsConfig: safeLimits 
         });

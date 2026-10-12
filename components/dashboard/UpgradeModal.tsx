@@ -103,22 +103,32 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
 
         if (targetHotmartId) {
           const finalUserId = user?.id || userId || localStorage.getItem('plataformadeventacom_user_id') || '0';
-          const baseUrl = `https://pay.hotmart.com/${targetHotmartId}`;
-          const params = new URLSearchParams();
+          const isUrl = targetHotmartId.startsWith('http://') || targetHotmartId.startsWith('https://');
+          const baseUrl = isUrl ? targetHotmartId : `https://pay.hotmart.com/${targetHotmartId}`;
           
-          // Parámetro para el código de oferta / descuento de lanzamiento (off=lanza)
+          let urlObj: URL;
+          try {
+            urlObj = new URL(baseUrl);
+          } catch (e) {
+            urlObj = new URL(`https://pay.hotmart.com/${targetHotmartId}`);
+          }
+          
+          // Parámetro para el código de oferta / cupón de descuento de lanzamiento (lanza)
           const offerCode = targetHotmartOffer || 'lanza';
           if (offerCode) {
-            params.set('off', offerCode);
+            urlObj.searchParams.set('off', offerCode);
+            urlObj.searchParams.set('coupon', offerCode);
+            urlObj.searchParams.set('cupom', offerCode);
           }
           if (targetHotmartCheckoutMode) {
-            params.set('checkoutMode', targetHotmartCheckoutMode);
+            urlObj.searchParams.set('checkoutMode', targetHotmartCheckoutMode);
           }
           
           const srcValue = projectId ? `${finalUserId}-${projectId}` : finalUserId;
-          params.set('src', srcValue);
+          urlObj.searchParams.set('src', srcValue);
           
-          const hotmartUrl = `${baseUrl}?${params.toString()}`;
+          const hotmartUrl = urlObj.toString();
+          console.log("🔗 [CHECKOUT HOTMART] Abriendo URL con cupón de descuento 'lanza':", hotmartUrl);
           window.open(hotmartUrl, '_blank');
         } else {
           alert("⚠️ Error: El administrador no ha configurado un ID de Hotmart para este plan.");

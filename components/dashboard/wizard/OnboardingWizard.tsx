@@ -760,6 +760,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   const limitReachedRef = useRef<HTMLDivElement>(null);
 
   const activeTimerRef = useRef<any>(null);
+  const fetchedArticlesProjectsRef = useRef<Set<string>>(new Set());
 
   // Clean up interval timer on unmount
   useEffect(() => {
@@ -929,20 +930,27 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     if (step === "limit_reached") scrollTo(limitReachedRef);
   }, [step]);
 
-  // Cargar artículos reales de la estrategia maestra/proyecto cuando se desbloquee (1 sola vez por ID de proyecto vía sessionStorage)
+  // Cargar artículos reales de la estrategia maestra/proyecto cuando se desbloquee (1 sola vez por ID de proyecto)
   useEffect(() => {
     const fetchArticles = async () => {
       if (unlockedProject?.id) {
-        const storageKey = `wizard_articles_loaded_${unlockedProject.id}`;
+        const projId = String(unlockedProject.id);
+        if (fetchedArticlesProjectsRef.current.has(projId)) {
+          return;
+        }
+        fetchedArticlesProjectsRef.current.add(projId);
+
+        const storageKey = `wizard_articles_loaded_${projId}`;
         if (typeof window !== "undefined" && sessionStorage.getItem(storageKey)) {
           return;
         }
         if (typeof window !== "undefined") {
           sessionStorage.setItem(storageKey, "true");
         }
-        console.log("🔍 [PROYECTO DESBLOQUEADO] Cargando artículos desde el backend para proyecto ID:", unlockedProject.id);
+
+        console.log("🔍 [PROYECTO DESBLOQUEADO] Cargando artículos desde el backend para proyecto ID:", projId);
         try {
-          const articles = await api.getArticlesByProject(unlockedProject.id);
+          const articles = await api.getArticlesByProject(projId);
           console.log("📊 [ARTÍCULOS ENCONTRADOS] Éxito al consultar artículos para el Wizard:", articles);
           setUnlockedArticles(articles);
         } catch (error) {
@@ -1522,7 +1530,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
   // Automatic recovery effect: If the page reloaded mid-generation, resume immediately
   useEffect(() => {
-    if (step === "generating_hooks") {
+    if (step === "generating_hooks" && !activeTimerRef.current) {
       console.log("♻️ [RECUPERACIÓN] Reanudando generación de reels/videos interrumpida de forma automática.");
       handleUnlockHooks();
     }
