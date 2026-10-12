@@ -338,6 +338,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   const [unlockedProject, setUnlockedProject] = useState<any>(null);
   const [strategyData, setStrategyData] = useState<any>(null);
   const [unlockedArticles, setUnlockedArticles] = useState<any[]>([]);
+  const fetchedArticlesProjectIdRef = useRef<string | number | null>(null);
   const [isLandingCreated, setIsLandingCreated] = useState(false);
   const [createdPageSubdomain, setCreatedPageSubdomain] = useState<string>("");
   const [activePage, setActivePage] = useState<any | null>(null);
@@ -875,20 +876,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           window.location.pathname.includes('unlock')
         );
 
-        // Si el usuario viene a desbloquear un proyecto, está en medio de la generación o en un paso explícito, NUNCA expulsar al dashboard
+        // Si el usuario está en el wizard de onboarding, permitirle permanecer y continuar el flujo sin expulsarle al dashboard
         if (targetProjId || forcedStep === 'selection' || forcedStep === 'unlock' || isExplicitStep || step !== 'welcome' || selectedProject || unlockedProject) {
           // Permitir continuar en el wizard para desbloquear el nuevo proyecto
-        } else {
-          api.getProjects().then((myProjects) => {
-            if (myProjects && myProjects.length > 0) {
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('wizard_completed', 'true');
-                localStorage.setItem(`has_projects_${user.id}`, 'true');
-                localStorage.removeItem('force_wizard_step');
-              }
-              navigate('/dashboard', { replace: true });
-            }
-          }).catch(() => {});
         }
       }
     }
@@ -928,10 +918,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     if (step === "limit_reached") scrollTo(limitReachedRef);
   }, [step]);
 
-  // Cargar artículos reales de la estrategia maestra/proyecto cuando se desbloquee
+  // Cargar artículos reales de la estrategia maestra/proyecto cuando se desbloquee (1 sola vez por ID)
   useEffect(() => {
     const fetchArticles = async () => {
-      if (unlockedProject?.id) {
+      if (unlockedProject?.id && fetchedArticlesProjectIdRef.current !== unlockedProject.id) {
+        fetchedArticlesProjectIdRef.current = unlockedProject.id;
         console.log("🔍 [PROYECTO DESBLOQUEADO] Cargando artículos desde el backend para proyecto ID:", unlockedProject.id);
         try {
           const articles = await api.getArticlesByProject(unlockedProject.id);
