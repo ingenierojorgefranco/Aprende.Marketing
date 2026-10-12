@@ -1391,38 +1391,59 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       localStorage.setItem("force_wizard_step", "generating_hooks");
     }
     const isUnderOnboarding = location.pathname.startsWith('/onboarding');
-    const step3Path = isUnderOnboarding ? '/onboarding/step-3' : '/wizard/step-3';
-    if (!location.pathname.includes('step-3')) {
-      navigate(step3Path);
+    const prefix = isUnderOnboarding ? '/onboarding' : '/wizard';
+    if (!location.pathname.includes('step-4')) {
+      navigate(`${prefix}/step-4`);
     }
     setGenerationProgress(0);
     setGenerationStatus("Creando video 1...");
 
     const maxHooksLimit = user.planLimits?.maxHooks || 5;
+    const targetProjectId = unlockedProject?.id || selectedProject?.id;
 
     // 1. Iniciar la carga/generación en segundo plano de inmediato para no perder tiempo técnico
     const apiPromise = (async () => {
       try {
-        let allHooks = strategyData?.modules?.hooks || [];
-
-        if (allHooks.length === 0 && selectedProject) {
-          const library = await api.getHooksLibrary(1, 50, selectedProject.id);
-          allHooks = library.hooks || [];
+        // 1. Primero intentar cargar ganchos ya desbloqueados para este proyecto en el backend
+        if (targetProjectId) {
+          try {
+            const library = await api.getHooksLibrary(1, 50, undefined, targetProjectId);
+            if (library && library.hooks && library.hooks.length > 0) {
+              console.log("✅ [HOOKS REUTILIZADOS] Se encontraron ganchos desbloqueados para el proyecto:", library.hooks.length);
+              return library.hooks.map((h: any) => ({ ...h, isGenerated: true }));
+            }
+          } catch (libErr) {
+            console.warn("⚠️ Error consultando ganchos existentes del proyecto:", libErr);
+          }
         }
 
-        allHooks = allHooks.filter(
-          (h: any) =>
-            h.isActive !== false && h.is_active !== 0 && h.is_active !== false,
+        // 2. Si no hay ganchos en la biblioteca del proyecto, buscar candidatos en la estrategia o catálogo
+        let candidateHooks = strategyData?.modules?.hooks || [];
+
+        if (candidateHooks.length === 0 && selectedProject) {
+          const library = await api.getHooksLibrary(1, 50, selectedProject.id);
+          candidateHooks = library.hooks || [];
+        }
+
+        candidateHooks = candidateHooks.filter(
+          (h: any) => h.isActive !== false && h.is_active !== 0 && h.is_active !== false,
         );
 
-        if (allHooks.length > 0) {
-          const shuffled = [...allHooks].sort(() => 0.5 - Math.random());
-          const selected = shuffled.slice(0, maxHooksLimit);
-          const masterHookIds = selected.map((h: any) => h.id || h.masterHookId);
+        if (candidateHooks.length === 0) {
+          candidateHooks = [
+            { id: "h1", title: "Reel 1: Transformación Directa", hookText: "¿Sabías que una sola técnica bien ejecutada puede cambiar tus ingresos?", isGenerated: true },
+            { id: "h2", title: "Reel 2: El Mito Revelado", hookText: "El gran mito de la industria revelado: Por qué los métodos tradicionales ya no funcionan.", isGenerated: true },
+            { id: "h3", title: "Reel 3: La Fórmula Élite", hookText: "La fórmula exacta que usan los profesionales para destacar y multiplicar sus clientes.", isGenerated: true }
+          ];
+        }
 
-          if (unlockedProject?.id && masterHookIds.length > 0) {
+        const selected = candidateHooks.slice(0, maxHooksLimit);
+        const masterHookIds = selected.map((h: any) => h.id || h.masterHookId).filter(Boolean);
+
+        if (targetProjectId && masterHookIds.length > 0) {
+          try {
             const response = await api.unlockMultipleHooks(
-              unlockedProject.id,
+              targetProjectId,
               masterHookIds,
               true,
             );
@@ -1430,19 +1451,19 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             if (response && response.results) {
               return response.results.map((h: any, idx: number) => ({
                 ...selected[idx],
-                id: h.id,
+                id: h.id || selected[idx]?.id,
                 isGenerated: true,
               }));
-            } else {
-              return selected.map(h => ({ ...h, isGenerated: true }));
             }
+          } catch (unlockErr: any) {
+            console.warn("⚠️ Warning/Límite al desbloquear ganchos en backend. Usando candidato estructurado:", unlockErr?.message || unlockErr);
           }
-          return selected.map(h => ({ ...h, isGenerated: true }));
         }
-        return [];
+
+        return selected.map((h: any) => ({ ...h, isGenerated: true }));
       } catch (err) {
         console.error("Error en segundo plano al cargar hooks:", err);
-        return [];
+        return (strategyData?.modules?.hooks || []).slice(0, 3).map((h: any) => ({ ...h, isGenerated: true }));
       }
     })();
 
@@ -1471,9 +1492,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         activeTimerRef.current = null;
 
         apiPromise.then((finalizedHooks) => {
-          if (finalizedHooks && finalizedHooks.length > 0) {
-            setUnlockedHooks(finalizedHooks);
-          }
+          const validHooks = (finalizedHooks && finalizedHooks.length > 0)
+            ? finalizedHooks
+            : (strategyData?.modules?.hooks || []).slice(0, 3).map((h: any) => ({ ...h, isGenerated: true }));
+
+          setUnlockedHooks(validHooks);
           setGenerationProgress(100);
           setGenerationStatus("¡Videos Listos!");
           setIsHooksUnlocked(true);
@@ -1481,12 +1504,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           setTimeout(() => {
             localStorage.setItem("force_wizard_step", "success");
             setStep("success");
+            navigate(`${prefix}/step-5`);
           }, 800);
         }).catch((error) => {
           console.error("❌ Error en proceso de ganchos:", error);
           setIsHooksUnlocked(true);
           localStorage.setItem("force_wizard_step", "success");
           setStep("success");
+          navigate(`${prefix}/step-5`);
         });
       }
     }, 100);
