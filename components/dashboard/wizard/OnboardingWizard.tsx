@@ -233,22 +233,25 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       setRevealedSections(["welcome"]);
       localStorage.setItem("force_wizard_step", "welcome");
       navigate(`${prefix}/step-1`);
-    } else if (s === 2 || s === "selection") {
-      setStep("selection");
+    } else if (s === 2 || s === "selection" || s === "generating_strategy") {
+      setStep(typeof s === "string" ? s : "selection");
       setRevealedSections(["selection"]);
-      localStorage.setItem("force_wizard_step", "selection");
+      localStorage.setItem("force_wizard_step", typeof s === "string" ? s : "selection");
       navigate(`${prefix}/step-2`);
-    } else if (s === 3 || s === "generating_strategy" || s === "strategy_ready" || s === "show_avatars" || s === "unlock") {
-      setStep(typeof s === "string" ? s : "generating_strategy");
-      localStorage.setItem("force_wizard_step", typeof s === "string" ? s : "generating_strategy");
+    } else if (s === 3 || s === "strategy_ready" || s === "creating_web" || s === "landing_success" || s === "unlock") {
+      setStep(typeof s === "string" ? s : "strategy_ready");
+      setRevealedSections(["strategy_ready"]);
+      localStorage.setItem("force_wizard_step", typeof s === "string" ? s : "strategy_ready");
       navigate(`${prefix}/step-3`);
-    } else if (s === 4 || s === "creating_web" || s === "landing_success" || s === "show_landing_prep") {
-      setStep(typeof s === "string" ? s : "creating_web");
-      localStorage.setItem("force_wizard_step", typeof s === "string" ? s : "creating_web");
-      navigate(`${prefix}/step-4`);
-    } else if (s === 5 || s === "generating_hooks" || s === "show_hooks" || s === "success") {
+    } else if (s === 4 || s === "generating_hooks" || s === "show_hooks") {
       setStep(typeof s === "string" ? s : "show_hooks");
+      setRevealedSections(["show_hooks"]);
       localStorage.setItem("force_wizard_step", typeof s === "string" ? s : "show_hooks");
+      navigate(`${prefix}/step-4`);
+    } else if (s === 5 || s === "success") {
+      setStep("success");
+      setRevealedSections(["success"]);
+      localStorage.setItem("force_wizard_step", "success");
       navigate(`${prefix}/step-5`);
     }
   };
@@ -270,87 +273,61 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   useEffect(() => {
     const fullPath = location.pathname + location.hash + location.search;
 
-    const validStep2Substeps: WizardStep[] = [
-      "selection"
-    ];
-
-    const validStep3Substeps: WizardStep[] = [
-      "generating_strategy",
-      "strategy_ready",
-      "show_avatars",
-      "unlock"
-    ];
-
-    const validStep4Substeps: WizardStep[] = [
-      "show_landing_prep",
-      "creating_web",
-      "landing_success"
-    ];
-
-    const validStep5Substeps: WizardStep[] = [
-      "generating_hooks",
-      "show_hooks",
-      "success"
-    ];
+    const validStep1Substeps: WizardStep[] = ["welcome"];
+    const validStep2Substeps: WizardStep[] = ["selection", "generating_strategy"];
+    const validStep3Substeps: WizardStep[] = ["strategy_ready", "creating_web", "landing_success", "show_avatars", "show_landing_prep", "unlock"];
+    const validStep4Substeps: WizardStep[] = ["generating_hooks", "show_hooks"];
+    const validStep5Substeps: WizardStep[] = ["success"];
 
     const prefix = location.pathname.startsWith('/onboarding') ? '/onboarding' : '/wizard';
 
+    if (validStep1Substeps.includes(step)) {
+      if (!fullPath.includes("step-1") && !fullPath.includes("welcome")) {
+        navigate(`${prefix}/step-1`, { replace: true });
+      }
+      return;
+    }
+
     if (validStep2Substeps.includes(step)) {
-      if (!fullPath.includes("step-2")) {
+      if (!fullPath.includes("step-2") && !fullPath.includes("selection")) {
         navigate(`${prefix}/step-2`, { replace: true });
       }
       return;
     }
 
     if (validStep3Substeps.includes(step)) {
-      if (!fullPath.includes("step-3")) {
+      if (!fullPath.includes("step-3") && !fullPath.includes("strategy_ready") && !fullPath.includes("unlock")) {
         navigate(`${prefix}/step-3`, { replace: true });
       }
       return;
     }
 
     if (validStep4Substeps.includes(step)) {
-      if (!fullPath.includes("step-4")) {
+      if (!fullPath.includes("step-4") && !fullPath.includes("hooks")) {
         navigate(`${prefix}/step-4`, { replace: true });
       }
       return;
     }
 
     if (validStep5Substeps.includes(step)) {
-      if (!fullPath.includes("step-5")) {
+      if (!fullPath.includes("step-5") && !fullPath.includes("success")) {
         navigate(`${prefix}/step-5`, { replace: true });
       }
       return;
     }
 
-    if (fullPath.includes("step-3") || fullPath.includes("unlock")) {
-      if (validStep3Substeps.includes(step)) {
-        return;
-      }
-      const forced = localStorage.getItem("force_wizard_step");
-      if (forced === "success" || step === "success") {
-        if (step !== "success") setStep("success");
-      } else {
-        if (step !== "unlock") {
-          setStep("unlock");
-          setRevealedSections(["unlock"]);
-        }
-      }
+    if (fullPath.includes("step-5") || fullPath.includes("success")) {
+      if (step !== "success") setStep("success");
+    } else if (fullPath.includes("step-4") || fullPath.includes("hooks")) {
+      if (!validStep4Substeps.includes(step)) setStep("show_hooks");
+    } else if (fullPath.includes("step-3") || fullPath.includes("strategy_ready") || fullPath.includes("unlock")) {
+      if (!validStep3Substeps.includes(step)) setStep("strategy_ready");
     } else if (fullPath.includes("step-2") || fullPath.includes("selection")) {
-      if (validStep2Substeps.includes(step)) {
-        return;
-      }
-      if (step !== "selection") {
-        setStep("selection");
-        setRevealedSections(["selection"]);
-      }
+      if (!validStep2Substeps.includes(step)) setStep("selection");
     } else if (fullPath.includes("step-1") || fullPath.includes("welcome")) {
-      if (step !== "welcome") {
-        setStep("welcome");
-        setRevealedSections(["welcome"]);
-      }
+      if (step !== "welcome") setStep("welcome");
     }
-  }, [location.pathname, location.hash, location.search]);
+  }, [location.pathname, location.hash, location.search, step]);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [userActiveProjects, setUserActiveProjects] = useState<Project[]>([]);
@@ -1080,9 +1057,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       localStorage.setItem("force_wizard_step", "generating_strategy");
     }
     const isUnderOnboarding = location.pathname.startsWith('/onboarding');
-    const step3Path = isUnderOnboarding ? '/onboarding/step-3' : '/wizard/step-3';
-    if (!location.pathname.includes('step-3')) {
-      navigate(step3Path);
+    const step2Path = isUnderOnboarding ? '/onboarding/step-2' : '/wizard/step-2';
+    if (!location.pathname.includes('step-2')) {
+      navigate(step2Path);
     }
     setStep("generating_strategy");
     await processStrategyUnlock(project);
@@ -1170,6 +1147,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
       setTimeout(() => {
         setStep("strategy_ready");
+        const prefix = location.pathname.startsWith('/onboarding') ? '/onboarding' : '/wizard';
+        navigate(`${prefix}/step-3`);
       }, 600);
     } catch (error: any) {
       const durationSec = ((Date.now() - startTime) / 1000).toFixed(2);
@@ -1213,14 +1192,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   const handleCreateWeb = async () => {
     setShowCreateLandingConfirm(false);
     setStep("creating_web");
-    if (typeof window !== "undefined") {
-      localStorage.setItem("force_wizard_step", "creating_web");
-    }
-    const isUnderOnboarding = location.pathname.startsWith('/onboarding');
-    const step4Path = isUnderOnboarding ? '/onboarding/step-4' : '/wizard/step-4';
-    if (!location.pathname.includes('step-4')) {
-      navigate(step4Path);
-    }
     setGenerationProgress(0);
     setGenerationStatus("Estoy creando tu Página Web de Captura");
 
@@ -1418,9 +1389,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       localStorage.setItem("force_wizard_step", "generating_hooks");
     }
     const isUnderOnboarding = location.pathname.startsWith('/onboarding');
-    const step5Path = isUnderOnboarding ? '/onboarding/step-5' : '/wizard/step-5';
-    if (!location.pathname.includes('step-5')) {
-      navigate(step5Path);
+    const step3Path = isUnderOnboarding ? '/onboarding/step-3' : '/wizard/step-3';
+    if (!location.pathname.includes('step-3')) {
+      navigate(step3Path);
     }
     setGenerationProgress(0);
     setGenerationStatus("Creando video 1...");
@@ -2456,7 +2427,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                 if (!isHooksUnlocked) {
                   handleUnlockHooks();
                 } else {
-                  handleFinishWizard();
+                  goToStep(5);
                 }
               }}
               hooksRef={hooksRef}
