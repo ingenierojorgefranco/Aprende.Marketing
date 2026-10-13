@@ -943,7 +943,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const maxHooks = planLimits?.maxHooks || user?.maxHooks || 0;
-  const currentHooksCount = typeof globalHookCount === 'number' ? globalHookCount : (hookCount ?? hooks.filter(h => h.isGenerated).length);
+  const currentHooksCount = hooks.filter(h => h.isGenerated || (h as any).isUnlocked).length;
   const isLimitReached = !isRealAdmin && currentHooksCount >= maxHooks;
   const usagePercent = maxHooks > 0 ? Math.min(100, (currentHooksCount / maxHooks) * 100) : 0;
   

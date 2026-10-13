@@ -203,6 +203,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       return "success";
     }
     if (typeof window !== "undefined") {
+      const forced = localStorage.getItem("force_wizard_step");
+      if (forced === "generating_hooks") return "generating_hooks";
+      if (forced === "generating_strategy") return "generating_strategy";
+      if (forced === "success") return "success";
+      if (forced === "show_hooks") return "show_hooks";
+      if (forced === "strategy_ready") return "strategy_ready";
+      if (forced === "unlock") return "unlock";
+      if (forced === "selection") return "selection";
+
       const fullPath = window.location.pathname + window.location.hash + window.location.search;
       if (fullPath.includes("step-5") || fullPath.includes("success")) {
         return "success";
@@ -222,15 +231,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       if (fullPath.includes("step-1") || fullPath.includes("welcome")) {
         return "welcome";
       }
-
-      const forced = localStorage.getItem("force_wizard_step");
-      if (forced === "success") return "success";
-      if (forced === "show_hooks") return "show_hooks";
-      if (forced === "strategy_ready") return "strategy_ready";
-      if (forced === "unlock") return "unlock";
-      if (forced === "selection") return "selection";
-      if (forced === "generating_hooks") return "generating_hooks";
-      if (forced === "generating_strategy") return "generating_strategy";
     }
     return "welcome";
   });
@@ -255,9 +255,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       localStorage.setItem("force_wizard_step", typeof s === "string" ? s : "strategy_ready");
       navigate(`${prefix}/step-3`);
     } else if (s === 4 || s === "generating_hooks" || s === "show_hooks" || s === 5 || s === "success") {
-      setStep(typeof s === "string" ? s : "success");
-      setRevealedSections(["success"]);
-      localStorage.setItem("force_wizard_step", typeof s === "string" ? s : "success");
+      const targetStep: WizardStep = (typeof s === "string" && (s === "generating_hooks" || s === "show_hooks" || s === "success")) ? s : "success";
+      setStep(targetStep);
+      setRevealedSections([targetStep]);
+      localStorage.setItem("force_wizard_step", targetStep);
       navigate(`${prefix}/step-4`);
     }
   };
@@ -315,7 +316,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     }
 
     if (fullPath.includes("step-4") || fullPath.includes("step-5") || fullPath.includes("success") || fullPath.includes("hooks")) {
-      if (!validStep4Substeps.includes(step)) setStep("success");
+      if (!validStep4Substeps.includes(step)) {
+        const forced = typeof window !== "undefined" ? localStorage.getItem("force_wizard_step") : null;
+        if (forced === "generating_hooks") {
+          setStep("generating_hooks");
+        } else {
+          setStep("success");
+        }
+      }
     } else if (fullPath.includes("step-3") || fullPath.includes("strategy_ready") || fullPath.includes("unlock")) {
       if (!validStep3Substeps.includes(step)) setStep("strategy_ready");
     } else if (fullPath.includes("step-2") || fullPath.includes("selection")) {

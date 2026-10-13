@@ -2526,6 +2526,7 @@ export const api = {
 
     unlockSingleHook: async (projectId: string, masterHookId: string, isGenerated?: boolean): Promise<{ id: string }> => {
         if (isMockMode) return { id: `unlocked-${Date.now()}` };
+        apiCache.summary = null;
         const cleanMasterId = String(masterHookId).replace('available-', '');
         return await fetchWithFallback('/hooks/unlock-single', {
             method: 'POST',
@@ -2536,6 +2537,7 @@ export const api = {
 
     unlockMultipleHooks: async (projectId: string, masterHookIds?: string[], isGenerated?: boolean, count?: number): Promise<{ success: boolean; results: any[] }> => {
         if (isMockMode) return { success: true, results: (masterHookIds || []).map(id => ({ id: `unlocked-${id}-${Date.now()}` })) };
+        apiCache.summary = null;
         const cleanIds = (masterHookIds || []).map(id => String(id).replace('available-', '')).filter(Boolean);
         return await fetchWithFallback('/hooks/unlock-multiple', {
             method: 'POST',
@@ -2546,6 +2548,7 @@ export const api = {
 
     unlockMoreHooks: async (projectId: string): Promise<{ success: boolean; count: number; message: string }> => {
         if (isMockMode) return { success: true, count: 10, message: "10 nuevos ganchos añadidos a tu estrategia." };
+        apiCache.summary = null;
         const res = await fetchWithFallback(`/hooks/unlock-more/${projectId}`, {
             method: 'POST',
             headers: getAuthHeaders()
