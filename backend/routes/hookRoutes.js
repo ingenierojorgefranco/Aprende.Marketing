@@ -209,8 +209,8 @@ router.post('/unlock-single', async (req, res) => {
     if (typeof masterHookId === 'string' && masterHookId.startsWith('available-')) {
         masterHookId = masterHookId.replace('available-', '');
     }
-    const cleanMasterHookId = parseInt(masterHookId, 10);
-    if (isNaN(cleanMasterHookId)) {
+    const cleanMasterHookId = String(masterHookId || '').trim();
+    if (!cleanMasterHookId) {
         return res.status(400).json({ error: "ID de gancho maestro inválido" });
     }
 
@@ -231,19 +231,32 @@ router.post('/unlock-single', async (req, res) => {
             }
         }
 
-        const [masterRows] = await pool.query('SELECT * FROM project_hooks WHERE id = ?', [cleanMasterHookId]);
-        if (masterRows.length === 0) return res.status(404).json({ error: "Hook maestro no encontrado" });
-        const master = masterRows[0];
+        const isNumeric = !isNaN(parseInt(cleanMasterHookId, 10));
+        let master = null;
+        if (isNumeric) {
+            const [masterRows] = await pool.query('SELECT * FROM project_hooks WHERE id = ?', [parseInt(cleanMasterHookId, 10)]);
+            if (masterRows.length > 0) master = masterRows[0];
+        }
 
-        const clonedContent = master.content_json ? (typeof master.content_json === 'string' ? master.content_json : JSON.stringify(master.content_json)) : null;
+        let insertId = null;
+        if (master) {
+            const clonedContent = master.content_json ? (typeof master.content_json === 'string' ? master.content_json : JSON.stringify(master.content_json)) : null;
+            const [result] = await pool.query(
+                `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [projectId, master.id, master.title, master.psychological_strategy, clonedContent, isGenerated ? 1 : 0]
+            );
+            insertId = result.insertId;
+        } else {
+            const [result] = await pool.query(
+                `INSERT INTO project_hooks (project_id, title, psychological_strategy, content_json, is_generated)
+                 VALUES (?, ?, ?, ?, ?)`,
+                [projectId, `Gancho ${cleanMasterHookId}`, 'Atracción directa', null, isGenerated ? 1 : 0]
+            );
+            insertId = result.insertId;
+        }
 
-        const [result] = await pool.query(
-            `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            [projectId, master.id, master.title, master.psychological_strategy, clonedContent, isGenerated ? 1 : 0]
-        );
-
-        res.json({ id: String(result.insertId), success: true });
+        res.json({ id: String(insertId), success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -253,17 +266,16 @@ router.post('/unlock-single', async (req, res) => {
  * Desbloquea múltiples ganchos desde una lista de IDs maestros
  */
 router.post('/unlock-multiple', async (req, res) => {
-    const { projectId, masterHookIds, isGenerated } = req.body;
-    if (!projectId || !masterHookIds || !Array.isArray(masterHookIds)) {
+    const { projectId, masterHookIds, hooks, isGenerated } = req.body;
+    const rawList = masterHookIds || hooks;
+    if (!projectId || !rawList || !Array.isArray(rawList)) {
         return res.status(400).json({ error: "Faltan parámetros o formato inválido" });
     }
 
-    const cleanMasterHookIds = masterHookIds.map(id => {
-        if (typeof id === 'string' && id.startsWith('available-')) {
-            return parseInt(id.replace('available-', ''), 10);
-        }
-        return parseInt(id, 10);
-    }).filter(id => !isNaN(id));
+    const cleanMasterHookIds = rawList.map(idOrObj => {
+        const id = typeof idOrObj === 'object' && idOrObj !== null ? (idOrObj.id || idOrObj.masterHookId) : idOrObj;
+        return String(id || '').replace('available-', '').trim();
+    }).filter(id => id.length > 0);
 
     if (cleanMasterHookIds.length === 0) {
         return res.status(400).json({ error: "No hay IDs válidos para desbloquear" });
@@ -286,18 +298,41 @@ router.post('/unlock-multiple', async (req, res) => {
             }
         }
 
-        const [masterRows] = await pool.query('SELECT * FROM project_hooks WHERE id IN (?)', [cleanMasterHookIds]);
-        if (masterRows.length === 0) return res.status(404).json({ error: "Ganchos maestros no encontrados" });
+        // Buscar ganchos maestros numéricos si existen
+        const numericIds = cleanMasterHookIds.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+        let foundMasterMap = new Map();
+        if (numericIds.length > 0) {
+            const [masterRows] = await pool.query('SELECT * FROM project_hooks WHERE id IN (?)', [numericIds]);
+            foundMasterMap = new Map(masterRows.map(m => [String(m.id), m]));
+        }
 
         const results = [];
-        for (const master of masterRows) {
-            const clonedContent = master.content_json ? (typeof master.content_json === 'string' ? master.content_json : JSON.stringify(master.content_json)) : null;
-            const [result] = await pool.query(
-                `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
-                 VALUES (?, ?, ?, ?, ?, ?)`,
-                [projectId, master.id, master.title, master.psychological_strategy, clonedContent, isGenerated ? 1 : 0]
-            );
-            results.push({ masterId: master.id, id: String(result.insertId), newId: result.insertId });
+        for (let i = 0; i < cleanMasterHookIds.length; i++) {
+            const idStr = cleanMasterHookIds[i];
+            const originalObj = Array.isArray(hooks) ? hooks[i] : null;
+            const master = foundMasterMap.get(idStr);
+
+            if (master) {
+                const clonedContent = master.content_json ? (typeof master.content_json === 'string' ? master.content_json : JSON.stringify(master.content_json)) : null;
+                const [result] = await pool.query(
+                    `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
+                     VALUES (?, ?, ?, ?, ?, ?)`,
+                    [projectId, master.id, master.title, master.psychological_strategy, clonedContent, isGenerated ? 1 : 0]
+                );
+                results.push({ masterId: master.id, id: String(result.insertId), newId: result.insertId });
+            } else {
+                const title = originalObj?.title || `Reel ${i + 1}: Gancho Desbloqueado`;
+                const psy = originalObj?.psychologicalStrategy || originalObj?.psychological_strategy || 'Atracción y curiosidad';
+                const content = originalObj?.contentJson || originalObj?.content_json || originalObj?.hookText || null;
+                const contentJsonStr = content ? (typeof content === 'string' ? content : JSON.stringify(content)) : null;
+
+                const [result] = await pool.query(
+                    `INSERT INTO project_hooks (project_id, title, psychological_strategy, content_json, is_generated)
+                     VALUES (?, ?, ?, ?, ?)`,
+                    [projectId, title, psy, contentJsonStr, isGenerated ? 1 : 0]
+                );
+                results.push({ masterId: idStr, id: String(result.insertId), newId: result.insertId });
+            }
         }
 
         res.json({ success: true, results });
