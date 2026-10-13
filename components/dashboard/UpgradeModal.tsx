@@ -44,7 +44,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      console.log("UpgradeModal - Parámetros recibidos:", { currentPlan, reason, userId, projectId });
+      // console.log("UpgradeModal - Parámetros recibidos:", { currentPlan, reason, userId, projectId });
       setLoading(true);
       
       // Carga de planes públicos, método de pago activo, y proyecto actual
@@ -70,7 +70,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   const handleUpgrade = async (planOrSlug: Plan | string) => {
     const slug = typeof planOrSlug === 'string' ? planOrSlug : planOrSlug.slug;
     setProcessing(slug);
-    console.log(`[UpgradeModal] Iniciando proceso de pago para plan: ${slug} vía ${activePaymentMethod}`);
+    // console.log(`[UpgradeModal] Iniciando proceso de pago para plan: ${slug} vía ${activePaymentMethod}`);
 
     try {
       let plan: Plan | undefined = typeof planOrSlug === 'object' 
@@ -129,7 +129,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
           urlObj.searchParams.set('src', srcValue);
           
           const hotmartUrl = urlObj.toString();
-          console.log("🔗 [CHECKOUT HOTMART] Abriendo URL con cupón de descuento 'lanza':", hotmartUrl);
+          // console.log("🔗 [CHECKOUT HOTMART] Abriendo URL con cupón de descuento 'lanza':", hotmartUrl);
           window.open(hotmartUrl, '_blank');
         } else {
           alert("⚠️ Error: El administrador no ha configurado un ID de Hotmart para este plan.");

@@ -73,8 +73,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const projectId = embeddedProjectId || routeProjectId;
     const isRealAdmin = (user?.role === 'admin' || planLimits?.planName === 'admin') && !isSimulating;
     
-    console.log(">>> ProjectStrategy_Content Rendering", { activeArticle, activeTab, isRealAdmin });
-    console.log(">>> Project Info:", { projectId, userEmail: user?.email });
+    // console.log(">>> ProjectStrategy_Content Rendering", { activeArticle, activeTab, isRealAdmin });
+    // console.log(">>> Project Info:", { projectId, userEmail: user?.email });
     const [activeLibraryArticle, setActiveLibraryArticle] = useState(0);
     const [activeGeneratedArticle, setActiveGeneratedArticle] = useState(0);
     const [project, setProject] = useState<any | null>(null);
@@ -331,12 +331,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         const active = currentData[activeArticleIdx];
         const dataToSave = overrideData || localEdit;
         
-        console.log(">>> handleBlurSave Attempt", { 
-            id: active?.id, 
-            dataToSave, 
-            isFromDb: active?.isFromDb,
-            activeIntent: active?.searchIntent
-        });
+        // console.log(">>> handleBlurSave Attempt", { 
+        //     id: active?.id, 
+        //     dataToSave, 
+        //     isFromDb: active?.isFromDb,
+        //     activeIntent: active?.searchIntent
+        // });
         
         if (!dataToSave || !active?.id) {
             console.warn(">>> handleBlurSave: No data or ID", { dataToSave, activeId: active?.id });
@@ -357,11 +357,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             dataToSave.searchIntent !== (active.searchIntent || '');
 
         if (!hasChanges) {
-            console.log(">>> handleBlurSave: No changes detected");
+            // console.log(">>> handleBlurSave: No changes detected");
             return;
         }
 
-        console.log(">>> handleBlurSave: Proceeding to save...");
+        // console.log(">>> handleBlurSave: Proceeding to save...");
 
         try {
             if (active.isFromDb) {
@@ -415,7 +415,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     };
 
     const handleSearchIntentChange = (val: string) => {
-        console.log(">>> handleSearchIntentChange:", val);
+        // console.log(">>> handleSearchIntentChange:", val);
         const active = currentData[activeArticleIdx];
         if (!active) {
             console.error(">>> handleSearchIntentChange: No active article");
@@ -446,7 +446,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             searchIntent: active?.searchIntent || ''
         };
         const newEdit = { ...baseData, [field]: value };
-        console.log(`>>> handleFieldChange [${field}]:`, value);
+        // console.log(`>>> handleFieldChange [${field}]:`, value);
         setLocalEdit(newEdit);
     };
 
@@ -465,7 +465,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         ) return;
 
         const timer = setTimeout(async () => {
-            console.log("Auto-saving article data (timer):", { id: active?.id, localEdit });
+            // console.log("Auto-saving article data (timer):", { id: active?.id, localEdit });
             try {
                 if (active.isFromDb) {
                     await api.updateArticle(active.id, {

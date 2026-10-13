@@ -73,12 +73,12 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
 
   // Sync pre-selected project from URL or Props
   useEffect(() => {
-    console.log("Generator - preSelectedProjectId:", preSelectedProjectId);
-    console.log("Generator - userProjects count:", userProjects.length);
+    // console.log("Generator - preSelectedProjectId:", preSelectedProjectId);
+    // console.log("Generator - userProjects count:", userProjects.length);
     if (preSelectedProjectId && userProjects.length > 0) {
-      console.log("Intentando seleccionar proyecto:", preSelectedProjectId);
+      // console.log("Intentando seleccionar proyecto:", preSelectedProjectId);
       const found = userProjects.find(p => String(p.id) === String(preSelectedProjectId));
-      console.log("Proyecto encontrado:", found);
+      // console.log("Proyecto encontrado:", found);
       handleProjectSelect(preSelectedProjectId);
       setFormData(prev => ({ ...prev, goal: 'Registro a Webinar / Clase' }));
       setStep(1);

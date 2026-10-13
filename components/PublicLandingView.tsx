@@ -111,7 +111,7 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
           endpoint = `${API_BASE}/public/pages/${encodeURIComponent(activeSlug)}`;
       }
 
-      console.log("[PublicLandingView] Fetching:", endpoint);
+      // console.log("[PublicLandingView] Fetching:", endpoint);
 
       try {
         setLoading(true);

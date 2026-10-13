@@ -97,12 +97,12 @@ export const EmailMarketing: React.FC = () => {
 
   useEffect(() => {
     if (user.role === 'admin') {
-      console.log("DEBUG - EmailMarketing User Context:", user);
-      console.log("DEBUG - planLimits original:", user.planLimits, "Tipo:", typeof user.planLimits);
-      console.log("DEBUG - effectiveLimits:", effectiveLimits);
-      console.log("DEBUG - planSlugToFind:", planSlugToFind);
-      console.log("DEBUG - userPlan:", userPlan);
-      console.log("DEBUG - maxNurturingSequences:", maxNurturingSequences);
+      // console.log("DEBUG - EmailMarketing User Context:", user);
+      // console.log("DEBUG - planLimits original:", user.planLimits, "Tipo:", typeof user.planLimits);
+      // console.log("DEBUG - effectiveLimits:", effectiveLimits);
+      // console.log("DEBUG - planSlugToFind:", planSlugToFind);
+      // console.log("DEBUG - userPlan:", userPlan);
+      // console.log("DEBUG - maxNurturingSequences:", maxNurturingSequences);
     }
   }, [user, effectiveLimits, planSlugToFind, userPlan, maxNurturingSequences]);
 

@@ -941,10 +941,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           sessionStorage.setItem(storageKey, "true");
         }
 
-        console.log("🔍 [PROYECTO DESBLOQUEADO] Cargando artículos desde el backend para proyecto ID:", projId);
+        // console.log("🔍 [PROYECTO DESBLOQUEADO] Cargando artículos desde el backend para proyecto ID:", projId);
         try {
           const articles = await api.getArticlesByProject(projId);
-          console.log("📊 [ARTÍCULOS ENCONTRADOS] Éxito al consultar artículos para el Wizard:", articles);
+          // console.log("📊 [ARTÍCULOS ENCONTRADOS] Éxito al consultar artículos para el Wizard:", articles);
           setUnlockedArticles(articles);
         } catch (error) {
           console.error("❌ [ERROR ARTÍCULOS] Error al cargar artículos del proyecto en el Wizard:", error);
@@ -1088,17 +1088,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     }
 
     const startTime = Date.now();
-    console.group(`🚀 [ONBOARDING TRACE] INICIANDO PROCESO DE GENERACIÓN Y DESBLOQUEO`);
-    console.log("📌 Información del Proyecto:", {
-      id: proj.id,
-      name: proj.productName || proj.name,
-      niche: proj.niche,
-      masterParentId: (proj as any).masterParentId
-    });
-    console.log("⏱️ Timestamp de Inicio:", new Date().toISOString());
+    // console.group(`🚀 [ONBOARDING TRACE] INICIANDO PROCESO DE GENERACIÓN Y DESBLOQUEO`);
+    // console.log("📌 Información del Proyecto:", {
+    //   id: proj.id,
+    //   name: proj.productName || proj.name,
+    //   niche: proj.niche,
+    //   masterParentId: (proj as any).masterParentId
+    // });
+    // console.log("⏱️ Timestamp de Inicio:", new Date().toISOString());
 
     try {
-      console.log("⏩ [PASO 1/3] Invocando API api.unlockProject(projectId)...");
+      // console.log("⏩ [PASO 1/3] Invocando API api.unlockProject(projectId)...");
       setGenerationProgress(10);
       setGenerationStatus("Estoy creando tu estrategia de Ventas");
 
@@ -1108,20 +1108,20 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         initial_setup: true,
       });
 
-      console.log("✅ [PASO 1/3 COMPLETADO] Respuesta recibida de api.unlockProject:", unlocked);
+      // console.log("✅ [PASO 1/3 COMPLETADO] Respuesta recibida de api.unlockProject:", unlocked);
 
       if (unlocked && (unlocked as any).warning) {
-        console.warn("⚠️ [CONVALECENCIA DE IA] La generación personalizada falló de forma transitoria. Detalles:");
-        console.error("🔍 ERROR RETORNADO POR GEMINI:", (unlocked as any).errorDetails);
-        console.info("🛡️ [PLAN DE RESPALDO ACTIVO] Se aplicó la estrategia pre-diseñada optimizada del sistema maestro para asegurar un onboarding ininterrumpido.");
+        // console.warn("⚠️ [CONVALECENCIA DE IA] La generación personalizada falló de forma transitoria. Detalles:");
+        // console.error("🔍 ERROR RETORNADO POR GEMINI:", (unlocked as any).errorDetails);
+        // console.info("🛡️ [PLAN DE RESPALDO ACTIVO] Se aplicó la estrategia pre-diseñada optimizada del sistema maestro para asegurar un onboarding ininterrumpido.");
       }
 
-      console.log("⏩ [PASO 2/3] Solicitando detalles actualizados del proyecto via api.getProjectById...");
+      // console.log("⏩ [PASO 2/3] Solicitando detalles actualizados del proyecto via api.getProjectById...");
       const fullUnlockedProject = await api.getProjectById(unlocked.id);
-      console.log("✅ [PASO 2/3 COMPLETADO] Detalle de proyecto obtenido:", {
-        id: fullUnlockedProject?.id,
-        hasStrategyJson: !!fullUnlockedProject?.strategy_json
-      });
+      // console.log("✅ [PASO 2/3 COMPLETADO] Detalle de proyecto obtenido:", {
+      //   id: fullUnlockedProject?.id,
+      //   hasStrategyJson: !!fullUnlockedProject?.strategy_json
+      // });
 
       setUnlockedProject(
         fullUnlockedProject || {
@@ -1133,15 +1133,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       setGenerationProgress(40);
       setGenerationStatus("Extrayendo arquitectura psicológica...");
 
-      console.log("⏩ [PASO 3/3] Obteniendo objeto de Estrategia via api.getProjectStrategy...");
+      // console.log("⏩ [PASO 3/3] Obteniendo objeto de Estrategia via api.getProjectStrategy...");
       // 2. Obtener estrategia real
       const strategy = await api.getProjectStrategy(unlocked.id);
       setStrategyData(strategy);
-      console.log("✅ [PASO 3/3 COMPLETADO] Objeto de Estrategia cargado exitosamente:", {
-        avatarsCount: Array.isArray(strategy?.avatars) ? strategy.avatars.length : 0,
-        hasPsychology: !!strategy?.psychology,
-        hasModules: !!strategy?.modules
-      });
+      // console.log("✅ [PASO 3/3 COMPLETADO] Objeto de Estrategia cargado exitosamente:", {
+      //   avatarsCount: Array.isArray(strategy?.avatars) ? strategy.avatars.length : 0,
+      //   hasPsychology: !!strategy?.psychology,
+      //   hasModules: !!strategy?.modules
+      // });
 
       setGenerationProgress(100);
       setGenerationStatus("¡Estrategia Lista!");
@@ -1151,8 +1151,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       }
 
       const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
-      console.log(`🎉 [ONBOARDING TRACE SUCCESS] ¡Generación de Estrategia completada con éxito en ${totalTime}s! Avanzando a 'strategy_ready'...`);
-      console.groupEnd();
+      // console.log(`🎉 [ONBOARDING TRACE SUCCESS] ¡Generación de Estrategia completada con éxito en ${totalTime}s! Avanzando a 'strategy_ready'...`);
+      // console.groupEnd();
 
       setTimeout(() => {
         setStep("strategy_ready");
@@ -1205,14 +1205,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     setGenerationStatus("Estoy creando tu Página Web de Captura");
 
     const startTime = Date.now();
-    console.group(`🚀 [LANDING PAGE TRACE] INICIANDO CREACIÓN DE PÁGINA WEB DE CAPTURA`);
-    console.log("📌 Contexto del Proyecto y Objetivos:", {
-      selectedProject: selectedProject ? { id: selectedProject.id, name: selectedProject.productName || selectedProject.name } : null,
-      unlockedProject: unlockedProject ? { id: unlockedProject.id, name: unlockedProject.productName || unlockedProject.name } : null,
-      hasStrategyData: !!strategyData,
-      step
-    });
-    console.log("⏱️ Timestamp de Inicio:", new Date().toISOString());
+    // console.group(`🚀 [LANDING PAGE TRACE] INICIANDO CREACIÓN DE PÁGINA WEB DE CAPTURA`);
+    // console.log("📌 Contexto del Proyecto y Objetivos:", {
+    //   selectedProject: selectedProject ? { id: selectedProject.id, name: selectedProject.productName || selectedProject.name } : null,
+    //   unlockedProject: unlockedProject ? { id: unlockedProject.id, name: unlockedProject.productName || unlockedProject.name } : null,
+    //   hasStrategyData: !!strategyData,
+    //   step
+    // });
+    // console.log("⏱️ Timestamp de Inicio:", new Date().toISOString());
 
     try {
       setGenerationProgress(20);
@@ -1248,7 +1248,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           .join(". ");
       }
 
-      console.log("⏩ [PASO 1/3] Generando contenido IA con prompt contextualizado...");
+      // console.log("⏩ [PASO 1/3] Generando contenido IA con prompt contextualizado...");
       setGenerationProgress(50);
       setGenerationStatus("Estoy creando tu Página Web Profesional");
 
@@ -1307,13 +1307,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         projectWithStrategy,
       );
 
-      console.log("✅ [PASO 1/3 COMPLETADO] Contenido IA generado correctamente:", {
-        hasHero: !!content?.hero,
-        sectionsCount: content?.sections?.length || 0,
-        palette: content?.palette
-      });
+      // console.log("✅ [PASO 1/3 COMPLETADO] Contenido IA generado correctamente:", {
+      //   hasHero: !!content?.hero,
+      //   sectionsCount: content?.sections?.length || 0,
+      //   palette: content?.palette
+      // });
 
-      console.log("⏩ [PASO 2/3] Preparando datos de guardado y subdominio...");
+      // console.log("⏩ [PASO 2/3] Preparando datos de guardado y subdominio...");
       setGenerationProgress(80);
       setGenerationStatus("Publicando en nube segura...");
 
@@ -1335,7 +1335,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
       const targetProjectId = unlockedProject?.id || selectedProject?.id;
       if (!targetProjectId) {
-        console.warn("⚠️ [LANDING TRACE] Advertencia: No se encontró un ID de proyecto válido, usando ID temporal.");
+        // console.warn("⚠️ [LANDING TRACE] Advertencia: No se encontró un ID de proyecto válido, usando ID temporal.");
       }
 
       // Crear la página - Sincronizado exactamente con las especificaciones de generación estándar
@@ -1349,12 +1349,12 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         isPublished: true,
       };
 
-      console.log("⏩ [PASO 3/3] Guardando página de captura vía api.createPage...", newPage);
+      // console.log("⏩ [PASO 3/3] Guardando página de captura vía api.createPage...", newPage);
       const savedPage = await api.createPage(
         newPage as any,
         projectWithStrategy as any,
       );
-      console.log("✅ [PASO 3/3 COMPLETADO] Respuesta de api.createPage:", savedPage);
+      // console.log("✅ [PASO 3/3 COMPLETADO] Respuesta de api.createPage:", savedPage);
 
       if (savedPage && savedPage.subdomain) {
         setCreatedPageSubdomain(savedPage.subdomain);
@@ -1369,8 +1369,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       setIsLandingCreated(true);
 
       const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
-      console.log(`🎉 [LANDING PAGE TRACE SUCCESS] ¡Página de captura creada y publicada con éxito en ${totalTime}s! Subdominio: ${savedPage?.subdomain || newPage.subdomain}`);
-      console.groupEnd();
+      // console.log(`🎉 [LANDING PAGE TRACE SUCCESS] ¡Página de captura creada y publicada con éxito en ${totalTime}s! Subdominio: ${savedPage?.subdomain || newPage.subdomain}`);
+      // console.groupEnd();
 
       setTimeout(() => {
         setStep("landing_success");
@@ -1415,7 +1415,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
         if (targetProjectId) {
           try {
-            console.log("🔓 [DESBLOQUEANDO HOOKS ALEATORIOS BD] Ejecutando unlockMultipleHooks desde la Base de Datos para el proyecto:", targetProjectId, "Límite:", freeHooksLimit);
+            // console.log("🔓 [DESBLOQUEANDO HOOKS ALEATORIOS BD] Ejecutando unlockMultipleHooks desde la Base de Datos para el proyecto:", targetProjectId, "Límite:", freeHooksLimit);
             // Al pasar un arreglo vacío [], el backend consulta la BD del proyecto maestro y selecciona de forma ALEATORIA (ORDER BY RAND()) los ganchos según el límite del plan.
             const response = await api.unlockMultipleHooks(
               targetProjectId,
@@ -1501,7 +1501,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   // Automatic recovery effect: If the page reloaded mid-generation, resume immediately
   useEffect(() => {
     if (step === "generating_hooks" && !activeTimerRef.current) {
-      console.log("♻️ [RECUPERACIÓN] Reanudando generación de reels/videos interrumpida de forma automática.");
+      // console.log("♻️ [RECUPERACIÓN] Reanudando generación de reels/videos interrumpida de forma automática.");
       handleUnlockHooks();
     }
   }, [step]);

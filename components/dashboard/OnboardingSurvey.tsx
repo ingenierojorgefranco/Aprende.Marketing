@@ -162,9 +162,9 @@ export const OnboardingSurvey: React.FC<OnboardingSurveyProps> = ({ user, onComp
         setLoading(true);
         setErrorMessage("");
         try {
-            console.log("🚀 Enviando encuesta simplificada al backend...", finalFormData);
+            // console.log("🚀 Enviando encuesta simplificada al backend...", finalFormData);
             await api.submitSurvey(finalFormData);
-            console.log("✅ Encuesta guardada exitosamente");
+            // console.log("✅ Encuesta guardada exitosamente");
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('onboarding_survey_data');
             }

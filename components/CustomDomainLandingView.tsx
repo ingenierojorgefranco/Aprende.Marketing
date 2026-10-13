@@ -41,8 +41,8 @@ export const CustomDomainLandingView: React.FC = () => {
       
       const endpoint = `${API_BASE}/public/pages/by-domain?domain=${encodeURIComponent(host)}`;
 
-        console.log("[CustomDomainLandingView] host:", host);
-        console.log("[CustomDomainLandingView] Fetching:", endpoint);
+        // console.log("[CustomDomainLandingView] host:", host);
+        // console.log("[CustomDomainLandingView] Fetching:", endpoint);
 
         try {
           setLoading(true);

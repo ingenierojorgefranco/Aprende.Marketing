@@ -481,7 +481,7 @@ const safeJsonParse = (data: any, fieldName: string = 'unknown') => {
 
         result = tryParse(repaired);
         if (result) {
-            console.log(`[API Repair] Éxito reparando JSON de ${fieldName}`);
+            // console.log(`[API Repair] Éxito reparando JSON de ${fieldName}`);
             return result;
         }
     } catch (e) {}
@@ -495,12 +495,12 @@ export const api = {
 
   enableMockMode: () => {
       isMockMode = true;
-      console.log("🟡 MODO MOCK ACTIVADO: Usando datos locales de prueba.");
+      // console.log("🟡 MODO MOCK ACTIVADO: Usando datos locales de prueba.");
   },
 
   disableMockMode: () => {
       isMockMode = false;
-      console.log("🔴 MODO MOCK DESACTIVADO: Usando Base de Datos real.");
+      // console.log("🔴 MODO MOCK DESACTIVADO: Usando Base de Datos real.");
   },
   
   isUsingMockData: () => isMockMode,
@@ -587,7 +587,7 @@ export const api = {
 
   submitSurvey: async (formData: any): Promise<void> => {
       if (isMockMode) {
-          console.log("Mock Survey Submitted:", formData);
+          // console.log("Mock Survey Submitted:", formData);
           return Promise.resolve();
       }
       await fetchWithFallback('/auth/survey', {
@@ -611,7 +611,7 @@ export const api = {
 
   submitLead: async (data: { pageId: string; name: string; email: string; phone?: string }): Promise<void> => {
       if (isMockMode) {
-          console.log("Mock Lead Submitted:", data);
+          // console.log("Mock Lead Submitted:", data);
           return Promise.resolve();
       }
       await fetchWithFallback('/public/leads/submit', {
@@ -986,7 +986,7 @@ export const api = {
           if (proj && proj.strategy_json) return Promise.resolve(proj.strategy_json as ProjectMasterStrategy);
           
           if (isMockMode) {
-            console.log("🛠️ Inyectando MOCK_MASTER_STRATEGY por defecto para ID:", id);
+            // console.log("🛠️ Inyectando MOCK_MASTER_STRATEGY por defecto para ID:", id);
             return Promise.resolve(MOCK_MASTER_STRATEGY);
           }
       }
@@ -2472,7 +2472,7 @@ export const api = {
     ////////// Actualización: Métodos para Tickets de Soporte - 12/06/2025 //////////
     submitSupportTicket: async (data: { itemName: string; reason: string; userName?: string; userEmail?: string }): Promise<void> => {
         if (isMockMode) {
-            console.log("Mock Support Ticket Submitted:", data);
+            // console.log("Mock Support Ticket Submitted:", data);
             const newTicket: SupportTicket = {
                 id: `ticket-${Date.now()}`,
                 userId: "user-1",
