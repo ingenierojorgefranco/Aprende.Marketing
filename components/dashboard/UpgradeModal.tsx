@@ -113,14 +113,17 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             urlObj = new URL(`https://pay.hotmart.com/${targetHotmartId}`);
           }
           
-          // Parámetro para el código de descuento de lanzamiento (offDiscount=lanza)
-          const offerCode = targetHotmartOffer || 'lanza';
-          if (offerCode) {
-            urlObj.searchParams.set('offDiscount', offerCode);
+          // Estructura oficial Hotmart:
+          // off = Código Oferta (ej. 0yieku7c o qmks86cr desde la BD)
+          // checkoutMode = Modo Checkout (ej. 6 desde la BD)
+          // offDiscount = Cupón de descuento (lanza)
+          if (targetHotmartOffer) {
+            urlObj.searchParams.set('off', targetHotmartOffer);
           }
           if (targetHotmartCheckoutMode) {
             urlObj.searchParams.set('checkoutMode', targetHotmartCheckoutMode);
           }
+          urlObj.searchParams.set('offDiscount', 'lanza');
           
           const srcValue = projectId ? `${finalUserId}-${projectId}` : finalUserId;
           urlObj.searchParams.set('src', srcValue);
