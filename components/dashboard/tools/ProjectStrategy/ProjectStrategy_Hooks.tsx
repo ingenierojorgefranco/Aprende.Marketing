@@ -50,7 +50,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const isSimulating = context?.isSimulating;
   const hookCount = context?.hookCount;
   const planLimits = user?.planLimits;
-  const isRealAdmin = (planLimits?.planName === 'admin' || user?.role === 'admin') && !isSimulating;
+  const isRealAdmin = user?.role === 'admin' && !isSimulating;
   const initialSelectionDone = useRef(false);
   const skipReset = useRef(false);
   const sessionSeed = useRef(Math.random());
@@ -900,10 +900,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const handleDeleteHook = async () => {
-    const isGenerated = currentHook.isGenerated;
-    const isAdmin = user?.role === 'admin';
-
-    if (!isAdmin && isGenerated) {
+    if (!isRealAdmin) {
       setShowRestrictionModal(true);
       return;
     }
@@ -1319,7 +1316,13 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     VIDEO HOOK #{currentHook.id || (activeTab === 'library' ? activeLibraryHook : activeHook) + 1}
                                 </span>
                                 <button
-                                    onClick={() => setShowDeleteConfirm(true)}
+                                    onClick={() => {
+                                        if (!isRealAdmin) {
+                                            setShowRestrictionModal(true);
+                                        } else {
+                                            setShowDeleteConfirm(true);
+                                        }
+                                    }}
                                     className="text-[10px] md:text-xs font-black text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-full border border-red-500/30 transition-all cursor-pointer flex items-center gap-1.5 uppercase shrink-0"
                                     title="Eliminar Hook completo"
                                 >
@@ -1972,6 +1975,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                       <button 
                           onClick={async () => {
                               setShowDeleteConfirm(false);
+                              if (!isRealAdmin) {
+                                  setShowRestrictionModal(true);
+                                  return;
+                              }
                               setSaving(true);
                               try {
                                   await api.deleteProjectHook(currentHook.id);
@@ -2042,7 +2049,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
        <DeletionRestrictionModal 
         isOpen={showRestrictionModal}
         onClose={() => setShowRestrictionModal(false)}
-        itemName={currentHook.title}
+        itemName={localTitle || currentHook?.title || "Hook de Atracción"}
         userEmail={user?.email || ''}
         userName={user?.name || ''}
       />

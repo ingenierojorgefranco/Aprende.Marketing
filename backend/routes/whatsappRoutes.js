@@ -112,8 +112,8 @@ router.post('/launches/generate-message', authMiddleware, async (req, res) => {
         const blueprint = WHATSAPP_BLUEPRINTS[moment.pilarType] || WHATSAPP_BLUEPRINTS['default'];
 
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        const prompt = `Actúa como un experto en lanzamientos meteóricos por WhatsApp. 
-        Tu misión es redactar un mensaje persuasivo siguiendo estrictamente el siguiente BLUEPRINT ESTRATÉGICO:
+        const prompt = `Actúa como un Copywriter Senior experto en Lanzamientos Meteóricos por WhatsApp y Marketing Digital. 
+        Tu misión es redactar un mensaje extremadamente persuasivo adaptado 100% al PRODUCTO DIGITAL y PROYECTO específico del usuario, siguiendo estrictamente el siguiente BLUEPRINT ESTRATÉGICO:
 
         --- BLUEPRINT DEL MENSAJE ---
         OBJETIVO PSICOLÓGICO: ${blueprint.goal}
@@ -125,31 +125,40 @@ router.post('/launches/generate-message', authMiddleware, async (req, res) => {
         ${blueprint.example}
         ---------------------------
 
-        CONTEXTO DEL PROYECTO:
-        Proyecto: ${project.name}
-        Nicho: ${project.niche}
-        Producto: ${project.product_name}
-        Avatar Principal: ${JSON.stringify(strategy.avatar || strategy.avatars?.[0] || {})}
+        INFORMACIÓN DEL PROYECTO Y PRODUCTO DIGITAL:
+        - Nombre del Proyecto: ${project.name}
+        - Nicho / Mercado: ${project.niche || 'General'}
+        - Producto Digital: ${project.product_name || project.name}
+        - Tono de Marca: ${project.brand_tone || 'Cercano y persuasivo'}
+        - Avatar de Cliente Ideal: ${JSON.stringify(strategy.avatar || strategy.avatars?.[0] || {})}
+        - Promesa / Transformación del Producto: ${strategy.promise || strategy.transformation || 'Transformación rápida y efectiva en su nicho'}
+        - Dolores / Obstáculos del Avatar: ${JSON.stringify(strategy.pains || strategy.avatar_pains || [])}
+        - Mecanismo Único / Método: ${strategy.unique_mechanism || strategy.method || 'Método probado paso a paso'}
         
-        DETALLES DEL MOMENTO:
-        Momento del Lanzamiento: ${moment.name} (${moment.momentText})
-        Pilar Estratégico: ${moment.pilarType}
-        Propósito Específico: ${moment.purpose}
+        DETALLES DEL MOMENTO DE LANZAMIENTO:
+        - Momento: ${moment.name} (${moment.momentText})
+        - Pilar Estratégico: ${moment.pilarType}
+        - Propósito Específico: ${moment.purpose}
 
         REGLAS GLOBALES DE CONFIGURACIÓN:
-        TONO: ${GLOBAL_CONFIG.tone} (Adaptar también al tono de marca: "${project.brand_tone}")
-        FORMATO: ${GLOBAL_CONFIG.formatting}
-        EVITAR: ${GLOBAL_CONFIG.avoid}
+        - TONO: ${GLOBAL_CONFIG.tone}
+        - FORMATO: ${GLOBAL_CONFIG.formatting}
+        - EVITAR: ${GLOBAL_CONFIG.avoid}
 
-        REGLAS CRÍTICAS ADICIONALES:
-        1. Usa *negrita* de WhatsApp para resaltar palabras clave y beneficios.
-        2. ÚNICAMENTE si el ID del momento es "wl7" (Mensaje "Link en Vivo"), puedes usar el placeholder [LINK] o mencionar que se unan al enlace en vivo. Para CUALQUIER otro momento (wl1, wl2, wl3, wl4, wl5, wl6, wl8, wl9, wl10, wl11, wl12), está ESTRICTAMENTE PROHIBIDO usar el placeholder [LINK] o mencionar links, enlaces, URLs, de modo que ningún otro mensaje mencione ni requiera un link.
-        3. Si es un mensaje de confirmación de fecha, usa [FECHA_CLASE].
-        4. Si es un mensaje con horario, usa [HORA_EVENTO].
-        5. Mantén el mensaje estructurado para que sea fácil de leer en móviles.
-        6. No incluyas nunca placeholders de firma como [TU NOMBRE], [FIRMA] o similares al final del mensaje.
+        REGLAS CRÍTICAS DE COPYWRITING Y WHATSAPP:
+        1. ENFOQUE EXCLUSIVAMENTE GRUPAL Y EN PLURAL: El mensaje se enviará a un GRUPO DE WHATSAPP masivo. Dirígete SIEMPRE a la comunidad o tribu del producto en plural (ejemplo: '¡Hola a todos!', 'equipo', 'comunidad de [Nicho]', 'chicas/chicos', 'para ustedes'). Queda ESTRICTAMENTE PROHIBIDO redactar el mensaje en singular de 'tú a tú' (EVITAR: 'te escribo', 'espero que estés bien', 'para ti', 'te cuento').
+        2. ENFOQUE DINÁMICO EN EL PRODUCTO ESPECÍFICO: Adapta el mensaje estrictamente a la temática, dolores y beneficios del producto digital "${project.product_name || project.name}" y su nicho "${project.niche}". NUNCA uses respuestas predeterminadas de otros nichos. Bautiza o nombra a la tribu de forma coherente con su área (ej: Reposteras, Inversionistas, Emprendedores, Atletas, Creadores, etc.).
+        3. GANCHO MÓVIL AIDA: Las primeras 5 a 7 palabras del mensaje DEBEN ser un gancho AIDA de alto impacto, intrigante o de alerta, fácil de leer desde la vista previa de notificaciones del celular (ej: '¡LLEGÓ EL GRAN DÍA COMUNIDAD! 🎉', 'CONFESIÓN PARA TODO EL GRUPO... 💔', '¿SABÍAN QUE EL 90% COMETE ESTE ERROR? 😱').
+        4. MICRO-INTERACCIONES Y ENGAGEMENT: Cierra o incluye en el mensaje un llamado a la acción interactivo solicitando que los miembros del grupo reaccionen con un emoji específico (ej: 'Reaccionen con 🔥 si ya agendaron', 'Déjenme un 👍 los que estén listos', 'Reaccionen con ⏰').
+        5. FORMATO DE TEXTO WHATSAPP: Párrafos súper cortos (1-2 líneas máximo), uso estratégico de *negritas* para resaltar ideas clave, y emojis como viñetas visuales.
+        6. REGLA ESTRICTA DE ENLACES [LINK]:
+           - Para momentos pre-evento ("wl1", "wl2", "wl3", "wl4", "wl5", "wl6"): ESTRICTAMENTE PROHIBIDO usar el placeholder [LINK] o mencionar URLs. Ninguno de estos 6 mensajes debe incluir enlaces.
+           - Para el evento en vivo ("wl7"): DEBES usar el placeholder [LINK] como enlace de la transmisión en vivo.
+           - Para momentos post-clase y ventas ("wl8", "wl9", "wl10", "wl11", "wl12"): DEBES incluir el placeholder [LINK] para dirigir al grupo a la página de inscripción / compra / oferta.
+        7. PLACEHOLDERS DE FECHA Y HORA: Usa [FECHA_CLASE] si el mensaje confirma o recuerda la fecha de la clase, y [HORA_EVENTO] si especifica el horario.
+        8. SIN FIRMAS O PLACEHOLDERS DE NOMBRE: Nunca agregues [TU NOMBRE], [FIRMA] o [NOMBRE DEL EXPERTO] al final del mensaje.
         
-        Responde exclusivamente con el texto del mensaje generado para copiar y pegar en WhatsApp.`;
+        Responde exclusivamente con el texto final del mensaje generado listo para copiar y pegar directamente al grupo de WhatsApp.`;
 
         const response = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',
@@ -184,8 +193,8 @@ router.post('/launches/generate-full-sequence', authMiddleware, async (req, res)
         for (const moment of DEFAULT_LAUNCH_MESSAGES) {
             const blueprint = WHATSAPP_BLUEPRINTS[moment.pilarType] || WHATSAPP_BLUEPRINTS['default'];
             
-            const prompt = `Actúa como un experto en lanzamientos meteóricos por WhatsApp. 
-            Tu misión es redactar un mensaje persuasivo siguiendo estrictamente el siguiente BLUEPRINT ESTRATÉGICO:
+            const prompt = `Actúa como un Copywriter Senior experto en Lanzamientos Meteóricos por WhatsApp y Marketing Digital. 
+            Tu misión es redactar un mensaje extremadamente persuasivo adaptado 100% al PRODUCTO DIGITAL y PROYECTO específico del usuario, siguiendo strictly el siguiente BLUEPRINT ESTRATÉGICO:
 
             --- BLUEPRINT DEL MENSAJE ---
             OBJETIVO PSICOLÓGICO: ${blueprint.goal}
@@ -197,31 +206,40 @@ router.post('/launches/generate-full-sequence', authMiddleware, async (req, res)
             ${blueprint.example}
             ---------------------------
 
-            CONTEXTO DEL PROYECTO:
-            Proyecto: ${project.name}
-            Nicho: ${project.niche}
-            Producto: ${project.product_name}
-            Avatar Principal: ${JSON.stringify(strategy.avatar || strategy.avatars?.[0] || {})}
+            INFORMACIÓN DEL PROYECTO Y PRODUCTO DIGITAL:
+            - Nombre del Proyecto: ${project.name}
+            - Nicho / Mercado: ${project.niche || 'General'}
+            - Producto Digital: ${project.product_name || project.name}
+            - Tono de Marca: ${project.brand_tone || 'Cercano y persuasivo'}
+            - Avatar de Cliente Ideal: ${JSON.stringify(strategy.avatar || strategy.avatars?.[0] || {})}
+            - Promesa / Transformación del Producto: ${strategy.promise || strategy.transformation || 'Transformación rápida y efectiva en su nicho'}
+            - Dolores / Obstáculos del Avatar: ${JSON.stringify(strategy.pains || strategy.avatar_pains || [])}
+            - Mecanismo Único / Método: ${strategy.unique_mechanism || strategy.method || 'Método probado paso a paso'}
             
-            DETALLES DEL MOMENTO:
-            Momento del Lanzamiento: ${moment.name} (${moment.momentText})
-            Pilar Estratégico: ${moment.pilarType}
-            Propósito Específico: ${moment.purpose}
+            DETALLES DEL MOMENTO DE LANZAMIENTO:
+            - Momento: ${moment.name} (${moment.momentText})
+            - Pilar Estratégico: ${moment.pilarType}
+            - Propósito Específico: ${moment.purpose}
 
             REGLAS GLOBALES DE CONFIGURACIÓN:
-            TONO: ${GLOBAL_CONFIG.tone} (Adaptar también al tono de marca: "${project.brand_tone}")
-            FORMATO: ${GLOBAL_CONFIG.formatting}
-            EVITAR: ${GLOBAL_CONFIG.avoid}
+            - TONO: ${GLOBAL_CONFIG.tone}
+            - FORMATO: ${GLOBAL_CONFIG.formatting}
+            - EVITAR: ${GLOBAL_CONFIG.avoid}
 
-            REGLAS CRÍTICAS ADICIONALES:
-            1. Usa *negrita* de WhatsApp para resaltar palabras clave y beneficios.
-            2. ÚNICAMENTE si el ID del momento es "wl7" (Mensaje "Link en Vivo"), puedes usar el placeholder [LINK] o mencionar que se unan al enlace en vivo. Para CUALQUIER otro momento (wl1, wl2, wl3, wl4, wl5, wl6, wl8, wl9, wl10, wl11, wl12), está ESTRICTAMENTE PROHIBIDO usar el placeholder [LINK] o mencionar links, enlaces, URLs, de modo que ningún otro mensaje mencione ni requiera un link.
-            3. Si es un mensaje de confirmación de fecha, usa [FECHA_CLASE].
-            4. Si es un mensaje con horario, usa [HORA_EVENTO].
-            5. Mantén el mensaje estructurado para que sea fácil de leer en móviles.
-            6. No incluyas nunca placeholders de firma como [TU NOMBRE], [FIRMA] o similares al final del mensaje.
+            REGLAS CRÍTICAS DE COPYWRITING Y WHATSAPP:
+            1. ENFOQUE EXCLUSIVAMENTE GRUPAL Y EN PLURAL: El mensaje se enviará a un GRUPO DE WHATSAPP masivo. Dirígete SIEMPRE a la comunidad o tribu del producto en plural (ejemplo: '¡Hola a todos!', 'equipo', 'comunidad de [Nicho]', 'chicas/chicos', 'para ustedes'). Queda ESTRICTAMENTE PROHIBIDO redactar el mensaje en singular de 'tú a tú' (EVITAR: 'te escribo', 'espero que estés bien', 'para ti', 'te cuento').
+            2. ENFOQUE DINÁMICO EN EL PRODUCTO ESPECÍFICO: Adapta el mensaje strictly a la temática, dolores y beneficios del producto digital "${project.product_name || project.name}" y su nicho "${project.niche}". NUNCA uses respuestas predeterminadas de otros nichos. Bautiza o nombra a la tribu de forma coherente con su área (ej: Reposteras, Inversionistas, Emprendedores, Atletas, Creadores, etc.).
+            3. GANCHO MÓVIL AIDA: Las primeras 5 a 7 palabras del mensaje DEBEN ser un gancho AIDA de alto impacto, intrigante o de alerta, fácil de leer desde la vista previa de notificaciones del celular (ej: '¡LLEGÓ EL GRAN DÍA COMUNIDAD! 🎉', 'CONFESIÓN PARA TODO EL GRUPO... 💔', '¿SABÍAN QUE EL 90% COMETE ESTE ERROR? 😱').
+            4. MICRO-INTERACCIONES Y ENGAGEMENT: Cierra o incluye en el mensaje un llamado a la acción interactivo solicitando que los miembros del grupo reaccionen con un emoji específico (ej: 'Reaccionen con 🔥 si ya agendaron', 'Déjenme un 👍 los que estén listos', 'Reaccionen con ⏰').
+            5. FORMATO DE TEXTO WHATSAPP: Párrafos súper cortos (1-2 líneas máximo), uso estratégico de *negritas* para resaltar ideas clave, y emojis como viñetas visuales.
+            6. REGLA ESTRICTA DE ENLACES [LINK]:
+               - Para momentos pre-evento ("wl1", "wl2", "wl3", "wl4", "wl5", "wl6"): ESTRICTAMENTE PROHIBIDO usar el placeholder [LINK] o mencionar URLs. Ninguno de estos 6 mensajes debe incluir enlaces.
+               - Para el evento en vivo ("wl7"): DEBES usar el placeholder [LINK] como enlace de la transmisión en vivo.
+               - Para momentos post-clase y ventas ("wl8", "wl9", "wl10", "wl11", "wl12"): DEBES incluir el placeholder [LINK] para dirigir al grupo a la página de inscripción / compra / oferta.
+            7. PLACEHOLDERS DE FECHA Y HORA: Usa [FECHA_CLASE] si el mensaje confirma o recuerda la fecha de la clase, y [HORA_EVENTO] si especifica el horario.
+            8. SIN FIRMAS O PLACEHOLDERS DE NOMBRE: Nunca agregues [TU NOMBRE], [FIRMA] o [NOMBRE DEL EXPERTO] al final del mensaje.
             
-            Responde exclusivamente con el texto del mensaje generado para copiar y pegar en WhatsApp.`;
+            Responde exclusivamente con el texto final del mensaje generado listo para copiar y pegar directamente al grupo de WhatsApp.`;
 
             const response = await ai.models.generateContent({
                 model: 'gemini-3-flash-preview',
