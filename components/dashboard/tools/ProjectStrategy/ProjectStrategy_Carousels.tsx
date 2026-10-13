@@ -65,7 +65,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
     const itemsPerPage = 4;
 
-    const [activeTab, setActiveTab] = useState<'library' | 'generated'>('generated');
+    const [activeTab, setActiveTab] = useState<'library' | 'generated'>('library');
     const [libraryCarousels, setLibraryCarousels] = useState<any[]>([]);
     const [libraryTotal, setLibraryTotal] = useState(0);
     const [loadingLibrary, setLoadingLibrary] = useState(false);
@@ -218,30 +218,32 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
     // Fetch user's unlocked carousels
     const fetchCarousels = async () => {
-        if (!projectId) return;
+        if (!projectId) return [];
         setLoadingHooks(true);
         try {
             const data = await api.getProjectCarousels(projectId);
-            if (data && data.length > 0) {
+            const unlockedOrGenerated = (data || []).filter(
+                (c: any) => c.isUnlocked || c.isGenerated || isRealAdmin
+            );
+            if (unlockedOrGenerated.length > 0) {
                 setCarousels(data);
                 if (!hasInitializedTab.current) {
                     setActiveTab('generated');
                     hasInitializedTab.current = true;
                 }
+                return data;
             } else {
-                setCarousels([]);
-                if (!hasInitializedTab.current) {
-                    setActiveTab('library');
-                    hasInitializedTab.current = true;
-                }
+                setCarousels(data || []);
+                setActiveTab('library');
+                hasInitializedTab.current = true;
+                return data || [];
             }
         } catch (e) {
             console.error("Error fetching carousels:", e);
             setCarousels([]);
-            if (!hasInitializedTab.current) {
-                setActiveTab('library');
-                hasInitializedTab.current = true;
-            }
+            setActiveTab('library');
+            hasInitializedTab.current = true;
+            return [];
         } finally {
             setLoadingHooks(false);
         }
@@ -281,9 +283,9 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                     setMasterParentId(mParentId);
                 }
                 
-                await fetchCarousels();
+                const loadedCarousels = await fetchCarousels();
                 
-                if (activeTab === 'library') {
+                if (activeTab === 'library' || !loadedCarousels || loadedCarousels.length === 0) {
                     await fetchLibrary(libraryPage, mParentId);
                 }
             } catch (e) {
@@ -550,7 +552,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
     // Plan limits and counts
     const isStarter = planLimits?.planName === 'starter';
-    const unlockedCount = carousels.filter(c => (c as any).isUnlocked).length;
+    const unlockedCount = carousels.filter(c => (c as any).isUnlocked || c.isGenerated).length;
     const maxCarousels = planLimits?.maxCarousels || 50;
     const usagePercent = Math.min(100, (unlockedCount / maxCarousels) * 100);
 
@@ -653,7 +655,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
                         {/* Selector de Pestañas */}
                         <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
-                            {carousels.length === 0 ? (
+                            {unlockedCount === 0 ? (
                                 <>
                                     <button 
                                         onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); }}

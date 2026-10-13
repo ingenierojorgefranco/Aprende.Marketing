@@ -254,16 +254,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       setRevealedSections(["strategy_ready"]);
       localStorage.setItem("force_wizard_step", typeof s === "string" ? s : "strategy_ready");
       navigate(`${prefix}/step-3`);
-    } else if (s === 4 || s === "generating_hooks" || s === "show_hooks") {
-      setStep(typeof s === "string" ? s : "show_hooks");
-      setRevealedSections(["show_hooks"]);
-      localStorage.setItem("force_wizard_step", typeof s === "string" ? s : "show_hooks");
-      navigate(`${prefix}/step-4`);
-    } else if (s === 5 || s === "success") {
-      setStep("success");
+    } else if (s === 4 || s === "generating_hooks" || s === "show_hooks" || s === 5 || s === "success") {
+      setStep(typeof s === "string" ? s : "success");
       setRevealedSections(["success"]);
-      localStorage.setItem("force_wizard_step", "success");
-      navigate(`${prefix}/step-5`);
+      localStorage.setItem("force_wizard_step", typeof s === "string" ? s : "success");
+      navigate(`${prefix}/step-4`);
     }
   };
 
@@ -287,8 +282,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     const validStep1Substeps: WizardStep[] = ["welcome"];
     const validStep2Substeps: WizardStep[] = ["selection", "generating_strategy"];
     const validStep3Substeps: WizardStep[] = ["strategy_ready", "creating_web", "landing_success", "show_avatars", "show_landing_prep", "unlock"];
-    const validStep4Substeps: WizardStep[] = ["generating_hooks", "show_hooks"];
-    const validStep5Substeps: WizardStep[] = ["success"];
+    const validStep4Substeps: WizardStep[] = ["generating_hooks", "show_hooks", "success"];
 
     const prefix = location.pathname.startsWith('/onboarding') ? '/onboarding' : '/wizard';
 
@@ -314,23 +308,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     }
 
     if (validStep4Substeps.includes(step)) {
-      if (!fullPath.includes("step-4") && !fullPath.includes("hooks")) {
+      if (!fullPath.includes("step-4") && !fullPath.includes("hooks") && !fullPath.includes("success") && !fullPath.includes("step-5")) {
         navigate(`${prefix}/step-4`, { replace: true });
       }
       return;
     }
 
-    if (validStep5Substeps.includes(step)) {
-      if (!fullPath.includes("step-5") && !fullPath.includes("success")) {
-        navigate(`${prefix}/step-5`, { replace: true });
-      }
-      return;
-    }
-
-    if (fullPath.includes("step-5") || fullPath.includes("success")) {
-      if (step !== "success") setStep("success");
-    } else if (fullPath.includes("step-4") || fullPath.includes("hooks")) {
-      if (!validStep4Substeps.includes(step)) setStep("show_hooks");
+    if (fullPath.includes("step-4") || fullPath.includes("step-5") || fullPath.includes("success") || fullPath.includes("hooks")) {
+      if (!validStep4Substeps.includes(step)) setStep("success");
     } else if (fullPath.includes("step-3") || fullPath.includes("strategy_ready") || fullPath.includes("unlock")) {
       if (!validStep3Substeps.includes(step)) setStep("strategy_ready");
     } else if (fullPath.includes("step-2") || fullPath.includes("selection")) {
@@ -1412,42 +1397,21 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     setGenerationProgress(0);
     setGenerationStatus("Creando video 1...");
 
-    const maxHooksLimit = user.planLimits?.maxHooks || 5;
+    const maxHooksLimit = user.planLimits?.maxHooks || 3;
     const targetProjectId = unlockedProject?.id || selectedProject?.id;
 
     // 1. Iniciar la carga/generación en segundo plano de inmediato para no perder tiempo técnico
     const apiPromise = (async () => {
       try {
-        const freeHooksLimit = Math.min(3, user.planLimits?.maxHooks || 3);
-
-        // Buscar candidatos reales en la estrategia o catálogo
-        let candidateHooks = strategyData?.modules?.hooks || [];
-
-        if (candidateHooks.length === 0 && selectedProject) {
-          try {
-            const library = await api.getHooksLibrary(1, 50, selectedProject.id);
-            candidateHooks = library.hooks || [];
-          } catch (e) {
-            console.warn("Error cargando librería de ganchos del catálogo:", e);
-          }
-        }
-
-        candidateHooks = candidateHooks.filter(
-          (h: any) => h.isActive !== false && h.is_active !== 0 && h.is_active !== false,
-        );
-
-        // Filtrar solo IDs numéricos reales si existen, o dejar vacío para que el backend los busque en la BD
-        const realNumericIds = candidateHooks
-          .map((h: any) => h.id || h.masterHookId)
-          .filter((id: any) => id && !isNaN(parseInt(String(id).replace('available-', ''), 10)))
-          .map((id: any) => String(id).replace('available-', ''));
+        const freeHooksLimit = user.planLimits?.maxHooks || 3;
 
         if (targetProjectId) {
           try {
-            console.log("🔓 [DESBLOQUEANDO HOOKS REALES BD] Ejecutando unlockMultipleHooks desde la Base de Datos para el proyecto:", targetProjectId);
+            console.log("🔓 [DESBLOQUEANDO HOOKS ALEATORIOS BD] Ejecutando unlockMultipleHooks desde la Base de Datos para el proyecto:", targetProjectId, "Límite:", freeHooksLimit);
+            // Al pasar un arreglo vacío [], el backend consulta la BD del proyecto maestro y selecciona de forma ALEATORIA (ORDER BY RAND()) los ganchos según el límite del plan.
             const response = await api.unlockMultipleHooks(
               targetProjectId,
-              realNumericIds.slice(0, freeHooksLimit),
+              [],
               true,
               freeHooksLimit
             );
@@ -1466,6 +1430,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           }
         }
 
+        const candidateHooks = strategyData?.modules?.hooks || [];
         return candidateHooks.slice(0, freeHooksLimit).map((h: any) => ({ ...h, isGenerated: true }));
       } catch (err) {
         console.error("Error en segundo plano al cargar hooks desde BD:", err);
@@ -1473,9 +1438,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       }
     })();
 
-    // 2. Temporizador de cuenta progresiva artificial de exactamente 15 segundos, dinámico por límite de ganchos
+    // 2. Temporizador de cuenta progresiva artificial de exactamente 10 segundos
     const startTime = Date.now();
-    const duration = 15000;
+    const duration = 10000;
 
     if (activeTimerRef.current) {
       clearInterval(activeTimerRef.current);
@@ -1491,9 +1456,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           Math.floor(ratio * maxHooksLimit) + 1
         );
         setGenerationStatus(`Creando video ${currentVideoIndex}...`);
-        setGenerationProgress(Math.min(98, Math.round(ratio * 98)));
+        setGenerationProgress(Math.min(99, Math.round(ratio * 99)));
       } else {
-        // Cumplidos los 15 segundos, esperamos a que el API resolve
+        // Cumplidos los 10 segundos, esperamos a que el API resuelva
         clearInterval(timer);
         activeTimerRef.current = null;
 
@@ -1510,14 +1475,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           setTimeout(() => {
             localStorage.setItem("force_wizard_step", "success");
             setStep("success");
-            navigate(`${prefix}/step-5`);
+            navigate(`${prefix}/step-4`);
           }, 800);
         }).catch((error) => {
           console.error("❌ Error en proceso de ganchos:", error);
           setIsHooksUnlocked(true);
           localStorage.setItem("force_wizard_step", "success");
           setStep("success");
-          navigate(`${prefix}/step-5`);
+          navigate(`${prefix}/step-4`);
         });
       }
     }, 100);
@@ -2440,37 +2405,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               progress={generationProgress}
               status={generationStatus}
               secondsElapsed={secondsElapsed}
-              message="Estamos creando los videos para atraer tus potenciales clientes."
+              message="Estamos creando tus videos de atracción"
               project={selectedProject || unlockedProject}
             />
           </div>
-        ) : step === "show_hooks" ? (
-          <div ref={hooksRef} className="w-full max-w-[1440px] mx-auto min-h-[calc(100vh-100px)] flex flex-col justify-center py-12 px-4 md:px-6 relative font-sans">
-            <HooksRevealStep
-              userData={user}
-              hooks={
-                unlockedHooks.length > 0
-                  ? unlockedHooks
-                  : strategyData?.modules?.hooks || []
-              }
-              isUnlocked={isHooksUnlocked}
-              projectId={unlockedProject?.id}
-              project={selectedProject || unlockedProject}
-              onNext={() => {
-                if (!isHooksUnlocked) {
-                  handleUnlockHooks();
-                } else {
-                  goToStep(5);
-                }
-              }}
-              hooksRef={hooksRef}
-              onOpenHookDetails={(hook) => {
-                setSelectedHookForDrawer(hook);
-                setActiveDetailsDrawer("hooks");
-              }}
-            />
-          </div>
-        ) : step === "success" ? (
+        ) : (step === "show_hooks" || step === "success") ? (
           <div
             ref={successRef}
             className="w-full max-w-[1440px] mx-auto px-4 md:px-6 min-h-[calc(100vh-100px)] flex flex-col justify-center py-10 relative font-sans"
