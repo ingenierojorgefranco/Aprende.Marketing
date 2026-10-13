@@ -266,22 +266,15 @@ router.post('/unlock-single', async (req, res) => {
  * Desbloquea múltiples ganchos desde una lista de IDs maestros
  */
 router.post('/unlock-multiple', async (req, res) => {
-    const { projectId, masterHookIds, hooks, isGenerated } = req.body;
-    const rawList = masterHookIds || hooks;
-    if (!projectId || !rawList || !Array.isArray(rawList)) {
-        return res.status(400).json({ error: "Faltan parámetros o formato inválido" });
-    }
-
-    const cleanMasterHookIds = rawList.map(idOrObj => {
-        const id = typeof idOrObj === 'object' && idOrObj !== null ? (idOrObj.id || idOrObj.masterHookId) : idOrObj;
-        return String(id || '').replace('available-', '').trim();
-    }).filter(id => id.length > 0);
-
-    if (cleanMasterHookIds.length === 0) {
-        return res.status(400).json({ error: "No hay IDs válidos para desbloquear" });
+    const { projectId, masterHookIds, hooks, isGenerated, count } = req.body;
+    if (!projectId) {
+        return res.status(400).json({ error: "Falta el ID del proyecto (projectId)" });
     }
 
     try {
+        const countToUnlock = parseInt(count, 10) || 3;
+
+        // 1. Verificar límites del plan del usuario
         const effectiveLimits = await getEffectiveLimits(req.user.id);
         const maxAllowed = effectiveLimits.maxHooks;
         
@@ -293,46 +286,95 @@ router.post('/unlock-multiple', async (req, res) => {
                 WHERE p.user_id = ?
             `, [req.user.id]);
             
-            if (countRows[0].total + cleanMasterHookIds.length > maxAllowed) {
+            if (countRows[0].total + countToUnlock > maxAllowed) {
                 return res.status(403).json({ error: `Esta acción superaría tu límite global de ${maxAllowed} ganchos.` });
             }
         }
 
-        // Buscar ganchos maestros numéricos si existen
-        const numericIds = cleanMasterHookIds.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
-        let foundMasterMap = new Map();
-        if (numericIds.length > 0) {
-            const [masterRows] = await pool.query('SELECT * FROM project_hooks WHERE id IN (?)', [numericIds]);
-            foundMasterMap = new Map(masterRows.map(m => [String(m.id), m]));
+        // 2. Determinar el proyecto maestro (masterParentId)
+        const [projRows] = await pool.query('SELECT id, master_parent_id, is_master FROM projects WHERE id = ?', [projectId]);
+        if (projRows.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
+        
+        let masterParentId = projRows[0].master_parent_id;
+        if (!masterParentId && projRows[0].is_master) {
+            masterParentId = projRows[0].id;
         }
 
-        const results = [];
-        for (let i = 0; i < cleanMasterHookIds.length; i++) {
-            const idStr = cleanMasterHookIds[i];
-            const originalObj = Array.isArray(hooks) ? hooks[i] : null;
-            const master = foundMasterMap.get(idStr);
+        // 3. Extraer ganchos maestros reales desde la base de datos
+        let masterHooksToUnlock = [];
 
-            if (master) {
-                const clonedContent = master.content_json ? (typeof master.content_json === 'string' ? master.content_json : JSON.stringify(master.content_json)) : null;
-                const [result] = await pool.query(
-                    `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
-                     VALUES (?, ?, ?, ?, ?, ?)`,
-                    [projectId, master.id, master.title, master.psychological_strategy, clonedContent, isGenerated ? 1 : 0]
-                );
-                results.push({ masterId: master.id, id: String(result.insertId), newId: result.insertId });
-            } else {
-                const title = originalObj?.title || `Reel ${i + 1}: Gancho Desbloqueado`;
-                const psy = originalObj?.psychologicalStrategy || originalObj?.psychological_strategy || 'Atracción y curiosidad';
-                const content = originalObj?.contentJson || originalObj?.content_json || originalObj?.hookText || null;
-                const contentJsonStr = content ? (typeof content === 'string' ? content : JSON.stringify(content)) : null;
+        // Si el cliente envió IDs numéricos válidos
+        const rawList = masterHookIds || hooks || [];
+        const numericIds = (Array.isArray(rawList) ? rawList : [])
+            .map(idOrObj => {
+                const id = typeof idOrObj === 'object' && idOrObj !== null ? (idOrObj.id || idOrObj.masterHookId) : idOrObj;
+                return parseInt(String(id || '').replace('available-', ''), 10);
+            })
+            .filter(id => !isNaN(id));
 
-                const [result] = await pool.query(
-                    `INSERT INTO project_hooks (project_id, title, psychological_strategy, content_json, is_generated)
-                     VALUES (?, ?, ?, ?, ?)`,
-                    [projectId, title, psy, contentJsonStr, isGenerated ? 1 : 0]
+        if (numericIds.length > 0) {
+            const [rows] = await pool.query('SELECT * FROM project_hooks WHERE id IN (?)', [numericIds]);
+            masterHooksToUnlock = rows;
+        }
+
+        // Si no se pasaron IDs numéricos válidos, consultar directamente la biblioteca maestra en BD
+        if (masterHooksToUnlock.length === 0) {
+            if (masterParentId) {
+                const [rows] = await pool.query(
+                    `SELECT * FROM project_hooks 
+                     WHERE project_id = ? 
+                     AND is_active = 1
+                     AND id NOT IN (SELECT master_hook_id FROM project_hooks WHERE project_id = ? AND master_hook_id IS NOT NULL)
+                     ORDER BY RAND() LIMIT ?`,
+                    [masterParentId, projectId, countToUnlock]
                 );
-                results.push({ masterId: idStr, id: String(result.insertId), newId: result.insertId });
+                masterHooksToUnlock = rows;
             }
+
+            // Fallback global de la biblioteca de ganchos maestros si no hay en el parent directo
+            if (masterHooksToUnlock.length === 0) {
+                const [rows] = await pool.query(
+                    `SELECT ph.* FROM project_hooks ph
+                     JOIN projects p ON ph.project_id = p.id
+                     WHERE p.is_master = 1 AND ph.is_active = 1
+                     AND ph.id NOT IN (SELECT master_hook_id FROM project_hooks WHERE project_id = ? AND master_hook_id IS NOT NULL)
+                     ORDER BY RAND() LIMIT ?`,
+                    [projectId, countToUnlock]
+                );
+                masterHooksToUnlock = rows;
+            }
+        }
+
+        if (masterHooksToUnlock.length === 0) {
+            return res.status(404).json({ error: "No se encontraron ganchos en la biblioteca maestra para desbloquear." });
+        }
+
+        // 4. Clonar e insertar los ganchos reales extraídos de BD para el proyecto del usuario
+        const results = [];
+        for (const master of masterHooksToUnlock) {
+            const clonedContent = master.content_json ? (typeof master.content_json === 'string' ? master.content_json : JSON.stringify(master.content_json)) : null;
+            const [result] = await pool.query(
+                `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [projectId, master.id, master.title, master.psychological_strategy, clonedContent, isGenerated ? 1 : 0]
+            );
+
+            let parsedContent = null;
+            try {
+                parsedContent = master.content_json ? (typeof master.content_json === 'string' ? JSON.parse(master.content_json) : master.content_json) : null;
+            } catch (e) {
+                parsedContent = master.content_json;
+            }
+
+            results.push({
+                masterId: master.id,
+                id: String(result.insertId),
+                title: master.title,
+                psychological_strategy: master.psychological_strategy,
+                content_json: parsedContent,
+                contentJson: parsedContent,
+                isGenerated: true
+            });
         }
 
         res.json({ success: true, results });

@@ -1420,7 +1420,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       try {
         const freeHooksLimit = Math.min(3, user.planLimits?.maxHooks || 3);
 
-        // Buscar candidatos en la estrategia o catálogo
+        // Buscar candidatos reales en la estrategia o catálogo
         let candidateHooks = strategyData?.modules?.hooks || [];
 
         if (candidateHooks.length === 0 && selectedProject) {
@@ -1436,43 +1436,40 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           (h: any) => h.isActive !== false && h.is_active !== 0 && h.is_active !== false,
         );
 
-        if (candidateHooks.length === 0) {
-          candidateHooks = [
-            { id: "h1", title: "Reel 1: Transformación Directa", hookText: "¿Sabías que una sola técnica bien ejecutada puede cambiar tus ingresos?", isGenerated: true },
-            { id: "h2", title: "Reel 2: El Mito Revelado", hookText: "El gran mito de la industria revelado: Por qué los métodos tradicionales ya no funcionan.", isGenerated: true },
-            { id: "h3", title: "Reel 3: La Fórmula Élite", hookText: "La fórmula exacta que usan los profesionales para destacar y multiplicar sus clientes.", isGenerated: true }
-          ];
-        }
+        // Filtrar solo IDs numéricos reales si existen, o dejar vacío para que el backend los busque en la BD
+        const realNumericIds = candidateHooks
+          .map((h: any) => h.id || h.masterHookId)
+          .filter((id: any) => id && !isNaN(parseInt(String(id).replace('available-', ''), 10)))
+          .map((id: any) => String(id).replace('available-', ''));
 
-        const selected = candidateHooks.slice(0, freeHooksLimit);
-        const masterHookIds = selected.map((h: any) => h.id || h.masterHookId).filter(Boolean);
-
-        // Ejecutar desbloqueo explícito de los 3 ganchos para el proyecto del usuario
-        if (targetProjectId && masterHookIds.length > 0) {
+        if (targetProjectId) {
           try {
-            console.log("🔓 [DESBLOQUEANDO HOOKS GRATUITOS] Ejecutando unlockMultipleHooks para 3 ganchos:", masterHookIds);
+            console.log("🔓 [DESBLOQUEANDO HOOKS REALES BD] Ejecutando unlockMultipleHooks desde la Base de Datos para el proyecto:", targetProjectId);
             const response = await api.unlockMultipleHooks(
               targetProjectId,
-              masterHookIds,
+              realNumericIds.slice(0, freeHooksLimit),
               true,
+              freeHooksLimit
             );
 
-            if (response && response.results) {
-              return response.results.map((h: any, idx: number) => ({
-                ...selected[idx],
-                id: h.id || selected[idx]?.id,
+            if (response && response.results && response.results.length > 0) {
+              return response.results.map((h: any) => ({
+                id: h.id,
+                title: h.title,
+                psychologicalStrategy: h.psychological_strategy || h.psychologicalStrategy,
+                contentJson: h.content_json || h.contentJson,
                 isGenerated: true,
               }));
             }
           } catch (unlockErr: any) {
-            console.warn("⚠️ Notificación de límite/registro al desbloquear ganchos en backend. Estructurando los 3 ganchos para el usuario:", unlockErr?.message || unlockErr);
+            console.warn("⚠️ Notificación al desbloquear ganchos en backend:", unlockErr?.message || unlockErr);
           }
         }
 
-        return selected.map((h: any) => ({ ...h, isGenerated: true }));
+        return candidateHooks.slice(0, freeHooksLimit).map((h: any) => ({ ...h, isGenerated: true }));
       } catch (err) {
-        console.error("Error en segundo plano al cargar hooks:", err);
-        return (strategyData?.modules?.hooks || []).slice(0, 3).map((h: any) => ({ ...h, isGenerated: true }));
+        console.error("Error en segundo plano al cargar hooks desde BD:", err);
+        return [];
       }
     })();
 

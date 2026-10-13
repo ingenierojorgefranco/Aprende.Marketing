@@ -2534,13 +2534,13 @@ export const api = {
         });
     },
 
-    unlockMultipleHooks: async (projectId: string, masterHookIds: string[], isGenerated?: boolean): Promise<{ success: boolean; results: any[] }> => {
-        if (isMockMode) return { success: true, results: masterHookIds.map(id => ({ id: `unlocked-${id}-${Date.now()}` })) };
-        const cleanIds = masterHookIds.map(id => String(id).replace('available-', ''));
+    unlockMultipleHooks: async (projectId: string, masterHookIds?: string[], isGenerated?: boolean, count?: number): Promise<{ success: boolean; results: any[] }> => {
+        if (isMockMode) return { success: true, results: (masterHookIds || []).map(id => ({ id: `unlocked-${id}-${Date.now()}` })) };
+        const cleanIds = (masterHookIds || []).map(id => String(id).replace('available-', '')).filter(Boolean);
         return await fetchWithFallback('/hooks/unlock-multiple', {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ projectId, masterHookIds: cleanIds, isGenerated })
+            body: JSON.stringify({ projectId, masterHookIds: cleanIds, isGenerated, count: count || 3 })
         });
     },
 
