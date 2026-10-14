@@ -137,6 +137,7 @@ export const DashboardLayout = ({
   const [pageCount, setPageCount] = useState(0);
   const [articleCount, setArticleCount] = useState(0);
   const [hookCount, setHookCount] = useState(0);
+  const [carouselCount, setCarouselCount] = useState(0);
   const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
   
   const [simulatedPlanSlug, setSimulatedPlanSlug] = useState<string | null>(() => {
@@ -230,6 +231,7 @@ export const DashboardLayout = ({
               setPageCount(summary.totalPages || 0);
               setArticleCount(summary.totalArticles || 0);
               setHookCount(summary.totalHooks || 0);
+              setCarouselCount(summary.totalCarousels || 0);
 
               if (user.role === 'admin') {
                   const plansData = await api.getPlans();
@@ -755,6 +757,7 @@ export const DashboardLayout = ({
                         pageCount, 
                         articleCount, 
                         hookCount,
+                        carouselCount,
                         isSimulating: !!simulatedPlanSlug,
                         setShowProfileModal,
                         setShowUpgradeModal,

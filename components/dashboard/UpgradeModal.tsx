@@ -553,9 +553,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                             <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] mb-1">
                               <Video className="w-5 h-5" />
                             </div>
-                            <h4 className="text-base sm:text-lg font-bold text-white">30 reels con IA por proyecto cada mes</h4>
+                            <h4 className="text-base sm:text-lg font-bold text-white">30 Reels con IA para tus Proyectos cada Mes</h4>
                             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
-                              Desbloquea hasta 90 Reels, Hooks, guiones y llamadas a la acción para atraer audiencia a tus proyectos digitales.
+                              Desbloquea 30 Reels, Hooks, guiones y llamadas a la acción mensualmente para atraer audiencia a tus proyectos digitales.
                             </p>
                           </div>
 
@@ -612,7 +612,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                               </div>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                <span className="font-bold text-white">30 reels con IA por proyecto cada mes</span>
+                                <span className="font-bold text-white">30 reels con IA cada mes</span>
                               </div>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
@@ -992,7 +992,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                   {[
                     { 
                       q: "¿Cuál es la diferencia entre el Plan Mensual y el Plan Anual?", 
-                      a: "El Plan Mensual ($39/mes en oferta) te permite gestionar hasta 3 proyectos o nichos activos con 30 reels por proyecto al mes (hasta 90 reels) y 3 dominios propios. El Plan Anual ($297/año, equivalente a sólo $24.75/mes) te da acceso completo a 12 proyectos activos al año, 360 reels con IA cada mes (30 por proyecto), 12 dominios propios con SSL, hasta 48 artículos de blog para SEO al mes y un ahorro masivo de $651 al año (68% OFF)." 
+                      a: "El Plan Mensual ($39/mes en oferta) te permite gestionar hasta 3 proyectos o nichos activos con 30 reels con IA cada mes para tus proyectos y 3 dominios propios. El Plan Anual ($297/año, equivalente a sólo $24.75/mes) te da acceso completo a 12 proyectos activos al año, 360 reels con IA cada mes (30 por proyecto), 12 dominios propios con SSL, hasta 48 artículos de blog para SEO al mes y un ahorro masivo de $651 al año (68% OFF)." 
                     },
                     { 
                       q: "¿Puedo desbloquear más de un proyecto en el Plan Mensual?", 

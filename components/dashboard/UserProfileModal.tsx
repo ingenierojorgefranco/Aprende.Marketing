@@ -418,7 +418,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <Zap className="w-5 h-5 text-orange-400" />
-                                                        <span className="text-sm font-bold text-white">Ganchos Magnéticos (Bolsa Global: {resources.hooks.length} / {user.planLimits?.maxHooks || 10})</span>
+                                                        <span className="text-sm font-bold text-white">Ganchos Magnéticos ({Math.max(0, (user.planLimits?.maxHooks || 10) - resources.hooks.length)} / {user.planLimits?.maxHooks || 10} reels disponibles)</span>
                                                     </div>
                                                     {expandedResource === 'hooks' ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
                                                 </button>

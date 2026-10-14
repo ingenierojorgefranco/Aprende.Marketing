@@ -47,8 +47,20 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     const context = useOutletContext() as any;
     const user = context?.user;
     const isSimulating = context?.isSimulating;
+    const carouselCount = context?.carouselCount;
     const planLimits = user?.planLimits;
     const isRealAdmin = (planLimits?.planName === 'admin' || user?.role === 'admin') && !isSimulating;
+
+    const [globalCarouselCount, setGlobalCarouselCount] = useState<number | null>(null);
+
+    const fetchGlobalCarouselCount = async () => {
+        try {
+            const summary = await api.getAnalyticsSummary();
+            if (summary && typeof summary.totalCarousels === 'number') {
+                setGlobalCarouselCount(summary.totalCarousels);
+            }
+        } catch (e) {}
+    };
 
     const [carousels, setCarousels] = useState<ProjectCarousel[]>([]);
     const [loadingCarousels, setLoadingHooks] = useState(true);
@@ -288,6 +300,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 if (activeTab === 'library' || !loadedCarousels || loadedCarousels.length === 0) {
                     await fetchLibrary(libraryPage, mParentId);
                 }
+                await fetchGlobalCarouselCount();
             } catch (e) {
                 console.error("Error checking project:", e);
             } finally {
@@ -408,6 +421,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             });
             const data = await api.getProjectCarousels(projectId);
             setCarousels(data || []);
+            await fetchGlobalCarouselCount();
             setActiveTab('generated');
             // Select the newly unlocked item in the list
             const newIdx = (data || []).findIndex((c: any) => String(c.id) === String(res.id) || String(c.masterCarouselId) === String(masterId).replace('available-', ''));
@@ -441,6 +455,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             });
             const data = await api.getProjectCarousels(projectId);
             setCarousels(data || []);
+            await fetchGlobalCarouselCount();
             setActiveTab('generated');
             setActiveCarouselIdx(0);
         } catch (err: any) {
@@ -489,7 +504,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
     // Create manual carousel
     const handleCreateManualCarousel = async () => {
-        if (unlockedCount >= maxCarousels && !isRealAdmin) {
+        if (availableCarousels <= 0 && !isRealAdmin) {
             setShowLockModal(true);
             return;
         }
@@ -550,11 +565,20 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         }
     };
 
-    // Plan limits and counts
+    // Plan limits and counts (bolsa global compartida entre proyectos)
     const isStarter = planLimits?.planName === 'starter';
     const unlockedCount = carousels.filter(c => (c as any).isUnlocked || c.isGenerated).length;
     const maxCarousels = planLimits?.maxCarousels || 50;
-    const usagePercent = Math.min(100, (unlockedCount / maxCarousels) * 100);
+    const totalUsedCarousels = globalCarouselCount !== null 
+        ? globalCarouselCount 
+        : (typeof carouselCount === 'number' ? carouselCount : unlockedCount);
+    const availableCarousels = isRealAdmin ? 999999 : Math.max(0, maxCarousels - totalUsedCarousels);
+    const isLimitReached = !isRealAdmin && availableCarousels <= 0;
+    const availablePercent = maxCarousels > 0 ? Math.min(100, (availableCarousels / maxCarousels) * 100) : 0;
+
+    let progressColor = "bg-green-500";
+    if (availablePercent <= 20) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
+    else if (availablePercent <= 50) progressColor = "bg-yellow-500";
 
     return (
         <div className="space-y-8 animate-in fade-in duration-300">
@@ -622,11 +646,11 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                         <div className="w-full mb-6">
                             <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                                 <div className="flex justify-between items-center mb-2 text-sm">
-                                    <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Carruseles Disponibles</span>
-                                    <span className="text-white font-bold">{unlockedCount} / {isRealAdmin ? '∞' : maxCarousels}</span>
+                                    <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Carruseles disponibles</span>
+                                    <span className="text-white font-bold">{isRealAdmin ? '∞' : `${availableCarousels} / ${maxCarousels}`}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                    <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-orange-500" style={{ width: `${isRealAdmin ? (unlockedCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                    <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? 100 : availablePercent}%` }}></div>
                                 </div>
                             </div>
                         </div>
@@ -814,18 +838,18 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                             <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro equipo de marketing ha redactado y diseñado esta plantilla para ti. Haz clic en Desbloquear para añadirla a tu colección.</p>
 
                             <button 
-                                onClick={unlockedCount >= maxCarousels && !isRealAdmin ? () => setShowLockModal(true) : () => setShowConfirmModal(true)}
+                                onClick={isLimitReached ? () => setShowLockModal(true) : () => setShowConfirmModal(true)}
                                 disabled={unlockingSingle}
-                                className={`w-full py-5 rounded-2xl ${unlockedCount >= maxCarousels && !isRealAdmin ? 'bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110' : 'bg-orange-600 hover:bg-orange-500'} text-white font-black text-xl uppercase tracking-widest shadow-xl transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70 cursor-pointer`}
+                                className={`w-full py-5 rounded-2xl ${isLimitReached ? 'bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110' : 'bg-orange-600 hover:bg-orange-500'} text-white font-black text-xl uppercase tracking-widest shadow-xl transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70 cursor-pointer`}
                             >
                                 {unlockingSingle ? (
                                     <Loader2 className="w-6 h-6 animate-spin" />
-                                ) : unlockedCount >= maxCarousels && !isRealAdmin ? (
+                                ) : isLimitReached ? (
                                     <Crown className="w-6 h-6 fill-current text-white animate-pulse" />
                                 ) : (
                                     <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />
                                 )}
-                                {unlockingSingle ? 'Desbloqueando...' : unlockedCount >= maxCarousels && !isRealAdmin ? 'Actualizar a PRO 👑' : 'Desbloquear Carrusel'}
+                                {unlockingSingle ? 'Desbloqueando...' : isLimitReached ? 'Actualizar a PRO 👑' : 'Desbloquear Carrusel'}
                             </button>
                             
                             <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">
@@ -1224,7 +1248,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                         "Como Administrador tienes acceso ilimitado para diseñar todos los carruseles que desees."
                                     ) : (
                                         <>
-                                            Tienes disponible la creación de <strong className="text-orange-500 font-black text-lg sm:text-xl px-1">{Math.max(0, maxCarousels - unlockedCount)} {Math.max(0, maxCarousels - unlockedCount) === 1 ? 'carrusel' : 'carruseles'}</strong> para tu proyecto.
+                                            Tienes disponible la creación de <strong className="text-orange-500 font-black text-lg sm:text-xl px-1">{availableCarousels} {availableCarousels === 1 ? 'carrusel' : 'carruseles'}</strong> para tus proyectos.
                                         </>
                                     )}
                                 </p>
@@ -1233,10 +1257,10 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-4 shadow-inner text-left">
                                 <div className="flex justify-between items-center text-sm font-semibold">
                                     <span className="text-zinc-300 font-black uppercase tracking-widest text-xs">Carruseles disponibles</span>
-                                    <span className="text-orange-400 font-black text-sm sm:text-base">{unlockedCount} de {isRealAdmin ? 'Ilimitados' : maxCarousels} diseñados</span>
+                                    <span className="text-orange-400 font-black text-sm sm:text-base">{isRealAdmin ? '∞' : `${availableCarousels} / ${maxCarousels}`}</span>
                                 </div>
                                 <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
-                                    <div className="h-full bg-gradient-to-r from-[#FF5D1E] to-orange-500 rounded-full transition-all duration-[1500ms] ease-out shadow-lg" style={{ width: `${isRealAdmin ? (unlockedCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                    <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-lg`} style={{ width: `${isRealAdmin ? 100 : availablePercent}%` }}></div>
                                 </div>
                             </div>
 

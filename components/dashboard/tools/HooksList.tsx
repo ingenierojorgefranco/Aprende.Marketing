@@ -123,10 +123,12 @@ export const HooksList: React.FC = () => {
 
     const isRealAdmin = user.role === 'admin' && !isSimulating;
     const maxHooks = user.planLimits?.maxHooks || 10;
-    const usagePercent = maxHooks > 0 ? Math.min(100, (hookCount / maxHooks) * 100) : 0;
+    const availableReels = isRealAdmin ? 999999 : Math.max(0, maxHooks - hookCount);
+    const availablePercent = maxHooks > 0 ? Math.min(100, (availableReels / maxHooks) * 100) : 0;
 
-    let progressColor = "bg-orange-500";
-    if (usagePercent > 80) progressColor = isRealAdmin ? "bg-orange-500" : "bg-red-500";
+    let progressColor = "bg-green-500";
+    if (availablePercent <= 20) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
+    else if (availablePercent <= 50) progressColor = "bg-yellow-500";
 
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 pb-20">
@@ -152,11 +154,11 @@ export const HooksList: React.FC = () => {
                         {/* Plan Usage Bar */}
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
                             <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Ganchos Desbloqueados (Bolsa Global)</span>
-                                <span className="text-white font-bold">{hookCount} / {isRealAdmin ? '∞' : maxHooks}</span>
+                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Reels disponibles</span>
+                                <span className="text-white font-bold">{isRealAdmin ? '∞' : `${availableReels} / ${maxHooks}`}</span>
                             </div>
                             <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (hookCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? 100 : availablePercent}%` }}></div>
                             </div>
                         </div>
                     </div>

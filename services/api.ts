@@ -1217,11 +1217,11 @@ export const api = {
         return data;
     },
   
-    getAnalyticsSummary: async (): Promise<{totalVisits: number, totalConversions: number, totalPages: number, totalArticles: number, totalProjects: number, totalHooks: number}> => {
+    getAnalyticsSummary: async (): Promise<{totalVisits: number, totalConversions: number, totalPages: number, totalArticles: number, totalProjects: number, totalHooks: number, totalCarousels?: number}> => {
         if (isMockMode) {
             const totalVisits = localPages.reduce((acc, p) => acc + p.visits, 0);
             const totalConversions = localPages.reduce((acc, p) => acc + p.conversions, 0);
-            return Promise.resolve({ totalVisits, totalConversions, totalPages: localPages.length, totalArticles: localArticles.length, totalProjects: localProjects.length, totalHooks: 0 });
+            return Promise.resolve({ totalVisits, totalConversions, totalPages: localPages.length, totalArticles: localArticles.length, totalProjects: localProjects.length, totalHooks: 0, totalCarousels: 0 });
         }
         if (apiCache.summary) return apiCache.summary;
         const summary = await fetchWithFallback('/analytics/summary', { headers: getAuthHeaders() });

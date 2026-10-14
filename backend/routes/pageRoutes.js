@@ -430,11 +430,18 @@ router.get('/analytics/summary', authMiddleware, async (req, res) => {
     const [pagesRes] = await pool.query('SELECT COUNT(*) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
     const [articlesRes] = await pool.query('SELECT COUNT(*) as c FROM articles WHERE user_id = ?', [req.user.id]);
     const [projectsRes] = await pool.query('SELECT COUNT(*) as c FROM projects WHERE user_id = ?', [req.user.id]);
-    // Nuevo: Conteo de ganchos (hooks) asociados a los proyectos del usuario
+    // Nuevo: Conteo de ganchos (hooks) y carruseles asociados a los proyectos del usuario
     const [hooksRes] = await pool.query(`
         SELECT COUNT(*) as c 
         FROM project_hooks h
         JOIN projects p ON h.project_id = p.id
+        WHERE p.user_id = ?
+    `, [req.user.id]);
+
+    const [carouselsRes] = await pool.query(`
+        SELECT COUNT(*) as c 
+        FROM project_carousels c
+        JOIN projects p ON c.project_id = p.id
         WHERE p.user_id = ?
     `, [req.user.id]);
 
@@ -444,7 +451,8 @@ router.get('/analytics/summary', authMiddleware, async (req, res) => {
         totalPages: pagesRes[0].c || 0,
         totalArticles: articlesRes[0].c || 0,
         totalProjects: projectsRes[0].c || 0,
-        totalHooks: hooksRes[0].c || 0
+        totalHooks: hooksRes[0].c || 0,
+        totalCarousels: carouselsRes[0].c || 0
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
