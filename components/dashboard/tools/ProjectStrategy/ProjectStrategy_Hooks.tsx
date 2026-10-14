@@ -465,8 +465,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     
     if (!hook || !projectId || !(hook as any).masterHookId) return;
     
-    if (!isRealAdmin && availableReels <= 0) {
-        alert("Has alcanzado el límite de reels disponibles de tu plan. Actualiza tu plan para desbloquear más.");
+    if (!isRealAdmin && totalUsedHooks >= maxHooks) {
+        alert("Has alcanzado el límite global de ganchos de tu plan. Actualiza tu plan para desbloquear más.");
         return;
     }
 
@@ -944,13 +944,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const totalUsedHooks = globalHookCount !== null 
     ? globalHookCount 
     : (typeof hookCount === 'number' ? hookCount : hooks.filter(h => h.isGenerated || (h as any).isUnlocked).length);
-  const availableReels = isRealAdmin ? 999999 : Math.max(0, maxHooks - totalUsedHooks);
-  const isLimitReached = !isRealAdmin && availableReels <= 0;
-  const availablePercent = maxHooks > 0 ? Math.min(100, (availableReels / maxHooks) * 100) : 0;
+  const isLimitReached = !isRealAdmin && totalUsedHooks >= maxHooks;
+  const usagePercent = maxHooks > 0 ? Math.min(100, (totalUsedHooks / maxHooks) * 100) : 0;
   
-  let progressColor = "bg-green-500";
-  if (availablePercent <= 20) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
-  else if (availablePercent <= 50) progressColor = "bg-yellow-500";
+  let progressColor = "bg-orange-500";
+  if (usagePercent >= 100) progressColor = isRealAdmin ? "bg-orange-500" : "bg-red-500";
 
   return (
     <div className="space-y-6 text-left animate-in fade-in duration-500">
@@ -1108,11 +1106,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             <div className="w-full mb-6">
               <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                 <div className="flex justify-between items-center mb-2 text-sm">
-                  <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Reels disponibles</span>
-                  <span className="text-white font-bold">{isRealAdmin ? '∞' : `${availableReels} / ${maxHooks}`}</span>
+                  <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Reels Desbloqueados</span>
+                  <span className="text-white font-bold">{isRealAdmin ? '∞' : `${totalUsedHooks} / ${maxHooks}`}</span>
                 </div>
                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                  <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? 100 : availablePercent}%` }}></div>
+                  <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (totalUsedHooks > 0 ? 100 : 0) : usagePercent}%` }}></div>
                 </div>
               </div>
             </div>
@@ -1920,23 +1918,23 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                       </div>
                       <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirmar Consumo de Créditos</h3>
                       <p className="text-gray-400 text-lg leading-relaxed font-medium">
-                        {(!isRealAdmin && availableReels <= 0) 
-                          ? "Has alcanzado el límite de reels disponibles de tu plan actual. Actualiza tu plan para continuar."
-                          : `Al desbloquear este Video Hook consumirás 1 crédito de tus ${availableReels} reels disponibles.`}
+                        {(!isRealAdmin && totalUsedHooks >= maxHooks) 
+                          ? "Has alcanzado el límite de reels de tu plan actual. Actualiza tu plan para continuar."
+                          : `Al desbloquear este Video Hook consumirás 1 crédito de tu plan (${totalUsedHooks + 1} de ${maxHooks}).`}
                       </p>
                       <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left">
                           <div className="flex justify-between items-center mb-3">
-                              <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Reels Disponibles</span>
-                              <span className="text-white font-mono font-bold text-sm">{isRealAdmin ? '∞' : `${availableReels} / ${maxHooks}`}</span>
+                              <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Reels Desbloqueados</span>
+                              <span className="text-white font-mono font-bold text-sm">{isRealAdmin ? '∞' : `${totalUsedHooks} / ${maxHooks}`}</span>
                           </div>
                           <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
-                              <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(249,115,22,0.5)]`} style={{ width: `${isRealAdmin ? 100 : availablePercent}%` }}></div>
+                              <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(249,115,22,0.5)]`} style={{ width: `${isRealAdmin ? (totalUsedHooks > 0 ? 100 : 0) : usagePercent}%` }}></div>
                           </div>
                       </div>
                   </div>
                   <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
                       <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
-                      {(!isRealAdmin && availableReels <= 0) ? (
+                      {(!isRealAdmin && totalUsedHooks >= maxHooks) ? (
                           <button onClick={() => { setShowConfirmModal(false); setShowLockModal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#FF5D1E] text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Actualizar Plan</button>
                       ) : (
                           <button onClick={executeUnlock} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Desbloquear</button>

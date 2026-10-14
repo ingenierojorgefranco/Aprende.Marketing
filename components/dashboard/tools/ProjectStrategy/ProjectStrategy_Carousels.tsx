@@ -502,9 +502,22 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         }
     };
 
+    // Plan limits and counts (bolsa global compartida entre proyectos)
+    const isStarter = planLimits?.planName === 'starter';
+    const unlockedCount = carousels.filter(c => (c as any).isUnlocked || c.isGenerated).length;
+    const maxCarousels = planLimits?.maxCarousels || 50;
+    const totalUsedCarousels = globalCarouselCount !== null 
+        ? globalCarouselCount 
+        : (typeof carouselCount === 'number' ? carouselCount : unlockedCount);
+    const isLimitReached = !isRealAdmin && totalUsedCarousels >= maxCarousels;
+    const usagePercent = maxCarousels > 0 ? Math.min(100, (totalUsedCarousels / maxCarousels) * 100) : 0;
+
+    let progressColor = "bg-orange-500";
+    if (usagePercent >= 100) progressColor = isRealAdmin ? "bg-orange-500" : "bg-red-500";
+
     // Create manual carousel
     const handleCreateManualCarousel = async () => {
-        if (availableCarousels <= 0 && !isRealAdmin) {
+        if (isLimitReached) {
             setShowLockModal(true);
             return;
         }
@@ -564,21 +577,6 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             }
         }
     };
-
-    // Plan limits and counts (bolsa global compartida entre proyectos)
-    const isStarter = planLimits?.planName === 'starter';
-    const unlockedCount = carousels.filter(c => (c as any).isUnlocked || c.isGenerated).length;
-    const maxCarousels = planLimits?.maxCarousels || 50;
-    const totalUsedCarousels = globalCarouselCount !== null 
-        ? globalCarouselCount 
-        : (typeof carouselCount === 'number' ? carouselCount : unlockedCount);
-    const availableCarousels = isRealAdmin ? 999999 : Math.max(0, maxCarousels - totalUsedCarousels);
-    const isLimitReached = !isRealAdmin && availableCarousels <= 0;
-    const availablePercent = maxCarousels > 0 ? Math.min(100, (availableCarousels / maxCarousels) * 100) : 0;
-
-    let progressColor = "bg-green-500";
-    if (availablePercent <= 20) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
-    else if (availablePercent <= 50) progressColor = "bg-yellow-500";
 
     return (
         <div className="space-y-8 animate-in fade-in duration-300">
@@ -646,11 +644,11 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                         <div className="w-full mb-6">
                             <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                                 <div className="flex justify-between items-center mb-2 text-sm">
-                                    <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Carruseles disponibles</span>
-                                    <span className="text-white font-bold">{isRealAdmin ? '∞' : `${availableCarousels} / ${maxCarousels}`}</span>
+                                    <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Carruseles Desbloqueados</span>
+                                    <span className="text-white font-bold">{isRealAdmin ? '∞' : `${totalUsedCarousels} / ${maxCarousels}`}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                    <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? 100 : availablePercent}%` }}></div>
+                                    <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (totalUsedCarousels > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                 </div>
                             </div>
                         </div>
@@ -1248,7 +1246,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                         "Como Administrador tienes acceso ilimitado para diseñar todos los carruseles que desees."
                                     ) : (
                                         <>
-                                            Tienes disponible la creación de <strong className="text-orange-500 font-black text-lg sm:text-xl px-1">{availableCarousels} {availableCarousels === 1 ? 'carrusel' : 'carruseles'}</strong> para tus proyectos.
+                                            Al diseñar este carrusel consumirás 1 crédito de tu plan ({totalUsedCarousels + 1} de {maxCarousels}).
                                         </>
                                     )}
                                 </p>
@@ -1256,11 +1254,11 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
                             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-4 shadow-inner text-left">
                                 <div className="flex justify-between items-center text-sm font-semibold">
-                                    <span className="text-zinc-300 font-black uppercase tracking-widest text-xs">Carruseles disponibles</span>
-                                    <span className="text-orange-400 font-black text-sm sm:text-base">{isRealAdmin ? '∞' : `${availableCarousels} / ${maxCarousels}`}</span>
+                                    <span className="text-zinc-300 font-black uppercase tracking-widest text-xs">Carruseles Desbloqueados</span>
+                                    <span className="text-orange-400 font-black text-sm sm:text-base">{isRealAdmin ? '∞' : `${totalUsedCarousels} / ${maxCarousels}`}</span>
                                 </div>
                                 <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
-                                    <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-lg`} style={{ width: `${isRealAdmin ? 100 : availablePercent}%` }}></div>
+                                    <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-lg`} style={{ width: `${isRealAdmin ? (totalUsedCarousels > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                 </div>
                             </div>
 
