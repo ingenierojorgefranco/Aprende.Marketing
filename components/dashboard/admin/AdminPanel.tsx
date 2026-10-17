@@ -135,7 +135,10 @@ export const AdminPanel: React.FC = () => {
         setNewPassword('');
         const currentLimits: PlanLimits = user.planLimits ? {
             ...user.planLimits,
-            maxHooks: user.planLimits.maxHooks || 10 // Ensure maxHooks exists
+            maxHooks: user.planLimits.maxHooks || 10, // Ensure maxHooks exists
+            maxCarousels: user.planLimits.maxCarousels !== undefined ? user.planLimits.maxCarousels : 50,
+            maxEmailSequences: user.planLimits.maxEmailSequences !== undefined ? user.planLimits.maxEmailSequences : 1,
+            maxEmailSequencesNurturing: user.planLimits.maxEmailSequencesNurturing !== undefined ? user.planLimits.maxEmailSequencesNurturing : 15
         } : {
             planName: 'starter',
             maxProjects: 1,
@@ -146,6 +149,7 @@ export const AdminPanel: React.FC = () => {
             maxEmailSequencesNurturing: 15,
             maxWhatsAppLaunches: 1,
             maxHooks: 10,
+            maxCarousels: 50,
             features: {
                 whatsappBot: false,
                 blogGenerator: false,
@@ -156,10 +160,12 @@ export const AdminPanel: React.FC = () => {
             }
         };
         
-        // Asegurar la propiedad maxWhatsAppLaunches y maxHooks si faltan por migración parcial
+        // Asegurar la propiedad maxWhatsAppLaunches, maxHooks, maxCarousels y secuencias si faltan
         if (currentLimits.maxWhatsAppLaunches === undefined) currentLimits.maxWhatsAppLaunches = 1;
+        if (currentLimits.maxEmailSequences === undefined) currentLimits.maxEmailSequences = 1;
         if (currentLimits.maxEmailSequencesNurturing === undefined) currentLimits.maxEmailSequencesNurturing = 15;
         if (currentLimits.maxHooks === undefined) currentLimits.maxHooks = 10;
+        if (currentLimits.maxCarousels === undefined) currentLimits.maxCarousels = 50;
         
         const cloned = JSON.parse(JSON.stringify(currentLimits));
         setUserOriginalLimits(cloned);
@@ -298,10 +304,11 @@ export const AdminPanel: React.FC = () => {
             maxLandings: plan.limitsConfig.maxLandings,
             maxDomains: plan.limitsConfig.maxDomains || 1,
             maxArticles: plan.limitsConfig.maxArticles || 0,
-            maxEmailSequences: plan.limitsConfig.maxEmailSequences || 1,
-            maxEmailSequencesNurturing: plan.limitsConfig.maxEmailSequencesNurturing || 15,
+            maxEmailSequences: plan.limitsConfig.maxEmailSequences !== undefined ? plan.limitsConfig.maxEmailSequences : 1,
+            maxEmailSequencesNurturing: plan.limitsConfig.maxEmailSequencesNurturing !== undefined ? plan.limitsConfig.maxEmailSequencesNurturing : 15,
             maxWhatsAppLaunches: plan.limitsConfig.maxWhatsAppLaunches || 1,
             maxHooks: plan.limitsConfig.maxHooks || 10,
+            maxCarousels: plan.limitsConfig.maxCarousels !== undefined ? plan.limitsConfig.maxCarousels : 50,
             features: { ...plan.limitsConfig.features }
         };
         setTempPlanLimits(factoryLimits);
@@ -315,10 +322,11 @@ export const AdminPanel: React.FC = () => {
                 maxLandings: plan.limitsConfig.maxLandings,
                 maxDomains: plan.limitsConfig.maxDomains || 1,
                 maxArticles: plan.limitsConfig.maxArticles || 0,
-                maxEmailSequences: plan.limitsConfig.maxEmailSequences || 1,
-                maxEmailSequencesNurturing: plan.limitsConfig.maxEmailSequencesNurturing || 15,
+                maxEmailSequences: plan.limitsConfig.maxEmailSequences !== undefined ? plan.limitsConfig.maxEmailSequences : 1,
+                maxEmailSequencesNurturing: plan.limitsConfig.maxEmailSequencesNurturing !== undefined ? plan.limitsConfig.maxEmailSequencesNurturing : 15,
                 maxWhatsAppLaunches: plan.limitsConfig.maxWhatsAppLaunches || 1,
                 maxHooks: plan.limitsConfig.maxHooks || 10,
+                maxCarousels: plan.limitsConfig.maxCarousels !== undefined ? plan.limitsConfig.maxCarousels : 50,
                 features: { ...plan.limitsConfig.features }
             };
             const targetKey = plan.slug.toLowerCase();
@@ -883,13 +891,26 @@ export const AdminPanel: React.FC = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Secuencias Email</label>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Secuencias Email Conversión</label>
                                             <input 
                                                 type="number" 
-                                                value={tempPlanLimits.maxEmailSequences || 0}
+                                                value={tempPlanLimits.maxEmailSequences !== undefined ? tempPlanLimits.maxEmailSequences : 0}
                                                 onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxEmailSequences: parseInt(e.target.value) || 0})}
                                                 className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
+                                                placeholder="Ej: 1"
                                             />
+                                            <p className="text-[10px] text-gray-500 mt-1">Secuencias de venta directa / prospección</p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Secuencias Email Nutrición</label>
+                                            <input 
+                                                type="number" 
+                                                value={tempPlanLimits.maxEmailSequencesNurturing !== undefined ? tempPlanLimits.maxEmailSequencesNurturing : 0}
+                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxEmailSequencesNurturing: parseInt(e.target.value) || 0})}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
+                                                placeholder="Ej: 15"
+                                            />
+                                            <p className="text-[10px] text-gray-500 mt-1">Secuencias de calentamiento / relación de valor</p>
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Lanzamientos WhatsApp</label>
@@ -908,6 +929,17 @@ export const AdminPanel: React.FC = () => {
                                                 onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxHooks: parseInt(e.target.value) || 0})}
                                                 className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
                                             />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Carruseles Magnéticos</label>
+                                            <input 
+                                                type="number" 
+                                                value={tempPlanLimits.maxCarousels !== undefined ? tempPlanLimits.maxCarousels : 0}
+                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxCarousels: parseInt(e.target.value) || 0})}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
+                                                placeholder="Ej: 50"
+                                            />
+                                            <p className="text-[10px] text-gray-500 mt-1">Bolsa global de carruseles de marca compartida</p>
                                         </div>
                                     </div>
 
