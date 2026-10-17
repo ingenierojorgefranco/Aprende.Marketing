@@ -30,6 +30,9 @@ router.get('/articles', authMiddleware, async (req, res) => {
         pageSubdomain: a.page_subdomain,
         isGenerated: !!a.is_generated,
         isActive: !!a.is_active,
+        createdAt: a.created_at,
+        publishedAt: a.published_at || a.created_at,
+        updatedAt: a.updated_at || a.published_at || a.created_at,
         psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
     }));
     res.json(mapped);
@@ -83,6 +86,9 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 isGenerated: !!a.is_generated,
                 isActive: !!a.is_active,
                 unlockedAt: a.unlocked_at,
+                createdAt: a.created_at,
+                publishedAt: a.published_at || a.created_at,
+                updatedAt: a.updated_at || a.published_at || a.created_at,
                 psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
             }));
 
@@ -99,6 +105,9 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 isGenerated: false,
                 isActive: !!a.is_active,
                 unlockedAt: null,
+                createdAt: a.created_at,
+                publishedAt: a.published_at,
+                updatedAt: a.updated_at || a.created_at,
                 psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
                 content_html: null // No enviamos el contenido hasta que se desbloquee
             }));
@@ -126,6 +135,9 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 isGenerated: !!a.is_generated,
                 isActive: !!a.is_active,
                 unlockedAt: a.unlocked_at,
+                createdAt: a.created_at,
+                publishedAt: a.published_at || a.created_at,
+                updatedAt: a.updated_at || a.published_at || a.created_at,
                 psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
             }));
         }
@@ -291,24 +303,49 @@ router.put('/articles/:id', authMiddleware, async (req, res) => {
     const updates = [];
     const values = [];
 
-    const allowedFields = [
-      'page_id', 'project_id', 'is_generated', 'psychological_strategy', 
-      'title', 'slug', 'description', 'content_html', 'featured_image', 
-      'keyword', 'seo_score', 'meta_title', 'meta_description', 
-      'email_subject', 'email_body', 'status', 'published_at', 'is_active',
-      'master_article_id'
-    ];
+    const fieldMap = {
+      page_id: ['page_id', 'pageId'],
+      project_id: ['project_id', 'projectId'],
+      is_generated: ['is_generated', 'isGenerated'],
+      psychological_strategy: ['psychological_strategy', 'psychologicalStrategy'],
+      title: ['title'],
+      slug: ['slug'],
+      description: ['description'],
+      content_html: ['content_html', 'contentHtml'],
+      featured_image: ['featured_image', 'featuredImage'],
+      keyword: ['keyword'],
+      seo_score: ['seo_score', 'seoScore'],
+      meta_title: ['meta_title', 'metaTitle'],
+      meta_description: ['meta_description', 'metaDescription'],
+      email_subject: ['email_subject', 'emailSubject'],
+      email_body: ['email_body', 'emailBody'],
+      status: ['status'],
+      published_at: ['published_at', 'publishedAt'],
+      is_active: ['is_active', 'isActive'],
+      master_article_id: ['master_article_id', 'masterArticleId']
+    };
 
-    for (const field of allowedFields) {
-      const bodyKey = field === 'master_article_id' ? 'masterArticleId' : field;
-      if (body.hasOwnProperty(field) || body.hasOwnProperty(bodyKey)) {
-        updates.push(`${field} = ?`);
-        let val = body.hasOwnProperty(field) ? body[field] : body[bodyKey];
-        if (field === 'is_generated' || field === 'is_active') val = val ? 1 : 0;
-        if (field === 'psychological_strategy' && typeof val === 'object') val = JSON.stringify(val);
-        if (field === 'published_at' && val) val = new Date(val);
+    let hasPublishedAt = false;
+
+    for (const [dbCol, aliases] of Object.entries(fieldMap)) {
+      const foundKey = aliases.find(key => body.hasOwnProperty(key));
+      if (foundKey) {
+        let val = body[foundKey];
+        if (dbCol === 'is_generated' || dbCol === 'is_active') val = val ? 1 : 0;
+        if (dbCol === 'psychological_strategy' && typeof val === 'object') val = JSON.stringify(val);
+        if (dbCol === 'published_at') {
+          hasPublishedAt = true;
+          val = val ? new Date(val) : new Date();
+        }
+        updates.push(`${dbCol} = ?`);
         values.push(val);
       }
+    }
+
+    // Si se está marcando como generado (isGenerated: true) y no se envió published_at explícito, actualizar published_at a NOW()
+    const isNowGenerated = body.isGenerated === true || body.is_generated === 1 || body.is_generated === true;
+    if (isNowGenerated && !hasPublishedAt) {
+      updates.push(`published_at = NOW()`);
     }
 
     if (updates.length === 0) return res.json({ message: 'Nada que actualizar' });

@@ -34,7 +34,7 @@ interface ProjectStrategy_ContentProps {
     totalSteps?: number;
 }
 
-const formatRelativeTime = (date: Date | string | null) => {
+const formatRelativeTime = (date: Date | string | null | undefined) => {
     if (!date) return '';
     const d = new Date(date);
     if (isNaN(d.getTime())) return '';
@@ -43,9 +43,18 @@ const formatRelativeTime = (date: Date | string | null) => {
     const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000);
     
     if (diffInSeconds < 60) return 'hace unos segundos';
-    if (diffInSeconds < 3600) return `hace ${Math.floor(diffInSeconds / 60)} min`;
-    if (diffInSeconds < 86400) return `hace ${Math.floor(diffInSeconds / 3600)} horas`;
-    if (diffInSeconds < 2592000) return `hace ${Math.floor(diffInSeconds / 86400)} días`;
+    if (diffInSeconds < 3600) {
+        const mins = Math.max(1, Math.floor(diffInSeconds / 60));
+        return mins === 1 ? 'hace 1 minuto' : `hace ${mins} minutos`;
+    }
+    if (diffInSeconds < 86400) {
+        const hours = Math.floor(diffInSeconds / 3600);
+        return hours === 1 ? 'hace 1 hora' : `hace ${hours} horas`;
+    }
+    if (diffInSeconds < 2592000) {
+        const days = Math.floor(diffInSeconds / 86400);
+        return days === 1 ? 'hace 1 día' : `hace ${days} días`;
+    }
     return d.toLocaleDateString();
 };
 
@@ -174,15 +183,15 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     isUnlocked: true,
                     isActive: !!a.isActive,
                     slug: a.slug,
-                    updatedAt: a.updatedAt,
-                    createdAt: a.createdAt,
-                    unlockedAt: a.unlockedAt,
-                    publishedAt: a.publishedAt
+                    updatedAt: a.updatedAt || (a as any).updated_at,
+                    createdAt: a.createdAt || (a as any).created_at,
+                    unlockedAt: a.unlockedAt || (a as any).unlocked_at,
+                    publishedAt: a.publishedAt || (a as any).published_at
                 }))
                 .sort((a, b) => {
-                    const dateA = new Date(a.publishedAt || a.updatedAt || a.createdAt).getTime();
-                    const dateB = new Date(b.publishedAt || b.updatedAt || b.createdAt).getTime();
-                    return dateB - dateA;
+                    const timeA = new Date(a.publishedAt || a.updatedAt || a.createdAt || 0).getTime() || 0;
+                    const timeB = new Date(b.publishedAt || b.updatedAt || b.createdAt || 0).getTime() || 0;
+                    return timeB - timeA;
                 });
 
             setGeneratedData(generated);
@@ -212,12 +221,16 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     isUnlocked: !!a.isUnlocked,
                     isActive: !!a.isActive,
                     slug: a.slug,
-                    updatedAt: a.updatedAt,
-                    createdAt: a.createdAt,
-                    unlockedAt: a.unlockedAt,
-                    publishedAt: a.publishedAt
+                    updatedAt: a.updatedAt || (a as any).updated_at,
+                    createdAt: a.createdAt || (a as any).created_at,
+                    unlockedAt: a.unlockedAt || (a as any).unlocked_at,
+                    publishedAt: a.publishedAt || (a as any).published_at
                 }))
-                .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+                .sort((a, b) => {
+                    const timeA = new Date(a.createdAt || a.unlockedAt || 0).getTime() || 0;
+                    const timeB = new Date(b.createdAt || b.unlockedAt || 0).getTime() || 0;
+                    return timeB - timeA;
+                });
 
             // Filtrar sugerencias del JSON que ya existen en la DB (por título o keyword)
             // Guardamos el índice original para poder editar/eliminar en el JSON del proyecto
@@ -662,12 +675,14 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 slug: slugify(finalTitle),
                 description: finalStrategy || genResult.metaDescription || '',
                 contentHtml: genResult.html || '',
+                content_html: genResult.html || '',
                 keyword: active.keyword || '',
                 seoScore: 85,
                 metaTitle: finalTitle,
                 metaDescription: genResult.metaDescription || '',
                 status: 'published' as const,
                 publishedAt: new Date(),
+                published_at: new Date(),
                 isGenerated: true,
                 psychologicalStrategy: {
                     focus: finalStrategy,
@@ -902,7 +917,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
                                                 {isGenerated && (
                                                     <p className={`text-[0.9em] font-bold opacity-60 mt-1 ${isActive ? 'text-white' : 'text-emerald-400'}`}>
-                                                        Redactado: {formatRelativeTime(art.publishedAt || art.updatedAt || art.createdAt)}
+                                                        Redactado: {formatRelativeTime(art.publishedAt || (art as any).published_at || art.updatedAt || art.createdAt)}
                                                     </p>
                                                 )}
                                             </div>
