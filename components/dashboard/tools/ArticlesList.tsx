@@ -16,10 +16,23 @@ interface ArticlesListProps {
   onCreateNew?: () => void;
 }
 
-const formatRelativeTime = (date: Date | string | null) => {
-    if (!date) return '';
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return '';
+const parseDateSafe = (date: Date | string | null | undefined): Date | null => {
+    if (!date) return null;
+    if (date instanceof Date) return isNaN(date.getTime()) ? null : date;
+    let s = String(date).trim();
+    if (!s) return null;
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(s)) {
+        s = s.replace(' ', 'T') + 'Z';
+    } else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/.test(s)) {
+        s = s + 'Z';
+    }
+    const parsed = new Date(s);
+    return isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const formatRelativeTime = (date: Date | string | null | undefined) => {
+    const d = parseDateSafe(date);
+    if (!d) return '';
     
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000);

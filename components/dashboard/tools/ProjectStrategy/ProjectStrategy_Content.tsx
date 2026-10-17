@@ -34,14 +34,29 @@ interface ProjectStrategy_ContentProps {
     totalSteps?: number;
 }
 
+const parseDateSafe = (date: Date | string | null | undefined): Date | null => {
+    if (!date) return null;
+    if (date instanceof Date) return isNaN(date.getTime()) ? null : date;
+    let s = String(date).trim();
+    if (!s) return null;
+    // Si viene en formato MySQL DATETIME "YYYY-MM-DD HH:mm:ss" sin sufijo Z
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(s)) {
+        s = s.replace(' ', 'T') + 'Z';
+    } else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/.test(s)) {
+        s = s + 'Z';
+    }
+    const parsed = new Date(s);
+    return isNaN(parsed.getTime()) ? null : parsed;
+};
+
 const formatRelativeTime = (date: Date | string | null | undefined) => {
-    if (!date) return '';
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return '';
+    const d = parseDateSafe(date);
+    if (!d) return '';
     
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000);
     
+    // Si la fecha es reciente o con pequeña discrepancia de red/servidor
     if (diffInSeconds < 60) return 'hace unos segundos';
     if (diffInSeconds < 3600) {
         const mins = Math.max(1, Math.floor(diffInSeconds / 60));
@@ -189,8 +204,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     publishedAt: a.publishedAt || (a as any).published_at
                 }))
                 .sort((a, b) => {
-                    const timeA = new Date(a.publishedAt || a.updatedAt || a.createdAt || 0).getTime() || 0;
-                    const timeB = new Date(b.publishedAt || b.updatedAt || b.createdAt || 0).getTime() || 0;
+                    const timeA = parseDateSafe(a.publishedAt || a.updatedAt || a.createdAt)?.getTime() || 0;
+                    const timeB = parseDateSafe(b.publishedAt || b.updatedAt || b.createdAt)?.getTime() || 0;
                     return timeB - timeA;
                 });
 
@@ -1198,15 +1213,23 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             onClose={handleCloseAndReload}
                             onSave={async (article) => {
                                 let savedId = article.id;
+                                const now = new Date();
+                                const payloadWithDates = {
+                                    ...article,
+                                    publishedAt: now,
+                                    published_at: now,
+                                    updatedAt: now,
+                                    isGenerated: true
+                                };
                                 if (article.id && String(article.id).startsWith('available-')) {
                                     const masterId = String(article.id).replace('available-', '');
                                     const unlockRes = await api.unlockArticle(projectId!, masterId);
-                                    await api.updateArticle(unlockRes.id, article);
+                                    await api.updateArticle(unlockRes.id, payloadWithDates);
                                     savedId = unlockRes.id;
                                 } else if (article.id && !String(article.id).startsWith('json-')) {
-                                    await api.updateArticle(article.id!, article);
+                                    await api.updateArticle(article.id!, payloadWithDates);
                                 } else {
-                                    const { id, ...dataToSave } = article;
+                                    const { id, ...dataToSave } = payloadWithDates;
                                     const savedResult = await api.saveArticle(dataToSave);
                                     savedId = savedResult.id;
                                 }

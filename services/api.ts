@@ -1254,15 +1254,29 @@ export const api = {
             metaTitle: a.meta_title,
             metaDescription: a.meta_description || '',
             status: a.status || 'published',
-            publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
+            publishedAt: a.published_at ? new Date(a.published_at) : (a.publishedAt ? new Date(a.publishedAt) : (a.created_at ? new Date(a.created_at) : new Date())),
             createdAt: a.created_at ? new Date(a.created_at) : new Date()
-        }));
+        })).sort((a: any, b: any) => {
+            const timeA = new Date(a.publishedAt || a.createdAt || 0).getTime();
+            const timeB = new Date(b.publishedAt || b.createdAt || 0).getTime();
+            return timeB - timeA;
+        });
         apiCache.articles = mapped;
         return mapped;
     },
 
     getArticlesByProject: async (projectId: string): Promise<Article[]> => {
-        if (isMockMode) return Promise.resolve(localArticles.filter(a => String(a.projectId) === String(projectId)));
+        if (isMockMode) {
+            return Promise.resolve(
+                localArticles
+                    .filter(a => String(a.projectId) === String(projectId))
+                    .sort((a, b) => {
+                        const timeA = new Date(a.publishedAt || a.createdAt || 0).getTime();
+                        const timeB = new Date(b.publishedAt || b.createdAt || 0).getTime();
+                        return timeB - timeA;
+                    })
+            );
+        }
         const articles = await fetchWithFallback(`/articles/project/${projectId}`, { method: 'GET', headers: getAuthHeaders() });
         return articles.map((a: any) => ({
             id: a.id.toString(),
@@ -1273,7 +1287,7 @@ export const api = {
             isGenerated: a.isGenerated !== undefined ? !!a.isGenerated : !!a.is_generated,
             isUnlocked: a.isUnlocked !== undefined ? !!a.isUnlocked : !!a.is_unlocked,
             isActive: !!a.is_active,
-            unlockedAt: a.unlockedAt,
+            unlockedAt: a.unlockedAt || a.unlocked_at,
             masterArticleId: a.master_article_id ? String(a.master_article_id) : undefined,
             psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
             title: a.title,
@@ -1286,13 +1300,43 @@ export const api = {
             metaTitle: a.meta_title,
             metaDescription: a.meta_description || '',
             status: a.status || 'published',
-            publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
-            createdAt: a.created_at ? new Date(a.created_at) : new Date()
-        }));
+            publishedAt: a.published_at ? new Date(a.published_at) : (a.publishedAt ? new Date(a.publishedAt) : (a.created_at ? new Date(a.created_at) : new Date())),
+            published_at: a.published_at || a.publishedAt,
+            createdAt: a.created_at ? new Date(a.created_at) : (a.createdAt ? new Date(a.createdAt) : new Date()),
+            updatedAt: a.updated_at || a.updatedAt
+        })).sort((a: any, b: any) => {
+            const timeA = new Date(a.publishedAt || a.createdAt || 0).getTime();
+            const timeB = new Date(b.publishedAt || b.createdAt || 0).getTime();
+            return timeB - timeA;
+        });
     },
 
     unlockArticle: async (projectId: string, masterArticleId: string): Promise<{ id: string }> => {
-        if (isMockMode) return { id: `unlocked-${Date.now()}` };
+        if (isMockMode) {
+            const newId = `unlocked-${Date.now()}`;
+            const master = localArticles.find(a => String(a.id) === String(masterArticleId) || String(a.masterArticleId) === String(masterArticleId));
+            const now = new Date();
+            const newArt: Article = {
+                id: newId,
+                projectId,
+                masterArticleId,
+                title: master?.title || 'Artículo Desbloqueado',
+                slug: master?.slug || `articulo-${Date.now()}`,
+                description: master?.description || '',
+                contentHtml: master?.contentHtml || '',
+                keyword: master?.keyword || '',
+                seoScore: 0,
+                status: 'draft',
+                isUnlocked: true,
+                isGenerated: false,
+                isActive: true,
+                createdAt: now,
+                publishedAt: now,
+                psychologicalStrategy: master?.psychologicalStrategy
+            };
+            localArticles.unshift(newArt);
+            return { id: newId };
+        }
         return await fetchWithFallback('/articles/unlock-article', {
             method: 'POST',
             headers: getAuthHeaders(),
@@ -1325,7 +1369,7 @@ export const api = {
                 metaDescription: a.meta_description || '',
                 psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
                 status: a.status || 'published',
-                publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
+                publishedAt: a.published_at ? new Date(a.published_at) : (a.publishedAt ? new Date(a.publishedAt) : (a.created_at ? new Date(a.created_at) : new Date())),
                 createdAt: a.created_at ? new Date(a.created_at) : new Date()
           };
           apiCache.articleDetails[id] = mapped;
@@ -1334,8 +1378,15 @@ export const api = {
     },
   
     saveArticle: async (article: Omit<Article, 'id' | 'createdAt'>): Promise<Article> => {
+        const now = new Date();
         if (isMockMode) {
-            const newArticle: Article = { ...article, id: `mock-art-${Date.now()}`, createdAt: new Date() } as any;
+            const newArticle: Article = { 
+                ...article, 
+                id: `mock-art-${Date.now()}`, 
+                createdAt: now,
+                publishedAt: article.publishedAt ? new Date(article.publishedAt) : now,
+                updatedAt: now
+            } as any;
             localArticles.unshift(newArticle);
             return Promise.resolve(newArticle);
         }
@@ -1358,18 +1409,54 @@ export const api = {
                 meta_title: article.metaTitle,
                 meta_description: article.metaDescription,
                 status: article.status,
-                published_at: article.publishedAt,
+                published_at: article.publishedAt || now,
                 is_active: article.isActive !== false
             })
         });
         clearCache('articles');
         clearCache('userUsageStats');
-        return { ...article, id: saved.id.toString(), createdAt: new Date() } as any;
+        return { 
+            ...article, 
+            id: saved.id.toString(), 
+            createdAt: now,
+            publishedAt: article.publishedAt ? new Date(article.publishedAt) : now
+        } as any;
     },
   
     updateArticle: async (id: string, article: Partial<Article>): Promise<void> => {
+      const now = new Date();
       if (isMockMode) {
-          localArticles = localArticles.map(a => a.id === id ? { ...a, ...article } : a);
+          let found = false;
+          localArticles = localArticles.map(a => {
+              if (String(a.id) === String(id)) {
+                  found = true;
+                  return { 
+                      ...a, 
+                      ...article, 
+                      publishedAt: article.publishedAt ? new Date(article.publishedAt) : (article.isGenerated ? now : a.publishedAt),
+                      updatedAt: now 
+                  };
+              }
+              return a;
+          });
+          if (!found) {
+              const newArt: Article = {
+                  id: String(id),
+                  title: article.title || 'Artículo',
+                  slug: article.slug || `articulo-${Date.now()}`,
+                  description: article.description || '',
+                  contentHtml: article.contentHtml || '',
+                  status: article.status || 'published',
+                  isGenerated: article.isGenerated !== undefined ? article.isGenerated : true,
+                  isUnlocked: true,
+                  isActive: article.isActive !== undefined ? article.isActive : true,
+                  createdAt: now,
+                  publishedAt: article.publishedAt ? new Date(article.publishedAt) : now,
+                  updatedAt: now,
+                  ...article
+              } as any;
+              localArticles.unshift(newArt);
+          }
           return Promise.resolve();
       }
 
@@ -1389,7 +1476,11 @@ export const api = {
       if (article.metaTitle !== undefined) body.meta_title = article.metaTitle;
       if (article.metaDescription !== undefined) body.meta_description = article.metaDescription;
       if (article.status !== undefined) body.status = article.status;
-      if (article.publishedAt !== undefined) body.published_at = article.publishedAt;
+      if (article.publishedAt !== undefined) {
+          body.published_at = article.publishedAt instanceof Date ? article.publishedAt.toISOString() : article.publishedAt;
+      } else if (article.isGenerated) {
+          body.published_at = now.toISOString();
+      }
       if (article.isActive !== undefined) body.is_active = article.isActive;
 
       await fetchWithFallback(`/articles/${id}`, {

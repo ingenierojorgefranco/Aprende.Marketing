@@ -17,7 +17,8 @@ router.get('/articles', authMiddleware, async (req, res) => {
          FROM articles a 
          LEFT JOIN landing_pages lp ON a.page_id = lp.id 
          LEFT JOIN projects p ON a.project_id = p.id
-         WHERE a.user_id = ? ORDER BY a.created_at DESC`, 
+         WHERE a.user_id = ? 
+         ORDER BY COALESCE(a.published_at, a.created_at) DESC, a.id DESC`, 
         [req.user.id]
     );
     const mapped = rows.map(a => ({
@@ -31,6 +32,7 @@ router.get('/articles', authMiddleware, async (req, res) => {
         isGenerated: !!a.is_generated,
         isActive: !!a.is_active,
         createdAt: a.created_at,
+        published_at: a.published_at || a.created_at,
         publishedAt: a.published_at || a.created_at,
         updatedAt: a.updated_at || a.published_at || a.created_at,
         psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
@@ -51,13 +53,14 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
 
         let articles = [];
         if (masterParentId) {
-            // Traer artículos reales del usuario (clonados o manuales)
+            // Traer artículos reales del usuario (clonados o manuales) ordenados por fecha de publicación/redacción más reciente
             const [userRows] = await pool.query(
                 `SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name, p.name as project_name
                  FROM articles a 
                  LEFT JOIN landing_pages lp ON a.page_id = lp.id 
                  LEFT JOIN projects p ON a.project_id = p.id
-                 WHERE a.project_id = ? ORDER BY a.created_at DESC`,
+                 WHERE a.project_id = ? 
+                 ORDER BY COALESCE(a.published_at, a.created_at) DESC, a.id DESC`,
                 [projectId]
             );
 
@@ -69,7 +72,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                  LEFT JOIN projects p ON a.project_id = p.id
                  WHERE a.project_id = ? 
                  AND a.id NOT IN (SELECT master_article_id FROM articles WHERE project_id = ? AND master_article_id IS NOT NULL)
-                 ORDER BY a.created_at DESC`,
+                 ORDER BY COALESCE(a.published_at, a.created_at) DESC, a.id DESC`,
                 [masterParentId, projectId]
             );
 
@@ -87,6 +90,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 isActive: !!a.is_active,
                 unlockedAt: a.unlocked_at,
                 createdAt: a.created_at,
+                published_at: a.published_at || a.created_at,
                 publishedAt: a.published_at || a.created_at,
                 updatedAt: a.updated_at || a.published_at || a.created_at,
                 psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
@@ -106,6 +110,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 isActive: !!a.is_active,
                 unlockedAt: null,
                 createdAt: a.created_at,
+                published_at: a.published_at,
                 publishedAt: a.published_at,
                 updatedAt: a.updated_at || a.created_at,
                 psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
@@ -119,7 +124,8 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                  FROM articles a 
                  LEFT JOIN landing_pages lp ON a.page_id = lp.id 
                  LEFT JOIN projects p ON a.project_id = p.id
-                 WHERE a.project_id = ? ORDER BY a.created_at DESC`,
+                 WHERE a.project_id = ? 
+                 ORDER BY COALESCE(a.published_at, a.created_at) DESC, a.id DESC`,
                 [projectId]
             );
             articles = rows.map(a => ({
@@ -136,6 +142,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 isActive: !!a.is_active,
                 unlockedAt: a.unlocked_at,
                 createdAt: a.created_at,
+                published_at: a.published_at || a.created_at,
                 publishedAt: a.published_at || a.created_at,
                 updatedAt: a.updated_at || a.published_at || a.created_at,
                 psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
@@ -335,14 +342,15 @@ router.put('/articles/:id', authMiddleware, async (req, res) => {
         if (dbCol === 'psychological_strategy' && typeof val === 'object') val = JSON.stringify(val);
         if (dbCol === 'published_at') {
           hasPublishedAt = true;
-          val = val ? new Date(val) : new Date();
+          const parsedD = val ? new Date(val) : new Date();
+          val = isNaN(parsedD.getTime()) ? new Date() : parsedD;
         }
         updates.push(`${dbCol} = ?`);
         values.push(val);
       }
     }
 
-    // Si se está marcando como generado (isGenerated: true) y no se envió published_at explícito, actualizar published_at a NOW()
+    // Si se está marcando como generado (isGenerated: true) o status es published y no se envió published_at explícito, actualizar published_at a NOW()
     const isNowGenerated = body.isGenerated === true || body.is_generated === 1 || body.is_generated === true;
     if (isNowGenerated && !hasPublishedAt) {
       updates.push(`published_at = NOW()`);
@@ -357,9 +365,9 @@ router.put('/articles/:id', authMiddleware, async (req, res) => {
         values
       );
     } else {
-      values.push(id, req.user.id);
+      values.push(id, req.user.id, req.user.id);
       await pool.query(
-        `UPDATE articles SET ${updates.join(', ')} WHERE id = ? AND user_id = ?`,
+        `UPDATE articles SET ${updates.join(', ')} WHERE id = ? AND (user_id = ? OR project_id IN (SELECT id FROM projects WHERE user_id = ?))`,
         values
       );
     }
