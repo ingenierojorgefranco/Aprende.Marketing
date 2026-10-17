@@ -189,11 +189,13 @@ export const AdminPanel: React.FC = () => {
                 isCustom: true
             };
 
+            const updatedMaxHooks = tempPlanLimits.maxHooks !== undefined ? tempPlanLimits.maxHooks : editingUser.maxHooks;
+
             // Update Full User Profile including Role and Plan Limits
             await api.updateUser(editingUser.id, {
                 role: editingUser.role || 'user',
                 planLimits: planLimitsWithCustomFlag,
-                maxHooks: editingUser.maxHooks,
+                maxHooks: updatedMaxHooks,
                 isActive: true, // Assuming active for now
                 name: editingUser.name,
                 email: editingUser.email,
@@ -207,7 +209,7 @@ export const AdminPanel: React.FC = () => {
             setUsers(prev => prev.map(u => u.id === editingUser.id ? { 
                 ...editingUser, 
                 planLimits: planLimitsWithCustomFlag,
-                maxHooks: editingUser.maxHooks
+                maxHooks: updatedMaxHooks
             } : u));
             
             setEditingUser(null);
@@ -653,6 +655,7 @@ export const AdminPanel: React.FC = () => {
                                             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nueva Contraseña (Dejar vacío para mantener la actual)</label>
                                             <input 
                                                 type="password" 
+                                                autoComplete="new-password"
                                                 value={newPassword} 
                                                 onChange={(e) => setNewPassword(e.target.value)}
                                                 placeholder="Ingresa una nueva contraseña para este usuario"

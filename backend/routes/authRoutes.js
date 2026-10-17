@@ -222,10 +222,13 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
                 }
             }
 
-            const isSlotStarter = effectivePlanSlug === 'starter';
-            const limits = (isUserCustom && !isSlotStarter) ? customLimitsObj : (planDefinitions[effectivePlanSlug] || DEFAULT_LIMITS);
-            projectLimits[proj.id] = { ...limits, planName: effectivePlanSlug, isBlocked };
-            projectStatus[proj.id] = { planName: effectivePlanSlug, isBlocked };
+            if (isUserCustom) {
+                isBlocked = slotNumber > (customLimitsObj.maxProjects || 1);
+            }
+
+            const limits = isUserCustom ? customLimitsObj : (planDefinitions[effectivePlanSlug] || DEFAULT_LIMITS);
+            projectLimits[proj.id] = { ...limits, planName: isUserCustom ? (customLimitsObj.planName || effectivePlanSlug) : effectivePlanSlug, isBlocked };
+            projectStatus[proj.id] = { planName: isUserCustom ? (customLimitsObj.planName || effectivePlanSlug) : effectivePlanSlug, isBlocked };
         });
 
         // Filter out 'starter' if there are other plans for global summary
@@ -248,20 +251,17 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
         };
 
         let activeIsUserCustom = isUserCustom;
-        if (!hasPremiumPlans) {
-            activeIsUserCustom = false;
-        }
 
         if (activeIsUserCustom) {
-            summary.maxProjects = customLimitsObj.maxProjects || 0;
-            summary.maxLandings = customLimitsObj.maxLandings || 0;
-            summary.maxArticles = customLimitsObj.maxArticles || 0;
-            summary.maxDomains = customLimitsObj.maxDomains || 0;
-            summary.maxEmailSequences = customLimitsObj.maxEmailSequences || 0;
-            summary.maxEmailSequencesNurturing = customLimitsObj.maxEmailSequencesNurturing || 15;
-            summary.maxWhatsAppLaunches = customLimitsObj.maxWhatsAppLaunches || 0;
-            summary.maxHooks = customLimitsObj.maxHooks || 0;
-            summary.maxCarousels = customLimitsObj.maxCarousels || 0;
+            summary.maxProjects = customLimitsObj.maxProjects !== undefined ? customLimitsObj.maxProjects : (DEFAULT_LIMITS.maxProjects || 1);
+            summary.maxLandings = customLimitsObj.maxLandings !== undefined ? customLimitsObj.maxLandings : (DEFAULT_LIMITS.maxLandings || 3);
+            summary.maxArticles = customLimitsObj.maxArticles !== undefined ? customLimitsObj.maxArticles : (DEFAULT_LIMITS.maxArticles || 1);
+            summary.maxDomains = customLimitsObj.maxDomains !== undefined ? customLimitsObj.maxDomains : 0;
+            summary.maxEmailSequences = customLimitsObj.maxEmailSequences !== undefined ? customLimitsObj.maxEmailSequences : 1;
+            summary.maxEmailSequencesNurturing = customLimitsObj.maxEmailSequencesNurturing !== undefined ? customLimitsObj.maxEmailSequencesNurturing : 15;
+            summary.maxWhatsAppLaunches = customLimitsObj.maxWhatsAppLaunches !== undefined ? customLimitsObj.maxWhatsAppLaunches : 1;
+            summary.maxHooks = customLimitsObj.maxHooks !== undefined ? customLimitsObj.maxHooks : (directMaxHooks !== null ? directMaxHooks : (DEFAULT_LIMITS.maxHooks || 10));
+            summary.maxCarousels = customLimitsObj.maxCarousels !== undefined ? customLimitsObj.maxCarousels : (DEFAULT_LIMITS.maxCarousels || 50);
             if (customLimitsObj.features) {
                 summary.features = { ...DEFAULT_LIMITS.features, ...customLimitsObj.features };
             }
@@ -342,11 +342,12 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
 
         const result = {
             ...summary,
-            planName: bestPlanSlug,
+            planName: isUserCustom ? (customLimitsObj.planName || customLimitsObj.planSlug || bestPlanSlug) : bestPlanSlug,
             projectLimits,
             projectStatus,
             allActivePlans: finalActiveSlugs,
-            inventoryCount: finalActiveSlugs.length
+            inventoryCount: finalActiveSlugs.length,
+            isCustom: isUserCustom
         };
 
         if (primarySub) {
@@ -374,11 +375,10 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
             result.planDisplayName = directLimits.planDisplayName || directLimits.subscriptionDetails.planName;
         }
 
-        const isFreeOrStarter = bestPlanSlug === 'starter' || !hasPremiumPlans;
-        if (isUserCustom && directMaxHooks !== null && directMaxHooks !== undefined && !isFreeOrStarter) {
+        if (isUserCustom && directMaxHooks !== null && directMaxHooks !== undefined) {
             result.maxHooks = directMaxHooks;
         }
-        if (isUserCustom && customLimitsObj && customLimitsObj.maxCarousels !== undefined && !isFreeOrStarter) {
+        if (isUserCustom && customLimitsObj && customLimitsObj.maxCarousels !== undefined) {
             result.maxCarousels = customLimitsObj.maxCarousels;
         }
 

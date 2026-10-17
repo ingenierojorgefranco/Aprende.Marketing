@@ -135,7 +135,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
           <div>
             <label className="block text-xs font-bold text-[#B0B0B0] uppercase mb-2">Contraseña</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-black border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition" required disabled={loading} placeholder="••••••••" />
+            <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-black border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition" required disabled={loading} placeholder="••••••••" />
           </div>
           <button type="submit" disabled={loading} className="w-full bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black py-4 rounded-xl transition shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-2">
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Ingresar al Panel'}
