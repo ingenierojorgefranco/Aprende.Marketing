@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { User, PlanLimits, Plan, UserUsageStats, SupportTicket } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X, Rocket, Layout, MessageCircle, Clock, CheckCircle, Wand2 } from 'lucide-react';
+import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X, Rocket, Layout, MessageCircle, Clock, CheckCircle, Wand2, RotateCcw } from 'lucide-react';
 
 ////////// Actualización: Implementación de Lazy Load para el componente de auditoría - 05/06/2025 21:30 //////////
 const UserContentModal = React.lazy(() => import('./UserContentModal'));
@@ -12,6 +12,18 @@ const UserContentModal = React.lazy(() => import('./UserContentModal'));
 const Input = ({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>) => (
     <input className={`w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:border-primary outline-none transition ${className || ''}`} {...props} />
 );
+
+const normalizePlanSlugHelper = (s?: string) => {
+    if (!s) return 'starter';
+    const clean = String(s).toLowerCase().trim().replace(/[\s_-]+/g, '');
+    if (clean === 'free' || clean === 'starter' || clean === 'planfree' || clean === 'plangratuito' || clean === 'gratuito' || clean === 'gratis') return 'starter';
+    if (clean.includes('pro')) return 'pro';
+    return clean;
+};
+
+const matchPlanSlugs = (a?: string, b?: string) => {
+    return normalizePlanSlugHelper(a) === normalizePlanSlugHelper(b);
+};
 
 export const AdminPanel: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -35,6 +47,8 @@ export const AdminPanel: React.FC = () => {
     const [newPassword, setNewPassword] = useState<string>('');
     const [viewingUser, setViewingUser] = useState<User | null>(null); 
     const [tempPlanLimits, setTempPlanLimits] = useState<PlanLimits | null>(null);
+    const [userOriginalLimits, setUserOriginalLimits] = useState<PlanLimits | null>(null);
+    const [planDrafts, setPlanDrafts] = useState<Record<string, PlanLimits>>({});
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
     
     // Usage Stats State (Lazy Loaded)
@@ -147,10 +161,37 @@ export const AdminPanel: React.FC = () => {
         if (currentLimits.maxEmailSequencesNurturing === undefined) currentLimits.maxEmailSequencesNurturing = 15;
         if (currentLimits.maxHooks === undefined) currentLimits.maxHooks = 10;
         
-        setTempPlanLimits(JSON.parse(JSON.stringify(currentLimits)));
+        const cloned = JSON.parse(JSON.stringify(currentLimits));
+        setUserOriginalLimits(cloned);
+
+        // Sembrar borrador inicial con los límites del usuario
+        const planKey = (cloned.planName || 'starter').toLowerCase();
+        setPlanDrafts({
+            [planKey]: JSON.parse(JSON.stringify(cloned))
+        });
+
+        setTempPlanLimits(cloned);
         setActiveTab('profile'); // Reset tab
         setUserStats(null); // Clear previous stats
         setPaymentHistory([]);
+    };
+
+    // Mantener sincronizado el borrador de cada plan cada vez que se modifique un input
+    useEffect(() => {
+        if (tempPlanLimits && tempPlanLimits.planName) {
+            const key = tempPlanLimits.planName.toLowerCase();
+            setPlanDrafts(prev => ({
+                ...prev,
+                [key]: { ...tempPlanLimits }
+            }));
+        }
+    }, [tempPlanLimits]);
+
+    const closeEditModal = () => {
+        setEditingUser(null);
+        setTempPlanLimits(null);
+        setUserOriginalLimits(null);
+        setPlanDrafts({});
     };
 
     const handleTabChange = async (tab: 'profile' | 'plan' | 'usage' | 'payments') => {
@@ -212,8 +253,7 @@ export const AdminPanel: React.FC = () => {
                 maxHooks: updatedMaxHooks
             } : u));
             
-            setEditingUser(null);
-            setTempPlanLimits(null);
+            closeEditModal();
         } catch (error) {
             alert("Error al guardar cambios");
         }
@@ -230,8 +270,30 @@ export const AdminPanel: React.FC = () => {
     };
 
     const applyTemplate = (plan: Plan) => {
-        setTempPlanLimits({
-            planName: plan.slug,
+        const targetSlug = plan.slug;
+
+        // 1. ¿Existe un borrador editado en esta misma sesión para este plan?
+        const existingDraftKey = Object.keys(planDrafts).find(k => matchPlanSlugs(k, targetSlug));
+        if (existingDraftKey && planDrafts[existingDraftKey]) {
+            setTempPlanLimits({
+                ...planDrafts[existingDraftKey],
+                planName: targetSlug
+            });
+            return;
+        }
+
+        // 2. ¿El usuario original ya tenía límites configurados para este plan en la base de datos?
+        if (userOriginalLimits && matchPlanSlugs(userOriginalLimits.planName, targetSlug)) {
+            setTempPlanLimits({
+                ...userOriginalLimits,
+                planName: targetSlug
+            });
+            return;
+        }
+
+        // 3. Si no hay datos personalizados previos, se aplica la plantilla por defecto del plan
+        const factoryLimits: PlanLimits = {
+            planName: targetSlug,
             maxProjects: plan.limitsConfig.maxProjects,
             maxLandings: plan.limitsConfig.maxLandings,
             maxDomains: plan.limitsConfig.maxDomains || 1,
@@ -241,7 +303,35 @@ export const AdminPanel: React.FC = () => {
             maxWhatsAppLaunches: plan.limitsConfig.maxWhatsAppLaunches || 1,
             maxHooks: plan.limitsConfig.maxHooks || 10,
             features: { ...plan.limitsConfig.features }
-        });
+        };
+        setTempPlanLimits(factoryLimits);
+    };
+
+    const resetToFactoryTemplate = (plan: Plan) => {
+        if (window.confirm(`¿Deseas restablecer los límites del plan "${plan.name}" a sus valores de fábrica? Se descartarán las personalizaciones manuales.`)) {
+            const factoryLimits: PlanLimits = {
+                planName: plan.slug,
+                maxProjects: plan.limitsConfig.maxProjects,
+                maxLandings: plan.limitsConfig.maxLandings,
+                maxDomains: plan.limitsConfig.maxDomains || 1,
+                maxArticles: plan.limitsConfig.maxArticles || 0,
+                maxEmailSequences: plan.limitsConfig.maxEmailSequences || 1,
+                maxEmailSequencesNurturing: plan.limitsConfig.maxEmailSequencesNurturing || 15,
+                maxWhatsAppLaunches: plan.limitsConfig.maxWhatsAppLaunches || 1,
+                maxHooks: plan.limitsConfig.maxHooks || 10,
+                features: { ...plan.limitsConfig.features }
+            };
+            const targetKey = plan.slug.toLowerCase();
+            setPlanDrafts(prev => {
+                const copy = { ...prev };
+                Object.keys(copy).forEach(k => {
+                    if (matchPlanSlugs(k, plan.slug)) delete copy[k];
+                });
+                copy[targetKey] = factoryLimits;
+                return copy;
+            });
+            setTempPlanLimits(factoryLimits);
+        }
     };
 
     // Helper for Feature Label
@@ -578,7 +668,7 @@ export const AdminPanel: React.FC = () => {
             {/* Edit User Modal */}
             {editingUser && tempPlanLimits && (
                 <div 
-                    onClick={() => setEditingUser(null)}
+                    onClick={closeEditModal}
                     className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
                 >
                     <div 
@@ -589,7 +679,7 @@ export const AdminPanel: React.FC = () => {
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
                                 <Edit className="w-5 h-5 text-blue-400" /> Editar Usuario: {editingUser.name}
                             </h3>
-                            <button onClick={() => setEditingUser(null)} className="text-gray-500 hover:text-white"><X className="w-6 h-6" /></button>
+                            <button onClick={closeEditModal} className="text-gray-500 hover:text-white"><X className="w-6 h-6" /></button>
                         </div>
 
                         {/* Navigation Tabs */}
@@ -717,13 +807,30 @@ export const AdminPanel: React.FC = () => {
 
                                     {/* Dynamic Plan Templates */}
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Aplicar Plantilla del Plan</label>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Plan Base / Plantilla</label>
+                                            {plans.some(p => matchPlanSlugs(tempPlanLimits.planName, p.slug)) && (
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const currentPlan = plans.find(p => matchPlanSlugs(tempPlanLimits.planName, p.slug));
+                                                        if (currentPlan) resetToFactoryTemplate(currentPlan);
+                                                    }}
+                                                    className="text-xs text-orange-400 hover:text-orange-300 flex items-center gap-1.5 transition font-medium hover:underline cursor-pointer"
+                                                    title="Restablecer los límites a los valores por defecto oficiales de este plan"
+                                                >
+                                                    <RotateCcw className="w-3.5 h-3.5" />
+                                                    Restablecer a valores de fábrica
+                                                </button>
+                                            )}
+                                        </div>
                                         <div className="flex flex-wrap gap-2">
                                             {plans.map(plan => {
-                                                const isActive = tempPlanLimits.planName === plan.slug;
+                                                const isActive = matchPlanSlugs(tempPlanLimits.planName, plan.slug);
                                                 return (
                                                     <button 
                                                         key={plan.id}
+                                                        type="button"
                                                         onClick={() => applyTemplate(plan)} 
                                                         className={`px-3 py-1.5 border rounded text-xs transition font-bold ${
                                                             isActive 
@@ -927,7 +1034,7 @@ export const AdminPanel: React.FC = () => {
                         </div>
 
                         <div className="p-6 bg-gray-800 border-t border-gray-700 flex justify-end gap-3 shrink-0">
-                            <button onClick={() => setEditingUser(null)} className="px-4 py-2 text-gray-400 hover:text-white transition">Cancelar</button>
+                            <button onClick={closeEditModal} className="px-4 py-2 text-gray-400 hover:text-white transition">Cancelar</button>
                             <button onClick={handleSaveUser} className="px-6 py-2 bg-primary hover:bg-indigo-600 text-white rounded-lg font-bold flex items-center gap-2 transition">
                                 <Save className="w-4 h-4" /> Guardar Cambios
                             </button>
