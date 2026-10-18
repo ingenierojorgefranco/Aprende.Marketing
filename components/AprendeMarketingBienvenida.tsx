@@ -27,10 +27,10 @@ interface AprendeMarketingBienvenidaProps {
 }
 
 export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProps> = ({
-  customVideoUrl = "https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0",
-  facebookUrl = "https://facebook.com/aprendemarketing",
-  instagramUrl = "https://instagram.com/aprendemarketing",
-  whatsappGroupUrl = "https://chat.whatsapp.com/"
+  customVideoUrl = "https://www.youtube.com/embed/CNUYJ5pQWxU?rel=0&controls=1&showinfo=0",
+  facebookUrl = "https://www.facebook.com/jorgefranpuntoco",
+  instagramUrl = "https://instagram.com/jorgefranpuntoco",
+  whatsappGroupUrl = "https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4"
 }) => {
   const navigate = useNavigate();
   const [videoUrl, setVideoUrl] = useState(customVideoUrl);
@@ -81,13 +81,19 @@ export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProp
       <div className="absolute top-[35%] right-[-10%] w-[450px] h-[450px] bg-orange-600/10 rounded-full blur-[180px] pointer-events-none"></div>
       <div className="absolute bottom-[15%] left-[-10%] w-[500px] h-[500px] bg-[#FF5A1F]/10 rounded-full blur-[180px] pointer-events-none"></div>
 
-      {/* Barra superior de anuncio sutil */}
-      <div className="w-full bg-gradient-to-r from-orange-950/40 via-orange-600/20 to-orange-950/40 border-b border-orange-500/20 py-2.5 px-4 text-center z-20">
+      {/* Barra superior de anuncio sutil vinculada al grupo */}
+      <a
+        href={whatsappGroupUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-full bg-gradient-to-r from-orange-950/50 via-orange-600/20 to-orange-950/50 border-b border-orange-500/25 py-2.5 px-4 text-center z-20 block hover:bg-orange-600/30 transition-colors"
+      >
         <p className="text-xs sm:text-sm font-medium text-orange-200/90 flex items-center justify-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#FF5A1F] animate-ping"></span>
           <span>Acceso Exclusivo para Miembros del Grupo de WhatsApp</span>
+          <ExternalLink className="w-3.5 h-3.5 opacity-70 ml-1" />
         </p>
-      </div>
+      </a>
 
       {/* Contenido Principal */}
       <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-10 sm:py-16 relative z-10 max-w-6xl mx-auto w-full">
@@ -103,8 +109,8 @@ export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProp
           <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center gap-1">
             <span>Aprende</span><span className="text-[#FF5A1F]">.Marketing</span>
           </h2>
-          <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-gray-400 mt-1">
-            Academia & Herramientas de Ventas
+          <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-orange-400/90 mt-1">
+            APRENDE | IMPLEMENTA | ESCALA
           </span>
         </div>
 
@@ -229,7 +235,7 @@ export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProp
             Publicamos contenido diario con tips de marketing digital, análisis de campañas y avisos de nuevas clases en vivo.
           </p>
 
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4 mb-6">
             {/* Botón Instagram */}
             <a
               href={instagramUrl}
@@ -242,7 +248,7 @@ export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProp
               </div>
               <div className="text-left">
                 <p className="text-[11px] text-gray-400 uppercase font-semibold">Instagram</p>
-                <p className="text-white font-extrabold">@aprendemarketing</p>
+                <p className="text-white font-extrabold">@jorgefranpuntoco</p>
               </div>
               <ExternalLink className="w-4 h-4 ml-auto text-gray-500 group-hover:text-white transition-colors" />
             </a>
@@ -259,23 +265,26 @@ export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProp
               </div>
               <div className="text-left">
                 <p className="text-[11px] text-gray-400 uppercase font-semibold">Facebook</p>
-                <p className="text-white font-extrabold">Aprende Marketing</p>
+                <p className="text-white font-extrabold">@jorgefranpuntoco</p>
               </div>
               <ExternalLink className="w-4 h-4 ml-auto text-gray-500 group-hover:text-white transition-colors" />
             </a>
           </div>
 
-          {/* Enlace opcional directo al grupo de WhatsApp */}
+          {/* Enlace destacado directo al grupo oficial de WhatsApp */}
           {whatsappGroupUrl && (
-            <div className="mt-6 pt-6 border-t border-white/5 text-center">
+            <div className="pt-6 border-t border-white/10 text-center">
               <a
                 href={whatsappGroupUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
+                className="w-full py-4 px-6 rounded-2xl bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/40 hover:border-emerald-500 text-emerald-300 hover:text-white font-bold text-sm sm:text-base transition-all transform hover:-translate-y-0.5 shadow-lg shadow-emerald-950/30 flex items-center justify-center gap-3 group"
               >
-                <MessageCircle className="w-4 h-4" />
-                <span>¿Quieres volver a nuestro Grupo de WhatsApp? Haz clic aquí</span>
+                <div className="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/30 group-hover:scale-110 transition-transform">
+                  <MessageCircle className="w-5 h-5 fill-current" />
+                </div>
+                <span>Entrar al Grupo Oficial de WhatsApp</span>
+                <ExternalLink className="w-4 h-4 ml-auto text-emerald-400 group-hover:text-white transition-colors" />
               </a>
             </div>
           )}
