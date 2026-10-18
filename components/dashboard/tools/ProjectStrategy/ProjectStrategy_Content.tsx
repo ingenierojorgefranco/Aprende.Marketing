@@ -73,6 +73,35 @@ const formatRelativeTime = (date: Date | string | null | undefined) => {
     return d.toLocaleDateString();
 };
 
+const getSessionLibraryCache = (projId: string, usrId?: string): any[] | null => {
+    try {
+        const key = `session_library_articles_${projId}_${usrId || 'anon'}`;
+        const raw = sessionStorage.getItem(key);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        const todayStr = new Date().toISOString().slice(0, 10);
+        if (parsed && parsed.date === todayStr && Array.isArray(parsed.articles)) {
+            return parsed.articles;
+        }
+        return null;
+    } catch {
+        return null;
+    }
+};
+
+const setSessionLibraryCache = (projId: string, usrId: string | undefined, articles: any[]) => {
+    try {
+        const key = `session_library_articles_${projId}_${usrId || 'anon'}`;
+        const todayStr = new Date().toISOString().slice(0, 10);
+        sessionStorage.setItem(key, JSON.stringify({
+            date: todayStr,
+            articles
+        }));
+    } catch (e) {
+        console.warn("Could not save library articles to sessionStorage:", e);
+    }
+};
+
 export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = ({
     contentData = [],
     activeArticle: propActiveArticle,
@@ -109,9 +138,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const [editingField, setEditingField] = useState<string | null>(null);
     const [unlockingSingle, setUnlockingSingle] = useState(false);
 
-    // Lógica de Paginación
+    // Lógica de Paginación: 10 por página
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 7;
+    const itemsPerPage = 10;
 
     const currentData = activeTab === 'library' ? libraryData : generatedData;
 
@@ -163,9 +192,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         if (!projectId) return;
         setLoadingLocal(true);
         try {
+            const cachedLibrary = getSessionLibraryCache(projectId, user?.id);
+            const hasValidSessionCache = !!(cachedLibrary && cachedLibrary.length > 0);
+
             const [pages, articles, projectObj] = await Promise.all([
                 api.getPages(),
-                api.getArticlesByProject(projectId),
+                api.getArticlesByProject(projectId, hasValidSessionCache ? { skipMaster: true } : { limitMaster: 30 }),
                 api.getProjectById(projectId)
             ]);
             setProject(projectObj);
@@ -182,7 +214,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
             const jsonContent = contentData || [];
             
-            // 1. Contenidos Generados (isGenerated: true)
+            // 1. Contenidos Generados (isGenerated: true) - TODOS los que el usuario ya generó con paginación completa
             const generated = projectArts
                 .filter(a => a.isGenerated)
                 .map(a => ({
@@ -211,6 +243,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
             setGeneratedData(generated);
             
+            // Mantener lógica de tab inicial intacta:
+            // Si el usuario no tiene artículos generados -> pestaña biblioteca de contenidos
+            // Si ya tiene artículos generados -> pestaña de sus propios contenidos generados
             if (!hasInitializedTab.current) {
                 if (generated.length > 0) {
                     setActiveTab('generated');
@@ -220,7 +255,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 hasInitializedTab.current = true;
             }
 
-            // 2. Biblioteca (Manuales + Sugerencias del JSON)
+            // 2. Biblioteca de contenidos no generados
             const manualFromDb = projectArts
                 .filter(a => !a.isGenerated)
                 .map(a => ({
@@ -248,7 +283,6 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 });
 
             // Filtrar sugerencias del JSON que ya existen en la DB (por título o keyword)
-            // Guardamos el índice original para poder editar/eliminar en el JSON del proyecto
             const suggestions = jsonContent.map((j, originalIdx) => ({
                 ...j,
                 jsonIndex: originalIdx,
@@ -261,27 +295,56 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 !manualFromDb.some(m => m.title === j.title || m.keyword === j.keyword)
             );
 
+            const generatedTitles = new Set(generated.map(g => g.title.toLowerCase().trim()));
+            const generatedIds = new Set(generated.map(g => String(g.id)));
+
             const unlocked = manualFromDb.filter(a => a.isUnlocked);
-            const locked = [...manualFromDb.filter(a => !a.isUnlocked), ...suggestions];
-            
-            let newLibrary;
-            if (!isRealAdmin) {
-                // Aleatorizar solo los bloqueados para que los desbloqueados (amarillos) se mantengan arriba y ordenados
-                const randomizedLocked = [...locked].sort(() => Math.random() - 0.5);
-                newLibrary = [...unlocked, ...randomizedLocked];
+            const locked = [...manualFromDb.filter(a => !a.isUnlocked), ...suggestions]
+                .filter(a => !generatedTitles.has(a.title.toLowerCase().trim()) && !generatedIds.has(String(a.id)));
+
+            let newLibrary: any[] = [];
+
+            if (hasValidSessionCache && cachedLibrary) {
+                // Filtrar de la caché de sesión los artículos que ya fueron generados
+                const validCached = cachedLibrary.filter(a => 
+                    !generatedIds.has(String(a.id)) && 
+                    !generatedTitles.has(String(a.title).toLowerCase().trim())
+                );
+
+                if (validCached.length >= 10) {
+                    newLibrary = validCached.slice(0, 10);
+                } else {
+                    // Si se generó un artículo, completar hasta 10 con candidatos disponibles restantes
+                    const usedIds = new Set(validCached.map(a => String(a.id)));
+                    const availablePool = [...unlocked, ...locked].filter(a => !usedIds.has(String(a.id)));
+                    const needed = 10 - validCached.length;
+                    const fill = availablePool.slice(0, needed);
+                    newLibrary = [...validCached, ...fill];
+                }
             } else {
-                newLibrary = [...unlocked, ...locked];
+                // Primera vez que entra en la sesión de hoy: seleccionar 10 artículos aleatorios
+                // Los desbloqueados se colocan primero si hay, y los bloqueados se barajan aleatoriamente
+                const randomizedLocked = [...locked].sort(() => Math.random() - 0.5);
+                const candidates = [...unlocked, ...randomizedLocked];
+                newLibrary = candidates.slice(0, 10);
             }
-            
+
+            // Guardar en la sesión local para que si va a otra sección y vuelve, mantenga exactamente la misma lista
+            setSessionLibraryCache(projectId, user?.id, newLibrary);
             setLibraryData(newLibrary);
 
             if (targetTitle) {
-                const newIdx = newLibrary.findIndex(a => a.title === targetTitle);
-                if (newIdx !== -1) {
-                    setActiveLibraryArticle(newIdx);
-                    // Asegurarnos de que estamos en la página correcta
-                    const newPage = Math.floor(newIdx / itemsPerPage) + 1;
-                    setCurrentPage(newPage);
+                const genIdx = generated.findIndex(a => a.title === targetTitle);
+                if (genIdx !== -1) {
+                    setActiveGeneratedArticle(genIdx);
+                    setCurrentPage(Math.floor(genIdx / itemsPerPage) + 1);
+                } else {
+                    const newIdx = newLibrary.findIndex(a => a.title === targetTitle);
+                    if (newIdx !== -1) {
+                        setActiveLibraryArticle(newIdx);
+                        const newPage = Math.floor(newIdx / itemsPerPage) + 1;
+                        setCurrentPage(newPage);
+                    }
                 }
             }
 
@@ -713,6 +776,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             
             // Forzar selección automática del artículo generado e ir a la pestaña "Contenidos Generados"
             setActiveTab('generated');
+            setActiveGeneratedArticle(0);
+            setCurrentPage(1);
             
         } catch (e: any) {
             alert("Error en la redacción automática: " + e.message);

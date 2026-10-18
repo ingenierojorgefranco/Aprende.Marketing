@@ -64,17 +64,37 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 [projectId]
             );
 
-            // Traer artículos del maestro que no han sido clonados todavía
-            const [masterRows] = await pool.query(
-                `SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name, p.name as project_name
-                 FROM articles a
-                 LEFT JOIN landing_pages lp ON a.page_id = lp.id
-                 LEFT JOIN projects p ON a.project_id = p.id
-                 WHERE a.project_id = ? 
-                 AND a.id NOT IN (SELECT master_article_id FROM articles WHERE project_id = ? AND master_article_id IS NOT NULL)
-                 ORDER BY COALESCE(a.published_at, a.created_at) DESC, a.id DESC`,
-                [masterParentId, projectId]
-            );
+            // Traer artículos del maestro que no han sido clonados todavía (con soporte para skipMaster y limitMaster aleatorio)
+            let masterRows = [];
+            if (req.query.skipMaster === 'true') {
+                masterRows = [];
+            } else if (req.query.limitMaster) {
+                const limitNum = Math.min(Math.max(parseInt(req.query.limitMaster) || 15, 1), 100);
+                const [mRows] = await pool.query(
+                    `SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name, p.name as project_name
+                     FROM articles a
+                     LEFT JOIN landing_pages lp ON a.page_id = lp.id
+                     LEFT JOIN projects p ON a.project_id = p.id
+                     WHERE a.project_id = ? 
+                     AND a.id NOT IN (SELECT master_article_id FROM articles WHERE project_id = ? AND master_article_id IS NOT NULL)
+                     ORDER BY RAND()
+                     LIMIT ?`,
+                    [masterParentId, projectId, limitNum]
+                );
+                masterRows = mRows;
+            } else {
+                const [mRows] = await pool.query(
+                    `SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name, p.name as project_name
+                     FROM articles a
+                     LEFT JOIN landing_pages lp ON a.page_id = lp.id
+                     LEFT JOIN projects p ON a.project_id = p.id
+                     WHERE a.project_id = ? 
+                     AND a.id NOT IN (SELECT master_article_id FROM articles WHERE project_id = ? AND master_article_id IS NOT NULL)
+                     ORDER BY COALESCE(a.published_at, a.created_at) DESC, a.id DESC`,
+                    [masterParentId, projectId]
+                );
+                masterRows = mRows;
+            }
 
             const userArticles = userRows.map(a => ({
                 ...a,

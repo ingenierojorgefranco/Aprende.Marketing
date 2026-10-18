@@ -136,6 +136,16 @@ export const getCurrentUser = async (): Promise<AuthUser | null> => {
 // -----------------------------
 export const logout = () => {
   authStorage.clearToken();
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key && key.startsWith('session_library_articles_')) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => sessionStorage.removeItem(k));
+  } catch {}
 };
 
 // -----------------------------

@@ -551,6 +551,16 @@ export const api = {
 
   logout: async (): Promise<void> => {
       clearCache();
+      try {
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const key = sessionStorage.key(i);
+          if (key && key.startsWith('session_library_articles_')) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(k => sessionStorage.removeItem(k));
+      } catch {}
       if (isMockMode) return;
       try {
           await fetchWithFallback('/auth/logout', { method: 'POST', headers: getAuthHeaders() });
@@ -1265,19 +1275,27 @@ export const api = {
         return mapped;
     },
 
-    getArticlesByProject: async (projectId: string): Promise<Article[]> => {
+    getArticlesByProject: async (projectId: string, options?: { skipMaster?: boolean; limitMaster?: number }): Promise<Article[]> => {
         if (isMockMode) {
+            let list = localArticles.filter(a => String(a.projectId) === String(projectId));
+            if (options?.limitMaster && list.length > options.limitMaster) {
+                list = list.slice(0, options.limitMaster);
+            }
             return Promise.resolve(
-                localArticles
-                    .filter(a => String(a.projectId) === String(projectId))
-                    .sort((a, b) => {
-                        const timeA = new Date(a.publishedAt || a.createdAt || 0).getTime();
-                        const timeB = new Date(b.publishedAt || b.createdAt || 0).getTime();
-                        return timeB - timeA;
-                    })
+                list.sort((a, b) => {
+                    const timeA = new Date(a.publishedAt || a.createdAt || 0).getTime();
+                    const timeB = new Date(b.publishedAt || b.createdAt || 0).getTime();
+                    return timeB - timeA;
+                })
             );
         }
-        const articles = await fetchWithFallback(`/articles/project/${projectId}`, { method: 'GET', headers: getAuthHeaders() });
+        let queryParams = '';
+        if (options?.skipMaster) {
+            queryParams = '?skipMaster=true';
+        } else if (options?.limitMaster) {
+            queryParams = `?limitMaster=${options.limitMaster}`;
+        }
+        const articles = await fetchWithFallback(`/articles/project/${projectId}${queryParams}`, { method: 'GET', headers: getAuthHeaders() });
         return articles.map((a: any) => ({
             id: a.id.toString(),
             projectId: (a.project_id || a.projectId) ? String(a.project_id || a.projectId) : undefined,
