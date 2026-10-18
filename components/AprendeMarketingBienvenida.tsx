@@ -20,6 +20,8 @@ import {
 interface AprendeMarketingBienvenidaProps {
   // Permite sobreescribir el enlace de video de YouTube fácilmente
   customVideoUrl?: string;
+  // Enlace a clases gratuitas
+  freeClassesUrl?: string;
   // Permite sobreescribir enlaces de redes sociales
   facebookUrl?: string;
   instagramUrl?: string;
@@ -28,6 +30,7 @@ interface AprendeMarketingBienvenidaProps {
 
 export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProps> = ({
   customVideoUrl = "https://www.youtube.com/embed/CNUYJ5pQWxU?rel=0&controls=1&showinfo=0",
+  freeClassesUrl = "https://www.youtube.com/playlist?list=PLGFXdqHqDQ9I",
   facebookUrl = "https://www.facebook.com/jorgefranpuntoco",
   instagramUrl = "https://instagram.com/jorgefranpuntoco",
   whatsappGroupUrl = "https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4"
@@ -166,15 +169,18 @@ export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProp
         <div className="w-full max-w-2xl flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 mb-14 sm:mb-20">
           
           {/* Botón 1: Ver Clases Gratuitas */}
-          <button
-            onClick={() => navigate('/login?redirect=/dashboard/training')}
+          <a
+            href={freeClassesUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="w-full sm:flex-1 py-4 sm:py-5 px-6 rounded-2xl bg-zinc-900/90 hover:bg-zinc-800 text-white font-black text-base sm:text-lg uppercase tracking-wider border-2 border-white/10 hover:border-[#FF5A1F] transition-all transform hover:-translate-y-1 shadow-lg shadow-black/60 flex items-center justify-center gap-3 group cursor-pointer"
           >
             <div className="w-9 h-9 rounded-xl bg-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] group-hover:bg-[#FF5A1F] group-hover:text-white transition-colors">
               <Play className="w-4 h-4 fill-current ml-0.5" />
             </div>
             <span>Ver Clases Gratuitas</span>
-          </button>
+            <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
+          </a>
 
           {/* Botón 2: Crear mi cuenta en Aprende Marketing */}
           <button
