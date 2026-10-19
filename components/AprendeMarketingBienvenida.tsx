@@ -165,63 +165,108 @@ export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProp
           </div>
         </div>
 
-        {/* DOS BOTONES PRINCIPALES DEBAJO DEL VIDEO */}
-        <div className="w-full max-w-2xl flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 mb-14 sm:mb-20">
+        {/* DOS BOTONES PRINCIPALES DEBAJO DEL VIDEO (UNO ENCIMA DEL OTRO) */}
+        <div className="w-full max-w-xl flex flex-col items-stretch gap-4 mb-16 sm:mb-20">
           
-          {/* Botón 1: Ver Clases Gratuitas */}
+          {/* Botón 1: Ver Clases Gratuitas (Arriba / Primero) */}
           <a
             href={freeClassesUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:flex-1 py-4 sm:py-5 px-6 rounded-2xl bg-zinc-900/90 hover:bg-zinc-800 text-white font-black text-base sm:text-lg uppercase tracking-wider border-2 border-white/10 hover:border-[#FF5A1F] transition-all transform hover:-translate-y-1 shadow-lg shadow-black/60 flex items-center justify-center gap-3 group cursor-pointer"
+            className="w-full py-5 px-8 rounded-2xl bg-[#121218] hover:bg-[#1A1A24] text-white font-black text-lg sm:text-xl uppercase tracking-wider border-2 border-orange-500/70 hover:border-orange-400 transition-all transform hover:-translate-y-1 shadow-xl shadow-orange-950/40 flex items-center justify-center gap-3.5 group cursor-pointer"
           >
-            <div className="w-9 h-9 rounded-xl bg-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] group-hover:bg-[#FF5A1F] group-hover:text-white transition-colors">
-              <Play className="w-4 h-4 fill-current ml-0.5" />
+            <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-400 group-hover:bg-[#FF5A1F] group-hover:text-white transition-colors shadow-inner">
+              <Play className="w-5 h-5 fill-current ml-0.5" />
             </div>
             <span>Ver Clases Gratuitas</span>
-            <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
+            <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-white ml-auto transition-colors" />
           </a>
 
-          {/* Botón 2: Crear mi cuenta en Aprende Marketing */}
-          <button
-            onClick={() => navigate('/register')}
-            className="w-full sm:flex-1 py-4 sm:py-5 px-6 rounded-2xl bg-gradient-to-r from-[#FF5A1F] via-[#FF6D2E] to-[#E04810] hover:brightness-110 text-white font-black text-base sm:text-lg uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-xl shadow-[#FF5A1F]/30 border border-white/20 flex items-center justify-center gap-3 group cursor-pointer"
+          {/* Botón 2: Crear mi cuenta en Aprende Marketing (Debajo, abre en nueva ventana) */}
+          <a
+            href="/register"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-5 px-8 rounded-2xl bg-gradient-to-r from-[#FF5A1F] via-[#FF6D2E] to-[#E04810] hover:brightness-110 text-white font-black text-lg sm:text-xl uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-2xl shadow-[#FF5A1F]/40 border border-white/20 flex items-center justify-center gap-3.5 group cursor-pointer"
           >
-            <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-white group-hover:rotate-12 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white group-hover:rotate-12 transition-transform shadow-inner">
               <UserPlus className="w-5 h-5" />
             </div>
-            <span>Crear mi cuenta</span>
-          </button>
+            <span>Crear mi cuenta en Aprende Marketing</span>
+            <ExternalLink className="w-5 h-5 text-white/70 group-hover:text-white ml-auto transition-colors" />
+          </a>
+
+          <div className="flex items-center justify-center gap-3 sm:gap-4 text-xs font-semibold text-gray-400 mt-1">
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Acceso Inmediato</span>
+            <span>•</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> 100% Gratuito</span>
+            <span>•</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Sin Tarjetas</span>
+          </div>
         </div>
 
-        {/* SECCIÓN DE VALOR / ¿QUÉ VAS A ENCONTRAR AQUÍ? */}
-        <div className="w-full max-w-4xl grid sm:grid-cols-3 gap-4 sm:gap-6 mb-16 sm:mb-20">
-          <div className="bg-[#121218]/80 border border-white/5 rounded-2xl p-6 text-center sm:text-left flex flex-col items-center sm:items-start hover:border-orange-500/30 transition-colors">
-            <div className="w-12 h-12 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] mb-4">
-              <GraduationCap className="w-6 h-6" />
+        {/* SECCIÓN DE VALOR / CARDS DE COLOR VIBRANTES Y PREMIUM */}
+        <div className="w-full max-w-5xl grid sm:grid-cols-3 gap-6 sm:gap-6 mb-16 sm:mb-20">
+          
+          {/* Card 1: Clases Prácticas (Naranja / Fuego) */}
+          <div className="relative group bg-gradient-to-b from-[#24130A] via-[#170C06] to-[#0D0703] border-2 border-orange-500/50 hover:border-orange-400 rounded-3xl p-7 text-left flex flex-col items-start transition-all duration-300 transform hover:-translate-y-1.5 shadow-[0_0_35px_rgba(255,90,31,0.22)] hover:shadow-[0_0_50px_rgba(255,90,31,0.35)] overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/15 rounded-full blur-2xl pointer-events-none group-hover:bg-orange-500/25 transition-all"></div>
+            
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FF5A1F] via-[#FF6D2E] to-amber-500 flex items-center justify-center text-white shadow-xl shadow-orange-500/30 border border-white/20 mb-5 group-hover:scale-110 transition-transform">
+              <GraduationCap className="w-7 h-7" />
             </div>
-            <h3 className="font-bold text-white text-lg mb-2">Clases Prácticas</h3>
-            <p className="text-sm text-gray-400 leading-relaxed">
+
+            <span className="px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30 text-[11px] font-black uppercase tracking-wider mb-3 inline-block">
+              100% Práctico
+            </span>
+
+            <h3 className="font-black text-white text-xl sm:text-2xl mb-3 tracking-tight group-hover:text-orange-400 transition-colors">
+              Clases Prácticas
+            </h3>
+
+            <p className="text-base sm:text-[1.05rem] text-zinc-200 leading-relaxed font-normal">
               Estrategias probadas de ventas digitales y embudos paso a paso explicados sin tecnicismos complejos.
             </p>
           </div>
 
-          <div className="bg-[#121218]/80 border border-white/5 rounded-2xl p-6 text-center sm:text-left flex flex-col items-center sm:items-start hover:border-orange-500/30 transition-colors">
-            <div className="w-12 h-12 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] mb-4">
-              <Zap className="w-6 h-6" />
+          {/* Card 2: Herramientas con IA (Púrpura / Cibernético) */}
+          <div className="relative group bg-gradient-to-b from-[#1E0F2E] via-[#130A1F] to-[#0A0512] border-2 border-purple-500/50 hover:border-purple-400 rounded-3xl p-7 text-left flex flex-col items-start transition-all duration-300 transform hover:-translate-y-1.5 shadow-[0_0_35px_rgba(168,85,247,0.22)] hover:shadow-[0_0_50px_rgba(168,85,247,0.35)] overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/15 rounded-full blur-2xl pointer-events-none group-hover:bg-purple-500/25 transition-all"></div>
+
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 via-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-purple-500/30 border border-white/20 mb-5 group-hover:scale-110 transition-transform">
+              <Zap className="w-7 h-7" />
             </div>
-            <h3 className="font-bold text-white text-lg mb-2">Herramientas con IA</h3>
-            <p className="text-sm text-gray-400 leading-relaxed">
+
+            <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[11px] font-black uppercase tracking-wider mb-3 inline-block">
+              Automatización IA
+            </span>
+
+            <h3 className="font-black text-white text-xl sm:text-2xl mb-3 tracking-tight group-hover:text-purple-300 transition-colors">
+              Herramientas con IA
+            </h3>
+
+            <p className="text-base sm:text-[1.05rem] text-zinc-200 leading-relaxed font-normal">
               Crea Landing Pages, artículos SEO y copys persuasivos en segundos con nuestros generadores integrados.
             </p>
           </div>
 
-          <div className="bg-[#121218]/80 border border-white/5 rounded-2xl p-6 text-center sm:text-left flex flex-col items-center sm:items-start hover:border-orange-500/30 transition-colors">
-            <div className="w-12 h-12 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] mb-4">
-              <Users className="w-6 h-6" />
+          {/* Card 3: Comunidad Privada (Esmeralda / Crecimiento) */}
+          <div className="relative group bg-gradient-to-b from-[#0B2117] via-[#071710] to-[#030D08] border-2 border-emerald-500/50 hover:border-emerald-400 rounded-3xl p-7 text-left flex flex-col items-start transition-all duration-300 transform hover:-translate-y-1.5 shadow-[0_0_35px_rgba(16,185,129,0.22)] hover:shadow-[0_0_50px_rgba(16,185,129,0.35)] overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/15 rounded-full blur-2xl pointer-events-none group-hover:bg-emerald-500/25 transition-all"></div>
+
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center text-white shadow-xl shadow-emerald-500/30 border border-white/20 mb-5 group-hover:scale-110 transition-transform">
+              <Users className="w-7 h-7" />
             </div>
-            <h3 className="font-bold text-white text-lg mb-2">Comunidad Privada</h3>
-            <p className="text-sm text-gray-400 leading-relaxed">
+
+            <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-black uppercase tracking-wider mb-3 inline-block">
+              Soporte & Red
+            </span>
+
+            <h3 className="font-black text-white text-xl sm:text-2xl mb-3 tracking-tight group-hover:text-emerald-300 transition-colors">
+              Comunidad Privada
+            </h3>
+
+            <p className="text-base sm:text-[1.05rem] text-zinc-200 leading-relaxed font-normal">
               Acompañamiento en el grupo para resolver dudas, compartir resultados y acelerar tu crecimiento.
             </p>
           </div>
