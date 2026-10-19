@@ -555,7 +555,7 @@ export const api = {
         const keysToRemove: string[] = [];
         for (let i = 0; i < sessionStorage.length; i++) {
           const key = sessionStorage.key(i);
-          if (key && key.startsWith('session_library_articles_')) {
+          if (key && (key.startsWith('session_library_articles_') || key.startsWith('session_library_carousels_') || key.startsWith('session_library_hooks_'))) {
             keysToRemove.push(key);
           }
         }
@@ -2613,9 +2613,17 @@ export const api = {
     ////////// Fin de actualización //////////
 
     /* Actualización: Métodos para el sistema dinámico de Hooks de Atracción - 01/01/2026 */
-    getProjectHooks: async (projectId: string): Promise<ProjectHook[]> => {
+    getProjectHooks: async (projectId: string, options?: { skipMaster?: boolean; limitMaster?: number }): Promise<ProjectHook[]> => {
         if (isMockMode) return MOCK_PROJECT_HOOKS;
-        return await fetchWithFallback(`/hooks/project/${projectId}`, { headers: getAuthHeaders() });
+        let url = `/hooks/project/${projectId}`;
+        if (options) {
+            const params = new URLSearchParams();
+            if (options.skipMaster) params.append('skipMaster', 'true');
+            if (options.limitMaster) params.append('limitMaster', String(options.limitMaster));
+            const qs = params.toString();
+            if (qs) url += `?${qs}`;
+        }
+        return await fetchWithFallback(url, { headers: getAuthHeaders() });
     },
 
     getHooksLibrary: async (page: number, limit: number, masterProjectId?: string, projectId?: string): Promise<{ hooks: any[], total: number }> => {
@@ -2695,9 +2703,17 @@ export const api = {
     },
 
     /* Métodos para el nuevo sistema dinámico de Carruseles Magnéticos - 28/09/2026 */
-    getProjectCarousels: async (projectId: string): Promise<ProjectCarousel[]> => {
+    getProjectCarousels: async (projectId: string, options?: { skipMaster?: boolean; limitMaster?: number }): Promise<ProjectCarousel[]> => {
         if (isMockMode) return [];
-        return await fetchWithFallback(`/carousels/project/${projectId}`, { headers: getAuthHeaders() });
+        let url = `/carousels/project/${projectId}`;
+        if (options) {
+            const params = new URLSearchParams();
+            if (options.skipMaster) params.append('skipMaster', 'true');
+            if (options.limitMaster) params.append('limitMaster', String(options.limitMaster));
+            const qs = params.toString();
+            if (qs) url += `?${qs}`;
+        }
+        return await fetchWithFallback(url, { headers: getAuthHeaders() });
     },
 
     getCarouselsLibrary: async (page: number, limit: number, masterProjectId?: string, projectId?: string): Promise<{ carousels: any[], total: number }> => {

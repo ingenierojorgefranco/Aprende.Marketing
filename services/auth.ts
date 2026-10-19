@@ -140,7 +140,7 @@ export const logout = () => {
     const keysToRemove: string[] = [];
     for (let i = 0; i < sessionStorage.length; i++) {
       const key = sessionStorage.key(i);
-      if (key && key.startsWith('session_library_articles_')) {
+      if (key && (key.startsWith('session_library_articles_') || key.startsWith('session_library_carousels_') || key.startsWith('session_library_hooks_'))) {
         keysToRemove.push(key);
       }
     }

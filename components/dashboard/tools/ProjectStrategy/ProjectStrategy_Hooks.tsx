@@ -19,6 +19,35 @@ interface ProjectStrategy_HooksProps {
   totalSteps?: number;
 }
 
+const getSessionLibraryCache = (projId: string, usrId?: string): any[] | null => {
+    try {
+        const key = `session_library_hooks_${projId}_${usrId || 'anon'}`;
+        const raw = sessionStorage.getItem(key);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        const todayStr = new Date().toISOString().slice(0, 10);
+        if (parsed && parsed.date === todayStr && Array.isArray(parsed.hooks)) {
+            return parsed.hooks;
+        }
+        return null;
+    } catch {
+        return null;
+    }
+};
+
+const setSessionLibraryCache = (projId: string, usrId: string | undefined, hooks: any[]) => {
+    try {
+        const key = `session_library_hooks_${projId}_${usrId || 'anon'}`;
+        const todayStr = new Date().toISOString().slice(0, 10);
+        sessionStorage.setItem(key, JSON.stringify({
+            date: todayStr,
+            hooks
+        }));
+    } catch (e) {
+        console.warn("Could not save library hooks to sessionStorage:", e);
+    }
+};
+
 const seededShuffle = (array: any[], seed: number) => {
   const shuffled = [...array];
   const random = (s: number) => {
@@ -57,6 +86,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const initialTabSet = useRef(false);
   
   const [hooks, setHooks] = useState<ProjectHook[]>([]);
+  const [availablePool, setAvailablePool] = useState<any[]>([]);
   const [loadingHooks, setLoadingHooks] = useState(true);
   const [unlockingMore, setUnlockingMore] = useState(false);
   const [unlockingSingle, setUnlockingSingle] = useState(false);
@@ -92,15 +122,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const [saving, setSaving] = useState(false);
 
+  // Lógica de 7 por página y 7 aleatorios en biblioteca
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 7;
+  const LIBRARY_COUNT = 7;
 
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<'library' | 'generated'>('generated');
   const [libraryHooks, setLibraryHooks] = useState<any[]>([]);
   const [libraryTotal, setLibraryTotal] = useState(0);
   const [loadingLibrary, setLoadingLibrary] = useState(false);
-  const [libraryPage, setLibraryPage] = useState(1);
   const [activeLibraryHook, setActiveLibraryHook] = useState(0);
 
   const [localTitle, setLocalTitle] = useState("");
@@ -193,26 +224,84 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     "Diseñando conceptos visuales..."
   ];
 
-  const loadHooks = async () => {
+  // Carga de ganchos con selección aleatoria de 7 en biblioteca y caché en sessionStorage
+  const loadHooksData = async (targetHookId?: string) => {
     if (!projectId) return [];
     setLoadingHooks(true);
     try {
-        const data = await api.getProjectHooks(projectId);
-        setHooks(data);
-        setLoadingHooks(false);
+        const rawData = await api.getProjectHooks(projectId);
+        const userUnlocked = (rawData || []).filter(
+            (h: any) => h.isUnlocked || h.isGenerated
+        );
+        const masterAvailable = (rawData || []).filter(
+            (h: any) => !h.isUnlocked && !h.isGenerated
+        );
+
+        setHooks(userUnlocked);
+        setAvailablePool(masterAvailable);
+
+        // Mantener lógica de tab inicial:
+        // Si el usuario no tiene ganchos generados/desbloqueados -> 'library' (Biblioteca de Hooks)
+        // Si ya tiene ganchos generados/desbloqueados -> 'generated' (Hooks Creados)
         if (!initialTabSet.current) {
-            if (data && data.length === 0) {
-                setActiveTab('library');
-            } else {
+            const hasGenerated = userUnlocked.some((h: any) => h.isGenerated);
+            if (hasGenerated) {
                 setActiveTab('generated');
+            } else {
+                setActiveTab('library');
             }
             initialTabSet.current = true;
         }
-        return data;
+
+        // Gestión de los 7 ganchos aleatorios con caché de sesión
+        const cachedLibrary = getSessionLibraryCache(projectId, user?.id);
+        const unlockedMasterIds = new Set(userUnlocked.map((u: any) => String(u.masterHookId || u.id)));
+        const unlockedTitles = new Set(userUnlocked.map((u: any) => (u.title || '').toLowerCase().trim()));
+
+        let newLibrary: any[] = [];
+        if (cachedLibrary && cachedLibrary.length > 0) {
+            // Filtrar los que ya hayan sido generados o desbloqueados en la sesión
+            const validCached = cachedLibrary.filter(h => {
+                const cleanMasterId = String(h.masterHookId || h.id).replace('available-', '');
+                return !unlockedMasterIds.has(cleanMasterId) && !unlockedTitles.has((h.title || '').toLowerCase().trim());
+            });
+
+            if (validCached.length >= LIBRARY_COUNT) {
+                newLibrary = validCached.slice(0, LIBRARY_COUNT);
+            } else {
+                // Rellenar hasta 7 con los disponibles restantes
+                const usedIds = new Set(validCached.map(h => String(h.id)));
+                const availableRemaining = masterAvailable.filter(h => !usedIds.has(String(h.id)));
+                const needed = LIBRARY_COUNT - validCached.length;
+                const fill = availableRemaining.slice(0, needed);
+                newLibrary = [...validCached, ...fill];
+            }
+        } else {
+            // Primera vez en la sesión de hoy: barajar aleatoriamente los ganchos maestros disponibles y tomar 7
+            const randomized = [...masterAvailable].sort(() => Math.random() - 0.5);
+            newLibrary = randomized.slice(0, LIBRARY_COUNT);
+        }
+
+        // Guardar en sessionStorage para mantener la misma lista en la sesión activa
+        setSessionLibraryCache(projectId, user?.id, newLibrary);
+        setLibraryHooks(newLibrary);
+        setLibraryTotal(newLibrary.length);
+
+        if (targetHookId) {
+            const genIdx = userUnlocked.findIndex((h: any) => String(h.id) === String(targetHookId) || String(h.masterHookId) === String(targetHookId).replace('available-', ''));
+            if (genIdx !== -1) {
+                setActiveHook(genIdx);
+                setCurrentPage(Math.floor(genIdx / itemsPerPage) + 1);
+            }
+        }
+        return userUnlocked;
     } catch (e) {
-        console.error("Error cargando ganchos dinámicos:", e);
-        setLoadingHooks(false);
+        console.error("Error cargando ganchos:", e);
+        setHooks([]);
         return [];
+    } finally {
+        setLoadingHooks(false);
+        setLoadingLibrary(false);
     }
   };
 
@@ -243,114 +332,32 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     return 0;
   };
 
-  const loadLibrary = async (page: number, masterId?: string | null) => {
-    if (!projectId) return;
-    setLoadingLibrary(true);
-    try {
-        // Pedimos un lote grande (pool) para evitar huecos en la paginación local
-        const limit = isRealAdmin ? 1000 : 80;
-        const res = await api.getHooksLibrary(1, limit, masterId || undefined, projectId);
-        const fetched = res.hooks || (res as any).data || [];
-        setLibraryHooks(fetched);
-        setLibraryTotal(res.total || fetched.length);
-    } catch (e) {
-        console.error("Error cargando biblioteca:", e);
-    } finally {
-        setLoadingLibrary(false);
-    }
-  };
-
   const displayLibraryHooks = useMemo(() => {
-    // 1. Ganchos del proyecto (Manuales + Desbloqueados que no son 'Generated')
-    const projectHooks = hooks.filter(h => !h.isGenerated);
-
-    // 2. Ganchos de la biblioteca (Estrategia Maestra) que NO están en el proyecto
-    const libraryPool = libraryHooks.filter(lh => {
-        // Filtramos cualquier gancho que ya exista en el proyecto (sea manual, desbloqueado o generado)
-        const alreadyInProject = hooks.some(h => 
-            String(h.id) === String(lh.id) || 
-            (h.masterHookId && String(h.masterHookId) === String(lh.id)) ||
-            String(h.id).replace('available-', '') === String(lh.id).replace('available-', '')
-        );
-        return !alreadyInProject;
-    });
-
-    console.log("--- DEBUG: displayLibraryHooks ---");
-    console.log("isRealAdmin:", isRealAdmin);
-    console.log("sessionSeed:", sessionSeed.current);
-    console.log("Total hooks en proyecto (Manuales/Desbloqueados):", projectHooks.length);
-    console.log("Total hooks en biblioteca maestra (No desbloqueados):", libraryPool.length);
-
-    if (isRealAdmin) {
-        // Admin: Ve TODOS los ganchos (del proyecto y de la biblioteca maestra), deduplicados y ordenados por ID numérico ascendente
-        const combined = [...projectHooks];
-        for (const lh of libraryPool) {
-            const lhClean = String(lh.id).replace('available-', '');
-            const exists = combined.some(ch => {
-                const chClean = String(ch.id).replace('available-', '');
-                const chMaster = ch.masterHookId ? String(ch.masterHookId).replace('available-', '') : null;
-                return chClean === lhClean || chMaster === lhClean;
-            });
-            if (!exists) {
-                combined.push(lh);
-            }
-        }
-        return combined.sort((a, b) => getHookNumericId(a) - getHookNumericId(b));
-    }
-
-    // Usuario Normal:
-    // A. Prioridad: Manuales y Desbloqueados (Nuevos primero)
-    const priorityHooks = projectHooks
-        .filter(h => h.isActive !== false)
-        .sort((a, b) => {
-            const dateA = new Date((a as any).createdAt || 0).getTime();
-            const dateB = new Date((b as any).createdAt || 0).getTime();
-            return dateB - dateA;
-        });
-
-    // B. Biblioteca: Estrategia maestra restante (Aleatorio)
-    console.log("IDs antes de aleatorizar:", libraryPool.slice(0, 5).map(h => h.id));
-    const shuffled = seededShuffle(libraryPool, sessionSeed.current);
-    console.log("IDs después de aleatorizar:", shuffled.slice(0, 5).map(h => h.id));
-
-    const randomLibrary = shuffled.filter(h => h.isActive !== false);
-
-    // Unificamos: Prioridad arriba, Biblioteca aleatoria después
-    const unifiedList = [...priorityHooks, ...randomLibrary].slice(0, 60);
-    
-    console.log("Lista final (primeros 5 IDs):", unifiedList.slice(0, 5).map(h => h.id));
-    console.log("--- END DEBUG ---");
-
-    return unifiedList;
-  }, [hooks, libraryHooks, isRealAdmin]);
+    return libraryHooks;
+  }, [libraryHooks]);
 
   const displayGeneratedHooks = useMemo(() => {
     return hooks
-        .filter(h => h.isGenerated)
+        .filter(h => isRealAdmin ? (h.isGenerated || (h as any).isUnlocked) : h.isGenerated)
         .sort((a, b) => {
             const dateA = new Date((a as any).updatedAt || (a as any).createdAt || 0).getTime();
             const dateB = new Date((b as any).updatedAt || (b as any).createdAt || 0).getTime();
             return dateB - dateA;
         });
-  }, [hooks]);
+  }, [hooks, isRealAdmin]);
 
   useEffect(() => {
     const checkProject = async () => {
         if (!projectId) return;
         try {
             const p = await api.getProjectById(projectId);
-            let mParentId: string | null = null;
             if (p?.masterParentId) {
                 setIsClone(true);
-                mParentId = String(p.masterParentId);
-                setMasterParentId(mParentId);
+                setMasterParentId(String(p.masterParentId));
             }
             if (p?.isMaster) setIsMaster(true);
-            
-            // Cargamos el pool de la biblioteca si no lo tenemos
-            if (activeTab === 'library' && libraryHooks.length === 0) {
-                await loadLibrary(1, mParentId);
-            }
+            await loadHooksData();
+            await fetchGlobalHookCount();
         } catch (e) {
             console.error("Error al revisar proyecto para hooks:", e);
         } finally {
@@ -358,9 +365,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         }
     };
     checkProject();
-    loadHooks();
-    fetchGlobalHookCount();
-  }, [projectId, activeTab]);
+  }, [projectId]);
 
   const defaultKitContent = {
     script: "Aquí ingresa el guion del video persuasivo...",
@@ -379,18 +384,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const filteredHooks = useMemo(() => {
     const currentData = activeTab === 'library' ? displayLibraryHooks : displayGeneratedHooks;
     if (!searchTerm.trim()) return currentData;
-    
+    const term = searchTerm.toLowerCase();
     return currentData.filter(hook => 
-        (hook.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ((hook as any).psychological_strategy || hook.psychologicalStrategy || '').toLowerCase().includes(searchTerm.toLowerCase())
+        (hook.title || '').toLowerCase().includes(term) ||
+        ((hook as any).psychological_strategy || hook.psychologicalStrategy || '').toLowerCase().includes(term)
     );
   }, [activeTab, displayLibraryHooks, displayGeneratedHooks, searchTerm]);
 
   const totalPages = Math.ceil(filteredHooks.length / itemsPerPage);
     
-  const paginatedHooks = activeTab === 'library' 
-    ? filteredHooks.slice((libraryPage - 1) * itemsPerPage, libraryPage * itemsPerPage) 
-    : filteredHooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const paginatedHooks = filteredHooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const currentHook = useMemo(() => {
     return filteredHooks[activeTab === 'library' ? activeLibraryHook : activeHook] || { 
@@ -446,8 +449,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     setUnlockingMore(true);
     try {
         const res = await api.unlockMoreHooks(projectId);
-        await loadHooks();
+        await loadHooksData();
         await fetchGlobalHookCount();
+        setActiveTab('generated');
+        setActiveHook(0);
+        setCurrentPage(1);
         alert(res.message || "¡10 nuevos ganchos añadidos a tu estrategia!");
     } catch (e: any) {
         alert(e.message || "Error al cargar más ganchos.");
@@ -498,11 +504,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         clearInterval(timerInterval);
         setProgress(100);
 
-        // Recargar biblioteca para que los huecos se llenen
-        loadLibrary(1, masterParentId);
-        
-        // Cargar los ganchos generados y cambiar a esa pestaña
-        const freshHooks = await loadHooks();
+        // Recargar datos y seleccionar el nuevo gancho generado
+        await loadHooksData(res.id);
         await fetchGlobalHookCount();
         setActiveTab('generated');
         
@@ -619,11 +622,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     setCurrentPage(1);
     setActiveHook(0);
     setActiveLibraryHook(0);
-    if (activeTab === 'library' && projectChecked) {
-        setLibraryPage(1);
-        loadLibrary(1, masterParentId);
-    }
-  }, [searchTerm, activeTab, projectChecked, masterParentId]);
+  }, [searchTerm, activeTab]);
 
   const currentKit = useMemo(() => {
     const raw = (currentHook && currentHook.contentJson && typeof currentHook.contentJson === 'object') ? currentHook.contentJson : {};
@@ -883,14 +882,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 updatedAt: now
             };
             const res = await api.createProjectHook(projectId, hookData);
-            await loadHooks();
+            await loadHooksData(res?.id);
+            setActiveTab('generated');
+            setCurrentPage(1);
             
-            // Selección automática en la biblioteca
-            setActiveTab('library');
-            setActiveLibraryHook(0);
-            setLibraryPage(1);
-            
-            alert("¡Gancho manual creado! Edítalo en la biblioteca y luego genera el kit.");
+            alert("¡Gancho manual creado!");
         } catch (e: any) {
             alert("Error al crear gancho: " + e.message);
         } finally {
@@ -909,8 +905,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         setSaving(true);
         try {
             await api.deleteProjectHook(currentHook.id);
-            await loadHooks();
+            await loadHooksData();
             setActiveHook(0);
+            setActiveLibraryHook(0);
             alert("Gancho eliminado correctamente.");
         } catch (e: any) {
             alert("Error al eliminar: " + e.message);
@@ -1139,18 +1136,37 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
             {/* Selector de Pestañas */}
             <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
-              <button 
-                onClick={() => { setActiveTab('generated'); setActiveHook(0); }}
-                className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
-              >
-                Hooks Creados
-              </button>
-              <button 
-                onClick={() => { setActiveTab('library'); setActiveLibraryHook(0); }}
-                className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-orange-600 text-white shadow-lg shadow-orange-900/40' : 'text-gray-500 hover:text-white'}`}
-              >
-                Biblioteca de Hooks
-              </button>
+              {hooks.filter(h => isRealAdmin ? (h.isGenerated || (h as any).isUnlocked) : h.isGenerated).length === 0 ? (
+                <>
+                  <button 
+                    onClick={() => { setActiveTab('library'); setActiveLibraryHook(0); setCurrentPage(1); }}
+                    className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTab === 'library' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
+                  >
+                    Biblioteca de Hooks
+                  </button>
+                  <button 
+                    onClick={() => { setActiveTab('generated'); setActiveHook(0); setCurrentPage(1); }}
+                    className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTab === 'generated' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
+                  >
+                    Hooks Creados
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => { setActiveTab('generated'); setActiveHook(0); setCurrentPage(1); }}
+                    className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTab === 'generated' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
+                  >
+                    Hooks Creados
+                  </button>
+                  <button 
+                    onClick={() => { setActiveTab('library'); setActiveLibraryHook(0); setCurrentPage(1); }}
+                    className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTab === 'library' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
+                  >
+                    Biblioteca de Hooks
+                  </button>
+                </>
+              )}
             </div>
             
             <div className="space-y-4">
@@ -1165,16 +1181,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 <div className="flex justify-center py-10"><Loader2 className="animate-spin text-orange-400" /></div>
               ) : paginatedHooks.length > 0 ? (
                 paginatedHooks.map((hook: ProjectHook, idxInPage: number) => {
-                  const globalIdx = (activeTab === 'library' ? (libraryPage - 1) * itemsPerPage : (currentPage - 1) * itemsPerPage) + idxInPage;
-                  const isCardSelected = activeTab === 'library' ? activeLibraryHook === globalIdx : activeHook === globalIdx;
+                  const globalIdx = (currentPage - 1) * itemsPerPage + idxInPage;
+                  const isCardSelected = activeTab === 'library' ? activeLibraryHook === idxInPage : activeHook === globalIdx;
                   const isUnlocked = (hook as any).isUnlocked || activeTab === 'generated';
                   const isGenerated = hook.isGenerated;
                   const isHookActive = hook.isActive !== false && (hook.isActive as any) !== 0;
 
                   return (
                     <div 
-                      key={hook.id} 
-                      onClick={() => activeTab === 'library' ? setActiveLibraryHook(globalIdx) : setActiveHook(globalIdx)}
+                      key={hook.id || idxInPage} 
+                      onClick={() => activeTab === 'library' ? setActiveLibraryHook(idxInPage) : setActiveHook(globalIdx)}
                       className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${
                         isCardSelected 
                           ? (activeTab === 'library' ? 'bg-orange-900/40 border-orange-500/50' : 'bg-emerald-900/40 border-emerald-500/50') 
@@ -1222,19 +1238,19 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-800">
                 <button 
-                  disabled={activeTab === 'library' ? libraryPage === 1 : currentPage === 1} 
-                  onClick={() => activeTab === 'library' ? setLibraryPage(prev => prev - 1) : setCurrentPage(prev => prev - 1)} 
-                  className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"
+                  disabled={currentPage === 1} 
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
+                  className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all cursor-pointer"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
-                  Pág. {activeTab === 'library' ? libraryPage : currentPage} de {totalPages}
+                  Pág. <span className="text-white">{currentPage}</span> de <span className="text-white">{totalPages}</span>
                 </span>
                 <button 
-                  disabled={activeTab === 'library' ? libraryPage === totalPages : currentPage === totalPages} 
-                  onClick={() => activeTab === 'library' ? setLibraryPage(prev => prev + 1) : setCurrentPage(prev => prev + 1)} 
-                  className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"
+                  disabled={currentPage === totalPages} 
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} 
+                  className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all cursor-pointer"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -1243,7 +1259,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
             {activeTab === 'generated' && (
               <button 
-                onClick={() => { setActiveTab('library'); setActiveLibraryHook(0); }}
+                onClick={() => { setActiveTab('library'); setActiveLibraryHook(0); setCurrentPage(1); }}
                 className="w-full mt-6 py-5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-950/20 cursor-pointer"
               >
                 <span>CREAR MÁS HOOKS</span>
@@ -1984,8 +2000,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                               setSaving(true);
                               try {
                                   await api.deleteProjectHook(currentHook.id);
-                                  await loadHooks();
+                                  await loadHooksData();
                                   setActiveHook(0);
+                                  setActiveLibraryHook(0);
                                   alert("Gancho eliminado correctamente.");
                               } catch (e: any) {
                                   alert("Error al eliminar: " + e.message);

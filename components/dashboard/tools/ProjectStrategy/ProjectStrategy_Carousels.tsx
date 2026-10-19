@@ -37,6 +37,35 @@ const forceDownloadImage = async (url: string, filename: string) => {
     }
 };
 
+const getSessionLibraryCache = (projId: string, usrId?: string): any[] | null => {
+    try {
+        const key = `session_library_carousels_${projId}_${usrId || 'anon'}`;
+        const raw = sessionStorage.getItem(key);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        const todayStr = new Date().toISOString().slice(0, 10);
+        if (parsed && parsed.date === todayStr && Array.isArray(parsed.carousels)) {
+            return parsed.carousels;
+        }
+        return null;
+    } catch {
+        return null;
+    }
+};
+
+const setSessionLibraryCache = (projId: string, usrId: string | undefined, carousels: any[]) => {
+    try {
+        const key = `session_library_carousels_${projId}_${usrId || 'anon'}`;
+        const todayStr = new Date().toISOString().slice(0, 10);
+        sessionStorage.setItem(key, JSON.stringify({
+            date: todayStr,
+            carousels
+        }));
+    } catch (e) {
+        console.warn("Could not save library carousels to sessionStorage:", e);
+    }
+};
+
 export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps> = ({
     totalSteps,
     strategyData,
@@ -63,6 +92,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     };
 
     const [carousels, setCarousels] = useState<ProjectCarousel[]>([]);
+    const [availablePool, setAvailablePool] = useState<any[]>([]);
     const [loadingCarousels, setLoadingHooks] = useState(true);
     const [unlockingMore, setUnlockingMore] = useState(false);
     const [unlockingSingle, setUnlockingSingle] = useState(false);
@@ -75,13 +105,14 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
-    const itemsPerPage = 4;
+    // Lógica de 7 elementos por página y 7 aleatorios en biblioteca
+    const itemsPerPage = 7;
+    const LIBRARY_COUNT = 7;
 
     const [activeTab, setActiveTab] = useState<'library' | 'generated'>('library');
     const [libraryCarousels, setLibraryCarousels] = useState<any[]>([]);
     const [libraryTotal, setLibraryTotal] = useState(0);
     const [loadingLibrary, setLoadingLibrary] = useState(false);
-    const [libraryPage, setLibraryPage] = useState(1);
     const [currentPage, setCurrentPage] = useState(1);
     const [activeCarouselIdx, setActiveCarouselIdx] = useState(0);
     const [activeLibraryIdx, setActiveLibraryIdx] = useState(0);
@@ -188,118 +219,137 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     }, [libraryCarousels, activeLibraryIdx]);
 
     const filteredCarousels = useMemo(() => {
-        let currentData = carousels;
-        if (activeTab === 'library') {
-            currentData = libraryCarousels;
-        } else {
+        let currentData = activeTab === 'library' ? libraryCarousels : carousels;
+        if (activeTab === 'generated') {
             // For 'generated' (Mis Carruseles) tab:
             if (isRealAdmin) {
-                currentData = carousels.filter(c => c.isGenerated);
+                currentData = carousels.filter(c => c.isGenerated || (c as any).isUnlocked);
             } else {
                 currentData = carousels.filter(c => (c as any).isUnlocked);
             }
         }
         if (!searchTerm.trim()) return currentData;
+        const term = searchTerm.toLowerCase();
         return currentData.filter(c => 
-            (c.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-            ((c as any).psychological_strategy || c.psychologicalStrategy || '').toLowerCase().includes(searchTerm.toLowerCase())
+            (c.title || '').toLowerCase().includes(term) ||
+            ((c as any).psychological_strategy || c.psychologicalStrategy || '').toLowerCase().includes(term)
         );
-    }, [activeTab, libraryCarousels, carousels, searchTerm]);
+    }, [activeTab, libraryCarousels, carousels, searchTerm, isRealAdmin]);
 
     const totalPages = useMemo(() => {
-        return activeTab === 'library' 
-            ? Math.ceil(libraryTotal / itemsPerPage) 
-            : Math.ceil(filteredCarousels.length / itemsPerPage);
-    }, [activeTab, libraryTotal, filteredCarousels, itemsPerPage]);
+        return Math.ceil(filteredCarousels.length / itemsPerPage);
+    }, [filteredCarousels, itemsPerPage]);
 
     const paginatedCarousels = useMemo(() => {
-        return activeTab === 'library'
-            ? filteredCarousels // library is already paginated by backend
-            : filteredCarousels.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-    }, [activeTab, filteredCarousels, currentPage, itemsPerPage]);
+        return filteredCarousels.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    }, [filteredCarousels, currentPage, itemsPerPage]);
 
     const currentCarousel = useMemo(() => {
-        return activeTab === 'library' 
-            ? filteredCarousels[activeLibraryIdx] 
-            : filteredCarousels[activeCarouselIdx];
+        const list = filteredCarousels;
+        if (list.length === 0) return null;
+        if (activeTab === 'library') {
+            return list[activeLibraryIdx] || list[0] || null;
+        } else {
+            return list[activeCarouselIdx] || list[0] || null;
+        }
     }, [activeTab, filteredCarousels, activeLibraryIdx, activeCarouselIdx]);
 
     const isCurrentUnlocked = useMemo(() => {
         return activeTab === 'generated' || (currentCarousel && (currentCarousel as any).isUnlocked) || isRealAdmin;
     }, [activeTab, currentCarousel, isRealAdmin]);
 
-    // Fetch user's unlocked carousels
-    const fetchCarousels = async () => {
+    // Carga de carruseles con selección aleatoria de 7 en biblioteca y caché en sessionStorage
+    const loadCarouselsData = async (targetCarouselId?: string) => {
         if (!projectId) return [];
         setLoadingHooks(true);
         try {
-            const data = await api.getProjectCarousels(projectId);
-            const unlockedOrGenerated = (data || []).filter(
-                (c: any) => c.isUnlocked || c.isGenerated || isRealAdmin
+            const rawData = await api.getProjectCarousels(projectId);
+            const userUnlocked = (rawData || []).filter(
+                (c: any) => c.isUnlocked || c.isGenerated
             );
-            if (unlockedOrGenerated.length > 0) {
-                setCarousels(data);
-                if (!hasInitializedTab.current) {
+            const masterAvailable = (rawData || []).filter(
+                (c: any) => !c.isUnlocked && !c.isGenerated
+            );
+
+            setCarousels(userUnlocked);
+            setAvailablePool(masterAvailable);
+
+            // Mantener lógica de tab inicial:
+            // Si el usuario no tiene carruseles desbloqueados -> 'library' (Biblioteca)
+            // Si el usuario ya tiene carruseles desbloqueados -> 'generated' (Mis Carruseles)
+            if (!hasInitializedTab.current) {
+                if (userUnlocked.length > 0) {
                     setActiveTab('generated');
-                    hasInitializedTab.current = true;
+                } else {
+                    setActiveTab('library');
                 }
-                return data;
-            } else {
-                setCarousels(data || []);
-                setActiveTab('library');
                 hasInitializedTab.current = true;
-                return data || [];
             }
+
+            // Gestión de los 7 carruseles aleatorios con caché de sesión
+            const cachedLibrary = getSessionLibraryCache(projectId, user?.id);
+            const unlockedMasterIds = new Set(userUnlocked.map((u: any) => String(u.masterCarouselId || u.id)));
+            const unlockedTitles = new Set(userUnlocked.map((u: any) => (u.title || '').toLowerCase().trim()));
+
+            let newLibrary: any[] = [];
+            if (cachedLibrary && cachedLibrary.length > 0) {
+                // Filtrar los que ya hayan sido desbloqueados durante la sesión
+                const validCached = cachedLibrary.filter(c => {
+                    const cleanMasterId = String(c.masterCarouselId || c.id).replace('available-', '');
+                    return !unlockedMasterIds.has(cleanMasterId) && !unlockedTitles.has((c.title || '').toLowerCase().trim());
+                });
+
+                if (validCached.length >= LIBRARY_COUNT) {
+                    newLibrary = validCached.slice(0, LIBRARY_COUNT);
+                } else {
+                    // Si se desbloqueó alguno, rellenar hasta 7 con los disponibles restantes
+                    const usedIds = new Set(validCached.map(c => String(c.id)));
+                    const availableRemaining = masterAvailable.filter(c => !usedIds.has(String(c.id)));
+                    const needed = LIBRARY_COUNT - validCached.length;
+                    const fill = availableRemaining.slice(0, needed);
+                    newLibrary = [...validCached, ...fill];
+                }
+            } else {
+                // Primera vez que entra en la sesión de hoy: barajar y seleccionar 7 aleatorios
+                const randomized = [...masterAvailable].sort(() => Math.random() - 0.5);
+                newLibrary = randomized.slice(0, LIBRARY_COUNT);
+            }
+
+            // Guardar en sessionStorage para mantener la misma lista en la sesión activa
+            setSessionLibraryCache(projectId, user?.id, newLibrary);
+            setLibraryCarousels(newLibrary);
+            setLibraryTotal(newLibrary.length);
+
+            if (targetCarouselId) {
+                const genIdx = userUnlocked.findIndex((c: any) => String(c.id) === String(targetCarouselId) || String(c.masterCarouselId) === String(targetCarouselId).replace('available-', ''));
+                if (genIdx !== -1) {
+                    setActiveCarouselIdx(genIdx);
+                    setCurrentPage(Math.floor(genIdx / itemsPerPage) + 1);
+                }
+            }
+            return userUnlocked;
         } catch (e) {
-            console.error("Error fetching carousels:", e);
+            console.error("Error loading carousels:", e);
             setCarousels([]);
-            setActiveTab('library');
-            hasInitializedTab.current = true;
             return [];
         } finally {
             setLoadingHooks(false);
-        }
-    };
-
-    // Fetch library carousels
-    const fetchLibrary = async (page: number, mParentId?: string | null) => {
-        if (!projectId) return [];
-        setLoadingLibrary(true);
-        try {
-            const data = await api.getCarouselsLibrary(page, 4, mParentId !== undefined ? (mParentId || undefined) : (masterParentId || undefined), projectId);
-            if (data && data.carousels) {
-                setLibraryCarousels(data.carousels);
-                setLibraryTotal(data.total);
-                return data.carousels;
-            }
-            return [];
-        } catch (e) {
-            console.error("Error fetching library:", e);
-            return [];
-        } finally {
             setLoadingLibrary(false);
         }
     };
 
-    // Check project context and load carousels
+    // Inicializar datos del proyecto
     useEffect(() => {
         const checkProjectAndLoad = async () => {
             if (!projectId) return;
             try {
                 const proj = await api.getProjectById(projectId);
-                let mParentId: string | null = null;
                 if (proj) {
                     setIsClone(!!proj.masterParentId);
                     setIsMaster(!!proj.isMaster);
-                    mParentId = proj.masterParentId || null;
-                    setMasterParentId(mParentId);
+                    setMasterParentId(proj.masterParentId || null);
                 }
-                
-                const loadedCarousels = await fetchCarousels();
-                
-                if (activeTab === 'library' || !loadedCarousels || loadedCarousels.length === 0) {
-                    await fetchLibrary(libraryPage, mParentId);
-                }
+                await loadCarouselsData();
                 await fetchGlobalCarouselCount();
             } catch (e) {
                 console.error("Error checking project:", e);
@@ -308,7 +358,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             }
         };
         checkProjectAndLoad();
-    }, [projectId, activeTab, libraryPage]);
+    }, [projectId]);
 
     // Reset slide index when active carousel changes
     useEffect(() => {
@@ -419,18 +469,11 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 spread: 80,
                 origin: { y: 0.6 }
             });
-            const data = await api.getProjectCarousels(projectId);
-            setCarousels(data || []);
             await fetchGlobalCarouselCount();
+            await loadCarouselsData(res?.id || masterId);
             setActiveTab('generated');
-            // Select the newly unlocked item in the list
-            const newIdx = (data || []).findIndex((c: any) => String(c.id) === String(res.id) || String(c.masterCarouselId) === String(masterId).replace('available-', ''));
-            if (newIdx !== -1) {
-                setActiveCarouselIdx(newIdx);
-            } else {
-                setActiveCarouselIdx(0);
-            }
-                } catch (err: any) {
+            setCurrentPage(1);
+        } catch (err: any) {
             console.error("Error unlocking single carousel:", err);
             if (err.message && err.message.includes("límite")) {
                 setShowLockModal(true);
@@ -439,6 +482,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             }
         } finally {
             setUnlockingSingle(false);
+            setShowConfirmModal(false);
         }
     };
 
@@ -453,11 +497,11 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 spread: 100,
                 origin: { y: 0.5 }
             });
-            const data = await api.getProjectCarousels(projectId);
-            setCarousels(data || []);
             await fetchGlobalCarouselCount();
+            await loadCarouselsData();
             setActiveTab('generated');
             setActiveCarouselIdx(0);
+            setCurrentPage(1);
         } catch (err: any) {
             console.error("Error unlocking carousels batch:", err);
             if (err.message && err.message.includes("límite")) {
@@ -484,15 +528,9 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             setSaving(true);
             try {
                 await api.deleteProjectCarousel(carouselId);
-                const data = await api.getProjectCarousels(projectId);
-                setCarousels(data || []);
-                
-                if (isRealAdmin) {
-                    await fetchLibrary(libraryPage);
-                    setActiveLibraryIdx(0);
-                } else {
-                    setActiveCarouselIdx(0);
-                }
+                await loadCarouselsData();
+                setActiveCarouselIdx(0);
+                setActiveLibraryIdx(0);
                 alert("Carrusel eliminado correctamente.");
             } catch (e: any) {
                 alert("Error al eliminar: " + e.message);
@@ -543,32 +581,8 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                     updatedAt: now
                 };
                 const created = await api.createProjectCarousel(projectId, carouselData);
-                const data = await api.getProjectCarousels(projectId);
-                setCarousels(data || []);
-                
-                if (isRealAdmin) {
-                    setActiveTab('library');
-                    const fetchedLib = await fetchLibrary(libraryPage);
-                    if (fetchedLib && fetchedLib.length > 0) {
-                        const newIdx = fetchedLib.findIndex((c: any) => String(c.id) === String(created.id));
-                        if (newIdx !== -1) {
-                            setActiveLibraryIdx(newIdx);
-                        } else {
-                            setActiveLibraryIdx(0);
-                        }
-                    }
-                } else {
-                    if (data && data.length > 0) {
-                        const newIdx = data.findIndex((c: any) => String(c.id) === String(created.id));
-                        if (newIdx !== -1) {
-                            setActiveCarouselIdx(newIdx);
-                        } else {
-                            setActiveCarouselIdx(0);
-                        }
-                    } else {
-                        setActiveCarouselIdx(0);
-                    }
-                }
+                await loadCarouselsData(created?.id);
+                setActiveTab('generated');
                 alert("¡Carrusel manual creado!");
             } catch (e: any) {
                 alert("Error al crear carrusel: " + e.message);
@@ -680,14 +694,14 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                             {unlockedCount === 0 ? (
                                 <>
                                     <button 
-                                        onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); }}
-                                        className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
+                                        onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); setCurrentPage(1); }}
+                                        className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTab === 'library' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
                                     >
                                         Biblioteca
                                     </button>
                                     <button 
-                                        onClick={() => { setActiveTab('generated'); setActiveCarouselIdx(0); }}
-                                        className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
+                                        onClick={() => { setActiveTab('generated'); setActiveCarouselIdx(0); setCurrentPage(1); }}
+                                        className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTab === 'generated' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
                                     >
                                         Mis Carruseles
                                     </button>
@@ -695,14 +709,14 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                             ) : (
                                 <>
                                     <button 
-                                        onClick={() => { setActiveTab('generated'); setActiveCarouselIdx(0); }}
-                                        className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
+                                        onClick={() => { setActiveTab('generated'); setActiveCarouselIdx(0); setCurrentPage(1); }}
+                                        className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTab === 'generated' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
                                     >
                                         Mis Carruseles
                                     </button>
                                     <button 
-                                        onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); }}
-                                        className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
+                                        onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); setCurrentPage(1); }}
+                                        className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTab === 'library' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-gray-500 hover:text-white'}`}
                                     >
                                         Biblioteca
                                     </button>
@@ -715,15 +729,15 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                 <div className="flex justify-center py-10"><Loader2 className="animate-spin text-orange-400" /></div>
                             ) : paginatedCarousels.length > 0 ? (
                                 paginatedCarousels.map((carousel: any, idxInPage: number) => {
-                                    const globalIdx = activeTab === 'library' ? idxInPage : (currentPage - 1) * itemsPerPage + idxInPage;
-                                    const isCardSelected = activeTab === 'library' ? activeLibraryIdx === globalIdx : activeCarouselIdx === globalIdx;
+                                    const globalIdx = (currentPage - 1) * itemsPerPage + idxInPage;
+                                    const isCardSelected = activeTab === 'library' ? activeLibraryIdx === idxInPage : activeCarouselIdx === globalIdx;
                                     const isUnlocked = activeTab === 'generated' || (carousel as any).isUnlocked || isRealAdmin;
                                     const isCarouselActive = carousel.isActive !== false && (carousel.isActive as any) !== 0;
 
                                     return (
                                         <div 
                                             key={carousel.id || idxInPage} 
-                                            onClick={() => activeTab === 'library' ? setActiveLibraryIdx(globalIdx) : setActiveCarouselIdx(globalIdx)}
+                                            onClick={() => activeTab === 'library' ? setActiveLibraryIdx(idxInPage) : setActiveCarouselIdx(globalIdx)}
                                             className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${
                                                 isCardSelected 
                                                     ? (activeTab === 'library' ? 'bg-orange-900/40 border-orange-500/50' : 'bg-emerald-900/40 border-emerald-500/50') 
@@ -747,8 +761,8 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                                         const nextActive = !isCarouselActive;
                                                         api.updateProjectCarousel(carousel.id, { isActive: nextActive })
                                                             .then(() => {
-                                                                fetchCarousels();
-                                                                fetchLibrary(libraryPage);
+                                                                setCarousels(prev => prev.map(c => c.id === carousel.id ? { ...c, isActive: nextActive } : c));
+                                                                setLibraryCarousels(prev => prev.map(c => c.id === carousel.id ? { ...c, isActive: nextActive } : c));
                                                             });
                                                     }}
                                                     className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300 grayscale-0 shrink-0 ${
@@ -771,19 +785,19 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                         {totalPages > 1 && (
                             <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-800">
                                 <button 
-                                    disabled={activeTab === 'library' ? libraryPage === 1 : currentPage === 1} 
-                                    onClick={() => activeTab === 'library' ? setLibraryPage(prev => prev - 1) : setCurrentPage(prev => prev - 1)} 
-                                    className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"
+                                    disabled={currentPage === 1} 
+                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
+                                    className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all cursor-pointer"
                                 >
                                     <ChevronLeft className="w-5 h-5" />
                                 </button>
                                 <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
-                                    Pág. {activeTab === 'library' ? libraryPage : currentPage} de {totalPages}
+                                    Pág. <span className="text-white">{currentPage}</span> de <span className="text-white">{totalPages}</span>
                                 </span>
                                 <button 
-                                    disabled={activeTab === 'library' ? libraryPage === totalPages : currentPage === totalPages} 
-                                    onClick={() => activeTab === 'library' ? setLibraryPage(prev => prev + 1) : setCurrentPage(prev => prev + 1)} 
-                                    className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"
+                                    disabled={currentPage === totalPages} 
+                                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} 
+                                    className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all cursor-pointer"
                                 >
                                     <ChevronRight className="w-5 h-5" />
                                 </button>
@@ -792,7 +806,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
 
                         {activeTab === 'generated' && (
                             <button 
-                                onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); }}
+                                onClick={() => { setActiveTab('library'); setActiveLibraryIdx(0); setCurrentPage(1); }}
                                 className="w-full mt-6 py-5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-950/20 cursor-pointer"
                             >
                                 <span>CREAR MÁS CARRUSELES</span>

@@ -138,9 +138,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const [editingField, setEditingField] = useState<string | null>(null);
     const [unlockingSingle, setUnlockingSingle] = useState(false);
 
-    // Lógica de Paginación: 10 por página
+    // Lógica de Paginación: 7 por página
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 7;
 
     const currentData = activeTab === 'library' ? libraryData : generatedData;
 
@@ -302,6 +302,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             const locked = [...manualFromDb.filter(a => !a.isUnlocked), ...suggestions]
                 .filter(a => !generatedTitles.has(a.title.toLowerCase().trim()) && !generatedIds.has(String(a.id)));
 
+            const LIBRARY_COUNT = 7;
             let newLibrary: any[] = [];
 
             if (hasValidSessionCache && cachedLibrary) {
@@ -311,22 +312,22 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     !generatedTitles.has(String(a.title).toLowerCase().trim())
                 );
 
-                if (validCached.length >= 10) {
-                    newLibrary = validCached.slice(0, 10);
+                if (validCached.length >= LIBRARY_COUNT) {
+                    newLibrary = validCached.slice(0, LIBRARY_COUNT);
                 } else {
-                    // Si se generó un artículo, completar hasta 10 con candidatos disponibles restantes
+                    // Si se generó un artículo, completar hasta 7 con candidatos disponibles restantes
                     const usedIds = new Set(validCached.map(a => String(a.id)));
                     const availablePool = [...unlocked, ...locked].filter(a => !usedIds.has(String(a.id)));
-                    const needed = 10 - validCached.length;
+                    const needed = LIBRARY_COUNT - validCached.length;
                     const fill = availablePool.slice(0, needed);
                     newLibrary = [...validCached, ...fill];
                 }
             } else {
-                // Primera vez que entra en la sesión de hoy: seleccionar 10 artículos aleatorios
+                // Primera vez que entra en la sesión de hoy: seleccionar 7 artículos aleatorios
                 // Los desbloqueados se colocan primero si hay, y los bloqueados se barajan aleatoriamente
                 const randomizedLocked = [...locked].sort(() => Math.random() - 0.5);
                 const candidates = [...unlocked, ...randomizedLocked];
-                newLibrary = candidates.slice(0, 10);
+                newLibrary = candidates.slice(0, LIBRARY_COUNT);
             }
 
             // Guardar en la sesión local para que si va a otra sección y vuelve, mantenga exactamente la misma lista

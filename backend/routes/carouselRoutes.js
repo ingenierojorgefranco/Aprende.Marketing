@@ -31,8 +31,16 @@ router.get('/project/:projectId', async (req, res) => {
         const isMaster = !!proj[0]?.is_master;
         const isAdmin = req.user && req.user.role === 'admin';
 
+        let effectiveMasterParentId = masterParentId;
+        if (!effectiveMasterParentId && !isMaster) {
+            const [masterProjects] = await pool.query('SELECT id FROM projects WHERE is_master = 1 ORDER BY id ASC LIMIT 1');
+            if (masterProjects.length > 0) {
+                effectiveMasterParentId = masterProjects[0].id;
+            }
+        }
+
         let carousels = [];
-        if (masterParentId) {
+        if (effectiveMasterParentId) {
             const effectiveLimits = await getEffectiveLimits(req.user.id);
             const isStarter = !isAdmin && effectiveLimits.planName === 'starter';
 
@@ -42,16 +50,31 @@ router.get('/project/:projectId', async (req, res) => {
                 [projectId]
             );
 
-            // Traer carruseles del maestro que no han sido clonados todavía
+            // Traer carruseles del maestro que no han sido clonados todavía (con soporte para skipMaster y limitMaster)
             const activeCondition = isAdmin ? '' : 'AND is_active = 1';
-            const orderClause = isAdmin ? 'ORDER BY id ASC' : (isStarter ? 'ORDER BY RAND() LIMIT 15' : 'ORDER BY id ASC');
-            const masterQuery = `SELECT * FROM project_carousels 
-                 WHERE project_id = ? 
-                 ${activeCondition}
-                 AND id NOT IN (SELECT master_carousel_id FROM project_carousels WHERE project_id = ? AND master_carousel_id IS NOT NULL)
-                 ${orderClause}`;
-
-            const [masterRows] = await pool.query(masterQuery, [masterParentId, projectId]);
+            let masterRows = [];
+            if (req.query.skipMaster === 'true') {
+                masterRows = [];
+            } else if (req.query.limitMaster) {
+                const limitNum = Math.max(1, Math.min(100, parseInt(req.query.limitMaster) || 7));
+                const [limitedMaster] = await pool.query(
+                    `SELECT * FROM project_carousels 
+                     WHERE project_id = ? 
+                     ${activeCondition}
+                     AND id NOT IN (SELECT master_carousel_id FROM project_carousels WHERE project_id = ? AND master_carousel_id IS NOT NULL)
+                     ORDER BY RAND() LIMIT ?`,
+                    [effectiveMasterParentId, projectId, limitNum]
+                );
+                masterRows = limitedMaster;
+            } else {
+                const masterQuery = `SELECT * FROM project_carousels 
+                     WHERE project_id = ? 
+                     ${activeCondition}
+                     AND id NOT IN (SELECT master_carousel_id FROM project_carousels WHERE project_id = ? AND master_carousel_id IS NOT NULL)
+                     ORDER BY id ASC`;
+                const [allMaster] = await pool.query(masterQuery, [effectiveMasterParentId, projectId]);
+                masterRows = allMaster;
+            }
             
             const userCarousels = userRows.map(c => ({
                 id: String(c.id),
