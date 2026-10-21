@@ -14,7 +14,8 @@ import {
   Zap, 
   ExternalLink,
   Users,
-  Video
+  Video,
+  Rocket
 } from 'lucide-react';
 
 interface AprendeMarketingBienvenidaProps {
@@ -29,7 +30,7 @@ interface AprendeMarketingBienvenidaProps {
 }
 
 export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProps> = ({
-  customVideoUrl = "https://www.youtube.com/embed/CNUYJ5pQWxU?rel=0&controls=1&showinfo=0",
+  customVideoUrl = "https://www.youtube.com/embed/x4NdPhJTXxM?rel=0&controls=1&showinfo=0",
   freeClassesUrl = "https://www.youtube.com/playlist?list=PLGFXdqHqDQ9I",
   facebookUrl = "https://www.facebook.com/jorgefranpuntoco",
   instagramUrl = "https://instagram.com/jorgefranpuntoco",
@@ -165,44 +166,80 @@ export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProp
           </div>
         </div>
 
-        {/* DOS BOTONES PRINCIPALES DEBAJO DEL VIDEO (UNO ENCIMA DEL OTRO) */}
-        <div className="w-full max-w-xl flex flex-col items-stretch gap-4 mb-16 sm:mb-20">
+        {/* NUEVO FORMATO DE ACCIÓN: PROTAGONISMO A CREAR CUENTA / PROYECTO */}
+        <div className="w-full max-w-2xl flex flex-col items-center mb-16 sm:mb-20 bg-[#0E0E14]/90 border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden text-center">
           
-          {/* Botón 1: Ver Clases Gratuitas (Arriba / Primero) */}
-          <a
-            href={freeClassesUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full py-5 px-8 rounded-2xl bg-[#121218] hover:bg-[#1A1A24] text-white font-black text-lg sm:text-xl uppercase tracking-wider border-2 border-orange-500/70 hover:border-orange-400 transition-all transform hover:-translate-y-1 shadow-xl shadow-orange-950/40 flex items-center justify-center gap-3.5 group cursor-pointer"
-          >
-            <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-400 group-hover:bg-[#FF5A1F] group-hover:text-white transition-colors shadow-inner">
-              <Play className="w-5 h-5 fill-current ml-0.5" />
-            </div>
-            <span>Ver Clases Gratuitas</span>
-            <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-white ml-auto transition-colors" />
-          </a>
+          {/* Luz ambiental sutil */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-32 bg-[#FF5A1F]/15 rounded-full blur-3xl pointer-events-none"></div>
 
-          {/* Botón 2: Crear mi cuenta en Aprende Marketing (Debajo, abre en nueva ventana) */}
-          <a
-            href="/register"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full py-5 px-8 rounded-2xl bg-gradient-to-r from-[#FF5A1F] via-[#FF6D2E] to-[#E04810] hover:brightness-110 text-white font-black text-lg sm:text-xl uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-2xl shadow-[#FF5A1F]/40 border border-white/20 flex items-center justify-center gap-3.5 group cursor-pointer"
-          >
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white group-hover:rotate-12 transition-transform shadow-inner">
-              <UserPlus className="w-5 h-5" />
-            </div>
-            <span>Crear mi cuenta en Aprende Marketing</span>
-            <ExternalLink className="w-5 h-5 text-white/70 group-hover:text-white ml-auto transition-colors" />
-          </a>
-
-          <div className="flex items-center justify-center gap-3 sm:gap-4 text-xs font-semibold text-gray-400 mt-1">
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Acceso Inmediato</span>
-            <span>•</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> 100% Gratuito</span>
-            <span>•</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Sin Tarjetas</span>
+          {/* Encabezado y llamada a la acción */}
+          <div className="space-y-2 mb-6 sm:mb-8 relative z-10">
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
+              Ahora te toca construir tu proyecto
+            </h3>
+            <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-xl mx-auto">
+              Regístrate gratis, sigue los tutoriales dentro de la plataforma y crea tu primer activo digital.
+            </p>
           </div>
+
+          {/* BOTÓN PRINCIPAL PROTAGÓNICO: Crear mi cuenta en Aprende Marketing */}
+          <div className="w-full max-w-xl space-y-3 relative z-10">
+            <a
+              href="/register"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-5 px-6 sm:px-8 rounded-2xl bg-gradient-to-r from-[#FF5A1F] via-[#FF6D2E] to-[#E04810] hover:brightness-110 text-white font-black text-base sm:text-xl uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-2xl shadow-[#FF5A1F]/40 border border-white/20 flex items-center justify-center gap-3.5 group cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-6 transition-all shadow-inner shrink-0">
+                <Rocket className="w-5 h-5 fill-white/20" />
+              </div>
+              <span className="leading-snug text-center">Crear mi cuenta en Aprende Marketing</span>
+              <ExternalLink className="w-5 h-5 text-white/70 group-hover:text-white ml-auto hidden sm:block transition-colors shrink-0" />
+            </a>
+
+            <p className="text-xs sm:text-sm text-gray-400 font-medium">
+              Tu primer paso para empezar a implementar
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-semibold text-gray-400 pt-2">
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Acceso Inmediato</span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> 100% Gratuito</span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Sin Tarjetas</span>
+            </div>
+          </div>
+
+          {/* Línea divisoria elegante */}
+          <div className="w-full max-w-lg border-t border-white/10 my-7 sm:my-8 relative z-10"></div>
+
+          {/* SECCIÓN SECUNDARIA: Consulta de clases sin robar protagonismo */}
+          <div className="space-y-2 relative z-10">
+            <h4 className="text-base sm:text-lg font-bold text-gray-200">
+              ¿Quieres profundizar en los conceptos?
+            </h4>
+            <p className="text-xs sm:text-sm text-gray-400 max-w-md mx-auto">
+              También puedes consultar nuestras clases completas grabadas.
+            </p>
+
+            <div className="pt-2">
+              <a
+                href={freeClassesUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 text-sm sm:text-base font-bold text-gray-300 hover:text-white transition-colors group cursor-pointer py-1.5 px-3 rounded-lg hover:bg-white/5"
+              >
+                <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-orange-400 group-hover:bg-[#FF5A1F] group-hover:text-white transition-all shrink-0">
+                  <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                </div>
+                <span className="underline underline-offset-4 decoration-white/40 group-hover:decoration-white">
+                  Ver biblioteca de clases
+                </span>
+                <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-colors opacity-70 group-hover:opacity-100" />
+              </a>
+            </div>
+          </div>
+
         </div>
 
         {/* SECCIÓN DE VALOR / CARDS DE COLOR VIBRANTES Y PREMIUM */}

@@ -157,6 +157,15 @@ export interface PlanLimits {
   planDays?: number;
   startDate?: string;
   renewalDate?: string;
+  cycleStartDate?: string;
+  cycleEndDate?: string;
+  daysUntilRenewal?: number;
+  monthlyCycle?: {
+    cycleStart: string;
+    cycleEnd: string;
+    renewalDate: string;
+    daysLeft: number;
+  };
   subscriptionDetails?: {
     planName: string;
     planSlug: string;

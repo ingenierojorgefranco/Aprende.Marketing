@@ -81,6 +81,8 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     const isRealAdmin = (planLimits?.planName === 'admin' || user?.role === 'admin') && !isSimulating;
 
     const [globalCarouselCount, setGlobalCarouselCount] = useState<number | null>(null);
+    const [renewalDateStr, setRenewalDateStr] = useState<string | null>(null);
+    const [daysUntilRenewal, setDaysUntilRenewal] = useState<number | null>(null);
 
     const fetchGlobalCarouselCount = async () => {
         try {
@@ -88,8 +90,26 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             if (summary && typeof summary.totalCarousels === 'number') {
                 setGlobalCarouselCount(summary.totalCarousels);
             }
+            if (summary?.renewalDate) {
+                setRenewalDateStr(summary.renewalDate);
+            }
+            if (typeof summary?.daysUntilRenewal === 'number') {
+                setDaysUntilRenewal(summary.daysUntilRenewal);
+            }
         } catch (e) {}
     };
+
+    const formattedRenewalDate = useMemo(() => {
+        const raw = renewalDateStr || planLimits?.renewalDate || user?.planLimits?.renewalDate;
+        if (!raw) return null;
+        try {
+            const d = new Date(raw);
+            if (isNaN(d.getTime())) return null;
+            return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+        } catch {
+            return null;
+        }
+    }, [renewalDateStr, planLimits?.renewalDate, user?.planLimits?.renewalDate]);
 
     const [carousels, setCarousels] = useState<ProjectCarousel[]>([]);
     const [availablePool, setAvailablePool] = useState<any[]>([]);
@@ -664,6 +684,15 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
                                     <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (totalUsedCarousels > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                 </div>
+                                {!isRealAdmin && formattedRenewalDate && (
+                                    <div className="flex justify-between items-center mt-3 pt-2.5 border-t border-white/5 text-xs text-gray-400">
+                                        <span className="flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block animate-pulse"></span>
+                                            Renovación de créditos:
+                                        </span>
+                                        <span className="text-orange-300 font-semibold">{formattedRenewalDate}</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -1260,7 +1289,12 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                         "Como Administrador tienes acceso ilimitado para diseñar todos los carruseles que desees."
                                     ) : (
                                         <>
-                                            Al diseñar este carrusel consumirás 1 crédito de tu plan ({totalUsedCarousels + 1} de {maxCarousels}).
+                                            Al diseñar este carrusel consumirás 1 crédito mensual de tu plan ({totalUsedCarousels + 1} de {maxCarousels} este mes).
+                                            {formattedRenewalDate && (
+                                                <span className="block mt-2 text-sm text-orange-400 font-normal">
+                                                    Tus créditos se renuevan el {formattedRenewalDate}.
+                                                </span>
+                                            )}
                                         </>
                                     )}
                                 </p>

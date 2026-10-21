@@ -426,33 +426,60 @@ router.get('/analytics/weekly', authMiddleware, async (req, res) => {
 
 router.get('/analytics/summary', authMiddleware, async (req, res) => {
   try {
+    const effectiveLimits = await getEffectiveLimits(req.user.id);
+    const cycleStartDate = effectiveLimits.cycleStartDate || '1970-01-01 00:00:00';
+
     const [visitsRes] = await pool.query('SELECT SUM(visits) as v, SUM(conversions) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
     const [pagesRes] = await pool.query('SELECT COUNT(*) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
-    const [articlesRes] = await pool.query('SELECT COUNT(*) as c FROM articles WHERE user_id = ?', [req.user.id]);
     const [projectsRes] = await pool.query('SELECT COUNT(*) as c FROM projects WHERE user_id = ?', [req.user.id]);
-    // Nuevo: Conteo de ganchos (hooks) y carruseles asociados a los proyectos del usuario
-    const [hooksRes] = await pool.query(`
+
+    // Conteo total histórico
+    const [allArticlesRes] = await pool.query('SELECT COUNT(*) as c FROM articles WHERE user_id = ?', [req.user.id]);
+    const [allHooksRes] = await pool.query(`
         SELECT COUNT(*) as c 
         FROM project_hooks h
         JOIN projects p ON h.project_id = p.id
         WHERE p.user_id = ?
     `, [req.user.id]);
-
-    const [carouselsRes] = await pool.query(`
+    const [allCarouselsRes] = await pool.query(`
         SELECT COUNT(*) as c 
         FROM project_carousels c
         JOIN projects p ON c.project_id = p.id
         WHERE p.user_id = ?
     `, [req.user.id]);
 
+    // Conteo del ciclo mensual actual (se regenera cada mes)
+    const [articlesRes] = await pool.query('SELECT COUNT(*) as c FROM articles WHERE user_id = ? AND created_at >= ?', [req.user.id, cycleStartDate]);
+    const [hooksRes] = await pool.query(`
+        SELECT COUNT(*) as c 
+        FROM project_hooks h
+        JOIN projects p ON h.project_id = p.id
+        WHERE p.user_id = ? AND h.created_at >= ?
+    `, [req.user.id, cycleStartDate]);
+    const [carouselsRes] = await pool.query(`
+        SELECT COUNT(*) as c 
+        FROM project_carousels c
+        JOIN projects p ON c.project_id = p.id
+        WHERE p.user_id = ? AND c.created_at >= ?
+    `, [req.user.id, cycleStartDate]);
+
     res.json({
         totalVisits: visitsRes[0].v || 0,
         totalConversions: visitsRes[0].c || 0,
         totalPages: pagesRes[0].c || 0,
-        totalArticles: articlesRes[0].c || 0,
         totalProjects: projectsRes[0].c || 0,
+        // Usados en el ciclo mensual actual:
+        totalArticles: articlesRes[0].c || 0,
         totalHooks: hooksRes[0].c || 0,
-        totalCarousels: carouselsRes[0].c || 0
+        totalCarousels: carouselsRes[0].c || 0,
+        // Totales históricos:
+        allTimeArticles: allArticlesRes[0].c || 0,
+        allTimeHooks: allHooksRes[0].c || 0,
+        allTimeCarousels: allCarouselsRes[0].c || 0,
+        // Información del ciclo mensual:
+        cycleStartDate: effectiveLimits.cycleStartDate,
+        renewalDate: effectiveLimits.renewalDate,
+        daysUntilRenewal: effectiveLimits.daysUntilRenewal
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

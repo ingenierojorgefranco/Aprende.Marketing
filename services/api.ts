@@ -1227,7 +1227,21 @@ export const api = {
         return data;
     },
   
-    getAnalyticsSummary: async (): Promise<{totalVisits: number, totalConversions: number, totalPages: number, totalArticles: number, totalProjects: number, totalHooks: number, totalCarousels?: number}> => {
+    getAnalyticsSummary: async (): Promise<{
+        totalVisits: number;
+        totalConversions: number;
+        totalPages: number;
+        totalArticles: number;
+        totalProjects: number;
+        totalHooks: number;
+        totalCarousels?: number;
+        allTimeArticles?: number;
+        allTimeHooks?: number;
+        allTimeCarousels?: number;
+        cycleStartDate?: string;
+        renewalDate?: string;
+        daysUntilRenewal?: number;
+    }> => {
         if (isMockMode) {
             const totalVisits = localPages.reduce((acc, p) => acc + p.visits, 0);
             const totalConversions = localPages.reduce((acc, p) => acc + p.conversions, 0);
@@ -1355,11 +1369,13 @@ export const api = {
             localArticles.unshift(newArt);
             return { id: newId };
         }
-        return await fetchWithFallback('/articles/unlock-article', {
+        const res = await fetchWithFallback('/articles/unlock-article', {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({ projectId, masterArticleId })
         });
+        apiCache.summary = null;
+        return res;
     },
   
     getArticleById: async (id: string): Promise<Article | null> => {
@@ -2732,21 +2748,25 @@ export const api = {
     unlockSingleCarousel: async (projectId: string, masterCarouselId: string, isGenerated?: boolean): Promise<{ id: string }> => {
         if (isMockMode) return { id: `unlocked-${Date.now()}` };
         const cleanMasterId = String(masterCarouselId).replace('available-', '');
-        return await fetchWithFallback('/carousels/unlock-single', {
+        const res = await fetchWithFallback('/carousels/unlock-single', {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({ projectId, masterCarouselId: cleanMasterId, isGenerated })
         });
+        apiCache.summary = null;
+        return res;
     },
 
     unlockMultipleCarousels: async (projectId: string, masterCarouselIds: string[], isGenerated?: boolean): Promise<{ success: boolean; results: any[] }> => {
         if (isMockMode) return { success: true, results: masterCarouselIds.map(id => ({ id: `unlocked-${id}-${Date.now()}` })) };
         const cleanIds = masterCarouselIds.map(id => String(id).replace('available-', ''));
-        return await fetchWithFallback('/carousels/unlock-multiple', {
+        const res = await fetchWithFallback('/carousels/unlock-multiple', {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({ projectId, masterCarouselIds: cleanIds, isGenerated })
         });
+        apiCache.summary = null;
+        return res;
     },
 
     unlockMoreCarousels: async (projectId: string): Promise<{ success: boolean; count: number; message: string }> => {

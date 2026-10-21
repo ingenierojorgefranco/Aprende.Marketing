@@ -241,15 +241,16 @@ router.post('/unlock-single', async (req, res) => {
         const maxAllowed = effectiveLimits.maxHooks;
         
         if (req.user.role !== 'admin') {
+            const cycleStartDate = effectiveLimits.cycleStartDate || '1970-01-01 00:00:00';
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
                 FROM project_hooks h
                 JOIN projects p ON h.project_id = p.id
-                WHERE p.user_id = ?
-            `, [req.user.id]);
+                WHERE p.user_id = ? AND h.created_at >= ?
+            `, [req.user.id, cycleStartDate]);
             
             if (countRows[0].total >= maxAllowed) {
-                return res.status(403).json({ error: `Has alcanzado el límite global de ${maxAllowed} ganchos de tu plan.` });
+                return res.status(403).json({ error: `Has alcanzado el límite mensual de ${maxAllowed} ganchos de tu plan para este ciclo.` });
             }
         }
 
@@ -301,15 +302,16 @@ router.post('/unlock-multiple', async (req, res) => {
         const maxAllowed = effectiveLimits.maxHooks;
         
         if (req.user.role !== 'admin') {
+            const cycleStartDate = effectiveLimits.cycleStartDate || '1970-01-01 00:00:00';
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
                 FROM project_hooks h
                 JOIN projects p ON h.project_id = p.id
-                WHERE p.user_id = ?
-            `, [req.user.id]);
+                WHERE p.user_id = ? AND h.created_at >= ?
+            `, [req.user.id, cycleStartDate]);
             
             if (countRows[0].total + countToUnlock > maxAllowed) {
-                return res.status(403).json({ error: `Esta acción superaría tu límite global de ${maxAllowed} ganchos.` });
+                return res.status(403).json({ error: `Esta acción superaría tu límite mensual de ${maxAllowed} ganchos para este ciclo.` });
             }
         }
 
@@ -422,17 +424,18 @@ router.post('/unlock-more/:projectId', async (req, res) => {
         
         let maxToLoad = 10;
         if (req.user.role !== 'admin') {
+            const cycleStartDate = effectiveLimits.cycleStartDate || '1970-01-01 00:00:00';
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
                 FROM project_hooks h
                 JOIN projects p ON h.project_id = p.id
-                WHERE p.user_id = ?
-            `, [req.user.id]);
+                WHERE p.user_id = ? AND h.created_at >= ?
+            `, [req.user.id, cycleStartDate]);
             
             const remaining = maxAllowed - countRows[0].total;
             
             if (remaining <= 0) {
-                return res.status(403).json({ error: `Has alcanzado el límite global de ${maxAllowed} ganchos de tu plan.` });
+                return res.status(403).json({ error: `Has alcanzado el límite mensual de ${maxAllowed} ganchos de tu plan para este ciclo.` });
             }
             maxToLoad = Math.min(10, remaining);
         }
@@ -559,15 +562,16 @@ router.post('/', async (req, res) => {
         const maxAllowed = effectiveLimits.maxHooks;
         
         if (req.user.role !== 'admin') {
+            const cycleStartDate = effectiveLimits.cycleStartDate || '1970-01-01 00:00:00';
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
                 FROM project_hooks h
                 JOIN projects p ON h.project_id = p.id
-                WHERE p.user_id = ?
-            `, [req.user.id]);
+                WHERE p.user_id = ? AND h.created_at >= ?
+            `, [req.user.id, cycleStartDate]);
             
             if (countRows[0].total >= maxAllowed) {
-                return res.status(403).json({ error: `Has alcanzado el límite global de ${maxAllowed} ganchos de tu plan.` });
+                return res.status(403).json({ error: `Has alcanzado el límite mensual de ${maxAllowed} ganchos de tu plan para este ciclo.` });
             }
         }
 

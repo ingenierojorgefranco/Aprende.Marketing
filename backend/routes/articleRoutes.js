@@ -187,9 +187,10 @@ router.post('/articles/unlock-article', authMiddleware, async (req, res) => {
         const limit = effectiveLimits.maxArticles;
 
         if (req.user.role !== 'admin') {
-            const [countRows] = await pool.query('SELECT COUNT(*) as total FROM articles WHERE user_id = ?', [req.user.id]);
+            const cycleStartDate = effectiveLimits.cycleStartDate || '1970-01-01 00:00:00';
+            const [countRows] = await pool.query('SELECT COUNT(*) as total FROM articles WHERE user_id = ? AND created_at >= ?', [req.user.id, cycleStartDate]);
             if (countRows[0].total >= limit) {
-                return res.status(403).json({ error: `Has alcanzado el límite global de ${limit} artículos de tu plan.` });
+                return res.status(403).json({ error: `Has alcanzado el límite mensual de ${limit} artículos de tu plan para este ciclo.` });
             }
         }
 
@@ -263,9 +264,10 @@ router.post('/articles', authMiddleware, async (req, res) => {
     const limit = effectiveLimits.maxArticles;
 
     if (req.user.role !== 'admin') {
-        const [countRows] = await pool.query('SELECT COUNT(*) as total FROM articles WHERE user_id = ?', [req.user.id]);
+        const cycleStartDate = effectiveLimits.cycleStartDate || '1970-01-01 00:00:00';
+        const [countRows] = await pool.query('SELECT COUNT(*) as total FROM articles WHERE user_id = ? AND created_at >= ?', [req.user.id, cycleStartDate]);
         if (countRows[0].total >= limit) {
-            return res.status(403).json({ error: `Has alcanzado el límite global de ${limit} artículos de tu plan.` });
+            return res.status(403).json({ error: `Has alcanzado el límite mensual de ${limit} artículos de tu plan para este ciclo.` });
         }
     }
 

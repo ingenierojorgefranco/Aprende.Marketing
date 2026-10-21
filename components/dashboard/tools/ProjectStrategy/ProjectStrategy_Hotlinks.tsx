@@ -249,7 +249,84 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                     </div>
                 </div>
 
-                {/* BLOQUE 2: ENLACE DEL GRUPO DE WHATSAPP (PÁGINA DE GRACIAS) */}
+                {/* BLOQUE 2: ENLACES DE AFILIADO / HOTLINKS (TUS ENLACES PARA RECIBIR COMISIONES) */}
+                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+                        <div className="flex items-center gap-3.5">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+                                <CartIcon className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-base sm:text-lg font-extrabold text-white tracking-wide uppercase">
+                                Tus Enlaces para recibir Comisiones
+                            </h3>
+                        </div>
+                        <button 
+                            onClick={handleAddLink}
+                            className="text-xs font-extrabold text-sky-300 bg-sky-500/15 px-4 py-2.5 rounded-xl border border-sky-500/30 hover:bg-sky-500 hover:text-white transition-all uppercase tracking-wider self-start sm:self-auto cursor-pointer"
+                        >
+                            + AÑADIR ENLACE
+                        </button>
+                    </div>
+
+                    {errors.affiliateLinks && (
+                        <p className="text-red-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                            <AlertTriangle className="w-4 h-4 shrink-0" />
+                            <span>{errors.affiliateLinks}</span>
+                        </p>
+                    )}
+                    
+                    <div className="grid grid-cols-1 gap-4">
+                        {form.affiliateLinks.map((link, idx) => {
+                            const isProtected = isProtectedLink(link, idx);
+                            return (
+                                <div key={idx} className="bg-[#0d1322]/90 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-4 relative">
+                                    {!isProtected && (
+                                        <button 
+                                             onClick={() => handleRemoveLink(idx)} 
+                                            className="absolute top-4 right-4 p-1.5 text-slate-500 hover:text-red-400 transition-colors cursor-pointer"
+                                            title="Eliminar enlace"
+                                        >
+                                            <X className="w-4 h-4"/>
+                                        </button>
+                                    )}
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-xs text-slate-400 font-bold uppercase tracking-wider block">Etiqueta del Botón</label>
+                                                {isProtected && (
+                                                    <span className="text-[10px] text-slate-400 font-medium bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60">
+                                                        Por defecto
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                value={link.label}
+                                                onChange={(e) => handleUpdateLink(idx, 'label', e.target.value)}
+                                                placeholder={idx === 0 ? "Hotlink_Precio_Full" : idx === 1 ? "Hotlink_Precio_Descuento" : "Etiqueta del enlace"}
+                                                className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl py-3 px-4 text-white text-sm outline-none focus:border-[#FF5A1F] transition-all font-medium"
+                                            />
+                                        </div>
+                                        
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-slate-400 font-bold uppercase tracking-wider block">URL de Afiliado (Hotlink)</label>
+                                            <input 
+                                                type="text" 
+                                                value={link.url}
+                                                onChange={(e) => handleUpdateLink(idx, 'url', e.target.value)}
+                                                placeholder="https://go.hotmart.com/..."
+                                                className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl py-3 px-4 text-emerald-400 font-mono text-sm outline-none focus:border-[#FF5A1F] transition-all"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* BLOQUE 3: ENLACE DEL GRUPO DE WHATSAPP (PÁGINA DE GRACIAS) */}
                 <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
                     <div className="flex items-center gap-3.5 border-b border-slate-800/80 pb-4">
                         <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
@@ -312,83 +389,6 @@ export const ProjectStrategy_Hotlinks: React.FC<ProjectStrategy_HotlinksProps> =
                                 </span>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                {/* BLOQUE 3: ENLACES DE AFILIADO / HOTLINKS */}
-                <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
-                        <div className="flex items-center gap-3.5">
-                            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
-                                <CartIcon className="w-5 h-5" />
-                            </div>
-                            <h3 className="text-base sm:text-lg font-extrabold text-white tracking-wide uppercase">
-                                Tus Enlaces para recibir Comisiones
-                            </h3>
-                        </div>
-                        <button 
-                            onClick={handleAddLink}
-                            className="text-xs font-extrabold text-sky-300 bg-sky-500/15 px-4 py-2.5 rounded-xl border border-sky-500/30 hover:bg-sky-500 hover:text-white transition-all uppercase tracking-wider self-start sm:self-auto cursor-pointer"
-                        >
-                            + AÑADIR ENLACE
-                        </button>
-                    </div>
-
-                    {errors.affiliateLinks && (
-                        <p className="text-red-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                            <AlertTriangle className="w-4 h-4 shrink-0" />
-                            <span>{errors.affiliateLinks}</span>
-                        </p>
-                    )}
-                    
-                    <div className="grid grid-cols-1 gap-4">
-                        {form.affiliateLinks.map((link, idx) => {
-                            const isProtected = isProtectedLink(link, idx);
-                            return (
-                                <div key={idx} className="bg-[#0d1322]/90 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-4 relative">
-                                    {!isProtected && (
-                                        <button 
-                                            onClick={() => handleRemoveLink(idx)} 
-                                            className="absolute top-4 right-4 p-1.5 text-slate-500 hover:text-red-400 transition-colors cursor-pointer"
-                                            title="Eliminar enlace"
-                                        >
-                                            <X className="w-4 h-4"/>
-                                        </button>
-                                    )}
-                                    
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <div className="flex items-center justify-between">
-                                                <label className="text-xs text-slate-400 font-bold uppercase tracking-wider block">Etiqueta del Botón</label>
-                                                {isProtected && (
-                                                    <span className="text-[10px] text-slate-400 font-medium bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60">
-                                                        Por defecto
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <input 
-                                                type="text" 
-                                                value={link.label}
-                                                onChange={(e) => handleUpdateLink(idx, 'label', e.target.value)}
-                                                placeholder={idx === 0 ? "Hotlink_Precio_Full" : idx === 1 ? "Hotlink_Precio_Descuento" : "Etiqueta del enlace"}
-                                                className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl py-3 px-4 text-white text-sm outline-none focus:border-[#FF5A1F] transition-all font-medium"
-                                            />
-                                        </div>
-                                        
-                                        <div className="space-y-2">
-                                            <label className="text-xs text-slate-400 font-bold uppercase tracking-wider block">URL de Afiliado (Hotlink)</label>
-                                            <input 
-                                                type="text" 
-                                                value={link.url}
-                                                onChange={(e) => handleUpdateLink(idx, 'url', e.target.value)}
-                                                placeholder="https://go.hotmart.com/..."
-                                                className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl py-3 px-4 text-emerald-400 font-mono text-sm outline-none focus:border-[#FF5A1F] transition-all"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
                     </div>
                 </div>
 

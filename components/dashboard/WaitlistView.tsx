@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { OnboardingSurvey } from './OnboardingSurvey';
 import { User } from '../../types';
 import { getCurrentUser } from '../../services/auth';
-import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight, MessageCircle, ExternalLink } from 'lucide-react';
 
 interface WaitlistViewProps {
     user: User;
@@ -77,13 +77,26 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, 
                         ></iframe>
                     </div>
  
-                    <button 
-                        onClick={handleContinue}
-                        className="group relative inline-flex items-center justify-center px-6 py-3.5 font-bold text-white transition-all duration-200 bg-[#FF5A1F] rounded-xl hover:bg-[#E04814] hover:scale-105 hover:shadow-lg hover:shadow-[#FF5A1F]/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF5A1F] focus:ring-offset-[#030712] text-base"
-                    >
-                        CREAR MI PROYECTO DIGITAL
-                        <ArrowRight className="ml-2.5 w-5 h-5 transition-transform group-hover:translate-x-1" />
-                    </button>
+                    <div className="flex flex-col items-center gap-3.5 w-full max-w-md">
+                        <button 
+                            onClick={handleContinue}
+                            className="w-full group relative inline-flex items-center justify-center px-6 py-4 font-bold text-white transition-all duration-200 bg-[#FF5A1F] rounded-xl hover:bg-[#E04814] hover:scale-105 hover:shadow-lg hover:shadow-[#FF5A1F]/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF5A1F] focus:ring-offset-[#030712] text-base cursor-pointer"
+                        >
+                            CREAR MI PROYECTO DIGITAL
+                            <ArrowRight className="ml-2.5 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                        </button>
+
+                        <a 
+                            href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full group relative inline-flex items-center justify-center px-6 py-3.5 font-bold text-emerald-400 hover:text-white transition-all duration-200 bg-emerald-500/15 hover:bg-emerald-600 border border-emerald-500/30 hover:border-emerald-500 rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-emerald-600/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 text-sm sm:text-base cursor-pointer"
+                        >
+                            <MessageCircle className="mr-2.5 w-5 h-5 text-emerald-400 group-hover:text-white transition-colors" />
+                            Únete a nuestro grupo de WhatsApp
+                            <ExternalLink className="ml-2 w-4 h-4 opacity-70 group-hover:opacity-100 transition-opacity" />
+                        </a>
+                    </div>
                 </motion.div>
             </div>
         );

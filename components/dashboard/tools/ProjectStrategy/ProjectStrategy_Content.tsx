@@ -176,6 +176,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
     const [globalArticleCount, setGlobalArticleCount] = useState<number | null>(null);
+    const [renewalDateStr, setRenewalDateStr] = useState<string | null>(null);
+    const [daysUntilRenewal, setDaysUntilRenewal] = useState<number | null>(null);
 
     const fetchGlobalArticleCount = async () => {
         try {
@@ -183,10 +185,28 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             if (summary && typeof summary.totalArticles === 'number') {
                 setGlobalArticleCount(summary.totalArticles);
             }
+            if (summary?.renewalDate) {
+                setRenewalDateStr(summary.renewalDate);
+            }
+            if (typeof summary?.daysUntilRenewal === 'number') {
+                setDaysUntilRenewal(summary.daysUntilRenewal);
+            }
         } catch (e) {
             console.error("Error fetching global article count:", e);
         }
     };
+
+    const formattedRenewalDate = useMemo(() => {
+        const raw = renewalDateStr || planLimits?.renewalDate || user?.planLimits?.renewalDate;
+        if (!raw) return null;
+        try {
+            const d = new Date(raw);
+            if (isNaN(d.getTime())) return null;
+            return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+        } catch {
+            return null;
+        }
+    }, [renewalDateStr, planLimits?.renewalDate, user?.planLimits?.renewalDate]);
 
     const loadLocalData = async (targetTitle?: string) => {
         if (!projectId) return;
@@ -898,12 +918,21 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             <div className="w-full mb-6">
                                 <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                                     <div className="flex justify-between items-center mb-2 text-sm">
-                                        <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Artículos disponibles</span>
+                                        <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Artículos redactados</span>
                                         <span className="text-white font-bold">{currentArticleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                                     </div>
                                     <div className="w-full bg-black/50 h-2.5 rounded-full overflow-hidden shadow-inner">
                                         <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-gradient-to-r from-[#FF5D1E] to-orange-500" style={{ width: `${isRealAdmin ? (currentArticleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                     </div>
+                                    {!isRealAdmin && formattedRenewalDate && (
+                                        <div className="flex justify-between items-center mt-3 pt-2.5 border-t border-white/5 text-xs text-gray-400">
+                                            <span className="flex items-center gap-1.5">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block animate-pulse"></span>
+                                                Renovación de créditos:
+                                            </span>
+                                            <span className="text-orange-300 font-semibold">{formattedRenewalDate}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

@@ -100,6 +100,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [showRestrictionModal, setShowRestrictionModal] = useState(false);
   
   const [globalHookCount, setGlobalHookCount] = useState<number | null>(null);
+  const [renewalDateStr, setRenewalDateStr] = useState<string | null>(null);
+  const [daysUntilRenewal, setDaysUntilRenewal] = useState<number | null>(null);
 
   const fetchGlobalHookCount = async () => {
     try {
@@ -107,10 +109,28 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
       if (summary && typeof summary.totalHooks === 'number') {
         setGlobalHookCount(summary.totalHooks);
       }
+      if (summary?.renewalDate) {
+        setRenewalDateStr(summary.renewalDate);
+      }
+      if (typeof summary?.daysUntilRenewal === 'number') {
+        setDaysUntilRenewal(summary.daysUntilRenewal);
+      }
     } catch (e) {
       console.error("Error fetching global hook count:", e);
     }
   };
+
+  const formattedRenewalDate = useMemo(() => {
+    const raw = renewalDateStr || planLimits?.renewalDate || user?.planLimits?.renewalDate;
+    if (!raw) return null;
+    try {
+      const d = new Date(raw);
+      if (isNaN(d.getTime())) return null;
+      return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    } catch {
+      return null;
+    }
+  }, [renewalDateStr, planLimits?.renewalDate, user?.planLimits?.renewalDate]);
   
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -1109,6 +1129,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
                   <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (totalUsedHooks > 0 ? 100 : 0) : usagePercent}%` }}></div>
                 </div>
+                {!isRealAdmin && formattedRenewalDate && (
+                  <div className="flex justify-between items-center mt-3 pt-2.5 border-t border-white/5 text-xs text-gray-400">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block animate-pulse"></span>
+                      Renovación de créditos:
+                    </span>
+                    <span className="text-orange-300 font-semibold">{formattedRenewalDate}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1935,9 +1964,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                       <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirmar Consumo de Créditos</h3>
                       <p className="text-gray-400 text-lg leading-relaxed font-medium">
                         {(!isRealAdmin && totalUsedHooks >= maxHooks) 
-                          ? "Has alcanzado el límite de reels de tu plan actual. Actualiza tu plan para continuar."
-                          : `Al desbloquear este Video Hook consumirás 1 crédito de tu plan (${totalUsedHooks + 1} de ${maxHooks}).`}
+                          ? (formattedRenewalDate 
+                              ? `Has alcanzado el límite de reels de tu plan para este ciclo. Se renovará el ${formattedRenewalDate}.`
+                              : "Has alcanzado el límite de reels de tu plan actual. Actualiza tu plan para continuar.")
+                          : `Al desbloquear este Video Hook consumirás 1 crédito mensual de tu plan (${totalUsedHooks + 1} de ${maxHooks} este mes).`}
                       </p>
+                      {!isRealAdmin && totalUsedHooks < maxHooks && formattedRenewalDate && (
+                        <p className="text-xs text-orange-400/90 font-medium">
+                          Tus créditos se renuevan el {formattedRenewalDate}.
+                        </p>
+                      )}
                       <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left">
                           <div className="flex justify-between items-center mb-3">
                               <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Reels Desbloqueados</span>

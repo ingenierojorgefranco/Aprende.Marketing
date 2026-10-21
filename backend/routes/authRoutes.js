@@ -83,6 +83,54 @@ const normalizePlanSlug = (slug) => {
     return s;
 };
 
+export const calculateMonthlyCycle = (baseDateInput) => {
+    const base = new Date(baseDateInput);
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const formatSql = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+
+    if (!baseDateInput || isNaN(base.getTime())) {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+        const end = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0);
+        return {
+            cycleStart: start,
+            cycleEnd: end,
+            renewalDate: end,
+            cycleStartDateSql: formatSql(start),
+            cycleEndDateSql: formatSql(end),
+            daysLeft: Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        };
+    }
+
+    let cycleStart = new Date(base);
+    let cycleEnd = new Date(base);
+    cycleEnd.setMonth(cycleEnd.getMonth() + 1);
+
+    while (now >= cycleEnd) {
+        cycleStart = new Date(cycleEnd);
+        cycleEnd = new Date(cycleStart);
+        cycleEnd.setMonth(cycleEnd.getMonth() + 1);
+    }
+
+    while (now < cycleStart) {
+        cycleEnd = new Date(cycleStart);
+        cycleStart = new Date(cycleStart);
+        cycleStart.setMonth(cycleStart.getMonth() - 1);
+    }
+
+    const msLeft = Math.max(0, cycleEnd.getTime() - now.getTime());
+    const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24));
+
+    return {
+        cycleStart,
+        cycleEnd,
+        renewalDate: cycleEnd,
+        cycleStartDateSql: formatSql(cycleStart),
+        cycleEndDateSql: formatSql(cycleEnd),
+        daysLeft
+    };
+};
+
 export const getEffectiveLimits = async (userId, bypassCache = false) => {
     await initDefaultLimitsFromDb();
     try {
@@ -124,9 +172,10 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
 
         // --- CONSULTAR DIRECTAMENTE DATOS DEL USUARIO ---
         const [userRows] = await pool.query(
-            "SELECT plan_limits, max_hooks FROM users WHERE id = ?",
+            "SELECT created_at, plan_limits, max_hooks FROM users WHERE id = ?",
             [userId]
         );
+        let userCreatedAt = userRows && userRows.length > 0 ? userRows[0].created_at : null;
         let directPlanSlug = 'starter';
         let directMaxHooks = null;
         let isUserCustom = false;
@@ -381,6 +430,22 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
         if (isUserCustom && customLimitsObj && customLimitsObj.maxCarousels !== undefined) {
             result.maxCarousels = customLimitsObj.maxCarousels;
         }
+
+        const baseDate = primarySub?.start_date || userCreatedAt || new Date();
+        const monthlyCycle = calculateMonthlyCycle(baseDate);
+
+        result.cycleStartDate = monthlyCycle.cycleStartDateSql;
+        result.cycleEndDate = monthlyCycle.cycleEndDateSql;
+        result.renewalDate = (primarySub?.renewal_date || primarySub?.expires_at) 
+            ? (primarySub.renewal_date || primarySub.expires_at) 
+            : monthlyCycle.renewalDate.toISOString();
+        result.daysUntilRenewal = monthlyCycle.daysLeft;
+        result.monthlyCycle = {
+            cycleStart: monthlyCycle.cycleStart.toISOString(),
+            cycleEnd: monthlyCycle.cycleEnd.toISOString(),
+            renewalDate: result.renewalDate,
+            daysLeft: monthlyCycle.daysLeft
+        };
 
         limitsCache.set(cacheKey, { data: result, timestamp: Date.now() });
         return { ...result, fromCache: false };
