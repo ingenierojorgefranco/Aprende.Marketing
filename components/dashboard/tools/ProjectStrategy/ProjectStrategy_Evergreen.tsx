@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X, Loader2, Copy, Lock, Unlock, Search, BarChart, Eye, Target, Brain, Shield, Edit3, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, CheckCircle2, Wand2, Code, AlertCircle, Play } from 'lucide-react';
+import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, ChevronLeft, PenTool, PlayCircle, X, Loader2, Copy, Lock, Unlock, Search, BarChart, Eye, Target, Brain, Shield, Edit3, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, CheckCircle2, Wand2, Code, AlertCircle, Play } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, Article, EmailMessage, LandingPage } from '../../../../types';
 import { api } from '../../../../services/api';
@@ -522,7 +522,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
             )}
 
             {/* CUADRÍCULA DE 12 COLUMNAS: LISTA + VISTA PREVIA */}
-            <div id="psd-evergreen-grid" className="grid lg:grid-cols-12 gap-8 max-w-[85em] mx-auto">
+            <div id="psd-evergreen-grid" className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-[85em] mx-auto">
                 
                 {/* COLUMNA IZQUIERDA: LISTADO DE CORREOS (Ocupa 5 de 12) */}
                 <div id="psd-evergreen-list-col" className="lg:col-span-5 bg-gray-900 p-8 rounded-[2.5rem] border border-gray-800 shadow-2xl flex flex-col h-full">
@@ -564,7 +564,14 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                             return (
                                 <div 
                                     key={email.id} 
-                                    onClick={() => setActiveEvergreenEmail(idx)}
+                                    onClick={() => {
+                                        setActiveEvergreenEmail(idx);
+                                        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                                            setTimeout(() => {
+                                                document.getElementById('psd-evergreen-preview-col')?.scrollIntoView({ behavior: 'smooth' });
+                                            }, 100);
+                                        }
+                                    }}
                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-300 cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-600 border-emerald-500 text-white' : isActive ? 'bg-orange-900/20 border-orange-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'}`}
                                 >
                                     <div className="flex-1 min-w-0">
@@ -588,13 +595,22 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 </div>
 
                 {/* COLUMNA DERECHA: VISTA PREVIA DEL CORREO (Ocupa 7 de 12) */}
-                <div id="psd-evergreen-preview-col" className="lg:col-span-7 bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-white/5 rounded-[3rem] p-10 flex flex-col relative overflow-hidden h-full min-h-[600px] shadow-2xl">
+                <div id="psd-evergreen-preview-col" className="lg:col-span-7 bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-white/5 rounded-2xl sm:rounded-[3rem] p-5 sm:p-10 flex flex-col relative overflow-hidden h-full min-h-[600px] shadow-2xl scroll-mt-24">
                     <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
                         <Target className="w-40 h-40 text-orange-500" />
                     </div>
                     <div className={`absolute top-0 left-0 w-1 h-full ${activeEmail.isGenerated ? 'bg-emerald-500/50' : 'bg-orange-500/50'}`}></div>
 
                     <div className="relative z-10 flex flex-col h-full">
+                        <div className="lg:hidden flex items-center justify-between pb-4 mb-4 border-b border-white/10 relative z-20">
+                            <button 
+                                type="button"
+                                onClick={() => document.getElementById('psd-evergreen-list-col')?.scrollIntoView({ behavior: 'smooth' })}
+                                className="text-xs text-orange-400 hover:underline flex items-center gap-1 font-bold cursor-pointer"
+                            >
+                                <ChevronLeft className="w-4 h-4" /> Volver a la lista de Emails
+                            </button>
+                        </div>
                         {activeEmail.isGenerated ? (
                             <div className="flex flex-col h-full space-y-6">
                                 <div className="relative z-10 flex flex-col h-full animate-in slide-in-from-bottom-4 duration-500 space-y-6">

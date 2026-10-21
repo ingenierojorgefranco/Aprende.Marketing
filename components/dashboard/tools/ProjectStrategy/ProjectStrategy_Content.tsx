@@ -668,6 +668,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         if (originalIdx !== -1) {
             setActiveArticleIdx(originalIdx);
             setActiveArticle(originalIdx);
+            if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                document.getElementById('psd-content-detail-card')?.scrollIntoView({ behavior: 'smooth' });
+            }
         }
     };
 
@@ -891,7 +894,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             {loadingLocal ? (
                 <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary" /></div>
             ) : (
-                <div id="psd-content-grid" className="grid lg:grid-cols-12 gap-8">
+                <div id="psd-content-grid" className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <div id="psd-content-list-col" className="lg:col-span-5 space-y-6">
                         <div id="psd-content-list-card" className="bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-xl">
                             <div className="flex items-center justify-between gap-3 mb-6">

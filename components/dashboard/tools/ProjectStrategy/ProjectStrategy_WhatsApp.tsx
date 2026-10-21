@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { MessageCircle, Check, Copy, Calendar, Clock, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2, Crown, X, Loader2, AlertTriangle, CheckCircle2, Target, Shield, Play } from 'lucide-react';
+import { MessageCircle, Check, Copy, Calendar, Clock, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, ChevronLeft, Settings2, Crown, X, Loader2, AlertTriangle, CheckCircle2, Target, Shield, Play } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { PlanLimits, WhatsAppLaunchMessage, WhatsAppLaunch } from '../../../../types';
@@ -717,8 +717,8 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                         </div>
                     </div>
 
-                    <div id="psd-whatsapp-grid" className="grid lg:grid-cols-12 gap-8 relative">
-                                <div className="lg:col-span-5 bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-2xl">
+                    <div id="psd-whatsapp-grid" className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
+                                <div id="psd-whatsapp-list-col" className="lg:col-span-5 bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-2xl">
                                     <div className="flex items-center gap-3 mb-6 shrink-0"><div className="p-2 bg-green-900/30 rounded-lg text-green-400 border border-green-900/50"><Calendar className="w-6 h-6" /></div><h3 className="text-xl font-bold text-white">Listado de Mensajes</h3></div>
                                     
                                     {/* Barra de Progreso de Lanzamientos */}
@@ -754,7 +754,14 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                             return (
                                                                 <div 
                                                                     key={script.id}
-                                                                    onClick={() => setActiveWaScript(idx)} 
+                                                                    onClick={() => {
+                                                                        setActiveWaScript(idx);
+                                                                        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                                                                            setTimeout(() => {
+                                                                                document.getElementById('psd-whatsapp-detail-col')?.scrollIntoView({ behavior: 'smooth' });
+                                                                            }, 100);
+                                                                        }
+                                                                    }} 
                                                                     className={`relative pl-5 pr-4 py-3.5 rounded-xl border transition-all duration-300 flex items-center justify-between gap-3 cursor-pointer 
                                                                         ${activeWaScript === idx ? 'translate-x-2 border-l-4 border-l-blue-500 shadow-lg' : ''}
                                                                         ${script.isGenerated 
@@ -811,9 +818,19 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                     </div>
                                 </div>
 
-                                <div className="lg:col-span-7 bg-gradient-to-br from-gray-900 via-gray-900 to-blue-900/10 border border-white/5 rounded-[3rem] p-10 flex flex-col relative h-full shadow-2xl overflow-hidden min-h-[600px]">
+                                <div id="psd-whatsapp-detail-col" className="lg:col-span-7 bg-gradient-to-br from-gray-900 via-gray-900 to-blue-900/10 border border-white/5 rounded-2xl sm:rounded-[3rem] p-5 sm:p-10 flex flex-col relative h-full shadow-2xl overflow-hidden min-h-[600px] scroll-mt-24">
                                     <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Target className="w-40 h-40 text-blue-500" /></div>
                                     <div className={`absolute top-0 left-0 w-1 h-full ${activeItem?.isGenerated ? 'bg-emerald-500/50' : 'bg-blue-500/50'}`}></div>
+
+                                    <div className="lg:hidden flex items-center justify-between pb-4 mb-4 border-b border-white/10 relative z-20">
+                                        <button 
+                                            type="button"
+                                            onClick={() => document.getElementById('psd-whatsapp-list-col')?.scrollIntoView({ behavior: 'smooth' })}
+                                            className="text-xs text-blue-400 hover:underline flex items-center gap-1 font-bold cursor-pointer"
+                                        >
+                                            <ChevronLeft className="w-4 h-4" /> Volver a la lista de Mensajes
+                                        </button>
+                                    </div>
 
                                     {activeItem && activeItem.isGenerated ? (
                                         <div className="flex flex-col h-full space-y-6 relative z-10">

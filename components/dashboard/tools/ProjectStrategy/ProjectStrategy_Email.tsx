@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
-import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, BookOpen, Shield, Gift, Play } from 'lucide-react';
+import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ChevronLeft, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, BookOpen, Shield, Gift, Play } from 'lucide-react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, EmailMessage, EmailSequence, LandingPage, AffiliateLink, Project } from '../../../../types';
 import { api } from '../../../../services/api';
@@ -668,9 +668,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 </div>
             )}
 
-            <div className="grid lg:grid-cols-12 gap-8">
+            <div id="psd-email-grid" className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* LEFT: EMAIL LIST */}
-                <div className="lg:col-span-5 bg-gray-900 p-6 rounded-2xl border border-gray-800 flex flex-col h-full shadow-xl">
+                <div id="psd-email-list-col" className="lg:col-span-5 bg-gray-900 p-6 rounded-2xl border border-gray-800 flex flex-col h-full shadow-xl">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2.5 bg-orange-500/10 rounded-xl text-orange-400 border border-orange-500/20"><Mail className="w-6 h-6" /></div>
                         <div>
@@ -699,7 +699,14 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                             return (
                                 <div 
                                     key={idx} 
-                                    onClick={() => setActiveEmail(idx)}
+                                    onClick={() => {
+                                        setActiveEmail(idx);
+                                        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                                            setTimeout(() => {
+                                                document.getElementById('psd-email-detail-col')?.scrollIntoView({ behavior: 'smooth' });
+                                            }, 100);
+                                        }
+                                    }}
                                     className={`relative pl-6 pr-4 py-3.5 rounded-xl border transition-all duration-300 cursor-pointer flex items-center justify-between gap-3 group overflow-hidden ${
                                         isActive 
                                             ? (isDayGenerated 
@@ -790,9 +797,19 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 </div>
 
                 {/* RIGHT: CONFIGURATION / CONTENT */}
-                <div className="lg:col-span-7 bg-gradient-to-br from-gray-900 via-gray-900 to-orange-950/20 border border-white/5 rounded-[3rem] p-10 shadow-xl relative overflow-hidden flex-1 min-h-[600px]">
+                <div id="psd-email-detail-col" className="lg:col-span-7 bg-gradient-to-br from-gray-900 via-gray-900 to-orange-950/20 border border-white/5 rounded-2xl sm:rounded-[3rem] p-5 sm:p-10 shadow-xl relative overflow-hidden flex-1 min-h-[600px] scroll-mt-24">
                     <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Target className="w-40 h-40 text-orange-500" /></div>
                     <div className={`absolute top-0 left-0 w-1 h-full ${isCurrentGenerated ? 'bg-emerald-500/50' : 'bg-[#FF5D1E]/50'}`}></div>
+
+                    <div className="lg:hidden flex items-center justify-between pb-4 mb-4 border-b border-white/10 relative z-20">
+                        <button 
+                            type="button"
+                            onClick={() => document.getElementById('psd-email-list-col')?.scrollIntoView({ behavior: 'smooth' })}
+                            className="text-xs text-[#FF5A1F] hover:underline flex items-center gap-1 font-bold cursor-pointer"
+                        >
+                            <ChevronLeft className="w-4 h-4" /> Volver a la lista de Emails
+                        </button>
+                    </div>
                     
                     {isCurrentGenerated ? (
                         <div className="flex flex-col h-full space-y-6">

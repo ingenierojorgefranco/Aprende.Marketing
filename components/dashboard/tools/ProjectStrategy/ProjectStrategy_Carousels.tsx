@@ -647,9 +647,9 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             )}
 
             {/* MAIN GRID LAYOUT ALIGNED WITH HOOKS DESIGN */}
-            <div className="grid lg:grid-cols-12 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* LEFT COLUMN: LISTADO DE CARRUSELES */}
-                <div className="lg:col-span-5 space-y-6 sticky top-24 self-start">
+                <div id="psd-carousel-list-col" className="lg:col-span-5 space-y-6 lg:sticky lg:top-24 lg:self-start">
                     <div className="bg-[#111] p-6 rounded-[2.5rem] border border-white/5 flex flex-col shadow-xl">
                         <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-3">
@@ -766,7 +766,16 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                                     return (
                                         <div 
                                             key={carousel.id || idxInPage} 
-                                            onClick={() => activeTab === 'library' ? setActiveLibraryIdx(idxInPage) : setActiveCarouselIdx(globalIdx)}
+                                            onClick={() => {
+                                                if (activeTab === 'library') {
+                                                    setActiveLibraryIdx(idxInPage);
+                                                } else {
+                                                    setActiveCarouselIdx(globalIdx);
+                                                }
+                                                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                                                    document.getElementById('psd-carousel-detail-col')?.scrollIntoView({ behavior: 'smooth' });
+                                                }
+                                            }}
                                             className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${
                                                 isCardSelected 
                                                     ? (activeTab === 'library' ? 'bg-orange-900/40 border-orange-500/50' : 'bg-emerald-900/40 border-emerald-500/50') 
@@ -846,7 +855,16 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 </div>
 
                 {/* RIGHT COLUMN: DETALLE Y RESULTADO */}
-                <div className="lg:col-span-7 space-y-8">
+                <div id="psd-carousel-detail-col" className="lg:col-span-7 space-y-8 scroll-mt-24">
+                    <div className="lg:hidden flex items-center justify-between pb-2">
+                        <button 
+                            type="button"
+                            onClick={() => document.getElementById('psd-carousel-list-col')?.scrollIntoView({ behavior: 'smooth' })}
+                            className="text-xs text-[#FF5A1F] hover:underline flex items-center gap-1 font-bold cursor-pointer"
+                        >
+                            <ChevronLeft className="w-4 h-4" /> Volver a la lista de Carruseles
+                        </button>
+                    </div>
                     {/* VISTA DE CARRUSEL BLOQUEADO */}
                     {!isCurrentUnlocked && currentCarousel && !isRealAdmin && (
                         <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-gray-800 rounded-[2.5rem] p-8 md:p-12 flex flex-col items-center text-center relative overflow-hidden shadow-2xl animate-in zoom-in-95">
