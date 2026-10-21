@@ -566,24 +566,24 @@ export const DashboardLayout = ({
       )}
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
         {mobileMenuOpen && <div className="fixed inset-0 bg-black/80 z-30 md:hidden" onClick={() => setMobileMenuOpen(false)}></div>}
-        <header className="h-20 bg-[#030712]/95 backdrop-blur-md border-b border-slate-800/60 flex items-center justify-between px-6 shrink-0 z-30">
-             <div className={`flex items-center gap-4 ${isWizardGenerating ? 'w-full justify-center' : ''}`}>
+        <header className="h-16 sm:h-20 bg-[#030712]/95 backdrop-blur-md border-b border-slate-800/60 flex items-center justify-between px-3 sm:px-6 shrink-0 z-30">
+             <div className={`flex items-center gap-2.5 sm:gap-4 ${isWizardGenerating ? 'w-full justify-center' : ''}`}>
                  {showWelcomeVideo || showWizard ? (
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-[#FF5A1F]/20 px-1">AM</div>
-                        <h2 className="text-lg font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-10 sm:w-12 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-xs sm:text-sm shadow-lg shadow-[#FF5A1F]/20 px-1">AM</div>
+                        <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
                     </div>
                  ) : isProjectDetailRoute ? (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 sm:gap-4">
                         <button 
                             onClick={() => navigate('/dashboard/projects')} 
                             className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-white transition-all shadow-sm"
                             title="Volver a Mis Proyectos"
                         >
-                            <ChevronLeft className="w-5 h-5" />
+                            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-black text-white text-sm shadow-md shadow-[#FF5A1F]/20 shrink-0">AM</div>
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-black text-white text-xs sm:text-sm shadow-md shadow-[#FF5A1F]/20 shrink-0">AM</div>
                             <div className="leading-tight hidden sm:block">
                                 <h2 className="text-lg font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
                                 <p className="text-[10px] text-[#808080] uppercase tracking-widest mt-0.5 font-bold">Tu Panel de Control</p>
@@ -596,23 +596,23 @@ export const DashboardLayout = ({
              </div>
              
              {!isWizardGenerating && (
-                 <div className="flex items-center gap-2.5 sm:gap-3">
-                     {/* Tarjeta de usuario (Imagen 1) colocada antes de ACTUALIZA A PRO */}
+                 <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                     {/* Tarjeta de usuario colocada antes de ACTUALIZA A PRO */}
                      {!isLaunchRestricted && !(user.role !== 'admin' && projectCount === 0) && (
                          <div className="relative" ref={headerUserMenuRef}>
                              <button
                                  onClick={() => setHeaderUserMenuOpen(!headerUserMenuOpen)}
-                                 className={`flex items-center gap-2.5 py-1.5 px-3 rounded-xl border transition-all cursor-pointer group text-left ${headerUserMenuOpen ? 'bg-zinc-800/90 border-white/20 shadow-lg' : 'bg-zinc-900/60 hover:bg-zinc-800/60 border-white/10 hover:border-white/20'}`}
+                                 className={`flex items-center gap-1.5 sm:gap-2.5 py-1 px-2 sm:py-1.5 sm:px-3 rounded-xl border transition-all cursor-pointer group text-left ${headerUserMenuOpen ? 'bg-zinc-800/90 border-white/20 shadow-lg' : 'bg-zinc-900/60 hover:bg-zinc-800/60 border-white/10 hover:border-white/20'}`}
                                  title="Perfil y configuración"
                              >
-                                 <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center text-xs font-bold text-zinc-200 shrink-0 overflow-hidden shadow-inner">
+                                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center text-xs font-bold text-zinc-200 shrink-0 overflow-hidden shadow-inner">
                                      {effectiveUser.avatarUrl ? (
                                          <img src={effectiveUser.avatarUrl} alt={effectiveUser.name} className="w-full h-full object-cover" />
                                      ) : (
                                          userInitials
                                      )}
                                  </div>
-                                 <div className="min-w-0 leading-tight">
+                                 <div className="min-w-0 leading-tight hidden sm:block">
                                      <p className="text-xs sm:text-sm font-semibold text-zinc-100 group-hover:text-white truncate max-w-[110px] sm:max-w-[140px]">
                                          {effectiveUser.name}
                                      </p>
@@ -620,7 +620,7 @@ export const DashboardLayout = ({
                                          {effectiveUser.email}
                                      </p>
                                  </div>
-                                 <ChevronsUpDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400 group-hover:text-zinc-200 shrink-0 ml-0.5 sm:ml-1" />
+                                 <ChevronsUpDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400 group-hover:text-zinc-200 shrink-0 ml-0.5" />
                              </button>
 
                              {/* Menú desplegable flotante de usuario en header */}
@@ -671,38 +671,49 @@ export const DashboardLayout = ({
                                          <HelpCircle className="w-4 h-4 text-[#FF5A1F] transition-colors shrink-0" />
                                          <span>Ayuda y Soporte</span>
                                      </button>
+                                     <button
+                                         onClick={() => {
+                                             setHeaderUserMenuOpen(false);
+                                             onLogout();
+                                         }}
+                                         className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer group border-t border-white/5 mt-1 pt-2 sm:hidden"
+                                     >
+                                         <LogOut className="w-4 h-4 text-red-400 transition-colors shrink-0" />
+                                         <span>Cerrar sesión</span>
+                                     </button>
                                  </div>
                              )}
                          </div>
                      )}
 
-                     {/* Botón ACTUALIZA A PRO (Imagen 2) */}
+                     {/* Botón ACTUALIZA A PRO (Optimizado y compacto en móviles) */}
                      {!isLaunchRestricted && !(user.role !== 'admin' && projectCount === 0) && isFreePlan && (
                          <button 
                              onClick={() => setShowUpgradeModal(true)} 
-                             className="relative overflow-hidden flex items-center justify-between gap-2 sm:gap-2.5 py-1.5 px-2.5 sm:px-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-600/15 border border-yellow-500/60 hover:border-yellow-400 text-yellow-300 transition-all duration-300 group cursor-pointer shadow-[0_0_15px_rgba(234,179,8,0.12)] hover:shadow-[0_0_22px_rgba(234,179,8,0.25)] active:scale-[0.98] whitespace-nowrap"
+                             className="relative overflow-hidden flex items-center justify-between gap-1.5 sm:gap-2.5 py-1.5 px-2.5 sm:px-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-600/15 border border-yellow-500/60 hover:border-yellow-400 text-yellow-300 transition-all duration-300 group cursor-pointer shadow-[0_0_15px_rgba(234,179,8,0.12)] hover:shadow-[0_0_22px_rgba(234,179,8,0.25)] active:scale-[0.98] whitespace-nowrap shrink-0"
                              title="Actualiza a Plan Pro"
                          >
-                             <div className="flex items-center gap-2 sm:gap-2.5 relative z-10">
+                             <div className="flex items-center gap-1.5 sm:gap-2.5 relative z-10">
                                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 flex items-center justify-center shadow-md shadow-amber-950/40 shrink-0 group-hover:scale-105 transition-transform">
                                      <Crown className="w-3.5 h-3.5 text-black fill-black/20" />
                                  </div>
                                  <span className="text-[11px] sm:text-xs font-black tracking-wider uppercase text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-amber-300 to-yellow-400 group-hover:from-white group-hover:to-yellow-200">
-                                     ACTUALIZA A PRO
+                                     <span className="sm:hidden">PRO</span>
+                                     <span className="hidden sm:inline">ACTUALIZA A PRO</span>
                                  </span>
                              </div>
-                             <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400/80 group-hover:text-yellow-300 group-hover:translate-x-0.5 transition-all relative z-10 ml-0.5" />
+                             <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400/80 group-hover:text-yellow-300 group-hover:translate-x-0.5 transition-all relative z-10 ml-0.5 hidden sm:block" />
                          </button>
                      )}
 
                      <button
                          id="btn-header-logout"
                          onClick={onLogout}
-                         className="flex items-center gap-2 py-2 px-3 sm:px-4 rounded-xl bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#FF5A1F]/20 hover:shadow-lg hover:shadow-[#FF5A1F]/30 transition-all duration-200 active:scale-[0.98] cursor-pointer whitespace-nowrap"
+                         className="flex items-center gap-1.5 sm:gap-2 py-1.5 sm:py-2 px-2.5 sm:px-4 rounded-xl bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#FF5A1F]/20 hover:shadow-lg hover:shadow-[#FF5A1F]/30 transition-all duration-200 active:scale-[0.98] cursor-pointer whitespace-nowrap shrink-0"
                          title="Cerrar sesión"
                      >
                          <LogOut className="w-4 h-4 shrink-0" />
-                         <span>Cerrar sesión</span>
+                         <span className="hidden md:inline">Cerrar sesión</span>
                      </button>
                  </div>
              )}

@@ -63,7 +63,9 @@ import {
   Tag,
   DollarSign,
   Percent,
-  Map
+  Map,
+  Menu,
+  List
 } from "lucide-react";
 
 interface ImplementationGuideProps {
@@ -130,6 +132,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const [isCommercialDrawerOpen, setIsCommercialDrawerOpen] = useState<boolean>(false);
   const [selectedCommercialOption, setSelectedCommercialOption] = useState<CommercialOptionId | null>(null);
   const [openGuideStages, setOpenGuideStages] = useState<number[]>([1]);
+  const [mobileStepsDrawerOpen, setMobileStepsDrawerOpen] = useState<boolean>(false);
 
   const planRawName = (user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
   const isFreeUser = !isAdmin && (planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName);
@@ -280,9 +283,11 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     if (onStrategySectionChange) {
       onStrategySectionChange(normalizedSection);
     }
-    const el = document.getElementById('project-strategy-index');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+    setMobileStepsDrawerOpen(false);
+    // En móviles, hacer scroll hacia arriba para mostrar de inmediato el contenido del paso
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.getElementById('dashboard-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -377,6 +382,11 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     if (onStrategySectionChange) {
       onStrategySectionChange(sectionId);
     }
+    setMobileStepsDrawerOpen(false);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.getElementById('dashboard-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleMarkAsCompleted = (id: number) => {
@@ -407,8 +417,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
       <div className="w-full max-w-[1760px] mx-auto px-2 sm:px-3 md:px-4 pt-1 pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-[270px_minmax(0,1fr)] xl:grid-cols-[310px_minmax(0,1fr)] 2xl:grid-cols-[350px_minmax(0,1fr)] gap-4 lg:gap-5 xl:gap-6 items-start">
           
-          {/* COLUMNA IZQUIERDA: Menús Laterales (Índice Estratégico + Guía de implementación) */}
-          <aside className="space-y-4 lg:sticky lg:top-3 max-h-[calc(100vh-20px)] overflow-y-auto custom-scrollbar pr-1.5 pb-32">
+          {/* COLUMNA IZQUIERDA: Menús Laterales (Desktop) */}
+          <aside className="hidden lg:block space-y-4 lg:sticky lg:top-3 max-h-[calc(100vh-20px)] overflow-y-auto custom-scrollbar pr-1.5 pb-32">
             
             {/* 1. Menú Índice Estratégico (Imagen 1) */}
             <ProjectStrategy_Sidebar 
@@ -422,6 +432,90 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
 
           {/* COLUMNA DERECHA: Detalle del Paso Activo */}
           <main className="space-y-6">
+
+            {/* BARRA SELECTORA DE PASO EN MÓVIL (Sticky / Prominente) */}
+            <div className="lg:hidden sticky top-0 z-30 bg-[#0B1120]/95 backdrop-blur-md border border-slate-800 rounded-2xl p-3.5 shadow-xl flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF5A1F] to-[#E04810] flex items-center justify-center text-white font-black text-sm shrink-0 shadow-md shadow-[#FF5A1F]/30">
+                  {activeStep}
+                </div>
+                <div className="min-w-0 text-left">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                    {stepsList.find(s => s.id === activeStep)?.stage === 1 ? 'Etapa 1: Activa tu sistema' : 'Etapa 2: Tu sistema de ventas'} • Paso {activeStep} de {stepsList.length}
+                  </span>
+                  <h3 className="text-sm font-extrabold text-white truncate">
+                    {stepsList.find(s => s.id === activeStep)?.title || `Paso ${activeStep}`}
+                  </h3>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setMobileStepsDrawerOpen(true)}
+                className="px-3.5 py-2.5 rounded-xl bg-[#FF5A1F] hover:bg-[#e04e17] text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shrink-0 shadow-lg shadow-[#FF5A1F]/25 active:scale-95 transition-all cursor-pointer"
+              >
+                <Menu className="w-4 h-4" />
+                <span>Ver pasos</span>
+              </button>
+            </div>
+
+            {/* DRAWER MÓVIL DE PASOS (Modal emergente completo) */}
+            <AnimatePresence>
+              {mobileStepsDrawerOpen && (
+                <div className="lg:hidden fixed inset-0 z-[100] flex justify-end">
+                  {/* Fondo oscuro para cerrar al hacer clic afuera */}
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setMobileStepsDrawerOpen(false)}
+                    className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                  />
+
+                  {/* Contenedor lateral del menú con scroll independiente */}
+                  <motion.div 
+                    initial={{ x: '100%' }}
+                    animate={{ x: 0 }}
+                    exit={{ x: '100%' }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                    className="relative z-10 w-[88%] max-w-sm h-full bg-[#080d1a] border-l border-slate-800 flex flex-col shadow-2xl overflow-hidden"
+                  >
+                    {/* Cabecera del drawer */}
+                    <div className="p-4 border-b border-slate-800/80 flex items-center justify-between bg-[#0B1120] shrink-0">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 flex items-center justify-center text-[#FF5A1F]">
+                          <Compass className="w-4 h-4" />
+                        </div>
+                        <span className="font-extrabold text-sm text-white uppercase tracking-wider">
+                          Guía de implementación
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setMobileStepsDrawerOpen(false)}
+                        className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                        aria-label="Cerrar lista de pasos"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    {/* Lista interactiva de pasos (Sidebar) */}
+                    <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
+                      <ProjectStrategy_Sidebar 
+                        activeSection={currentStrategySection}
+                        onSectionChange={handleStrategySectionClick}
+                        onUpgradeClick={() => {
+                          setMobileStepsDrawerOpen(false);
+                          if (onUpgradeClick) onUpgradeClick();
+                        }}
+                        user={user}
+                        isAdmin={isAdmin}
+                      />
+                    </div>
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
             
             {/* Breadcrumb Navigation Bar */}
             <div className="pb-3 pt-1 px-1 border-b border-slate-800/80 flex items-center justify-between gap-4">

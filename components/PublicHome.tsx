@@ -194,35 +194,112 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
           </div>
         </div>
 
-        {/* ////////// Menú Lateral Móvil (Overlay) - 27/05/2025 15:30 ////////// */}
-        <div className={`lg:hidden fixed inset-0 z-[100] transition-all duration-500 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMenuOpen(false)}></div>
-          <div className={`absolute right-0 top-0 h-full w-4/5 max-w-sm bg-[#0B0B0B] p-8 shadow-2xl border-l border-white/5 transition-transform duration-500 flex flex-col ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-            <div className="flex justify-between items-center mb-12">
-              <div className="w-12 h-9 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-bold text-white text-lg px-2">AM</div>
-              <button onClick={() => setIsMenuOpen(false)} className="p-2 text-white hover:text-[#FF5A1F] transition-colors"><X className="w-8 h-8" /></button>
+        {/* ////////// Menú Móvil Pantalla Completa (Fondo 100% Sólido sin Transparencias) ////////// */}
+        <div 
+          className={`lg:hidden fixed inset-0 z-[999] transition-all duration-300 ${
+            isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
+          style={{ backgroundColor: '#07090E' }}
+        >
+          <div className="w-full h-full bg-[#07090E] p-6 sm:p-8 flex flex-col overflow-y-auto">
+            {/* Cabecera del menú móvil con logo y botón cerrar */}
+            <div className="flex justify-between items-center mb-8 shrink-0 pb-4 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-9 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-bold text-white text-lg px-2 shadow-lg shadow-[#FF5A1F]/20">
+                  AM
+                </div>
+                <span className="text-xl font-bold tracking-tight text-white">
+                  Aprende.<span className="text-[#FF5A1F]">Marketing</span>
+                </span>
+              </div>
+              <button 
+                onClick={() => setIsMenuOpen(false)} 
+                className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white hover:text-[#FF5A1F] transition-colors border border-white/10"
+                aria-label="Cerrar menú"
+              >
+                <X className="w-6 h-6" />
+              </button>
             </div>
             
-            <div className="flex flex-col gap-6 text-xl font-bold text-white mb-12">
-              <button onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setIsMenuOpen(false); }} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Inicio <ChevronRight className="w-5 h-5 text-gray-600" /></button>
-              <button onClick={() => { scrollToSection('process'); setIsMenuOpen(false); }} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Cómo funciona <ChevronRight className="w-5 h-5 text-gray-600" /></button>
-              <button onClick={() => { scrollToSection('features'); setIsMenuOpen(false); }} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Productos <ChevronRight className="w-5 h-5 text-gray-600" /></button>
-              <button onClick={() => { scrollToSection('academy'); setIsMenuOpen(false); }} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Academia <ChevronRight className="w-5 h-5 text-gray-600" /></button>
-              <button onClick={() => { scrollToSection('testimonials'); setIsMenuOpen(false); }} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Precios <ChevronRight className="w-5 h-5 text-gray-600" /></button>
-              <button onClick={() => { scrollToSection('footer'); setIsMenuOpen(false); }} className="text-left py-2 hover:text-[#FF5A1F] transition-colors border-b border-white/5 flex justify-between items-center">Blog <ChevronRight className="w-5 h-5 text-gray-600" /></button>
+            {/* Enlaces de navegación táctiles y legibles */}
+            <div className="flex flex-col gap-2 mb-8">
+              <button 
+                onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setIsMenuOpen(false); }} 
+                className="text-left py-3.5 px-4 rounded-xl hover:bg-white/5 text-lg font-bold text-white hover:text-[#FF5A1F] transition-all border border-transparent hover:border-white/5 flex justify-between items-center"
+              >
+                <span>Inicio</span> 
+                <ChevronRight className="w-5 h-5 text-gray-500" />
+              </button>
+              <button 
+                onClick={() => { scrollToSection('process'); setIsMenuOpen(false); }} 
+                className="text-left py-3.5 px-4 rounded-xl hover:bg-white/5 text-lg font-bold text-white hover:text-[#FF5A1F] transition-all border border-transparent hover:border-white/5 flex justify-between items-center"
+              >
+                <span>Cómo funciona</span> 
+                <ChevronRight className="w-5 h-5 text-gray-500" />
+              </button>
+              <button 
+                onClick={() => { scrollToSection('features'); setIsMenuOpen(false); }} 
+                className="text-left py-3.5 px-4 rounded-xl hover:bg-white/5 text-lg font-bold text-white hover:text-[#FF5A1F] transition-all border border-transparent hover:border-white/5 flex justify-between items-center"
+              >
+                <span>Productos</span> 
+                <ChevronRight className="w-5 h-5 text-gray-500" />
+              </button>
+              <button 
+                onClick={() => { scrollToSection('academy'); setIsMenuOpen(false); }} 
+                className="text-left py-3.5 px-4 rounded-xl hover:bg-white/5 text-lg font-bold text-white hover:text-[#FF5A1F] transition-all border border-transparent hover:border-white/5 flex justify-between items-center"
+              >
+                <span>Academia</span> 
+                <ChevronRight className="w-5 h-5 text-gray-500" />
+              </button>
+              <button 
+                onClick={() => { scrollToSection('testimonials'); setIsMenuOpen(false); }} 
+                className="text-left py-3.5 px-4 rounded-xl hover:bg-white/5 text-lg font-bold text-white hover:text-[#FF5A1F] transition-all border border-transparent hover:border-white/5 flex justify-between items-center"
+              >
+                <span>Precios</span> 
+                <ChevronRight className="w-5 h-5 text-gray-500" />
+              </button>
+              <button 
+                onClick={() => { scrollToSection('footer'); setIsMenuOpen(false); }} 
+                className="text-left py-3.5 px-4 rounded-xl hover:bg-white/5 text-lg font-bold text-white hover:text-[#FF5A1F] transition-all border border-transparent hover:border-white/5 flex justify-between items-center"
+              >
+                <span>Blog</span> 
+                <ChevronRight className="w-5 h-5 text-gray-500" />
+              </button>
             </div>
 
-            <button
-              onClick={() => navigate('/login')}
-              className="w-full py-5 bg-[#FF5A1F] text-white font-black text-lg rounded-2xl shadow-xl active:scale-95 transition-transform"
-            >
-              Iniciar sesión
-            </button>
-            
-            <p className="mt-auto text-center text-gray-500 text-xs font-bold uppercase tracking-widest">Aprende.Marketing v2.0</p>
+            {/* Acciones principales del menú */}
+            <div className="mt-auto pt-6 border-t border-white/10 space-y-3 shrink-0">
+              {user ? (
+                <button
+                  onClick={() => { navigate('/dashboard'); setIsMenuOpen(false); }}
+                  className="w-full py-4 bg-[#FF5A1F] text-white font-black text-base rounded-2xl shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-2"
+                >
+                  <LayoutDashboard className="w-5 h-5" /> Ir al Panel de Control
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => { navigate('/register'); setIsMenuOpen(false); }}
+                    className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-base rounded-2xl shadow-xl shadow-[#FF5A1F]/25 flex items-center justify-center gap-2"
+                  >
+                    Crear mi cuenta gratis
+                  </button>
+                  <button
+                    onClick={() => { navigate('/login'); setIsMenuOpen(false); }}
+                    className="w-full py-3.5 bg-white/10 hover:bg-white/15 text-white font-bold text-base rounded-2xl border border-white/10 transition-colors"
+                  >
+                    Iniciar sesión
+                  </button>
+                </>
+              )}
+              
+              <p className="pt-2 text-center text-gray-500 text-[11px] font-bold uppercase tracking-widest">
+                Aprende.Marketing • Aprende | Implementa | Escala
+              </p>
+            </div>
           </div>
         </div>
-        {/* ////////// Fin de actualización - 27/05/2025 15:30 ////////// */}
+        {/* ////////// Fin de actualización ////////// */}
       </nav>
 
       {/* Hero Section - DARK BACKGROUND WITH COSMIC SUPERNOVA & AI EFFECTS */}
