@@ -1289,10 +1289,13 @@ export const api = {
         return mapped;
     },
 
-    getArticlesByProject: async (projectId: string, options?: { skipMaster?: boolean; limitMaster?: number }): Promise<Article[]> => {
+    getArticlesByProject: async (projectId: string, options?: { skipMaster?: boolean; limitMaster?: number; search?: string }): Promise<Article[]> => {
         if (isMockMode) {
             let list = localArticles.filter(a => String(a.projectId) === String(projectId));
-            if (options?.limitMaster && list.length > options.limitMaster) {
+            if (options?.search && options.search.trim()) {
+                const s = options.search.toLowerCase();
+                list = list.filter(a => a.title.toLowerCase().includes(s) || (a.keyword && a.keyword.toLowerCase().includes(s)));
+            } else if (options?.limitMaster && list.length > options.limitMaster) {
                 list = list.slice(0, options.limitMaster);
             }
             return Promise.resolve(
@@ -1303,13 +1306,12 @@ export const api = {
                 })
             );
         }
-        let queryParams = '';
-        if (options?.skipMaster) {
-            queryParams = '?skipMaster=true';
-        } else if (options?.limitMaster) {
-            queryParams = `?limitMaster=${options.limitMaster}`;
-        }
-        const articles = await fetchWithFallback(`/articles/project/${projectId}${queryParams}`, { method: 'GET', headers: getAuthHeaders() });
+        const params = new URLSearchParams();
+        if (options?.search && options.search.trim()) params.append('search', options.search.trim());
+        if (options?.skipMaster) params.append('skipMaster', 'true');
+        if (options?.limitMaster) params.append('limitMaster', String(options.limitMaster));
+        const qs = params.toString() ? `?${params.toString()}` : '';
+        const articles = await fetchWithFallback(`/articles/project/${projectId}${qs}`, { method: 'GET', headers: getAuthHeaders() });
         return articles.map((a: any) => ({
             id: a.id.toString(),
             projectId: (a.project_id || a.projectId) ? String(a.project_id || a.projectId) : undefined,
@@ -2629,11 +2631,12 @@ export const api = {
     ////////// Fin de actualización //////////
 
     /* Actualización: Métodos para el sistema dinámico de Hooks de Atracción - 01/01/2026 */
-    getProjectHooks: async (projectId: string, options?: { skipMaster?: boolean; limitMaster?: number }): Promise<ProjectHook[]> => {
+    getProjectHooks: async (projectId: string, options?: { skipMaster?: boolean; limitMaster?: number; search?: string }): Promise<ProjectHook[]> => {
         if (isMockMode) return MOCK_PROJECT_HOOKS;
         let url = `/hooks/project/${projectId}`;
         if (options) {
             const params = new URLSearchParams();
+            if (options.search && options.search.trim()) params.append('search', options.search.trim());
             if (options.skipMaster) params.append('skipMaster', 'true');
             if (options.limitMaster) params.append('limitMaster', String(options.limitMaster));
             const qs = params.toString();
@@ -2719,11 +2722,12 @@ export const api = {
     },
 
     /* Métodos para el nuevo sistema dinámico de Carruseles Magnéticos - 28/09/2026 */
-    getProjectCarousels: async (projectId: string, options?: { skipMaster?: boolean; limitMaster?: number }): Promise<ProjectCarousel[]> => {
+    getProjectCarousels: async (projectId: string, options?: { skipMaster?: boolean; limitMaster?: number; search?: string }): Promise<ProjectCarousel[]> => {
         if (isMockMode) return [];
         let url = `/carousels/project/${projectId}`;
         if (options) {
             const params = new URLSearchParams();
+            if (options.search && options.search.trim()) params.append('search', options.search.trim());
             if (options.skipMaster) params.append('skipMaster', 'true');
             if (options.limitMaster) params.append('limitMaster', String(options.limitMaster));
             const qs = params.toString();

@@ -142,19 +142,82 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 7;
 
-    const currentData = activeTab === 'library' ? libraryData : generatedData;
-
-    // Lógica de Búsqueda
+    // Lógica de Búsqueda completa en base de datos
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchLibraryResults, setSearchLibraryResults] = useState<any[]>([]);
+    const [isSearchingLibrary, setIsSearchingLibrary] = useState(false);
+
+    useEffect(() => {
+        const term = searchTerm.trim();
+        if (!term || activeTab !== 'library' || !projectId) {
+            setSearchLibraryResults([]);
+            setIsSearchingLibrary(false);
+            return;
+        }
+
+        setIsSearchingLibrary(true);
+        const timer = setTimeout(async () => {
+            try {
+                const results = await api.getArticlesByProject(projectId, { search: term });
+                const generatedTitles = new Set(generatedData.map(g => g.title.toLowerCase().trim()));
+                const generatedIds = new Set(generatedData.map(g => String(g.id)));
+
+                const mappedResults = (results || [])
+                    .filter(a => !a.isGenerated)
+                    .filter(a => !generatedIds.has(String(a.id)) && !generatedTitles.has(String(a.title).toLowerCase().trim()))
+                    .map(a => ({
+                        id: a.id,
+                        masterArticleId: (a as any).masterArticleId || String(a.id).replace('available-', ''),
+                        title: a.title,
+                        strategy: (a as any).psychologicalStrategy?.focus || a.description || '',
+                        keyword: a.keyword || (a as any).psychologicalStrategy?.keyword || '',
+                        searchVolume: (a as any).psychologicalStrategy?.searchVolume || '',
+                        searchIntent: (a as any).psychologicalStrategy?.searchIntent || '',
+                        psychologicalStrategy: (a as any).psychologicalStrategy,
+                        isFromDb: true,
+                        isGenerated: false,
+                        isUnlocked: !!a.isUnlocked,
+                        isActive: !!a.isActive,
+                        slug: a.slug,
+                        updatedAt: a.updatedAt || (a as any).updated_at,
+                        createdAt: a.createdAt || (a as any).created_at,
+                        unlockedAt: a.unlockedAt || (a as any).unlocked_at,
+                        publishedAt: a.publishedAt || (a as any).published_at
+                    }));
+                setSearchLibraryResults(mappedResults);
+                setActiveLibraryArticle(0);
+            } catch (err) {
+                console.error("Error searching articles in DB:", err);
+            } finally {
+                setIsSearchingLibrary(false);
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchTerm, projectId, activeTab, generatedData]);
+
+    const currentData = useMemo(() => {
+        if (activeTab === 'library') {
+            if (searchTerm.trim() !== '') {
+                return searchLibraryResults;
+            }
+            return libraryData;
+        }
+        return generatedData;
+    }, [activeTab, searchTerm, searchLibraryResults, libraryData, generatedData]);
     
     const filteredData = useMemo(() => {
+        if (activeTab === 'library' && searchTerm.trim() !== '') {
+            return currentData.filter(art => isRealAdmin || art.isActive === true);
+        }
         return currentData
             .filter(art => isRealAdmin || art.isActive === true)
             .filter(art => 
+                !searchTerm.trim() ||
                 art.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                 (art.keyword && art.keyword.toLowerCase().includes(searchTerm.toLowerCase()))
             );
-    }, [currentData, searchTerm, isRealAdmin]);
+    }, [currentData, searchTerm, isRealAdmin, activeTab]);
 
     const activeArticleIdx = activeTab === 'library' ? activeLibraryArticle : activeGeneratedArticle;
     const setActiveArticleIdx = activeTab === 'library' ? setActiveLibraryArticle : setActiveGeneratedArticle;
@@ -165,6 +228,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     // Resetear página al buscar o cambiar pestaña
     useEffect(() => {
         setCurrentPage(1);
+        if (activeTab === 'library') {
+            setActiveLibraryArticle(0);
+        } else {
+            setActiveGeneratedArticle(0);
+        }
     }, [searchTerm, activeTab]);
 
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
@@ -940,13 +1008,17 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             </div>
 
                             {/* Buscador de Contenidos */}
-                            <div className="relative mb-6">
+                            <div className="relative mb-4">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <Search className="h-4 w-4 text-gray-500" />
+                                    {isSearchingLibrary ? (
+                                        <Loader2 className="h-4 w-4 text-orange-400 animate-spin" />
+                                    ) : (
+                                        <Search className="h-4 w-4 text-gray-500" />
+                                    )}
                                 </div>
                                 <input
                                     type="text"
-                                    placeholder="Buscar por título o keyword..."
+                                    placeholder={activeTab === 'library' ? "Buscar en toda la base de datos..." : "Buscar por título o keyword..."}
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="block w-full pl-11 pr-4 py-3 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FF5D1E]/50 focus:border-[#FF5D1E]/50 transition-all"
@@ -960,6 +1032,14 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     </button>
                                 )}
                             </div>
+
+                            {/* Badge informativo de resultados de búsqueda en base de datos */}
+                            {searchTerm.trim() !== '' && activeTab === 'library' && !isSearchingLibrary && (
+                                <div className="mb-4 px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 rounded-lg flex items-center justify-between text-xs text-orange-300">
+                                    <span>Resultados en base de datos: <strong>{filteredData.length}</strong></span>
+                                    <span className="text-[10px] text-gray-400">Búsqueda global</span>
+                                </div>
+                            )}
 
                             {/* Selector de Pestañas */}
                             <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
@@ -997,7 +1077,18 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             </div>
                             
                             <div id="psd-content-items-list" className="space-y-4 flex-1">
-                                {paginatedData.map((art: any, indexInPage: number) => {
+                                {isSearchingLibrary ? (
+                                    <div className="flex flex-col items-center justify-center py-12 space-y-3 bg-black/20 rounded-xl border border-white/5">
+                                        <Loader2 className="w-6 h-6 text-orange-400 animate-spin" />
+                                        <p className="text-xs text-gray-400">Buscando en toda la base de datos...</p>
+                                    </div>
+                                ) : paginatedData.length === 0 && searchTerm.trim() ? (
+                                    <div className="text-center py-10 px-4 bg-black/20 rounded-xl border border-white/5 space-y-2">
+                                        <Search className="w-8 h-8 text-gray-500 mx-auto opacity-50" />
+                                        <p className="text-sm text-gray-300 font-medium">No se encontraron artículos</p>
+                                        <p className="text-xs text-gray-500">No encontramos coincidencias para "{searchTerm}" en la base de datos.</p>
+                                    </div>
+                                ) : paginatedData.map((art: any, indexInPage: number) => {
                                     const originalIdx = currentData.findIndex(a => a.id === art.id);
                                     const isSelected = selectedArticles.includes(originalIdx);
                                     const isActive = activeArticleIdx === originalIdx;

@@ -148,6 +148,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const LIBRARY_COUNT = 7;
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchLibraryHooks, setSearchLibraryHooks] = useState<any[]>([]);
+  const [isSearchingLibraryHooks, setIsSearchingLibraryHooks] = useState(false);
   const [activeTab, setActiveTab] = useState<'library' | 'generated'>('generated');
   const [libraryHooks, setLibraryHooks] = useState<any[]>([]);
   const [libraryTotal, setLibraryTotal] = useState(0);
@@ -352,9 +354,46 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     return 0;
   };
 
+  useEffect(() => {
+    const term = searchTerm.trim();
+    if (!term || activeTab !== 'library' || !projectId) {
+      setSearchLibraryHooks([]);
+      setIsSearchingLibraryHooks(false);
+      return;
+    }
+
+    setIsSearchingLibraryHooks(true);
+    const timer = setTimeout(async () => {
+      try {
+        const rawResults = await api.getProjectHooks(projectId, { search: term });
+        const unlockedIds = new Set(hooks.map(h => String(h.masterHookId || h.id).replace('available-', '')));
+        const unlockedTitles = new Set(hooks.map(h => (h.title || '').toLowerCase().trim()));
+
+        const filtered = (rawResults || [])
+          .filter((h: any) => !h.isUnlocked && !h.isGenerated)
+          .filter((h: any) => {
+            const cleanId = String(h.masterHookId || h.id).replace('available-', '');
+            return !unlockedIds.has(cleanId) && !unlockedTitles.has((h.title || '').toLowerCase().trim());
+          });
+
+        setSearchLibraryHooks(filtered);
+        setActiveLibraryHook(0);
+      } catch (err) {
+        console.error("Error searching hooks in DB:", err);
+      } finally {
+        setIsSearchingLibraryHooks(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, projectId, activeTab, hooks]);
+
   const displayLibraryHooks = useMemo(() => {
+    if (searchTerm.trim() !== '') {
+      return searchLibraryHooks;
+    }
     return libraryHooks;
-  }, [libraryHooks]);
+  }, [searchTerm, searchLibraryHooks, libraryHooks]);
 
   const displayGeneratedHooks = useMemo(() => {
     return hooks
@@ -1142,13 +1181,17 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             </div>
 
             {/* Buscador de Hooks */}
-            <div className="relative mb-6">
+            <div className="relative mb-4">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Search className="h-4 w-4 text-gray-500" />
+                    {isSearchingLibraryHooks ? (
+                        <Loader2 className="h-4 w-4 text-orange-400 animate-spin" />
+                    ) : (
+                        <Search className="h-4 w-4 text-gray-500" />
+                    )}
                 </div>
                 <input
                     type="text"
-                    placeholder="Buscar Hooks por titulo"
+                    placeholder={activeTab === 'library' ? "Buscar Hooks en toda la base de datos..." : "Buscar Hooks por título..."}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="block w-full pl-11 pr-4 py-3 bg-black/40 border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all"
@@ -1162,6 +1205,14 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                     </button>
                 )}
             </div>
+
+            {/* Badge informativo de resultados de búsqueda en base de datos */}
+            {searchTerm.trim() !== '' && activeTab === 'library' && !isSearchingLibraryHooks && (
+                <div className="mb-4 px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 rounded-lg flex items-center justify-between text-xs text-orange-300">
+                    <span>Resultados en base de datos: <strong>{filteredHooks.length}</strong></span>
+                    <span className="text-[10px] text-gray-400">Búsqueda global</span>
+                </div>
+            )}
 
             {/* Selector de Pestañas */}
             <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
@@ -1206,8 +1257,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                   </span>
                 </div>
               )}
-              {(activeTab === 'library' ? loadingLibrary : loadingHooks) ? (
-                <div className="flex justify-center py-10"><Loader2 className="animate-spin text-orange-400" /></div>
+              {(activeTab === 'library' ? (loadingLibrary || isSearchingLibraryHooks) : loadingHooks) ? (
+                <div className="flex flex-col items-center justify-center py-12 space-y-3 bg-black/20 rounded-xl border border-white/5">
+                  <Loader2 className="w-6 h-6 text-orange-400 animate-spin" />
+                  <p className="text-xs text-gray-400">Buscando en toda la base de datos...</p>
+                </div>
               ) : paginatedHooks.length > 0 ? (
                 paginatedHooks.map((hook: ProjectHook, idxInPage: number) => {
                   const globalIdx = (currentPage - 1) * itemsPerPage + idxInPage;
@@ -1218,6 +1272,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
                   return (
                     <div 
+                      key={hook.id || `hook-${idxInPage}`}
                       onClick={() => {
                         if (activeTab === 'library') {
                           setActiveLibraryHook(idxInPage);
@@ -1267,6 +1322,12 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                     </div>
                   );
                 })
+              ) : searchTerm.trim() ? (
+                <div className="text-center py-10 px-4 bg-black/20 rounded-xl border border-white/5 space-y-2">
+                  <Search className="w-8 h-8 text-gray-500 mx-auto opacity-50" />
+                  <p className="text-sm text-gray-300 font-medium">No se encontraron hooks</p>
+                  <p className="text-xs text-gray-500">No encontramos coincidencias para "{searchTerm}" en la base de datos.</p>
+                </div>
               ) : (
                 <div className="py-10 text-center text-gray-500 italic">No hay ganchos disponibles.</div>
               )}

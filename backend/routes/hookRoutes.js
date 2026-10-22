@@ -47,10 +47,22 @@ router.get('/project/:projectId', async (req, res) => {
                 [projectId]
             );
 
-            // Traer ganchos del maestro que no han sido clonados todavía (con soporte para skipMaster y limitMaster)
+            // Traer ganchos del maestro que no han sido clonados todavía (con soporte para search, skipMaster y limitMaster)
             const activeCondition = isAdmin ? '' : 'AND is_active = 1';
             let masterRows = [];
-            if (req.query.skipMaster === 'true') {
+            if (req.query.search && req.query.search.trim()) {
+                const searchPattern = `%${req.query.search.trim()}%`;
+                const [sMaster] = await pool.query(
+                    `SELECT * FROM project_hooks 
+                     WHERE project_id = ? 
+                     ${activeCondition}
+                     AND id NOT IN (SELECT master_hook_id FROM project_hooks WHERE project_id = ? AND master_hook_id IS NOT NULL)
+                     AND (title LIKE ? OR psychological_strategy LIKE ?)
+                     ORDER BY title ASC LIMIT 100`,
+                    [effectiveMasterParentId, projectId, searchPattern, searchPattern]
+                );
+                masterRows = sMaster;
+            } else if (req.query.skipMaster === 'true') {
                 masterRows = [];
             } else if (req.query.limitMaster) {
                 const limitNum = Math.max(1, Math.min(100, parseInt(req.query.limitMaster) || 7));

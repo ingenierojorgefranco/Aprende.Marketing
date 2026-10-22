@@ -64,9 +64,24 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 [projectId]
             );
 
-            // Traer artículos del maestro que no han sido clonados todavía (con soporte para skipMaster y limitMaster aleatorio)
+            // Traer artículos del maestro que no han sido clonados todavía (con soporte para search, skipMaster y limitMaster aleatorio)
             let masterRows = [];
-            if (req.query.skipMaster === 'true') {
+            if (req.query.search && req.query.search.trim()) {
+                const searchPattern = `%${req.query.search.trim()}%`;
+                const [sRows] = await pool.query(
+                    `SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name, p.name as project_name
+                     FROM articles a
+                     LEFT JOIN landing_pages lp ON a.page_id = lp.id
+                     LEFT JOIN projects p ON a.project_id = p.id
+                     WHERE a.project_id = ? 
+                     AND a.id NOT IN (SELECT master_article_id FROM articles WHERE project_id = ? AND master_article_id IS NOT NULL)
+                     AND (a.title LIKE ? OR a.slug LIKE ? OR a.keyword LIKE ? OR a.description LIKE ?)
+                     ORDER BY a.title ASC
+                     LIMIT 100`,
+                    [masterParentId, projectId, searchPattern, searchPattern, searchPattern, searchPattern]
+                );
+                masterRows = sRows;
+            } else if (req.query.skipMaster === 'true') {
                 masterRows = [];
             } else if (req.query.limitMaster) {
                 const limitNum = Math.min(Math.max(parseInt(req.query.limitMaster) || 15, 1), 100);
