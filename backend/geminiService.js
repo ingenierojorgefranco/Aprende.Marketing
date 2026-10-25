@@ -89,18 +89,29 @@ const cleanJsonString = (str) => {
         .trim();
 };
 
+const getAiClient = () => {
+    return new GoogleGenAI({
+        apiKey: process.env.GEMINI_API_KEY || process.env.API_KEY,
+        httpOptions: {
+            headers: {
+                'User-Agent': 'aistudio-build',
+            }
+        }
+    });
+};
+
 /**
  * Genera contenido usando Google Gemini con manejo de errores mejorado y settings de seguridad relajados
  */
 export const generateContent = async (model, contents, config = {}) => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = getAiClient();
 
     try {
         return await withRetries(async () => {
 
 
             const response = await ai.models.generateContent({
-                model: model || 'gemini-3-flash-preview',
+                model: model || 'gemini-3.8-flash',
                 contents: contents,
                 config: {
                     ...config,
@@ -131,7 +142,7 @@ export const generateContent = async (model, contents, config = {}) => {
  * Analiza el contenido de un sitio web para extraer estrategia
  */
 export const analyzeWebsiteContent = async (rawText) => {
-   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+   const ai = getAiClient();
 
     if (!rawText || rawText.trim().length < 150) {
         throw new Error("El contenido extraído del sitio web es insuficiente para un análisis profesional.");
@@ -212,7 +223,7 @@ export const analyzeWebsiteContent = async (rawText) => {
  */
 export const generateFullStrategy = async (projectId) => {
 
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = getAiClient();
     // 1. LOG DE INICIO DE PIPELINE
     process.stdout.write(`\n🚀 [PIPELINE START] Generación real (Etapa 1 IA) para Proyecto ID: ${projectId}\n`);
 

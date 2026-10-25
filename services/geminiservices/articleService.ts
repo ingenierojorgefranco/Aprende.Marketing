@@ -49,18 +49,33 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
 
 export const generateArticleOutline = async (title: string, objective: string): Promise<string[]> => {
     const prompt = `Actúa como un REDACTOR SEO EXPERTO, EDITOR y ANALISTA DE INTENCIÓN DE BÚSQUEDA.
-    Analiza internamente el título "${title}" y el objetivo "${objective}" para determinar su intención de búsqueda principal (informativa, cómo hacer, comparativa, cuantitativa/precio, errores, beneficios, etc.).
-    Diseña una estructura (outline) OBLIGATORIA de altísima calidad editorial que resuelva de forma óptima esa intención de búsqueda.
+    Analiza a fondo el título "${title}" y el objetivo "${objective}" para diseñar una estructura (outline) de encabezados H2 y H3 impecable, exhaustiva y orientada a resolver la necesidad del lector al 100%.
 
-    REGLAS ESTRUCTURALES ESTRICTAS:
-    1. Genera obligatoriamente entre 5 y 7 encabezados H2 que actúen como pilares estratégicos y lógicos de contenido.
-    2. Genera un mínimo de 3 encabezados H3 distribuidos estratégicamente dentro de los H2 para profundizar y desglosar subtemas técnicos o prácticos.
-    3. La estructura debe estar pensada para que un lector resuelva su duda por completo, sin repetir conceptos en diferentes encabezados.
-    4. Cada encabezado en el array devuelto debe comenzar estrictamente con el nivel correspondiente ("H2: [Texto]" o "H3: [Texto]"). No incluyas "H1: " ya que el título principal se maneja de forma independiente.
+    REGLAS CRÍTICAS DE FIDELIDAD AL TÍTULO (OBLIGATORIAS):
+    1. DETECCIÓN Y OBLIGATORIEDAD DE NÚMEROS Y LISTAS (LISTICLES):
+       - Si el título incluye una cantidad numérica (ejemplo: "Los 6 tipos de pinceles...", "7 pasos infalibles...", "5 errores mortales...", "8 técnicas avanzadas...", "4 herramientas indispensables..."):
+         * DEBES generar OBLIGATORIAMENTE un encabezado individual para CADA UNO de los elementos prometidos, numerados correlativamente del 1 al N exacto.
+         * Si dice 6, genera exactamente 6 encabezados para los 6 elementos (del 1 al 6). Está TERMINANTEMENTE PROHIBIDO generar menos elementos, agruparlos o poner "etc.".
+         * Cada encabezado del elemento debe incluir el número, el nombre específico del elemento y su propósito/utilidad clave.
+           Ejemplo para "Los 6 tipos de pinceles...":
+           "H2: 1. Pincel Kolinsky Redondo: El estándar de oro para control de perlas y aplicación"
+           "H2: 2. Pincel Ovalado: Suavizado perfecto y sellado impecable de cutícula"
+           "H2: 3. Pincel Plano (Square): Definición de bordes rectos y estructura limpia"
+           "H2: 4. Pincel Lengua de Gato: Precisión en curvas y zonas de difícil acceso"
+           "H2: 5. Pincel Liner / Detalle: Trazos ultra finos, nail art y líneas de precisión"
+           "H2: 6. Pincel Abanico / Ombré: Degradados, difuminados y aplicación de pigmentos"
+       - Si el título promete "y para qué sirve cada uno" o "cuándo usarlo", los encabezados deben reflejar con claridad el uso y función de cada ítem.
+    2. ESTRUCTURA COMPLETA Y EQUILIBRADA:
+       - Si el título es una lista numerada, incluye además:
+         * Un H2 de entrada/contexto previo a la lista (ej: "¿Por qué el pincel adecuado define la calidad de tu trabajo?").
+         * Los N encabezados numerados correspondientes a cada elemento.
+         * Un H2 práctico posterior de mantenimiento, errores frecuentes de principiantes o guía de compra profesional.
+       - Si el título NO es numérico, genera entre 5 y 7 encabezados H2 estratégicos y lógicos, con al menos 3 H3s distribuidos para desglosar subtemas técnicos o prácticos.
+    3. CADA ENCABEZADO DEBE COMENZAR con "H2: " o "H3: ". No incluyas "H1: ".
 
     FORMATO DE RESPUESTA:
-    Devuelve estrictamente un JSON Array de strings, donde cada string representa un encabezado estructurado, por ejemplo:
-    ["H2: ¿Qué es...?", "H2: Cómo funciona...", "H3: Paso 1...", "H3: Paso 2...", "H2: Errores comunes...", "H2: Alternativas..."]
+    Devuelve estrictamente un JSON Array de strings con los encabezados ordenados.
+    Ejemplo: ["H2: ...", "H2: 1. ...", "H2: 2. ...", "H2: 3. ...", "H2: 4. ...", "H2: 5. ...", "H2: 6. ...", "H2: Consejos de cuidado..."]
     No agregues introducciones, explicaciones, ni comentarios adicionales fuera del JSON Array.`;
 
     const schema = {
@@ -69,7 +84,7 @@ export const generateArticleOutline = async (title: string, objective: string): 
     };
 
     try {
-        const response = await callGeminiBackend(prompt, schema);
+        const response = await callGeminiBackend(prompt, schema, true, "gemini-3.8-flash", 0);
         return JSON.parse(response.text || "[]");
     } catch (e) {
         return [];
@@ -149,12 +164,25 @@ export const generateFullArticle = async (
     - Enlace CTA: "${ctaLink}"
     ${projectStrategy}
 
+    REGLA SUPREMA DE FIDELIDAD TOTAL A LA PROMESA DEL TÍTULO Y DESARROLLO EXHAUSTIVO (OBLIGATORIA):
+    1. CUMPLIMIENTO NUMÉRICO ESTRICTO Y ENUMERACIÓN EXPLÍCITA:
+       - Si el título o tema contiene una cantidad numérica (ejemplo: "Los 6 tipos de pinceles utilizados en el diseño de uñas acrílicas y para qué sirve cada uno", "5 errores mortales...", "7 pasos infalibles...", "4 herramientas clave..."):
+         * DEBES DESARROLLAR OBLIGATORIAMENTE Y SIN EXCEPCIÓN LA TOTALIDAD EXACTA de los elementos prometidos. Si dice 6, debes redactar los 6; si dice 5, los 5; si dice 7, los 7. Queda TERMINANTEMENTE PROHIBIDO redactar solo una parte y omitir el resto, o agruparlos diciendo "entre otros" o "etc.".
+         * ENUMERACIÓN EXPLÍCITA EN CADA ENCABEZADO: Cada elemento debe estar numerado secuencialmente del 1 al N en sus encabezados HTML (por ejemplo: "<h2>1. Pincel Kolinsky Redondo: Precisión para perlas perfectas</h2>", "<h2>2. Pincel Ovalado: Sellado de cutícula y difuminados suaves</h2>", ..., "<h2>6. Pincel Abanico / Ombré: Degradados y polvos de brillo</h2>").
+         * RESOLUCIÓN COMPLETA DE LA PROMESA DEL TÍTULO: Si el título promete "y para qué sirve cada uno" (o cómo usarlo, características, etc.), para CADA UNO de los N elementos debes explicar con total claridad:
+           a) Qué es y características técnicas (material de cerdas/pelo, forma, tamaño o número recomendado ej. #8, #10).
+           b) Para qué sirve exactamente (función principal, técnica o paso del procedimiento en el que se utiliza).
+           c) Secreto o consejo del profesional para usarlo correctamente y el error típico de principiante que debes evitar.
+         * Cada elemento numerado debe contar con un desarrollo nutrido (mínimo 2 a 3 párrafos cortos e informativos por elemento).
+    2. CONSERVACIÓN DE LA PROMESA Y TÍTULO:
+       - Si el título original contiene un número o promesa específica (como "Los 6 tipos de pinceles..."), en el campo "title" del JSON de salida DEBES PRESERVAR la cantidad exacta y la promesa del título original. Puedes optimizarlo para CTR y SEO, pero NUNCA elimines el número ni generalices el título quitando los elementos específicos prometidos.
+
     DIRECTRICES DE CONTENIDO DE ALTO VALOR ("INFORMATION GAIN"):
     1. REGLA DE ORO DE LOS AVATARES Y NOMBRES (PROHIBICIÓN ABSOLUTA):
        - Queda TERMINANTEMENTE PROHIBIDO mencionar los nombres de pila o nombres propios de los avatares (como "Valeria", "Beatriz", "Sofía", etc.) o referirte a ellos explícitamente usando la palabra "avatar", "avatares", "nuestro cliente ideal", "perfil Valeria", etc. El artículo debe fluir con absoluta naturalidad y hablarle de "tú" de forma implícita e invisible al lector (por ejemplo, escribe: "Si estás empezando desde cero con presupuesto limitado...", "Si temes dañar la piel por falta de práctica...").
        - Queda TERMINANTEMENTE PROHIBIDO mencionar a la tutora, instructora, mentora o profesora, ni hacer ninguna referencia a ella, su método personal, su nombre o marca (por ejemplo, sin mencionar "Ariana Zamora" ni "la profesora", etc.) en ninguna parte del artículo. Mantén una perspectiva e integridad editorial neutra y profesional.
     2. REGLA DE ORO DE LOS TRES PÁRRAFOS POR SECCIÓN (OBLIGATORIA):
-       - Cada sección o bloque de contenido (cada H2 y cada H3 que desarrolles dentro del esquema) debe poseer obligatoriamente un contenido detallado de AL MENOS TRES (3) párrafos de extensión (párrafos de 1 a 3 líneas cada uno). No resumis las secciones en un párrafo gigante o corto; desglosa los argumentos, analogías, pasos o conceptos en un mínimo de tres párrafos separados (<p>...</p>) para dar un ritmo aireado, ágil, adictivo y de alta calidad.
+       - Cada sección o bloque de contenido (cada H2 y cada H3 que desarrolles dentro del esquema) debe poseer obligatoriamente un contenido detallado de AL MENOS TRES (3) párrafos de extensión (párrafos de 1 a 3 líneas cada uno). No resumas las secciones en un párrafo gigante o corto; desglosa los argumentos, analogías, pasos o conceptos en un mínimo de tres párrafos separados (<p>...</p>) para dar un ritmo aireado, ágil, adictivo y de alta calidad.
     3. REGLA DE ORO DE TRANSICIÓN Y DOLOR PRE-CTA (OBLIGATORIA):
        - Justo antes de insertar cada uno de los dos banners de CTA, debes colocar obligatoriamente EXACTAMENTE DOS (2) párrafos cortos e independientes en formato HTML que toquen las fibras más sensibles del dolor, miedos y frustraciones de la audiencia en relación a ese punto de la lectura. Estos dos párrafos deben generar una conexión empática profunda y preparar la mentalidad del lector para recibir e ingresar al CTA de forma natural e inevitable.
     4. REGLA DE ORO PARA EL CTA 1 (ENFOQUE DE PRINCIPIANTE DESDE CERO):
@@ -215,10 +243,11 @@ export const generateFullArticle = async (
     </div>
 
     AUDITORÍA DE CALIDAD INTERNA:
-    Antes de responder, realiza una auditoría interna mental con estas comprobaciones:
-    - ¿Responde realmente a la intención principal?
+    Antes de responder, realiza una auditoría interna mental con estas comprobaciones obligatorias:
+    - ¿Si el título promete una cantidad numérica (ej: 6 pinceles, 5 errores), desarrollaste y enumeraste explícitamente TODOS los N elementos del 1 al N con encabezados claros?
+    - ¿Para cada uno de los N elementos explicaste detalladamente qué es, para qué sirve exactamente y cómo se usa profesionalmente?
+    - ¿Cumple al 100% la promesa exacta del título?
     - ¿La respuesta comienza en los primeros dos párrafos?
-    - ¿Cumple la promesa del título?
     - ¿Se evitaron cifras o fuentes inventadas?
     - ¿Los ejemplos inventados se identifican claramente como hipotéticos?
     - ¿Cada H2 aporta información totalmente fresca y diferente?
@@ -229,18 +258,11 @@ export const generateFullArticle = async (
     - ¿Se omitieron todas las referencias a la tutora o instructora?
     - ¿Los bloques de CTA van antecedidos exactamente de 2 párrafos de dolor?
     - ¿El primer CTA está dirigido a un principiante que quiere aprender desde cero?
-    - ¿La respuesta comienza en los primeros dos párrafos?
-    - ¿Cumple la promesa del título?
-    - ¿Se evitaron cifras o fuentes inventadas?
-    - ¿Los ejemplos inventados se identifican claramente como hipotéticos?
-    - ¿Cada H2 aporta información totalmente fresca y diferente?
-    - ¿Se integró la keyword de forma natural y sin stuffing?
-    - ¿Se respetó el formato JSON y la estructura exacta del banner HTML?
 
     FORMATO DE SALIDA REQUERIDO (JSON STRICT):
     Debes retornar un objeto JSON válido que cumpla estrictamente con esta estructura:
     {
-      "title": "[Título de alto CTR totalmente REESCRITO, persuasivo, magnético e irresistible para blog/SEO basado en la idea/tema original, de máximo 60 caracteres]",
+      "title": "[Título final del artículo: Si el título original contiene una cantidad numérica o promesa específica (ej: 'Los 6 tipos de pinceles...'), CONSERVA la cantidad y la promesa del título original con máximo CTR y atractivo SEO, de máximo 65 caracteres]",
       "html": "[El contenido completo del artículo formateado en HTML limpio, comenzando de inmediato con la introducción empática (H2s y H3s según el esquema provisto, párrafos, tablas, negritas, seguidos de los dos banners de CTA contextuales y sus respectivos párrafos de dolor pre-CTA)]",
       "metaDescription": "[Meta descripción atractiva para los buscadores que resuma el artículo en un máximo de 155 caracteres]",
       "strategy": "[Enfoque Estratégico del artículo de 1 a 2 párrafos breves que explique la idea central del artículo redactado y enfatice el objetivo de guiar a los lectores a registrarse e ingresar a la clase gratuita]"
@@ -259,7 +281,7 @@ export const generateFullArticle = async (
     };
 
     try {
-        const response = await callGeminiBackend(prompt, schema, true, "gemini-3-flash-preview", 0);
+        const response = await callGeminiBackend(prompt, schema, true, "gemini-3.8-flash", 0);
         if (response.text) {
             return JSON.parse(response.text);
         }

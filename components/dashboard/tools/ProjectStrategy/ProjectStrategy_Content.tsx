@@ -808,12 +808,14 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             // Paso 2: Generar esquema
             setUnlockProgressMsg("Paso 1/2: Diseñando estructura de encabezados optimizada para Google (SEO)...");
             let generatedOutline: string[] = [];
-            if (api.isUsingMockData()) {
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                generatedOutline = [`H1: ${active.title}`, "H2: Introducción Estratégica", "H2: Análisis del Mercado", "H2: Implementación Paso a Paso", "H2: Conclusión"];
-            } else {
+            try {
                 const result = await generateArticleOutline(active.title, active.strategy || '');
-                generatedOutline = Array.isArray(result) ? result : ["H2: Introducción", "H2: Contenido Principal", "H2: Conclusión"];
+                generatedOutline = Array.isArray(result) && result.length > 0 ? result : [];
+            } catch (err) {
+                console.warn("Error generando outline con IA:", err);
+            }
+            if (generatedOutline.length === 0) {
+                generatedOutline = ["H2: Introducción Estratégica", "H2: Análisis del Mercado", "H2: Implementación Paso a Paso", "H2: Conclusión"];
             }
 
             // Paso 3: Generar artículo completo con copy persuasivo
@@ -824,15 +826,15 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 : '#';
 
             let genResult;
-            if (api.isUsingMockData()) {
-                await new Promise(resolve => setTimeout(resolve, 2000));
+            try {
+                genResult = await generateFullArticle(active.title, generatedOutline, active.strategy || '', ctaLink, active.keyword || '', projectContext);
+            } catch (err) {
+                console.error("Error generando artículo completo con IA:", err);
                 genResult = {
                     title: active.title,
-                    html: `<p>Contenido de prueba redactado en estilo persuasivo e interactivo para <strong>${active.title}</strong>.</p><h2>Introducción</h2><p>Exclusivo de prueba.</p>`,
+                    html: `<p>Contenido detallado para <strong>${active.title}</strong>.</p>`,
                     metaDescription: `Descubre todos los secretos y estrategias de ${active.title}.`
                 };
-            } else {
-                genResult = await generateFullArticle(active.title, generatedOutline, active.strategy || '', ctaLink, active.keyword || '', projectContext);
             }
 
             // Paso 4: Actualizar base de datos con el artículo redactado

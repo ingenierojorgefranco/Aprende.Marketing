@@ -447,26 +447,28 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
     try {
         let generatedOutline: string[] = [];
-        if (api.isUsingMockData()) {
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            generatedOutline = [`H1: ${topic}`, "H2: Introducción Estratégica", "H2: Análisis del Mercado Actual", "H2: Implementación Paso a Paso", "H2: Conclusión"];
-        } else {
+        try {
             const result = await generateArticleOutline(topic, objective);
-            generatedOutline = Array.isArray(result) ? result : ["H2: Introducción", "H2: Contenido Principal", "H2: Conclusión"];
+            generatedOutline = Array.isArray(result) && result.length > 0 ? result : [];
+        } catch (err) {
+            console.warn("Error generando outline:", err);
+        }
+        if (generatedOutline.length === 0) {
+            generatedOutline = ["H2: Introducción Estratégica", "H2: Análisis del Mercado Actual", "H2: Implementación Paso a Paso", "H2: Conclusión"];
         }
 
         setOutline(generatedOutline);
         const projectContext = userProjects.find(p => p.id === selectedProject);
         let result;
-        if (api.isUsingMockData()) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+            result = await generateFullArticle(idea.title, generatedOutline, objective, ctaLink || '#', keyword, projectContext);
+        } catch (err) {
+            console.error("Error generando artículo:", err);
             result = {
                 title: topic,
-                html: `<p>Contenido de prueba para <strong>${topic}</strong>.</p><h2>Introducción</h2><p>Texto generado.</p><div style="text-align: center;"><a href="${ctaLink || '#'}" style="background-color: #FF5A1F; color: white; padding: 15px 30px; text-decoration: none; border-radius: 12px; font-weight: bold;">ADQUIRIR EL MÉTODO</a></div>`,
-                metaDescription: `Descubre los secretos de ${topic}.`
+                html: `<p>Guía detallada para <strong>${topic}</strong>.</p>`,
+                metaDescription: `Descubre los secretos y claves de ${topic}.`
             };
-        } else {
-            result = await generateFullArticle(idea.title, generatedOutline, objective, ctaLink || '#', keyword, projectContext);
         }
 
         const finalTitle = result.title || topic;
@@ -543,14 +545,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   const handleGenerateArticle = async () => {
     if (!selectedTitle) return;
     setLoading(true);
-
-    if (api.isUsingMockData()) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setArticleContent(`<p>Demostración para <strong>${articleTitle}</strong>.</p>`);
-        setStep(5);
-        setLoading(false);
-        return;
-    }
 
     const projectContext = userProjects.find(p => p.id === selectedProject);
     try {

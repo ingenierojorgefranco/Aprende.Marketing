@@ -111,7 +111,10 @@ router.post('/launches/generate-message', authMiddleware, async (req, res) => {
 
         const blueprint = WHATSAPP_BLUEPRINTS[moment.pilarType] || WHATSAPP_BLUEPRINTS['default'];
 
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI({ 
+            apiKey: process.env.GEMINI_API_KEY || process.env.API_KEY,
+            httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+        });
         const prompt = `Actúa como un Copywriter Senior experto en Lanzamientos Meteóricos por WhatsApp y Marketing Digital. 
         Tu misión es redactar un mensaje extremadamente persuasivo adaptado 100% al PRODUCTO DIGITAL y PROYECTO específico del usuario, siguiendo estrictamente el siguiente BLUEPRINT ESTRATÉGICO:
 
@@ -186,7 +189,10 @@ router.post('/launches/generate-full-sequence', authMiddleware, async (req, res)
         const project = projRows[0];
         const strategy = JSON.parse(project.strategy_json || "{}");
 
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI({ 
+            apiKey: process.env.GEMINI_API_KEY || process.env.API_KEY,
+            httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+        });
         const generatedMessages = [];
 
         // Generamos los 12 mensajes uno por uno usando sus blueprints
