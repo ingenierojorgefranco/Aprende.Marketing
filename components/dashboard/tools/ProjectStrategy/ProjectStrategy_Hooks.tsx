@@ -752,6 +752,41 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const hasVideoUrl = Boolean((currentKit?.downloadUrl || currentKit?.videoUrl || "").trim());
 
+  const rawScript = (currentHook?.contentJson && typeof currentHook.contentJson === 'object') ? (currentHook.contentJson as any).script : null;
+  const scriptText = (rawScript || "").trim();
+  const hasScript = Boolean(scriptText && scriptText.length > 0 && scriptText !== "Aquí ingresa el guion del video persuasivo...");
+
+  const rawAds = (currentHook?.contentJson && typeof currentHook.contentJson === 'object')
+    ? ((currentHook.contentJson as any).ads || (currentHook.contentJson as any).caption || (currentHook.contentJson as any).description)
+    : null;
+  const adsText = (rawAds || "").trim();
+  const hasAds = Boolean(
+    adsText &&
+    adsText.length > 0 &&
+    !adsText.includes("Aquí ingresa la descripción para tus anuncios")
+  );
+
+  const rawPinned = (currentHook?.contentJson && typeof currentHook.contentJson === 'object')
+    ? ((currentHook.contentJson as any).pinnedComment || (currentHook.contentJson as any).pinned_comment)
+    : null;
+  const pinnedText = (rawPinned || "").trim();
+  const hasPinnedComment = Boolean(
+    pinnedText &&
+    pinnedText.length > 0 &&
+    !pinnedText.includes("Comentario fijado sugerido")
+  );
+
+  const hasPublicationTab = hasAds || hasPinnedComment;
+
+  useEffect(() => {
+    if (!isRealAdmin && !hasScript && activeHookTabImage1 === "Guion del Hook") {
+      setActiveHookTabImage1("Hook");
+    }
+    if (!isRealAdmin && !hasPublicationTab && activeHookTabImage1 === "Publicacion y CTA") {
+      setActiveHookTabImage1("Hook");
+    }
+  }, [isRealAdmin, hasScript, hasPublicationTab, activeHookTabImage1]);
+
   const handleSaveVideoUrl = async (urlToSave?: string) => {
     if (!currentHook.id) return;
     const value = (urlToSave !== undefined ? urlToSave : localVideoUrl).trim();
@@ -1531,25 +1566,27 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 </div>
                             )}
                             <div className="pt-2 flex flex-wrap items-center justify-end gap-2.5 w-full">
-                                <button
-                                    onClick={() => {
-                                        const scriptText = currentKit?.script || localTitle || currentHook.title || "";
-                                        handleCopyField(scriptText, 'script_top');
-                                    }}
-                                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm ml-auto ${
-                                        copiedField === 'script_top'
-                                            ? 'bg-emerald-600 text-white border border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.35)]'
-                                            : 'bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-zinc-200 hover:text-white'
-                                    }`}
-                                >
-                                    {copiedField === 'script_top' ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
-                                    <span>{copiedField === 'script_top' ? '¡Guión Copiado!' : 'Copiar Guion'}</span>
-                                </button>
+                                {hasScript && (
+                                    <button
+                                        onClick={() => {
+                                            const copyText = currentKit?.script || localTitle || currentHook.title || "";
+                                            handleCopyField(copyText, 'script_top');
+                                        }}
+                                        className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm ml-auto ${
+                                            copiedField === 'script_top'
+                                                ? 'bg-emerald-600 text-white border border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.35)]'
+                                                : 'bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-zinc-200 hover:text-white'
+                                        }`}
+                                    >
+                                        {copiedField === 'script_top' ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
+                                        <span>{copiedField === 'script_top' ? '¡Guión Copiado!' : 'Copiar Guion'}</span>
+                                    </button>
+                                )}
                                 <button
                                     onClick={handleDownloadVideo}
                                     disabled={!hasVideoUrl}
                                     title={!hasVideoUrl ? "Sin URL de video configurada" : "Descargar video"}
-                                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-xs font-bold transition-all shadow-[0_2px_8px_rgba(255,93,30,0.25)] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:shadow-none"
+                                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-gradient-to-r from-[#FF5D1E] to-orange-600 hover:brightness-110 text-white text-xs font-bold transition-all shadow-[0_2px_8px_rgba(255,93,30,0.25)] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:shadow-none ${!hasScript ? 'ml-auto' : ''}`}
                                 >
                                     <Download className="w-3.5 h-3.5" />
                                     <span>Descargar video</span>
@@ -1560,22 +1597,28 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
                     {/* Tabs Row de Imagen 1 */}
                     <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-white/[0.08]">
-                        {["Hook", "Guion del Hook", "Publicacion y CTA"].map((tab) => {
-                            const isActive = activeHookTabImage1 === tab;
-                            return (
-                                <button
-                                    key={tab}
-                                    onClick={() => setActiveHookTabImage1(tab as any)}
-                                    className={`px-4 py-2 text-xs md:text-sm font-bold whitespace-nowrap border-b-2 transition-all cursor-pointer duration-200 tracking-wide ${
-                                        isActive
-                                            ? "border-[#FF5D1E] text-[#FF5D1E]"
-                                            : "border-transparent text-zinc-400 hover:text-white"
-                                    }`}
-                                >
-                                    {tab}
-                                </button>
-                            );
-                        })}
+                        {["Hook", "Guion del Hook", "Publicacion y CTA"]
+                            .filter((tab) => {
+                                if (tab === "Guion del Hook") return isRealAdmin || hasScript;
+                                if (tab === "Publicacion y CTA") return isRealAdmin || hasPublicationTab;
+                                return true;
+                            })
+                            .map((tab) => {
+                                const isActive = activeHookTabImage1 === tab;
+                                return (
+                                    <button
+                                        key={tab}
+                                        onClick={() => setActiveHookTabImage1(tab as any)}
+                                        className={`px-4 py-2 text-xs md:text-sm font-bold whitespace-nowrap border-b-2 transition-all cursor-pointer duration-200 tracking-wide ${
+                                            isActive
+                                                ? "border-[#FF5D1E] text-[#FF5D1E]"
+                                                : "border-transparent text-zinc-400 hover:text-white"
+                                        }`}
+                                    >
+                                        {tab}
+                                    </button>
+                                );
+                            })}
                     </div>
 
                     {/* Content Box de Imagen 1 */}
@@ -1754,21 +1797,23 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 )}
 
                                 {/* Botones Grandes de Acción de Abajo */}
-                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-5 border-t border-white/[0.08]">
-                                    <button
-                                        onClick={() => {
-                                            const scriptText = currentKit?.script || localTitle || currentHook.title || "";
-                                            handleCopyField(scriptText, 'script_bottom');
-                                        }}
-                                        className={`w-full py-3.5 px-5 rounded-xl border text-sm md:text-base font-bold flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-md hover:scale-[1.01] ${
-                                            copiedField === 'script_bottom'
-                                                ? 'bg-emerald-600 text-white border-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.35)]'
-                                                : 'bg-zinc-800 hover:bg-zinc-700 border-white/15 text-white'
-                                        }`}
-                                    >
-                                        {copiedField === 'script_bottom' ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4 text-zinc-300" />}
-                                        <span>{copiedField === 'script_bottom' ? '¡Guión Copiado!' : 'Copiar Guion'}</span>
-                                    </button>
+                                <div className={`grid grid-cols-1 ${hasScript ? 'sm:grid-cols-2' : ''} gap-3 pt-5 border-t border-white/[0.08]`}>
+                                    {hasScript && (
+                                        <button
+                                            onClick={() => {
+                                                const copyText = currentKit?.script || localTitle || currentHook.title || "";
+                                                handleCopyField(copyText, 'script_bottom');
+                                            }}
+                                            className={`w-full py-3.5 px-5 rounded-xl border text-sm md:text-base font-bold flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-md hover:scale-[1.01] ${
+                                                copiedField === 'script_bottom'
+                                                    ? 'bg-emerald-600 text-white border-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.35)]'
+                                                    : 'bg-zinc-800 hover:bg-zinc-700 border-white/15 text-white'
+                                            }`}
+                                        >
+                                            {copiedField === 'script_bottom' ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4 text-zinc-300" />}
+                                            <span>{copiedField === 'script_bottom' ? '¡Guión Copiado!' : 'Copiar Guion'}</span>
+                                        </button>
+                                    )}
                                     <button
                                         onClick={handleDownloadVideo}
                                         disabled={!hasVideoUrl}
@@ -1954,7 +1999,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 ) : (
                                     <>
                                         {/* Card 2: Caption / Descripción Sugerida */}
-                                        {(() => {
+                                        {(isRealAdmin || hasAds) && (() => {
                                             const hookText = localTitle || currentHook.title || "";
                                             const originalAds = currentKit?.ads || "";
                                             const captionText = (hookText && !originalAds.includes(hookText))
@@ -2009,7 +2054,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         })()}
 
                                         {/* Card 3: Comentario Fijado */}
-                                        {(() => {
+                                        {(isRealAdmin || hasPinnedComment) && (() => {
                                             const commentText = currentKit?.pinnedComment || "";
                                             const isCopied = copiedField === 'pinnedComment';
 
