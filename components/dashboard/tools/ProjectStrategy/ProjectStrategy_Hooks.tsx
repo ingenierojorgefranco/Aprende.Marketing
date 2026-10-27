@@ -206,6 +206,57 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     ];
   };
 
+  const DEFAULT_HOOK_WHY_IT_WORKS = "Hook que llama la atención en los primeros 3 segundos y atrae audiencia cualificada para tu oferta digital.";
+
+  const getSingleStrategyText = (strategyRaw: any): { text: string; isCustom: boolean } => {
+    if (!strategyRaw) {
+      return { text: DEFAULT_HOOK_WHY_IT_WORKS, isCustom: false };
+    }
+
+    let textToParse = strategyRaw;
+    if (Array.isArray(strategyRaw)) {
+      textToParse = strategyRaw.join(" ");
+    } else if (typeof strategyRaw === 'string') {
+      const trimmed = strategyRaw.trim();
+      if (trimmed.startsWith('[')) {
+        try {
+          const parsed = JSON.parse(trimmed);
+          if (Array.isArray(parsed)) {
+            const isGenericBullets = parsed.every((item: string) => 
+              !item || 
+              item.includes("Usa voz o texto") || 
+              item.includes("Mantén el encuadre") || 
+              item.includes("Continúa con el desarrollo") ||
+              item.includes("Atrae atención rápido") ||
+              item.includes("Educa y genera confianza") ||
+              item.includes("Convierte vistas en clientes")
+            );
+            if (isGenericBullets) {
+              return { text: DEFAULT_HOOK_WHY_IT_WORKS, isCustom: false };
+            }
+            textToParse = parsed.filter(Boolean).join(" ");
+          }
+        } catch (e) {
+          textToParse = trimmed;
+        }
+      }
+    }
+
+    const cleanStr = String(textToParse || "").trim();
+    if (!cleanStr || cleanStr === "N/A" || cleanStr === DEFAULT_HOOK_WHY_IT_WORKS) {
+      return { text: DEFAULT_HOOK_WHY_IT_WORKS, isCustom: false };
+    }
+
+    if (cleanStr.includes("Usa voz o texto") && cleanStr.includes("Mantén el encuadre") && cleanStr.includes("Continúa con el desarrollo")) {
+      return { text: DEFAULT_HOOK_WHY_IT_WORKS, isCustom: false };
+    }
+    if (cleanStr.includes("Atrae atención rápido") && cleanStr.includes("Educa y genera confianza") && cleanStr.includes("Convierte vistas en clientes")) {
+      return { text: DEFAULT_HOOK_WHY_IT_WORKS, isCustom: false };
+    }
+
+    return { text: cleanStr, isCustom: true };
+  };
+
   const updateStrategyItem = (index: number, val: string) => {
     const updated = [...strategyItems];
     updated[index] = val;
@@ -1386,19 +1437,14 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                     <div className="w-full text-left mb-8">
                       <h3 className="text-white mb-6 font-medium tracking-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem' }}>{currentHook.title}</h3>
                       
-                      <div className="bg-orange-500/5 rounded-2xl p-6 border border-orange-500/20 backdrop-blur-sm mb-8">
+                      <div className="bg-orange-500/5 rounded-2xl p-6 border border-orange-500/20 backdrop-blur-sm mb-8 text-left">
                         <div className="flex items-center gap-2 mb-3">
                           <Brain className="w-5 h-5 text-orange-400" />
-                          <span className="text-white font-bold text-xs uppercase tracking-widest">Estrategia Psicológica</span>
+                          <span className="text-white font-bold text-xs uppercase tracking-widest">¿Por qué funciona?</span>
                         </div>
-                        <div className="space-y-2 text-xs md:text-sm">
-                          {parseStrategyItems(currentHook.psychologicalStrategy || (currentHook as any).psychological_strategy).map((item, idx) => (
-                            <div key={idx} className="flex items-center gap-2.5">
-                              <CheckCircle2 className="w-4 h-4 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
-                              <span className="text-zinc-200 font-normal">{item}</span>
-                            </div>
-                          ))}
-                        </div>
+                        <p className="text-zinc-200 text-xs md:text-sm leading-relaxed font-normal">
+                          {getSingleStrategyText((currentHook as any).psychological_strategy || currentHook.psychologicalStrategy).text}
+                        </p>
                       </div>
                     </div>
 
@@ -1593,38 +1639,48 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                             </p>
                                         </div>
 
-                                        <div className="border-t border-white/[0.06] pt-5">
+                                        <div className="border-t border-white/[0.06] pt-5 text-left">
                                             <div className="flex items-center justify-between mb-3">
-                                                <h4 className="text-sm font-medium text-white">Estrategia Psicologica</h4>
+                                                <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                                                    <Brain className="w-4 h-4 text-[#FF5D1E]" />
+                                                    <span>¿Por qué funciona?</span>
+                                                </h4>
                                                 {isRealAdmin && (
-                                                    <span className="text-[10px] text-orange-400 font-medium bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded">
-                                                        Editable por Admin
+                                                    <span className={`text-[10px] font-extrabold tracking-wider uppercase px-2.5 py-0.5 rounded-full border ${
+                                                        getSingleStrategyText(localStrategy || (currentHook as any).psychological_strategy || currentHook.psychologicalStrategy).isCustom
+                                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                                                            : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                                                    }`}>
+                                                        {getSingleStrategyText(localStrategy || (currentHook as any).psychological_strategy || currentHook.psychologicalStrategy).isCustom
+                                                            ? '🟢 Texto personalizado'
+                                                            : '🟡 Usando plantilla predeterminada'}
                                                     </span>
                                                 )}
                                             </div>
-                                            <div className="space-y-2.5 text-xs md:text-sm">
-                                                {[0, 1, 2].map((idx) => {
-                                                    const parsed = parseStrategyItems(localStrategy || (currentHook as any).psychological_strategy || currentHook.psychologicalStrategy);
-                                                    const val = strategyItems[idx] !== undefined ? strategyItems[idx] : (parsed[idx] || "");
-                                                    return (
-                                                        <div key={idx} className="flex items-center gap-2.5">
-                                                            <CheckCircle2 className="w-4.5 h-4.5 text-[#FF5D1E] shrink-0" strokeWidth={1.8} />
-                                                            {isRealAdmin ? (
-                                                                <input
-                                                                    type="text"
-                                                                    value={val}
-                                                                    onChange={(e) => updateStrategyItem(idx, e.target.value)}
-                                                                    onBlur={() => handleBlurStrategyItems(strategyItems)}
-                                                                    className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-1.5 text-zinc-100 text-xs md:text-sm font-normal outline-none focus:border-[#FF5D1E] focus:ring-1 focus:ring-[#FF5D1E] transition-all"
-                                                                    placeholder={`Ítem ${idx + 1} de la estrategia...`}
-                                                                />
-                                                            ) : (
-                                                                <span className="text-zinc-300 font-normal">{val}</span>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
+
+                                            {isRealAdmin ? (
+                                                <div className="space-y-2">
+                                                    <textarea
+                                                        value={localStrategy}
+                                                        onChange={(e) => {
+                                                            setLocalStrategy(e.target.value);
+                                                        }}
+                                                        onBlur={() => {
+                                                            handleUpdateMessage('psychological_strategy', localStrategy);
+                                                        }}
+                                                        rows={3}
+                                                        className="w-full bg-black/60 border border-white/10 rounded-xl p-3 text-zinc-100 text-xs md:text-sm font-normal outline-none focus:border-[#FF5D1E] focus:ring-1 focus:ring-[#FF5D1E] transition-all resize-y"
+                                                        placeholder="Escribe la explicación de por qué funciona este hook..."
+                                                    />
+                                                    <p className="text-[11px] text-zinc-400">
+                                                        Puedes personalizar este texto. Si lo dejas vacío, los usuarios verán la plantilla predeterminada.
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <div className="bg-black/30 border border-white/5 rounded-xl p-3.5 text-zinc-200 text-xs md:text-sm leading-relaxed font-normal">
+                                                    {getSingleStrategyText(localStrategy || (currentHook as any).psychological_strategy || currentHook.psychologicalStrategy).text}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
