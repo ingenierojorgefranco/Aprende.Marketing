@@ -81,12 +81,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
         plan = {
           id: slug,
           slug: slug,
-          name: billingPeriod === 'monthly' ? 'Plan Pro Mensual' : 'Plan Pro Anual (12 Proyectos activos al año)',
+          name: billingPeriod === 'monthly' ? 'Plan Pro Mensual' : 'Plan Pro Anual (3 Proyectos activos)',
           priceMonthly: billingPeriod === 'monthly' ? 39 : 297,
           currency: 'USD',
           description: billingPeriod === 'monthly' 
             ? 'Desbloquea hasta 3 negocios digitales listos para usar y gestiona todo su sistema de marketing desde un solo lugar.'
-            : 'Desbloquea y escala hasta 12 proyectos digitales durante todo el año con 360 reels con IA al mes y 12 dominios propios.',
+            : 'Desbloquea y escala hasta 3 proyectos digitales durante todo el año con 360 reels con IA al año y 3 dominios propios.',
           limitsConfig: {} as any,
           uiFeatures: [],
           isActive: true,
@@ -507,9 +507,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                             <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] mb-1">
                               <Folder className="w-5 h-5" />
                             </div>
-                            <h4 className="text-base sm:text-lg font-bold text-white">12 proyectos activos al año</h4>
+                            <h4 className="text-base sm:text-lg font-bold text-white">3 proyectos activos al año</h4>
                             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
-                              Desbloquea y gestiona hasta 12 productos o negocios digitales listos para facturar.
+                              Desbloquea y gestiona hasta 3 productos o negocios digitales listos para facturar.
                             </p>
                           </div>
 
@@ -518,9 +518,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                             <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] mb-1">
                               <Video className="w-5 h-5" />
                             </div>
-                            <h4 className="text-base sm:text-lg font-bold text-white">360 reels con IA cada mes</h4>
+                            <h4 className="text-base sm:text-lg font-bold text-white">360 reels con IA al año</h4>
                             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
-                              30 reels con IA por proyecto (hasta 360 al mes) con hooks, guiones y llamadas a la acción.
+                              360 reels con IA al año con hooks, guiones y llamadas a la acción.
                             </p>
                           </div>
 
@@ -529,9 +529,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                             <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 flex items-center justify-center text-[#FF5A1F] mb-1">
                               <Globe className="w-5 h-5" />
                             </div>
-                            <h4 className="text-base sm:text-lg font-bold text-white">12 dominios propios con SSL</h4>
+                            <h4 className="text-base sm:text-lg font-bold text-white">3 dominios propios con SSL</h4>
                             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
-                              Publica cada uno de tus 12 proyectos con su propio dominio personalizado y marca profesional.
+                              Publica cada uno de tus 3 proyectos con su propio dominio personalizado y marca profesional.
                             </p>
                           </div>
                         </>
@@ -585,19 +585,19 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                             <>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                <span className="font-bold text-white">12 proyectos activos al año</span>
+                                <span className="font-bold text-white">3 proyectos activos al año</span>
                               </div>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                <span className="font-bold text-white">12 sitios publicados con dominio propio</span>
+                                <span className="font-bold text-white">3 sitios publicados con dominio propio</span>
                               </div>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                <span className="font-bold text-white">360 reels con IA cada mes (30 por proyecto)</span>
+                                <span className="font-bold text-white">360 reels con IA al año</span>
                               </div>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                <span className="font-bold text-white">Hasta 48 Artículos de blog para SEO con IA al mes</span>
+                                <span className="font-bold text-white">Hasta 8 Artículos de blog para SEO con IA al mes (96 al año)</span>
                               </div>
                             </>
                           ) : (
@@ -616,7 +616,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                               </div>
                               <div className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-[#FF5A1F] shrink-0" />
-                                <span className="font-bold text-white">Hasta 12 Artículos de blog para SEO con IA</span>
+                                <span className="font-bold text-white">Hasta 8 Artículos de blog para SEO con IA al mes</span>
                               </div>
                             </>
                           )}
@@ -734,7 +734,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                   </h3>
                   <p className="text-sm sm:text-base text-zinc-400 font-normal leading-relaxed max-w-3xl">
                     {billingPeriod === 'yearly'
-                      ? 'Multiplica por 4 tus proyectos, contenidos con IA y dominios propios con la suscripción Anual, ahorrando $240 al año (equivalente a $59/mes).'
+                      ? 'Aprovecha tus 3 proyectos activos, 360 reels con IA al año y 3 dominios propios con la suscripción Anual, ahorrando $651 al año (equivalente a $24.75/mes).'
                       : 'Descubre todo lo que desbloqueas al dar el salto al Plan Pro Mensual para lanzar tus proyectos digitales.'}
                   </p>
                 </div>
@@ -782,37 +782,37 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                         { 
                           feature: "Proyectos y negocios activos", 
                           col2: "3 proyectos activos", 
-                          col3: "12 proyectos activos al año",
+                          col3: "3 proyectos activos",
                           highlightCol3: true
                         },
                         { 
-                          feature: "Reels con IA generados cada mes", 
-                          col2: "30 reels por proyecto (hasta 90/mes)", 
-                          col3: "360 reels con IA al mes (30 por proyecto)",
+                          feature: "Reels con IA generados", 
+                          col2: "30 reels al mes", 
+                          col3: "360 reels con IA al año",
                           highlightCol3: true
                         },
                         { 
                           feature: "Dominios propios con SSL incluidos", 
                           col2: "3 dominios propios", 
-                          col3: "12 dominios propios con SSL",
+                          col3: "3 dominios propios con SSL",
                           highlightCol3: true
                         },
                         { 
                           feature: "Artículos de blog para SEO con IA", 
-                          col2: "Hasta 12 artículos al mes", 
-                          col3: "Hasta 48 artículos al mes",
+                          col2: "Hasta 8 artículos al mes", 
+                          col3: "Hasta 8 artículos al mes (96 al año)",
                           highlightCol3: true
                         },
                         { 
                           feature: "Hooks y guiones persuasivos con IA", 
-                          col2: "Hasta 90 hooks al mes", 
-                          col3: "Hasta 360 hooks y guiones al mes",
+                          col2: "Hasta 30 hooks al mes", 
+                          col3: "Hasta 360 hooks y guiones al año",
                           highlightCol3: true
                         },
                         { 
                           feature: "Páginas de captación y embudos de venta", 
                           col2: "Embudos completos para 3 proyectos", 
-                          col3: "Embudos completos para tus 12 proyectos",
+                          col3: "Embudos completos para 3 proyectos",
                           highlightCol3: false
                         },
                         { 
@@ -837,13 +837,13 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                         { 
                           feature: "Marca Blanca (Sin marca de agua)", 
                           col2: "100% Marca Blanca (3 proyectos)", 
-                          col3: "100% Marca Blanca en los 12 proyectos",
+                          col3: "100% Marca Blanca (3 proyectos)",
                           highlightCol3: false
                         },
                         { 
                           feature: "Integración Systeme.io y Webhooks", 
                           col2: "Incluida para 3 proyectos", 
-                          col3: "Totalmente incluida para tus 12 proyectos",
+                          col3: "Totalmente incluida para 3 proyectos",
                           highlightCol3: false
                         },
                         { 
@@ -862,7 +862,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                         { 
                           feature: "Reels con IA generados al mes", 
                           col2: "3 de prueba", 
-                          col3: "30 reels por proyecto (hasta 90 al mes)",
+                          col3: "30 reels al mes",
                           highlightCol3: true
                         },
                         { 
@@ -880,13 +880,13 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                         { 
                           feature: "Artículos de blog para SEO con IA", 
                           col2: "1 al mes", 
-                          col3: "Hasta 12 artículos de blog al mes",
+                          col3: "Hasta 8 artículos de blog al mes",
                           highlightCol3: true
                         },
                         { 
                           feature: "Hooks y guiones persuasivos", 
                           col2: "Básicos de prueba", 
-                          col3: "Hasta 90 hooks y guiones de alta conversión",
+                          col3: "Hasta 30 hooks y guiones al mes",
                           highlightCol3: true
                         },
                         { 
@@ -966,7 +966,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10">
                   <p className="text-xs sm:text-sm text-zinc-400">
                     {billingPeriod === 'yearly'
-                      ? '✓ Incluye garantía de satisfacción, acceso inmediato a 12 proyectos y cancelación en 1 clic.'
+                      ? '✓ Incluye garantía de satisfacción, acceso inmediato a tus 3 proyectos y cancelación en 1 clic.'
                       : '✓ Sin contratos de permanencia. Cancela o cambia de plan en cualquier momento.'}
                   </p>
                   <button
@@ -992,11 +992,11 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                   {[
                     { 
                       q: "¿Cuál es la diferencia entre el Plan Mensual y el Plan Anual?", 
-                      a: "El Plan Mensual ($39/mes en oferta) te permite gestionar hasta 3 proyectos o nichos activos con 30 reels con IA cada mes para tus proyectos y 3 dominios propios. El Plan Anual ($297/año, equivalente a sólo $24.75/mes) te da acceso completo a 12 proyectos activos al año, 360 reels con IA cada mes (30 por proyecto), 12 dominios propios con SSL, hasta 48 artículos de blog para SEO al mes y un ahorro masivo de $651 al año (68% OFF)." 
+                      a: "El Plan Mensual ($39/mes en oferta) te permite gestionar hasta 3 proyectos o nichos activos con 30 reels con IA al mes para tus proyectos, 3 dominios propios y hasta 8 artículos de blog al mes. El Plan Anual ($297/año, equivalente a sólo $24.75/mes) te da acceso a 3 proyectos activos, 360 reels con IA al año, 3 dominios propios con SSL, hasta 8 artículos de blog al mes (96 al año) y un ahorro masivo de $651 al año (68% OFF)." 
                     },
                     { 
                       q: "¿Puedo desbloquear más de un proyecto en el Plan Mensual?", 
-                      a: "¡Sí! El Plan Mensual te permite gestionar hasta 3 negocios digitales activos simultáneamente con sus propios dominios y embudos. Si buscas una estrategia a gran escala para todo el año, el Plan Anual te da 12 proyectos activos al año con 12 dominios propios y 360 reels con IA al mes." 
+                      a: "¡Sí! Tanto el Plan Mensual como el Anual te permiten gestionar hasta 3 negocios digitales activos simultáneamente con sus propios dominios y embudos. El Plan Anual te otorga 360 reels con IA al año con el máximo descuento." 
                     },
                     { 
                       q: "¿Puedo cancelar cuando quiera?", 
