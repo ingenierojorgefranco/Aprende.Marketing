@@ -99,6 +99,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
   const [formUrl, setFormUrl] = useState('');
   const [formDuration, setFormDuration] = useState('3:00');
   const [formType, setFormType] = useState<'Principal' | 'Complementario'>('Complementario');
+  const [formPositionOrder, setFormPositionOrder] = useState<number>(1);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -123,9 +124,17 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
             listToSet = getStepDefaultVideos(stepNumber);
           }
 
-          setVideoList(listToSet);
-          if (listToSet.length > 0) {
-            setActiveVideoId(listToSet[0].id);
+          // Asegurar que estén ordenados por positionOrder o por su índice por defecto
+          const sortedList = [...listToSet]
+            .map((v, idx) => ({
+              ...v,
+              positionOrder: v.positionOrder !== undefined && v.positionOrder > 0 ? v.positionOrder : idx + 1
+            }))
+            .sort((a, b) => (a.positionOrder || 0) - (b.positionOrder || 0));
+
+          setVideoList(sortedList);
+          if (sortedList.length > 0) {
+            setActiveVideoId(sortedList[0].id);
           } else {
             setActiveVideoId('');
           }
@@ -154,6 +163,42 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
   // Total cards including admin add button
   const totalCardsCount = videoList.length + (isUserAdmin ? 1 : 0);
   const isMarquee = totalCardsCount > 3;
+
+  const handleReorderVideo = async (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex || toIndex < 0 || toIndex >= videoList.length) return;
+
+    const newList = [...videoList];
+    const [movedItem] = newList.splice(fromIndex, 1);
+    newList.splice(toIndex, 0, movedItem);
+
+    // Re-asignar posiciones continuas 1..N
+    const updatedList = newList.map((item, idx) => ({
+      ...item,
+      positionOrder: idx + 1,
+    }));
+
+    setVideoList(updatedList);
+
+    // Persistir orden en backend
+    try {
+      await Promise.all(
+        updatedList.map((item) =>
+          api.updateMasterStepVideo(item.id, {
+            stepNumber: stepNumber,
+            type: item.type,
+            title: item.title,
+            subtitle: item.subtitle,
+            duration: item.duration,
+            videoUrl: item.videoUrl,
+            posterImage: item.posterImage,
+            positionOrder: item.positionOrder,
+          })
+        )
+      );
+    } catch (err) {
+      console.error("Error al guardar nuevo orden de videos:", err);
+    }
+  };
 
   const handleSelectVideo = async (video: VideoItem) => {
     setActiveVideoId(video.id);
@@ -216,11 +261,13 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
     setFormUrl('');
     setFormDuration('3:00');
     setFormType('Complementario');
+    setFormPositionOrder(1);
   };
 
   const handleOpenAddModal = () => {
     if (!isUserAdmin) return;
     resetForm();
+    setFormPositionOrder(videoList.length + 1);
     setShowAddModal(true);
   };
 
@@ -233,6 +280,8 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
     setFormUrl(video.videoUrl);
     setFormDuration(video.duration || '3:00');
     setFormType(video.type);
+    const currentIdx = videoList.findIndex(v => v.id === video.id);
+    setFormPositionOrder(currentIdx >= 0 ? currentIdx + 1 : (video.positionOrder || 1));
     setShowEditModal(true);
   };
 
@@ -242,6 +291,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
 
     setIsSubmitting(true);
     try {
+      const newPosOrder = videoList.length + 1;
       const created = await api.createMasterStepVideo({
         stepNumber: stepNumber,
         type: formType,
@@ -250,9 +300,15 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
         duration: formDuration.trim() || '3:00',
         videoUrl: formUrl.trim(),
         posterImage: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: newPosOrder,
       });
 
-      setVideoList((prev) => [...prev, created]);
+      const newItem: VideoItem = {
+        ...created,
+        positionOrder: newPosOrder,
+      };
+
+      setVideoList((prev) => [...prev, newItem]);
       setActiveVideoId(created.id);
       setWatchedVideoIds((prev) => new Set([...Array.from(prev), created.id]));
       setIsPlaying(true);
@@ -271,17 +327,46 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
 
     setIsSubmitting(true);
     try {
-      const updated = await api.updateMasterStepVideo(editingVideo.id, {
-        stepNumber: stepNumber,
+      const currentIdx = videoList.findIndex((v) => v.id === editingVideo.id);
+      const targetOrderIdx = Math.max(0, Math.min(videoList.length - 1, formPositionOrder - 1));
+
+      const updatedItem: VideoItem = {
+        ...editingVideo,
         type: formType,
         title: formTitle.trim(),
         subtitle: formSubtitle.trim(),
         duration: formDuration.trim() || '3:00',
         videoUrl: formUrl.trim(),
-      });
+        positionOrder: formPositionOrder,
+      };
 
-      setVideoList((prev) =>
-        prev.map((v) => (v.id === editingVideo.id ? { ...v, ...updated } : v))
+      let newList = videoList.map((v) => (v.id === editingVideo.id ? updatedItem : v));
+
+      // Si cambió de posición en la lista, reordenar
+      if (currentIdx !== -1 && currentIdx !== targetOrderIdx) {
+        const [moved] = newList.splice(currentIdx, 1);
+        newList.splice(targetOrderIdx, 0, moved);
+      }
+
+      // Asignar nuevas posiciones 1..N
+      newList = newList.map((v, idx) => ({ ...v, positionOrder: idx + 1 }));
+
+      setVideoList(newList);
+
+      // Persistir todos los cambios de orden y contenido
+      await Promise.all(
+        newList.map((item) =>
+          api.updateMasterStepVideo(item.id, {
+            stepNumber: stepNumber,
+            type: item.type,
+            title: item.title,
+            subtitle: item.subtitle,
+            duration: item.duration,
+            videoUrl: item.videoUrl,
+            posterImage: item.posterImage,
+            positionOrder: item.positionOrder,
+          })
+        )
       );
 
       setShowEditModal(false);
@@ -301,13 +386,29 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
     setIsSubmitting(true);
     try {
       await api.deleteMasterStepVideo(videoId);
-      setVideoList((prev) => {
-        const filtered = prev.filter((v) => v.id !== videoId);
-        if (activeVideoId === videoId && filtered.length > 0) {
-          setActiveVideoId(filtered[0].id);
-        }
-        return filtered;
-      });
+      
+      const filtered = videoList.filter((v) => v.id !== videoId);
+      const reindexed = filtered.map((v, idx) => ({ ...v, positionOrder: idx + 1 }));
+      setVideoList(reindexed);
+
+      if (activeVideoId === videoId && reindexed.length > 0) {
+        setActiveVideoId(reindexed[0].id);
+      }
+
+      // Guardar reindexado en backend
+      await Promise.all(
+        reindexed.map((item) =>
+          api.updateMasterStepVideo(item.id, {
+            stepNumber: stepNumber,
+            type: item.type,
+            title: item.title,
+            subtitle: item.subtitle,
+            duration: item.duration,
+            videoUrl: item.videoUrl,
+            positionOrder: item.positionOrder,
+          })
+        )
+      );
 
       setShowEditModal(false);
       setEditingVideo(null);
@@ -427,8 +528,10 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
               <div
                 key={video.id}
                 onClick={() => handleSelectVideo(video)}
-                className={`relative p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between text-left group ${
-                  isMarquee ? 'min-w-[280px] sm:min-w-[310px] md:min-w-[315px] snap-start shrink-0' : 'w-full'
+                className={`relative p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between text-left group min-h-[165px] ${
+                  isMarquee
+                    ? 'w-[280px] sm:w-[305px] md:w-[315px] max-w-[315px] snap-start shrink-0 flex-none'
+                    : 'w-full'
                 } ${
                   isActive
                     ? isWatched
@@ -440,24 +543,52 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                 }`}
               >
                 <div>
-                  {/* Top: Video Number Badge (No "Principal", Duration moved to bottom) */}
-                  <div className="flex items-center justify-between mb-3.5">
-                    <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black tracking-wide border shadow-sm transition-all ${
-                      isActive
-                        ? 'bg-[#FF5A1F]/10 border-[#FF5A1F]/40 text-[#FF5A1F]'
-                        : isWatched
-                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                        : 'bg-[#162238]/90 border-slate-700/50 text-slate-200'
-                    }`}>
-                      <span className={`w-2 h-2 rounded-full shrink-0 ${
+                  {/* Top: Video Number Badge + Admin Order Selector */}
+                  <div className="flex items-center justify-between gap-2 mb-3.5">
+                    <div className="flex items-center gap-2">
+                      <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black tracking-wide border shadow-sm transition-all ${
                         isActive
-                          ? 'bg-[#FF5A1F] animate-pulse'
+                          ? 'bg-[#FF5A1F]/10 border-[#FF5A1F]/40 text-[#FF5A1F]'
                           : isWatched
-                          ? 'bg-emerald-500'
-                          : 'bg-slate-400'
-                      }`} />
-                      <span>Video {idx + 1}</span>
+                          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                          : 'bg-[#162238]/90 border-slate-700/50 text-slate-200'
+                      }`}>
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${
+                          isActive
+                            ? 'bg-[#FF5A1F] animate-pulse'
+                            : isWatched
+                            ? 'bg-emerald-500'
+                            : 'bg-slate-400'
+                        }`} />
+                        <span>Video {idx + 1}</span>
+                      </div>
+
+                      {/* Selector directo de Orden para Administrador */}
+                      {isUserAdmin && videoList.length > 1 && (
+                        <div 
+                          onClick={(e) => e.stopPropagation()} 
+                          className="inline-flex items-center gap-1 bg-slate-900/90 border border-slate-700 hover:border-[#FF5A1F] rounded-lg px-2 py-0.5 text-xs text-slate-300 transition-colors"
+                          title="Cambiar orden de este video"
+                        >
+                          <span className="text-[10px] text-slate-400 font-bold uppercase">Orden:</span>
+                          <select
+                            value={idx + 1}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleReorderVideo(idx, Number(e.target.value) - 1);
+                            }}
+                            className="bg-transparent text-[#FF5A1F] font-black text-xs focus:outline-none cursor-pointer"
+                          >
+                            {videoList.map((_, vIdx) => (
+                              <option key={vIdx} value={vIdx + 1} className="bg-[#0B1120] text-white">
+                                {vIdx + 1}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
                     </div>
+
                     {isWatched && (
                       <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md">
                         <Check className="w-3 h-3 stroke-[3]" />
@@ -466,7 +597,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                   </div>
 
                   {/* Body: Play Icon + Title & Subtitle */}
-                  <div className="flex items-start gap-3 my-1">
+                  <div className="flex items-start gap-3 my-1 min-w-0">
                     <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 mt-0.5 transition-all group-hover:scale-105 ${
                       isActive
                         ? 'bg-[#FF5A1F] text-white shadow-md shadow-orange-500/30'
@@ -477,13 +608,13 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                       <Play className="w-4 h-4 fill-current ml-0.5" />
                     </div>
                     <div className="space-y-1 min-w-0 flex-1">
-                      <h4 className={`text-sm font-bold leading-snug transition-colors ${
+                      <h4 className={`text-sm font-bold leading-snug break-words transition-colors ${
                         isActive ? 'text-white' : 'text-slate-200 group-hover:text-white'
                       }`}>
                         {video.title}
                       </h4>
                       {video.subtitle && (
-                        <p className="text-xs text-slate-400 font-normal leading-relaxed line-clamp-2">
+                        <p className="text-xs text-slate-400 font-normal leading-relaxed line-clamp-2 break-words">
                           {video.subtitle}
                         </p>
                       )}
@@ -492,8 +623,8 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                 </div>
 
                 {/* Bottom Badge: Reproduciendo / Visto / Pendiente + Video Duration on the Right */}
-                <div className="mt-4 pt-2 border-t border-slate-800/40 flex items-center justify-between">
-                  <div>
+                <div className="mt-4 pt-2 border-t border-slate-800/40 flex items-center justify-between gap-2">
+                  <div className="min-w-0">
                     {isActive ? (
                       <span className="inline-flex items-center gap-1.5 bg-[#FF5A1F] text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
                         <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
@@ -510,7 +641,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <span className="inline-flex items-center gap-1 text-[11px] font-black text-slate-400 bg-slate-900/60 px-2.5 py-1 rounded-full border border-slate-800/60 shadow-inner">
                       <Clock className="w-3 h-3 text-slate-500" />
                       {video.duration}
@@ -519,7 +650,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                     {isUserAdmin && (
                       <button
                         onClick={(e) => handleOpenEditModal(video, e)}
-                        className="text-[11px] text-slate-400 hover:text-white hover:bg-slate-800 px-2 py-1 rounded-md border border-slate-800 hover:border-slate-700 flex items-center gap-1 transition-all"
+                        className="text-[11px] text-slate-400 hover:text-white hover:bg-slate-800 px-2 py-1 rounded-md border border-slate-800 hover:border-slate-700 flex items-center gap-1 transition-all cursor-pointer"
                         title="Editar video"
                       >
                         <Pencil className="w-3 h-3 text-[#FF5A1F]" />
@@ -537,7 +668,9 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
             <div
               onClick={handleOpenAddModal}
               className={`relative p-4 rounded-2xl border-2 border-dashed border-slate-800 hover:border-[#FF5A1F]/70 bg-[#070D1A]/50 hover:bg-[#FF5A1F]/[0.03] transition-all cursor-pointer flex flex-col items-center justify-center text-center group min-h-[165px] ${
-                isMarquee ? 'min-w-[280px] sm:min-w-[310px] md:min-w-[315px] snap-start shrink-0' : 'w-full'
+                isMarquee
+                  ? 'w-[280px] sm:w-[305px] md:w-[315px] max-w-[315px] snap-start shrink-0 flex-none'
+                  : 'w-full'
               }`}
             >
               <div className="w-11 h-11 rounded-full bg-slate-800/80 border border-slate-700 text-[#FF5A1F] flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-[#FF5A1F] group-hover:text-white transition-all shadow-md">
@@ -695,6 +828,25 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
             </div>
 
             <form onSubmit={handleEditVideoSubmit} className="space-y-4 text-left">
+              {/* Campo ORDEN DE APARICIÓN */}
+              <div>
+                <label className="block text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                  <span>ORDEN DE APARICIÓN (POSICIÓN)</span>
+                  <span className="text-[10px] text-slate-400 normal-case font-normal">Posición del video en la lista</span>
+                </label>
+                <select
+                  value={formPositionOrder}
+                  onChange={(e) => setFormPositionOrder(Number(e.target.value))}
+                  className="w-full bg-[#060a12] border border-amber-500/50 rounded-xl px-3.5 py-2.5 text-sm text-white font-bold focus:outline-none focus:border-[#FF5A1F]"
+                >
+                  {videoList.map((_, idx) => (
+                    <option key={idx} value={idx + 1} className="bg-[#0B1120] text-white">
+                      Orden {idx + 1} {idx + 1 === (videoList.findIndex(v => v.id === editingVideo.id) + 1) ? '(Posición actual)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
                   TÍTULO DEL VIDEO *
