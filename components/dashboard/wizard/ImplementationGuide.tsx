@@ -11,6 +11,7 @@ import { ProjectStrategy_AvatarDiagnosis } from "../tools/ProjectStrategy/Projec
 import { ProjectStrategy_WebSystem } from "../tools/ProjectStrategy/ProjectStrategy_WebSystem";
 import { ProjectStrategy_LeadMagnet } from "../tools/ProjectStrategy/ProjectStrategy_LeadMagnet";
 import { ProjectStrategy_Hooks } from "../tools/ProjectStrategy/ProjectStrategy_Hooks";
+import { ProjectStrategy_YouTube } from "../tools/ProjectStrategy/ProjectStrategy_YouTube";
 import { ProjectStrategy_Carousels } from "../tools/ProjectStrategy/ProjectStrategy_Carousels";
 import { ProjectStrategy_Content } from "../tools/ProjectStrategy/ProjectStrategy_Content";
 import { ProjectStrategy_Email } from "../tools/ProjectStrategy/ProjectStrategy_Email";
@@ -228,12 +229,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     4: 'leads',
     5: 'web',
     6: 'hooks',
-    7: 'carousels',
-    8: 'content',
-    9: 'leadmagnet',
-    10: 'email',
-    11: 'evergreen',
-    12: 'whatsapp'
+    7: 'youtube',
+    8: 'carousels',
+    9: 'content',
+    10: 'leadmagnet',
+    11: 'email',
+    12: 'evergreen',
+    13: 'whatsapp'
   };
 
   const sectionToStepMap: Record<string, number> = {
@@ -243,12 +245,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     leads: 4,
     web: 5,
     hooks: 6,
-    carousels: 7,
-    content: 8,
-    leadmagnet: 9,
-    email: 10,
-    evergreen: 11,
-    whatsapp: 12,
+    youtube: 7,
+    carousels: 8,
+    content: 9,
+    leadmagnet: 10,
+    email: 11,
+    evergreen: 12,
+    whatsapp: 13,
     '1': 1,
     '2': 2,
     '3': 3,
@@ -260,7 +263,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     '9': 9,
     '10': 10,
     '11': 11,
-    '12': 12
+    '12': 12,
+    '13': 13
   };
 
   const currentStrategySection = stepToSectionMap[activeStep] || activeStrategySection || searchParams.get('section') || "summary";
@@ -367,12 +371,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     
     { id: 5, title: "5. Tu página de captura", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS" },
     { id: 6, title: "6. Tus videos de atracción (Hooks)", stage: 2 },
-    { id: 7, title: "7. Carruseles Magnéticos", stage: 2 },
-    { id: 8, title: "8. Artículos de Blog", stage: 2 },
-    { id: 9, title: "9. LeadMagnet de Whatsapp", stage: 2 },
-    { id: 10, title: "10. Email Marketing (Conversión)", stage: 2 },
-    { id: 11, title: "11. Email Marketing (Nutrición)", stage: 2 },
-    { id: 12, title: "12. Lanzamientos (Estrategia WhatsApp)", stage: 2 },
+    { id: 7, title: "7. Estrategias de Atracción en YouTube", stage: 2 },
+    { id: 8, title: "8. Carruseles Magnéticos", stage: 2 },
+    { id: 9, title: "9. Artículos de Blog", stage: 2 },
+    { id: 10, title: "10. LeadMagnet de Whatsapp", stage: 2 },
+    { id: 11, title: "11. Email Marketing (Conversión)", stage: 2 },
+    { id: 12, title: "12. Email Marketing (Nutrición)", stage: 2 },
+    { id: 13, title: "13. Lanzamientos (Estrategia WhatsApp)", stage: 2 },
   ];
 
   const handleStepClick = (id: number) => {
@@ -1139,16 +1144,26 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 7: Carruseles Magnéticos */}
+            {/* Paso 7: Estrategias de Atracción en YouTube */}
             {activeStep === 7 && (
+              <ProjectStrategy_YouTube 
+                totalSteps={stepsList.length}
+                strategyData={strategyData}
+                overrideProjectId={projectId || searchParams.get('id') || ''}
+                onNavigateNext={() => handleStepClick(8)}
+              />
+            )}
+
+            {/* Paso 8: Carruseles Magnéticos */}
+            {activeStep === 8 && (
               <ProjectStrategy_Carousels 
                 totalSteps={stepsList.length}
                 strategyData={strategyData}
               />
             )}
 
-            {/* Paso 8: Tu Estrategia de Contenidos */}
-            {activeStep === 8 && (
+            {/* Paso 9: Tu Estrategia de Contenidos */}
+            {activeStep === 9 && (
               <ProjectStrategy_Content 
                 totalSteps={stepsList.length}
                 contentData={strategyData?.modules?.content || []}
@@ -1157,8 +1172,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 9: LeadMagnet de Whatsapp */}
-            {activeStep === 9 && (
+            {/* Paso 10: LeadMagnet de Whatsapp */}
+            {activeStep === 10 && (
               <ProjectStrategy_LeadMagnet 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
@@ -1168,8 +1183,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 10: Email Marketing */}
-            {activeStep === 10 && (
+            {/* Paso 11: Email Marketing */}
+            {activeStep === 11 && (
               <ProjectStrategy_Email 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || undefined}
@@ -1180,8 +1195,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 11: Secuencia de Confianza (Evergreen) */}
-            {activeStep === 11 && (
+            {/* Paso 12: Secuencia de Confianza (Evergreen) */}
+            {activeStep === 12 && (
               <ProjectStrategy_Evergreen 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
@@ -1189,13 +1204,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                 avatars={strategyData?.avatars || []}
                 linkedArticles={strategyData?.modules?.content || []}
                 onUpgrade={onUpgradeClick || (() => {})}
-                onGoToContent={() => setActiveStep(8)}
+                onGoToContent={() => setActiveStep(9)}
                 planLimits={user?.planLimits}
               />
             )}
 
-            {/* Paso 12: Scripts de WhatsApp (Cierre) */}
-            {activeStep === 12 && (
+            {/* Paso 13: Scripts de WhatsApp (Cierre) */}
+            {activeStep === 13 && (
               <ProjectStrategy_WhatsApp 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
@@ -1205,8 +1220,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Dinámico para otros pasos (Paso 13+) */}
-            {activeStep > 12 && (
+            {/* Dinámico para otros pasos (Paso 14+) */}
+            {activeStep > 13 && (
               <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-8 text-center space-y-6 shadow-xl">
                 
                 <div className="max-w-md mx-auto space-y-4">

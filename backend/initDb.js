@@ -901,15 +901,16 @@ const initDb = async () => {
             4: 'Leads capturados',
             5: 'Tu página de captura',
             6: 'Tus videos de atracción (Hooks)',
-            7: 'Carruseles Magnéticos',
-            8: 'Artículos de Blog',
-            9: 'LeadMagnet de Whatsapp',
-            10: 'Email Marketing (Conversión)',
-            11: 'Email Marketing (Nutrición)',
-            12: 'Lanzamientos (Estrategia WhatsApp)'
+            7: 'Estrategias de Atracción en YouTube',
+            8: 'Carruseles Magnéticos',
+            9: 'Artículos de Blog',
+            10: 'LeadMagnet de Whatsapp',
+            11: 'Email Marketing (Conversión)',
+            12: 'Email Marketing (Nutrición)',
+            13: 'Lanzamientos (Estrategia WhatsApp)'
         };
 
-        for (let step = 1; step <= 12; step++) {
+        for (let step = 1; step <= 13; step++) {
             const [rows] = await connection.query("SELECT id FROM master_step_videos WHERE step_number = ?", [step]);
             if (rows.length === 0) {
                 console.log(`[DB Init] 🎬 El Paso ${step} está vacío. Creando videos globales semilla...`);

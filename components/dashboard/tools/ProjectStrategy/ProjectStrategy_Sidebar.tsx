@@ -3,7 +3,7 @@ import {
     LayoutDashboard, TrendingUp, Map, UserSearch, 
     Globe, FileText, Mail, Calendar, MessageCircle,
     ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity, MessageSquare,
-    Link as LinkIcon, CheckCircle2, Gift, Lock, Layers, Users
+    Link as LinkIcon, CheckCircle2, Gift, Lock, Layers, Users, Youtube
 } from 'lucide-react';
 import { ImplementationGuideContext } from '../../wizard/ImplementationGuideContext';
 
@@ -52,12 +52,13 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
             items: [
                 { id: 'web', label: '5. Tu página de captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura", stepNumber: 5 },
                 { id: 'hooks', label: '6. Tus videos de atracción (Hooks)', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos", stepNumber: 6 },
-                { id: 'carousels', label: '7. Carruseles Magnéticos', icon: Layers, module: "SISTEMA DE VENTAS", description: "Imágenes de alta conversión", stepNumber: 7 },
-                { id: 'content', label: '8. Artículos de Blog', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO", stepNumber: 8 },
-                { id: 'leadmagnet', label: '9. LeadMagnet de Whatsapp', icon: Gift, module: "SISTEMA DE VENTAS", description: "Entrega manual por WhatsApp", stepNumber: 9 },
-                { id: 'email', label: '10. Email Marketing (Conversión)', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial", stepNumber: 10 },
-                { id: 'evergreen', label: '11. Email Marketing (Nutrición)', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo", stepNumber: 11 },
-                { id: 'whatsapp', label: '12. Lanzamientos (Estrategia WhatsApp)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta", stepNumber: 12 },
+                { id: 'youtube', label: '7. Estrategias de Atracción en YouTube', icon: Youtube, module: "SISTEMA DE VENTAS", description: "Videos y Shorts en YouTube", stepNumber: 7 },
+                { id: 'carousels', label: '8. Carruseles Magnéticos', icon: Layers, module: "SISTEMA DE VENTAS", description: "Imágenes de alta conversión", stepNumber: 8 },
+                { id: 'content', label: '9. Artículos de Blog', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO", stepNumber: 9 },
+                { id: 'leadmagnet', label: '10. LeadMagnet de Whatsapp', icon: Gift, module: "SISTEMA DE VENTAS", description: "Entrega manual por WhatsApp", stepNumber: 10 },
+                { id: 'email', label: '11. Email Marketing (Conversión)', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial", stepNumber: 11 },
+                { id: 'evergreen', label: '12. Email Marketing (Nutrición)', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo", stepNumber: 12 },
+                { id: 'whatsapp', label: '13. Lanzamientos (Estrategia WhatsApp)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta", stepNumber: 13 },
             ]
         }
     ].filter(group => group.items.length > 0);
@@ -69,18 +70,20 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         '4': 'leads',
         '5': 'web',
         '6': 'hooks',
-        '7': 'carousels',
-        '8': 'content',
-        '9': 'leadmagnet',
-        '10': 'email',
-        '11': 'evergreen',
-        '12': 'whatsapp',
+        '7': 'youtube',
+        '8': 'carousels',
+        '9': 'content',
+        '10': 'leadmagnet',
+        '11': 'email',
+        '12': 'evergreen',
+        '13': 'whatsapp',
         summary: 'summary',
         avatar: 'avatar',
         hotlinks: 'hotlinks',
         leads: 'leads',
         web: 'web',
         hooks: 'hooks',
+        youtube: 'youtube',
         carousels: 'carousels',
         content: 'content',
         leadmagnet: 'leadmagnet',

@@ -668,10 +668,10 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             {!overrideProjectId ? (
                 <div className="space-y-6">
                     <StepHeaderCard
-                        stepNumber={7}
+                        stepNumber={8}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="Carruseles Magnéticos de Alta Conversión"
+                        categoryTitle="8. Carruseles Magnéticos"
                         title={<>Descarga tus <span className="text-[#FF5A1F]">Carruseles Magnéticos</span></>}
                         description="Usa carruseles visuales de Instagram y Facebook diseñados por profesionales para captar la atención de tu audiencia, educar de forma visual rápida y conseguir conversiones automáticas."
                     />
@@ -679,7 +679,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0f172a]/40 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
-                            stepNumber={7}
+                            stepNumber={8}
                             videoUrl="https://www.youtube.com/embed/bTV5aFTchJ8?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial Carruseles"
                         />
@@ -687,10 +687,10 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 </div>
             ) : (
                 <StepHeaderCard
-                    stepNumber={7}
+                    stepNumber={8}
                     totalSteps={totalSteps}
                     stageNumber={2}
-                    categoryTitle="Carruseles Magnéticos de Alta Conversión"
+                    categoryTitle="8. Carruseles Magnéticos"
                     title={<>Descarga tus <span className="text-[#FF5A1F]">Carruseles Magnéticos</span></>}
                     description="Usa carruseles visuales de Instagram y Facebook diseñados por profesionales para captar la atención de tu audiencia, educar de forma visual rápida y conseguir conversiones automáticas."
                 />
