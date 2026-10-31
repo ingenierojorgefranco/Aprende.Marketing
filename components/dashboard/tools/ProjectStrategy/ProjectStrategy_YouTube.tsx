@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Youtube, Sparkles, Check, Copy, CheckCircle2, ArrowRight, 
-  Settings, FileText, Lightbulb, Zap, PlayCircle, Layers, 
-  ExternalLink, Info, CheckSquare, ShieldCheck, Target
+  FileText, Lightbulb, Zap, ExternalLink, Loader2, BookOpen, Link2
 } from 'lucide-react';
-import { useOutletContext, useParams } from 'react-router-dom';
+import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { StepHeaderCard } from '../../wizard/StepHeaderCard';
 import { StepVideoContainer } from '../../wizard/StepVideoContainer';
+import { api } from '../../../../services/api';
 
 interface ProjectStrategy_YouTubeProps {
   totalSteps?: number;
@@ -21,29 +21,60 @@ export const ProjectStrategy_YouTube: React.FC<ProjectStrategy_YouTubeProps> = (
   overrideProjectId,
   onNavigateNext
 }) => {
+  const navigate = useNavigate();
   const { id: routeProjectId } = useParams() as { id: string };
   const projectId = overrideProjectId || routeProjectId;
   const context = useOutletContext() as any;
   const user = context?.user;
 
-  const [activeTab, setActiveTab] = useState<'checklist' | 'prompts' | 'best_practices'>('checklist');
+  const [activeTab, setActiveTab] = useState<'articles' | 'prompts' | 'best_practices'>('articles');
   const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null);
+  
+  // Estado para artículos de blog generados y la URL de publicación
+  const [generatedArticles, setGeneratedArticles] = useState<any[]>([]);
+  const [loadingArticles, setLoadingArticles] = useState(true);
+  const [selectedArticleIdx, setSelectedArticleIdx] = useState(0);
+  const [subdomain, setSubdomain] = useState<string>('demo');
+  const [copiedUrl, setCopiedUrl] = useState(false);
 
-  // Estado del checklist de configuración del canal
-  const [checklistItems, setChecklistItems] = useState<Record<string, boolean>>({
-    brand_account: false,
-    channel_branding: false,
-    banner_links: false,
-    upload_defaults: false,
-    subscribe_watermark: false,
-  });
+  // Cargar artículos del proyecto y subdominio
+  useEffect(() => {
+    if (!projectId) return;
+    let isMounted = true;
+    setLoadingArticles(true);
 
-  const toggleChecklistItem = (key: string) => {
-    setChecklistItems(prev => ({ ...prev, [key]: !prev[key] }));
+    Promise.all([
+      api.getArticlesByProject(projectId),
+      api.getPages()
+    ]).then(([articles, pages]) => {
+      if (!isMounted) return;
+
+      const projectPages = (pages || []).filter((p: any) => String(p.projectId) === String(projectId));
+      if (projectPages.length > 0 && projectPages[0].subdomain) {
+        setSubdomain(projectPages[0].subdomain.split('.')[0]);
+      }
+
+      const gen = (articles || []).filter((a: any) => 
+        a.isGenerated || (a.contentHtml && typeof a.contentHtml === 'string' && a.contentHtml.trim().length > 0)
+      );
+      setGeneratedArticles(gen);
+    }).catch(err => {
+      console.error("Error cargando artículos para YouTube:", err);
+    }).finally(() => {
+      if (isMounted) setLoadingArticles(false);
+    });
+
+    return () => { isMounted = false; };
+  }, [projectId]);
+
+  // Redirección a la sección de Artículos de Blog (paso 9)
+  const goToBlogArticles = () => {
+    if (window.location.pathname.includes('project-guide')) {
+      navigate(`/dashboard/project-guide?id=${projectId}&section=content&step=9`);
+    } else {
+      navigate(`/dashboard/strategy/${projectId}?section=content`);
+    }
   };
-
-  const completedChecklistCount = Object.values(checklistItems).filter(Boolean).length;
-  const totalChecklistCount = Object.keys(checklistItems).length;
 
   // Extraer información relevante del proyecto para personalizar los Prompts
   const productName = strategyData?.meta?.projectName || strategyData?.meta?.insights?.overview?.items?.[0]?.value || "nuestro producto digital";
@@ -121,6 +152,11 @@ Requisitos:
     }
   ];
 
+  const currentSelectedArticle = generatedArticles[selectedArticleIdx] || generatedArticles[0];
+  const currentArticleUrl = currentSelectedArticle 
+    ? `${window.location.origin}/lp/${subdomain}/blog/${currentSelectedArticle.slug || 'articulo'}`
+    : '';
+
   return (
     <div className="space-y-8 text-left max-w-5xl mx-auto pb-12">
       {/* Step Header */}
@@ -129,7 +165,7 @@ Requisitos:
         totalSteps={totalSteps}
         categoryTitle="7. Estrategias de Atracción en YouTube"
         title={<>Estrategia de <span className="text-[#FF5A1F]">Atracción en YouTube</span></>}
-        description="Aprende a configurar tu canal de YouTube de manera profesional y utiliza los Prompts optimizados con IA para crear videos largos y Shorts de alta conversión que atraigan prospectos calificados las 24 horas del día."
+        description="Aprovecha los artículos que ya has generado en tu blog para introducirlos en NotebookLM y crear guiones de video profesionales de manera automatizada. Además, utiliza nuestros Prompts optimizados para YouTube."
       />
 
       {/* Video Lección del Paso */}
@@ -145,15 +181,15 @@ Requisitos:
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
         <div className="flex flex-wrap items-center gap-2">
           <button
-            onClick={() => setActiveTab('checklist')}
+            onClick={() => setActiveTab('articles')}
             className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
-              activeTab === 'checklist'
+              activeTab === 'articles'
                 ? 'bg-[#FF5A1F] text-white shadow-lg shadow-orange-500/20'
                 : 'bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700'
             }`}
           >
-            <Settings className="w-4 h-4" />
-            <span>1. Configuración del Canal ({completedChecklistCount}/{totalChecklistCount})</span>
+            <FileText className="w-4 h-4 text-emerald-400" />
+            <span>1. Artículos para NotebookLM ({generatedArticles.length})</span>
           </button>
 
           <button
@@ -182,110 +218,164 @@ Requisitos:
         </div>
 
         <div className="text-xs text-slate-400 font-medium hidden md:block">
-          Estrategia Evergreen • Posicionamiento SEO en Google & YouTube
+          Estrategia Evergreen • Creación de Videos con NotebookLM
         </div>
       </div>
 
-      {/* CONTENIDO PESTAÑA 1: CHECKLIST DE CONFIGURACIÓN */}
-      {activeTab === 'checklist' && (
+      {/* CONTENIDO PESTAÑA 1: ARTÍCULOS GENERADOS PARA NOTEBOOKLM */}
+      {activeTab === 'articles' && (
         <div className="space-y-6 animate-in fade-in duration-300">
-          <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 space-y-6 shadow-xl">
-            <div className="flex items-center justify-between flex-wrap gap-4 border-b border-slate-800/80 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center shrink-0">
-                  <Youtube className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">Checklist de Configuración del Canal</h3>
-                  <p className="text-xs text-slate-400">Sigue estos 5 pasos para tener un canal profesional enfocado en ventas</p>
-                </div>
-              </div>
-
-              {/* Barra de Progreso del Checklist */}
-              <div className="flex items-center gap-3 bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800">
-                <span className="text-xs font-bold text-slate-300">
-                  Progreso: <strong className="text-emerald-400">{Math.round((completedChecklistCount / totalChecklistCount) * 100)}%</strong>
-                </span>
-                <div className="w-24 h-2 bg-slate-800 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-emerald-500 transition-all duration-300"
-                    style={{ width: `${(completedChecklistCount / totalChecklistCount) * 100}%` }}
-                  />
-                </div>
-              </div>
+          {loadingArticles ? (
+            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-12 text-center flex flex-col items-center justify-center space-y-3">
+              <Loader2 className="w-8 h-8 text-[#FF5A1F] animate-spin" />
+              <p className="text-sm text-slate-400 font-medium">Cargando tus artículos generados...</p>
             </div>
+          ) : generatedArticles.length === 0 ? (
+            /* Estado cuando NO TIENE artículos generados */
+            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-8 sm:p-12 text-center flex flex-col items-center justify-center space-y-4 shadow-xl">
+              <div className="w-16 h-16 rounded-2xl bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 text-[#FF5A1F] flex items-center justify-center shadow-lg">
+                <BookOpen className="w-8 h-8" />
+              </div>
+              <div className="space-y-2 max-w-lg">
+                <h3 className="text-xl font-extrabold text-white">No tienes artículos de blog generados</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Para utilizar tus artículos en NotebookLM y crear guiones o videos de YouTube automatizados, primero debes redactar al menos un artículo en la sección de <strong>Artículos de Blog</strong>.
+                </p>
+              </div>
+              <button
+                onClick={goToBlogArticles}
+                className="mt-2 px-6 py-3.5 rounded-xl bg-[#FF5A1F] hover:bg-[#ff6d38] text-white font-bold text-sm transition-all shadow-lg shadow-orange-500/20 inline-flex items-center gap-2 cursor-pointer hover:scale-105"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Ir a Crear Artículos de Blog</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            /* Estado cuando SÍ TIENE artículos generados */
+            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-5 sm:p-6 space-y-6 shadow-xl">
+              <div className="border-b border-slate-800/80 pb-4 flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Tus Artículos Generados</h3>
+                    <p className="text-xs text-slate-400">Selecciona un artículo para copiar su URL y utilizarlo en NotebookLM</p>
+                  </div>
+                </div>
 
-            {/* Lista de Tareas */}
-            <div className="space-y-3.5">
-              {[
-                {
-                  key: 'brand_account',
-                  title: '1. Crea tu Cuenta de Marca en YouTube',
-                  desc: 'Ingresa a YouTube con tu cuenta de Google y crea un canal de marca relacionado con tu nicho (ej. "Aprende Microblading", "Emprende Digital"). Usar una cuenta de marca te permite administrarla mejor y delegar en el futuro.',
-                  tag: 'Fundamento'
-                },
-                {
-                  key: 'channel_branding',
-                  title: '2. Diseña un Banner e Imagen de Perfil Atractivos',
-                  desc: 'Agrega un logo o foto limpia y profesional en tu perfil. En el banner de la portada, coloca una frase clara indicando el valor que entregas (ej. "Aprende a montar tu propio negocio digital paso a paso").',
-                  tag: 'Diseño & Marca'
-                },
-                {
-                  key: 'banner_links',
-                  title: '3. Enlaza tu Página de Captura en el Banner',
-                  desc: 'Dirígete a YouTube Studio > Personalización > Información básica > Enlaces. Añade el enlace de tu Página de Captura o WhatsApp para que aparezca visible directamente en la portada de tu canal.',
-                  tag: 'Captación de Leads'
-                },
-                {
-                  key: 'upload_defaults',
-                  title: '4. Configura Valores Predeterminados de Subida',
-                  desc: 'Ve a YouTube Studio > Configuración > Valores predeterminados de subida. Deja guardado un texto de descripción maestro que incluya tus links de afiliado y llamado a la acción para no tener que escribirlo cada vez.',
-                  tag: 'Ahorro de Tiempo'
-                },
-                {
-                  key: 'subscribe_watermark',
-                  title: '5. Marca de Agua de Suscripción en Videos',
-                  desc: 'En Personalización > Marca, sube un botón pequeño de "Suscribirse" (150x150 px) para que aparezca en la esquina inferior derecha de todos tus videos y aumente tus suscriptores automáticamente.',
-                  tag: 'Crecimiento Orgánico'
-                }
-              ].map((item) => {
-                const isDone = checklistItems[item.key];
-                return (
-                  <div
-                    key={item.key}
-                    onClick={() => toggleChecklistItem(item.key)}
-                    className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex items-start gap-4 text-left select-none ${
-                      isDone
-                        ? 'bg-emerald-500/5 border-emerald-500/40 hover:bg-emerald-500/10'
-                        : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900'
-                    }`}
-                  >
-                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-all ${
-                      isDone
-                        ? 'bg-emerald-500 text-white'
-                        : 'border-2 border-slate-700 bg-slate-800 text-transparent'
-                    }`}>
-                      <Check className="w-4 h-4 stroke-[3]" />
+                <div className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-emerald-400 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{generatedArticles.length} {generatedArticles.length === 1 ? 'artículo disponible' : 'artículos disponibles'}</span>
+                </div>
+              </div>
+
+              {/* Grid 2 Columnas: Lista de Artículos (Izquierda) + Detalle & URL (Derecha) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Columna Izquierda: Lista de Artículos */}
+                <div className="lg:col-span-5 space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                  {generatedArticles.map((art, idx) => {
+                    const isSelected = selectedArticleIdx === idx;
+                    return (
+                      <div
+                        key={art.id || idx}
+                        onClick={() => setSelectedArticleIdx(idx)}
+                        className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 text-left ${
+                          isSelected
+                            ? 'bg-emerald-500/10 border-emerald-500/50 shadow-md shadow-emerald-500/10'
+                            : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <FileText className={`w-5 h-5 shrink-0 ${isSelected ? 'text-emerald-400' : 'text-slate-500'}`} />
+                          <span className={`text-xs sm:text-sm font-bold truncate ${isSelected ? 'text-white' : 'text-slate-300'}`}>
+                            {art.title}
+                          </span>
+                        </div>
+                        <CheckCircle2 className={`w-4 h-4 shrink-0 ${isSelected ? 'text-emerald-400' : 'text-slate-600'}`} />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Columna Derecha: Vista de Detalle, URL y Botones de Acción */}
+                <div className="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-2xl p-5 sm:p-6 space-y-6 flex flex-col justify-between">
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                        ARTÍCULO SELECCIONADO
+                      </span>
+                      <h4 className="text-base sm:text-lg font-bold text-white leading-snug pt-1">
+                        {currentSelectedArticle?.title}
+                      </h4>
+                      {currentSelectedArticle?.keyword && (
+                        <p className="text-xs text-slate-400 font-medium">
+                          Keyword SEO: <span className="text-slate-300 font-bold">{currentSelectedArticle.keyword}</span>
+                        </p>
+                      )}
                     </div>
 
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className={`text-sm sm:text-base font-bold ${isDone ? 'text-emerald-300 line-through opacity-90' : 'text-white'}`}>
-                          {item.title}
-                        </h4>
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                          {item.tag}
-                        </span>
-                      </div>
-                      <p className="text-xs sm:text-sm text-slate-400 font-normal leading-relaxed">
-                        {item.desc}
-                      </p>
+                    {/* Campo con la URL del Artículo */}
+                    <div className="space-y-2 pt-2">
+                      <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <Link2 className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                        <span>URL del Artículo</span>
+                      </label>
+                      <input
+                        type="text"
+                        readOnly
+                        value={currentArticleUrl}
+                        className="w-full bg-[#060a12] border border-slate-800 rounded-xl px-3.5 py-3 text-xs sm:text-sm font-mono text-emerald-400 focus:outline-none select-all"
+                      />
+                    </div>
+
+                    {/* Botones de Acción */}
+                    <div className="flex flex-wrap items-center gap-3 pt-2">
+                      <button
+                        onClick={() => {
+                          if (currentArticleUrl) {
+                            navigator.clipboard.writeText(currentArticleUrl);
+                            setCopiedUrl(true);
+                            setTimeout(() => setCopiedUrl(false), 2500);
+                          }
+                        }}
+                        className={`flex-1 min-w-[140px] py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
+                          copiedUrl
+                            ? 'bg-emerald-500 text-white shadow-emerald-500/20'
+                            : 'bg-[#FF5A1F] hover:bg-[#ff6d38] text-white shadow-orange-500/20'
+                        }`}
+                      >
+                        {copiedUrl ? <Check className="w-4 h-4 stroke-[3]" /> : <Copy className="w-4 h-4" />}
+                        <span>{copiedUrl ? '¡URL Copiada!' : 'Copiar URL'}</span>
+                      </button>
+
+                      <a
+                        href={`/lp/${subdomain}/blog/${currentSelectedArticle?.slug || 'articulo'}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 min-w-[140px] py-3 px-4 rounded-xl font-bold text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        <span>Ver artículo</span>
+                      </a>
                     </div>
                   </div>
-                );
-              })}
+
+                  {/* Tip de NotebookLM */}
+                  <div className="bg-[#060a12] border border-slate-800 rounded-xl p-4 text-xs text-slate-300 space-y-1.5 text-left">
+                    <p className="font-bold text-amber-400 flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 shrink-0" />
+                      <span>Cómo crear tus Videos de YouTube con NotebookLM</span>
+                    </p>
+                    <p className="text-slate-400 leading-relaxed">
+                      Copia la URL del artículo y pégala como fuente directa en <strong className="text-white">NotebookLM</strong>. Utilízala para generar guiones paso a paso o resúmenes de audio ideales para grabar tus videos largos y Shorts.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 
