@@ -222,20 +222,18 @@ export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProp
               También puedes consultar nuestras clases completas grabadas.
             </p>
 
-            <div className="pt-2">
+            <div className="pt-3">
               <a
                 href={freeClassesUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 text-sm sm:text-base font-bold text-gray-300 hover:text-white transition-colors group cursor-pointer py-1.5 px-3 rounded-lg hover:bg-white/5"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 font-bold text-white transition-all duration-200 bg-blue-600 hover:bg-blue-500 rounded-xl hover:scale-105 shadow-lg shadow-blue-600/30 border border-blue-400/30 text-sm sm:text-base cursor-pointer group"
               >
-                <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-orange-400 group-hover:bg-[#FF5A1F] group-hover:text-white transition-all shrink-0">
-                  <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
+                  <Play className="w-4 h-4 fill-current ml-0.5" />
                 </div>
-                <span className="underline underline-offset-4 decoration-white/40 group-hover:decoration-white">
-                  Ver biblioteca de clases
-                </span>
-                <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-colors opacity-70 group-hover:opacity-100" />
+                <span>Ver Clases Gratuitas</span>
+                <ExternalLink className="w-4 h-4 opacity-80 group-hover:opacity-100 transition-opacity ml-1" />
               </a>
             </div>
           </div>
