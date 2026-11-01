@@ -15,6 +15,37 @@ interface ProjectStrategy_YouTubeProps {
   onNavigateNext?: () => void;
 }
 
+const parseDateSafe = (dateVal: any): Date | null => {
+  if (!dateVal) return null;
+  if (dateVal instanceof Date) return isNaN(dateVal.getTime()) ? null : dateVal;
+  if (typeof dateVal === 'object' && dateVal.seconds) {
+    return new Date(dateVal.seconds * 1000);
+  }
+  const parsed = new Date(dateVal);
+  return isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const formatRelativeTime = (dateVal: any) => {
+  const date = parseDateSafe(dateVal);
+  if (!date) return 'hace un momento';
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) return 'hace unos segundos';
+  if (diffInSeconds < 3600) {
+    const mins = Math.floor(diffInSeconds / 60);
+    return `hace ${mins} ${mins === 1 ? 'minuto' : 'minutos'}`;
+  }
+  if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `hace ${hours} ${hours === 1 ? 'hora' : 'horas'}`;
+  }
+  const days = Math.floor(diffInSeconds / 86400);
+  if (days < 30) return `hace ${days} ${days === 1 ? 'día' : 'días'}`;
+  const months = Math.floor(days / 30);
+  return `hace ${months} ${months === 1 ? 'mes' : 'meses'}`;
+};
+
 export const ProjectStrategy_YouTube: React.FC<ProjectStrategy_YouTubeProps> = ({
   totalSteps = 13,
   strategyData,
@@ -158,7 +189,7 @@ Requisitos:
     : '';
 
   return (
-    <div className="space-y-8 text-left max-w-5xl mx-auto pb-12">
+    <div className="space-y-8 text-left w-full mx-auto pb-12">
       {/* Step Header */}
       <StepHeaderCard 
         stepNumber={7}
@@ -277,23 +308,33 @@ Requisitos:
                 <div className="lg:col-span-5 space-y-3 max-h-[500px] overflow-y-auto pr-1">
                   {generatedArticles.map((art, idx) => {
                     const isSelected = selectedArticleIdx === idx;
+                    const timeAgo = formatRelativeTime(art.publishedAt || art.updatedAt || art.createdAt);
                     return (
                       <div
                         key={art.id || idx}
                         onClick={() => setSelectedArticleIdx(idx)}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 text-left ${
+                        className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-3 text-left ${
                           isSelected
                             ? 'bg-emerald-500/10 border-emerald-500/50 shadow-md shadow-emerald-500/10'
                             : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900'
                         }`}
                       >
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <FileText className={`w-5 h-5 shrink-0 ${isSelected ? 'text-emerald-400' : 'text-slate-500'}`} />
-                          <span className={`text-xs sm:text-sm font-bold truncate ${isSelected ? 'text-white' : 'text-slate-300'}`}>
-                            {art.title}
-                          </span>
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                          <FileText className={`w-5 h-5 shrink-0 mt-0.5 ${isSelected ? 'text-emerald-400' : 'text-slate-500'}`} />
+                          <div className="space-y-1 min-w-0 flex-1">
+                            <h4 className={`text-xs sm:text-sm font-bold leading-snug ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                              {art.title}
+                            </h4>
+                            <p className="text-[11px] text-slate-400 font-normal">
+                              Redactado: {timeAgo}
+                            </p>
+                          </div>
                         </div>
-                        <CheckCircle2 className={`w-4 h-4 shrink-0 ${isSelected ? 'text-emerald-400' : 'text-slate-600'}`} />
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                          isSelected ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'
+                        }`}>
+                          <Check className="w-3 h-3 stroke-[3]" />
+                        </div>
                       </div>
                     );
                   })}
