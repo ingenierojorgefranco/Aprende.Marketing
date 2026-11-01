@@ -425,6 +425,173 @@ Requisitos:
                     Copia la URL del artículo y pégala como fuente directa en <strong className="text-white">NotebookLM</strong>. Utilízala para generar guiones paso a paso o resúmenes de audio ideales para grabar tus videos largos y Shorts.
                   </p>
                 </div>
+
+                {/* PROMPTS PERSONALIZADOS PARA EL ARTÍCULO SELECCIONADO */}
+                <div className="pt-6 border-t border-slate-800/80 space-y-5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">Prompts de IA Personalizados para este Artículo</h4>
+                      <p className="text-xs text-slate-400">Listos para copiar y pegar directo en ChatGPT, Gemini o Midjourney con el título e información del artículo</p>
+                    </div>
+                  </div>
+
+                  {/* Prompt 1: Miniaturas / Portada Mr Beast */}
+                  {(() => {
+                    const artTitle = currentSelectedArticle?.title || "Nuestro Artículo de Blog";
+                    const artKeyword = currentSelectedArticle?.keyword || "Estrategia Digital";
+                    
+                    const thumbText = `Tengo un video de YouTube que busca atraer el mayor numero de audiencia cualificada con contenidos de alto valor, quiero que actúes como un experto en diseño, Photoshop y canva con más de 10 años de experiencia haciendo miniaturas de YouTube para Mr Beast, en el que te enfocas en crear contenidos que generan efecto wow, cumple con las políticas y generan interés inmediato en la audiencia con colores que impactan e imágenes de alto realismo que gustan a las personas, generan curiosidad y atraen el máximo de clics elevando el CTR como ningún otra imagen.
+
+Vas a generar tres imágenes altamente persuasivas para el video, usando los diseños que has creado para Mr Beast pero sin aparecer Mr Beast
+
+Analiza el título y el contenido del vídeo e identifica su ángulo más impactante: error, mito, advertencia, secreto, comparación, revelación o resultado (Siempre negativa para llamar mas la atencion)
+Genera una frase persuasiva de 2 a 4 palabras que complemente el título, despierte curiosidad y sea específica y fiel al contenido (Siempre negativa para llamar mas la atencion)
+Puede transmitir sorpresa, urgencia, controversia o advertencia, según corresponda.
+Colócala en un bloque rojo llamativo, con letras blancas o amarillas, grandes y en negrita. Resalta visualmente la palabra más importante.
+Varía las expresiones entre vídeos, evita repetir el título y nunca inventes engaños, riesgos o afirmaciones para generar clics.
+
+
+los contenidos que vas a generar tienen que estar enfocados en un video que tiene como titulo:
+
+${artTitle}
+
+Contexto
+
+${productName}`;
+
+                    const shortsText = `haz un video corto hablando sobre:
+
+
+${artTitle} 
+
+
+al inicio del video obligatoriamente debes decir lo siguiente:
+
+
+${artTitle} 
+
+
+
+luego debes actuar como un experto copywritter y dar un contenido de valor que toque las fibras del usuario respondiendo justamente la duda de la persona con base en el objetivo y titulo del video, debes dar contenido de valor, hacer que las ideas se presenten rápidamente y dar un buen contexto de cada idea, usa palabras claves que posicionen el contenido según el titulo del contenido
+intenta motivar a la audiencia a interactuar en comentarios respondiendo alguna pregunta importante con relación al tema que se viene hablando en el video
+y al final conectar el contenido que vienes hablando con CTA orientado a cambiar la vida de la persona invitando a la persona a que ingrese a nuestra clase gratuita de
+
+
+${productName}
+
+
+explica al final del video rápidamente el beneficio que obtendrá si ingresa a la clase gratuita y dices que escriba la palabra 
+
+${artKeyword.split(' ')[0].toUpperCase() || 'CLASE'}
+
+en los comentarios para enviarle por privado todos los detalles para que separe su cupo a la clase gratuita
+y luego dices haz clic en el video relacionado que aparece aquí abajo en la pantalla para más información
+cierra el video diciéndole que esto podría cambiar su vida, que no deje pasar esta oportunidad que se le presenta en su vida`;
+
+                    const longVideoText = `amplia el contenido y busca referencias interesantes y añadelas al video que tiene como titulo 
+
+
+${artTitle}																																																														
+
+recuerda que en el contenido que generes debes mantener exactamente este titulo y añadirlo en la primer diapositiva
+Empieza la persona diciendo el titulo del video, no digas nada sobre que esta es una investigación, análisis ni nada de eso, empieza con el titulo del video
+añade en las diapositivas imágenes reales relacionadas con el tema del video
+
+
+
+${artTitle}																																										
+
+
+para que tenga mejor contexto y se brinde la mejor informacion posible para aumentar al maximo el ctr. haz un contenido en video 100% informativo tipo podcast superando los 15 minutos en donde te enfoques con base en el contenido en resolver el tema del video (amplia el contenido para que supere los 15 minutos)
+
+
+
+
+${artTitle}																																																	
+
+antes de la mitad del video añade un cta invitando a nuestra clase gratuita de ${productName} con nuestro profesor experto donde aprenderas todos los beneficios de esta poderosa tecnica, dile al usuario si no ingresa a la clase que puede suceder negativo con base en su dolor (haz bullet points de los puntos negativos si no aprende) y luego habla de los beneficios (enfocandote en 5 temas positivos y beneficios de aprender ${productName}) y Al finalizar Invita al usuario a nuestra clase gratuita de ${productName} donde aprendera las bases, la aplicacion, los materiales y todo lo necesario para convertir la tecnica de ${productName} en una gran oportunidad de negocio que le permita vivir una mejor calidad de vida
+
+no hables sobre lo que la persona aprendera en la clase, sino en el beneficio de aprender 
+
+${productName}`;
+
+                    return (
+                      <div className="space-y-4">
+                        {/* Prompt 1 Card */}
+                        <div className="bg-[#060a12] border border-slate-800 rounded-xl p-4 space-y-3">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                              MINIATURAS / PORTADAS (CTR VIRAL)
+                            </span>
+                            <button
+                              onClick={() => handleCopyText('p_thumb', thumbText)}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                                copiedPromptId === 'p_thumb'
+                                  ? 'bg-emerald-500 text-white'
+                                  : 'bg-[#FF5A1F] hover:bg-[#ff6d38] text-white'
+                              }`}
+                            >
+                              {copiedPromptId === 'p_thumb' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                              <span>{copiedPromptId === 'p_thumb' ? '¡Copiado!' : 'Copiar Prompt Miniaturas'}</span>
+                            </button>
+                          </div>
+                          <div className="bg-slate-900/90 border border-slate-800/80 rounded-lg p-3 text-[11px] font-mono text-slate-300 leading-relaxed max-h-36 overflow-y-auto whitespace-pre-wrap select-all">
+                            {thumbText}
+                          </div>
+                        </div>
+
+                        {/* Prompt 2 Card */}
+                        <div className="bg-[#060a12] border border-slate-800 rounded-xl p-4 space-y-3">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400">
+                              YOUTUBE SHORTS (VERTICAL 60S)
+                            </span>
+                            <button
+                              onClick={() => handleCopyText('p_shorts', shortsText)}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                                copiedPromptId === 'p_shorts'
+                                  ? 'bg-emerald-500 text-white'
+                                  : 'bg-[#FF5A1F] hover:bg-[#ff6d38] text-white'
+                              }`}
+                            >
+                              {copiedPromptId === 'p_shorts' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                              <span>{copiedPromptId === 'p_shorts' ? '¡Copiado!' : 'Copiar Prompt Shorts'}</span>
+                            </button>
+                          </div>
+                          <div className="bg-slate-900/90 border border-slate-800/80 rounded-lg p-3 text-[11px] font-mono text-slate-300 leading-relaxed max-h-36 overflow-y-auto whitespace-pre-wrap select-all">
+                            {shortsText}
+                          </div>
+                        </div>
+
+                        {/* Prompt 3 Card */}
+                        <div className="bg-[#060a12] border border-slate-800 rounded-xl p-4 space-y-3">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400">
+                              VIDEO LARGO (+15 MINS PODCAST)
+                            </span>
+                            <button
+                              onClick={() => handleCopyText('p_long', longVideoText)}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                                copiedPromptId === 'p_long'
+                                  ? 'bg-emerald-500 text-white'
+                                  : 'bg-[#FF5A1F] hover:bg-[#ff6d38] text-white'
+                              }`}
+                            >
+                              {copiedPromptId === 'p_long' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                              <span>{copiedPromptId === 'p_long' ? '¡Copiado!' : 'Copiar Prompt Video Largo'}</span>
+                            </button>
+                          </div>
+                          <div className="bg-slate-900/90 border border-slate-800/80 rounded-lg p-3 text-[11px] font-mono text-slate-300 leading-relaxed max-h-36 overflow-y-auto whitespace-pre-wrap select-all">
+                            {longVideoText}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
           )}
