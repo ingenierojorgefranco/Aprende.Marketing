@@ -283,29 +283,29 @@ Requisitos:
               </button>
             </div>
           ) : (
-            /* Estado cuando SÍ TIENE artículos generados */
-            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-5 sm:p-6 space-y-6 shadow-xl">
-              <div className="border-b border-slate-800/80 pb-4 flex items-center justify-between flex-wrap gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                    <FileText className="w-5 h-5" />
+            /* Estado cuando SÍ TIENE artículos generados - Diseño alineado a Sección de Artículos de Blog (Imagen 1) */
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Columna Izquierda: Tarjeta Independiente con Lista de Artículos */}
+              <div className="lg:col-span-5 bg-[#0B1120] border border-slate-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-xl">
+                <div className="border-b border-slate-800/80 pb-4 flex items-center justify-between flex-wrap gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+                      <BookOpen className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">Artículos de Blog</h3>
+                      <p className="text-xs text-slate-400">Selecciona un artículo para YouTube</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white">Tus Artículos Generados</h3>
-                    <p className="text-xs text-slate-400">Selecciona un artículo para copiar su URL y utilizarlo en NotebookLM</p>
+
+                  <div className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-emerald-400 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{generatedArticles.length} disponibles</span>
                   </div>
                 </div>
 
-                <div className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-emerald-400 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>{generatedArticles.length} {generatedArticles.length === 1 ? 'artículo disponible' : 'artículos disponibles'}</span>
-                </div>
-              </div>
-
-              {/* Grid 2 Columnas: Lista de Artículos (Izquierda) + Detalle & URL (Derecha) */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Columna Izquierda: Lista de Artículos */}
-                <div className="lg:col-span-5 space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                {/* Lista de Artículos (Estilo Imagen 1: sin ícono de papel interno, bordes verdes y check circular) */}
+                <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1">
                   {generatedArticles.map((art, idx) => {
                     const isSelected = selectedArticleIdx === idx;
                     const timeAgo = formatRelativeTime(art.publishedAt || art.updatedAt || art.createdAt);
@@ -313,106 +313,117 @@ Requisitos:
                       <div
                         key={art.id || idx}
                         onClick={() => setSelectedArticleIdx(idx)}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-3 text-left ${
+                        className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 text-left ${
                           isSelected
-                            ? 'bg-emerald-500/10 border-emerald-500/50 shadow-md shadow-emerald-500/10'
+                            ? 'bg-[#041d1a]/80 border-emerald-500 shadow-lg shadow-emerald-500/10'
                             : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900'
                         }`}
                       >
-                        <div className="flex items-start gap-3 min-w-0 flex-1">
-                          <FileText className={`w-5 h-5 shrink-0 mt-0.5 ${isSelected ? 'text-emerald-400' : 'text-slate-500'}`} />
-                          <div className="space-y-1 min-w-0 flex-1">
-                            <h4 className={`text-xs sm:text-sm font-bold leading-snug ${isSelected ? 'text-white' : 'text-slate-200'}`}>
-                              {art.title}
-                            </h4>
-                            <p className="text-[11px] text-slate-400 font-normal">
-                              Redactado: {timeAgo}
-                            </p>
-                          </div>
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <h4 className={`text-xs sm:text-sm font-bold leading-snug ${isSelected ? 'text-white' : 'text-slate-300'}`}>
+                            {art.title}
+                          </h4>
+                          <p className="text-[11px] text-slate-400 font-normal">
+                            Redactado: {timeAgo}
+                          </p>
                         </div>
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
-                          isSelected ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+                          isSelected ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-600'
                         }`}>
-                          <Check className="w-3 h-3 stroke-[3]" />
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
                         </div>
                       </div>
                     );
                   })}
                 </div>
+              </div>
 
-                {/* Columna Derecha: Vista de Detalle, URL y Botones de Acción */}
-                <div className="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-2xl p-5 sm:p-6 space-y-6 flex flex-col justify-between">
-                  <div className="space-y-4">
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
-                        ARTÍCULO SELECCIONADO
-                      </span>
-                      <h4 className="text-base sm:text-lg font-bold text-white leading-snug pt-1">
-                        {currentSelectedArticle?.title}
-                      </h4>
-                      {currentSelectedArticle?.keyword && (
-                        <p className="text-xs text-slate-400 font-medium">
-                          Keyword SEO: <span className="text-slate-300 font-bold">{currentSelectedArticle.keyword}</span>
-                        </p>
-                      )}
-                    </div>
+              {/* Columna Derecha: Tarjeta Independiente de Detalle del Artículo */}
+              <div className="lg:col-span-7 bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl flex flex-col justify-between">
+                <div className="space-y-5">
+                  {/* Badge & Título Principal */}
+                  <div className="space-y-3">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full inline-flex items-center gap-1.5">
+                      <Check className="w-3 h-3 stroke-[3]" /> ARTÍCULO GENERADO
+                    </span>
 
-                    {/* Campo con la URL del Artículo */}
-                    <div className="space-y-2 pt-2">
-                      <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                        <Link2 className="w-3.5 h-3.5 text-[#FF5A1F]" />
-                        <span>URL del Artículo</span>
-                      </label>
-                      <input
-                        type="text"
-                        readOnly
-                        value={currentArticleUrl}
-                        className="w-full bg-[#060a12] border border-slate-800 rounded-xl px-3.5 py-3 text-xs sm:text-sm font-mono text-emerald-400 focus:outline-none select-all"
-                      />
-                    </div>
+                    <h3 className="text-xl sm:text-2xl font-extrabold text-white leading-tight">
+                      {currentSelectedArticle?.title}
+                    </h3>
 
-                    {/* Botones de Acción */}
-                    <div className="flex flex-wrap items-center gap-3 pt-2">
-                      <button
-                        onClick={() => {
-                          if (currentArticleUrl) {
-                            navigator.clipboard.writeText(currentArticleUrl);
-                            setCopiedUrl(true);
-                            setTimeout(() => setCopiedUrl(false), 2500);
-                          }
-                        }}
-                        className={`flex-1 min-w-[140px] py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
-                          copiedUrl
-                            ? 'bg-emerald-500 text-white shadow-emerald-500/20'
-                            : 'bg-[#FF5A1F] hover:bg-[#ff6d38] text-white shadow-orange-500/20'
-                        }`}
-                      >
-                        {copiedUrl ? <Check className="w-4 h-4 stroke-[3]" /> : <Copy className="w-4 h-4" />}
-                        <span>{copiedUrl ? '¡URL Copiada!' : 'Copiar URL'}</span>
-                      </button>
-
-                      <a
-                        href={`/lp/${subdomain}/blog/${currentSelectedArticle?.slug || 'articulo'}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 min-w-[140px] py-3 px-4 rounded-xl font-bold text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        <span>Ver artículo</span>
-                      </a>
-                    </div>
+                    {currentSelectedArticle?.keyword && (
+                      <p className="text-xs text-slate-400 font-medium">
+                        Keyword SEO: <span className="text-slate-200 font-bold">{currentSelectedArticle.keyword}</span>
+                      </p>
+                    )}
                   </div>
 
-                  {/* Tip de NotebookLM */}
-                  <div className="bg-[#060a12] border border-slate-800 rounded-xl p-4 text-xs text-slate-300 space-y-1.5 text-left">
-                    <p className="font-bold text-amber-400 flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 shrink-0" />
-                      <span>Cómo crear tus Videos de YouTube con NotebookLM</span>
+                  {/* Tarjeta Enfoque Estratégico (Diseño Imagen 1) */}
+                  <div className="bg-[#060a12] border border-slate-800/90 rounded-2xl p-5 space-y-2">
+                    <p className="text-xs font-bold text-amber-400 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-amber-400" />
+                      <span>Enfoque Estratégico del Artículo</span>
                     </p>
-                    <p className="text-slate-400 leading-relaxed">
-                      Copia la URL del artículo y pégala como fuente directa en <strong className="text-white">NotebookLM</strong>. Utilízala para generar guiones paso a paso o resúmenes de audio ideales para grabar tus videos largos y Shorts.
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                      {currentSelectedArticle?.metaDescription || currentSelectedArticle?.summary || "Este artículo ataca directamente la intención de búsqueda de tu audiencia objetivo, estructurando secciones optimizadas para posicionamiento SEO y máxima conversión en YouTube."}
                     </p>
                   </div>
+
+                  {/* Campo con la URL del Artículo */}
+                  <div className="space-y-2 pt-1">
+                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Link2 className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                      <span>URL del Artículo</span>
+                    </label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={currentArticleUrl}
+                      className="w-full bg-[#060a12] border border-slate-800/90 rounded-xl px-4 py-3.5 text-xs sm:text-sm font-mono text-emerald-400 focus:outline-none select-all"
+                    />
+                  </div>
+
+                  {/* Botones de Acción */}
+                  <div className="flex flex-col sm:flex-row items-center gap-3 pt-1">
+                    <button
+                      onClick={() => {
+                        if (currentArticleUrl) {
+                          navigator.clipboard.writeText(currentArticleUrl);
+                          setCopiedUrl(true);
+                          setTimeout(() => setCopiedUrl(false), 2500);
+                        }
+                      }}
+                      className={`w-full sm:flex-1 py-3.5 px-5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg ${
+                        copiedUrl
+                          ? 'bg-emerald-500 text-white shadow-emerald-500/20'
+                          : 'bg-[#FF5A1F] hover:bg-[#ff6d38] text-white shadow-orange-500/20'
+                      }`}
+                    >
+                      {copiedUrl ? <Check className="w-4 h-4 stroke-[3]" /> : <Copy className="w-4 h-4" />}
+                      <span>{copiedUrl ? '¡URL Copiada!' : 'Copiar URL'}</span>
+                    </button>
+
+                    <a
+                      href={`/lp/${subdomain}/blog/${currentSelectedArticle?.slug || 'articulo'}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:flex-1 py-3.5 px-5 rounded-xl font-bold text-sm bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700/80 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      <span>Ver artículo</span>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Tip de NotebookLM */}
+                <div className="bg-[#060a12] border border-slate-800/90 rounded-2xl p-4 text-xs text-slate-300 space-y-1.5 text-left mt-4">
+                  <p className="font-bold text-amber-400 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 shrink-0" />
+                    <span>Cómo crear tus Videos de YouTube con NotebookLM</span>
+                  </p>
+                  <p className="text-slate-400 leading-relaxed">
+                    Copia la URL del artículo y pégala como fuente directa en <strong className="text-white">NotebookLM</strong>. Utilízala para generar guiones paso a paso o resúmenes de audio ideales para grabar tus videos largos y Shorts.
+                  </p>
                 </div>
               </div>
             </div>
