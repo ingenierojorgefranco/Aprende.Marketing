@@ -265,12 +265,8 @@ incorporando de forma natural palabras clave relevantes y búsquedas frecuentes.
             }`}
           >
             <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>2. Prompts de IA para YouTube</span>
+            <span>2. Prompts de Personalizar tu Canal</span>
           </button>
-        </div>
-
-        <div className="text-xs text-slate-400 font-medium hidden md:block">
-          Estrategia Evergreen • Creación de Videos con NotebookLM
         </div>
       </div>
 
@@ -497,6 +493,8 @@ Contexto
 
 ${productName}`;
 
+                    const capturePageUrl = `${window.location.origin}/lp/${subdomain}`;
+
                     const descText = `He creado un video de Youtube con este contenido que tiene como titulo:
 
 ${artTitle}
@@ -510,7 +508,7 @@ Ayúdame a generar una descripción para el video de YouTube optimizado 100% al 
 al final del video añade el siguiente cta exacto
 
 ¡REGÍSTRATE AHORA A NUESTRA CLASE GRATUITA DE ${productName.toUpperCase()}!📌
-👉 
+👉 ${capturePageUrl}
 
 También dame los Hahstags relacionados con este video que añadiremos en la sección de etiquetas del video de Youtube, el objetivo es que estas etiquetas estén relacionadas con el contenido 
 
