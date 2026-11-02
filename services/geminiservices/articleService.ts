@@ -8,15 +8,24 @@ export interface ArticleTitleIdea {
 }
 
 export const generateArticleTitles = async (topic: string, objective: string, keyword: string): Promise<ArticleTitleIdea[]> => {
-    const prompt = `Genera 4 títulos virales y optimizados para SEO para un artículo sobre: "${topic}".
+    const prompt = `Genera 4 títulos virales y altamente optimizados para SEO para un artículo basado en la siguiente idea/tema de entrada: "${topic}".
     Objetivo: "${objective}".
     ${keyword ? `Keyword SEO: "${keyword}"` : ''}
 
-    REGLAS ESTRICTAS DE COPYWRITING:
-    1. APLICA ESTEROIDES: Actúa como un experto en copywriting y SEO. Los títulos deben tener un altísimo CTR, ser provocativos pero profesionales, y cumplir con las mejores prácticas SEO.
-    2. CONTEXTO: No pierdas el contexto del tema original, pero mejóralo para que sea irresistible.
-    3. LONGITUD: Máximo 60 caracteres por título para evitar recortes en Google.
-    4. En el campo 'title' devuelve SOLO el texto del título.
+    REGLAS ESTRICTAS DE COPYWRITING Y ESTRUCTURA (OBLIGATORIAS):
+    1. FÓRMULA OBLIGATORIA DE 3 PARTES PARA CADA TÍTULO:
+       Cada título DEBE estar estructurado obligatoriamente bajo esta fórmula de 3 partes:
+       [Gancho de Curiosidad o Pregunta] + [Beneficio o Promesa Específica] + [Número o Clave]
+       Ejemplo de referencia: "¿Quieres Evitar que los Colores se Mezclen en Resina Epóxica? Logra Separaciones Perfectas con Estas 5 Técnicas de Lujo"
+
+    2. CERO DUPLICACIÓN - PROHIBICIÓN ABSOLUTA DE COPIAR EL TÍTULO DE ENTRADA:
+       Queda TERMINANTEMENTE PROHIBIDO devolver el título o frase de entrada exactamente igual a como vino.
+       Debes expresar el mismo concepto o solución técnica, pero redactado con palabras 100% nuevas e inéditas para evitar contenido duplicado y canibalización SEO.
+
+    3. RESPETO ABSOLUTO AL CONTEXTO TÉCNICO Y NOMBRES DE PRODUCTOS:
+       NUNCA recortes ni simplifiques los términos técnicos principales del producto o nicho (por ejemplo, si el tema es "Resina Epóxica", conserva "Resina Epóxica" completo y NUNCA lo reduzcas a solo "Resina").
+
+    4. En el campo 'title' devuelve SOLO el texto del título optimizado generado.
     5. NO generes descripciones. Deja el campo 'description' como una cadena vacía "".
     
     Devuelve JSON Array: [{ "title": "...", "description": "" }]`;
@@ -262,7 +271,7 @@ export const generateFullArticle = async (
     FORMATO DE SALIDA REQUERIDO (JSON STRICT):
     Debes retornar un objeto JSON válido que cumpla estrictamente con esta estructura:
     {
-      "title": "[Título final del artículo: Si el título original contiene una cantidad numérica o promesa específica (ej: 'Los 6 tipos de pinceles...'), CONSERVA la cantidad y la promesa del título original con máximo CTR y atractivo SEO, de máximo 65 caracteres]",
+      "title": "[Título final del artículo: REGLA DE ORO OBLIGATORIA: Genera un título 100% NUEVO y REESCRITO que NUNCA sea idéntico al título base para evitar duplicados. DEBE seguir estrictamente la fórmula: [Gancho de Curiosidad o Pregunta] + [Beneficio o Promesa Específica] + [Número o Clave]. Conserva siempre la palabra clave y nombre completo del producto/técnica (ejemplo: 'Resina Epóxica') y garantiza máximo CTR y SEO]",
       "html": "[El contenido completo del artículo formateado en HTML limpio, comenzando de inmediato con la introducción empática (H2s y H3s según el esquema provisto, párrafos, tablas, negritas, seguidos de los dos banners de CTA contextuales y sus respectivos párrafos de dolor pre-CTA)]",
       "metaDescription": "[Meta descripción atractiva para los buscadores que resuma el artículo en un máximo de 155 caracteres]",
       "strategy": "[Enfoque Estratégico del artículo de 1 a 2 párrafos breves que explique la idea central del artículo redactado y enfatice el objetivo de guiar a los lectores a registrarse e ingresar a la clase gratuita]"
