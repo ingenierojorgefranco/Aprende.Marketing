@@ -140,7 +140,7 @@ export const ProjectStrategy_YouTube: React.FC<ProjectStrategy_YouTubeProps> = (
     if (window.location.pathname.includes('project-guide')) {
       navigate(`/dashboard/project-guide?id=${projectId}&section=content&step=9`);
     } else {
-      navigate(`/dashboard/strategy/${projectId}?section=content`);
+      navigate(`/dashboard/projects/${projectId}/strategy?section=content`);
     }
   };
 
