@@ -430,10 +430,9 @@ incorporando de forma natural palabras clave relevantes y búsquedas frecuentes.
                     </div>
                   </div>
 
-                  {/* Prompt 1: Miniaturas / Portada Mr Beast */}
+                  {/* Prompt Miniaturas, Títulos, Descripción y Video Largo */}
                   {(() => {
                     const artTitle = currentSelectedArticle?.title || "Nuestro Artículo de Blog";
-                    const artKeyword = currentSelectedArticle?.keyword || "Estrategia Digital";
                     
                     const thumbText = `Tengo un video de YouTube que busca atraer el mayor numero de audiencia cualificada con contenidos de alto valor, quiero que actúes como un experto en diseño, Photoshop y canva con más de 10 años de experiencia haciendo miniaturas de YouTube para Mr Beast, en el que te enfocas en crear contenidos que generan efecto wow, cumple con las políticas y generan interés inmediato en la audiencia con colores que impactan e imágenes de alto realismo que gustan a las personas, generan curiosidad y atraen el máximo de clics elevando el CTR como ningún otra imagen.
 
@@ -454,69 +453,84 @@ Contexto
 
 ${productName}`;
 
-                    const shortsText = `haz un video corto hablando sobre:
+                    const titlesText = `tengo este título de un articulo de blog, dime que titulo podríamos usar optimizado para Youtube, analiza muy bien y dame variantes para el titulo que tenga contexto, debe estar enfocado en personas que quieran aprender sobre el video, y debes darme la mejor opción según tu recomendación, califica los resultados, intenta resaltar las palabras mas importantes en Mayúscula para hacerlo altamente optimizado para Youtube
+
+Titulo del Video:
+
+${artTitle}
+
+Contexto
+
+${productName}`;
+
+                    const descText = `He creado un video de Youtube con este contenido que tiene como titulo:
+
+${artTitle}
+
+que tiene como contexto
+
+${productName}
+
+Ayúdame a generar una descripción para el video de YouTube optimizado 100% al máximo para posicionar este contenido en el buscador, el objetivo de esta descripción es que añadas palabras claves al interior del contenido que podrían posicionarlo y que estén relacionadas con el objetivo del video, la idea es que esta descripción le de contexto al video y posicione el contenido en YouTube
+
+al final del video añade el siguiente cta exacto
+
+¡REGÍSTRATE AHORA A NUESTRA CLASE GRATUITA DE ${productName.toUpperCase()}!📌
+👉 
+
+También dame los Hahstags relacionados con este video que añadiremos en la sección de etiquetas del video de Youtube, el objetivo es que estas etiquetas estén relacionadas con el contenido 
+
+sigue las siguientes instrucciones:
+
+- Dame el texto en una caja para copiar y pegar
+- Dame máximo 5 palabras claves que serán usadas en las etiquetas
+- La longitud de la descripción no debe ser demasiado largo
+- No me des referencias en el texto, lo que quiero con el contenido es copiar y pegar
+- No lo hagas demasiado extenso
+- Dame 3 hahstags elacionados dentro del texto`;
+
+                    const longVideoText = `amplia el contenido y busca referencias interesantes y añádelas al video que tiene como título 
 
 
-${artTitle} 
+${artTitle}
 
 
-al inicio del video obligatoriamente debes decir lo siguiente:
+Recuerda que en el contenido que generes debes mantener exactamente este titulo y añadirlo en la primer diapositiva
+Empieza la persona diciendo el titulo del video, no digas nada sobre que esta es una investigación, ni análisis ni nada similar, empieza con el titulo del video
+Empieza con un diseño altamente llamativo en la primer diapositiva para llamar la atención del usuario según el siguiente titulo:
 
 
-${artTitle} 
+${artTitle}
 
 
+Para que tenga mejor contexto y se brinde la mejor información posible para aumentar al máximo el ctr. haz un contenido en video 100% informativo tipo podcast superando los 15 minutos en donde te enfoques con base en el contenido en resolver el tema del video (amplia el contenido para que supere los 15 minutos) según el titulo:
 
-luego debes actuar como un experto copywritter y dar un contenido de valor que toque las fibras del usuario respondiendo justamente la duda de la persona con base en el objetivo y titulo del video, debes dar contenido de valor, hacer que las ideas se presenten rápidamente y dar un buen contexto de cada idea, usa palabras claves que posicionen el contenido según el titulo del contenido
-intenta motivar a la audiencia a interactuar en comentarios respondiendo alguna pregunta importante con relación al tema que se viene hablando en el video
-y al final conectar el contenido que vienes hablando con CTA orientado a cambiar la vida de la persona invitando a la persona a que ingrese a nuestra clase gratuita de
+
+${artTitle}
+
+
+Antes de la mitad del video añade un cta invitando a nuestra clase gratuita de 
 
 
 ${productName}
 
 
-explica al final del video rápidamente el beneficio que obtendrá si ingresa a la clase gratuita y dices que escriba la palabra 
+Con nuestro profesor experto donde aprenderas todos los beneficios, dile al usuario si no ingresa a la clase que puede suceder negativo con base en su dolor (Haz bullet points de los puntos negativos si no aprende) y luego habla de los beneficios (enfocándote en 5 temas positivos y beneficios de aprender ${productName}) y Al finalizar Invita al usuario a nuestra clase gratuita donde aprendera las bases, la aplicacion, los materiales y todo lo necesario para convertir la tecnica en una gran oportunidad de negocio que le permita vivir una mejor calidad de vida
 
-${artKeyword.split(' ')[0].toUpperCase() || 'CLASE'}
+no hables sobre lo que la persona aprendera en la clase, sino en el beneficio de aprender según el contenido del articulo
 
-en los comentarios para enviarle por privado todos los detalles para que separe su cupo a la clase gratuita
-y luego dices haz clic en el video relacionado que aparece aquí abajo en la pantalla para más información
-cierra el video diciéndole que esto podría cambiar su vida, que no deje pasar esta oportunidad que se le presenta en su vida`;
-
-                    const longVideoText = `amplia el contenido y busca referencias interesantes y añadelas al video que tiene como titulo 
-
-
-${artTitle}																																																														
-
-recuerda que en el contenido que generes debes mantener exactamente este titulo y añadirlo en la primer diapositiva
-Empieza la persona diciendo el titulo del video, no digas nada sobre que esta es una investigación, análisis ni nada de eso, empieza con el titulo del video
-añade en las diapositivas imágenes reales relacionadas con el tema del video
-
-
-
-${artTitle}																																										
-
-
-para que tenga mejor contexto y se brinde la mejor informacion posible para aumentar al maximo el ctr. haz un contenido en video 100% informativo tipo podcast superando los 15 minutos en donde te enfoques con base en el contenido en resolver el tema del video (amplia el contenido para que supere los 15 minutos)
-
-
-
-
-${artTitle}																																																	
-
-antes de la mitad del video añade un cta invitando a nuestra clase gratuita de ${productName} con nuestro profesor experto donde aprenderas todos los beneficios de esta poderosa tecnica, dile al usuario si no ingresa a la clase que puede suceder negativo con base en su dolor (haz bullet points de los puntos negativos si no aprende) y luego habla de los beneficios (enfocandote en 5 temas positivos y beneficios de aprender ${productName}) y Al finalizar Invita al usuario a nuestra clase gratuita de ${productName} donde aprendera las bases, la aplicacion, los materiales y todo lo necesario para convertir la tecnica de ${productName} en una gran oportunidad de negocio que le permita vivir una mejor calidad de vida
-
-no hables sobre lo que la persona aprendera en la clase, sino en el beneficio de aprender 
+Contexto del Video:
 
 ${productName}`;
 
                     const pThumbVal = customPrompts['p_thumb'] !== undefined ? customPrompts['p_thumb'] : thumbText;
-                    const pShortsVal = customPrompts['p_shorts'] !== undefined ? customPrompts['p_shorts'] : shortsText;
+                    const pTitlesVal = customPrompts['p_titles'] !== undefined ? customPrompts['p_titles'] : titlesText;
+                    const pDescVal = customPrompts['p_desc'] !== undefined ? customPrompts['p_desc'] : descText;
                     const pLongVal = customPrompts['p_long'] !== undefined ? customPrompts['p_long'] : longVideoText;
 
                     return (
                       <div className="space-y-4">
-                        {/* Prompt 1 Card */}
+                        {/* Prompt 1: Miniaturas */}
                         <div className="bg-[#060a12] border border-slate-800 rounded-xl p-4 space-y-3">
                           <div className="flex items-center justify-between flex-wrap gap-2">
                             <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400">
@@ -545,36 +559,65 @@ ${productName}`;
                           </div>
                         </div>
 
-                        {/* Prompt 2 Card */}
+                        {/* Prompt 2: Títulos Magnéticos */}
                         <div className="bg-[#060a12] border border-slate-800 rounded-xl p-4 space-y-3">
                           <div className="flex items-center justify-between flex-wrap gap-2">
-                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400">
-                              YOUTUBE SHORTS (VERTICAL 60S)
+                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                              TÍTULOS MAGNÉTICOS PARA YOUTUBE
                             </span>
                             <button
-                              onClick={() => handleCopyText('p_shorts', pShortsVal)}
+                              onClick={() => handleCopyText('p_titles', pTitlesVal)}
                               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                                copiedPromptId === 'p_shorts'
+                                copiedPromptId === 'p_titles'
                                   ? 'bg-emerald-500 text-white'
                                   : 'bg-[#FF5A1F] hover:bg-[#ff6d38] text-white'
                               }`}
                             >
-                              {copiedPromptId === 'p_shorts' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                              <span>{copiedPromptId === 'p_shorts' ? '¡Copiado!' : 'Copiar Prompt'}</span>
+                              {copiedPromptId === 'p_titles' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                              <span>{copiedPromptId === 'p_titles' ? '¡Copiado!' : 'Copiar Prompt'}</span>
                             </button>
                           </div>
 
                           <div className="space-y-1">
                             <textarea
-                              value={pShortsVal}
-                              onChange={(e) => setCustomPrompts(prev => ({ ...prev, p_shorts: e.target.value }))}
+                              value={pTitlesVal}
+                              onChange={(e) => setCustomPrompts(prev => ({ ...prev, p_titles: e.target.value }))}
                               rows={5}
                               className="w-full bg-slate-900/90 border border-slate-800/80 focus:border-[#FF5A1F]/60 rounded-lg p-3 font-mono text-xs text-slate-300 leading-relaxed focus:outline-none resize-y select-text"
                             />
                           </div>
                         </div>
 
-                        {/* Prompt 3 Card */}
+                        {/* Prompt 3: Descripción Magnética */}
+                        <div className="bg-[#060a12] border border-slate-800 rounded-xl p-4 space-y-3">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                              DESCRIPCIÓN MAGNÉTICA PARA YOUTUBE
+                            </span>
+                            <button
+                              onClick={() => handleCopyText('p_desc', pDescVal)}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                                copiedPromptId === 'p_desc'
+                                  ? 'bg-emerald-500 text-white'
+                                  : 'bg-[#FF5A1F] hover:bg-[#ff6d38] text-white'
+                              }`}
+                            >
+                              {copiedPromptId === 'p_desc' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                              <span>{copiedPromptId === 'p_desc' ? '¡Copiado!' : 'Copiar Prompt'}</span>
+                            </button>
+                          </div>
+
+                          <div className="space-y-1">
+                            <textarea
+                              value={pDescVal}
+                              onChange={(e) => setCustomPrompts(prev => ({ ...prev, p_desc: e.target.value }))}
+                              rows={5}
+                              className="w-full bg-slate-900/90 border border-slate-800/80 focus:border-[#FF5A1F]/60 rounded-lg p-3 font-mono text-xs text-slate-300 leading-relaxed focus:outline-none resize-y select-text"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Prompt 4: Video Largo */}
                         <div className="bg-[#060a12] border border-slate-800 rounded-xl p-4 space-y-3">
                           <div className="flex items-center justify-between flex-wrap gap-2">
                             <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400">
