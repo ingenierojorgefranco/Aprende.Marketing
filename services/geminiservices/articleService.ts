@@ -8,25 +8,26 @@ export interface ArticleTitleIdea {
 }
 
 export const generateArticleTitles = async (topic: string, objective: string, keyword: string): Promise<ArticleTitleIdea[]> => {
-    const prompt = `Genera 4 títulos virales y altamente optimizados para SEO para un artículo basado en la siguiente idea/tema de entrada: "${topic}".
+    const prompt = `Genera 4 títulos virales y altamente optimizados para SEO basados en la siguiente idea/tema de entrada: "${topic}".
     Objetivo: "${objective}".
     ${keyword ? `Keyword SEO: "${keyword}"` : ''}
 
-    REGLAS ESTRICTAS DE COPYWRITING Y ESTRUCTURA (OBLIGATORIAS):
-    1. FÓRMULA OBLIGATORIA DE 3 PARTES PARA CADA TÍTULO:
-       Cada título DEBE estar estructurado obligatoriamente bajo esta fórmula de 3 partes:
-       [Gancho de Curiosidad o Pregunta] + [Beneficio o Promesa Específica] + [Número o Clave]
-       Ejemplo de referencia: "¿Quieres Evitar que los Colores se Mezclen en Resina Epóxica? Logra Separaciones Perfectas con Estas 5 Técnicas de Lujo"
+    REGLAS ESTRICTAS DE COPYWRITING Y LONGITUD (OBLIGATORIAS):
+    1. LÍMITE MÁXIMO ESTRICTO: MÁXIMO 90 CARACTERES POR TÍTULO. Queda estrictamente prohibido generar títulos largos o sobrecargados. Debe ser ultra legible y enfocado en UNA SOLA IDEA.
+    
+    2. ESTILOS DE REDACCIÓN (Combina y varía entre estas 3 estructuras):
+       - Estilo 1 (Pregunta Directa + Solución): "¿Cómo [Resolver Problema Técnico]? [Número] Errores/Claves a Evitar" (Ejemplo: "¿Cómo Eliminar las Marcas de Unión en Resina Epóxica? 5 Errores a Evitar")
+       - Estilo 2 (Ataque al Dolor + Prevención): "¿Por Qué [Ocurre el Fallo]? [Número] Errores que Arruinan tu [Producto/Resultado]" (Ejemplo: "¿Por Qué Se Marcan las Juntas en Resina Epóxica? 5 Errores que Arruinan tu Piso")
+       - Estilo 3 (Impacto Directo + Gancho): "¿[Problema Técnico en Pregunta Corta]? Evita [Fallo] con Estos [Número] Consejos Clave" (Ejemplo: "¿Líneas Visibles en tu Piso Epóxico? Evita Uniones con Estos 5 Errores Clave")
 
-    2. CERO DUPLICACIÓN - PROHIBICIÓN ABSOLUTA DE COPIAR EL TÍTULO DE ENTRADA:
-       Queda TERMINANTEMENTE PROHIBIDO devolver el título o frase de entrada exactamente igual a como vino.
-       Debes expresar el mismo concepto o solución técnica, pero redactado con palabras 100% nuevas e inéditas para evitar contenido duplicado y canibalización SEO.
+    3. CERO DUPLICACIÓN - PROHIBIDO COPIAR EL TÍTULO DE ENTRADA:
+       Queda TERMINANTEMENTE PROHIBIDO devolver el título o frase de entrada exactamente como vino. Debe ser 100% inédito.
 
-    3. RESPETO ABSOLUTO AL CONTEXTO TÉCNICO Y NOMBRES DE PRODUCTOS:
-       NUNCA recortes ni simplifiques los términos técnicos principales del producto o nicho (por ejemplo, si el tema es "Resina Epóxica", conserva "Resina Epóxica" completo y NUNCA lo reduzcas a solo "Resina").
+    4. FIDELIDAD AL CONTEXTO TÉCNICO:
+       NUNCA recortes ni simplifiques el término técnico principal (ejemplo: conserva "Resina Epóxica" completo).
 
-    4. En el campo 'title' devuelve SOLO el texto del título optimizado generado.
-    5. NO generes descripciones. Deja el campo 'description' como una cadena vacía "".
+    5. En el campo 'title' devuelve SOLO el texto del título.
+    6. NO generes descripciones. Deja el campo 'description' como una cadena vacía "".
     
     Devuelve JSON Array: [{ "title": "...", "description": "" }]`;
 
@@ -271,7 +272,7 @@ export const generateFullArticle = async (
     FORMATO DE SALIDA REQUERIDO (JSON STRICT):
     Debes retornar un objeto JSON válido que cumpla estrictamente con esta estructura:
     {
-      "title": "[Título final del artículo: REGLA DE ORO OBLIGATORIA: Genera un título 100% NUEVO y REESCRITO que NUNCA sea idéntico al título base para evitar duplicados. DEBE seguir estrictamente la fórmula: [Gancho de Curiosidad o Pregunta] + [Beneficio o Promesa Específica] + [Número o Clave]. Conserva siempre la palabra clave y nombre completo del producto/técnica (ejemplo: 'Resina Epóxica') y garantiza máximo CTR y SEO]",
+      "title": "[Título final del artículo: REGLA DE ORO OBLIGATORIA: MÁXIMO 90 CARACTERES. Genera un título 100% NUEVO y REESCRITO que NUNCA sea idéntico al título base. Enfocado en UNA SOLA IDEA. Usa de forma variada una de las 3 estructuras: Estilo 1 (¿Cómo [Resolver Problema]? [N] Errores/Claves a Evitar), Estilo 2 (¿Por Qué [Ocurre Fallo]? [N] Errores que Arruinan tu [Resultado]), o Estilo 3 (¿[Problema en Pregunta Corta]? Evita [Fallo] con Estos [N] Consejos). Conserva siempre la palabra clave técnica completa (ejemplo: 'Resina Epóxica')]",
       "html": "[El contenido completo del artículo formateado en HTML limpio, comenzando de inmediato con la introducción empática (H2s y H3s según el esquema provisto, párrafos, tablas, negritas, seguidos de los dos banners de CTA contextuales y sus respectivos párrafos de dolor pre-CTA)]",
       "metaDescription": "[Meta descripción atractiva para los buscadores que resuma el artículo en un máximo de 155 caracteres]",
       "strategy": "[Enfoque Estratégico del artículo: Un único párrafo corto de máximo 2 a 3 oraciones que destaque de forma concisa el objetivo principal del artículo y el beneficio clave para el lector]"
