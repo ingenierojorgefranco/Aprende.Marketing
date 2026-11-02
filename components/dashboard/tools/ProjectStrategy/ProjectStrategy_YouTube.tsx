@@ -61,6 +61,9 @@ export const ProjectStrategy_YouTube: React.FC<ProjectStrategy_YouTubeProps> = (
   const [activeTab, setActiveTab] = useState<'articles' | 'prompts' | 'best_practices'>('articles');
   const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null);
   
+  const [projectDetails, setProjectDetails] = useState<any>(null);
+  const [masterProject, setMasterProject] = useState<any>(null);
+
   // Estado para artículos de blog generados y la URL de publicación
   const [generatedArticles, setGeneratedArticles] = useState<any[]>([]);
   const [loadingArticles, setLoadingArticles] = useState(true);
@@ -68,7 +71,7 @@ export const ProjectStrategy_YouTube: React.FC<ProjectStrategy_YouTubeProps> = (
   const [subdomain, setSubdomain] = useState<string>('demo');
   const [copiedUrl, setCopiedUrl] = useState(false);
 
-  // Cargar artículos del proyecto y subdominio
+  // Cargar artículos del proyecto, datos del proyecto maestro y subdominio
   useEffect(() => {
     if (!projectId) return;
     let isMounted = true;
@@ -76,9 +79,43 @@ export const ProjectStrategy_YouTube: React.FC<ProjectStrategy_YouTubeProps> = (
 
     Promise.all([
       api.getArticlesByProject(projectId),
-      api.getPages()
-    ]).then(([articles, pages]) => {
+      api.getPages(),
+      api.getProjectById(projectId)
+    ]).then(async ([articles, pages, proj]) => {
       if (!isMounted) return;
+      
+      setProjectDetails(proj);
+
+      // Sincronización con Proyecto Maestro (Opción A): Buscar la plantilla maestra de origen
+      if (proj) {
+        let mProj: any = null;
+        if (proj.isMaster) {
+          mProj = proj;
+        } else if (proj.masterParentId) {
+          try {
+            mProj = await api.getProjectById(proj.masterParentId);
+          } catch (e) {
+            console.warn("Error cargando maestro directo:", e);
+          }
+        }
+
+        if (!mProj) {
+          try {
+            const masterLib = await api.getMasterLibrary();
+            mProj = masterLib.find((m: any) => 
+              String(m.id) === String(proj.masterParentId) || 
+              (m.name && proj.name && m.name.toLowerCase() === proj.name.toLowerCase()) ||
+              (m.productName && proj.productName && m.productName.toLowerCase() === proj.productName.toLowerCase())
+            );
+          } catch (e) {
+            console.warn("Error buscando en biblioteca maestra:", e);
+          }
+        }
+
+        if (mProj && isMounted) {
+          setMasterProject(mProj);
+        }
+      }
 
       const projectPages = (pages || []).filter((p: any) => String(p.projectId) === String(projectId));
       if (projectPages.length > 0 && projectPages[0].subdomain) {
@@ -107,10 +144,30 @@ export const ProjectStrategy_YouTube: React.FC<ProjectStrategy_YouTubeProps> = (
     }
   };
 
-  // Extraer información relevante del proyecto para personalizar los Prompts
-  const productName = strategyData?.meta?.projectName || strategyData?.meta?.insights?.overview?.items?.[0]?.value || "nuestro producto digital";
-  const avatarNiche = strategyData?.avatars?.[0]?.niche || strategyData?.meta?.insights?.avatar?.title || "personas interesadas en superarse y aprender";
-  const mainPainPoint = strategyData?.avatars?.[0]?.frustrations?.[0] || "la falta de resultados rápidos y la confusión de información";
+  // Extraer información relevante del proyecto priorizando SIEMPRE el PROYECTO MAESTRO (Opción A)
+  const productName = 
+    masterProject?.name ||
+    masterProject?.product_name ||
+    masterProject?.strategy_json?.meta?.projectName ||
+    projectDetails?.name ||
+    projectDetails?.product_name ||
+    strategyData?.meta?.projectName ||
+    strategyData?.meta?.insights?.overview?.items?.[0]?.value ||
+    "nuestro producto digital";
+
+  const avatarNiche = 
+    masterProject?.niche ||
+    masterProject?.strategy_json?.avatars?.[0]?.niche ||
+    masterProject?.strategy_json?.meta?.insights?.avatar?.title ||
+    projectDetails?.niche ||
+    strategyData?.avatars?.[0]?.niche ||
+    strategyData?.meta?.insights?.avatar?.title ||
+    productName;
+
+  const mainPainPoint = 
+    masterProject?.strategy_json?.avatars?.[0]?.frustrations?.[0] ||
+    strategyData?.avatars?.[0]?.frustrations?.[0] ||
+    "la falta de resultados rápidos y la confusión de información";
 
   const handleCopyText = (id: string, text: string) => {
     navigator.clipboard.writeText(text);
@@ -120,9 +177,21 @@ export const ProjectStrategy_YouTube: React.FC<ProjectStrategy_YouTubeProps> = (
 
   const promptsList = [
     {
+      id: 'logo_youtube_image',
+      tag: 'LOGOTIPO / FOTO DE PERFIL CON IA',
+      title: '1. Generador de Logotipo y Foto de Perfil para Canal de YouTube',
+      description: 'Copia y pega este prompt en cualquier IA de generación de imágenes (ChatGPT, Midjourney, DALL-E 3, Leonardo.ai) para crear el logotipo profesional de tu canal.',
+      highlightWord: avatarNiche || productName,
+      promptText: `Diseña un logotipo único, profesional, moderno y visualmente impactante para un canal de YouTube sobre 
+
+${avatarNiche || productName}
+
+Crea una identidad visual original, con tipografía grande y llamativa, colores armoniosos y elementos gráficos relacionados con la temática. Elige libremente el estilo, la composición y los colores para obtener un diseño diferente y creativo en cada generación. Formato cuadrado 1:1, optimizado para la foto de perfil circular de YouTube, con excelente legibilidad y calidad profesional.`
+    },
+    {
       id: 'titles_ctr',
       tag: 'TÍTULOS & IDEAS VIRALES',
-      title: '1. Generador de Títulos Virales con Alto CTR para YouTube',
+      title: '2. Generador de Títulos Virales con Alto CTR para YouTube',
       description: 'Genera 10 títulos altamente clickeables y optimizados para búsquedas (SEO) y algoritmo de sugeridos.',
       promptText: `Actúa como un estratega experto en contenido para YouTube con millones de reproducciones. Necesito 10 ideas de títulos altamente atractivos y clickeables para mi canal enfocado en promover ${productName}.
 
@@ -138,7 +207,7 @@ Requisitos para los títulos:
     {
       id: 'long_video_script',
       tag: 'GUIÓN VIDEO LARGO (8-15 MINS)',
-      title: '2. Guión Estructurado para Video de YouTube de Alta Conversión',
+      title: '3. Guión Estructurado para Video de YouTube de Alta Conversión',
       description: 'Estructura paso a paso para un video educativo largo que enganche desde el segundo 1 y convierta espectadores en leads.',
       promptText: `Escribe un guión completo para un video de YouTube de 10 minutos promocionando ${productName}.
 
@@ -155,7 +224,7 @@ Estructura requerida para el guión:
     {
       id: 'shorts_script',
       tag: 'YOUTUBE SHORTS (30-60S)',
-      title: '3. Guión Rápido para YouTube Shorts (Formato Vertical)',
+      title: '4. Guión Rápido para YouTube Shorts (Formato Vertical)',
       description: 'Aprovecha el formato vertical para capturar audiencia masiva en YouTube Shorts y dirigirla a tu embudo.',
       promptText: `Crea 3 guiones de YouTube Shorts de 45 segundos cada uno para promocionar ${productName}.
 
@@ -168,7 +237,7 @@ Formato:
     {
       id: 'seo_description',
       tag: 'DESCRIPCIÓN Y COMENTARIO FIJADO',
-      title: '4. Descripción SEO y Primer Comentario Fijado con Enlace',
+      title: '5. Descripción SEO y Primer Comentario Fijado con Enlace',
       description: 'Optimización SEO de la caja de descripción y primer comentario para posicionar en búsquedas y convertir visitas.',
       promptText: `Escribe una descripción optimizada para SEO en YouTube y un primer comentario fijado para un video sobre ${productName}.
 
@@ -647,7 +716,27 @@ ${productName}`;
                     </p>
 
                     <div className="relative bg-[#060a12] border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-300 leading-relaxed overflow-x-auto whitespace-pre-wrap select-all">
-                      {item.promptText}
+                      {(() => {
+                        const hWord = (item as any).highlightWord;
+                        if (hWord && item.promptText.includes(hWord)) {
+                          const parts = item.promptText.split(hWord);
+                          return (
+                            <>
+                              {parts.map((part, pIdx) => (
+                                <React.Fragment key={pIdx}>
+                                  {part}
+                                  {pIdx < parts.length - 1 && (
+                                    <span className="text-[#FF5A1F] font-extrabold bg-[#FF5A1F]/20 border border-[#FF5A1F]/40 px-1.5 py-0.5 rounded text-xs mx-0.5 inline-block">
+                                      {hWord}
+                                    </span>
+                                  )}
+                                </React.Fragment>
+                              ))}
+                            </>
+                          );
+                        }
+                        return item.promptText;
+                      })()}
                     </div>
                   </div>
                 );
