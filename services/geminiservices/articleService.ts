@@ -8,16 +8,26 @@ export interface ArticleTitleIdea {
 }
 
 export const generateArticleTitles = async (topic: string, objective: string, keyword: string): Promise<ArticleTitleIdea[]> => {
-    const prompt = `Genera 4 títulos virales y optimizados para SEO para un artículo sobre: "${topic}".
+    const prompt = `Genera 4 títulos virales y altamente optimizados para SEO basados en la siguiente idea/tema de entrada: "${topic}".
     Objetivo: "${objective}".
     ${keyword ? `Keyword SEO: "${keyword}"` : ''}
 
-    REGLAS ESTRICTAS DE COPYWRITING:
-    1. APLICA ESTEROIDES: Actúa como un experto en copywriting y SEO. Los títulos deben tener un altísimo CTR, ser provocativos pero profesionales, y cumplir con las mejores prácticas SEO.
-    2. CONTEXTO: No pierdas el contexto del tema original, pero mejóralo para que sea irresistible.
-    3. LONGITUD: Máximo 60 caracteres por título para evitar recortes en Google.
-    4. En el campo 'title' devuelve SOLO el texto del título.
-    5. NO generes descripciones. Deja el campo 'description' como una cadena vacía "".
+    REGLAS ESTRICTAS DE COPYWRITING Y LONGITUD (OBLIGATORIAS):
+    1. LÍMITE MÁXIMO ESTRICTO: MÁXIMO 90 CARACTERES POR TÍTULO. Queda estrictamente prohibido generar títulos largos o sobrecargados. Debe ser ultra legible y enfocado en UNA SOLA IDEA.
+    
+    2. ESTILOS DE REDACCIÓN (Combina y varía entre estas 3 estructuras):
+       - Estilo 1 (Pregunta Directa + Solución): "¿Cómo [Resolver Problema Técnico]? [Número] Errores/Claves a Evitar" (Ejemplo: "¿Cómo Eliminar las Marcas de Unión en Resina Epóxica? 5 Errores a Evitar")
+       - Estilo 2 (Ataque al Dolor + Prevención): "¿Por Qué [Ocurre el Fallo]? [Número] Errores que Arruinan tu [Producto/Resultado]" (Ejemplo: "¿Por Qué Se Marcan las Juntas en Resina Epóxica? 5 Errores que Arruinan tu Piso")
+       - Estilo 3 (Impacto Directo + Gancho): "¿[Problema Técnico en Pregunta Corta]? Evita [Fallo] con Estos [Número] Consejos Clave" (Ejemplo: "¿Líneas Visibles en tu Piso Epóxico? Evita Uniones con Estos 5 Errores Clave")
+
+    3. CERO DUPLICACIÓN - PROHIBIDO COPIAR EL TÍTULO DE ENTRADA:
+       Queda TERMINANTEMENTE PROHIBIDO devolver el título o frase de entrada exactamente como vino. Debe ser 100% inédito.
+
+    4. FIDELIDAD AL CONTEXTO TÉCNICO:
+       NUNCA recortes ni simplifiques el término técnico principal (ejemplo: conserva "Resina Epóxica" completo).
+
+    5. En el campo 'title' devuelve SOLO el texto del título.
+    6. NO generes descripciones. Deja el campo 'description' como una cadena vacía "".
     
     Devuelve JSON Array: [{ "title": "...", "description": "" }]`;
 
@@ -262,10 +272,10 @@ export const generateFullArticle = async (
     FORMATO DE SALIDA REQUERIDO (JSON STRICT):
     Debes retornar un objeto JSON válido que cumpla estrictamente con esta estructura:
     {
-      "title": "[Título final del artículo: Si el título original contiene una cantidad numérica o promesa específica (ej: 'Los 6 tipos de pinceles...'), CONSERVA la cantidad y la promesa del título original con máximo CTR y atractivo SEO, de máximo 65 caracteres]",
+      "title": "[Título final del artículo: REGLA DE ORO OBLIGATORIA: MÁXIMO 90 CARACTERES. Genera un título 100% NUEVO y REESCRITO que NUNCA sea idéntico al título base. Enfocado en UNA SOLA IDEA. Usa de forma variada una de las 3 estructuras: Estilo 1 (¿Cómo [Resolver Problema]? [N] Errores/Claves a Evitar), Estilo 2 (¿Por Qué [Ocurre Fallo]? [N] Errores que Arruinan tu [Resultado]), o Estilo 3 (¿[Problema en Pregunta Corta]? Evita [Fallo] con Estos [N] Consejos). Conserva siempre la palabra clave técnica completa (ejemplo: 'Resina Epóxica')]",
       "html": "[El contenido completo del artículo formateado en HTML limpio, comenzando de inmediato con la introducción empática (H2s y H3s según el esquema provisto, párrafos, tablas, negritas, seguidos de los dos banners de CTA contextuales y sus respectivos párrafos de dolor pre-CTA)]",
       "metaDescription": "[Meta descripción atractiva para los buscadores que resuma el artículo en un máximo de 155 caracteres]",
-      "strategy": "[Enfoque Estratégico del artículo de 1 a 2 párrafos breves que explique la idea central del artículo redactado y enfatice el objetivo de guiar a los lectores a registrarse e ingresar a la clase gratuita]"
+      "strategy": "[Enfoque Estratégico del artículo: Un único párrafo corto de máximo 2 a 3 oraciones que destaque de forma concisa el objetivo principal del artículo y el beneficio clave para el lector]"
     }
     No agregues ningún tipo de texto introductorio, explicativo, markdown de bloque para rodear el JSON (por ejemplo, sin triple acento grave), ni comentarios fuera de esta estructura. Solo devuelve el JSON parseable.`;
 
