@@ -160,34 +160,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             try {
                 const results = await api.getArticlesByProject(projectId, { search: term });
                 const generatedTitles = new Set(generatedData.map(g => g.title.toLowerCase().trim()));
-                const generatedIds = new Set<string>();
-                const generatedMasterIds = new Set<string>();
-
-                generatedData.forEach(g => {
-                    if (g.id) {
-                        generatedIds.add(String(g.id));
-                        generatedIds.add(String(g.id).replace('available-', ''));
-                    }
-                    const mId = (g as any).masterArticleId || g.psychologicalStrategy?.masterArticleId;
-                    if (mId) {
-                        generatedMasterIds.add(String(mId));
-                        generatedMasterIds.add(`available-${mId}`);
-                    }
-                });
+                const generatedIds = new Set(generatedData.map(g => String(g.id)));
 
                 const mappedResults = (results || [])
                     .filter(a => !a.isGenerated)
-                    .filter(a => {
-                        const idStr = String(a.id || '');
-                        const cleanId = idStr.replace('available-', '');
-                        const titleNorm = String(a.title || '').toLowerCase().trim();
-                        const mId = String((a as any).masterArticleId || (a.psychologicalStrategy as any)?.masterArticleId || '');
-
-                        if (generatedIds.has(idStr) || generatedIds.has(cleanId)) return false;
-                        if (generatedMasterIds.has(idStr) || generatedMasterIds.has(cleanId) || (mId && generatedMasterIds.has(mId))) return false;
-                        if (generatedTitles.has(titleNorm)) return false;
-                        return true;
-                    })
+                    .filter(a => !generatedIds.has(String(a.id)) && !generatedTitles.has(String(a.title).toLowerCase().trim()))
                     .map(a => ({
                         id: a.id,
                         masterArticleId: (a as any).masterArticleId || String(a.id).replace('available-', ''),
@@ -407,45 +384,21 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             );
 
             const generatedTitles = new Set(generated.map(g => g.title.toLowerCase().trim()));
-            const generatedIds = new Set<string>();
-            const generatedMasterIds = new Set<string>();
+            const generatedIds = new Set(generated.map(g => String(g.id)));
 
-            generated.forEach(g => {
-                if (g.id) {
-                    generatedIds.add(String(g.id));
-                    generatedIds.add(String(g.id).replace('available-', ''));
-                }
-                const mId = (g as any).masterArticleId || (g.psychologicalStrategy as any)?.masterArticleId;
-                if (mId) {
-                    generatedMasterIds.add(String(mId));
-                    generatedMasterIds.add(`available-${mId}`);
-                }
-            });
-
-            const isAlreadyGenerated = (a: any) => {
-                if (a.isGenerated) return true;
-                const idStr = String(a.id || '');
-                const cleanId = idStr.replace('available-', '');
-                const titleNorm = String(a.title || '').toLowerCase().trim();
-                const mId = String((a as any).masterArticleId || (a.psychologicalStrategy as any)?.masterArticleId || '');
-
-                if (generatedIds.has(idStr) || generatedIds.has(cleanId)) return true;
-                if (generatedMasterIds.has(idStr) || generatedMasterIds.has(cleanId) || (mId && generatedMasterIds.has(mId))) return true;
-                if (generatedTitles.has(titleNorm)) return true;
-                return false;
-            };
-
-            const nonGeneratedManual = manualFromDb.filter(a => !isAlreadyGenerated(a));
-            const unlocked = nonGeneratedManual.filter(a => a.isUnlocked);
-            const locked = [...nonGeneratedManual.filter(a => !a.isUnlocked), ...suggestions]
-                .filter(a => !isAlreadyGenerated(a));
+            const unlocked = manualFromDb.filter(a => a.isUnlocked);
+            const locked = [...manualFromDb.filter(a => !a.isUnlocked), ...suggestions]
+                .filter(a => !generatedTitles.has(a.title.toLowerCase().trim()) && !generatedIds.has(String(a.id)));
 
             const LIBRARY_COUNT = 7;
             let newLibrary: any[] = [];
 
             if (hasValidSessionCache && cachedLibrary) {
                 // Filtrar de la caché de sesión los artículos que ya fueron generados
-                const validCached = cachedLibrary.filter(a => !isAlreadyGenerated(a));
+                const validCached = cachedLibrary.filter(a => 
+                    !generatedIds.has(String(a.id)) && 
+                    !generatedTitles.has(String(a.title).toLowerCase().trim())
+                );
 
                 if (validCached.length >= LIBRARY_COUNT) {
                     newLibrary = validCached.slice(0, LIBRARY_COUNT);
