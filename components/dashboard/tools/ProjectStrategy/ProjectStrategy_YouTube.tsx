@@ -213,68 +213,6 @@ con fotografías hiperrealistas, iluminación cinematográfica y estética elega
 ${productName}
 
 incorporando de forma natural palabras clave relevantes y búsquedas frecuentes. Incluye una introducción llamativa, los temas que aprenderán los espectadores, beneficios del canal, emojis, una llamada a suscribirse y 3 hashtags relacionados y reales que van a posicionar el canal de youtube. Utiliza un tono profesional, cercano y orientado a principiantes y futuros profesionales de este nicho. Máximo 1.000 caracteres.`
-    },
-    {
-      id: 'titles_ctr',
-      tag: 'TÍTULOS & IDEAS VIRALES',
-      title: '4. Generador de Títulos Virales con Alto CTR para YouTube',
-      description: 'Genera 10 títulos altamente clickeables y optimizados para búsquedas (SEO) y algoritmo de sugeridos.',
-      promptText: `Actúa como un estratega experto en contenido para YouTube con millones de reproducciones. Necesito 10 ideas de títulos altamente atractivos y clickeables para mi canal enfocado en promover ${productName}.
-
-Audiencia Objetivo: ${avatarNiche}.
-Problema principal que resuelven mis videos: ${mainPainPoint}.
-
-Requisitos para los títulos:
-1. Usar desencadenantes psicológicos (curiosidad, urgencia, descubrimiento, errores comunes).
-2. Mantenerlos en menos de 65 caracteres para que no se corten en móviles.
-3. Incluir palabras clave con alto volumen de búsqueda en YouTube relacionadas con el nicho.
-4. Generar 5 títulos para videos largos de YouTube (8 a 15 mins) y 5 para YouTube Shorts (menos de 60s).`
-    },
-    {
-      id: 'long_video_script',
-      tag: 'GUIÓN VIDEO LARGO (8-15 MINS)',
-      title: '5. Guión Estructurado para Video de YouTube de Alta Conversión',
-      description: 'Estructura paso a paso para un video educativo largo que enganche desde el segundo 1 y convierta espectadores en leads.',
-      promptText: `Escribe un guión completo para un video de YouTube de 10 minutos promocionando ${productName}.
-
-Público objetivo: ${avatarNiche}.
-Problema a solucionar: ${mainPainPoint}.
-
-Estructura requerida para el guión:
-- HOOK DE ENTRADA (0:00 - 0:15): Gancho visual y verbal irresistible. Por qué deben ver este video HOY.
-- INTRODUCCIÓN RÁPIDA (0:15 - 0:45): Breve presentación de la promesa y llamado a suscribirse.
-- CUERPO DEL VIDEO (Puntos 1, 2 y 3): Explicación paso a paso educativa sin rodeos. En cada punto añade una recomendación práctica.
-- LANCE / PITCH SUTIL: Cómo ${productName} ahorra tiempo y acelera este proceso.
-- CALL TO ACTION FINAL (Últimos 45s): Indicación clara para hacer clic en el enlace de la descripción o del primer comentario fijado.`
-    },
-    {
-      id: 'shorts_script',
-      tag: 'YOUTUBE SHORTS (30-60S)',
-      title: '6. Guión Rápido para YouTube Shorts (Formato Vertical)',
-      description: 'Aprovecha el formato vertical para capturar audiencia masiva en YouTube Shorts y dirigirla a tu embudo.',
-      promptText: `Crea 3 guiones de YouTube Shorts de 45 segundos cada uno para promocionar ${productName}.
-
-Audiencia: ${avatarNiche}.
-Formato:
-- 00:00 a 00:03 -> Hook impactante de apertura (pregunta reto o afirmación contundente).
-- 00:03 a 00:35 -> 3 tips rápidos sin pausas muertas.
-- 00:35 a 00:45 -> Llamado a la acción directo: "Haz clic en el enlace del primer comentario fijado para acceder a nuestra clase/guía completa".`
-    },
-    {
-      id: 'seo_description',
-      tag: 'DESCRIPCIÓN Y COMENTARIO FIJADO',
-      title: '7. Descripción SEO y Primer Comentario Fijado con Enlace',
-      description: 'Optimización SEO de la caja de descripción y primer comentario para posicionar en búsquedas y convertir visitas.',
-      promptText: `Escribe una descripción optimizada para SEO en YouTube y un primer comentario fijado para un video sobre ${productName}.
-
-Requisitos:
-1. Párrafo inicial de 3 líneas con palabras clave principales sobre ${productName} y ${avatarNiche}.
-2. Sección de ENLACES CLAVE:
-   - "👉 Accede aquí a tu sistema completo: [INSERTAR TU LINK DE AFILIADO / LANDING]"
-   - "💬 Chatea con nosotros por WhatsApp: [INSERTAR LINK DE WHATSAPP]"
-3. Lista de Marcas de Tiempo (Timestamps / Capítulos del video).
-4. 5 Hashtags relevantes para YouTube (#YouTubeShorts, #${productName.replace(/\s+/g, '')}, etc.).
-5. Redacta también el texto exacto para el PRIMER COMENTARIO FIJADO con emojis atractivos y llamado al enlace.`
     }
   ];
 
@@ -433,23 +371,6 @@ Requisitos:
                     <h3 className="text-xl sm:text-2xl font-extrabold text-white leading-tight">
                       {currentSelectedArticle?.title}
                     </h3>
-
-                    {currentSelectedArticle?.keyword && (
-                      <p className="text-xs text-slate-400 font-medium">
-                        Keyword SEO: <span className="text-slate-200 font-bold">{currentSelectedArticle.keyword}</span>
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Tarjeta Enfoque Estratégico (Diseño Imagen 1) */}
-                  <div className="bg-[#060a12] border border-slate-800/90 rounded-2xl p-5 space-y-2">
-                    <p className="text-xs font-bold text-amber-400 flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-amber-400" />
-                      <span>Enfoque Estratégico del Artículo</span>
-                    </p>
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
-                      {currentSelectedArticle?.metaDescription || currentSelectedArticle?.summary || "Este artículo ataca directamente la intención de búsqueda de tu audiencia objetivo, estructurando secciones optimizadas para posicionamiento SEO y máxima conversión en YouTube."}
-                    </p>
                   </div>
 
                   {/* Campo con la URL del Artículo */}
@@ -498,17 +419,6 @@ Requisitos:
                   </div>
                 </div>
 
-                {/* Tip de NotebookLM */}
-                <div className="bg-[#060a12] border border-slate-800/90 rounded-2xl p-4 text-xs text-slate-300 space-y-1.5 text-left mt-4">
-                  <p className="font-bold text-amber-400 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 shrink-0" />
-                    <span>Cómo crear tus Videos de YouTube con NotebookLM</span>
-                  </p>
-                  <p className="text-slate-400 leading-relaxed">
-                    Copia la URL del artículo y pégala como fuente directa en <strong className="text-white">NotebookLM</strong>. Utilízala para generar guiones paso a paso o resúmenes de audio ideales para grabar tus videos largos y Shorts.
-                  </p>
-                </div>
-
                 {/* PROMPTS PERSONALIZADOS PARA EL ARTÍCULO SELECCIONADO */}
                 <div className="pt-6 border-t border-slate-800/80 space-y-5">
                   <div className="flex items-center gap-2.5">
@@ -517,7 +427,6 @@ Requisitos:
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-white">Prompts de IA Personalizados para este Artículo</h4>
-                      <p className="text-xs text-slate-400">Listos para copiar y pegar directo en ChatGPT, Gemini o Midjourney con el título e información del artículo</p>
                     </div>
                   </div>
 
@@ -622,17 +531,16 @@ ${productName}`;
                               }`}
                             >
                               {copiedPromptId === 'p_thumb' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                              <span>{copiedPromptId === 'p_thumb' ? '¡Copiado!' : 'Copiar Prompt Miniaturas'}</span>
+                              <span>{copiedPromptId === 'p_thumb' ? '¡Copiado!' : 'Copiar Prompt'}</span>
                             </button>
                           </div>
 
                           <div className="space-y-1">
-                            <p className="text-[10px] text-slate-400 font-medium">✏️ Texto editable para este artículo:</p>
                             <textarea
                               value={pThumbVal}
                               onChange={(e) => setCustomPrompts(prev => ({ ...prev, p_thumb: e.target.value }))}
                               rows={5}
-                              className="w-full bg-slate-900/90 border border-slate-800/80 focus:border-[#FF5A1F]/60 rounded-lg p-3 text-[11px] font-mono text-slate-300 leading-relaxed focus:outline-none resize-y select-text"
+                              className="w-full bg-slate-900/90 border border-slate-800/80 focus:border-[#FF5A1F]/60 rounded-lg p-3 font-mono text-xs text-slate-300 leading-relaxed focus:outline-none resize-y select-text"
                             />
                           </div>
                         </div>
@@ -652,17 +560,16 @@ ${productName}`;
                               }`}
                             >
                               {copiedPromptId === 'p_shorts' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                              <span>{copiedPromptId === 'p_shorts' ? '¡Copiado!' : 'Copiar Prompt Shorts'}</span>
+                              <span>{copiedPromptId === 'p_shorts' ? '¡Copiado!' : 'Copiar Prompt'}</span>
                             </button>
                           </div>
 
                           <div className="space-y-1">
-                            <p className="text-[10px] text-slate-400 font-medium">✏️ Texto editable para este artículo:</p>
                             <textarea
                               value={pShortsVal}
                               onChange={(e) => setCustomPrompts(prev => ({ ...prev, p_shorts: e.target.value }))}
                               rows={5}
-                              className="w-full bg-slate-900/90 border border-slate-800/80 focus:border-[#FF5A1F]/60 rounded-lg p-3 text-[11px] font-mono text-slate-300 leading-relaxed focus:outline-none resize-y select-text"
+                              className="w-full bg-slate-900/90 border border-slate-800/80 focus:border-[#FF5A1F]/60 rounded-lg p-3 font-mono text-xs text-slate-300 leading-relaxed focus:outline-none resize-y select-text"
                             />
                           </div>
                         </div>
@@ -682,17 +589,16 @@ ${productName}`;
                               }`}
                             >
                               {copiedPromptId === 'p_long' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                              <span>{copiedPromptId === 'p_long' ? '¡Copiado!' : 'Copiar Prompt Video Largo'}</span>
+                              <span>{copiedPromptId === 'p_long' ? '¡Copiado!' : 'Copiar Prompt'}</span>
                             </button>
                           </div>
 
                           <div className="space-y-1">
-                            <p className="text-[10px] text-slate-400 font-medium">✏️ Texto editable para este artículo:</p>
                             <textarea
                               value={pLongVal}
                               onChange={(e) => setCustomPrompts(prev => ({ ...prev, p_long: e.target.value }))}
                               rows={5}
-                              className="w-full bg-slate-900/90 border border-slate-800/80 focus:border-[#FF5A1F]/60 rounded-lg p-3 text-[11px] font-mono text-slate-300 leading-relaxed focus:outline-none resize-y select-text"
+                              className="w-full bg-slate-900/90 border border-slate-800/80 focus:border-[#FF5A1F]/60 rounded-lg p-3 font-mono text-xs text-slate-300 leading-relaxed focus:outline-none resize-y select-text"
                             />
                           </div>
                         </div>
@@ -730,14 +636,9 @@ ${productName}`;
                 return (
                   <div key={item.id} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3.5 text-left shadow-md">
                     <div className="flex items-center justify-between flex-wrap gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 text-[#FF5A1F]">
-                          {item.tag}
-                        </span>
-                        <h4 className="text-base font-bold text-white">
-                          {item.title}
-                        </h4>
-                      </div>
+                      <h4 className="text-base font-bold text-white">
+                        {item.title}
+                      </h4>
 
                       <button
                         onClick={() => handleCopyText(item.id, currentVal)}
@@ -756,21 +657,10 @@ ${productName}`;
                       {item.description}
                     </p>
 
-                    {/* Badge de Contexto de Proyecto Maestro si existe */}
-                    {item.highlightWord && (
-                      <div className="text-xs text-slate-400 flex items-center gap-2 pt-1">
-                        <span className="font-semibold text-slate-300">Contexto del Proyecto Maestro:</span>
-                        <span className="text-[#FF5A1F] font-extrabold bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 px-2.5 py-0.5 rounded text-xs">
-                          {item.highlightWord}
-                        </span>
-                      </div>
-                    )}
-
                     {/* Area de texto editable en vivo */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium">
-                        <span>✏️ Texto editable (puedes añadir o modificar información antes de copiar):</span>
-                        {customPrompts[item.id] !== undefined && (
+                    <div className="space-y-1">
+                      {customPrompts[item.id] !== undefined && (
+                        <div className="flex justify-end">
                           <button
                             onClick={() => setCustomPrompts(prev => {
                               const next = { ...prev };
@@ -781,8 +671,8 @@ ${productName}`;
                           >
                             Restablecer prompt original
                           </button>
-                        )}
-                      </div>
+                        </div>
+                      )}
 
                       <textarea
                         value={currentVal}
