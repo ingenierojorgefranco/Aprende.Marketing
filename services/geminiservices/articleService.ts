@@ -274,7 +274,7 @@ export const generateFullArticle = async (
       "title": "[Título final del artículo: REGLA DE ORO OBLIGATORIA: Genera un título 100% NUEVO y REESCRITO que NUNCA sea idéntico al título base para evitar duplicados. DEBE seguir estrictamente la fórmula: [Gancho de Curiosidad o Pregunta] + [Beneficio o Promesa Específica] + [Número o Clave]. Conserva siempre la palabra clave y nombre completo del producto/técnica (ejemplo: 'Resina Epóxica') y garantiza máximo CTR y SEO]",
       "html": "[El contenido completo del artículo formateado en HTML limpio, comenzando de inmediato con la introducción empática (H2s y H3s según el esquema provisto, párrafos, tablas, negritas, seguidos de los dos banners de CTA contextuales y sus respectivos párrafos de dolor pre-CTA)]",
       "metaDescription": "[Meta descripción atractiva para los buscadores que resuma el artículo en un máximo de 155 caracteres]",
-      "strategy": "[Enfoque Estratégico del artículo de 1 a 2 párrafos breves que explique la idea central del artículo redactado y enfatice el objetivo de guiar a los lectores a registrarse e ingresar a la clase gratuita]"
+      "strategy": "[Enfoque Estratégico del artículo: Un único párrafo corto de máximo 2 a 3 oraciones que destaque de forma concisa el objetivo principal del artículo y el beneficio clave para el lector]"
     }
     No agregues ningún tipo de texto introductorio, explicativo, markdown de bloque para rodear el JSON (por ejemplo, sin triple acento grave), ni comentarios fuera de esta estructura. Solo devuelve el JSON parseable.`;
 
