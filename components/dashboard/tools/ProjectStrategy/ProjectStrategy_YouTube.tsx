@@ -144,13 +144,15 @@ export const ProjectStrategy_YouTube: React.FC<ProjectStrategy_YouTubeProps> = (
     }
   };
 
+  const [customPrompts, setCustomPrompts] = useState<Record<string, string>>({});
+
   // Extraer información relevante del proyecto priorizando SIEMPRE el PROYECTO MAESTRO (Opción A)
   const productName = 
     masterProject?.name ||
-    masterProject?.product_name ||
+    masterProject?.productName ||
     masterProject?.strategy_json?.meta?.projectName ||
     projectDetails?.name ||
-    projectDetails?.product_name ||
+    projectDetails?.productName ||
     strategyData?.meta?.projectName ||
     strategyData?.meta?.insights?.overview?.items?.[0]?.value ||
     "nuestro producto digital";
@@ -181,17 +183,41 @@ export const ProjectStrategy_YouTube: React.FC<ProjectStrategy_YouTubeProps> = (
       tag: 'LOGOTIPO / FOTO DE PERFIL CON IA',
       title: '1. Generador de Logotipo y Foto de Perfil para Canal de YouTube',
       description: 'Copia y pega este prompt en cualquier IA de generación de imágenes (ChatGPT, Midjourney, DALL-E 3, Leonardo.ai) para crear el logotipo profesional de tu canal.',
-      highlightWord: avatarNiche || productName,
+      highlightWord: productName,
       promptText: `Diseña un logotipo único, profesional, moderno y visualmente impactante para un canal de YouTube sobre 
 
-${avatarNiche || productName}
+${productName}
 
 Crea una identidad visual original, con tipografía grande y llamativa, colores armoniosos y elementos gráficos relacionados con la temática. Elige libremente el estilo, la composición y los colores para obtener un diseño diferente y creativo en cada generación. Formato cuadrado 1:1, optimizado para la foto de perfil circular de YouTube, con excelente legibilidad y calidad profesional.`
     },
     {
+      id: 'banner_youtube_image',
+      tag: 'PORTADA / BANNER DE YOUTUBE (2560x1440)',
+      title: '2. Generador de Portada / Banner para Canal de YouTube',
+      description: 'Copia y pega este prompt en cualquier IA de generación de imágenes para crear la portada oficial optimizada para móviles, PC y TV.',
+      highlightWord: productName,
+      promptText: `Crea una portada premium para YouTube sobre 
+
+${productName}
+
+con fotografías hiperrealistas, iluminación cinematográfica y estética elegante. Lienzo exacto: 2560 × 1440 px. Zona segura: 1546 × 423 px centrada. Área máxima exclusiva del texto: 850 × 180 px, coordenadas X=855–1705, Y=630–810. Coloca el título «${productName}» centrado, con fuente máxima de 48 px; si no cabe, reduce la fuente o divídelo en dos líneas. Debajo coloca «Aprende paso a paso a dominar esta técnica profesional» con fuente máxima de 24 px. Ninguna letra, sombra, borde ni decoración puede salir del bloque de texto. Distribuye fotografías profesionales del proceso y resultados por el resto del lienzo. Prioriza que todo el texto sea visible en móviles, ordenadores y televisores. No amplíes ni desplaces el título.`
+    },
+    {
+      id: 'channel_description_seo',
+      tag: 'DESCRIPCIÓN DEL CANAL DE YOUTUBE (SEO)',
+      title: '3. Generador de Descripción SEO del Canal de YouTube',
+      description: 'Copia y pega este prompt en ChatGPT o Gemini para redactar la descripción oficial optimizada de tu canal de YouTube (sección "Acerca de").',
+      highlightWord: productName,
+      promptText: `Actúa como un experto en SEO para YouTube. Genera una descripción atractiva y optimizada para un canal sobre 
+
+${productName}
+
+incorporando de forma natural palabras clave relevantes y búsquedas frecuentes. Incluye una introducción llamativa, los temas que aprenderán los espectadores, beneficios del canal, emojis, una llamada a suscribirse y 3 hashtags relacionados y reales que van a posicionar el canal de youtube. Utiliza un tono profesional, cercano y orientado a principiantes y futuros profesionales de este nicho. Máximo 1.000 caracteres.`
+    },
+    {
       id: 'titles_ctr',
       tag: 'TÍTULOS & IDEAS VIRALES',
-      title: '2. Generador de Títulos Virales con Alto CTR para YouTube',
+      title: '4. Generador de Títulos Virales con Alto CTR para YouTube',
       description: 'Genera 10 títulos altamente clickeables y optimizados para búsquedas (SEO) y algoritmo de sugeridos.',
       promptText: `Actúa como un estratega experto en contenido para YouTube con millones de reproducciones. Necesito 10 ideas de títulos altamente atractivos y clickeables para mi canal enfocado en promover ${productName}.
 
@@ -207,7 +233,7 @@ Requisitos para los títulos:
     {
       id: 'long_video_script',
       tag: 'GUIÓN VIDEO LARGO (8-15 MINS)',
-      title: '3. Guión Estructurado para Video de YouTube de Alta Conversión',
+      title: '5. Guión Estructurado para Video de YouTube de Alta Conversión',
       description: 'Estructura paso a paso para un video educativo largo que enganche desde el segundo 1 y convierta espectadores en leads.',
       promptText: `Escribe un guión completo para un video de YouTube de 10 minutos promocionando ${productName}.
 
@@ -224,7 +250,7 @@ Estructura requerida para el guión:
     {
       id: 'shorts_script',
       tag: 'YOUTUBE SHORTS (30-60S)',
-      title: '4. Guión Rápido para YouTube Shorts (Formato Vertical)',
+      title: '6. Guión Rápido para YouTube Shorts (Formato Vertical)',
       description: 'Aprovecha el formato vertical para capturar audiencia masiva en YouTube Shorts y dirigirla a tu embudo.',
       promptText: `Crea 3 guiones de YouTube Shorts de 45 segundos cada uno para promocionar ${productName}.
 
@@ -237,7 +263,7 @@ Formato:
     {
       id: 'seo_description',
       tag: 'DESCRIPCIÓN Y COMENTARIO FIJADO',
-      title: '5. Descripción SEO y Primer Comentario Fijado con Enlace',
+      title: '7. Descripción SEO y Primer Comentario Fijado con Enlace',
       description: 'Optimización SEO de la caja de descripción y primer comentario para posicionar en búsquedas y convertir visitas.',
       promptText: `Escribe una descripción optimizada para SEO en YouTube y un primer comentario fijado para un video sobre ${productName}.
 
@@ -302,18 +328,6 @@ Requisitos:
           >
             <Sparkles className="w-4 h-4 text-amber-400" />
             <span>2. Prompts de IA para YouTube</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('best_practices')}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
-              activeTab === 'best_practices'
-                ? 'bg-[#FF5A1F] text-white shadow-lg shadow-orange-500/20'
-                : 'bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700'
-            }`}
-          >
-            <Lightbulb className="w-4 h-4 text-yellow-400" />
-            <span>3. Estrategia & Conversión</span>
           </button>
         </div>
 
@@ -587,6 +601,10 @@ no hables sobre lo que la persona aprendera en la clase, sino en el beneficio de
 
 ${productName}`;
 
+                    const pThumbVal = customPrompts['p_thumb'] !== undefined ? customPrompts['p_thumb'] : thumbText;
+                    const pShortsVal = customPrompts['p_shorts'] !== undefined ? customPrompts['p_shorts'] : shortsText;
+                    const pLongVal = customPrompts['p_long'] !== undefined ? customPrompts['p_long'] : longVideoText;
+
                     return (
                       <div className="space-y-4">
                         {/* Prompt 1 Card */}
@@ -596,7 +614,7 @@ ${productName}`;
                               MINIATURAS / PORTADAS (CTR VIRAL)
                             </span>
                             <button
-                              onClick={() => handleCopyText('p_thumb', thumbText)}
+                              onClick={() => handleCopyText('p_thumb', pThumbVal)}
                               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                                 copiedPromptId === 'p_thumb'
                                   ? 'bg-emerald-500 text-white'
@@ -607,8 +625,15 @@ ${productName}`;
                               <span>{copiedPromptId === 'p_thumb' ? '¡Copiado!' : 'Copiar Prompt Miniaturas'}</span>
                             </button>
                           </div>
-                          <div className="bg-slate-900/90 border border-slate-800/80 rounded-lg p-3 text-[11px] font-mono text-slate-300 leading-relaxed max-h-36 overflow-y-auto whitespace-pre-wrap select-all">
-                            {thumbText}
+
+                          <div className="space-y-1">
+                            <p className="text-[10px] text-slate-400 font-medium">✏️ Texto editable para este artículo:</p>
+                            <textarea
+                              value={pThumbVal}
+                              onChange={(e) => setCustomPrompts(prev => ({ ...prev, p_thumb: e.target.value }))}
+                              rows={5}
+                              className="w-full bg-slate-900/90 border border-slate-800/80 focus:border-[#FF5A1F]/60 rounded-lg p-3 text-[11px] font-mono text-slate-300 leading-relaxed focus:outline-none resize-y select-text"
+                            />
                           </div>
                         </div>
 
@@ -619,7 +644,7 @@ ${productName}`;
                               YOUTUBE SHORTS (VERTICAL 60S)
                             </span>
                             <button
-                              onClick={() => handleCopyText('p_shorts', shortsText)}
+                              onClick={() => handleCopyText('p_shorts', pShortsVal)}
                               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                                 copiedPromptId === 'p_shorts'
                                   ? 'bg-emerald-500 text-white'
@@ -630,8 +655,15 @@ ${productName}`;
                               <span>{copiedPromptId === 'p_shorts' ? '¡Copiado!' : 'Copiar Prompt Shorts'}</span>
                             </button>
                           </div>
-                          <div className="bg-slate-900/90 border border-slate-800/80 rounded-lg p-3 text-[11px] font-mono text-slate-300 leading-relaxed max-h-36 overflow-y-auto whitespace-pre-wrap select-all">
-                            {shortsText}
+
+                          <div className="space-y-1">
+                            <p className="text-[10px] text-slate-400 font-medium">✏️ Texto editable para este artículo:</p>
+                            <textarea
+                              value={pShortsVal}
+                              onChange={(e) => setCustomPrompts(prev => ({ ...prev, p_shorts: e.target.value }))}
+                              rows={5}
+                              className="w-full bg-slate-900/90 border border-slate-800/80 focus:border-[#FF5A1F]/60 rounded-lg p-3 text-[11px] font-mono text-slate-300 leading-relaxed focus:outline-none resize-y select-text"
+                            />
                           </div>
                         </div>
 
@@ -642,7 +674,7 @@ ${productName}`;
                               VIDEO LARGO (+15 MINS PODCAST)
                             </span>
                             <button
-                              onClick={() => handleCopyText('p_long', longVideoText)}
+                              onClick={() => handleCopyText('p_long', pLongVal)}
                               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                                 copiedPromptId === 'p_long'
                                   ? 'bg-emerald-500 text-white'
@@ -653,8 +685,15 @@ ${productName}`;
                               <span>{copiedPromptId === 'p_long' ? '¡Copiado!' : 'Copiar Prompt Video Largo'}</span>
                             </button>
                           </div>
-                          <div className="bg-slate-900/90 border border-slate-800/80 rounded-lg p-3 text-[11px] font-mono text-slate-300 leading-relaxed max-h-36 overflow-y-auto whitespace-pre-wrap select-all">
-                            {longVideoText}
+
+                          <div className="space-y-1">
+                            <p className="text-[10px] text-slate-400 font-medium">✏️ Texto editable para este artículo:</p>
+                            <textarea
+                              value={pLongVal}
+                              onChange={(e) => setCustomPrompts(prev => ({ ...prev, p_long: e.target.value }))}
+                              rows={5}
+                              className="w-full bg-slate-900/90 border border-slate-800/80 focus:border-[#FF5A1F]/60 rounded-lg p-3 text-[11px] font-mono text-slate-300 leading-relaxed focus:outline-none resize-y select-text"
+                            />
                           </div>
                         </div>
                       </div>
@@ -678,7 +717,7 @@ ${productName}`;
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-white">Prompts de Inteligencia Artificial para YouTube</h3>
-                  <p className="text-xs text-slate-400">Copia estos prompts personalizados y pégalos en ChatGPT o Gemini para generar tus títulos, guiones y descripciones en segundos.</p>
+                  <p className="text-xs text-slate-400">Copia estos prompts personalizados o edítalos libremente antes de copiar para adaptar tus instrucciones a ChatGPT o Gemini.</p>
                 </div>
               </div>
             </div>
@@ -686,6 +725,8 @@ ${productName}`;
             <div className="space-y-6 pt-2">
               {promptsList.map((item) => {
                 const isCopied = copiedPromptId === item.id;
+                const currentVal = customPrompts[item.id] !== undefined ? customPrompts[item.id] : item.promptText;
+
                 return (
                   <div key={item.id} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3.5 text-left shadow-md">
                     <div className="flex items-center justify-between flex-wrap gap-2">
@@ -699,7 +740,7 @@ ${productName}`;
                       </div>
 
                       <button
-                        onClick={() => handleCopyText(item.id, item.promptText)}
+                        onClick={() => handleCopyText(item.id, currentVal)}
                         className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm ${
                           isCopied
                             ? 'bg-emerald-500 text-white shadow-emerald-500/20'
@@ -715,83 +756,45 @@ ${productName}`;
                       {item.description}
                     </p>
 
-                    <div className="relative bg-[#060a12] border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-300 leading-relaxed overflow-x-auto whitespace-pre-wrap select-all">
-                      {(() => {
-                        const hWord = (item as any).highlightWord;
-                        if (hWord && item.promptText.includes(hWord)) {
-                          const parts = item.promptText.split(hWord);
-                          return (
-                            <>
-                              {parts.map((part, pIdx) => (
-                                <React.Fragment key={pIdx}>
-                                  {part}
-                                  {pIdx < parts.length - 1 && (
-                                    <span className="text-[#FF5A1F] font-extrabold bg-[#FF5A1F]/20 border border-[#FF5A1F]/40 px-1.5 py-0.5 rounded text-xs mx-0.5 inline-block">
-                                      {hWord}
-                                    </span>
-                                  )}
-                                </React.Fragment>
-                              ))}
-                            </>
-                          );
-                        }
-                        return item.promptText;
-                      })()}
+                    {/* Badge de Contexto de Proyecto Maestro si existe */}
+                    {item.highlightWord && (
+                      <div className="text-xs text-slate-400 flex items-center gap-2 pt-1">
+                        <span className="font-semibold text-slate-300">Contexto del Proyecto Maestro:</span>
+                        <span className="text-[#FF5A1F] font-extrabold bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 px-2.5 py-0.5 rounded text-xs">
+                          {item.highlightWord}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Area de texto editable en vivo */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                        <span>✏️ Texto editable (puedes añadir o modificar información antes de copiar):</span>
+                        {customPrompts[item.id] !== undefined && (
+                          <button
+                            onClick={() => setCustomPrompts(prev => {
+                              const next = { ...prev };
+                              delete next[item.id];
+                              return next;
+                            })}
+                            className="text-amber-400 hover:underline cursor-pointer text-xs font-semibold"
+                          >
+                            Restablecer prompt original
+                          </button>
+                        )}
+                      </div>
+
+                      <textarea
+                        value={currentVal}
+                        onChange={(e) => setCustomPrompts(prev => ({ ...prev, [item.id]: e.target.value }))}
+                        rows={7}
+                        className="w-full bg-[#060a12] border border-slate-800 focus:border-[#FF5A1F]/60 rounded-xl p-4 font-mono text-xs text-slate-300 leading-relaxed focus:outline-none resize-y select-text shadow-inner"
+                      />
                     </div>
                   </div>
                 );
               })}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* CONTENIDO PESTAÑA 3: ESTRATEGIA & CONVERSIÓN */}
-      {activeTab === 'best_practices' && (
-        <div className="space-y-6 animate-in fade-in duration-300">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {/* Pilar 1 */}
-            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 space-y-3 text-left shadow-xl">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-base">
-                1
-              </div>
-              <h4 className="text-base font-bold text-white">Miniaturas (Thumbnails) de Alto Impacto</h4>
-              <p className="text-xs text-slate-400 leading-relaxed font-normal">
-                La miniatura es responsable del 80% de los clics. Usa rostros expresivos, textos cortos de máximo 3 o 4 palabras y alto contraste de colores (amarillo, rojo, blanco sobre fondos oscuros).
-              </p>
-            </div>
-
-            {/* Pilar 2 */}
-            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 space-y-3 text-left shadow-xl">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-base">
-                2
-              </div>
-              <h4 className="text-base font-bold text-white">Retención en los primeros 30 segundos</h4>
-              <p className="text-xs text-slate-400 leading-relaxed font-normal">
-                No pierdas tiempo con intros largas ni animaciones pesadas. Inicia directamente confirmando la promesa del título para que el espectador no cierre el video.
-              </p>
-            </div>
-
-            {/* Pilar 3 */}
-            <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 space-y-3 text-left shadow-xl">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-base">
-                3
-              </div>
-              <h4 className="text-base font-bold text-white">Llamados a la Acción Claros</h4>
-              <p className="text-xs text-slate-400 leading-relaxed font-normal">
-                Menciona tu enlace verbalmente hacia el minuto 3 y al final. Recuerda decirles siempre: "Encuentra el enlace directo en el primer comentario fijado de este video".
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-red-500/10 via-amber-500/10 to-[#FF5A1F]/10 border border-[#FF5A1F]/30 rounded-2xl p-6 space-y-3 text-left shadow-xl">
-            <div className="flex items-center gap-2 text-[#FF5A1F] font-bold text-sm uppercase tracking-wider">
-              <Zap className="w-4 h-4" />
-              <span>Estrategia de Sinergia: Shorts + Videos Largos</span>
-            </div>
-            <p className="text-sm text-slate-200 leading-relaxed">
-              Sube entre 3 y 5 <strong>YouTube Shorts</strong> a la semana utilizando los mismos Hooks de Atracción de la Sección 6. Utiliza el Short para captar atención rápida y redirigir a tu audiencia hacia tus videos largos o directamente a tu <strong>Página de Captura de Leads</strong>.
-            </p>
           </div>
         </div>
       )}
