@@ -73,34 +73,7 @@ const formatRelativeTime = (date: Date | string | null | undefined) => {
     return d.toLocaleDateString();
 };
 
-const getSessionLibraryCache = (projId: string, usrId?: string): any[] | null => {
-    try {
-        const key = `session_library_articles_${projId}_${usrId || 'anon'}`;
-        const raw = sessionStorage.getItem(key);
-        if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        const todayStr = new Date().toISOString().slice(0, 10);
-        if (parsed && parsed.date === todayStr && Array.isArray(parsed.articles)) {
-            return parsed.articles;
-        }
-        return null;
-    } catch {
-        return null;
-    }
-};
 
-const setSessionLibraryCache = (projId: string, usrId: string | undefined, articles: any[]) => {
-    try {
-        const key = `session_library_articles_${projId}_${usrId || 'anon'}`;
-        const todayStr = new Date().toISOString().slice(0, 10);
-        sessionStorage.setItem(key, JSON.stringify({
-            date: todayStr,
-            articles
-        }));
-    } catch (e) {
-        console.warn("Could not save library articles to sessionStorage:", e);
-    }
-};
 
 export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = ({
     contentData = [],
@@ -303,12 +276,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         if (!projectId) return;
         setLoadingLocal(true);
         try {
-            const cachedLibrary = getSessionLibraryCache(projectId, user?.id);
-            const hasValidSessionCache = !!(cachedLibrary && cachedLibrary.length > 0);
-
             const [pages, articles, projectObj] = await Promise.all([
                 api.getPages(),
-                api.getArticlesByProject(projectId, hasValidSessionCache ? { skipMaster: true } : { limitMaster: 30 }),
+                api.getArticlesByProject(projectId, { limitMaster: 30 }),
                 api.getProjectById(projectId)
             ]);
             setProject(projectObj);
@@ -441,32 +411,10 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 .filter(a => !isAlreadyGenerated(a));
 
             const LIBRARY_COUNT = 7;
-            let newLibrary: any[] = [];
+            const randomizedLocked = [...locked].sort(() => Math.random() - 0.5);
+            const candidates = [...unlocked, ...randomizedLocked];
+            const newLibrary = candidates.slice(0, LIBRARY_COUNT);
 
-            if (hasValidSessionCache && cachedLibrary) {
-                // Filtrar de la caché de sesión los artículos que ya fueron generados
-                const validCached = cachedLibrary.filter(a => !isAlreadyGenerated(a));
-
-                if (validCached.length >= LIBRARY_COUNT) {
-                    newLibrary = validCached.slice(0, LIBRARY_COUNT);
-                } else {
-                    // Si se generó un artículo, completar hasta 7 con candidatos disponibles restantes
-                    const usedIds = new Set(validCached.map(a => String(a.id)));
-                    const availablePool = [...unlocked, ...locked].filter(a => !usedIds.has(String(a.id)));
-                    const needed = LIBRARY_COUNT - validCached.length;
-                    const fill = availablePool.slice(0, needed);
-                    newLibrary = [...validCached, ...fill];
-                }
-            } else {
-                // Primera vez que entra en la sesión de hoy: seleccionar 7 artículos aleatorios
-                // Los desbloqueados se colocan primero si hay, y los bloqueados se barajan aleatoriamente
-                const randomizedLocked = [...locked].sort(() => Math.random() - 0.5);
-                const candidates = [...unlocked, ...randomizedLocked];
-                newLibrary = candidates.slice(0, LIBRARY_COUNT);
-            }
-
-            // Guardar en la sesión local para que si va a otra sección y vuelve, mantenga exactamente la misma lista
-            setSessionLibraryCache(projectId, user?.id, newLibrary);
             setLibraryData(newLibrary);
 
             if (targetTitle) {
