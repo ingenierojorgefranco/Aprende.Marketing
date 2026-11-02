@@ -111,9 +111,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const [editingField, setEditingField] = useState<string | null>(null);
     const [unlockingSingle, setUnlockingSingle] = useState(false);
 
-    // Lógica de Paginación: 7 por página
+    // Lógica de Paginación: 5 por página
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 7;
+    const itemsPerPage = 5;
 
     // Lógica de Búsqueda completa en base de datos
     const [searchTerm, setSearchTerm] = useState('');
@@ -405,15 +405,14 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 return false;
             };
 
-            const nonGeneratedManual = manualFromDb.filter(a => !isAlreadyGenerated(a));
+            const nonGeneratedManual = manualFromDb.filter(a => !isAlreadyGenerated(a) && (isRealAdmin || a.isActive !== false));
             const unlocked = nonGeneratedManual.filter(a => a.isUnlocked);
             const locked = [...nonGeneratedManual.filter(a => !a.isUnlocked), ...suggestions]
-                .filter(a => !isAlreadyGenerated(a));
+                .filter(a => !isAlreadyGenerated(a) && (isRealAdmin || a.isActive !== false));
 
-            const LIBRARY_COUNT = 7;
-            const randomizedLocked = [...locked].sort(() => Math.random() - 0.5);
-            const candidates = [...unlocked, ...randomizedLocked];
-            const newLibrary = candidates.slice(0, LIBRARY_COUNT);
+            const LIBRARY_COUNT = 5;
+            const randomizedCandidates = [...unlocked, ...locked].sort(() => Math.random() - 0.5);
+            const newLibrary = randomizedCandidates.slice(0, LIBRARY_COUNT);
 
             setLibraryData(newLibrary);
 
