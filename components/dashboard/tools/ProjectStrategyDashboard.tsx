@@ -46,7 +46,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [generating, setGenerating] = useState(false);
     
     const [searchParams, useSetSearchParams] = useSearchParams();
-    const activeSection = searchParams.get('section') || 'summary';
+    const activeSection = searchParams.get('section') || 'onboarding';
     const setActiveSection = (id: string) => useSetSearchParams({ section: id });
 
     const [nextPlan, setNextPlan] = useState<Plan | null>(null);

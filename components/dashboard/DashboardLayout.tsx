@@ -752,7 +752,7 @@ export const DashboardLayout = ({
                               sessionStorage.setItem('trigger_project_confetti', 'true');
                             }
                             if (targetProjectId) {
-                                navigate(`/dashboard/projects/${targetProjectId}/strategy`);
+                                navigate(`/dashboard/projects/${targetProjectId}/strategy?section=onboarding`);
                             } else {
                                 navigate('/dashboard/projects');
                             }

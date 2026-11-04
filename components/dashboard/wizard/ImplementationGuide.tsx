@@ -166,17 +166,6 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
           
           const storedCompletedSteps = proj.strategy_json?.completed_steps || [];
           setCompletedSteps(storedCompletedSteps);
-          
-          if (!searchParams.get('section') && !activeStrategySection && storedCompletedSteps.length < 9) {
-            // Find first uncompleted step
-            let firstUncompleted = 1;
-            while(firstUncompleted <= 9 && storedCompletedSteps.includes(firstUncompleted)) {
-              firstUncompleted++;
-            }
-            if (firstUncompleted <= 9) {
-              setActiveStep(firstUncompleted);
-            }
-          }
         }
       }).catch((err: any) => console.error("Error loading project in ImplementationGuide", err));
     }
