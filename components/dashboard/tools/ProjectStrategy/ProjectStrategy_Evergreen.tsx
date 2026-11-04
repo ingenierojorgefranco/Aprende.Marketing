@@ -417,16 +417,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 {!hideHeader && (
                     <div className="space-y-6">
                         <StepHeaderCard
-                            stepNumber={11}
+                            stepNumber={13}
                             totalSteps={totalSteps}
                             stageNumber={2}
-                            categoryTitle="11. Email Marketing (Nutrición)"
+                            categoryTitle="13. Email Marketing (Nutrición)"
                             title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                             description="Configura tu secuencia de nutrición por email para mantener el interés de tus prospectos, aportar valor y fortalecer la confianza hasta que estén listos para comprar."
                         />
                         <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                             <StepVideoContainer 
-                                stepNumber={11}
+                                stepNumber={13}
                                 videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                                 title="Video Tutorial Evergreen"
                             />
@@ -448,16 +448,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 {!hideHeader && (
                     <div className="space-y-6">
                         <StepHeaderCard
-                            stepNumber={11}
+                            stepNumber={13}
                             totalSteps={totalSteps}
                             stageNumber={2}
-                            categoryTitle="11. Email Marketing (Nutrición)"
+                            categoryTitle="13. Email Marketing (Nutrición)"
                             title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                             description="Configura tu secuencia de nutrición por email para mantener el interés de tus prospectos, aportar valor y fortalecer la confianza hasta que estén listos para comprar."
                         />
                         <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                             <StepVideoContainer 
-                                stepNumber={11}
+                                stepNumber={13}
                                 videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                                 title="Video Tutorial Evergreen"
                             />
@@ -475,7 +475,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     <div className="max-w-md mx-auto">
                         <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-4">Sin artículos de blog generados</h4>
                         <p className="text-gray-400 font-medium leading-relaxed">
-                            Para activar la secuencia de Nutrición (Evergreen), primero debes redactar al menos un artículo SEO en la etapa <strong>6. Artículos de Blog</strong>.
+                            Para activar la secuencia de Nutrición (Evergreen), primero debes redactar al menos un artículo SEO en la etapa <strong>10. Artículos de Blog</strong>.
                         </p>
                     </div>
                     <button 

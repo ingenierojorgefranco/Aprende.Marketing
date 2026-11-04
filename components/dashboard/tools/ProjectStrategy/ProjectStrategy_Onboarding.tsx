@@ -107,67 +107,7 @@ export const ProjectStrategy_Onboarding: React.FC<ProjectStrategy_OnboardingProp
         />
       </div>
 
-      {/* 2. Checklist de Primeros Pasos */}
-      <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-slate-800/80 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FF5A1F]/15 border border-[#FF5A1F]/30 text-[#FF5A1F] flex items-center justify-center shrink-0">
-              <Compass className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-lg font-black text-white tracking-wide">
-                Checklist de Primeros Pasos
-              </h3>
-              <p className="text-xs text-slate-400">
-                Completa estas acciones iniciales antes de lanzar tu primer producto digital
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 bg-slate-900/80 px-3.5 py-1.5 rounded-full border border-slate-800 self-start sm:self-auto">
-            <span className="text-xs font-bold text-slate-300">Progreso:</span>
-            <span className="text-xs font-extrabold text-[#FF5A1F]">
-              {completedChecklist} de {totalChecklist} ({Math.round((completedChecklist / totalChecklist) * 100)}%)
-            </span>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {checklistItems.map((item) => {
-            const isChecked = !!checkedItems[item.id];
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => toggleCheck(item.id)}
-                className={`w-full p-4 rounded-xl border text-left transition-all flex items-start gap-3.5 cursor-pointer ${
-                  isChecked 
-                    ? 'bg-emerald-950/20 border-emerald-500/30 text-slate-200' 
-                    : 'bg-slate-900/40 border-slate-800/80 hover:border-slate-700 text-slate-300'
-                }`}
-              >
-                <div className="mt-0.5 shrink-0">
-                  {isChecked ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 fill-emerald-500/10" />
-                  ) : (
-                    <Circle className="w-5 h-5 text-slate-500 hover:text-slate-300 transition-colors" />
-                  )}
-                </div>
-                <div className="space-y-0.5 min-w-0 flex-1">
-                  <p className={`text-sm font-bold leading-snug ${isChecked ? 'line-through text-slate-400' : 'text-white'}`}>
-                    {item.label}
-                  </p>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    {item.sub}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 3. Tarjetas de Enlaces Rápidos y Recursos */}
+      {/* 2. Tarjetas de Enlaces Rápidos y Recursos */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
         {/* Tarjeta 1: Registro en Hotmart */}
@@ -203,14 +143,15 @@ export const ProjectStrategy_Onboarding: React.FC<ProjectStrategy_OnboardingProp
               Únete a nuestro grupo exclusivo de alumnos para recibir asesoría, actualizaciones y estrategias semanales.
             </p>
           </div>
-          <button 
-            type="button"
-            onClick={() => alert("Próximamente enlace directo al canal de soporte.")}
+          <a 
+            href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer"
           >
             <span>Unirme a la Comunidad</span>
             <MessageCircle className="w-3.5 h-3.5" />
-          </button>
+          </a>
         </div>
 
         {/* Tarjeta 3: Glosario de Marketing */}
