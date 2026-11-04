@@ -72,11 +72,17 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       navigate(`/dashboard/projects/${projectId}/strategy?section=content`);
   };
 
+  const [userPages, setUserPages] = useState<any[]>([]);
+
   useEffect(() => {
       const loadInitialData = async () => {
           try {
-              const projectsData = await api.getProjects();
+              const [projectsData, pagesData] = await Promise.all([
+                  api.getProjects(),
+                  api.getPages()
+              ]);
               setProjects(projectsData || []);
+              setUserPages(pagesData || []);
           } catch (e) {
               console.error(e);
           }
@@ -486,7 +492,10 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                     </div>
                 </button>
                 {localArticles.map((article) => {
-                    const basePageSlug = article.pageSubdomain ? article.pageSubdomain.split(".")[0] : article.pageId;
+                    const linkedPage = userPages.find(p => String(p.id) === String(article.pageId) || (p.subdomain && article.pageSubdomain && p.subdomain.split('.')[0] === article.pageSubdomain.split('.')[0]));
+                    const basePageSlug = linkedPage 
+                        ? ((linkedPage.shortCode || linkedPage.short_code) || (linkedPage.subdomain ? linkedPage.subdomain.split(".")[0] : linkedPage.id))
+                        : ((article as any).pageShortCode || (article as any).page_short_code || (article.pageSubdomain ? article.pageSubdomain.split(".")[0] : article.pageId));
                     const articleUrl = basePageSlug ? `/lp/${basePageSlug}/blog/${article.slug}` : '#';
                     const landingUrl = basePageSlug ? `/lp/${basePageSlug}` : '#';
 

@@ -921,21 +921,22 @@ const initDb = async () => {
         console.log('[DB Init] 🌱 Iniciando comprobación de datos semilla para todos los pasos de la Guía de Implementación...');
         const stepTitles = {
             1: 'Bienvenida e introducción',
-            2: 'Tu comprador ideal',
-            3: 'Tus enlaces de afiliados',
-            4: 'Leads capturados',
-            5: 'Tu página de captura',
-            6: 'Tus videos de atracción (Hooks)',
-            7: 'Estrategias de Atracción en YouTube',
-            8: 'Carruseles Magnéticos',
-            9: 'Artículos de Blog',
-            10: 'LeadMagnet de Whatsapp',
-            11: 'Email Marketing (Conversión)',
-            12: 'Email Marketing (Nutrición)',
-            13: 'Lanzamientos (Estrategia WhatsApp)'
+            2: 'Tu Estrategia Digital',
+            3: 'Tu comprador ideal',
+            4: 'Tus enlaces de afiliados',
+            5: 'Leads capturados',
+            6: 'Tu página de captura',
+            7: 'Tus videos de atracción (Hooks)',
+            8: 'Estrategias de Atracción en YouTube',
+            9: 'Carruseles Magnéticos',
+            10: 'Artículos de Blog',
+            11: 'LeadMagnet de Whatsapp',
+            12: 'Email Marketing (Conversión)',
+            13: 'Email Marketing (Nutrición)',
+            14: 'Lanzamientos (Estrategia WhatsApp)'
         };
 
-        for (let step = 1; step <= 13; step++) {
+        for (let step = 1; step <= 14; step++) {
             const [rows] = await connection.query("SELECT id FROM master_step_videos WHERE step_number = ?", [step]);
             if (rows.length === 0) {
                 console.log(`[DB Init] 🎬 El Paso ${step} está vacío. Creando videos globales semilla...`);

@@ -119,8 +119,10 @@ export const ProjectStrategy_YouTube: React.FC<ProjectStrategy_YouTubeProps> = (
       }
 
       const projectPages = (pages || []).filter((p: any) => String(p.projectId) === String(projectId));
-      if (projectPages.length > 0 && projectPages[0].subdomain) {
-        setSubdomain(projectPages[0].subdomain.split('.')[0]);
+      if (projectPages.length > 0) {
+        const page = projectPages[0];
+        const pageCode = String(page.shortCode || page.short_code || (page.subdomain ? page.subdomain.split('.')[0] : 'demo'));
+        setSubdomain(pageCode);
       }
 
       const gen = (articles || []).filter((a: any) => 
@@ -218,8 +220,11 @@ incorporando de forma natural palabras clave relevantes y búsquedas frecuentes.
   ];
 
   const currentSelectedArticle = generatedArticles[selectedArticleIdx] || generatedArticles[0];
+  const baseUrl = (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('ais-dev')))
+    ? window.location.origin
+    : 'https://aprende.marketing';
   const currentArticleUrl = currentSelectedArticle 
-    ? `${window.location.origin}/lp/${subdomain}/blog/${currentSelectedArticle.slug || 'articulo'}`
+    ? `${baseUrl}/lp/${subdomain}/blog/${currentSelectedArticle.slug || 'articulo'}`
     : '';
 
   return (

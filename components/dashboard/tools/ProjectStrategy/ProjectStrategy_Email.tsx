@@ -15,7 +15,7 @@ const getThankYouPageUrl = (project: any, pages: any[]) => {
         if (page.customDomain) {
             return `https://${page.customDomain}/gracias`;
         }
-        const sub = page.subdomain ? page.subdomain.split('.')[0] : '';
+        const sub = (page.shortCode || page.short_code) ? (page.shortCode || page.short_code) : (page.subdomain ? page.subdomain.split('.')[0] : '');
         return `https://aprende.marketing/lp/${sub}/gracias`;
     }
     return `https://aprende.marketing/lp/${project.slug || 'proyecto'}/gracias`;

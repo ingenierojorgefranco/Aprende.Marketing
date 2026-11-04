@@ -1142,7 +1142,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             {linkedPages.length > 0 ? (
                                 <iframe 
                                     key={iframeKey}
-                                    src={`/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`} 
+                                    src={`/lp/${getPageIdentifier(linkedPages[0])}/gracias`} 
                                     className="w-full h-[580px] border-0 bg-white"
                                     title="Vista previa página de gracias"
                                 />
@@ -1221,7 +1221,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         {/* Campo de URL con botón copiar y botón abrir URL dinámica */}
                                         <div className="flex items-start bg-[#080d18] border border-slate-800/90 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono gap-1.5 min-w-0">
                                             <span className="break-all whitespace-normal flex-1 select-all leading-relaxed py-0.5">
-                                                aprende.marketing/lp/{linkedPages[0].subdomain.split('.')[0]}/gracias
+                                                aprende.marketing/lp/{getPageIdentifier(linkedPages[0])}/gracias
                                             </span>
                                             <div className="flex items-center gap-0.5 shrink-0 mt-0.5">
                                                 <button 
@@ -1232,7 +1232,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                                     {copiedTyUrl ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                                                 </button>
                                                 <a 
-                                                    href={`/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`}
+                                                    href={`/lp/${getPageIdentifier(linkedPages[0])}/gracias`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition shrink-0 cursor-pointer"

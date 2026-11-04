@@ -207,7 +207,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     if (redirectType === 'landing' && selectedPageId) {
       const page = userPages.find(p => String(p.id) === String(selectedPageId));
       if (page) {
-        const url = page.customDomain ? `https://${page.customDomain}` : `https://aprende.marketing/lp/${page.subdomain}/`;
+        const pageCode = (page.shortCode || page.short_code) ? (page.shortCode || page.short_code) : (page.subdomain ? page.subdomain.split('.')[0] : page.id);
+        const url = page.customDomain ? `https://${page.customDomain}` : `https://aprende.marketing/lp/${pageCode}`;
         setCtaLink(url);
         setValidationError(false);
       }
@@ -331,7 +332,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       if (projectPages.length === 1) {
           const firstPage = projectPages[0];
           setSelectedPageId(firstPage.id);
-          const url = firstPage.customDomain ? `https://${firstPage.customDomain}` : `https://aprende.marketing/lp/${firstPage.subdomain}/`;
+          const pageCode = (firstPage.shortCode || firstPage.short_code) ? (firstPage.shortCode || firstPage.short_code) : (firstPage.subdomain ? firstPage.subdomain.split('.')[0] : firstPage.id);
+          const url = firstPage.customDomain ? `https://${firstPage.customDomain}` : `https://aprende.marketing/lp/${pageCode}`;
           setCtaLink(url);
       } else {
           setSelectedPageId('');
@@ -617,7 +619,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     setValidationError(false);
     const page = userPages.find(p => String(p.id) === String(pageId));
     if (page) {
-        const url = page.customDomain ? `https://${page.customDomain}` : `https://aprende.marketing/lp/${page.subdomain}/`;
+        const pageCode = (page.shortCode || page.short_code) ? (page.shortCode || page.short_code) : (page.subdomain ? page.subdomain.split('.')[0] : page.id);
+        const url = page.customDomain ? `https://${page.customDomain}` : `https://aprende.marketing/lp/${pageCode}`;
         setCtaLink(url);
     } else {
         setCtaLink('');
@@ -825,7 +828,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                         <div className="flex flex-col sm:flex-row gap-4">
                             <button 
                                 onClick={() => { 
-                                    const basePageSlug = selectedPageId ? userPages.find(p => p.id === selectedPageId)?.subdomain?.split('.')[0] : null; 
+                                    const targetPage = selectedPageId ? userPages.find(p => p.id === selectedPageId) : null; 
+                                    const basePageSlug = targetPage ? ((targetPage.shortCode || targetPage.short_code) || (targetPage.subdomain ? targetPage.subdomain.split('.')[0] : targetPage.id)) : null; 
                                     const articleUrl = basePageSlug ? `/lp/${basePageSlug}/blog/${savedArticleResult?.slug}` : '#'; 
                                     window.open(articleUrl, '_blank'); 
                                 }} 

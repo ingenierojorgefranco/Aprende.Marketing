@@ -1338,7 +1338,7 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
         if (page.custom_domain) {
             articleUrl = `https://${page.custom_domain}/blog/${articleSlug}`;
         } else {
-            const pageSubdomain = page.subdomain ? page.subdomain.split('.')[0] : page.id;
+            const pageSubdomain = (page.short_code || page.shortCode) ? (page.short_code || page.shortCode) : (page.subdomain ? page.subdomain.split('.')[0] : page.id);
             articleUrl = `https://aprende.marketing/lp/${pageSubdomain}/blog/${articleSlug}`;
         }
     }
