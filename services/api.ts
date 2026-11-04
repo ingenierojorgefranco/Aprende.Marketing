@@ -648,6 +648,8 @@ export const api = {
         return {
             ...p,
             id: String(p.id),
+            shortCode: p.short_code || p.shortCode,
+            short_code: p.short_code || p.shortCode,
             isPublished: !!(p.isPublished || p.is_published),
             customDomain: p.custom_domain || p.customDomain,
             projectId: p.project_id ? String(p.project_id) : undefined,
@@ -675,7 +677,7 @@ export const api = {
   },
 
   getPublicPage: async (slug: string, userSlug?: string): Promise<LandingPage | null> => {
-      if (isMockMode) return localPages.find(p => p.subdomain.includes(slug)) || null;
+      if (isMockMode) return localPages.find(p => p.subdomain.includes(slug) || p.shortCode === slug || p.short_code === slug) || null;
       const cacheKey = userSlug ? `${userSlug}_${slug}` : slug;
       if (apiCache.publicPages[cacheKey]) return apiCache.publicPages[cacheKey];
 
@@ -687,6 +689,8 @@ export const api = {
           const data = await fetchWithFallback(endpoint);
           const normalized: LandingPage = {
               id: data.id?.toString() ?? slug,
+              shortCode: data.short_code || data.shortCode,
+              short_code: data.short_code || data.shortCode,
               name: data.name || "Landing no encontrada",
               niche: data.niche || "",
               goal: data.goal || "",
@@ -791,8 +795,18 @@ export const api = {
         console.error("Error auto-asignando multimedia:", err);
     }
 
+    const generateCode = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let res = '';
+        for (let i = 0; i < 6; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+        return res;
+    };
+    const code = page.shortCode || page.short_code || generateCode();
+    page.shortCode = code;
+    page.short_code = code;
+
     if (isMockMode) {
-        const newPage = { ...page, id: `mock-page-${Date.now()}`, createdAt: new Date() };
+        const newPage = { ...page, id: `mock-page-${Date.now()}`, shortCode: code, short_code: code, createdAt: new Date() };
         localPages.unshift(newPage);
         return Promise.resolve(newPage);
     }
@@ -804,13 +818,15 @@ export const api = {
             niche: page.niche,
             goal: page.goal,
             subdomain: page.subdomain,
+            shortCode: code,
+            short_code: code,
             content: page.content,
             projectId: page.projectId
         })
     });
     clearCache('pages');
     clearCache('userUsageStats');
-    return { ...page, id: data.id.toString(), subdomain: data.subdomain };
+    return { ...page, id: data.id.toString(), subdomain: data.subdomain, shortCode: data.shortCode || code, short_code: data.short_code || code };
   },
 
   updatePage: async (page: LandingPage): Promise<LandingPage> => {

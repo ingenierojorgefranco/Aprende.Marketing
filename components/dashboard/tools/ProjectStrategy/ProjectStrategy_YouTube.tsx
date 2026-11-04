@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Youtube, Sparkles, Check, Copy, CheckCircle2, ArrowRight, 
-  FileText, Lightbulb, Zap, ExternalLink, Loader2, BookOpen, Link2
+  FileText, Lightbulb, Zap, ExternalLink, Loader2, BookOpen, Link2, Search, X
 } from 'lucide-react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { StepHeaderCard } from '../../wizard/StepHeaderCard';
@@ -70,6 +70,7 @@ export const ProjectStrategy_YouTube: React.FC<ProjectStrategy_YouTubeProps> = (
   const [selectedArticleIdx, setSelectedArticleIdx] = useState(0);
   const [subdomain, setSubdomain] = useState<string>('demo');
   const [copiedUrl, setCopiedUrl] = useState(false);
+  const [articleSearchTerm, setArticleSearchTerm] = useState<string>('');
 
   // Cargar artículos del proyecto, datos del proyecto maestro y subdominio
   useEffect(() => {
@@ -321,37 +322,80 @@ incorporando de forma natural palabras clave relevantes y búsquedas frecuentes.
                   </div>
                 </div>
 
+                {/* Buscador de artículos */}
+                <div className="relative">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={articleSearchTerm}
+                    onChange={(e) => setArticleSearchTerm(e.target.value)}
+                    placeholder="Buscar artículo..."
+                    className="w-full bg-[#060a12] border border-slate-800 focus:border-[#FF5A1F]/60 rounded-xl pl-10 pr-9 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none transition shadow-inner"
+                  />
+                  {articleSearchTerm && (
+                    <button
+                      onClick={() => setArticleSearchTerm('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 rounded-lg transition"
+                      title="Limpiar búsqueda"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
                 {/* Lista de Artículos */}
                 <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1">
-                  {generatedArticles.map((art, idx) => {
-                    const isSelected = selectedArticleIdx === idx;
-                    const timeAgo = formatRelativeTime(art.publishedAt || art.updatedAt || art.createdAt);
-                    return (
-                      <div
-                        key={art.id || idx}
-                        onClick={() => setSelectedArticleIdx(idx)}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 text-left ${
-                          isSelected
-                            ? 'bg-[#041d1a]/80 border-emerald-500 shadow-lg shadow-emerald-500/10'
-                            : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900'
-                        }`}
-                      >
-                        <div className="space-y-1 min-w-0 flex-1">
-                          <h4 className={`text-sm sm:text-base font-bold leading-snug ${isSelected ? 'text-white' : 'text-slate-300'}`}>
-                            {art.title}
-                          </h4>
-                          <p className="text-[11px] text-slate-400 font-normal">
-                            Redactado: {timeAgo}
-                          </p>
-                        </div>
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                          isSelected ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-600'
-                        }`}>
-                          <Check className="w-3.5 h-3.5 stroke-[3]" />
-                        </div>
-                      </div>
+                  {(() => {
+                    const filteredArticles = generatedArticles.filter((art: any) =>
+                      art.title?.toLowerCase().includes(articleSearchTerm.toLowerCase()) ||
+                      art.description?.toLowerCase().includes(articleSearchTerm.toLowerCase())
                     );
-                  })}
+
+                    if (filteredArticles.length === 0) {
+                      return (
+                        <div className="p-6 text-center bg-slate-900/40 border border-slate-800 rounded-xl space-y-2">
+                          <p className="text-xs text-slate-400">No se encontraron artículos que coincidan con "<strong>{articleSearchTerm}</strong>"</p>
+                          <button
+                            onClick={() => setArticleSearchTerm('')}
+                            className="text-xs font-bold text-[#FF5A1F] hover:underline cursor-pointer"
+                          >
+                            Mostrar todos los artículos
+                          </button>
+                        </div>
+                      );
+                    }
+
+                    return filteredArticles.map((art, idx) => {
+                      const realIndex = generatedArticles.findIndex(g => g.id === art.id || g.title === art.title);
+                      const isSelected = selectedArticleIdx === (realIndex !== -1 ? realIndex : idx);
+                      const timeAgo = formatRelativeTime(art.publishedAt || art.updatedAt || art.createdAt);
+                      return (
+                        <div
+                          key={art.id || idx}
+                          onClick={() => setSelectedArticleIdx(realIndex !== -1 ? realIndex : idx)}
+                          className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 text-left ${
+                            isSelected
+                              ? 'bg-[#041d1a]/80 border-emerald-500 shadow-lg shadow-emerald-500/10'
+                              : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900'
+                          }`}
+                        >
+                          <div className="space-y-1 min-w-0 flex-1">
+                            <h4 className={`text-sm sm:text-base font-bold leading-snug ${isSelected ? 'text-white' : 'text-slate-300'}`}>
+                              {art.title}
+                            </h4>
+                            <p className="text-[11px] text-slate-400 font-normal">
+                              Redactado: {timeAgo}
+                            </p>
+                          </div>
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+                            isSelected ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-600'
+                          }`}>
+                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
 

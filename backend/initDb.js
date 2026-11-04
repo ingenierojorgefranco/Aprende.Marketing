@@ -593,12 +593,37 @@ const initDb = async () => {
         await addColumnSafe(connection, 'leads', "synced BOOLEAN DEFAULT FALSE");
         ////////// Fin de actualización - 15/06/2025 16:30 //////////
 
-        // NEW: THANK YOU PAGE JSON COLUMN
+        // NEW: THANK YOU PAGE JSON COLUMN & SHORT CODE
         await addColumnSafe(connection, 'landing_pages', "thankyoupage_json JSON");
+        await addColumnSafe(connection, 'landing_pages', "short_code VARCHAR(10) NULL");
         await addColumnSafe(connection, 'landing_pages', "whatsapp_clicks INT DEFAULT 0");
         await addColumnSafe(connection, 'landing_pages', "selected_lead_magnet JSON NULL");
         await addColumnSafe(connection, 'landing_pages', "thankyou_visits INT DEFAULT 0");
         await addColumnSafe(connection, 'daily_analytics', "thankyou_visits INT DEFAULT 0");
+
+        // Auto-generar short_code para páginas existentes que no tengan uno asignado
+        try {
+            const [pagesWithoutCode] = await connection.query(
+                "SELECT id FROM landing_pages WHERE short_code IS NULL OR TRIM(short_code) = ''"
+            );
+            if (pagesWithoutCode.length > 0) {
+                console.log(`[DB Init] 🔄 Generando índice alfanumérico para ${pagesWithoutCode.length} páginas existentes...`);
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                for (const p of pagesWithoutCode) {
+                    let code = '';
+                    for (let i = 0; i < 6; i++) {
+                        code += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
+                    await connection.query(
+                        "UPDATE landing_pages SET short_code = ? WHERE id = ?",
+                        [code, p.id]
+                    );
+                }
+                console.log(`[DB Init] ✅ Se asignó índice alfanumérico a todas las páginas preexistentes.`);
+            }
+        } catch (errCode) {
+            console.warn("[DB Init] Error en backfill de short_code:", errCode.message);
+        }
 
         // NEW: PROJECT ID IN LANDING PAGES
         await addColumnSafe(connection, 'landing_pages', "project_id INT NULL");

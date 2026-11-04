@@ -277,7 +277,7 @@ router.get('/pages', authMiddleware, async (req, res) => {
 });
 
 router.post('/pages', authMiddleware, async (req, res) => {
-  const { name, niche, goal, subdomain, content, projectId } = req.body;
+  const { name, niche, goal, subdomain, content, projectId, shortCode, short_code } = req.body;
   try {
     const effectiveLimits = await getEffectiveLimits(req.user.id);
     const maxLandings = effectiveLimits.maxLandings;
@@ -285,6 +285,18 @@ router.post('/pages', authMiddleware, async (req, res) => {
     const [count] = await pool.query('SELECT COUNT(*) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
     if (count[0].c >= maxLandings && req.user.role !== 'admin') {
         return res.status(403).json({ error: `Has alcanzado el límite de almacenamiento de ${maxLandings} páginas.` });
+    }
+
+    // Generar código alfanumérico aleatorio de 6 caracteres en mayúsculas
+    let code = shortCode || short_code;
+    if (!code || typeof code !== 'string' || code.trim().length === 0) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      code = '';
+      for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+    } else {
+      code = code.trim().toUpperCase();
     }
     
     let tyPage = content ? content.thankYouPage : null;
@@ -343,8 +355,8 @@ router.post('/pages', authMiddleware, async (req, res) => {
 
     // SE ACTUALIZA IS_PUBLISHED A 1 (PUBLICADA) POR DEFECTO SEGÚN REQUERIMIENTO
     const [resDb] = await pool.query(
-      'INSERT INTO landing_pages (user_id, project_id, name, niche, goal, subdomain, content, thankyoupage_json, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, NOW())',
-      [req.user.id, projectId || null, name, niche, goal, subdomain, JSON.stringify(content), tyPage ? JSON.stringify(tyPage) : null]
+      'INSERT INTO landing_pages (user_id, project_id, name, niche, goal, subdomain, short_code, content, thankyoupage_json, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW())',
+      [req.user.id, projectId || null, name, niche, goal, subdomain, code, JSON.stringify(content), tyPage ? JSON.stringify(tyPage) : null]
     );
 
     const pageId = resDb.insertId;
@@ -354,7 +366,7 @@ router.post('/pages', authMiddleware, async (req, res) => {
 
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_PAGE', 'page', pageId, { name, subdomain: finalSubdomain });
     
-    res.json({ id: pageId, subdomain: finalSubdomain, message: 'Página creada correctamente con ID único en URL' });
+    res.json({ id: pageId, subdomain: finalSubdomain, shortCode: code, short_code: code, message: 'Página creada correctamente con ID único en URL' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -598,7 +610,26 @@ router.get('/public/pages/:slug', async (req, res) => {
   const { slug } = req.params;
   try {
     let rows = [];
-    if (/^\d+$/.test(slug)) {
+
+    // 1) Búsqueda por índice alfanumérico (short_code, ej. WMN3RS)
+    if (slug && slug.length <= 10) {
+      [rows] = await pool.query(`
+        SELECT lp.*, lp.thankyoupage_json, 
+               pr.name as project_name, pr.product_name as project_product_name,
+               pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
+               pr.affiliate_links as project_affiliate_links,
+               pm.name as master_name, pm.product_name as master_product_name,
+               pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url,
+               pm.affiliate_links as master_affiliate_links
+        FROM landing_pages lp 
+        LEFT JOIN projects pr ON lp.project_id = pr.id
+        LEFT JOIN projects pm ON pr.master_parent_id = pm.id
+        WHERE UPPER(lp.short_code) = ? AND lp.is_published = 1 LIMIT 1
+      `, [slug.toUpperCase()]);
+    }
+
+    // 2) Búsqueda por ID numérico si no se encontró por short_code
+    if (rows.length === 0 && /^\d+$/.test(slug)) {
        [rows] = await pool.query(`
          SELECT lp.*, lp.thankyoupage_json, 
                 pr.name as project_name, pr.product_name as project_product_name,
@@ -613,6 +644,8 @@ router.get('/public/pages/:slug', async (req, res) => {
          WHERE lp.id = ? AND lp.is_published = 1 LIMIT 1
        `, [slug]);
     }
+
+    // 3) Búsqueda por subdominio o slug largo
     if (rows.length === 0) {
         [rows] = await pool.query(`
           SELECT lp.*, lp.thankyoupage_json, 

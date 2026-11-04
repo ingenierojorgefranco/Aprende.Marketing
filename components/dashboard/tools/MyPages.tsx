@@ -362,9 +362,7 @@ export const MyPages: React.FC = () => {
                         </div>
                     </button>
                     {pages.map((page) => {
-                        // ACTUALIZADO: El subdominio ya contiene el ID antepuesto por el backend.
-                        // Limpiamos el subdominio para obtener el slug exacto para el enlace.
-                        const baseSlug = page.subdomain ? page.subdomain.split(".")[0] : page.id;
+                        const baseSlug = (page.shortCode || page.short_code) ? (page.shortCode || page.short_code) : (page.subdomain ? page.subdomain.split(".")[0] : page.id);
                         const publicUrl = `/lp/${baseSlug}`;
 
                         return (

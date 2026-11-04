@@ -547,6 +547,8 @@ export interface GeneratedPageContent {
 
 export interface LandingPage {
   id: string;
+  shortCode?: string;
+  short_code?: string;
   name: string;
   niche: string;
   goal: string;
