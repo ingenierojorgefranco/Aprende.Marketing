@@ -231,9 +231,9 @@ incorporando de forma natural palabras clave relevantes y búsquedas frecuentes.
     <div className="space-y-8 text-left w-full mx-auto pb-12">
       {/* Step Header */}
       <StepHeaderCard 
-        stepNumber={7}
+        stepNumber={8}
         totalSteps={totalSteps}
-        categoryTitle="7. Estrategias de Atracción en YouTube"
+        categoryTitle="8. Estrategias de Atracción en YouTube"
         title={<>Estrategia de <span className="text-[#FF5A1F]">Atracción en YouTube</span></>}
         description="Aprovecha los artículos que ya has generado en tu blog para introducirlos en NotebookLM y crear guiones de video profesionales de manera automatizada. Además, utiliza nuestros Prompts optimizados para YouTube."
       />
@@ -241,7 +241,7 @@ incorporando de forma natural palabras clave relevantes y búsquedas frecuentes.
       {/* Video Lección del Paso */}
       <div className="bg-[#0B1120] border border-slate-800/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl">
         <StepVideoContainer 
-          stepNumber={7}
+          stepNumber={8}
           title="Estrategia de Atracción con YouTube"
           user={user}
         />

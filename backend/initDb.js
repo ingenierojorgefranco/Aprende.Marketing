@@ -944,13 +944,35 @@ const initDb = async () => {
                 
                 if (step === 1) {
                     const defaultStep1Videos = [
-                        ['v1', 1, 'Principal', 'Entiende tu proyecto', 'Resumen del producto, público y recorrido', '4:36', 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675', 1],
-                        ['v2', 1, 'Complementario', 'Cómo interpretar tu comisión', 'Precio, porcentaje y ganancia por venta', '2:18', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675', 2],
-                        ['v3', 1, 'Complementario', 'Cómo funciona tu sistema', 'Del contenido a la posible comisión', '3:05', 'https://www.youtube.com/embed/L_LUpnjgPso?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200&h=675', 3]
+                        ['s1_v1', 1, 'Principal', 'Video Tutorial - EMPIEZA AQUÍ', '¿Cómo empezar tu primer proyecto en Aprende Marketing?', '4:06', 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675', 1],
+                        ['s1_v2', 1, 'Complementario', 'Video Tutorial - Conociendo tu Producto Digital', 'Descubre las principales características de tu Producto Digital', '6:11', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675', 2],
+                        ['s1_v3', 1, 'Complementario', 'Video Tutorial - ¿Cómo funcionará tu Ecosistema?', 'Descubre las principales características de tu Producto Digital', '16:30', 'https://www.youtube.com/embed/L_LUpnjgPso?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200&h=675', 3]
                     ];
                     for (const v of defaultStep1Videos) {
                         await connection.query(
-                            `INSERT INTO master_step_videos (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            `INSERT INTO master_step_videos (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE step_number=VALUES(step_number), title=VALUES(title), subtitle=VALUES(subtitle), duration=VALUES(duration)`,
+                            v
+                        );
+                    }
+                } else if (step === 2) {
+                    const defaultStep2Videos = [
+                        ['s2_v1', 2, 'Principal', 'Entiende tu proyecto', 'Resumen del producto, público y recorrido', '4:36', 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675', 1],
+                        ['s2_v2', 2, 'Complementario', 'Cómo interpretar tu comisión', 'Precio, porcentaje y ganancia por venta', '2:18', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675', 2]
+                    ];
+                    for (const v of defaultStep2Videos) {
+                        await connection.query(
+                            `INSERT INTO master_step_videos (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE step_number=VALUES(step_number), title=VALUES(title), subtitle=VALUES(subtitle), duration=VALUES(duration)`,
+                            v
+                        );
+                    }
+                } else if (step === 3) {
+                    const defaultStep3Videos = [
+                        ['s3_v1', 3, 'Principal', 'Conoce a tu Comprador Ideal', 'Diagnóstico de dolores, deseos y psicología de compra', '4:15', 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675', 1],
+                        ['s3_v2', 3, 'Complementario', 'Identifica los dolores de tu avatar', 'Análisis detallado de necesidades del comprador', '2:45', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0', 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675', 2]
+                    ];
+                    for (const v of defaultStep3Videos) {
+                        await connection.query(
+                            `INSERT INTO master_step_videos (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE step_number=VALUES(step_number), title=VALUES(title), subtitle=VALUES(subtitle), duration=VALUES(duration)`,
                             v
                         );
                     }
@@ -958,7 +980,7 @@ const initDb = async () => {
                     // Video Principal
                     await connection.query(
                         `INSERT INTO master_step_videos (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE step_number=VALUES(step_number)`,
                         [
                             `step_${step}_v1`, 
                             step, 
@@ -975,7 +997,7 @@ const initDb = async () => {
                     // Video Complementario
                     await connection.query(
                         `INSERT INTO master_step_videos (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE step_number=VALUES(step_number)`,
                         [
                             `step_${step}_v2`, 
                             step, 

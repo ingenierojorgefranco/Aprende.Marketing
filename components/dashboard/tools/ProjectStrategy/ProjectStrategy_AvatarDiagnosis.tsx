@@ -480,7 +480,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             
             {/* 1. HEADER CARD */}
             <StepHeaderCard
-                stepNumber={2}
+                stepNumber={3}
                 totalSteps={totalSteps}
                 stageNumber={1}
                 categoryTitle="Conoce a tu Comprador Ideal"
@@ -491,7 +491,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             {/* 2. VIDEO TUTORIAL */}
             <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                 <StepVideoContainer 
-                    stepNumber={2}
+                    stepNumber={3}
                     videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                     title="Video Tutorial Avatar"
                 />

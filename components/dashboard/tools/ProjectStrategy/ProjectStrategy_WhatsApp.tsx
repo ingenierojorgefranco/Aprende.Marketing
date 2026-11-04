@@ -665,10 +665,10 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={12}
+                        stepNumber={14}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="12. Lanzamientos (Estrategia WhatsApp)"
+                        categoryTitle="14. Lanzamientos (Estrategia WhatsApp)"
                         title={<>Secuencia de Lanzamiento <span className="text-[#FF5A1F]">vía WhatsApp</span></>}
                         description="Configura tu secuencia de lanzamiento por WhatsApp para generar expectativa, mantener el interés de tus prospectos y guiarlos estratégicamente hacia la compra."
                     />
@@ -676,7 +676,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
-                            stepNumber={12}
+                            stepNumber={14}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial WhatsApp"
                         />

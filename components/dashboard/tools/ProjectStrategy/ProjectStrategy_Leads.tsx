@@ -132,9 +132,9 @@ export const ProjectStrategy_Leads: React.FC<ProjectStrategy_LeadsProps> = ({ to
     return (
         <div className="space-y-6 text-left animate-in fade-in duration-500">
             
-            {/* HEADER DEL PASO 4 */}
+            {/* HEADER DEL PASO 5 */}
             <StepHeaderCard
-                stepNumber={4}
+                stepNumber={5}
                 totalSteps={totalSteps}
                 stageNumber={1}
                 categoryTitle="Leads capturados"
@@ -148,7 +148,7 @@ export const ProjectStrategy_Leads: React.FC<ProjectStrategy_LeadsProps> = ({ to
                 {/* VIDEO TUTORIAL BLOQUE */}
                 <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                     <StepVideoContainer 
-                        stepNumber={4}
+                        stepNumber={5}
                         videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                         title="Cómo Gestionar y Cerrar tus Leads"
                     />
