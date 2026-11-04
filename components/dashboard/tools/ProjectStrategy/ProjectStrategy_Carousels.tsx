@@ -668,10 +668,10 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
             {!overrideProjectId ? (
                 <div className="space-y-6">
                     <StepHeaderCard
-                        stepNumber={9}
+                        stepNumber={8}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="9. Carruseles Magnéticos"
+                        categoryTitle="8. Carruseles Magnéticos"
                         title={<>Descarga tus <span className="text-[#FF5A1F]">Carruseles Magnéticos</span></>}
                         description="Usa carruseles visuales de Instagram y Facebook diseñados por profesionales para captar la atención de tu audiencia, educar de forma visual rápida y conseguir conversiones automáticas."
                     />

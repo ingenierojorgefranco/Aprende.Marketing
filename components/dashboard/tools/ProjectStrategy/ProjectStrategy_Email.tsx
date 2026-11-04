@@ -662,7 +662,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         <StepVideoContainer 
                             stepNumber={12}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
-                            title="Video Tutorial Email"
+                            title="Video Tutorial Email Marketing"
                         />
                     </div>
                 </div>
