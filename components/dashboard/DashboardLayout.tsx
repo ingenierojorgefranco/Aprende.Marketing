@@ -464,7 +464,39 @@ export const DashboardLayout = ({
       localStorage.setItem(`has_projects_${user.id}`, 'true');
     }
 
-    // Si el usuario navegó intencionalmente a cualquier ruta del dashboard, limpiar force_wizard_step
+    // Regla estricta para usuarios normales sin proyectos creados
+    if (user.role !== 'admin' && !hasUserActivity) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('wizard_completed');
+        localStorage.removeItem('wizard_dismissed');
+      }
+
+      const welcomeSeen = typeof window !== 'undefined' && localStorage.getItem(`welcome_video_seen_${user.id}`) === 'true';
+
+      // 1. Si no ha hecho clic en crear proyecto en la pantalla de bienvenida, enviar a /welcome
+      if (!welcomeSeen) {
+        if (location.pathname !== '/welcome') {
+          navigate('/welcome', { replace: true });
+        }
+        return;
+      }
+
+      // 2. Si ya vio bienvenida pero NO TIENE PROYECTOS CREADOS:
+      // Cualquier intento de acceder a /dashboard (o subrutas) debe redirigir a /onboarding/step-1
+      if (
+        location.pathname.startsWith('/dashboard') || 
+        location.pathname === '/onboarding' || 
+        location.pathname === '/wizard' || 
+        location.pathname === '/wizard/dashboard'
+      ) {
+        navigate('/onboarding/step-1', { replace: true });
+        return;
+      }
+
+      return;
+    }
+
+    // Si el usuario navegó intencionalmente a cualquier ruta del dashboard y tiene proyectos, limpiar force_wizard_step
     if (location.pathname.startsWith('/dashboard') && typeof window !== 'undefined') {
       const forced = localStorage.getItem('force_wizard_step');
       if (forced && forced !== 'success') {
@@ -474,29 +506,15 @@ export const DashboardLayout = ({
  
     const searchParams = new URLSearchParams(location.search);
     const targetProjId = searchParams.get('projectId');
-    const forcedStep = typeof window !== 'undefined' ? localStorage.getItem('force_wizard_step') : null;
 
-    // Si el usuario está en el wizard u onboarding, NUNCA expulsarlo al dashboard mientras esté navegando en los pasos del asistente
+    // Si el usuario está en el wizard u onboarding, permitirle navegar
     if (location.pathname.startsWith('/onboarding') || location.pathname.startsWith('/wizard')) {
       if (location.pathname === '/onboarding' && targetProjId) {
         navigate(`/onboarding/step-2?projectId=${targetProjId}`, { replace: true });
       }
       return;
     }
-
-    // Solo si es un usuario totalmente nuevo en /dashboard que nunca ha descartado el wizard, no tiene proyectos y está habilitado
-    if (
-      location.pathname === '/dashboard' &&
-      wizardEnabled &&
-      !showWelcomeVideo &&
-      user.role !== 'admin' &&
-      !isWizardCompleted &&
-      !isWizardDismissed &&
-      !hasUserActivity
-    ) {
-      navigate('/wizard/step-1', { replace: true });
-    }
-  }, [loadingMode, location.pathname, showWelcomeVideo, navigate, isWizardCompleted, isWizardDismissed, hasUserActivity, wizardEnabled, user.role]);
+  }, [loadingMode, location.pathname, showWelcomeVideo, navigate, isWizardCompleted, isWizardDismissed, hasUserActivity, wizardEnabled, user.role, user.id]);
  
   if (loadingMode) {
       return (

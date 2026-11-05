@@ -203,6 +203,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       return "success";
     }
     if (typeof window !== "undefined") {
+      const fullPath = window.location.pathname + window.location.hash + window.location.search;
+      if (fullPath.includes("step-1") || fullPath.includes("welcome")) {
+        return "welcome";
+      }
+
       const forced = localStorage.getItem("force_wizard_step");
       if (forced === "generating_hooks") return "generating_hooks";
       if (forced === "generating_strategy") return "generating_strategy";
@@ -212,7 +217,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       if (forced === "unlock") return "unlock";
       if (forced === "selection") return "selection";
 
-      const fullPath = window.location.pathname + window.location.hash + window.location.search;
       if (fullPath.includes("step-5") || fullPath.includes("success")) {
         return "success";
       }
@@ -227,9 +231,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       }
       if (fullPath.includes("step-2") || fullPath.includes("selection")) {
         return "selection";
-      }
-      if (fullPath.includes("step-1") || fullPath.includes("welcome")) {
-        return "welcome";
       }
     }
     return "welcome";
