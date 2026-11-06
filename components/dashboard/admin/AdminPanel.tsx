@@ -75,6 +75,16 @@ export const AdminPanel: React.FC = () => {
     ////////// Estado para el modo del Wizard //////////
     const [wizardEnabled, setWizardEnabled] = useState<boolean>(true);
     ////////// Fin de actualización //////////
+
+    ////////// Estado para la Integración Global de Systeme.io //////////
+    const [globalSystemeKey, setGlobalSystemeKey] = useState('');
+    const [globalSystemeTagId, setGlobalSystemeTagId] = useState('');
+    const [globalSystemeEnabled, setGlobalSystemeEnabled] = useState(false);
+    const [systemeTags, setSystemeTags] = useState<{ id: string | number; name: string }[]>([]);
+    const [loadingGlobalSysteme, setLoadingGlobalSysteme] = useState(false);
+    const [syncingUsers, setSyncingUsers] = useState(false);
+    const [syncingUserSingleId, setSyncingUserSingleId] = useState<string | null>(null);
+    ////////// Fin de estado //////////
     
     const [loadingSettings, setLoadingSettings] = useState(false);
 
@@ -86,13 +96,14 @@ export const AdminPanel: React.FC = () => {
         setLoading(true);
         try {
             if (viewMode === 'users') {
-                const [usersData, plansData, settingsData, pMethodData, modeData, wizardData] = await Promise.all([
+                const [usersData, plansData, settingsData, pMethodData, modeData, wizardData, sysGlobalData] = await Promise.all([
                     api.getUsers(),
                     api.getPlans(),
                     api.getLoginRedirect().catch(() => '/dashboard'),
                     api.getActivePaymentMethod().catch(() => 'stripe'),
                     api.getSystemMode().catch(() => 'production'),
-                    api.getWizardMode().catch(() => true)
+                    api.getWizardMode().catch(() => true),
+                    api.getGlobalSystemeIoSettings().catch(() => ({ globalKey: '', defaultTagId: '', enabled: false, tags: [] }))
                 ]);
                 setUsers(usersData);
                 setPlans(plansData);
@@ -100,6 +111,12 @@ export const AdminPanel: React.FC = () => {
                 setPaymentMethod(pMethodData as any);
                 setSystemMode(modeData as any);
                 setWizardEnabled(wizardData);
+                if (sysGlobalData) {
+                    setGlobalSystemeKey(sysGlobalData.globalKey || '');
+                    setGlobalSystemeTagId(sysGlobalData.defaultTagId || '');
+                    setGlobalSystemeEnabled(sysGlobalData.enabled || false);
+                    setSystemeTags(sysGlobalData.tags || []);
+                }
             } else {
                 const ticketsData = await api.getAdminSupportTickets();
                 setTickets(ticketsData);
@@ -108,6 +125,65 @@ export const AdminPanel: React.FC = () => {
             console.error("Error loading admin data:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSaveGlobalSystemeIo = async () => {
+        setLoadingGlobalSysteme(true);
+        try {
+            await api.updateGlobalSystemeIoSettings({
+                globalKey: globalSystemeKey,
+                defaultTagId: globalSystemeTagId,
+                enabled: globalSystemeEnabled
+            });
+            alert("Configuración Global de Systeme.io guardada correctamente.");
+            const sysData = await api.getGlobalSystemeIoSettings();
+            setSystemeTags(sysData.tags || []);
+        } catch (e: any) {
+            alert("Error al guardar configuración de Systeme.io: " + (e.message || 'Error de conexión'));
+        } finally {
+            setLoadingGlobalSysteme(false);
+        }
+    };
+
+    const handleSyncPendingUsers = async () => {
+        if (!globalSystemeKey || !globalSystemeTagId) {
+            alert("Por favor, configura y guarda primero la API Key y la Etiqueta Predeterminada de Systeme.io en la Configuración Global.");
+            return;
+        }
+        const pendingCount = users.filter(u => !u.systemio_registrado).length;
+        if (pendingCount === 0) {
+            alert("No hay usuarios pendientes por registrar en Systeme.io.");
+            return;
+        }
+        if (!window.confirm(`¿Deseas asignar la etiqueta en Systeme.io a los ${pendingCount} usuarios pendientes?`)) return;
+
+        setSyncingUsers(true);
+        try {
+            const res = await api.syncPendingUsersToSystemeIo();
+            alert(res.message);
+            await loadData();
+        } catch (e: any) {
+            alert("Error al sincronizar usuarios: " + (e.message || 'Error de conexión'));
+        } finally {
+            setSyncingUsers(false);
+        }
+    };
+
+    const handleSyncSingleUser = async (userId: string) => {
+        if (!globalSystemeKey || !globalSystemeTagId) {
+            alert("Por favor, configura primero la API Key y la Etiqueta Predeterminada de Systeme.io en la Configuración Global.");
+            return;
+        }
+        setSyncingUserSingleId(userId);
+        try {
+            const res = await api.syncUserToSystemeIo(userId);
+            alert(res.message);
+            await loadData();
+        } catch (e: any) {
+            alert("Error al sincronizar usuario: " + (e.message || 'Error de conexión'));
+        } finally {
+            setSyncingUserSingleId(null);
         }
     };
 
@@ -511,6 +587,65 @@ export const AdminPanel: React.FC = () => {
                             </div>
                             {/* ////////// Fin de actualización ////////// */}
 
+                            {/* ////////// Nueva Sección: Integración Global de Systeme.io (Aprende Marketing) ////////// */}
+                            <div className="pt-6 border-t border-gray-800 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                                            <span className={`w-2.5 h-2.5 rounded-full ${globalSystemeEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-gray-600'}`}></span>
+                                            Integración Global de Systeme.io (Aprende.Marketing)
+                                        </h3>
+                                        <p className="text-xs text-gray-400 mt-1">
+                                            Asigna automáticamente la etiqueta configurada a los usuarios al registrarse en Aprende.Marketing para incluirlos en tu campaña de correos.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setGlobalSystemeEnabled(!globalSystemeEnabled)}
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${globalSystemeEnabled ? 'bg-emerald-500' : 'bg-gray-700'}`}
+                                    >
+                                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${globalSystemeEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+                                    </button>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-400 uppercase mb-1">API Key Global de Systeme.io</label>
+                                        <Input
+                                            type="password"
+                                            value={globalSystemeKey}
+                                            onChange={(e) => setGlobalSystemeKey(e.target.value)}
+                                            placeholder="Ingresa tu API Key de Systeme.io"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Etiqueta Predeterminada (`systemio_registrado`)</label>
+                                        <select
+                                            value={globalSystemeTagId}
+                                            onChange={(e) => setGlobalSystemeTagId(e.target.value)}
+                                            className="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:border-primary outline-none transition"
+                                        >
+                                            <option value="">-- Selecciona una etiqueta --</option>
+                                            {systemeTags.map((tag: any) => (
+                                                <option key={tag.id} value={tag.id}>{tag.name} (ID: {tag.id})</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={handleSaveGlobalSystemeIo}
+                                    disabled={loadingGlobalSysteme}
+                                    className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 w-full md:w-auto"
+                                >
+                                    {loadingGlobalSysteme ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                    Guardar Configuración Systeme.io Global
+                                </button>
+                            </div>
+                            {/* ////////// Fin de actualización Systeme.io Global ////////// */}
+
                             <button 
                                 onClick={handleSaveSettings}
                                 disabled={loadingSettings}
@@ -524,10 +659,24 @@ export const AdminPanel: React.FC = () => {
 
                     {/* Users Table */}
                     <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-lg">
-                        <div className="p-4 border-b border-gray-800">
-                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                <Users className="w-5 h-5 text-blue-400" /> Usuarios Registrados
-                            </h2>
+                        <div className="p-4 border-b border-gray-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                    <Users className="w-5 h-5 text-blue-400" /> Usuarios Registrados
+                                </h2>
+                                <p className="text-xs text-gray-400 mt-1">
+                                    Pendientes por etiquetar en Systeme.io: <span className="font-bold text-orange-400">{users.filter(u => !u.systemio_registrado).length}</span> de {users.length} usuarios
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={handleSyncPendingUsers}
+                                disabled={syncingUsers}
+                                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2"
+                            >
+                                {syncingUsers ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                                Sincronizar Pendientes a Systeme.io
+                            </button>
                         </div>
                         <table className="w-full text-left">
                             <thead className="bg-gray-800 text-gray-400 text-xs uppercase tracking-wider">
@@ -536,6 +685,7 @@ export const AdminPanel: React.FC = () => {
                                     <th className="p-4">Rol</th>
                                     <th className="p-4">Plan Actual</th>
                                     <th className="p-4">Límites (Proy / Landings)</th>
+                                    <th className="p-4 text-center">Systeme.io (`systemio_registrado`)</th>
                                     <th className="p-4 text-right">Acciones</th>
                                 </tr>
                             </thead>
@@ -557,7 +707,27 @@ export const AdminPanel: React.FC = () => {
                                         <td className="p-4 text-gray-400">
                                             {user.planLimits?.maxProjects} / {user.planLimits?.maxLandings}
                                         </td>
+                                        <td className="p-4 text-center">
+                                            {user.systemio_registrado ? (
+                                                <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-950/60 text-emerald-400 border border-emerald-800/50 inline-flex items-center gap-1.5">
+                                                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> Registrado
+                                                </span>
+                                            ) : (
+                                                <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-gray-800/80 text-orange-400 border border-orange-900/40 inline-flex items-center gap-1.5">
+                                                    <Clock className="w-3.5 h-3.5 text-orange-400" /> Pendiente
+                                                </span>
+                                            )}
+                                        </td>
                                         <td className="p-4 text-right flex justify-end gap-2">
+                                            {!user.systemio_registrado && (
+                                                <button 
+                                                    onClick={() => handleSyncSingleUser(user.id)}
+                                                    disabled={syncingUserSingleId === user.id}
+                                                    className="p-2 hover:bg-emerald-900/30 text-emerald-400 rounded transition" title="Asignar Etiqueta en Systeme.io"
+                                                >
+                                                    {syncingUserSingleId === user.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                                                </button>
+                                            )}
                                             <button 
                                                 onClick={() => setViewingUser(user)}
                                                 className="p-2 hover:bg-purple-900/30 text-purple-400 rounded transition" title="Ver Contenido Generado"

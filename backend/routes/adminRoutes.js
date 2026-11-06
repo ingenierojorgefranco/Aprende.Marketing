@@ -5,6 +5,7 @@ import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
 import { logSystemActivity, DEFAULT_LIMITS, clearLimitsCache } from './authRoutes.js';
 import { adminRouter as courseAdminRouter } from './courseRoutes.js';
+import * as systemeIoService from '../systemeIoService.js';
 
 const router = express.Router();
 
@@ -35,12 +36,13 @@ router.use('/', courseAdminRouter);
 router.get('/users', async (req, res) => {
     try {
         const [users] = await pool.query(
-            `SELECT id, name, email, role, is_active, plan_limits, created_at, last_login_at, avatar_url, birth_date, custom_redirect_url, max_hooks,
+            `SELECT id, name, email, role, is_active, plan_limits, systemio_registrado, created_at, last_login_at, avatar_url, birth_date, custom_redirect_url, max_hooks,
                     survey_json, main_goal, experience_level, budget_range, main_obstacle, niche, urgency_level, createdsurvey_at, updatedsurvey_at 
              FROM users ORDER BY created_at DESC`
         );
         const safeUsers = users.map(u => ({
             ...u,
+            systemio_registrado: u.systemio_registrado === 1 || u.systemio_registrado === true,
             planLimits: typeof u.plan_limits === 'string' ? JSON.parse(u.plan_limits) : (u.plan_limits || DEFAULT_LIMITS),
             customRedirectUrl: u.custom_redirect_url,
             maxHooks: u.max_hooks,
@@ -626,6 +628,142 @@ router.get('/all-subscriptions', async (req, res) => {
     }
 });
 
-////////// Fin de actualización - 07/06/2025 10:00 //////////
+////////// Actualización: Endpoints para la integración global de Systeme.io y sincronización de usuarios //////////
+router.get('/systemeio/global-settings', async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('global_systemeio_key', 'global_systemeio_default_tag_id', 'global_systemeio_enabled')"
+        );
+        const settingsMap = {};
+        rows.forEach(r => settingsMap[r.setting_key] = r.setting_value);
+
+        const globalKey = settingsMap.global_systemeio_key || '';
+        const defaultTagId = settingsMap.global_systemeio_default_tag_id || '';
+        const enabled = settingsMap.global_systemeio_enabled === 'true';
+
+        let tags = [];
+        if (globalKey) {
+            try {
+                tags = await systemeIoService.getTags(globalKey);
+            } catch (tagErr) {
+                console.warn('[Global Systeme.io Tags Warn]:', tagErr.message);
+            }
+        }
+
+        res.json({ globalKey, defaultTagId, enabled, tags });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+router.put('/systemeio/global-settings', async (req, res) => {
+    const { globalKey, defaultTagId, enabled } = req.body;
+    try {
+        const updates = [
+            ['global_systemeio_key', globalKey || ''],
+            ['global_systemeio_default_tag_id', defaultTagId ? String(defaultTagId) : ''],
+            ['global_systemeio_enabled', enabled ? 'true' : 'false']
+        ];
+
+        for (const [key, val] of updates) {
+            await pool.query(
+                `INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?`,
+                [key, val, val]
+            );
+        }
+
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+router.post('/systemeio/sync-users', async (req, res) => {
+    const { userIds } = req.body || {};
+    try {
+        const [rows] = await pool.query(
+            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('global_systemeio_key', 'global_systemeio_default_tag_id', 'global_systemeio_enabled')"
+        );
+        const settingsMap = {};
+        rows.forEach(r => settingsMap[r.setting_key] = r.setting_value);
+
+        const globalKey = settingsMap.global_systemeio_key;
+        const defaultTagId = settingsMap.global_systemeio_default_tag_id;
+
+        if (!globalKey || !defaultTagId) {
+            return res.status(400).json({ error: 'Debes configurar primero la API Key Global y la Etiqueta Predeterminada de Systeme.io.' });
+        }
+
+        let targetUsers = [];
+        if (Array.isArray(userIds) && userIds.length > 0) {
+            const placeholders = userIds.map(() => '?').join(',');
+            const [users] = await pool.query(`SELECT id, name, email FROM users WHERE id IN (${placeholders})`, userIds);
+            targetUsers = users;
+        } else {
+            const [users] = await pool.query("SELECT id, name, email FROM users WHERE (systemio_registrado = 0 OR systemio_registrado IS NULL)");
+            targetUsers = users;
+        }
+
+        if (targetUsers.length === 0) {
+            return res.json({ success: true, count: 0, message: 'No hay usuarios pendientes por sincronizar.' });
+        }
+
+        let successCount = 0;
+        for (const user of targetUsers) {
+            try {
+                const contactRes = await systemeIoService.addContact(globalKey, user.email, user.name || 'Usuario');
+                const contactId = contactRes?.contact?.id || contactRes?.contact?.contact?.id || contactRes?.id;
+                
+                if (contactId) {
+                    await systemeIoService.addTagToContact(globalKey, contactId, defaultTagId);
+                    await pool.query('UPDATE users SET systemio_registrado = 1 WHERE id = ?', [user.id]);
+                    successCount++;
+                }
+            } catch (userErr) {
+                console.error(`[Admin Systeme.io User Sync Error] User ID ${user.id}:`, userErr.message);
+            }
+        }
+
+        res.json({ success: true, count: successCount, message: `Se han sincronizado ${successCount} de ${targetUsers.length} usuarios exitosamente en Systeme.io.` });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+router.post('/systemeio/sync-user/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [rows] = await pool.query(
+            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('global_systemeio_key', 'global_systemeio_default_tag_id', 'global_systemeio_enabled')"
+        );
+        const settingsMap = {};
+        rows.forEach(r => settingsMap[r.setting_key] = r.setting_value);
+
+        const globalKey = settingsMap.global_systemeio_key;
+        const defaultTagId = settingsMap.global_systemeio_default_tag_id;
+
+        if (!globalKey || !defaultTagId) {
+            return res.status(400).json({ error: 'Configura la API Key y la Etiqueta Predeterminada de Systeme.io en Configuración Global.' });
+        }
+
+        const [users] = await pool.query("SELECT id, name, email FROM users WHERE id = ?", [id]);
+        if (users.length === 0) return res.status(404).json({ error: 'Usuario no encontrado.' });
+        const user = users[0];
+
+        const contactRes = await systemeIoService.addContact(globalKey, user.email, user.name || 'Usuario');
+        const contactId = contactRes?.contact?.id || contactRes?.contact?.contact?.id || contactRes?.id;
+
+        if (contactId) {
+            await systemeIoService.addTagToContact(globalKey, contactId, defaultTagId);
+            await pool.query('UPDATE users SET systemio_registrado = 1 WHERE id = ?', [user.id]);
+            return res.json({ success: true, message: `Usuario ${user.email} sincronizado y etiquetado correctamente en Systeme.io.` });
+        } else {
+            return res.status(500).json({ error: 'No se pudo obtener el ID del contacto en Systeme.io.' });
+        }
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+////////// Fin de actualización - Systeme.io Global //////////
 
 export default router;

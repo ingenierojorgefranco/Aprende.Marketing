@@ -258,6 +258,7 @@ export interface User {
   updatedsurvey_at?: string;
   niche?: string;
   urgency_level?: string;
+  systemio_registrado?: boolean | number;
 }
 
 // NEW: System Log Type

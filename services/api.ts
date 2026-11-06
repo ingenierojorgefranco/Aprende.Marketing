@@ -1992,6 +1992,30 @@ export const api = {
         await fetchWithFallback('/admin/settings', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ key: 'wizard_enabled', value: enabled ? 'true' : 'false' }) });
         clearCache('wizardEnabled');
     },
+
+    getGlobalSystemeIoSettings: async (): Promise<{ globalKey: string; defaultTagId: string; enabled: boolean; tags: any[] }> => {
+        if (isMockMode) return { globalKey: '', defaultTagId: '', enabled: false, tags: [] };
+        return await fetchWithFallback('/admin/systemeio/global-settings', { headers: getAuthHeaders() });
+    },
+
+    updateGlobalSystemeIoSettings: async (data: { globalKey: string; defaultTagId: string; enabled: boolean }) => {
+        if (isMockMode) return Promise.resolve();
+        return await fetchWithFallback('/admin/systemeio/global-settings', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) });
+    },
+
+    syncPendingUsersToSystemeIo: async (userIds?: string[]): Promise<{ success: boolean; count: number; message: string }> => {
+        if (isMockMode) return { success: true, count: 0, message: "Modo mock activo" };
+        const res = await fetchWithFallback('/admin/systemeio/sync-users', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ userIds }) });
+        clearCache('usersList');
+        return res;
+    },
+
+    syncUserToSystemeIo: async (userId: string): Promise<{ success: boolean; message: string }> => {
+        if (isMockMode) return { success: true, message: "Modo mock activo" };
+        const res = await fetchWithFallback(`/admin/systemeio/sync-user/${userId}`, { method: 'POST', headers: getAuthHeaders() });
+        clearCache('usersList');
+        return res;
+    },
   
     getPlans: async (): Promise<Plan[]> => {
         if (isMockMode) return Promise.resolve([]); 
