@@ -124,6 +124,13 @@ export const SmartRedirect: React.FC = () => {
                     case 'iman':
                         targetSection = 'leadmagnet';
                         break;
+                    case 'onboarding':
+                    case 'bienvenida':
+                    case 'introduccion':
+                    case 'inicio':
+                    case 'guia':
+                        targetSection = 'onboarding';
+                        break;
                     default:
                         targetSection = rawDest; // Si se pasa una sección exacta directamente
                         break;
