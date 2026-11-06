@@ -21,6 +21,7 @@ import { PrivacyPage } from "./components/PrivacyPage";
 import { JorgeFrancoPage } from "./components/cv/jorge-franco/JorgeFrancoPage";
 import { AprendeMarketingProjectPage } from "./components/cv/jorge-franco/AprendeMarketingProjectPage";
 import { AprendeMarketingBienvenida } from "./components/AprendeMarketingBienvenida";
+import { SmartRedirect } from "./components/SmartRedirect";
 ////////// Fin de importación - 14/06/2025 01:15 //////////
 
 const AprendeMarketingProjectPageWrapper: React.FC = () => {
@@ -339,6 +340,10 @@ const App: React.FC = () => {
         <Route path="/aprendemarketing/bienvenida" element={<AprendeMarketingBienvenida />} />
         <Route path="/bienvenida" element={<Navigate to="/aprendemarketing/bienvenida" replace />} />
         <Route path="/aprendemarketing" element={<Navigate to="/aprendemarketing/bienvenida" replace />} />
+
+        {/* RUTAS INTELIGENTES UNIVERSALES DE REDIRECCIÓN (/go/:destination) */}
+        <Route path="/go/:destination" element={<SmartRedirect />} />
+        <Route path="/go" element={<SmartRedirect />} />
 
         {/* ////////// Nuevas rutas legales y de contacto - 27/05/2025 01:15 ////////// */}
         <Route path="/contacto" element={<ContactPage />} />

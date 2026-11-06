@@ -68,6 +68,20 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       onLogin(mappedUser);
       
       try {
+          // 1. Verificar si el usuario venía de un enlace universal de correo (ej. /go/reels)
+          const preLoginRedirect = typeof window !== 'undefined' ? localStorage.getItem('pre_login_redirect') : null;
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectParam = urlParams.get('redirect');
+          const targetRedirect = preLoginRedirect || redirectParam;
+
+          if (targetRedirect && targetRedirect.startsWith('/')) {
+              if (typeof window !== 'undefined') {
+                  localStorage.removeItem('pre_login_redirect');
+              }
+              navigate(targetRedirect, { replace: true });
+              return;
+          }
+
           const projects = await api.getProjects();
           const hasProjects = projects && projects.length > 0;
           
