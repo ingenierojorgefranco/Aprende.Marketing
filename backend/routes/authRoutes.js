@@ -497,29 +497,8 @@ router.post('/register', async (req, res) => {
     
     await logSystemActivity(newUser.id, newUser.name, 'REGISTER', 'user', newUser.id, { email });
 
-    // Sincronizar automáticamente en segundo plano con Systeme.io Global si está activo
-    (async () => {
-      try {
-        const [settingsRows] = await pool.query(
-          "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('global_systemeio_key', 'global_systemeio_default_tag_id', 'global_systemeio_enabled')"
-        );
-        const sysMap = {};
-        settingsRows.forEach(r => sysMap[r.setting_key] = r.setting_value);
-
-        if (sysMap.global_systemeio_enabled === 'true' && sysMap.global_systemeio_key && sysMap.global_systemeio_default_tag_id) {
-          console.log(`[Systeme.io Global Register] Sincronizando nuevo usuario: ${email}`);
-          const contactRes = await systemeIoService.addContact(sysMap.global_systemeio_key, email, name || 'Usuario');
-          const contactId = contactRes?.contact?.id || contactRes?.contact?.contact?.id || contactRes?.id;
-          if (contactId) {
-            await systemeIoService.addTagToContact(sysMap.global_systemeio_key, contactId, sysMap.global_systemeio_default_tag_id);
-            await pool.query('UPDATE users SET systemio_registrado = 1 WHERE id = ?', [result.insertId]);
-            console.log(`[Systeme.io Global Register] Usuario ${email} registrado y etiquetado exitosamente con Tag ID ${sysMap.global_systemeio_default_tag_id}`);
-          }
-        }
-      } catch (sysErr) {
-        console.error('[Systeme.io Global Register Error]:', sysErr.message);
-      }
-    })();
+    // Sincronizar automáticamente en segundo plano con Systeme.io Global
+    systemeIoService.syncUserToGlobalSystemeIo(newUser.id, email, name || 'Usuario');
 
     res.status(201).json({ user: newUser, token });
   } catch (error) {
@@ -1367,6 +1346,9 @@ router.post('/activate-hotmart-account', async (req, res) => {
                 [cleanName, cleanEmail, passwordHash, JSON.stringify(effectivePlanLimits)]
             );
             targetUserId = insertResult.insertId;
+
+            // Sincronizar automáticamente en segundo plano con Systeme.io Global
+            systemeIoService.syncUserToGlobalSystemeIo(targetUserId, cleanEmail, cleanName || 'Usuario');
 
             // Crear suscripción activa con los datos de seguimiento y fechas calculadas
             await pool.query(

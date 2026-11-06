@@ -2,6 +2,7 @@
 ////////// Actualización: Implementación de verificación de firma HMAC SHA256 para Webhooks - 27/06/2025 11:45 //////////
 import https from 'https';
 import crypto from 'crypto';
+import pool from './db.js';
 
 /**
  * Verifica la autenticidad de la firma enviada por Systeme.io
@@ -254,4 +255,67 @@ export const addTagToContact = async (apiKey, contactId, tagId) => {
         req.write(data);
         req.end();
     });
+};
+
+/**
+ * Sincroniza automáticamente un nuevo usuario con la cuenta global de Systeme.io asignándole la etiqueta por defecto
+ * @param {number|string} userId 
+ * @param {string} email 
+ * @param {string} name 
+ */
+export const syncUserToGlobalSystemeIo = async (userId, email, name) => {
+    try {
+        const [settingsRows] = await pool.query(
+            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('global_systemeio_key', 'global_systemeio_default_tag_id', 'global_systemeio_enabled')"
+        );
+        const sysMap = {};
+        settingsRows.forEach(r => sysMap[r.setting_key] = r.setting_value);
+
+        const globalKey = sysMap.global_systemeio_key;
+        const defaultTagId = sysMap.global_systemeio_default_tag_id;
+        const isEnabled = sysMap.global_systemeio_enabled !== 'false';
+
+        if (!isEnabled || !globalKey || !defaultTagId) {
+            console.log(`[Systeme.io Global Register] Omitido: Key=${Boolean(globalKey)}, TagId=${Boolean(defaultTagId)}, Enabled=${sysMap.global_systemeio_enabled}`);
+            return false;
+        }
+
+        console.log(`[Systeme.io Global Register] Procesando nuevo usuario ID ${userId} (${email})...`);
+
+        let contactId = null;
+
+        // 1. Intentar registrar el contacto
+        try {
+            const contactRes = await addContact(globalKey, email, name || 'Usuario');
+            contactId = contactRes?.contact?.id || contactRes?.contact?.contact?.id || contactRes?.id;
+        } catch (addErr) {
+            console.warn(`[Systeme.io Global Register] Aviso al crear contacto: ${addErr.message}`);
+        }
+
+        // 2. Si no se obtuvo ID directamente (ej: contacto ya existía), buscar por email
+        if (!contactId) {
+            try {
+                const existingContact = await getContactByEmail(globalKey, email);
+                if (existingContact && existingContact.id) {
+                    contactId = existingContact.id;
+                }
+            } catch (searchErr) {
+                console.error(`[Systeme.io Global Register] Error buscando contacto: ${searchErr.message}`);
+            }
+        }
+
+        // 3. Asignar etiqueta si tenemos contactId
+        if (contactId) {
+            await addTagToContact(globalKey, contactId, defaultTagId);
+            await pool.query('UPDATE users SET systemio_registrado = 1 WHERE id = ?', [userId]);
+            console.log(`✅ [Systeme.io Global Register] Usuario ${email} (ID ${userId}) etiquetado exitosamente con Tag ${defaultTagId}`);
+            return true;
+        } else {
+            console.error(`❌ [Systeme.io Global Register] No se pudo obtener ID de contacto para ${email}`);
+            return false;
+        }
+    } catch (err) {
+        console.error(`❌ [Systeme.io Global Register Error] User ID ${userId} (${email}):`, err.message);
+        return false;
+    }
 };

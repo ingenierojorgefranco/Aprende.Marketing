@@ -3,6 +3,7 @@ import pool from './db.js';
 import bcrypt from 'bcryptjs';
 import { resolvePlanTracking } from './planTrackingHelper.js';
 import { clearLimitsCache } from './routes/authRoutes.js';
+import * as systemeIoService from './systemeIoService.js';
 
 /**
  * Maneja el Webhook de Hotmart (Postback)
@@ -72,6 +73,7 @@ export const handleWebhook = async (payload, query = {}) => {
                 [buyerName, userEmail, passwordHash, JSON.stringify({ planName: 'starter' })]
             );
             userId = newUserRes.insertId;
+            systemeIoService.syncUserToGlobalSystemeIo(userId, userEmail, buyerName || 'Usuario');
             console.log(`[Hotmart Webhook] Nuevo usuario creado para ${userEmail} con ID: ${userId}`);
         }
     }
