@@ -16,6 +16,7 @@ interface UpgradeModalProps {
   reason?: string;
   userId?: string;
   projectId?: string;
+  initialBillingPeriod?: 'monthly' | 'yearly';
 }
 
 export const UpgradeModal: React.FC<UpgradeModalProps> = ({ 
@@ -25,14 +26,15 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   currentPlan, 
   reason, 
   userId, 
-  projectId 
+  projectId,
+  initialBillingPeriod = 'monthly'
 }) => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [activePaymentMethod, setActivePaymentMethod] = useState<'stripe' | 'hotmart'>('stripe');
   const [processing, setProcessing] = useState<string | null>(null);
   const [project, setProject] = useState<any>(null);
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>(initialBillingPeriod);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const isUserFreePlan = (() => {
@@ -44,6 +46,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
+      if (initialBillingPeriod) {
+        setBillingPeriod(initialBillingPeriod);
+      }
       // console.log("UpgradeModal - Parámetros recibidos:", { currentPlan, reason, userId, projectId });
       setLoading(true);
       

@@ -26,9 +26,19 @@ export const SmartRedirect: React.FC = () => {
             }
 
             // Caso Especial: Redirección a Modal de Precios / Suscripción
-            if (['subscription', 'suscription', 'suscripcion', 'upgrade', 'planes', 'precios', 'pricing', 'plan', 'pro'].includes(rawDest)) {
+            if (['subscription', 'suscription', 'suscripcion', 'upgrade', 'planes', 'precios', 'pricing', 'plan', 'pro', 'subscription_anual', 'subscription_annual', 'suscription_anual', 'suscripcion_anual', 'anual', 'annual'].includes(rawDest)) {
                 setStatusMessage('Cargando planes de suscripción...');
-                navigate('/dashboard?upgrade=true', { replace: true });
+                const isAnnual = rawDest.includes('anual') || rawDest.includes('annual');
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('open_upgrade_modal', 'true');
+                    if (isAnnual) {
+                        localStorage.setItem('upgrade_billing_period', 'yearly');
+                    } else {
+                        localStorage.removeItem('upgrade_billing_period');
+                    }
+                }
+                const queryPeriod = isAnnual ? '&period=yearly' : '';
+                navigate(`/dashboard?upgrade=true${queryPeriod}`, { replace: true });
                 return;
             }
 

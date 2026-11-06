@@ -113,18 +113,34 @@ export const DashboardLayout = ({
   const headerUserMenuRef = React.useRef<HTMLDivElement>(null);
   const [isWizardGenerating, setIsWizardGenerating] = useState(false);
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [upgradeInitialPeriod, setUpgradeInitialPeriod] = useState<'monthly' | 'yearly'>('monthly');
 
   useEffect(() => {
-    if (searchParams.get('upgrade') === 'true' || searchParams.get('subscription') === 'true' || searchParams.get('pricing') === 'true') {
+    const urlParams = new URLSearchParams(location.search);
+    const hasUpgradeQuery = urlParams.get('upgrade') === 'true' || 
+                            urlParams.get('upgrade') === '1' ||
+                            urlParams.get('subscription') === 'true' || 
+                            urlParams.get('pricing') === 'true' ||
+                            urlParams.get('section') === 'subscription' ||
+                            urlParams.get('section') === 'upgrade' ||
+                            location.search.includes('upgrade=true') ||
+                            location.search.includes('subscription=true');
+                            
+    const hasStorageUpgrade = typeof window !== 'undefined' && localStorage.getItem('open_upgrade_modal') === 'true';
+
+    const isYearly = urlParams.get('period') === 'yearly' || 
+                     urlParams.get('period') === 'anual' || 
+                     (typeof window !== 'undefined' && localStorage.getItem('upgrade_billing_period') === 'yearly');
+
+    if (hasUpgradeQuery || hasStorageUpgrade) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('open_upgrade_modal');
+        localStorage.removeItem('upgrade_billing_period');
+      }
+      setUpgradeInitialPeriod(isYearly ? 'yearly' : 'monthly');
       setShowUpgradeModal(true);
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete('upgrade');
-      newParams.delete('subscription');
-      newParams.delete('pricing');
-      setSearchParams(newParams, { replace: true });
     }
-  }, [searchParams, setSearchParams]);
+  }, [location.search]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -913,6 +929,7 @@ export const DashboardLayout = ({
         user={effectiveUser}
         userId={effectiveUser.id}
         currentPlan={effectiveUser.planLimits?.planName} 
+        initialBillingPeriod={upgradeInitialPeriod}
       />
       {showSuccessModal && <SubscriptionSuccessModal onClose={() => setShowSuccessModal(false)} planName={effectiveUser.planLimits?.planName} />}
       <NewsHistoryModal isOpen={showNewsModal} onClose={() => setShowNewsModal(false)} />
