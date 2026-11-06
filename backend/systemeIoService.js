@@ -150,8 +150,9 @@ export const getContactByEmail = async (apiKey, email) => {
                 if (res.statusCode >= 200 && res.statusCode < 300) {
                     try {
                         const parsed = JSON.parse(resBody);
-                        // Systeme.io devuelve una lista filtrada
-                        resolve(parsed.items && parsed.items.length > 0 ? parsed.items[0] : null);
+                        // Systeme.io puede devolver items, data o un array directo
+                        const items = parsed.items || parsed.data || (Array.isArray(parsed) ? parsed : []);
+                        resolve(items.length > 0 ? items[0] : null);
                     } catch (e) {
                         resolve(null);
                     }
@@ -258,7 +259,8 @@ export const addTagToContact = async (apiKey, contactId, tagId) => {
 };
 
 /**
- * Sincroniza automáticamente un nuevo usuario con la cuenta global de Systeme.io asignándole la etiqueta por defecto
+ * Sincroniza un usuario con la cuenta global de Systeme.io asignándole la etiqueta por defecto
+ * (Usado unificadamente tanto para registro automático como para sincronización manual desde el admin)
  * @param {number|string} userId 
  * @param {string} email 
  * @param {string} name 
@@ -275,24 +277,29 @@ export const syncUserToGlobalSystemeIo = async (userId, email, name) => {
         const defaultTagId = sysMap.global_systemeio_default_tag_id;
         const isEnabled = sysMap.global_systemeio_enabled !== 'false';
 
-        if (!isEnabled || !globalKey || !defaultTagId) {
-            console.log(`[Systeme.io Global Register] Omitido: Key=${Boolean(globalKey)}, TagId=${Boolean(defaultTagId)}, Enabled=${sysMap.global_systemeio_enabled}`);
-            return false;
+        if (!globalKey || !defaultTagId) {
+            console.log(`[Systeme.io Global Sync] Omitido: API Key o Default Tag ID no configurados.`);
+            return { success: false, error: 'API Key o Tag ID no configurados' };
         }
 
-        console.log(`[Systeme.io Global Register] Procesando nuevo usuario ID ${userId} (${email})...`);
+        if (!isEnabled) {
+            console.log(`[Systeme.io Global Sync] Omitido: Integración desactivada en configuración.`);
+            return { success: false, error: 'Sincronización global desactivada' };
+        }
+
+        console.log(`[Systeme.io Global Sync] Procesando usuario ID ${userId} (${email})...`);
 
         let contactId = null;
 
-        // 1. Intentar registrar el contacto
+        // 1. Intentar crear el contacto directamente
         try {
             const contactRes = await addContact(globalKey, email, name || 'Usuario');
             contactId = contactRes?.contact?.id || contactRes?.contact?.contact?.id || contactRes?.id;
         } catch (addErr) {
-            console.warn(`[Systeme.io Global Register] Aviso al crear contacto: ${addErr.message}`);
+            console.warn(`[Systeme.io Global Sync] Aviso al crear contacto (${email}): ${addErr.message}`);
         }
 
-        // 2. Si no se obtuvo ID directamente (ej: contacto ya existía), buscar por email
+        // 2. Si no se obtuvo ID directamente (ej: contacto ya existía en Systeme.io), buscar por email
         if (!contactId) {
             try {
                 const existingContact = await getContactByEmail(globalKey, email);
@@ -300,22 +307,22 @@ export const syncUserToGlobalSystemeIo = async (userId, email, name) => {
                     contactId = existingContact.id;
                 }
             } catch (searchErr) {
-                console.error(`[Systeme.io Global Register] Error buscando contacto: ${searchErr.message}`);
+                console.error(`[Systeme.io Global Sync] Error buscando contacto (${email}): ${searchErr.message}`);
             }
         }
 
-        // 3. Asignar etiqueta si tenemos contactId
+        // 3. Asignar etiqueta si tenemos el contactId y marcar usuario como registrado
         if (contactId) {
             await addTagToContact(globalKey, contactId, defaultTagId);
             await pool.query('UPDATE users SET systemio_registrado = 1 WHERE id = ?', [userId]);
-            console.log(`✅ [Systeme.io Global Register] Usuario ${email} (ID ${userId}) etiquetado exitosamente con Tag ${defaultTagId}`);
-            return true;
+            console.log(`✅ [Systeme.io Global Sync] Usuario ${email} (ID ${userId}) etiquetado exitosamente con Tag ${defaultTagId}`);
+            return { success: true, contactId };
         } else {
-            console.error(`❌ [Systeme.io Global Register] No se pudo obtener ID de contacto para ${email}`);
-            return false;
+            console.error(`❌ [Systeme.io Global Sync] No se pudo obtener ID de contacto en Systeme.io para ${email}`);
+            return { success: false, error: 'No se pudo obtener ID de contacto en Systeme.io' };
         }
     } catch (err) {
-        console.error(`❌ [Systeme.io Global Register Error] User ID ${userId} (${email}):`, err.message);
-        return false;
+        console.error(`❌ [Systeme.io Global Sync Error] User ID ${userId} (${email}):`, err.message);
+        return { success: false, error: err.message };
     }
 };

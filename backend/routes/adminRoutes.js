@@ -681,19 +681,6 @@ router.put('/systemeio/global-settings', async (req, res) => {
 router.post('/systemeio/sync-users', async (req, res) => {
     const { userIds } = req.body || {};
     try {
-        const [rows] = await pool.query(
-            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('global_systemeio_key', 'global_systemeio_default_tag_id', 'global_systemeio_enabled')"
-        );
-        const settingsMap = {};
-        rows.forEach(r => settingsMap[r.setting_key] = r.setting_value);
-
-        const globalKey = settingsMap.global_systemeio_key;
-        const defaultTagId = settingsMap.global_systemeio_default_tag_id;
-
-        if (!globalKey || !defaultTagId) {
-            return res.status(400).json({ error: 'Debes configurar primero la API Key Global y la Etiqueta Predeterminada de Systeme.io.' });
-        }
-
         let targetUsers = [];
         if (Array.isArray(userIds) && userIds.length > 0) {
             const placeholders = userIds.map(() => '?').join(',');
@@ -710,17 +697,9 @@ router.post('/systemeio/sync-users', async (req, res) => {
 
         let successCount = 0;
         for (const user of targetUsers) {
-            try {
-                const contactRes = await systemeIoService.addContact(globalKey, user.email, user.name || 'Usuario');
-                const contactId = contactRes?.contact?.id || contactRes?.contact?.contact?.id || contactRes?.id;
-                
-                if (contactId) {
-                    await systemeIoService.addTagToContact(globalKey, contactId, defaultTagId);
-                    await pool.query('UPDATE users SET systemio_registrado = 1 WHERE id = ?', [user.id]);
-                    successCount++;
-                }
-            } catch (userErr) {
-                console.error(`[Admin Systeme.io User Sync Error] User ID ${user.id}:`, userErr.message);
+            const result = await systemeIoService.syncUserToGlobalSystemeIo(user.id, user.email, user.name || 'Usuario');
+            if (result && result.success) {
+                successCount++;
             }
         }
 
@@ -733,32 +712,16 @@ router.post('/systemeio/sync-users', async (req, res) => {
 router.post('/systemeio/sync-user/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const [rows] = await pool.query(
-            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('global_systemeio_key', 'global_systemeio_default_tag_id', 'global_systemeio_enabled')"
-        );
-        const settingsMap = {};
-        rows.forEach(r => settingsMap[r.setting_key] = r.setting_value);
-
-        const globalKey = settingsMap.global_systemeio_key;
-        const defaultTagId = settingsMap.global_systemeio_default_tag_id;
-
-        if (!globalKey || !defaultTagId) {
-            return res.status(400).json({ error: 'Configura la API Key y la Etiqueta Predeterminada de Systeme.io en Configuración Global.' });
-        }
-
         const [users] = await pool.query("SELECT id, name, email FROM users WHERE id = ?", [id]);
         if (users.length === 0) return res.status(404).json({ error: 'Usuario no encontrado.' });
         const user = users[0];
 
-        const contactRes = await systemeIoService.addContact(globalKey, user.email, user.name || 'Usuario');
-        const contactId = contactRes?.contact?.id || contactRes?.contact?.contact?.id || contactRes?.id;
+        const result = await systemeIoService.syncUserToGlobalSystemeIo(user.id, user.email, user.name || 'Usuario');
 
-        if (contactId) {
-            await systemeIoService.addTagToContact(globalKey, contactId, defaultTagId);
-            await pool.query('UPDATE users SET systemio_registrado = 1 WHERE id = ?', [user.id]);
+        if (result && result.success) {
             return res.json({ success: true, message: `Usuario ${user.email} sincronizado y etiquetado correctamente en Systeme.io.` });
         } else {
-            return res.status(500).json({ error: 'No se pudo obtener el ID del contacto en Systeme.io.' });
+            return res.status(400).json({ error: result?.error || 'No se pudo sincronizar el contacto en Systeme.io.' });
         }
     } catch (e) {
         res.status(500).json({ error: e.message });
