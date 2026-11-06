@@ -25,6 +25,13 @@ export const SmartRedirect: React.FC = () => {
                 return;
             }
 
+            // Caso Especial: Redirección a Modal de Precios / Suscripción
+            if (['subscription', 'suscription', 'suscripcion', 'upgrade', 'planes', 'precios', 'pricing', 'plan', 'pro'].includes(rawDest)) {
+                setStatusMessage('Cargando planes de suscripción...');
+                navigate('/dashboard?upgrade=true', { replace: true });
+                return;
+            }
+
             try {
                 setStatusMessage('Cargando tus proyectos...');
                 const projects = await api.getProjects();
@@ -61,10 +68,10 @@ export const SmartRedirect: React.FC = () => {
                     case 'landing':
                     case 'funnel':
                     case 'captura':
-                    case 'websystem':
+                    case 'web':
                     case 'pagina':
                     case 'paginas':
-                        targetSection = 'websystem';
+                        targetSection = 'web';
                         break;
                     case 'youtube':
                     case 'yt':
@@ -95,11 +102,30 @@ export const SmartRedirect: React.FC = () => {
                     case 'email':
                     case 'emails':
                     case 'correos':
+                    case 'conversion':
                     case 'secuencia':
                         targetSection = 'email';
                         break;
+                    case 'evergreen':
+                    case 'nutricion':
+                        targetSection = 'evergreen';
+                        break;
+                    case 'whatsapp':
+                    case 'lanzamiento':
+                    case 'lanzamientos':
+                        targetSection = 'whatsapp';
+                        break;
+                    case 'summary':
+                    case 'estrategia':
+                    case 'resumen':
+                        targetSection = 'summary';
+                        break;
+                    case 'leadmagnet':
+                    case 'iman':
+                        targetSection = 'leadmagnet';
+                        break;
                     default:
-                        targetSection = 'hooks';
+                        targetSection = rawDest; // Si se pasa una sección exacta directamente
                         break;
                 }
 

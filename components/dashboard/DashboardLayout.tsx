@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, Suspense } from 'reac
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
 import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, ChevronLeft, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers, Rocket, Smartphone, Zap, Bell, ChevronsUpDown, RefreshCw, User as UserIcon } from 'lucide-react';
-import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Outlet, useSearchParams } from 'react-router-dom';
 import { api } from '../../services/api';
 import { UpgradeModal } from './UpgradeModal';
 import { SubscriptionSuccessModal } from './SubscriptionSuccessModal';
@@ -112,6 +112,19 @@ export const DashboardLayout = ({
   const [headerUserMenuOpen, setHeaderUserMenuOpen] = useState(false);
   const headerUserMenuRef = React.useRef<HTMLDivElement>(null);
   const [isWizardGenerating, setIsWizardGenerating] = useState(false);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('upgrade') === 'true' || searchParams.get('subscription') === 'true' || searchParams.get('pricing') === 'true') {
+      setShowUpgradeModal(true);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('upgrade');
+      newParams.delete('subscription');
+      newParams.delete('pricing');
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
