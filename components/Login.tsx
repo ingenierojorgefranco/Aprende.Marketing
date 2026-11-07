@@ -157,7 +157,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </form>
 
         <div className="mt-6 text-center pt-6 border-t border-white/5 space-y-4">
-            <p className="text-[#B0B0B0] text-sm">¿No tienes cuenta? <button onClick={() => navigate('/register')} className="text-[#FF5A1F] font-bold hover:underline transition">Regístrate Gratis</button></p>
+            <p className="text-[#B0B0B0] text-sm">¿No tienes cuenta? <button onClick={() => navigate('/register' + window.location.search)} className="text-[#FF5A1F] font-bold hover:underline transition">Regístrate Gratis</button></p>
             
             {!isProduction && (
               <div className="pt-2 border-t border-white/5">

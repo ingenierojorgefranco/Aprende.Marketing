@@ -1584,6 +1584,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       selectedProject?.id ||
       userActiveProjects[0]?.id;
 
+    const postRedirect = typeof window !== 'undefined' ? localStorage.getItem('post_onboarding_redirect') : null;
+    if (postRedirect && postRedirect.startsWith('/')) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('post_onboarding_redirect');
+      }
+      navigate(postRedirect, { replace: true });
+      return;
+    }
+
     if (onComplete) {
       onComplete(targetProjectId);
     } else if (targetProjectId) {

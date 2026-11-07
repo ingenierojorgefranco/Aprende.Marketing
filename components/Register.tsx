@@ -142,6 +142,19 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
 
       onLogin(mappedUser);
       
+      const preLoginRedirect = typeof window !== 'undefined' ? localStorage.getItem('pre_login_redirect') : null;
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectParam = urlParams.get('redirect');
+      const targetRedirect = preLoginRedirect || redirectParam;
+
+      if (targetRedirect && targetRedirect.startsWith('/')) {
+          if (typeof window !== 'undefined') {
+              localStorage.removeItem('pre_login_redirect');
+          }
+          navigate(targetRedirect, { replace: true });
+          return;
+      }
+
       if (mappedUser.customRedirectUrl && mappedUser.customRedirectUrl.trim() !== '') {
           navigate(mappedUser.customRedirectUrl);
       } else {
@@ -203,7 +216,7 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
         </form>
 
         <div className="mt-8 text-center pt-6 border-t border-white/5 space-y-4">
-            <p className="text-[#B0B0B0] text-sm">¿Ya tienes cuenta? <button type="button" onClick={() => navigate('/login')} className="text-[#FF5A1F] font-bold hover:underline transition">Inicia Sesión</button></p>
+            <p className="text-[#B0B0B0] text-sm">¿Ya tienes cuenta? <button type="button" onClick={() => navigate('/login' + window.location.search)} className="text-[#FF5A1F] font-bold hover:underline transition">Inicia Sesión</button></p>
             {isLocal && (
               <div className="pt-2 flex items-center justify-center gap-3">
                 <button 
