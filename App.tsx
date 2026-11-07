@@ -22,6 +22,7 @@ import { JorgeFrancoPage } from "./components/cv/jorge-franco/JorgeFrancoPage";
 import { AprendeMarketingProjectPage } from "./components/cv/jorge-franco/AprendeMarketingProjectPage";
 import { AprendeMarketingBienvenida } from "./components/AprendeMarketingBienvenida";
 import { SmartRedirect } from "./components/SmartRedirect";
+import { TrackingManager } from "./components/TrackingManager";
 ////////// Fin de importación - 14/06/2025 01:15 //////////
 
 const AprendeMarketingProjectPageWrapper: React.FC = () => {
@@ -306,6 +307,7 @@ const App: React.FC = () => {
 
   return (
     <>
+      <TrackingManager />
       <Routes>
         {/* RUTAS PÚBLICAS */}
         <Route path="/suscripcion/exito" element={<SubscriptionSuccessPage user={user} onLogin={handleLoginSubmit} />} />

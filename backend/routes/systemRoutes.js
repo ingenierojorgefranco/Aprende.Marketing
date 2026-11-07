@@ -419,6 +419,25 @@ router.get('/settings/wizard-mode', async (req, res) => {
     }
 });
 
+/**
+ * Obtiene las etiquetas de seguimiento globales (Google Analytics y Facebook Pixel)
+ */
+router.get('/settings/tracking', async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('google_analytics_id', 'facebook_pixel_id')"
+        );
+        const map = {};
+        rows.forEach(r => map[r.setting_key] = r.setting_value);
+        res.json({
+            googleAnalyticsId: map.google_analytics_id || '',
+            facebookPixelId: map.facebook_pixel_id || ''
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 ////////// Actualización: Endpoints para gestionar integraciones externas (Systeme.io) - 07/06/2025 19:30 //////////
 /**
  * Obtiene las claves de integración del usuario

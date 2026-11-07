@@ -1993,14 +1993,19 @@ export const api = {
         clearCache('wizardEnabled');
     },
 
-    getGlobalSystemeIoSettings: async (): Promise<{ globalKey: string; defaultTagId: string; enabled: boolean; tags: any[] }> => {
-        if (isMockMode) return { globalKey: '', defaultTagId: '', enabled: false, tags: [] };
+    getGlobalSystemeIoSettings: async (): Promise<{ globalKey: string; defaultTagId: string; enabled: boolean; tags: any[]; googleAnalyticsId: string; facebookPixelId: string }> => {
+        if (isMockMode) return { globalKey: '', defaultTagId: '', enabled: false, tags: [], googleAnalyticsId: '', facebookPixelId: '' };
         return await fetchWithFallback('/admin/systemeio/global-settings', { headers: getAuthHeaders() });
     },
 
-    updateGlobalSystemeIoSettings: async (data: { globalKey: string; defaultTagId: string; enabled: boolean }) => {
+    updateGlobalSystemeIoSettings: async (data: { globalKey: string; defaultTagId: string; enabled: boolean; googleAnalyticsId?: string; facebookPixelId?: string }) => {
         if (isMockMode) return Promise.resolve();
         return await fetchWithFallback('/admin/systemeio/global-settings', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) });
+    },
+
+    getTrackingSettings: async (): Promise<{ googleAnalyticsId: string; facebookPixelId: string }> => {
+        if (isMockMode) return { googleAnalyticsId: '', facebookPixelId: '' };
+        return await fetchWithFallback('/settings/tracking');
     },
 
     syncPendingUsersToSystemeIo: async (userIds?: string[]): Promise<{ success: boolean; count: number; message: string }> => {

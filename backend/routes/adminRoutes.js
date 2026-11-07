@@ -628,11 +628,11 @@ router.get('/all-subscriptions', async (req, res) => {
     }
 });
 
-////////// Actualización: Endpoints para la integración global de Systeme.io y sincronización de usuarios //////////
+////////// Actualización: Endpoints para la integración global de Systeme.io, Píxeles de seguimiento y sincronización //////////
 router.get('/systemeio/global-settings', async (req, res) => {
     try {
         const [rows] = await pool.query(
-            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('global_systemeio_key', 'global_systemeio_default_tag_id', 'global_systemeio_enabled')"
+            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('global_systemeio_key', 'global_systemeio_default_tag_id', 'global_systemeio_enabled', 'google_analytics_id', 'facebook_pixel_id')"
         );
         const settingsMap = {};
         rows.forEach(r => settingsMap[r.setting_key] = r.setting_value);
@@ -640,6 +640,8 @@ router.get('/systemeio/global-settings', async (req, res) => {
         const globalKey = settingsMap.global_systemeio_key || '';
         const defaultTagId = settingsMap.global_systemeio_default_tag_id || '';
         const enabled = settingsMap.global_systemeio_enabled === 'true';
+        const googleAnalyticsId = settingsMap.google_analytics_id || '';
+        const facebookPixelId = settingsMap.facebook_pixel_id || '';
 
         let tags = [];
         if (globalKey) {
@@ -650,19 +652,21 @@ router.get('/systemeio/global-settings', async (req, res) => {
             }
         }
 
-        res.json({ globalKey, defaultTagId, enabled, tags });
+        res.json({ globalKey, defaultTagId, enabled, tags, googleAnalyticsId, facebookPixelId });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
 });
 
 router.put('/systemeio/global-settings', async (req, res) => {
-    const { globalKey, defaultTagId, enabled } = req.body;
+    const { globalKey, defaultTagId, enabled, googleAnalyticsId, facebookPixelId } = req.body;
     try {
         const updates = [
             ['global_systemeio_key', globalKey || ''],
             ['global_systemeio_default_tag_id', defaultTagId ? String(defaultTagId) : ''],
-            ['global_systemeio_enabled', enabled ? 'true' : 'false']
+            ['global_systemeio_enabled', enabled ? 'true' : 'false'],
+            ['google_analytics_id', googleAnalyticsId || ''],
+            ['facebook_pixel_id', facebookPixelId || '']
         ];
 
         for (const [key, val] of updates) {

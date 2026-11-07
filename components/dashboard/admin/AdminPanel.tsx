@@ -85,6 +85,11 @@ export const AdminPanel: React.FC = () => {
     const [syncingUsers, setSyncingUsers] = useState(false);
     const [syncingUserSingleId, setSyncingUserSingleId] = useState<string | null>(null);
     ////////// Fin de estado //////////
+
+    ////////// Estado para Píxeles de Seguimiento (Google Analytics & Meta Pixel) //////////
+    const [googleAnalyticsId, setGoogleAnalyticsId] = useState('');
+    const [facebookPixelId, setFacebookPixelId] = useState('');
+    ////////// Fin de estado //////////
     
     const [loadingSettings, setLoadingSettings] = useState(false);
 
@@ -103,7 +108,7 @@ export const AdminPanel: React.FC = () => {
                     api.getActivePaymentMethod().catch(() => 'stripe'),
                     api.getSystemMode().catch(() => 'production'),
                     api.getWizardMode().catch(() => true),
-                    api.getGlobalSystemeIoSettings().catch(() => ({ globalKey: '', defaultTagId: '', enabled: false, tags: [] }))
+                    api.getGlobalSystemeIoSettings().catch(() => ({ globalKey: '', defaultTagId: '', enabled: false, tags: [], googleAnalyticsId: '', facebookPixelId: '' }))
                 ]);
                 setUsers(usersData);
                 setPlans(plansData);
@@ -116,6 +121,8 @@ export const AdminPanel: React.FC = () => {
                     setGlobalSystemeTagId(sysGlobalData.defaultTagId || '');
                     setGlobalSystemeEnabled(sysGlobalData.enabled || false);
                     setSystemeTags(sysGlobalData.tags || []);
+                    setGoogleAnalyticsId(sysGlobalData.googleAnalyticsId || '');
+                    setFacebookPixelId(sysGlobalData.facebookPixelId || '');
                 }
             } else {
                 const ticketsData = await api.getAdminSupportTickets();
@@ -134,13 +141,15 @@ export const AdminPanel: React.FC = () => {
             await api.updateGlobalSystemeIoSettings({
                 globalKey: globalSystemeKey,
                 defaultTagId: globalSystemeTagId,
-                enabled: globalSystemeEnabled
+                enabled: globalSystemeEnabled,
+                googleAnalyticsId: googleAnalyticsId,
+                facebookPixelId: facebookPixelId
             });
-            alert("Configuración Global de Systeme.io guardada correctamente.");
+            alert("Configuración Global y Píxeles de Seguimiento guardados correctamente.");
             const sysData = await api.getGlobalSystemeIoSettings();
             setSystemeTags(sysData.tags || []);
         } catch (e: any) {
-            alert("Error al guardar configuración de Systeme.io: " + (e.message || 'Error de conexión'));
+            alert("Error al guardar configuración: " + (e.message || 'Error de conexión'));
         } finally {
             setLoadingGlobalSysteme(false);
         }
@@ -634,6 +643,52 @@ export const AdminPanel: React.FC = () => {
                                     </div>
                                 </div>
 
+                                 {/* ////////// Nueva Sección: Píxeles y Etiquetas de Seguimiento ////////// */}
+                                <div className="pt-6 border-t border-gray-800 space-y-4">
+                                    <div>
+                                        <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                                            <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                                            Píxeles y Etiquetas de Seguimiento (Google Analytics & Pixel de Facebook)
+                                        </h3>
+                                        <p className="text-xs text-gray-400 mt-1">
+                                            Agrega tus códigos o IDs de seguimiento para medir el tráfico, visitas y conversiones de tus usuarios en todo el sitio web de Aprende.Marketing.
+                                        </p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                                Etiqueta / ID de Google Analytics (GA4)
+                                            </label>
+                                            <Input
+                                                type="text"
+                                                value={googleAnalyticsId}
+                                                onChange={(e) => setGoogleAnalyticsId(e.target.value)}
+                                                placeholder="Ej: G-XXXXXXXXXX o código script completo"
+                                            />
+                                            <p className="text-[11px] text-gray-500 mt-1">
+                                                Puedes ingresar tu ID de medición (ej: <code className="text-primary font-mono">G-XXXXXXXXXX</code>) o pegar el fragmento de código <code className="text-gray-400 font-mono">&lt;script&gt;</code> completo.
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                                Píxel de Facebook / Meta (Pixel ID)
+                                            </label>
+                                            <Input
+                                                type="text"
+                                                value={facebookPixelId}
+                                                onChange={(e) => setFacebookPixelId(e.target.value)}
+                                                placeholder="Ej: 1234567890123456 o código script completo"
+                                            />
+                                            <p className="text-[11px] text-gray-500 mt-1">
+                                                Puedes ingresar tu ID del Píxel de Meta (ej: <code className="text-primary font-mono">1234567890123456</code>) o pegar el fragmento de código <code className="text-gray-400 font-mono">&lt;script&gt;</code> completo.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* ////////// Fin de actualización Píxeles de Seguimiento ////////// */}
+
                                 <button
                                     type="button"
                                     onClick={handleSaveGlobalSystemeIo}
@@ -641,10 +696,10 @@ export const AdminPanel: React.FC = () => {
                                     className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 w-full md:w-auto"
                                 >
                                     {loadingGlobalSysteme ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                    Guardar Configuración Systeme.io Global
+                                    Guardar Configuración e Integraciones Globales
                                 </button>
                             </div>
-                            {/* ////////// Fin de actualización Systeme.io Global ////////// */}
+                            {/* ////////// Fin de actualización Systeme.io & Píxeles Global ////////// */}
 
                             <button 
                                 onClick={handleSaveSettings}
