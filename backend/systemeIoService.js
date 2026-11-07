@@ -264,58 +264,62 @@ export const addTagToContact = async (apiKey, contactId, tagId) => {
  * @param {string} name 
  */
 export const syncUserToGlobalSystemeIo = async (userId, email, name) => {
+    console.log(`[Systeme.io Auto-Register Debug] Iniciando sincronización automática para nuevo usuario ID ${userId} (${email}, Nombre: "${name}")...`);
     try {
         const [settingsRows] = await pool.query(
-            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('global_systemeio_key', 'global_systemeio_default_tag_id', 'global_systemeio_enabled')"
+            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('global_systemeio_key', 'global_systemeio_default_tag_id')"
         );
         const sysMap = {};
         settingsRows.forEach(r => sysMap[r.setting_key] = r.setting_value);
 
         const globalKey = sysMap.global_systemeio_key;
         const defaultTagId = sysMap.global_systemeio_default_tag_id;
-        const isEnabled = sysMap.global_systemeio_enabled !== 'false';
 
-        if (!isEnabled || !globalKey || !defaultTagId) {
-            console.log(`[Systeme.io Global Register] Omitido: Key=${Boolean(globalKey)}, TagId=${Boolean(defaultTagId)}, Enabled=${sysMap.global_systemeio_enabled}`);
+        if (!globalKey || !defaultTagId) {
+            console.warn(`[Systeme.io Auto-Register Debug] Omitido: Falta API Key o Etiqueta Predeterminada. KeyConfigured=${Boolean(globalKey)}, TagId=${defaultTagId || 'N/A'}`);
             return false;
         }
 
-        console.log(`[Systeme.io Global Register] Procesando nuevo usuario ID ${userId} (${email})...`);
+        console.log(`[Systeme.io Auto-Register Debug] Configuración global cargada: TagID=${defaultTagId}. Intentando crear o buscar contacto...`);
 
         let contactId = null;
 
         // 1. Intentar registrar el contacto
         try {
             const contactRes = await addContact(globalKey, email, name || 'Usuario');
+            console.log(`[Systeme.io Auto-Register Debug] Respuesta de addContact:`, JSON.stringify(contactRes));
             contactId = contactRes?.contact?.id || contactRes?.contact?.contact?.id || contactRes?.id;
         } catch (addErr) {
-            console.warn(`[Systeme.io Global Register] Aviso al crear contacto: ${addErr.message}`);
+            console.warn(`[Systeme.io Auto-Register Debug] Aviso al crear contacto en addContact: ${addErr.message}`);
         }
 
         // 2. Si no se obtuvo ID directamente (ej: contacto ya existía), buscar por email
         if (!contactId) {
             try {
+                console.log(`[Systeme.io Auto-Register Debug] Buscando contacto existente por email: ${email}...`);
                 const existingContact = await getContactByEmail(globalKey, email);
+                console.log(`[Systeme.io Auto-Register Debug] Respuesta de getContactByEmail:`, JSON.stringify(existingContact));
                 if (existingContact && existingContact.id) {
                     contactId = existingContact.id;
                 }
             } catch (searchErr) {
-                console.error(`[Systeme.io Global Register] Error buscando contacto: ${searchErr.message}`);
+                console.error(`[Systeme.io Auto-Register Debug] Error al buscar contacto por email: ${searchErr.message}`);
             }
         }
 
         // 3. Asignar etiqueta si tenemos contactId
         if (contactId) {
+            console.log(`[Systeme.io Auto-Register Debug] Asignando etiqueta ${defaultTagId} al contacto ${contactId}...`);
             await addTagToContact(globalKey, contactId, defaultTagId);
             await pool.query('UPDATE users SET systemio_registrado = 1 WHERE id = ?', [userId]);
-            console.log(`✅ [Systeme.io Global Register] Usuario ${email} (ID ${userId}) etiquetado exitosamente con Tag ${defaultTagId}`);
+            console.log(`✅ [Systeme.io Auto-Register SUCCESS] Usuario ${email} (ID ${userId}) sincronizado y etiquetado correctamente con Tag ${defaultTagId}`);
             return true;
         } else {
-            console.error(`❌ [Systeme.io Global Register] No se pudo obtener ID de contacto para ${email}`);
+            console.error(`❌ [Systeme.io Auto-Register ERROR] No se pudo obtener el ID del contacto en Systeme.io para ${email} (ID ${userId})`);
             return false;
         }
     } catch (err) {
-        console.error(`❌ [Systeme.io Global Register Error] User ID ${userId} (${email}):`, err.message);
+        console.error(`❌ [Systeme.io Auto-Register EXCEPTION] User ID ${userId} (${email}):`, err.message, err.stack);
         return false;
     }
 };

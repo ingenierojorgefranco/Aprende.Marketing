@@ -498,7 +498,9 @@ router.post('/register', async (req, res) => {
     await logSystemActivity(newUser.id, newUser.name, 'REGISTER', 'user', newUser.id, { email });
 
     // Sincronizar automáticamente en segundo plano con Systeme.io Global
-    systemeIoService.syncUserToGlobalSystemeIo(newUser.id, email, name || 'Usuario');
+    systemeIoService.syncUserToGlobalSystemeIo(newUser.id, email, name || 'Usuario')
+      .then(res => console.log(`[AUTH Register] Resultado de syncUserToGlobalSystemeIo para ID ${newUser.id} (${email}): ${res}`))
+      .catch(err => console.error(`[AUTH Register Error] Error en syncUserToGlobalSystemeIo para ID ${newUser.id} (${email}):`, err));
 
     res.status(201).json({ user: newUser, token });
   } catch (error) {
@@ -1348,7 +1350,9 @@ router.post('/activate-hotmart-account', async (req, res) => {
             targetUserId = insertResult.insertId;
 
             // Sincronizar automáticamente en segundo plano con Systeme.io Global
-            systemeIoService.syncUserToGlobalSystemeIo(targetUserId, cleanEmail, cleanName || 'Usuario');
+            systemeIoService.syncUserToGlobalSystemeIo(targetUserId, cleanEmail, cleanName || 'Usuario')
+              .then(res => console.log(`[AUTH ClaimAccount] Resultado de syncUserToGlobalSystemeIo para ID ${targetUserId} (${cleanEmail}): ${res}`))
+              .catch(err => console.error(`[AUTH ClaimAccount Error] Error en syncUserToGlobalSystemeIo para ID ${targetUserId} (${cleanEmail}):`, err));
 
             // Crear suscripción activa con los datos de seguimiento y fechas calculadas
             await pool.query(

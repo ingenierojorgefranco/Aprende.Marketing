@@ -73,7 +73,9 @@ export const handleWebhook = async (payload, query = {}) => {
                 [buyerName, userEmail, passwordHash, JSON.stringify({ planName: 'starter' })]
             );
             userId = newUserRes.insertId;
-            systemeIoService.syncUserToGlobalSystemeIo(userId, userEmail, buyerName || 'Usuario');
+            systemeIoService.syncUserToGlobalSystemeIo(userId, userEmail, buyerName || 'Usuario')
+                .then(res => console.log(`[Hotmart Webhook] Resultado de syncUserToGlobalSystemeIo para ID ${userId} (${userEmail}): ${res}`))
+                .catch(err => console.error(`[Hotmart Webhook Error] Error en syncUserToGlobalSystemeIo para ID ${userId} (${userEmail}):`, err));
             console.log(`[Hotmart Webhook] Nuevo usuario creado para ${userEmail} con ID: ${userId}`);
         }
     }
