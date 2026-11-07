@@ -305,6 +305,24 @@ const App: React.FC = () => {
     return <>{children}</>;
   };
 
+  const RedirectIfAuthenticated = ({ children }: { children?: React.ReactNode }) => {
+    if (user) {
+      const preLoginRedirect = typeof window !== 'undefined' ? localStorage.getItem('pre_login_redirect') : null;
+      const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+      const redirectParam = urlParams.get('redirect');
+      const targetRedirect = preLoginRedirect || redirectParam;
+
+      if (targetRedirect && targetRedirect.startsWith('/')) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('pre_login_redirect');
+        }
+        return <Navigate to={targetRedirect} replace />;
+      }
+      return <Navigate to="/dashboard" replace />;
+    }
+    return <>{children}</>;
+  };
+
   return (
     <>
       <TrackingManager user={user} />
@@ -335,8 +353,8 @@ const App: React.FC = () => {
           }
         />
 
-        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login onLogin={handleLoginSubmit} />} />
-        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register onLogin={handleLoginSubmit} />} />
+        <Route path="/login" element={<RedirectIfAuthenticated><Login onLogin={handleLoginSubmit} /></RedirectIfAuthenticated>} />
+        <Route path="/register" element={<RedirectIfAuthenticated><Register onLogin={handleLoginSubmit} /></RedirectIfAuthenticated>} />
 
         {/* PÁGINAS DE BIENVENIDA APRENDE MARKETING */}
         <Route path="/aprendemarketing/bienvenida" element={<AprendeMarketingBienvenida />} />
