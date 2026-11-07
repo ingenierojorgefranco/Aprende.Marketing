@@ -307,7 +307,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      <TrackingManager />
+      <TrackingManager user={user} />
       <Routes>
         {/* RUTAS PÚBLICAS */}
         <Route path="/suscripcion/exito" element={<SubscriptionSuccessPage user={user} onLogin={handleLoginSubmit} />} />

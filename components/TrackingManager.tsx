@@ -11,7 +11,11 @@ declare global {
   }
 }
 
-export const TrackingManager: React.FC = () => {
+interface TrackingManagerProps {
+  user?: { id: string | number; email?: string } | null;
+}
+
+export const TrackingManager: React.FC<TrackingManagerProps> = ({ user }) => {
   const location = useLocation();
   const initializedGa = useRef<string | null>(null);
   const initializedFb = useRef<string | null>(null);
@@ -41,8 +45,15 @@ export const TrackingManager: React.FC = () => {
                 window.dataLayer?.push(arguments);
               };
               window.gtag('js', new Date());
-              window.gtag('config', rawGa, { page_path: window.location.pathname });
-              console.log(`[TrackingManager] Google Analytics inicializado con ID: ${rawGa}`);
+
+              const configParams: Record<string, any> = { page_path: window.location.pathname };
+              if (user?.id) {
+                configParams.user_id = String(user.id);
+                window.gtag('set', 'user_id', String(user.id));
+              }
+
+              window.gtag('config', rawGa, configParams);
+              console.log(`[TrackingManager] Google Analytics inicializado con ID: ${rawGa}${user?.id ? ` (User ID: ${user.id})` : ''}`);
             }
           } else if (rawGa.includes('<script')) {
             // Si el usuario pegó el código script completo de GA / Tag Manager
@@ -90,9 +101,13 @@ export const TrackingManager: React.FC = () => {
               })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
 
               if (window.fbq) {
-                window.fbq('init', rawFb);
+                if (user?.id) {
+                  window.fbq('init', rawFb, { external_id: String(user.id) });
+                } else {
+                  window.fbq('init', rawFb);
+                }
                 window.fbq('track', 'PageView');
-                console.log(`[TrackingManager] Pixel de Facebook inicializado con ID: ${rawFb}`);
+                console.log(`[TrackingManager] Pixel de Facebook inicializado con ID: ${rawFb}${user?.id ? ` (External ID: ${user.id})` : ''}`);
               }
             }
           } else if (rawFb.includes('<script')) {
@@ -121,15 +136,32 @@ export const TrackingManager: React.FC = () => {
     initTracking();
   }, []);
 
+  // Actualizar ID del usuario cuando inicie sesión o cambie el estado de autenticación
+  useEffect(() => {
+    if (user?.id) {
+      if (window.gtag) {
+        window.gtag('set', 'user_id', String(user.id));
+        if (initializedGa.current && /^(G-[A-Z0-9]+|UA-\d+-\d+)$/i.test(initializedGa.current)) {
+          window.gtag('config', initializedGa.current, { user_id: String(user.id) });
+        }
+      }
+      if (window.fbq) {
+        window.fbq('set', 'userData', { external_id: String(user.id) });
+      }
+    }
+  }, [user?.id]);
+
   // Seguimiento de cambio de páginas (SPA PageView)
   useEffect(() => {
     if (window.gtag && initializedGa.current && /^(G-[A-Z0-9]+|UA-\d+-\d+)$/i.test(initializedGa.current)) {
-      window.gtag('config', initializedGa.current, { page_path: location.pathname });
+      const configParams: Record<string, any> = { page_path: location.pathname };
+      if (user?.id) configParams.user_id = String(user.id);
+      window.gtag('config', initializedGa.current, configParams);
     }
     if (window.fbq && initializedFb.current) {
       window.fbq('track', 'PageView');
     }
-  }, [location]);
+  }, [location, user?.id]);
 
   return null;
 };
