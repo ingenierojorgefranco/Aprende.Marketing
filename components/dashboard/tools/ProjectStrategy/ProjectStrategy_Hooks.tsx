@@ -1386,7 +1386,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         </h4>
                         {isGenerated && activeTab === 'generated' && (
                           <span className="text-[10px] text-emerald-500/60 font-medium uppercase tracking-wider">
-                            Creado: {formatRelativeTime((hook as any).createdAt || (hook as any).updatedAt)}
+                            {isRealAdmin ? (
+                              <>Creado: {formatRelativeTime((hook as any).createdAt || (hook as any).updatedAt)}</>
+                            ) : (
+                              <>Desbloqueado: {formatRelativeTime((hook as any).unlockedAt || (hook as any).unlocked_at || (hook as any).createdAt || (hook as any).updatedAt)}</>
+                            )}
                           </span>
                         )}
                       </div>
