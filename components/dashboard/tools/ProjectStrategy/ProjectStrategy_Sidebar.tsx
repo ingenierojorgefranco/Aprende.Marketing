@@ -3,7 +3,7 @@ import {
     LayoutDashboard, TrendingUp, Map, UserSearch, 
     Globe, FileText, Mail, Calendar, MessageCircle,
     ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity, MessageSquare,
-    Link as LinkIcon, CheckCircle2, Gift, Lock, Layers, Users, Youtube
+    Link as LinkIcon, CheckCircle2, Gift, Layers, Users, Youtube
 } from 'lucide-react';
 import { ImplementationGuideContext } from '../../wizard/ImplementationGuideContext';
 
@@ -172,20 +172,12 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                                                 {/* Icono Lección */}
                                                 <item.icon className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-[#B0B0B0] group-hover:text-white'}`} />
 
-                                                {/* Titulo del Menu */}
+                                                 {/* Titulo del Menu */}
                                                 <div className="flex-1 min-w-0">
                                                     <p className={`text-[14.5px] tracking-tight leading-tight ${isActive ? 'text-white font-semibold' : 'text-[#B0B0B0] font-medium group-hover:text-white'}`}>
                                                         {item.label}
                                                     </p>
                                                 </div>
-                                                
-                                                {/* PRO Badge */}
-                                                {item.stepNumber && item.stepNumber >= 5 && (
-                                                    <span className="flex items-center gap-1 bg-[#F59E0B] text-[#0B1120] px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider uppercase shrink-0 shadow-sm">
-                                                        <Lock className="w-2.5 h-2.5 stroke-[3]" />
-                                                        PRO
-                                                    </span>
-                                                )}
 
                                                 {/* Check de completado */}
                                                 {isCompleted && (
