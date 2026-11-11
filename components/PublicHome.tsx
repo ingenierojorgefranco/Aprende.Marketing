@@ -1,10 +1,11 @@
 
 import React, { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   ArrowRight, LayoutDashboard, LogOut, Play, 
   Layout, MessageCircle, PenTool, Search, Briefcase, Mail, Users, BarChart, Link as LinkIcon,
   CheckCircle, Zap, Shield, Rocket, Bot, Server, Star, Target, Globe, Gift, ChevronRight, TrendingUp, X, Menu, Smartphone, Cpu, Repeat, Phone, MoreVertical, Send, Smile, BookOpen, GraduationCap,
-  List, Facebook, Instagram, Youtube, TrendingUp as ChartIcon, DollarSign, Calendar, ChevronDown, ChevronUp, Box
+  List, Facebook, Instagram, Youtube, TrendingUp as ChartIcon, DollarSign, Calendar, ChevronDown, ChevronUp, Box, ExternalLink
 } from 'lucide-react';
 ////////// Importación de Recharts para gráfica de ingresos - 27/05/2025 02:15 //////////
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
@@ -94,6 +95,17 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
          .then(setPlans)
          .catch(err => console.error("Error loading plans:", err));
   }, []);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -185,25 +197,27 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
             
             {/* ////////// Botón Hamburguesa Móvil - 27/05/2025 15:30 ////////// */}
             <button 
+              type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)} 
-              className="lg:hidden p-2 text-white hover:text-[#FF5A1F] transition-colors"
+              className="lg:hidden p-2.5 rounded-xl bg-white/5 border border-white/10 text-white hover:text-[#FF5A1F] hover:bg-white/10 transition-all cursor-pointer"
+              aria-label="Abrir menú"
             >
-              {isMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+              {isMenuOpen ? <X className="w-7 h-7 text-[#FF5A1F]" /> : <Menu className="w-7 h-7 text-white" />}
             </button>
             {/* ////////// Fin de actualización - 27/05/2025 15:30 ////////// */}
           </div>
         </div>
+      </nav>
 
-        {/* ////////// Menú Móvil Pantalla Completa (Fondo 100% Sólido sin Transparencias) ////////// */}
+      {/* ////////// Menú Móvil Pantalla Completa (Renderizado mediante Portal en document.body) ////////// */}
+      {isMenuOpen && createPortal(
         <div 
-          className={`lg:hidden fixed inset-0 z-[999] transition-all duration-300 ${
-            isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-          }`}
-          style={{ backgroundColor: '#07090E' }}
+          className="lg:hidden fixed inset-0 z-[999999] bg-[#07090E] text-white flex flex-col w-full h-full min-h-screen overflow-y-auto animate-in fade-in duration-200"
+          style={{ backgroundColor: '#07090E', zIndex: 999999 }}
         >
-          <div className="w-full h-full bg-[#07090E] p-6 sm:p-8 flex flex-col overflow-y-auto">
+          <div className="w-full min-h-screen bg-[#07090E] p-6 sm:p-8 flex flex-col justify-between">
             {/* Cabecera del menú móvil con logo y botón cerrar */}
-            <div className="flex justify-between items-center mb-8 shrink-0 pb-4 border-b border-white/10">
+            <div className="flex justify-between items-center mb-6 shrink-0 pb-4 border-b border-white/10">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-9 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-bold text-white text-lg px-2 shadow-lg shadow-[#FF5A1F]/20">
                   AM
@@ -213,57 +227,64 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                 </span>
               </div>
               <button 
+                type="button"
                 onClick={() => setIsMenuOpen(false)} 
-                className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white hover:text-[#FF5A1F] transition-colors border border-white/10"
+                className="p-3 rounded-xl bg-white/10 hover:bg-white/20 text-white hover:text-[#FF5A1F] transition-colors border border-white/20 cursor-pointer flex items-center justify-center"
                 aria-label="Cerrar menú"
               >
-                <X className="w-6 h-6" />
+                <X className="w-7 h-7" />
               </button>
             </div>
             
             {/* Enlaces de navegación táctiles y legibles */}
-            <div className="flex flex-col gap-2 mb-8">
+            <div className="flex flex-col gap-3 my-auto py-4">
               <button 
+                type="button"
                 onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setIsMenuOpen(false); }} 
-                className="text-left py-3.5 px-4 rounded-xl hover:bg-white/5 text-lg font-bold text-white hover:text-[#FF5A1F] transition-all border border-transparent hover:border-white/5 flex justify-between items-center"
+                className="text-left py-4 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-xl font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Inicio</span> 
-                <ChevronRight className="w-5 h-5 text-gray-500" />
+                <ChevronRight className="w-6 h-6 text-[#FF5A1F]" />
               </button>
               <button 
+                type="button"
                 onClick={() => { scrollToSection('process'); setIsMenuOpen(false); }} 
-                className="text-left py-3.5 px-4 rounded-xl hover:bg-white/5 text-lg font-bold text-white hover:text-[#FF5A1F] transition-all border border-transparent hover:border-white/5 flex justify-between items-center"
+                className="text-left py-4 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-xl font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Cómo funciona</span> 
-                <ChevronRight className="w-5 h-5 text-gray-500" />
+                <ChevronRight className="w-6 h-6 text-[#FF5A1F]" />
               </button>
               <button 
+                type="button"
                 onClick={() => { scrollToSection('features'); setIsMenuOpen(false); }} 
-                className="text-left py-3.5 px-4 rounded-xl hover:bg-white/5 text-lg font-bold text-white hover:text-[#FF5A1F] transition-all border border-transparent hover:border-white/5 flex justify-between items-center"
+                className="text-left py-4 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-xl font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Productos</span> 
-                <ChevronRight className="w-5 h-5 text-gray-500" />
+                <ChevronRight className="w-6 h-6 text-[#FF5A1F]" />
               </button>
               <button 
+                type="button"
                 onClick={() => { scrollToSection('academy'); setIsMenuOpen(false); }} 
-                className="text-left py-3.5 px-4 rounded-xl hover:bg-white/5 text-lg font-bold text-white hover:text-[#FF5A1F] transition-all border border-transparent hover:border-white/5 flex justify-between items-center"
+                className="text-left py-4 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-xl font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Academia</span> 
-                <ChevronRight className="w-5 h-5 text-gray-500" />
+                <ChevronRight className="w-6 h-6 text-[#FF5A1F]" />
               </button>
               <button 
+                type="button"
                 onClick={() => { scrollToSection('testimonials'); setIsMenuOpen(false); }} 
-                className="text-left py-3.5 px-4 rounded-xl hover:bg-white/5 text-lg font-bold text-white hover:text-[#FF5A1F] transition-all border border-transparent hover:border-white/5 flex justify-between items-center"
+                className="text-left py-4 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-xl font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Precios</span> 
-                <ChevronRight className="w-5 h-5 text-gray-500" />
+                <ChevronRight className="w-6 h-6 text-[#FF5A1F]" />
               </button>
               <button 
+                type="button"
                 onClick={() => { scrollToSection('footer'); setIsMenuOpen(false); }} 
-                className="text-left py-3.5 px-4 rounded-xl hover:bg-white/5 text-lg font-bold text-white hover:text-[#FF5A1F] transition-all border border-transparent hover:border-white/5 flex justify-between items-center"
+                className="text-left py-4 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-xl font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Blog</span> 
-                <ChevronRight className="w-5 h-5 text-gray-500" />
+                <ChevronRight className="w-6 h-6 text-[#FF5A1F]" />
               </button>
             </div>
 
@@ -271,22 +292,25 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
             <div className="mt-auto pt-6 border-t border-white/10 space-y-3 shrink-0">
               {user ? (
                 <button
+                  type="button"
                   onClick={() => { navigate('/dashboard'); setIsMenuOpen(false); }}
-                  className="w-full py-4 bg-[#FF5A1F] text-white font-black text-base rounded-2xl shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-2"
+                  className="w-full py-4.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-lg rounded-2xl shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-2.5 cursor-pointer"
                 >
-                  <LayoutDashboard className="w-5 h-5" /> Ir al Panel de Control
+                  <LayoutDashboard className="w-6 h-6" /> Ir al Panel de Control
                 </button>
               ) : (
                 <>
                   <button
+                    type="button"
                     onClick={() => { navigate('/register'); setIsMenuOpen(false); }}
-                    className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-base rounded-2xl shadow-xl shadow-[#FF5A1F]/25 flex items-center justify-center gap-2"
+                    className="w-full py-4.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-lg rounded-2xl shadow-xl shadow-[#FF5A1F]/25 flex items-center justify-center gap-2.5 cursor-pointer uppercase tracking-wider"
                   >
                     Crear mi cuenta gratis
                   </button>
                   <button
+                    type="button"
                     onClick={() => { navigate('/login'); setIsMenuOpen(false); }}
-                    className="w-full py-3.5 bg-white/10 hover:bg-white/15 text-white font-bold text-base rounded-2xl border border-white/10 transition-colors"
+                    className="w-full py-4 bg-white/10 hover:bg-white/15 text-white font-bold text-base rounded-2xl border border-white/10 transition-colors cursor-pointer"
                   >
                     Iniciar sesión
                   </button>
@@ -298,9 +322,9 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
               </p>
             </div>
           </div>
-        </div>
-        {/* ////////// Fin de actualización ////////// */}
-      </nav>
+        </div>,
+        document.body
+      )}
 
       {/* Hero Section - DARK BACKGROUND WITH COSMIC SUPERNOVA & AI EFFECTS */}
       <header 
@@ -353,73 +377,109 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
               Lanza tu estrategia de afiliación en <span className="text-[#FF5A1F] bg-gradient-to-r from-[#FF5A1F] via-orange-400 to-[#FF5A1F] bg-clip-text text-transparent animate-gradient-shift">Hotmart</span> <span className="text-[#FF5A1F]">sin empezar desde cero</span>
             </h1>
 
-            {/* Descripción Centrada */}
-            <p className="text-zinc-300 font-light text-lg md:text-xl md:leading-relaxed mt-8 max-w-3xl mx-auto animate-fade-in-up">
+            {/* Descripción Centrada - Blanco, más grande y muy legible */}
+            <p className="text-white font-medium text-xl sm:text-2xl leading-relaxed md:leading-relaxed mt-6 max-w-3xl mx-auto animate-fade-in-up drop-shadow-md">
               Elige un producto analizado, define tu audiencia y crea tu página, contenidos y seguimiento desde una sola plataforma.
             </p>
 
-            {/* Botón CTA y Seguridad Centrado (ULTRA SHINY SUPERNOVA & AI ACCENTED) */}
-            <div className="mt-12 flex flex-col items-center animate-fade-in-up w-full">
-              <div 
-                onClick={() => user ? navigate('/dashboard') : navigate('/register')}
-                className="w-full sm:w-auto p-[1.5px] rounded-2xl bg-gradient-to-r from-orange-400 via-pink-500 to-indigo-500 shadow-[0_0_35px_rgba(255,90,31,0.45)] hover:shadow-[0_0_60px_rgba(255,90,31,0.65)] hover:scale-[1.03] active:scale-95 transform transition-all duration-500 cursor-pointer group relative overflow-hidden"
-              >
-                {/* Shine Sweep Effect Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent -translate-x-full group-hover:animate-shine z-10" style={{ transitionDuration: '2s' }} />
-                
-                {/* Glow ring backing */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-orange-500 to-pink-600 rounded-2xl blur-lg opacity-30 group-hover:opacity-60 transition duration-500" />
-                
-                {/* Main Button Body with Cosmic shifting gradient */}
-                <div className="px-12 py-5.5 rounded-[15px] bg-gradient-to-r from-[#FF5D1E] via-pink-600 to-orange-500 bg-[size:200%_auto] hover:bg-right transition-all duration-700 text-white font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 select-none">
-                  <span>Crear mi cuenta gratis</span>
-                  <ArrowRight className="w-6 h-6 group-hover:translate-x-1.5 transition-transform" />
-                </div>
+            {/* Video Explicativo con youtube-nocookie.com */}
+            <div className="mt-8 mb-10 w-full max-w-4xl mx-auto animate-fade-in-up">
+              <div className="relative bg-[#0E0E12] border-2 border-white/10 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-black/80 aspect-video flex items-center justify-center">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/x4NdPhJTXxM?rel=0&autoplay=0"
+                  title="Video de Bienvenida Aprende Marketing"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  className="w-full h-full border-0"
+                />
               </div>
+            </div>
+
+            {/* Botón CTA con el diseño de la página de bienvenida y texto perfectamente centrado */}
+            <div className="flex flex-col items-center animate-fade-in-up w-full max-w-xl mx-auto">
+              <a
+                href={user ? "/dashboard" : "/register"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (user) {
+                    navigate('/dashboard');
+                  } else {
+                    navigate('/register');
+                  }
+                }}
+                className="relative w-full py-5 px-6 sm:px-8 rounded-2xl bg-gradient-to-r from-[#FF5A1F] via-[#FF6D2E] to-[#E04810] hover:brightness-110 text-white font-black text-base sm:text-xl uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-2xl shadow-[#FF5A1F]/40 border border-white/20 flex items-center justify-center group cursor-pointer select-none overflow-hidden"
+              >
+                {/* Icono Cohete a la izquierda */}
+                <div className="absolute left-4 sm:left-6 w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-6 transition-all shadow-inner shrink-0">
+                  <Rocket className="w-5 h-5 fill-white/20" />
+                </div>
+                
+                {/* Texto centrado en el botón */}
+                <span className="leading-snug text-center font-black text-base sm:text-xl uppercase tracking-wider text-white px-12">
+                  Crear mi cuenta gratis
+                </span>
+
+                {/* Icono Flecha/External a la derecha */}
+                <div className="absolute right-4 sm:right-6 hidden sm:flex items-center justify-center">
+                  <ExternalLink className="w-5 h-5 text-white/80 group-hover:text-white transition-colors" />
+                </div>
+              </a>
               
-              <div className="mt-6 flex items-center gap-2 text-zinc-500 font-semibold text-sm justify-center">
-                <CheckCircle className="w-4 h-4 text-[#FF5A1F]" />
+              {/* Opción de Login para usuarios con cuenta (Imagen 4) */}
+              <div className="mt-5 flex flex-col sm:flex-row items-center gap-2 text-white font-medium text-sm sm:text-base justify-center bg-white/5 border border-white/10 px-6 py-3 rounded-xl backdrop-blur-sm">
+                <span>¿Ya tienes una cuenta registrada?</span>
+                <button 
+                  onClick={() => navigate('/login')}
+                  className="text-[#FF5A1F] hover:text-orange-400 font-extrabold underline underline-offset-4 transition-colors flex items-center gap-1"
+                >
+                  <span>¡Inicia sesión aquí!</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="mt-3 flex items-center gap-2 text-zinc-400 font-medium text-xs justify-center">
+                <CheckCircle className="w-3.5 h-3.5 text-[#FF5A1F]" />
                 <span>Sin tarjeta de crédito. Configura tu primer proyecto paso a paso.</span>
               </div>
             </div>
 
           </div>
 
-            {/* Barra de Características / Pilares en el Pie del Hero */}
-          <div className="mt-20 lg:mt-24 bg-[#111111]/90 border border-white/5 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-2xl relative">
+            {/* Barra de Características / Pilares en el Pie del Hero (Imagen 3 mejorada) */}
+          <div className="mt-20 lg:mt-24 bg-[#111111]/95 border border-white/10 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-2xl relative">
             <div className="absolute -inset-px bg-gradient-to-r from-zinc-800 via-transparent to-zinc-800 rounded-3xl opacity-20 pointer-events-none"></div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
               
               {/* Pilar 1: Productos Analizados */}
-              <div className="flex items-center gap-5 p-5 rounded-2xl transition-all duration-300 hover:bg-[#1A1A1A]/90 hover:shadow-[0_15px_30px_rgba(255,90,31,0.06)] border border-transparent hover:border-white/10 group cursor-pointer">
-                <div className="w-14 h-14 bg-[#FF5A1F]/10 rounded-2xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 shadow-lg shadow-[#FF5A1F]/5 group-hover:scale-105 group-hover:bg-[#FF5A1F]/20 group-hover:shadow-[0_0_20px_rgba(255,90,31,0.2)] transition-all duration-300">
+              <div className="flex items-center gap-5 p-5 rounded-2xl transition-all duration-300 hover:bg-[#1A1A1A]/90 hover:shadow-[0_15px_30px_rgba(255,90,31,0.06)] border border-white/5 hover:border-white/20 group cursor-pointer">
+                <div className="w-14 h-14 bg-[#FF5A1F]/15 rounded-2xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/30 shadow-lg shadow-[#FF5A1F]/10 group-hover:scale-105 group-hover:bg-[#FF5A1F]/25 transition-all duration-300">
                   <Briefcase className="w-7 h-7" />
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-white text-base leading-tight uppercase tracking-wider group-hover:text-[#FF5A1F] transition-colors duration-300">Productos analizados</h3>
-                  <p className="text-zinc-500 text-xs md:text-sm font-light mt-1.5 leading-relaxed group-hover:text-zinc-300 transition-colors duration-300">Las ofertas más rentables del mercado de afiliados previamente filtradas.</p>
+                  <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wider group-hover:text-[#FF5A1F] transition-colors duration-300">Productos analizados</h3>
+                  <p className="text-white/95 text-sm md:text-base font-normal mt-2 leading-relaxed group-hover:text-white transition-colors duration-300">Las ofertas más rentables del mercado de afiliados previamente filtradas.</p>
                 </div>
               </div>
               
               {/* Pilar 2: Embudos Listos Para Lanzar */}
-              <div className="flex items-center gap-5 p-5 rounded-2xl transition-all duration-300 hover:bg-[#1A1A1A]/90 hover:shadow-[0_15px_30px_rgba(99,102,241,0.06)] border border-transparent hover:border-white/10 group cursor-pointer">
-                <div className="w-14 h-14 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-400 shrink-0 border border-indigo-500/25 shadow-lg shadow-indigo-500/5 group-hover:scale-105 group-hover:bg-indigo-500/20 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.2)] transition-all duration-300">
+              <div className="flex items-center gap-5 p-5 rounded-2xl transition-all duration-300 hover:bg-[#1A1A1A]/90 hover:shadow-[0_15px_30px_rgba(99,102,241,0.06)] border border-white/5 hover:border-white/20 group cursor-pointer">
+                <div className="w-14 h-14 bg-indigo-500/15 rounded-2xl flex items-center justify-center text-indigo-400 shrink-0 border border-indigo-500/30 shadow-lg shadow-indigo-500/10 group-hover:scale-105 group-hover:bg-indigo-500/25 transition-all duration-300">
                   <Rocket className="w-7 h-7" />
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-white text-base leading-tight uppercase tracking-wider group-hover:text-indigo-400 transition-colors duration-300">Embudos listos para lanzar</h3>
-                  <p className="text-zinc-500 text-xs md:text-sm font-light mt-1.5 leading-relaxed group-hover:text-zinc-300 transition-colors duration-300">Embudos de alta conversión listos para instalarse en segundos por IA.</p>
+                  <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wider group-hover:text-indigo-400 transition-colors duration-300">Embudos listos para lanzar</h3>
+                  <p className="text-white/95 text-sm md:text-base font-normal mt-2 leading-relaxed group-hover:text-white transition-colors duration-300">Embudos de alta conversión listos para instalarse en segundos por IA.</p>
                 </div>
               </div>
 
               {/* Pilar 3: Contenido y Seguimiento */}
               <div className="flex items-center gap-5 p-5 rounded-2xl transition-all duration-300 hover:bg-[#1A1A1A]/90 hover:shadow-[0_15px_30px_rgba(255,90,31,0.06)] border border-transparent hover:border-white/10 group cursor-pointer">
-                <div className="w-14 h-14 bg-[#FF5A1F]/10 rounded-2xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/20 shadow-lg shadow-[#FF5A1F]/5 group-hover:scale-105 group-hover:bg-[#FF5A1F]/20 group-hover:shadow-[0_0_20px_rgba(255,90,31,0.2)] transition-all duration-300">
+                <div className="w-14 h-14 bg-[#FF5A1F]/15 rounded-2xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/30 shadow-lg shadow-[#FF5A1F]/10 group-hover:scale-105 group-hover:bg-[#FF5A1F]/25 transition-all duration-300">
                   <Target className="w-7 h-7" />
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-white text-base leading-tight uppercase tracking-wider group-hover:text-[#FF5A1F] transition-colors duration-300">Contenido y seguimiento</h3>
-                  <p className="text-zinc-500 text-xs md:text-sm font-light mt-1.5 leading-relaxed group-hover:text-zinc-300 transition-colors duration-300">Copia secuencias de email preconfiguradas y guiones de alto impacto.</p>
+                  <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wider group-hover:text-[#FF5A1F] transition-colors duration-300">Contenido y seguimiento</h3>
+                  <p className="text-white/95 text-sm md:text-base font-normal mt-2 leading-relaxed group-hover:text-white transition-colors duration-300">Copia secuencias de email preconfiguradas y guiones de alto impacto.</p>
                 </div>
               </div>
 

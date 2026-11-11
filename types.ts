@@ -247,7 +247,10 @@ export interface User {
   maxHooks?: number; // New: Individual hook limit override
   avatarUrl?: string; // New
   birthDate?: string; // New
-  createdAt?: Date;   // New
+  createdAt?: Date | string;   // New
+  created_at?: string;
+  lastLoginAt?: Date | string;
+  last_login_at?: string;
   customRedirectUrl?: string; // New: User specific redirect
   survey_json?: any;
   main_goal?: string;

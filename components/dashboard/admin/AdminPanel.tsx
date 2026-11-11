@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { User, PlanLimits, Plan, UserUsageStats, SupportTicket } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X, Rocket, Layout, MessageCircle, Clock, CheckCircle, Wand2, RotateCcw } from 'lucide-react';
+import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X, Rocket, Layout, MessageCircle, Clock, CheckCircle, Wand2, RotateCcw, Calendar } from 'lucide-react';
 
 ////////// Actualización: Implementación de Lazy Load para el componente de auditoría - 05/06/2025 21:30 //////////
 const UserContentModal = React.lazy(() => import('./UserContentModal'));
@@ -23,6 +23,26 @@ const normalizePlanSlugHelper = (s?: string) => {
 
 const matchPlanSlugs = (a?: string, b?: string) => {
     return normalizePlanSlugHelper(a) === normalizePlanSlugHelper(b);
+};
+
+const formatUserDate = (dateVal?: string | Date, includeTime = false) => {
+    if (!dateVal) return null;
+    const date = new Date(dateVal);
+    if (isNaN(date.getTime())) return null;
+    if (includeTime) {
+        return date.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    return date.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    });
 };
 
 export const AdminPanel: React.FC = () => {
@@ -738,6 +758,7 @@ export const AdminPanel: React.FC = () => {
                                 <tr>
                                     <th className="p-4">Usuario</th>
                                     <th className="p-4">Rol</th>
+                                    <th className="p-4">Registro / Último Acceso</th>
                                     <th className="p-4">Plan Actual</th>
                                     <th className="p-4">Límites (Proy / Landings)</th>
                                     <th className="p-4 text-center">Systeme.io (`systemio_registrado`)</th>
@@ -755,6 +776,16 @@ export const AdminPanel: React.FC = () => {
                                             <span className={`px-2 py-1 rounded text-xs font-bold ${user.role === 'admin' ? 'bg-red-900/30 text-red-400 border border-red-900' : 'bg-blue-900/30 text-blue-400 border border-blue-900'}`}>
                                                 {user.role?.toUpperCase()}
                                             </span>
+                                        </td>
+                                        <td className="p-4 text-xs whitespace-nowrap">
+                                            <div className="text-gray-300 font-medium flex items-center gap-1.5" title="Fecha de Registro">
+                                                <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                                                <span>{formatUserDate(user.createdAt || user.created_at) || 'N/A'}</span>
+                                            </div>
+                                            <div className="text-gray-400 text-[11px] flex items-center gap-1.5 mt-1" title="Último Acceso">
+                                                <Clock className="w-3 h-3 text-emerald-400" />
+                                                <span>{formatUserDate(user.lastLoginAt || user.last_login_at, true) || <span className="text-gray-600 font-normal">Nunca</span>}</span>
+                                            </div>
                                         </td>
                                         <td className="p-4">
                                             <span className="text-gray-300 capitalize">{user.planLimits?.planName || 'N/A'}</span>

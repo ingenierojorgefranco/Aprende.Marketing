@@ -46,7 +46,9 @@ router.get('/users', async (req, res) => {
             planLimits: typeof u.plan_limits === 'string' ? JSON.parse(u.plan_limits) : (u.plan_limits || DEFAULT_LIMITS),
             customRedirectUrl: u.custom_redirect_url,
             maxHooks: u.max_hooks,
-            survey_json: typeof u.survey_json === 'string' ? JSON.parse(u.survey_json) : u.survey_json
+            survey_json: typeof u.survey_json === 'string' ? JSON.parse(u.survey_json) : u.survey_json,
+            createdAt: u.created_at,
+            lastLoginAt: u.last_login_at
         }));
         res.json(safeUsers);
     } catch (e) {
