@@ -215,109 +215,109 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
           className="lg:hidden fixed inset-0 z-[999999] bg-[#07090E] text-white flex flex-col w-full h-full min-h-screen overflow-y-auto animate-in fade-in duration-200"
           style={{ backgroundColor: '#07090E', zIndex: 999999 }}
         >
-          <div className="w-full min-h-screen bg-[#07090E] p-6 sm:p-8 flex flex-col justify-between">
+          <div className="w-full min-h-screen bg-[#07090E] p-4 sm:p-6 flex flex-col justify-between">
             {/* Cabecera del menú móvil con logo y botón cerrar */}
-            <div className="flex justify-between items-center mb-6 shrink-0 pb-4 border-b border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-9 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-bold text-white text-lg px-2 shadow-lg shadow-[#FF5A1F]/20">
+            <div className="flex justify-between items-center mb-3 shrink-0 pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-base px-2 shadow-lg shadow-[#FF5A1F]/20">
                   AM
                 </div>
-                <span className="text-xl font-bold tracking-tight text-white">
+                <span className="text-lg font-bold tracking-tight text-white">
                   Aprende.<span className="text-[#FF5A1F]">Marketing</span>
                 </span>
               </div>
               <button 
                 type="button"
                 onClick={() => setIsMenuOpen(false)} 
-                className="p-3 rounded-xl bg-white/10 hover:bg-white/20 text-white hover:text-[#FF5A1F] transition-colors border border-white/20 cursor-pointer flex items-center justify-center"
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white hover:text-[#FF5A1F] transition-colors border border-white/20 cursor-pointer flex items-center justify-center"
                 aria-label="Cerrar menú"
               >
-                <X className="w-7 h-7" />
+                <X className="w-6 h-6" />
               </button>
             </div>
             
-            {/* Enlaces de navegación táctiles y legibles */}
-            <div className="flex flex-col gap-3 my-auto py-4">
+            {/* Enlaces de navegación táctiles y compactos */}
+            <div className="flex flex-col gap-2 my-auto py-2">
               <button 
                 type="button"
                 onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setIsMenuOpen(false); }} 
-                className="text-left py-4 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-xl font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
+                className="text-left py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Inicio</span> 
-                <ChevronRight className="w-6 h-6 text-[#FF5A1F]" />
+                <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
               </button>
               <button 
                 type="button"
                 onClick={() => { scrollToSection('process'); setIsMenuOpen(false); }} 
-                className="text-left py-4 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-xl font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
+                className="text-left py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Cómo funciona</span> 
-                <ChevronRight className="w-6 h-6 text-[#FF5A1F]" />
+                <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
               </button>
               <button 
                 type="button"
                 onClick={() => { scrollToSection('features'); setIsMenuOpen(false); }} 
-                className="text-left py-4 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-xl font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
+                className="text-left py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Productos</span> 
-                <ChevronRight className="w-6 h-6 text-[#FF5A1F]" />
+                <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
               </button>
               <button 
                 type="button"
                 onClick={() => { scrollToSection('academy'); setIsMenuOpen(false); }} 
-                className="text-left py-4 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-xl font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
+                className="text-left py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Academia</span> 
-                <ChevronRight className="w-6 h-6 text-[#FF5A1F]" />
+                <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
               </button>
               <button 
                 type="button"
                 onClick={() => { scrollToSection('testimonials'); setIsMenuOpen(false); }} 
-                className="text-left py-4 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-xl font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
+                className="text-left py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Precios</span> 
-                <ChevronRight className="w-6 h-6 text-[#FF5A1F]" />
+                <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
               </button>
               <button 
                 type="button"
                 onClick={() => { scrollToSection('footer'); setIsMenuOpen(false); }} 
-                className="text-left py-4 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-xl font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
+                className="text-left py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Blog</span> 
-                <ChevronRight className="w-6 h-6 text-[#FF5A1F]" />
+                <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
               </button>
             </div>
 
             {/* Acciones principales del menú */}
-            <div className="mt-auto pt-6 border-t border-white/10 space-y-3 shrink-0">
+            <div className="mt-auto pt-3 border-t border-white/10 space-y-2 shrink-0">
               {user ? (
                 <button
                   type="button"
                   onClick={() => { navigate('/dashboard'); setIsMenuOpen(false); }}
-                  className="w-full py-4.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-lg rounded-2xl shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-2.5 cursor-pointer"
+                  className="w-full py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-base rounded-xl shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <LayoutDashboard className="w-6 h-6" /> Ir al Panel de Control
+                  <LayoutDashboard className="w-5 h-5" /> Ir al Panel de Control
                 </button>
               ) : (
                 <>
                   <button
                     type="button"
                     onClick={() => { navigate('/register'); setIsMenuOpen(false); }}
-                    className="w-full py-4.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-lg rounded-2xl shadow-xl shadow-[#FF5A1F]/25 flex items-center justify-center gap-2.5 cursor-pointer uppercase tracking-wider"
+                    className="w-full py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-base rounded-xl shadow-xl shadow-[#FF5A1F]/25 flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
                   >
                     Crear mi cuenta gratis
                   </button>
                   <button
                     type="button"
                     onClick={() => { navigate('/login'); setIsMenuOpen(false); }}
-                    className="w-full py-4 bg-white/10 hover:bg-white/15 text-white font-bold text-base rounded-2xl border border-white/10 transition-colors cursor-pointer"
+                    className="w-full py-3 bg-white/10 hover:bg-white/15 text-white font-bold text-sm sm:text-base rounded-xl border border-white/10 transition-colors cursor-pointer"
                   >
                     Iniciar sesión
                   </button>
                 </>
               )}
               
-              <p className="pt-2 text-center text-gray-500 text-[11px] font-bold uppercase tracking-widest">
+              <p className="pt-1 text-center text-gray-500 text-[10px] font-bold uppercase tracking-widest">
                 Aprende.Marketing • Aprende | Implementa | Escala
               </p>
             </div>
