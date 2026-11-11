@@ -293,7 +293,7 @@ incorporando de forma natural palabras clave relevantes y búsquedas frecuentes.
               <div className="space-y-2 max-w-lg">
                 <h3 className="text-xl font-extrabold text-white">No tienes artículos de blog generados</h3>
                 <p className="text-sm text-slate-400 leading-relaxed">
-                  Para utilizar tus artículos en NotebookLM y crear guiones o videos de YouTube automatizados, primero debes redactar al menos un artículo en la sección de <strong>Artículos de Blog</strong>.
+                  Para utilizar tus artículos en NotebookLM y crear guiones o videos de YouTube automatizados, primero debes redactar al menos un artículo en la sección de <strong>Artículos Magnéticos</strong>.
                 </p>
               </div>
               <button
@@ -301,7 +301,7 @@ incorporando de forma natural palabras clave relevantes y búsquedas frecuentes.
                 className="mt-2 px-6 py-3.5 rounded-xl bg-[#FF5A1F] hover:bg-[#ff6d38] text-white font-bold text-sm transition-all shadow-lg shadow-orange-500/20 inline-flex items-center gap-2 cursor-pointer hover:scale-105"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Ir a Crear Artículos de Blog</span>
+                <span>Ir a Crear Artículos Magnéticos</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -316,7 +316,7 @@ incorporando de forma natural palabras clave relevantes y búsquedas frecuentes.
                       <BookOpen className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-white">Artículos de Blog</h3>
+                      <h3 className="text-lg font-bold text-white">Artículos Magnéticos</h3>
                       <p className="text-xs text-slate-400">Selecciona un artículo para YouTube</p>
                     </div>
                   </div>

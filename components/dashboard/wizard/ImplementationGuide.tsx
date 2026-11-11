@@ -364,14 +364,14 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     { id: 5, title: "5. Leads capturados", stage: 1 },
     
     { id: 6, title: "6. Tu página de captura", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS" },
-    { id: 7, title: "7. Tus videos de atracción (Hooks)", stage: 2 },
+    { id: 7, title: "7. Reels Magnéticos", stage: 2 },
     { id: 8, title: "8. Estrategias de Atracción en YouTube", stage: 2 },
     { id: 9, title: "9. Carruseles Magnéticos", stage: 2 },
-    { id: 10, title: "10. Artículos de Blog", stage: 2 },
+    { id: 10, title: "10. Artículos Magnéticos", stage: 2 },
     { id: 11, title: "11. LeadMagnet de Whatsapp", stage: 2 },
-    { id: 12, title: "12. Email Marketing (Conversión)", stage: 2 },
-    { id: 13, title: "13. Email Marketing (Nutrición)", stage: 2 },
-    { id: 14, title: "14. Lanzamientos (Estrategia WhatsApp)", stage: 2 },
+    { id: 12, title: "12. Email Magnético (Conversión)", stage: 2 },
+    { id: 13, title: "13. Email Magnético (Nutrición)", stage: 2 },
+    { id: 14, title: "14. Lanzamientos Magnéticos (WhatsApp)", stage: 2 },
   ];
 
   const handleStepClick = (id: number) => {

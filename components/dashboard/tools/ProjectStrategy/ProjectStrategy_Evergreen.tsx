@@ -420,7 +420,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                             stepNumber={13}
                             totalSteps={totalSteps}
                             stageNumber={2}
-                            categoryTitle="13. Email Marketing (Nutrición)"
+                            categoryTitle="13. Email Magnético (Nutrición)"
                             title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                             description="Configura tu secuencia de nutrición por email para mantener el interés de tus prospectos, aportar valor y fortalecer la confianza hasta que estén listos para comprar."
                         />
@@ -451,7 +451,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                             stepNumber={13}
                             totalSteps={totalSteps}
                             stageNumber={2}
-                            categoryTitle="13. Email Marketing (Nutrición)"
+                            categoryTitle="13. Email Magnético (Nutrición)"
                             title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                             description="Configura tu secuencia de nutrición por email para mantener el interés de tus prospectos, aportar valor y fortalecer la confianza hasta que estén listos para comprar."
                         />
@@ -475,7 +475,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     <div className="max-w-md mx-auto">
                         <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-4">Sin artículos de blog generados</h4>
                         <p className="text-gray-400 font-medium leading-relaxed">
-                            Para activar la secuencia de Nutrición (Evergreen), primero debes redactar al menos un artículo SEO en la etapa <strong>10. Artículos de Blog</strong>.
+                            Para activar la secuencia de Nutrición (Evergreen), primero debes redactar al menos un artículo SEO en la etapa <strong>10. Artículos Magnéticos</strong>.
                         </p>
                     </div>
                     <button 
@@ -505,7 +505,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                         stepNumber={13}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="13. Email Marketing (Nutrición)"
+                        categoryTitle="13. Email Magnético (Nutrición)"
                         title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Nutrición</span></>}
                         description={`Tienes ${effectiveArticles.length} artículos vinculados. El sistema ha programado estos correos para enviarse a partir del Día 8, manteniendo tu oferta presente sin ser invasivo.`}
                     />

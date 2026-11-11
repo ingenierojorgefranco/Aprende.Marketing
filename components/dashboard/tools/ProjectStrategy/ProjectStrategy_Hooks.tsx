@@ -1112,8 +1112,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 stepNumber={7}
                 totalSteps={totalSteps}
                 stageNumber={2}
-                categoryTitle="7. Tus videos de atracción (Hooks)"
-                title={<>Video Hooks <span className="text-[#FF5A1F]">de Atracción</span></>}
+                categoryTitle="7. Reels Magnéticos"
+                title={<>Video Reels <span className="text-[#FF5A1F]">de Atracción</span></>}
                 description="Crea videos con hooks de atracción para captar la atención desde los primeros segundos, despertar interés y llevar más personas hacia tu oferta."
             />
 
@@ -1227,7 +1227,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                   <Target className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-white">Hooks de Atracción</h4>
+                  <h4 className="text-xl font-bold text-white">Video Reels de Atracción</h4>
                 </div>
               </div>
               {isRealAdmin && (

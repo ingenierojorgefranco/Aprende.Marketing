@@ -668,7 +668,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                         stepNumber={14}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="14. Lanzamientos (Estrategia WhatsApp)"
+                        categoryTitle="14. Lanzamientos Magnéticos (WhatsApp)"
                         title={<>Secuencia de Lanzamiento <span className="text-[#FF5A1F]">vía WhatsApp</span></>}
                         description="Configura tu secuencia de lanzamiento por WhatsApp para generar expectativa, mantener el interés de tus prospectos y guiarlos estratégicamente hacia la compra."
                     />

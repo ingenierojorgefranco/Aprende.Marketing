@@ -52,14 +52,14 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
             module: "ETAPA 2: TU SISTEMA DE VENTAS",
             items: [
                 { id: 'web', label: '6. Tu página de captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura", stepNumber: 6 },
-                { id: 'hooks', label: '7. Tus videos de atracción (Hooks)', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos", stepNumber: 7 },
+                { id: 'hooks', label: '7. Reels Magnéticos', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos", stepNumber: 7 },
                 { id: 'youtube', label: '8. Estrategias de Atracción en YouTube', icon: Youtube, module: "SISTEMA DE VENTAS", description: "Videos y Shorts en YouTube", stepNumber: 8 },
                 { id: 'carousels', label: '9. Carruseles Magnéticos', icon: Layers, module: "SISTEMA DE VENTAS", description: "Imágenes de alta conversión", stepNumber: 9 },
-                { id: 'content', label: '10. Artículos de Blog', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO", stepNumber: 10 },
+                { id: 'content', label: '10. Artículos Magnéticos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO", stepNumber: 10 },
                 { id: 'leadmagnet', label: '11. LeadMagnet de Whatsapp', icon: Gift, module: "SISTEMA DE VENTAS", description: "Entrega manual por WhatsApp", stepNumber: 11 },
-                { id: 'email', label: '12. Email Marketing (Conversión)', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial", stepNumber: 12 },
-                { id: 'evergreen', label: '13. Email Marketing (Nutrición)', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo", stepNumber: 13 },
-                { id: 'whatsapp', label: '14. Lanzamientos (Estrategia WhatsApp)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta", stepNumber: 14 },
+                { id: 'email', label: '12. Email Magnético (Conversión)', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial", stepNumber: 12 },
+                { id: 'evergreen', label: '13. Email Magnético (Nutrición)', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo", stepNumber: 13 },
+                { id: 'whatsapp', label: '14. Lanzamientos Magnéticos (WhatsApp)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta", stepNumber: 14 },
             ]
         }
     ].filter(group => group.items.length > 0);

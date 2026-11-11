@@ -652,7 +652,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         stepNumber={12}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="12. Email Marketing (Conversión)"
+                        categoryTitle="12. Email Magnético (Conversión)"
                         title={<>Email Marketing: <span className="text-[#FF5A1F]">Secuencia de Conversión</span></>}
                         description="Configura tu secuencia de Email Marketing para convertir a tus prospectos desde el primer momento, generar confianza y guiarlos paso a paso."
                     />
