@@ -1216,7 +1216,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     // console.log("⏱️ Timestamp de Inicio:", new Date().toISOString());
 
     try {
-      setGenerationProgress(20);
+      setGenerationProgress(5);
       setGenerationStatus("Configurando servidor de captación...");
 
       // Obtener datos reales de la estrategia para la landing (Contexto Psicológico Profundo)
@@ -1249,8 +1249,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           .join(". ");
       }
 
-      // console.log("⏩ [PASO 1/3] Generando contenido IA con prompt contextualizado...");
-      setGenerationProgress(50);
       setGenerationStatus("Estoy creando tu Página Web Profesional");
 
       // Seleccionar paleta aleatoria profesional
@@ -1308,14 +1306,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         projectWithStrategy,
       );
 
-      // console.log("✅ [PASO 1/3 COMPLETADO] Contenido IA generado correctamente:", {
-      //   hasHero: !!content?.hero,
-      //   sectionsCount: content?.sections?.length || 0,
-      //   palette: content?.palette
-      // });
-
-      // console.log("⏩ [PASO 2/3] Preparando datos de guardado y subdominio...");
-      setGenerationProgress(80);
+      setGenerationProgress(90);
       setGenerationStatus("Publicando en nube segura...");
 
       const slugify = (text: string) =>
