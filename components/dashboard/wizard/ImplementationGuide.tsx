@@ -219,14 +219,15 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     4: 'hotlinks',
     5: 'leads',
     6: 'web',
-    7: 'hooks',
-    8: 'youtube',
-    9: 'carousels',
-    10: 'content',
-    11: 'leadmagnet',
-    12: 'email',
-    13: 'evergreen',
-    14: 'whatsapp'
+    7: 'socials',
+    8: 'hooks',
+    9: 'youtube',
+    10: 'carousels',
+    11: 'content',
+    12: 'leadmagnet',
+    13: 'email',
+    14: 'evergreen',
+    15: 'whatsapp'
   };
 
   const sectionToStepMap: Record<string, number> = {
@@ -236,14 +237,15 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     hotlinks: 4,
     leads: 5,
     web: 6,
-    hooks: 7,
-    youtube: 8,
-    carousels: 9,
-    content: 10,
-    leadmagnet: 11,
-    email: 12,
-    evergreen: 13,
-    whatsapp: 14,
+    socials: 7,
+    hooks: 8,
+    youtube: 9,
+    carousels: 10,
+    content: 11,
+    leadmagnet: 12,
+    email: 13,
+    evergreen: 14,
+    whatsapp: 15,
     '1': 1,
     '2': 2,
     '3': 3,
@@ -257,7 +259,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     '11': 11,
     '12': 12,
     '13': 13,
-    '14': 14
+    '14': 14,
+    '15': 15
   };
 
   const currentStrategySection = stepToSectionMap[activeStep] || activeStrategySection || searchParams.get('section') || "onboarding";
@@ -364,14 +367,15 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     { id: 5, title: "5. Leads capturados", stage: 1 },
     
     { id: 6, title: "6. Tu página de captura", stage: 2, stageTitle: "ETAPA 2: TU SISTEMA DE VENTAS" },
-    { id: 7, title: "7. Reels Magnéticos", stage: 2 },
-    { id: 8, title: "8. Estrategias de Atracción en YouTube", stage: 2 },
-    { id: 9, title: "9. Carruseles Magnéticos", stage: 2 },
-    { id: 10, title: "10. Artículos Magnéticos", stage: 2 },
-    { id: 11, title: "11. LeadMagnet de Whatsapp", stage: 2 },
-    { id: 12, title: "12. Email Magnético (Conversión)", stage: 2 },
-    { id: 13, title: "13. Email Magnético (Nutrición)", stage: 2 },
-    { id: 14, title: "14. Lanzamientos Magnéticos (WhatsApp)", stage: 2 },
+    { id: 7, title: "7. Creando tus Redes Sociales", stage: 2 },
+    { id: 8, title: "8. Reels Magnéticos", stage: 2 },
+    { id: 9, title: "9. Estrategias de Atracción en YouTube", stage: 2 },
+    { id: 10, title: "10. Carruseles Magnéticos", stage: 2 },
+    { id: 11, title: "11. Artículos Magnéticos", stage: 2 },
+    { id: 12, title: "12. LeadMagnet de Whatsapp", stage: 2 },
+    { id: 13, title: "13. Email Magnético (Conversión)", stage: 2 },
+    { id: 14, title: "14. Email Magnético (Nutrición)", stage: 2 },
+    { id: 15, title: "15. Lanzamientos Magnéticos (WhatsApp)", stage: 2 },
   ];
 
   const handleStepClick = (id: number) => {
@@ -1150,34 +1154,59 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 7: Tus videos de atracción (Hooks) */}
+            {/* Paso 7: Creando tus Redes Sociales */}
             {activeStep === 7 && (
+              <div className="space-y-6">
+                <StepHeaderCard 
+                  stepNumber={7}
+                  totalSteps={stepsList.length}
+                  stageNumber={2}
+                  categoryTitle="7. Creando tus Redes Sociales"
+                  title={<>Crea y Configura <span className="text-[#FF5A1F]">tus Redes Sociales</span></>}
+                  description="Sigue los tutoriales para crear tu canal de YouTube, perfil de Instagram, cuenta de TikTok y otras redes necesarias para tu ecosistema de ventas."
+                />
+
+                <div className="bg-[#0B1120] border border-slate-800/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl">
+                  <StepVideoContainer 
+                    posterImage="https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=1200&h=675"
+                    videoUrl="https://www.youtube.com/embed/x4NdPhJTXxM"
+                    title="Creación y Configuración de Redes Sociales"
+                    stepNumber={7}
+                    user={user}
+                    isAdmin={isAdmin}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Paso 8: Tus videos de atracción (Hooks) */}
+            {activeStep === 8 && (
               <ProjectStrategy_Hooks 
                 totalSteps={stepsList.length}
                 strategyData={strategyData}
               />
             )}
 
-            {/* Paso 8: Estrategias de Atracción en YouTube */}
-            {activeStep === 8 && (
+            {/* Paso 9: Estrategias de Atracción en YouTube */}
+            {activeStep === 9 && (
               <ProjectStrategy_YouTube 
                 totalSteps={stepsList.length}
                 strategyData={strategyData}
                 overrideProjectId={projectId || searchParams.get('id') || ''}
-                onNavigateNext={() => handleStepClick(9)}
+                onNavigateNext={() => handleStepClick(10)}
               />
             )}
 
-            {/* Paso 9: Carruseles Magnéticos */}
-            {activeStep === 9 && (
+            {/* Paso 10: Carruseles Magnéticos */}
+            {activeStep === 10 && (
               <ProjectStrategy_Carousels 
                 totalSteps={stepsList.length}
                 strategyData={strategyData}
               />
             )}
 
-            {/* Paso 10: Tu Estrategia de Contenidos */}
-            {activeStep === 10 && (
+            {/* Paso 11: Tu Estrategia de Contenidos */}
+            {activeStep === 11 && (
               <ProjectStrategy_Content 
                 totalSteps={stepsList.length}
                 contentData={strategyData?.modules?.content || []}
@@ -1186,8 +1215,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 11: LeadMagnet de Whatsapp */}
-            {activeStep === 11 && (
+            {/* Paso 12: LeadMagnet de Whatsapp */}
+            {activeStep === 12 && (
               <ProjectStrategy_LeadMagnet 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
@@ -1197,8 +1226,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 12: Email Marketing (Conversión) */}
-            {activeStep === 12 && (
+            {/* Paso 13: Email Marketing (Conversión) */}
+            {activeStep === 13 && (
               <ProjectStrategy_Email 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || undefined}
@@ -1209,8 +1238,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Paso 13: Email Marketing (Nutrición) */}
-            {activeStep === 13 && (
+            {/* Paso 14: Email Marketing (Nutrición) */}
+            {activeStep === 14 && (
               <ProjectStrategy_Evergreen 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
@@ -1218,13 +1247,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                 avatars={strategyData?.avatars || []}
                 linkedArticles={strategyData?.modules?.content || []}
                 onUpgrade={onUpgradeClick || (() => {})}
-                onGoToContent={() => setActiveStep(10)}
+                onGoToContent={() => setActiveStep(11)}
                 planLimits={user?.planLimits}
               />
             )}
 
-            {/* Paso 14: Scripts de WhatsApp (Lanzamientos) */}
-            {activeStep === 14 && (
+            {/* Paso 15: Scripts de WhatsApp (Lanzamientos) */}
+            {activeStep === 15 && (
               <ProjectStrategy_WhatsApp 
                 totalSteps={stepsList.length}
                 projectId={projectId || searchParams.get('id') || ''}
@@ -1234,8 +1263,8 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               />
             )}
 
-            {/* Dinámico para otros pasos (Paso 15+) */}
-            {activeStep > 14 && (
+            {/* Dinámico para otros pasos (Paso 16+) */}
+            {activeStep > 15 && (
               <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-8 text-center space-y-6 shadow-xl">
                 
                 <div className="max-w-md mx-auto space-y-4">

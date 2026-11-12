@@ -190,12 +190,77 @@ let localMasterStepVideos: MasterStepVideo[] = [
         positionOrder: 1
     },
 
-    // Step 6
+    // Step 6: Tu pagina de captura
     {
         id: 's6_v1',
         stepNumber: 6,
         type: 'Principal',
-        title: 'Estrategia de Contenidos y Calendario',
+        title: 'Tu Página de Captura y Embudo',
+        subtitle: 'Cómo configurar y publicar tu página web de alta conversión',
+        duration: '4:20',
+        videoUrl: 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+
+    // Step 7: Creando tus Redes Sociales
+    {
+        id: 's7_v1',
+        stepNumber: 7,
+        type: 'Principal',
+        title: 'Creación y Configuración de Redes Sociales',
+        subtitle: 'Paso a paso para crear tu canal de YouTube, cuenta de Instagram y TikTok',
+        duration: '5:30',
+        videoUrl: 'https://www.youtube.com/embed/x4NdPhJTXxM?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+
+    // Step 8: Reels Magnéticos
+    {
+        id: 's8_v1',
+        stepNumber: 8,
+        type: 'Principal',
+        title: 'Ganchos y Guiones de Atracción',
+        subtitle: 'Estrategias de contenido de alto impacto para Reels y TikTok',
+        duration: '4:40',
+        videoUrl: 'https://www.youtube.com/embed/bTV5aFTchJ8?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+
+    // Step 9: Atracción en YouTube
+    {
+        id: 's9_v1',
+        stepNumber: 9,
+        type: 'Principal',
+        title: 'Estrategia de Atracción con YouTube',
+        subtitle: 'Aprovecha NotebookLM y guiones para crear videos optimizados',
+        duration: '4:15',
+        videoUrl: 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+
+    // Step 10: Carruseles Magnéticos
+    {
+        id: 's10_v1',
+        stepNumber: 10,
+        type: 'Principal',
+        title: 'Video Tutorial Carruseles Magnéticos',
+        subtitle: 'Diseña y publica carruseles visuales de alta conversión',
+        duration: '3:45',
+        videoUrl: 'https://www.youtube.com/embed/bTV5aFTchJ8?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+
+    // Step 11: Artículos Magnéticos
+    {
+        id: 's11_v1',
+        stepNumber: 11,
+        type: 'Principal',
+        title: 'Estrategia de Contenidos y Artículos SEO',
         subtitle: 'Planificación de publicaciones para atraer prospectos',
         duration: '4:20',
         videoUrl: 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0',
@@ -203,12 +268,25 @@ let localMasterStepVideos: MasterStepVideo[] = [
         positionOrder: 1
     },
 
-    // Step 7
+    // Step 12: LeadMagnet de WhatsApp
     {
-        id: 's7_v1',
-        stepNumber: 7,
+        id: 's12_v1',
+        stepNumber: 12,
         type: 'Principal',
-        title: 'Secuencias de Email Marketing',
+        title: 'LeadMagnet de WhatsApp',
+        subtitle: 'Entrega manual de recursos para romper el hielo',
+        duration: '4:00',
+        videoUrl: 'https://www.youtube.com/embed/WUqaWRJG92c?rel=0&controls=1&showinfo=0',
+        posterImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675',
+        positionOrder: 1
+    },
+
+    // Step 13: Email Conversión
+    {
+        id: 's13_v1',
+        stepNumber: 13,
+        type: 'Principal',
+        title: 'Secuencias de Email Marketing (Conversión)',
         subtitle: 'Automatización de correos de nutrición y venta',
         duration: '5:00',
         videoUrl: 'https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0',
@@ -216,10 +294,10 @@ let localMasterStepVideos: MasterStepVideo[] = [
         positionOrder: 1
     },
 
-    // Step 8
+    // Step 14: Email Nutrición (Evergreen)
     {
-        id: 's8_v1',
-        stepNumber: 8,
+        id: 's14_v1',
+        stepNumber: 14,
         type: 'Principal',
         title: 'Secuencia Evergreen y Confianza',
         subtitle: 'Ventas continuas en piloto automático',
@@ -229,10 +307,10 @@ let localMasterStepVideos: MasterStepVideo[] = [
         positionOrder: 1
     },
 
-    // Step 9
+    // Step 15: Scripts WhatsApp Lanzamientos
     {
-        id: 's9_v1',
-        stepNumber: 9,
+        id: 's15_v1',
+        stepNumber: 15,
         type: 'Principal',
         title: 'Scripts de Cierre por WhatsApp',
         subtitle: 'Conversión de prospectos calificados por chat',

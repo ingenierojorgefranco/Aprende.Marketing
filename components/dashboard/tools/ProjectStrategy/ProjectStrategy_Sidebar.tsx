@@ -3,7 +3,7 @@ import {
     LayoutDashboard, TrendingUp, Map, UserSearch, 
     Globe, FileText, Mail, Calendar, MessageCircle,
     ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity, MessageSquare,
-    Link as LinkIcon, CheckCircle2, Gift, Layers, Users, Youtube
+    Link as LinkIcon, CheckCircle2, Gift, Layers, Users, Youtube, Share2
 } from 'lucide-react';
 import { ImplementationGuideContext } from '../../wizard/ImplementationGuideContext';
 
@@ -52,14 +52,15 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
             module: "ETAPA 2: TU SISTEMA DE VENTAS",
             items: [
                 { id: 'web', label: '6. Tu página de captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura", stepNumber: 6 },
-                { id: 'hooks', label: '7. Reels Magnéticos', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos", stepNumber: 7 },
-                { id: 'youtube', label: '8. Estrategias de Atracción en YouTube', icon: Youtube, module: "SISTEMA DE VENTAS", description: "Videos y Shorts en YouTube", stepNumber: 8 },
-                { id: 'carousels', label: '9. Carruseles Magnéticos', icon: Layers, module: "SISTEMA DE VENTAS", description: "Imágenes de alta conversión", stepNumber: 9 },
-                { id: 'content', label: '10. Artículos Magnéticos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO", stepNumber: 10 },
-                { id: 'leadmagnet', label: '11. LeadMagnet de Whatsapp', icon: Gift, module: "SISTEMA DE VENTAS", description: "Entrega manual por WhatsApp", stepNumber: 11 },
-                { id: 'email', label: '12. Email Magnético (Conversión)', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial", stepNumber: 12 },
-                { id: 'evergreen', label: '13. Email Magnético (Nutrición)', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo", stepNumber: 13 },
-                { id: 'whatsapp', label: '14. Lanzamientos Magnéticos (WhatsApp)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta", stepNumber: 14 },
+                { id: 'socials', label: '7. Creando tus Redes Sociales', icon: Share2, module: "SISTEMA DE VENTAS", description: "Configuración de YouTube, Instagram, TikTok", stepNumber: 7 },
+                { id: 'hooks', label: '8. Reels Magnéticos', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos", stepNumber: 8 },
+                { id: 'youtube', label: '9. Estrategias de Atracción en YouTube', icon: Youtube, module: "SISTEMA DE VENTAS", description: "Videos y Shorts en YouTube", stepNumber: 9 },
+                { id: 'carousels', label: '10. Carruseles Magnéticos', icon: Layers, module: "SISTEMA DE VENTAS", description: "Imágenes de alta conversión", stepNumber: 10 },
+                { id: 'content', label: '11. Artículos Magnéticos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO", stepNumber: 11 },
+                { id: 'leadmagnet', label: '12. LeadMagnet de Whatsapp', icon: Gift, module: "SISTEMA DE VENTAS", description: "Entrega manual por WhatsApp", stepNumber: 12 },
+                { id: 'email', label: '13. Email Magnético (Conversión)', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial", stepNumber: 13 },
+                { id: 'evergreen', label: '14. Email Magnético (Nutrición)', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo", stepNumber: 14 },
+                { id: 'whatsapp', label: '15. Lanzamientos Magnéticos (WhatsApp)', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta", stepNumber: 15 },
             ]
         }
     ].filter(group => group.items.length > 0);
@@ -71,20 +72,22 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         '4': 'hotlinks',
         '5': 'leads',
         '6': 'web',
-        '7': 'hooks',
-        '8': 'youtube',
-        '9': 'carousels',
-        '10': 'content',
-        '11': 'leadmagnet',
-        '12': 'email',
-        '13': 'evergreen',
-        '14': 'whatsapp',
+        '7': 'socials',
+        '8': 'hooks',
+        '9': 'youtube',
+        '10': 'carousels',
+        '11': 'content',
+        '12': 'leadmagnet',
+        '13': 'email',
+        '14': 'evergreen',
+        '15': 'whatsapp',
         onboarding: 'onboarding',
         summary: 'summary',
         avatar: 'avatar',
         hotlinks: 'hotlinks',
         leads: 'leads',
         web: 'web',
+        socials: 'socials',
         hooks: 'hooks',
         youtube: 'youtube',
         carousels: 'carousels',

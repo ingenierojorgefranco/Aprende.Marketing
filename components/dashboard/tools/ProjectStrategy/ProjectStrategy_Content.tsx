@@ -935,10 +935,10 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 <div className="space-y-6">
                     {/* --- HEADER CARD --- */}
                     <StepHeaderCard
-                        stepNumber={10}
+                        stepNumber={11}
                         totalSteps={totalSteps}
                         stageNumber={2}
-                        categoryTitle="10. Artículos Magnéticos"
+                        categoryTitle="11. Artículos Magnéticos"
                         title={<>Artículos de Blog <span className="text-[#FF5A1F]">y SEO Magnéticos</span></>}
                         description="Crea artículos de blog optimizados para SEO que atraigan tráfico desde Google, respondan las dudas de tu audiencia y generen nuevas oportunidades de venta."
                     />
@@ -946,7 +946,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     {/* --- VIDEO TUTORIAL --- */}
                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl">
                         <StepVideoContainer 
-                            stepNumber={10}
+                            stepNumber={11}
                             videoUrl="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0"
                             title="Video Tutorial Content"
                         />
