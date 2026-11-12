@@ -1447,9 +1447,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       }
     })();
 
-    // 2. Temporizador de cuenta progresiva artificial de exactamente 10 segundos
+    // 2. Temporizador de cuenta progresiva continua
     const startTime = Date.now();
-    const duration = 10000;
+    const duration = 25000;
 
     if (activeTimerRef.current) {
       clearInterval(activeTimerRef.current);
@@ -1465,38 +1465,41 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           Math.floor(ratio * maxHooksLimit) + 1
         );
         setGenerationStatus(`Creando video ${currentVideoIndex}...`);
-        setGenerationProgress(Math.min(99, Math.round(ratio * 99)));
+        setGenerationProgress(Math.min(90, Math.round(ratio * 90)));
       } else {
-        // Cumplidos los 10 segundos, esperamos a que el API resuelva
-        clearInterval(timer);
-        activeTimerRef.current = null;
-
-        apiPromise.then((finalizedHooks) => {
-          const validHooks = (finalizedHooks && finalizedHooks.length > 0)
-            ? finalizedHooks
-            : (strategyData?.modules?.hooks || []).slice(0, 3).map((h: any) => ({ ...h, isGenerated: true }));
-
-          setUnlockedHooks(validHooks);
-          setGenerationProgress(100);
-          setGenerationStatus("¡Videos Listos!");
-          setIsHooksUnlocked(true);
-
-          setTimeout(() => {
-            localStorage.setItem("force_wizard_step", "success");
-            setStep("success");
-            navigate(`${prefix}/step-4`);
-          }, 800);
-        }).catch((error) => {
-          console.error("❌ Error en proceso de ganchos:", error);
-          setIsHooksUnlocked(true);
-          localStorage.setItem("force_wizard_step", "success");
-          setStep("success");
-          navigate(`${prefix}/step-4`);
-        });
+        // Si la IA toma más tiempo, continuar avanzando suavemente hasta 99% sin congelarse
+        setGenerationProgress((prev) => (prev < 99 ? prev + 1 : 99));
       }
-    }, 100);
-
+    }, 800);
     activeTimerRef.current = timer;
+
+    apiPromise.then((finalizedHooks) => {
+      if (timer) clearInterval(timer);
+      activeTimerRef.current = null;
+
+      const validHooks = (finalizedHooks && finalizedHooks.length > 0)
+        ? finalizedHooks
+        : (strategyData?.modules?.hooks || []).slice(0, 3).map((h: any) => ({ ...h, isGenerated: true }));
+
+      setUnlockedHooks(validHooks);
+      setGenerationProgress(100);
+      setGenerationStatus("¡Videos Listos!");
+      setIsHooksUnlocked(true);
+
+      setTimeout(() => {
+        localStorage.setItem("force_wizard_step", "success");
+        setStep("success");
+        navigate(`${prefix}/step-4`);
+      }, 800);
+    }).catch((error) => {
+      if (timer) clearInterval(timer);
+      activeTimerRef.current = null;
+      console.error("❌ Error en proceso de ganchos:", error);
+      setIsHooksUnlocked(true);
+      localStorage.setItem("force_wizard_step", "success");
+      setStep("success");
+      navigate(`${prefix}/step-4`);
+    });
   };
 
   // Automatic recovery effect: If the page reloaded mid-generation, resume immediately

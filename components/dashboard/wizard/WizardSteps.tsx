@@ -856,11 +856,29 @@ export const GeneratingStep: React.FC<{
 
         const interval = setInterval(() => {
             setSimulatedProgress((prev) => {
-                if (prev >= 95) return prev;
-                const increment = Math.floor(Math.random() * 3) + 2;
-                return Math.min(prev + increment, 95);
+                if (prev >= 99) return 99;
+
+                // Curva de progreso dinámica continua para evitar que la barra se paralice en 95%:
+                // 0% - 45%: avance inicial fluido y constante
+                // 45% - 75%: ritmo moderado mientras la IA genera datos
+                // 75% - 90%: avance pausado pero continuo
+                // 90% - 99%: micro-avances continuos para dar feedback constante al usuario sin congelarse
+                let increment = 0;
+                const rand = Math.random();
+
+                if (prev < 45) {
+                    increment = rand > 0.3 ? 2 : 1;
+                } else if (prev < 75) {
+                    increment = rand > 0.4 ? 1 : 0;
+                } else if (prev < 90) {
+                    increment = rand > 0.5 ? 1 : 0;
+                } else {
+                    increment = rand > 0.65 ? 1 : 0;
+                }
+
+                return Math.min(prev + increment, 99);
             });
-        }, 450);
+        }, 700);
 
         return () => clearInterval(interval);
     }, [progress]);
