@@ -9,6 +9,7 @@ import { ProjectStrategy_BusinessGrowth } from "../tools/ProjectStrategy/Project
 import { ProjectStrategy_Blueprint } from "../tools/ProjectStrategy/ProjectStrategy_Blueprint";
 import { ProjectStrategy_AvatarDiagnosis } from "../tools/ProjectStrategy/ProjectStrategy_AvatarDiagnosis";
 import { ProjectStrategy_WebSystem } from "../tools/ProjectStrategy/ProjectStrategy_WebSystem";
+import { ProjectStrategy_Socials } from "../tools/ProjectStrategy/ProjectStrategy_Socials";
 import { ProjectStrategy_LeadMagnet } from "../tools/ProjectStrategy/ProjectStrategy_LeadMagnet";
 import { ProjectStrategy_Hooks } from "../tools/ProjectStrategy/ProjectStrategy_Hooks";
 import { ProjectStrategy_YouTube } from "../tools/ProjectStrategy/ProjectStrategy_YouTube";
@@ -1156,27 +1157,13 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
 
             {/* Paso 7: Creando tus Redes Sociales */}
             {activeStep === 7 && (
-              <div className="space-y-6">
-                <StepHeaderCard 
-                  stepNumber={7}
-                  totalSteps={stepsList.length}
-                  stageNumber={2}
-                  categoryTitle="7. Creando tus Redes Sociales"
-                  title={<>Crea y Configura <span className="text-[#FF5A1F]">tus Redes Sociales</span></>}
-                  description="Sigue los tutoriales para crear tu canal de YouTube, perfil de Instagram, cuenta de TikTok y otras redes necesarias para tu ecosistema de ventas."
-                />
-
-                <div className="bg-[#0B1120] border border-slate-800/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl">
-                  <StepVideoContainer 
-                    posterImage="https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=1200&h=675"
-                    videoUrl="https://www.youtube.com/embed/x4NdPhJTXxM"
-                    title="Creación y Configuración de Redes Sociales"
-                    stepNumber={7}
-                    user={user}
-                    isAdmin={isAdmin}
-                  />
-                </div>
-              </div>
+              <ProjectStrategy_Socials 
+                totalSteps={stepsList.length}
+                strategyData={strategyData}
+                overrideProjectId={projectId || searchParams.get('id') || ''}
+                user={user}
+                isAdmin={isAdmin}
+              />
             )}
 
             {/* Paso 8: Tus videos de atracción (Hooks) */}

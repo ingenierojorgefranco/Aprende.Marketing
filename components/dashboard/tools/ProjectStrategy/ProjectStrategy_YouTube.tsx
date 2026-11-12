@@ -247,38 +247,8 @@ incorporando de forma natural palabras clave relevantes y búsquedas frecuentes.
         />
       </div>
 
-      {/* Navegación por Pestañas principales */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => setActiveTab('articles')}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
-              activeTab === 'articles'
-                ? 'bg-[#FF5A1F] text-white shadow-lg shadow-orange-500/20'
-                : 'bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700'
-            }`}
-          >
-            <FileText className="w-4 h-4 text-emerald-400" />
-            <span>1. Artículos para YouTube</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('prompts')}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
-              activeTab === 'prompts'
-                ? 'bg-[#FF5A1F] text-white shadow-lg shadow-orange-500/20'
-                : 'bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700'
-            }`}
-          >
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>2. Prompts de Personalizar tu Canal</span>
-          </button>
-        </div>
-      </div>
-
-      {/* CONTENIDO PESTAÑA 1: ARTÍCULOS GENERADOS PARA NOTEBOOKLM */}
-      {activeTab === 'articles' && (
-        <div className="space-y-6 animate-in fade-in duration-300">
+      {/* CONTENIDO PRINCIPAL: ARTÍCULOS GENERADOS PARA NOTEBOOKLM */}
+      <div className="space-y-6 animate-in fade-in duration-300">
           {loadingArticles ? (
             <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-12 text-center flex flex-col items-center justify-center space-y-3">
               <Loader2 className="w-8 h-8 text-[#FF5A1F] animate-spin" />
@@ -700,79 +670,6 @@ sigue las siguientes instrucciones:
             </div>
           )}
         </div>
-      )}
-
-      {/* CONTENIDO PESTAÑA 2: PROMPTS DE IA */}
-      {activeTab === 'prompts' && (
-        <div className="space-y-6 animate-in fade-in duration-300">
-          <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between gap-3 border-b border-slate-800 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">Prompts de Inteligencia Artificial para YouTube</h3>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6 pt-2">
-              {promptsList.map((item) => {
-                const isCopied = copiedPromptId === item.id;
-                const currentVal = customPrompts[item.id] !== undefined ? customPrompts[item.id] : item.promptText;
-
-                return (
-                  <div key={item.id} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3.5 text-left shadow-md">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <h4 className="text-base font-bold text-white">
-                        {item.title}
-                      </h4>
-
-                      <button
-                        onClick={() => handleCopyText(item.id, currentVal)}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm ${
-                          isCopied
-                            ? 'bg-emerald-500 text-white shadow-emerald-500/20'
-                            : 'bg-[#FF5A1F] text-white hover:bg-[#ff6d38] shadow-orange-500/20'
-                        }`}
-                      >
-                        {isCopied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                        <span>{isCopied ? '¡Prompt Copiado!' : 'Copiar Prompt'}</span>
-                      </button>
-                    </div>
-
-                    {/* Area de texto editable en vivo */}
-                    <div className="space-y-1">
-                      {customPrompts[item.id] !== undefined && (
-                        <div className="flex justify-end">
-                          <button
-                            onClick={() => setCustomPrompts(prev => {
-                              const next = { ...prev };
-                              delete next[item.id];
-                              return next;
-                            })}
-                            className="text-amber-400 hover:underline cursor-pointer text-xs font-semibold"
-                          >
-                            Restablecer prompt original
-                          </button>
-                        </div>
-                      )}
-
-                      <textarea
-                        value={currentVal}
-                        onChange={(e) => setCustomPrompts(prev => ({ ...prev, [item.id]: e.target.value }))}
-                        rows={7}
-                        className="w-full bg-[#060a12] border border-slate-800 focus:border-[#FF5A1F]/60 rounded-xl p-4 font-mono text-sm text-slate-200 leading-relaxed focus:outline-none resize-y select-text shadow-inner"
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Botón Siguiente Paso */}
       <div className="pt-6 border-t border-slate-800 flex items-center justify-end">
@@ -780,7 +677,7 @@ sigue las siguientes instrucciones:
           onClick={onNavigateNext}
           className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#FF5A1F] hover:bg-[#ff6d38] text-white font-bold text-base transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
         >
-          <span>Siguiente Paso: Carruseles Magnéticos (Paso 8)</span>
+          <span>Siguiente Paso: Carruseles Magnéticos (Paso 10)</span>
           <ArrowRight className="w-5 h-5" />
         </button>
       </div>
