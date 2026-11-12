@@ -30,7 +30,8 @@ router.get('/', async (req, res) => {
             duration: v.duration || '3:00',
             videoUrl: v.video_url,
             posterImage: v.poster_image || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675',
-            positionOrder: v.position_order || 0
+            positionOrder: v.position_order || 0,
+            isActive: v.is_active === undefined || v.is_active === null || v.is_active === 1 || v.is_active === true
         }));
 
         res.json(videos);
@@ -130,7 +131,8 @@ router.get('/step/:stepNumber', async (req, res) => {
             duration: v.duration || '3:00',
             videoUrl: v.video_url,
             posterImage: v.poster_image || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200&h=675',
-            positionOrder: v.position_order || 0
+            positionOrder: v.position_order || 0,
+            isActive: v.is_active === undefined || v.is_active === null || v.is_active === 1 || v.is_active === true
         }));
 
         res.json(videos);
@@ -154,7 +156,8 @@ router.post('/', async (req, res) => {
             duration = '3:00',
             videoUrl,
             posterImage = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200&h=675',
-            positionOrder = 0
+            positionOrder = 0,
+            isActive = true
         } = req.body;
 
         if (!title || !videoUrl) {
@@ -162,12 +165,13 @@ router.post('/', async (req, res) => {
         }
 
         const videoId = id || `v_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+        const isActiveVal = (isActive === false || isActive === 0 || req.body.is_active === 0 || req.body.is_active === false) ? 0 : 1;
 
         await pool.query(
             `INSERT INTO master_step_videos 
-            (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [videoId, stepNumber, type, title, subtitle, duration, videoUrl, posterImage, positionOrder]
+            (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order, is_active) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [videoId, stepNumber, type, title, subtitle, duration, videoUrl, posterImage, positionOrder, isActiveVal]
         );
 
         res.status(201).json({
@@ -179,7 +183,8 @@ router.post('/', async (req, res) => {
             duration,
             videoUrl,
             posterImage,
-            positionOrder
+            positionOrder,
+            isActive: isActiveVal === 1
         });
     } catch (error) {
         console.error('Error al crear video en master_step_videos:', error);
@@ -201,7 +206,9 @@ router.put('/:id', async (req, res) => {
             videoUrl,
             posterImage,
             positionOrder,
-            stepNumber
+            stepNumber,
+            isActive,
+            is_active
         } = req.body;
 
         const [existing] = await pool.query('SELECT * FROM master_step_videos WHERE id = ?', [id]);
@@ -214,6 +221,7 @@ router.put('/:id', async (req, res) => {
         let finalVideoUrl = videoUrl;
         let finalPosterImage = posterImage;
         let finalPositionOrder = positionOrder;
+        let finalIsActive = (isActive !== undefined ? isActive : is_active);
 
         if (existing.length === 0) {
             // Si el video no existe (es un video por defecto estático de la UI), lo insertamos para persistirlo
@@ -225,13 +233,15 @@ router.put('/:id', async (req, res) => {
             finalVideoUrl = videoUrl || 'https://www.youtube.com/embed/dQw4w9WgXcQ';
             finalPosterImage = posterImage || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200';
             finalPositionOrder = positionOrder !== undefined ? positionOrder : 0;
+            const isActiveNum = (finalIsActive === false || finalIsActive === 0) ? 0 : 1;
 
             await pool.query(
                 `INSERT INTO master_step_videos 
-                (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [id, finalStepNumber, finalType, finalTitle, finalSubtitle, finalDuration, finalVideoUrl, finalPosterImage, finalPositionOrder]
+                (id, step_number, type, title, subtitle, duration, video_url, poster_image, position_order, is_active) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [id, finalStepNumber, finalType, finalTitle, finalSubtitle, finalDuration, finalVideoUrl, finalPosterImage, finalPositionOrder, isActiveNum]
             );
+            finalIsActive = isActiveNum === 1;
         } else {
             // Si ya existe, lo actualizamos normalmente
             const current = existing[0];
@@ -243,6 +253,10 @@ router.put('/:id', async (req, res) => {
             finalPosterImage = posterImage !== undefined ? posterImage : current.poster_image;
             finalPositionOrder = positionOrder !== undefined ? positionOrder : current.position_order;
             finalStepNumber = stepNumber !== undefined ? stepNumber : current.step_number;
+            
+            const currentIsActive = current.is_active === undefined || current.is_active === null || current.is_active === 1 || current.is_active === true;
+            const targetIsActive = finalIsActive !== undefined ? (finalIsActive !== false && finalIsActive !== 0) : currentIsActive;
+            const isActiveNum = targetIsActive ? 1 : 0;
 
             await pool.query(
                 `UPDATE master_step_videos SET 
@@ -253,10 +267,12 @@ router.put('/:id', async (req, res) => {
                     video_url = ?,
                     poster_image = ?,
                     position_order = ?,
-                    step_number = ?
+                    step_number = ?,
+                    is_active = ?
                 WHERE id = ?`,
-                [finalType, finalTitle, finalSubtitle, finalDuration, finalVideoUrl, finalPosterImage, finalPositionOrder, finalStepNumber, id]
+                [finalType, finalTitle, finalSubtitle, finalDuration, finalVideoUrl, finalPosterImage, finalPositionOrder, finalStepNumber, isActiveNum, id]
             );
+            finalIsActive = targetIsActive;
         }
 
         res.json({
@@ -268,7 +284,8 @@ router.put('/:id', async (req, res) => {
             duration: finalDuration,
             videoUrl: finalVideoUrl,
             posterImage: finalPosterImage,
-            positionOrder: finalPositionOrder
+            positionOrder: finalPositionOrder,
+            isActive: finalIsActive !== false && finalIsActive !== 0
         });
     } catch (error) {
         console.error(`Error al actualizar video ${req.params.id}:`, error);

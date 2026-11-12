@@ -70,10 +70,17 @@ const initDb = async () => {
             video_url TEXT NOT NULL,
             poster_image TEXT,
             position_order INT DEFAULT 0,
+            is_active TINYINT(1) DEFAULT 1,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             INDEX idx_step_number (step_number)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        try {
+            await connection.query(`ALTER TABLE master_step_videos ADD COLUMN is_active TINYINT(1) DEFAULT 1`);
+        } catch (e) {
+            // Ignorar si la columna ya existe
+        }
 
         // 1. TABLA USERS (Principal)
         await connection.query(`CREATE TABLE IF NOT EXISTS users (

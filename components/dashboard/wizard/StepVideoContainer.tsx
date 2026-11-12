@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Check, Clock, Plus, ChevronLeft, ChevronRight, X, Video, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Play, Check, Clock, Plus, ChevronLeft, ChevronRight, X, Video, Pencil, Trash2, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { MasterStepVideo, User } from '../../../types';
 import { api } from '../../../services/api';
@@ -14,6 +14,8 @@ export interface VideoItem {
   videoUrl: string;
   posterImage?: string;
   positionOrder?: number;
+  isActive?: boolean;
+  is_active?: boolean;
 }
 
 interface StepVideoContainerProps {
@@ -100,6 +102,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
   const [formDuration, setFormDuration] = useState('3:00');
   const [formType, setFormType] = useState<'Principal' | 'Complementario'>('Complementario');
   const [formPositionOrder, setFormPositionOrder] = useState<number>(1);
+  const [formIsActive, setFormIsActive] = useState<boolean>(true);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -124,10 +127,11 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
             listToSet = getStepDefaultVideos(stepNumber);
           }
 
-          // Asegurar que estén ordenados por positionOrder o por su índice por defecto
+          // Asegurar que estén ordenados por positionOrder o por su índice por defecto y mapear isActive
           const sortedList = [...listToSet]
-            .map((v, idx) => ({
+            .map((v: any, idx) => ({
               ...v,
+              isActive: v.isActive ?? v.is_active ?? true,
               positionOrder: v.positionOrder !== undefined && v.positionOrder > 0 ? v.positionOrder : idx + 1
             }))
             .sort((a, b) => (a.positionOrder || 0) - (b.positionOrder || 0));
@@ -157,11 +161,16 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
     return () => { isMounted = false; };
   }, [stepNumber]);
 
-  const activeVideoIndex = videoList.findIndex((v) => v.id === activeVideoId);
-  const activeVideo = videoList[activeVideoIndex >= 0 ? activeVideoIndex : 0] || videoList[0];
+  // Filtrar videos según rol: Administradores ven todos (incluso ocultos), usuarios normales solo ven videos activos (visibles)
+  const displayVideos = isUserAdmin
+    ? videoList
+    : videoList.filter((v) => v.isActive !== false && (v as any).is_active !== false);
+
+  const activeVideoIndex = displayVideos.findIndex((v) => v.id === activeVideoId);
+  const activeVideo = displayVideos[activeVideoIndex >= 0 ? activeVideoIndex : 0] || displayVideos[0];
 
   // Total cards including admin add button
-  const totalCardsCount = videoList.length + (isUserAdmin ? 1 : 0);
+  const totalCardsCount = displayVideos.length + (isUserAdmin ? 1 : 0);
   const isMarquee = totalCardsCount > 3;
 
   const handleReorderVideo = async (fromIndex: number, toIndex: number) => {
@@ -192,6 +201,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
             videoUrl: item.videoUrl,
             posterImage: item.posterImage,
             positionOrder: item.positionOrder,
+            isActive: item.isActive,
           })
         )
       );
@@ -262,12 +272,14 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
     setFormDuration('3:00');
     setFormType('Complementario');
     setFormPositionOrder(1);
+    setFormIsActive(true);
   };
 
   const handleOpenAddModal = () => {
     if (!isUserAdmin) return;
     resetForm();
     setFormPositionOrder(videoList.length + 1);
+    setFormIsActive(true);
     setShowAddModal(true);
   };
 
@@ -280,6 +292,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
     setFormUrl(video.videoUrl);
     setFormDuration(video.duration || '3:00');
     setFormType(video.type);
+    setFormIsActive(video.isActive ?? (video as any).is_active ?? true);
     const currentIdx = videoList.findIndex(v => v.id === video.id);
     setFormPositionOrder(currentIdx >= 0 ? currentIdx + 1 : (video.positionOrder || 1));
     setShowEditModal(true);
@@ -301,11 +314,13 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
         videoUrl: formUrl.trim(),
         posterImage: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200&h=675',
         positionOrder: newPosOrder,
+        isActive: formIsActive,
       });
 
       const newItem: VideoItem = {
         ...created,
         positionOrder: newPosOrder,
+        isActive: formIsActive,
       };
 
       setVideoList((prev) => [...prev, newItem]);
@@ -338,6 +353,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
         duration: formDuration.trim() || '3:00',
         videoUrl: formUrl.trim(),
         positionOrder: formPositionOrder,
+        isActive: formIsActive,
       };
 
       let newList = videoList.map((v) => (v.id === editingVideo.id ? updatedItem : v));
@@ -365,6 +381,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
             videoUrl: item.videoUrl,
             posterImage: item.posterImage,
             positionOrder: item.positionOrder,
+            isActive: item.isActive,
           })
         )
       );
@@ -406,6 +423,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
             duration: item.duration,
             videoUrl: item.videoUrl,
             positionOrder: item.positionOrder,
+            isActive: item.isActive,
           })
         )
       );
@@ -485,7 +503,7 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
 
           <div className="flex items-center gap-3">
             <span className="text-xs font-medium">
-              <strong className="text-emerald-400 font-bold">{watchedVideoIds.size} de {videoList.length}</strong>{' '}
+              <strong className="text-emerald-400 font-bold">{displayVideos.filter(v => watchedVideoIds.has(v.id)).length} de {displayVideos.length}</strong>{' '}
               <span className="text-slate-400">vistos</span>
             </span>
 
@@ -520,9 +538,10 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
               : "grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4"
           }
         >
-          {videoList.map((video, idx) => {
+          {displayVideos.map((video, idx) => {
             const isActive = video.id === activeVideoId;
             const isWatched = watchedVideoIds.has(video.id);
+            const isHidden = video.isActive === false || (video as any).is_active === false;
 
             return (
               <div
@@ -540,12 +559,12 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                     : isWatched
                     ? 'bg-[#0B1120] border-emerald-500 ring-1 ring-emerald-500/50 shadow-md shadow-emerald-500/10 hover:border-emerald-400 hover:bg-[#0E1628]'
                     : 'bg-[#0B1120] border-slate-800/90 hover:border-slate-700 hover:bg-[#0E1628]'
-                }`}
+                } ${isHidden ? 'opacity-75 border-dashed border-red-500/40 bg-red-950/10' : ''}`}
               >
                 <div>
-                  {/* Top: Video Number Badge + Admin Order Selector */}
+                  {/* Top: Video Number Badge + Hidden Badge + Admin Order Selector */}
                   <div className="flex items-center justify-between gap-2 mb-3.5">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black tracking-wide border shadow-sm transition-all ${
                         isActive
                           ? 'bg-[#FF5A1F]/10 border-[#FF5A1F]/40 text-[#FF5A1F]'
@@ -563,6 +582,14 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                         <span>Video {idx + 1}</span>
                       </div>
 
+                      {/* Insignia de Oculto para Administradores */}
+                      {isUserAdmin && isHidden && (
+                        <span className="inline-flex items-center gap-1 bg-red-900/60 text-red-300 border border-red-700/60 text-[10px] font-bold px-2 py-0.5 rounded-md" title="Video deshabilitado (solo visible para admin)">
+                          <EyeOff className="w-3 h-3 text-red-400" />
+                          <span>Oculto</span>
+                        </span>
+                      )}
+
                       {/* Selector directo de Orden para Administrador */}
                       {isUserAdmin && videoList.length > 1 && (
                         <div 
@@ -572,10 +599,11 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                         >
                           <span className="text-[10px] text-slate-400 font-bold uppercase">Orden:</span>
                           <select
-                            value={idx + 1}
+                            value={videoList.findIndex(v => v.id === video.id) + 1}
                             onChange={(e) => {
                               e.stopPropagation();
-                              handleReorderVideo(idx, Number(e.target.value) - 1);
+                              const fromIdx = videoList.findIndex(v => v.id === video.id);
+                              handleReorderVideo(fromIdx, Number(e.target.value) - 1);
                             }}
                             className="bg-transparent text-[#FF5A1F] font-black text-xs focus:outline-none cursor-pointer"
                           >
@@ -780,6 +808,32 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                 />
               </div>
 
+              {/* Control de visibilidad del video (Habilitado / Deshabilitado) */}
+              <div className="bg-[#060a12] border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                    {formIsActive ? <Eye className="w-3.5 h-3.5 text-emerald-400" /> : <EyeOff className="w-3.5 h-3.5 text-red-400" />}
+                    <span>ESTADO DEL VIDEO</span>
+                  </label>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {formIsActive ? 'Visible para todos los usuarios' : 'Oculto (desactivado para usuarios)'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormIsActive(!formIsActive)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                    formIsActive ? 'bg-emerald-500' : 'bg-slate-700'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      formIsActive ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
               <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-800">
                 <button
                   type="button"
@@ -915,6 +969,32 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
                   onChange={(e) => setFormUrl(e.target.value)}
                   className="w-full bg-[#060a12] border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#FF5A1F]"
                 />
+              </div>
+
+              {/* Control de visibilidad del video (Habilitado / Deshabilitado) */}
+              <div className="bg-[#060a12] border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                    {formIsActive ? <Eye className="w-3.5 h-3.5 text-emerald-400" /> : <EyeOff className="w-3.5 h-3.5 text-red-400" />}
+                    <span>ESTADO DEL VIDEO</span>
+                  </label>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {formIsActive ? 'Visible para todos los usuarios' : 'Oculto (desactivado para usuarios)'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormIsActive(!formIsActive)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                    formIsActive ? 'bg-emerald-500' : 'bg-slate-700'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      formIsActive ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
               </div>
 
               {/* Botón Eliminar abajo en el modal de edición + botones de Acción */}

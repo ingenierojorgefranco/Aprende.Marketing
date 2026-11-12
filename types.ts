@@ -18,6 +18,8 @@ export interface MasterStepVideo {
   videoUrl: string;
   posterImage?: string;
   positionOrder?: number;
+  isActive?: boolean;
+  is_active?: boolean;
 }
 ////////// Fin de actualización - 24/05/2024 16:45 /////////
 
