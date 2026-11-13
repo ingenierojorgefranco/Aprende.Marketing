@@ -230,27 +230,28 @@ export const StepVideoContainer: React.FC<StepVideoContainerProps> = ({
 
   const getEmbedUrl = (url: string, autoPlay: boolean = false) => {
     if (!url) return '';
+    const cleanUrl = url.trim();
     const autoplayParam = autoPlay ? '1' : '0';
 
-    // Check if it's a YouTube URL
-    const ytRegex = /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/i;
-    const ytMatch = url.match(ytRegex);
+    // Check if it's a YouTube URL (supports watch, youtu.be, embed, youtube-nocookie, /live/, /shorts/, /v/)
+    const ytRegex = /(?:youtu\.be\/|(?:youtube\.com|youtube-nocookie\.com)\/(?:embed\/|v\/|live\/|shorts\/|watch\?(?:.*&)?v=))([a-zA-Z0-9_-]{11})/i;
+    const ytMatch = cleanUrl.match(ytRegex);
     if (ytMatch && ytMatch[1]) {
-      return `https://www.youtube.com/embed/${ytMatch[1]}?rel=0&autoplay=${autoplayParam}`;
+      return `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?rel=0&autoplay=${autoplayParam}`;
     }
     
     // Check if it's a Vimeo URL
     const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)([0-9]+)/i;
-    const vimeoMatch = url.match(vimeoRegex);
+    const vimeoMatch = cleanUrl.match(vimeoRegex);
     if (vimeoMatch && vimeoMatch[1]) {
       return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=${autoplayParam}`;
     }
     
     // Fallback for pre-formatted embed URLs or others
-    if (url.includes('autoplay=')) {
-      return url.replace(/autoplay=\d/, `autoplay=${autoplayParam}`);
+    if (cleanUrl.includes('autoplay=')) {
+      return cleanUrl.replace(/autoplay=\d/, `autoplay=${autoplayParam}`);
     }
-    return `${url}${url.includes('?') ? '&' : '?'}autoplay=${autoplayParam}`;
+    return `${cleanUrl}${cleanUrl.includes('?') ? '&' : '?'}autoplay=${autoplayParam}`;
   };
 
   const handleScrollLeft = () => {

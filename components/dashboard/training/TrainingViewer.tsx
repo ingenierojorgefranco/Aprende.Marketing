@@ -252,22 +252,23 @@ export const TrainingViewer: React.FC = () => {
   // Helper to transform YouTube/Vimeo URLs to embed format
   const getEmbedUrl = (url: string) => {
     if (!url) return '';
+    const cleanUrl = url.trim();
     
-    // YouTube
-    const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-    const ytMatch = url.match(ytRegex);
+    // YouTube (supports watch, youtu.be, embed, youtube-nocookie, /live/, /shorts/, /v/)
+    const ytRegex = /(?:youtu\.be\/|(?:youtube\.com|youtube-nocookie\.com)\/(?:embed\/|v\/|live\/|shorts\/|watch\?(?:.*&)?v=))([a-zA-Z0-9_-]{11})/i;
+    const ytMatch = cleanUrl.match(ytRegex);
     if (ytMatch && ytMatch[1]) {
-      return `https://www.youtube.com/embed/${ytMatch[1]}?rel=0&autoplay=0`;
+      return `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?rel=0&autoplay=0`;
     }
     
     // Vimeo
     const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)([0-9]+)/i;
-    const vimeoMatch = url.match(vimeoRegex);
+    const vimeoMatch = cleanUrl.match(vimeoRegex);
     if (vimeoMatch && vimeoMatch[1]) {
       return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=0`;
     }
     
-    return url;
+    return cleanUrl;
   };
 
   if (loading) {
