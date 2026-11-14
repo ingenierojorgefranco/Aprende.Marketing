@@ -355,8 +355,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
           securityText: "Acceso Inmediato & Garantizado"
       },
       thankYouPage: page.content.thankYouPage || {
-          headline: "Perfecto, hemos enviado el acceso a la clase gratuita a tu correo electrónico",
-          subheadline: "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo electrónico para que puedas volver cuando quieras",
+          headline: "¡Registro confirmado! Tu clase gratuita está lista.",
+          subheadline: "Antes de comenzar, tenemos un regalo adicional para ayudarte a dar tus primeros pasos.",
           ctaLink: "#",
           showSocials: true
       }
@@ -1252,8 +1252,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                           <SectionHeader id="ty-hero" title="1. Hero & Confirmación" icon={Sparkles} openSection={openSection} toggleSection={toggleSection} />
                           <SectionContent id="ty-hero" openSection={openSection}>
                               <div><Label>Nombre de la Marca / Logo</Label><Input value={content.thankYouPage?.headerLogoText || ''} onChange={(e) => updateThankYouConfig('headerLogoText', e.target.value)} placeholder="ResinPro Studio Latino" /></div>
-                              <div><Label>Título de Confirmación</Label><Input value={content.thankYouPage?.headline || ''} onChange={(e) => updateThankYouConfig('headline', e.target.value)} placeholder="Perfecto, tu registro está confirmado" /></div>
-                              <div><Label>Mensaje / Subtítulo</Label><RichTextArea value={content.thankYouPage?.subheadline || ''} onChange={(e) => updateThankYouConfig('subheadline', e.target.value)} className="h-20" placeholder="Tu clase gratuita ya está disponible..." /></div>
+                              <div><Label>Título de Confirmación</Label><Input value={content.thankYouPage?.headline || ''} onChange={(e) => updateThankYouConfig('headline', e.target.value)} placeholder="¡Registro confirmado! Tu clase gratuita está lista." /></div>
+                              <div><Label>Mensaje / Subtítulo</Label><RichTextArea value={content.thankYouPage?.subheadline || ''} onChange={(e) => updateThankYouConfig('subheadline', e.target.value)} className="h-20" placeholder="Antes de comenzar, tenemos un regalo adicional para ayudarte a dar tus primeros pasos." /></div>
                               <div><Label>Texto de Aviso (Email / Spam)</Label><Input value={content.thankYouPage?.emailNotificationText || ''} onChange={(e) => updateThankYouConfig('emailNotificationText', e.target.value)} placeholder="Revisa tu bandeja de entrada (y spam) para encontrar el acceso." /></div>
                           </SectionContent>
 
@@ -1271,7 +1271,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                               <div><Label>URL Fotograma / Poster (Opcional)</Label><Input value={content.thankYouPage?.videoPosterUrl || ''} onChange={(e) => updateThankYouConfig('videoPosterUrl', e.target.value)} placeholder="https://images.unsplash.com/..." /></div>
                               <div className="grid grid-cols-2 gap-2">
                                   <div><Label>Duración del Video</Label><Input value={content.thankYouPage?.videoDuration || ''} onChange={(e) => updateThankYouConfig('videoDuration', e.target.value)} placeholder="34:28" /></div>
-                                  <div><Label>Aviso Recomendación</Label><Input value={content.thankYouPage?.videoNoticeText || ''} onChange={(e) => updateThankYouConfig('videoNoticeText', e.target.value)} placeholder="Te recomendamos ver la clase completa..." /></div>
+                                  <div><Label>Aviso Recomendación</Label><Input value={content.thankYouPage?.videoNoticeText || ''} onChange={(e) => updateThankYouConfig('videoNoticeText', e.target.value)} placeholder="Haz clic para reproducir el video de la Clase Completa" /></div>
                               </div>
                           </SectionContent>
 

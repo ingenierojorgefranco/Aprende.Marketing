@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { GeneratedPageContent, ThankYouPageConfig } from '../../types';
 import { getDesignSystem } from './designSystem';
-import { FormationMockup, GuideMockup } from './ThankYouMockups';
 import { getIcon } from './utils';
 import {
-  Check, Mail, Play, Volume2, VolumeX,
-  Settings, Maximize2, Clock, User, GraduationCap,
+  Check, Play, GraduationCap,
   ExternalLink, Gift, MessageCircle, Sparkles
 } from 'lucide-react';
 
@@ -456,12 +454,22 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
               paddingTop: '0.5em'
             }}
           >
-            {tyConfig.headline && tyConfig.headline !== "PERFECTO, YA TIENES EL ACCESO A LA CLASE DE MICROBLADING PROFESIONAL" ? tyConfig.headline : "Perfecto, tu registro está confirmado"}
+            {(() => {
+              const rawHeadline = (tyConfig.headline || '').trim();
+              const isLegacyHeadline =
+                !rawHeadline ||
+                rawHeadline === "PERFECTO, YA TIENES EL ACCESO A LA CLASE DE MICROBLADING PROFESIONAL" ||
+                rawHeadline === "Perfecto, tu registro está confirmado" ||
+                rawHeadline === "Perfecto, hemos enviado el acceso a la clase gratuita a tu correo electrónico";
+              return isLegacyHeadline
+                ? "¡Registro confirmado! Tu clase gratuita está lista."
+                : rawHeadline;
+            })()}
           </h1>
 
           {/* Subtítulo */}
           <p 
-            className={`text-sm sm:text-base md:text-lg ${activeDs.hero.subtitleColor || (content.palette === 'minimal-mono' ? 'text-gray-500' : 'text-cyan-100')} font-normal leading-relaxed max-w-xl mx-auto mb-5`}
+            className={`text-sm sm:text-base md:text-lg ${activeDs.hero.subtitleColor || (content.palette === 'minimal-mono' ? 'text-gray-500' : 'text-cyan-100')} font-normal leading-relaxed max-w-xl mx-auto mb-2`}
             style={{
               fontSize: '1.3em',
               lineHeight: '1.5em',
@@ -469,26 +477,21 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
               maxWidth: '44rem'
             }}
           >
-            {tyConfig.subheadline && 
-             !tyConfig.subheadline.toLowerCase().includes("sigue estos 2 pasos") && 
-             !tyConfig.subheadline.toLowerCase().includes("únete a nuestro grupo") && 
-             !tyConfig.subheadline.toLowerCase().includes("unete a nuestro grupo") && 
-             !tyConfig.subheadline.toLowerCase().includes("recibir tu material de preparación") && 
-             tyConfig.subheadline !== "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo para que puedas volver a verla cuando quieras."
-              ? tyConfig.subheadline 
-              : "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo electrónico para que puedas volver cuando quieras"}
+            {(() => {
+              const rawSub = (tyConfig.subheadline || '').trim();
+              const subLower = rawSub.toLowerCase();
+              const isLegacySub =
+                !rawSub ||
+                subLower.includes("sigue estos 2 pasos") ||
+                subLower.includes("únete a nuestro grupo") ||
+                subLower.includes("unete a nuestro grupo") ||
+                subLower.includes("recibir tu material de preparación") ||
+                subLower.includes("tu clase gratuita ya está disponible");
+              return isLegacySub
+                ? "Antes de comenzar, tenemos un regalo adicional para ayudarte a dar tus primeros pasos."
+                : rawSub;
+            })()}
           </p>
-
-          {/* Píldora de aviso de correo con color verde esmeralda (Ref. Imagen 1) */}
-          <div 
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full border ${content.palette === 'minimal-mono' ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-sm' : 'bg-emerald-500/20 text-emerald-200 border-emerald-500/40 backdrop-blur-md shadow-sm'} text-xs sm:text-sm font-medium`}
-            style={{
-              fontSize: '1.1em'
-            }}
-          >
-            <Mail className="w-4 h-4 text-emerald-300 shrink-0" />
-            <span>{tyConfig.emailNotificationText || "Revisa tu bandeja de entrada (y spam) para encontrar el acceso."}</span>
-          </div>
         </div>
       </section>
 
@@ -584,11 +587,16 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
               </p>
             </div>
 
-            {/* Píldora de Recomendación ENCIMA del Video (Ref. Imagen 3) */}
+            {/* Píldora de Recomendación ENCIMA del Video */}
             <div className="text-center mb-5 sm:mb-6">
               <div className={`rounded-full py-2 px-6 inline-flex items-center justify-center gap-2.5 text-sm sm:text-base font-bold shadow-sm ${paletteAccents.recommendBg}`}>
-                <Clock className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-                <span>{tyConfig.videoNoticeText || "Te recomendamos ver la clase completa antes de continuar."}</span>
+                <Play className="w-4 h-4 sm:w-4 sm:h-4 shrink-0 fill-current" />
+                <span>
+                  {tyConfig.videoNoticeText &&
+                  tyConfig.videoNoticeText.trim() !== "Te recomendamos ver la clase completa antes de continuar."
+                    ? tyConfig.videoNoticeText
+                    : "Haz clic para reproducir el video de la Clase Completa"}
+                </span>
               </div>
             </div>
 
@@ -646,26 +654,11 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                 </h3>
               </div>
 
-              {/* Contenido sin los elementos eliminados (Ref. Imagen 2) */}
+              {/* Descripción debajo de ¿Quieres aprender el proceso completo? */}
               <div className="max-w-2xl mx-auto text-center">
-                {/* Lista de Viñetas de Valor organizada y con tamaño optimizado */}
-                <div className="max-w-xl mx-auto mb-8">
-                  <ul className="space-y-3 sm:space-y-3.5 text-left inline-block">
-                    {(tyConfig.upsellBullets || [
-                      "Aprende el proceso paso a paso",
-                      "Materiales, preparación y aplicación",
-                      "Acabados profesionales y corrección de errores",
-                      "Acceso a una formación estructurada"
-                    ]).map((bullet, idx) => (
-                      <li key={idx} className="flex items-center gap-3">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 shadow-sm ${paletteAccents.checkBg}`}>
-                          <Check className="w-3.5 h-3.5 stroke-[3]" />
-                        </div>
-                        <span className="text-sm sm:text-base font-semibold text-gray-800">{bullet}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed max-w-xl mx-auto mb-8 font-medium">
+                  Conoce el programa, sus módulos, los materiales y todo lo que incluye la formación.
+                </p>
 
                 {/* Botón CTA Formación Completa con tamaño prominente (Ref. Imagen 3) */}
                 <div className="max-w-md mx-auto">
@@ -694,95 +687,6 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                     </button>
                   )}
                 </div>
-              </div>
-            </div>
-
-          </div>
-
-
-          {/* TARJETA 2: REGALO ADICIONAL (WHATSAPP + GUÍA PRÁCTICA) */}
-          <div className={`bg-white rounded-[2rem] p-5 sm:p-8 md:p-10 shadow-2xl ${paletteAccents.cardBorder} text-gray-900 relative`}>
-            
-            {/* Badge Centrado: REGALO ADICIONAL */}
-            <div className="text-center mb-3">
-              <span className={`inline-flex items-center gap-1.5 ${paletteAccents.badgeBg} ${paletteAccents.badgeText} text-[10px] sm:text-[11px] font-black tracking-widest uppercase px-5 py-1.5 rounded-full shadow-sm`}>
-                <Gift className="w-3.5 h-3.5" />
-                <span>{tyConfig.whatsappBadge || "REGALO ADICIONAL"}</span>
-              </span>
-            </div>
-
-            {/* Título y Subtítulo de WhatsApp */}
-            <div className="text-center max-w-xl mx-auto mb-6 sm:mb-8">
-              <h2 className="text-2xl sm:text-3xl md:text-[1.95rem] font-black tracking-tight text-gray-950 leading-snug mb-2">
-                {tyConfig.whatsappTitle || "Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica"}
-              </h2>
-              <p className="text-xs sm:text-sm md:text-base text-gray-600 leading-relaxed max-w-md mx-auto">
-                {tyConfig.whatsappSubtitle || "Conecta con nuestra comunidad, resuelve tus dudas y descarga tu guía en formato digital."}
-              </p>
-            </div>
-
-            {/* Contenedor Centrado: Imagen a lo ancho + Viñetas y Botón WhatsApp debajo (Ref. Imagen 4) */}
-            <div className="max-w-2xl mx-auto text-center">
-              {/* Mockup de la Guía ocupando el ancho completo */}
-              <div className="w-full mb-6 sm:mb-8 flex justify-center">
-                <GuideMockup 
-                  title={tyConfig.whatsappGuideTitle || tyConfig.leadMagnetName || project?.multimedia_json?.leadMagnets?.[0]?.name || "CÓMO CONVERTIR TU APRENDIZAJE EN UN NEGOCIO RENTABLE"}
-                  subtitle="GUÍA PRÁCTICA PASO A PASO"
-                  customImageUrl={leadMagnetCustomImage}
-                  posterUrl={videoPoster}
-                  ds={activeDs}
-                />
-              </div>
-
-              {/* Título de la Guía */}
-              <h4 className="text-xl sm:text-2xl md:text-[1.65rem] font-black leading-snug text-gray-950 mb-5 tracking-tight max-w-xl mx-auto">
-                {tyConfig.whatsappGuideTitle || "Cómo convertir la aplicación de resina epóxica para suelos en un negocio rentable"}
-              </h4>
-
-              {/* Lista de Viñetas de la Guía centradas */}
-              <div className="max-w-xl mx-auto mb-8 text-left">
-                <ul className="space-y-3 sm:space-y-3.5 inline-block w-full">
-                  {(tyConfig.whatsappGuideBullets || [
-                    "Descubre cómo encontrar clientes",
-                    "Aprende a estructurar tu oferta",
-                    "Calcula correctamente tus costes",
-                    "Conoce cómo presentar el servicio profesionalmente"
-                  ]).map((bullet, idx) => (
-                    <li key={idx} className="flex items-center gap-3">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 shadow-sm ${paletteAccents.checkBg}`}>
-                        <Check className="w-3.5 h-3.5 stroke-[3]" />
-                      </div>
-                      <span className="text-sm sm:text-base font-semibold text-gray-800">{bullet}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Botón Verde Oficial de WhatsApp */}
-              <div className="max-w-md mx-auto">
-                {hasWhatsAppGroup ? (
-                  <a
-                    href={whatsappLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={handleWhatsAppClick}
-                    className="w-full bg-[#00B758] hover:bg-[#00A34E] text-white py-4 px-6 rounded-2xl font-black text-sm sm:text-base tracking-wide uppercase flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/25 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer"
-                  >
-                    <MessageCircle className="w-5 h-5 fill-white/20 shrink-0" />
-                    <span>{tyConfig.whatsappButtonText || "UNIRME AL GRUPO Y RECIBIR LA GUÍA"}</span>
-                  </a>
-                ) : (
-                  <button
-                    type="button"
-                    disabled
-                    aria-disabled="true"
-                    title="Enlace de WhatsApp no configurado aún"
-                    className="w-full bg-[#00B758]/50 text-white/70 py-4 px-6 rounded-2xl font-black text-sm sm:text-base tracking-wide uppercase flex items-center justify-center gap-3 shadow-md cursor-not-allowed select-none opacity-60"
-                  >
-                    <MessageCircle className="w-5 h-5 fill-white/20 shrink-0" />
-                    <span>{tyConfig.whatsappButtonText || "UNIRME AL GRUPO Y RECIBIR LA GUÍA"}</span>
-                  </button>
-                )}
               </div>
             </div>
 

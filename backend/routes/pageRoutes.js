@@ -217,7 +217,7 @@ const attachProjectData = (page) => {
                     subLower.includes('grupo privado de whatsapp') ||
                     subLower.includes('sigue estos 2 pasos')
                 ) {
-                    ty.subheadline = "Tu clase gratuita ya está disponible. También hemos enviado el acceso a tu correo electrónico para que puedas volver cuando quieras";
+                    ty.subheadline = "Antes de comenzar, tenemos un regalo adicional para ayudarte a dar tus primeros pasos.";
                 }
             }
         }

@@ -532,7 +532,7 @@ export const ProjectWizard: React.FC = () => {
             videoSubtitle: '',
             videoPosterUrl: '',
             videoDuration: '34:28',
-            videoNoticeText: 'Te recomendamos ver la clase completa antes de continuar.',
+            videoNoticeText: 'Haz clic para reproducir el video de la Clase Completa',
             upsellTitle: '¿Quieres aprender el proceso completo?',
             upsellSubtitle: 'Lleva tus habilidades al siguiente nivel con nuestra formación especializada.',
             upsellProductName: '',
@@ -1043,7 +1043,7 @@ export const ProjectWizard: React.FC = () => {
                             videoSubtitle: loadedTy.videoSubtitle || '',
                             videoPosterUrl: loadedTy.videoPosterUrl || '',
                             videoDuration: loadedTy.videoDuration || '34:28',
-                            videoNoticeText: loadedTy.videoNoticeText || 'Te recomendamos ver la clase completa antes de continuar.',
+                            videoNoticeText: loadedTy.videoNoticeText || 'Haz clic para reproducir el video de la Clase Completa',
                             upsellTitle: loadedTy.upsellTitle || '¿Quieres aprender el proceso completo?',
                             upsellSubtitle: loadedTy.upsellSubtitle || 'Lleva tus habilidades al siguiente nivel con nuestra formación especializada.',
                             upsellProductName: loadedTy.upsellProductName || proj.productName || '',
@@ -1093,7 +1093,7 @@ export const ProjectWizard: React.FC = () => {
                             videoSubtitle: '',
                             videoPosterUrl: '',
                             videoDuration: '34:28',
-                            videoNoticeText: 'Te recomendamos ver la clase completa antes de continuar.',
+                            videoNoticeText: 'Haz clic para reproducir el video de la Clase Completa',
                             upsellTitle: '¿Quieres aprender el proceso completo?',
                             upsellSubtitle: 'Lleva tus habilidades al siguiente nivel con nuestra formación especializada.',
                             upsellProductName: proj.productName || '',
@@ -1949,7 +1949,7 @@ export const ProjectWizard: React.FC = () => {
                                                         type="text" 
                                                         value={multimedia.thankYouPage?.videoNoticeText || ''} 
                                                         onChange={(e) => handleUpdateThankYouField('videoNoticeText', e.target.value)}
-                                                        placeholder="Te recomendamos ver la clase completa antes de continuar."
+                                                        placeholder="Haz clic para reproducir el video de la Clase Completa"
                                                         className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
                                                     />
                                                 </div>
