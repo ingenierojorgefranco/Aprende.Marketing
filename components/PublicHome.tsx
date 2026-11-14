@@ -5,7 +5,7 @@ import {
   ArrowRight, LayoutDashboard, LogOut, Play, 
   Layout, MessageCircle, PenTool, Search, Briefcase, Mail, Users, BarChart, Link as LinkIcon,
   CheckCircle, Zap, Shield, Rocket, Bot, Server, Star, Target, Globe, Gift, ChevronRight, TrendingUp, X, Menu, Smartphone, Cpu, Repeat, Phone, MoreVertical, Send, Smile, BookOpen, GraduationCap,
-  List, Facebook, Instagram, Youtube, TrendingUp as ChartIcon, DollarSign, Calendar, ChevronDown, ChevronUp, Box, ExternalLink
+  List, Facebook, Instagram, Youtube, TrendingUp as ChartIcon, DollarSign, Calendar, ChevronDown, ChevronUp, Box, ExternalLink, ThumbsUp
 } from 'lucide-react';
 ////////// Importación de Recharts para gráfica de ingresos - 27/05/2025 02:15 //////////
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
@@ -13,45 +13,90 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tool
 import { User, Plan } from '../types';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import productMicrobladingImg from '../src/assets/images/product_microblading_1794650768316.jpg';
+import productResinaImg from '../src/assets/images/product_resina_1794650768769.jpg';
+import productCaninoImg from '../src/assets/images/product_canino_1794650768945.jpg';
+import productReposteriaImg from '../src/assets/images/product_reposteria_1794650770796.jpg';
 
 interface PublicHomeProps {
   user: User | null;
   onLogout?: () => void;
 }
 
-////////// Componente Interno: Terminal IA con activación por visibilidad - 27/05/2025 00:15 //////////
-const TerminalBlock: React.FC<{ children: React.ReactNode, bgColor?: string, accentColor?: string }> = ({ children, bgColor = "bg-[#0B0B0B]", accentColor = "bg-gray-200" }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+interface MarqueeProductItem {
+  id: string;
+  name: string;
+  niche: string;
+  description: string;
+  imageUrl: string;
+  fallbackImg: string;
+  fullPrice: number;
+  commissionRate: number;
+}
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setIsVisible(true);
-      }
-    }, { threshold: 0.2 });
+const FALLBACK_MARQUEE_PRODUCTS: MarqueeProductItem[] = [
+  {
+    id: 'cat-microblading',
+    name: 'Masterclass Microblading Pro',
+    niche: 'Belleza y Estética',
+    description: 'Certificación paso a paso en diseño de cejas pelo a pelo con alta demanda y excelente margen de comisión en Hotmart.',
+    imageUrl: productMicrobladingImg,
+    fallbackImg: productMicrobladingImg,
+    fullPrice: 200,
+    commissionRate: 0.65
+  },
+  {
+    id: 'cat-resina',
+    name: 'Diseño de Joyas con Resina Epóxica',
+    niche: 'Manualidades y Arte',
+    description: 'Aprende a crear accesorios y piezas decorativas en resina desde casa para convertir una habilidad creativa en negocio rentable.',
+    imageUrl: productResinaImg,
+    fallbackImg: productResinaImg,
+    fullPrice: 79,
+    commissionRate: 0.70
+  },
+  {
+    id: 'cat-canino',
+    name: 'Educación Canina en Casa VIP',
+    niche: 'Mascotas y Bienestar',
+    description: 'Programa práctico para corregir conductas difíciles y entrenar perros sin estrés, uno de los nichos evergreen más vendidos.',
+    imageUrl: productCaninoImg,
+    fallbackImg: productCaninoImg,
+    fullPrice: 67,
+    commissionRate: 0.60
+  },
+  {
+    id: 'cat-reposteria',
+    name: 'Repostería Francesa desde Cero',
+    niche: 'Gastronomía y Negocios',
+    description: 'Domina postres gourmet, entremets y decoración moderna listos para comercializar por encargo desde tu propia cocina.',
+    imageUrl: productReposteriaImg,
+    fallbackImg: productReposteriaImg,
+    fullPrice: 97,
+    commissionRate: 0.65
+  },
+  {
+    id: 'cat-cejas-laminado',
+    name: 'Especialista en Cejas y Laminado',
+    niche: 'Belleza y Estética',
+    description: 'Técnicas actuales de visajismo, perfilado y laminado con embudo optimizado para captar clientes locales o digitales.',
+    imageUrl: productMicrobladingImg,
+    fallbackImg: productMicrobladingImg,
+    fullPrice: 89,
+    commissionRate: 0.70
+  },
+  {
+    id: 'cat-mesas-resina',
+    name: 'Porcelanato Líquido y Resina Pro',
+    niche: 'Oficios Rentables',
+    description: 'Capacitación técnica para recubrimientos de alto impacto visual con guiones virales y landing de captura preconfigurada.',
+    imageUrl: productResinaImg,
+    fallbackImg: productResinaImg,
+    fullPrice: 120,
+    commissionRate: 0.60
+  }
+];
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div ref={ref} className={`relative ${bgColor} border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl font-mono text-lg md:text-xl w-full max-w-md min-h-[400px] md:min-h-[500px] flex flex-col transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-      <div className="flex gap-2 mb-6 md:mb-8 shrink-0">
-        <div className={`w-3.5 h-3.5 rounded-full ${accentColor} opacity-30`}></div>
-        <div className={`w-3.5 h-3.5 rounded-full ${accentColor} opacity-30`}></div>
-        <div className={`w-3.5 h-3.5 rounded-full ${accentColor} opacity-30`}></div>
-      </div>
-      <div className="space-y-4 md:space-y-5 flex-1 overflow-hidden">
-        {isVisible && children}
-      </div>
-    </div>
-  );
-};
-////////// Fin de componente interno - 27/05/2025 00:15 //////////
 
 ////////// Datos para la gráfica de Rentabilidad 2026 - 27/05/2025 02:15 //////////
 const profitabilityData = [
@@ -73,10 +118,99 @@ const profitabilityData = [
 export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [marqueeProducts, setMarqueeProducts] = useState<MarqueeProductItem[]>(FALLBACK_MARQUEE_PRODUCTS);
+  const [failedProductImages, setFailedProductImages] = useState<Record<string, boolean>>({});
   
-  ////////// Estado para el menú móvil y acordeón de FAQ - 27/05/2025 10:00 //////////
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  ////////// Estado para el menú móvil - 27/05/2025 10:00 //////////
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [likedIds, setLikedIds] = useState<Record<string, boolean>>({});
+
+  const toggleLike = (id: string) => {
+    setLikedIds(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const socialComments = [
+    {
+      id: 'c1',
+      name: 'Carlos Mendoza',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop',
+      comment: 'Al principio dudaba porque no sé nada de programación ni de diseñar páginas web, pero seguí el paso a paso del asistente y en menos de 15 minutos ya tenía mi proyecto y mi página de captura montada. Súper intuitivo todo.',
+      likes: 47,
+      time: 'Hace 2 h',
+      reply: {
+        id: 'r1',
+        name: 'Jorge Franco',
+        avatar: '/assets/aistudio/image_5e33d763.png',
+        text: '¡Excelente Carlos! Justamente diseñamos la plataforma para que no pierdas tiempo peleando con código o diseños complicados y te enfoques en lanzar rápido. ¡Éxitos con tu embudo!',
+        likes: 84,
+        time: 'Hace 1 h'
+      }
+    },
+    {
+      id: 'c2',
+      name: 'Laura Martínez',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop',
+      comment: 'Confieso que pensé que al darle al botón me iban a pedir tarjeta de crédito al instante, pero me registré gratis sin problema. Ya revisé la guía de implementación, elegí uno de los productos analizados de belleza y hoy capturé mis primeros 14 prospectos.',
+      likes: 39,
+      time: 'Hace 4 h',
+      reply: {
+        id: 'r2',
+        name: 'Jorge Franco',
+        avatar: '/assets/aistudio/image_5e33d763.png',
+        text: '¡Bienvenida Laura! Nos alegra mucho que ya estés viendo tus primeros registros. Sigue el paso a paso de la etapa 2 tal como mostramos en los videos y verás cómo escala.',
+        likes: 61,
+        time: 'Hace 3 h'
+      }
+    },
+    {
+      id: 'c3',
+      name: 'Andrés Ramírez',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop',
+      comment: 'Yo había comprado dos cursos antes donde te explican pura teoría pero te dejan solo frente a la pantalla. Aquí la gran diferencia es que ya está todo en un solo lugar: el producto analizado, los guiones para redes, la página y los mensajes de seguimiento listos para copiar.',
+      likes: 52,
+      time: 'Hace 6 h',
+      reply: {
+        id: 'r3',
+        name: 'Jorge Franco',
+        avatar: '/assets/aistudio/image_5e33d763.png',
+        text: 'Totalmente de acuerdo Andrés, la diferencia está en tener las herramientas listas para implementar desde el día uno. ¡A darle con todo!',
+        likes: 73,
+        time: 'Hace 5 h'
+      }
+    },
+    {
+      id: 'c4',
+      name: 'Sofía Herrera',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop',
+      comment: 'Trabajo todo el día en oficina y tengo dos hijos, así que solo tengo un par de horas libres en la noche. Tener los prompts, los videos cortos y las plantillas ya estructuradas me ahorró semanas de trabajo. Muy recomendada la plataforma.',
+      likes: 28,
+      time: 'Hace 1 día',
+      reply: {
+        id: 'r4',
+        name: 'Jorge Franco',
+        avatar: '/assets/aistudio/image_5e33d763.png',
+        text: 'Qué orgullo leer esto Sofía. Con constancia en esas horas libres y el sistema trabajando para ti se logran grandes cosas. ¡Un abrazo y seguimos avanzando!',
+        likes: 45,
+        time: 'Hace 22 h'
+      }
+    },
+    {
+      id: 'c5',
+      name: 'Julián Torres',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop',
+      comment: 'Llevo tres semanas aplicando la estrategia orgánica con el proyecto que elegí dentro de la plataforma. Esta semana cerré mis primeras comisiones en Hotmart usando la guía de WhatsApp y la secuencia de correos. ¡Gracias por compartir este sistema!',
+      likes: 64,
+      time: 'Hace 2 días',
+      reply: {
+        id: 'r5',
+        name: 'Jorge Franco',
+        avatar: '/assets/aistudio/image_5e33d763.png',
+        text: '¡Felicitaciones Julián! Esas primeras ventas son la confirmación de que el método funciona cuando se ejecuta paso a paso. Ahora a seguir alimentando tus canales.',
+        likes: 91,
+        time: 'Hace 1 día'
+      }
+    }
+  ];
   
   // Estados para el efecto premium interactivo de la sección Hero sin imágenes
   const [heroMousePos, setHeroMousePos] = useState({ x: 0, y: 0 });
@@ -94,6 +228,37 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
       api.getPublicPlans()
          .then(setPlans)
          .catch(err => console.error("Error loading plans:", err));
+
+      api.getPublicMasterProducts()
+         .then((serverProducts) => {
+            if (Array.isArray(serverProducts) && serverProducts.length > 0) {
+              const fallbackCycle = [productMicrobladingImg, productResinaImg, productCaninoImg, productReposteriaImg];
+              const mapped: MarqueeProductItem[] = serverProducts.map((p, idx) => {
+                const fallbackAsset = fallbackCycle[idx % fallbackCycle.length];
+                return {
+                  id: p.id,
+                  name: p.name,
+                  niche: p.niche || 'Producto Digital',
+                  description: p.shortDescription || p.description || 'Producto validado con embudo, página de captura y contenido listo para impulsar tus comisiones.',
+                  imageUrl: p.imageUrl || fallbackAsset,
+                  fallbackImg: fallbackAsset,
+                  fullPrice: p.fullPrice || 0,
+                  commissionRate: p.commissionRate || 0.6
+                };
+              });
+              // Si hay menos de 6 productos en la BD, completamos con el catálogo curado para que la marquesina se vea fluida
+              const combined = mapped.length >= 6
+                ? mapped
+                : [
+                    ...mapped,
+                    ...FALLBACK_MARQUEE_PRODUCTS.filter(
+                      (fp) => !mapped.some((mp) => mp.name.toLowerCase() === fp.name.toLowerCase())
+                    )
+                  ];
+              setMarqueeProducts(combined);
+            }
+         })
+         .catch(err => console.error("Error loading public master products:", err));
   }, []);
 
   useEffect(() => {
@@ -129,14 +294,33 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
           animation: typewriterStep 8s infinite;
           opacity: 0;
         }
-        @keyframes marquee {
+        @keyframes marqueeTrack {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-        .animate-marquee-scroll {
-          display: inline-flex;
-          white-space: nowrap;
-          animation: marquee 30s linear infinite;
+        @keyframes marqueeTrackReverse {
+          0% { transform: translateX(-50%); }
+          100% { transform: translateX(0); }
+        }
+        .animate-marquee-track {
+          display: flex;
+          width: max-content;
+          animation: marqueeTrack 48s linear infinite;
+        }
+        .animate-marquee-track-reverse {
+          display: flex;
+          width: max-content;
+          animation: marqueeTrackReverse 52s linear infinite;
+        }
+        .marquee-wrapper:hover .animate-marquee-track,
+        .marquee-wrapper:hover .animate-marquee-track-reverse {
+          animation-play-state: paused;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-marquee-track,
+          .animate-marquee-track-reverse {
+            animation: none;
+          }
         }
         @keyframes gradientShift {
           0% { background-position: 0% 50%; }
@@ -158,41 +342,47 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
 
       {/* Navigation */}
       <nav className="fixed w-full z-50 bg-[#0B0B0B]/95 backdrop-blur-xl border-b border-white/5">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            {/* ////////// Actualización: Logo Header AM - 27/05/2025 02:15 ////////// */}
-            <div className="w-12 md:w-14 h-9 md:h-10 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-bold text-white text-lg md:text-xl shadow-lg shadow-[#FF5A1F]/20 px-2">AM</div>
-            {/* ////////// Fin de actualización - 27/05/2025 02:15 ////////// */}
-            <span className="text-xl md:text-2xl font-bold tracking-tight text-white">Aprende.<span className="text-[#B0B0B0] font-normal">Marketing</span></span>
+        <div className="container mx-auto px-4 sm:px-6 py-3.5 sm:py-4 flex justify-between items-center gap-4">
+          <div className="flex items-center gap-2.5 sm:gap-3 cursor-pointer shrink-0" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <div className="w-10 sm:w-12 md:w-14 h-8 sm:h-9 md:h-10 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-bold text-white text-base sm:text-lg md:text-xl shadow-lg shadow-[#FF5A1F]/20 px-2 shrink-0">AM</div>
+            <span className="text-base sm:text-xl md:text-2xl font-bold tracking-tight text-white whitespace-nowrap shrink-0">Aprende.<span className="text-[#B0B0B0] font-normal">Marketing</span></span>
           </div>
           
           <div className="hidden lg:flex items-center gap-10 text-base font-medium text-white">
-            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Inicio</button>
-            <button onClick={() => scrollToSection('process')} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Cómo funciona</button>
-            <button onClick={() => scrollToSection('features')} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Productos</button>
-            <button onClick={() => scrollToSection('academy')} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Academia</button>
-            <button onClick={() => scrollToSection('testimonials')} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Precios</button>
-            <button onClick={() => scrollToSection('footer')} className="hover:text-[#FF5A1F] transition hover:scale-105 transform">Blog</button>
+            <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-[#FF5A1F] transition-colors whitespace-nowrap shrink-0 cursor-pointer">Inicio</button>
+            <button type="button" onClick={() => scrollToSection('products-marquee')} className="hover:text-[#FF5A1F] transition-colors whitespace-nowrap shrink-0 cursor-pointer">Productos</button>
+            <button type="button" onClick={() => scrollToSection('footer')} className="hover:text-[#FF5A1F] transition-colors whitespace-nowrap shrink-0 cursor-pointer">Blog</button>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {user ? (
               <>
-                 <span className="hidden lg:block text-sm text-[#B0B0B0]">Hola, <span className="text-white font-bold">{user.name}</span></span>
+                 <span className="hidden lg:block text-sm text-[#B0B0B0] whitespace-nowrap">Hola, <span className="text-white font-bold">{user.name}</span></span>
                    <button
+                    type="button"
                     onClick={() => navigate('/dashboard')}
-                    className="px-4 md:px-5 py-2 md:py-2.5 rounded-full bg-white/10 text-white border border-white/10 font-bold hover:bg-[#FF5A1F] transition text-sm flex items-center gap-2"
+                    className="px-4 md:px-5 py-2 md:py-2.5 rounded-xl bg-white/10 text-white border border-white/10 font-bold hover:bg-[#FF5A1F] transition text-sm flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer"
                    >
                      <LayoutDashboard className="w-4 h-4" /> <span className="hidden sm:inline">Panel</span>
                    </button>
               </>
             ) : (
-              <button
-                onClick={() => navigate('/login')}
-                className="hidden sm:block px-8 md:px-12 py-3 md:py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm md:text-[1.1rem] rounded-2xl transition-all shadow-[0_20px_40px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-1 active:scale-95"
-              >
-                Iniciar sesión
-              </button>
+              <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => navigate('/login')}
+                  className="px-3 py-1.5 sm:px-5 sm:py-2.5 bg-white hover:bg-gray-100 text-[#0B0B0B] font-bold text-xs sm:text-sm rounded-xl transition-all duration-150 shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
+                >
+                  Acceso
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/register')}
+                  className="px-3 py-1.5 sm:px-5 sm:py-2.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-bold text-xs sm:text-sm rounded-xl transition-all duration-150 shadow-lg shadow-[#FF5A1F]/25 whitespace-nowrap shrink-0 cursor-pointer"
+                >
+                  Registro
+                </button>
+              </div>
             )}
             
             {/* ////////// Botón Hamburguesa Móvil - 27/05/2025 15:30 ////////// */}
@@ -237,51 +427,27 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
             </div>
             
             {/* Enlaces de navegación táctiles y compactos */}
-            <div className="flex flex-col gap-2 my-auto py-2">
+            <div className="flex flex-col gap-2.5 my-auto py-2">
               <button 
                 type="button"
                 onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setIsMenuOpen(false); }} 
-                className="text-left py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
+                className="text-left py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Inicio</span> 
                 <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
               </button>
               <button 
                 type="button"
-                onClick={() => { scrollToSection('process'); setIsMenuOpen(false); }} 
-                className="text-left py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
-              >
-                <span>Cómo funciona</span> 
-                <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
-              </button>
-              <button 
-                type="button"
-                onClick={() => { scrollToSection('features'); setIsMenuOpen(false); }} 
-                className="text-left py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
+                onClick={() => { scrollToSection('products-marquee'); setIsMenuOpen(false); }} 
+                className="text-left py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Productos</span> 
                 <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
               </button>
               <button 
                 type="button"
-                onClick={() => { scrollToSection('academy'); setIsMenuOpen(false); }} 
-                className="text-left py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
-              >
-                <span>Academia</span> 
-                <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
-              </button>
-              <button 
-                type="button"
-                onClick={() => { scrollToSection('testimonials'); setIsMenuOpen(false); }} 
-                className="text-left py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
-              >
-                <span>Precios</span> 
-                <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
-              </button>
-              <button 
-                type="button"
                 onClick={() => { scrollToSection('footer'); setIsMenuOpen(false); }} 
-                className="text-left py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
+                className="text-left py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-base font-bold text-white hover:text-[#FF5A1F] transition-all border border-white/5 flex justify-between items-center cursor-pointer"
               >
                 <span>Blog</span> 
                 <ChevronRight className="w-4 h-4 text-[#FF5A1F]" />
@@ -289,7 +455,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
             </div>
 
             {/* Acciones principales del menú */}
-            <div className="mt-auto pt-3 border-t border-white/10 space-y-2 shrink-0">
+            <div className="mt-auto pt-3 border-t border-white/10 space-y-2.5 shrink-0">
               {user ? (
                 <button
                   type="button"
@@ -299,22 +465,22 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                   <LayoutDashboard className="w-5 h-5" /> Ir al Panel de Control
                 </button>
               ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => { navigate('/register'); setIsMenuOpen(false); }}
-                    className="w-full py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-base rounded-xl shadow-xl shadow-[#FF5A1F]/25 flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
-                  >
-                    Crear mi cuenta gratis
-                  </button>
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     type="button"
                     onClick={() => { navigate('/login'); setIsMenuOpen(false); }}
-                    className="w-full py-3 bg-white/10 hover:bg-white/15 text-white font-bold text-sm sm:text-base rounded-xl border border-white/10 transition-colors cursor-pointer"
+                    className="w-full py-3 bg-white hover:bg-gray-100 text-[#0B0B0B] font-bold text-sm rounded-xl transition-colors cursor-pointer"
                   >
-                    Iniciar sesión
+                    Acceso
                   </button>
-                </>
+                  <button
+                    type="button"
+                    onClick={() => { navigate('/register'); setIsMenuOpen(false); }}
+                    className="w-full py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-bold text-sm rounded-xl shadow-lg shadow-[#FF5A1F]/25 transition-colors cursor-pointer"
+                  >
+                    Registro
+                  </button>
+                </div>
               )}
               
               <p className="pt-1 text-center text-gray-500 text-[10px] font-bold uppercase tracking-widest">
@@ -374,16 +540,24 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
 
             {/* Título de Gran Impacto Centrado */}
             <h1 className="text-[2.8rem] sm:text-5xl md:text-6xl lg:text-[4.2rem] font-extrabold tracking-tight text-white leading-[1.1] animate-fade-in-up">
-              Lanza tu estrategia de afiliación en <span className="text-[#FF5A1F] bg-gradient-to-r from-[#FF5A1F] via-orange-400 to-[#FF5A1F] bg-clip-text text-transparent animate-gradient-shift">Hotmart</span> <span className="text-[#FF5A1F]">sin empezar desde cero</span>
+              Conoce el sistema paso a paso para construir ingresos reales en <span className="text-[#FF5A1F] bg-gradient-to-r from-[#FF5A1F] via-orange-400 to-[#FF5A1F] bg-clip-text text-transparent animate-gradient-shift">Hotmart sin empezar desde cero</span>
             </h1>
 
             {/* Descripción Centrada - Blanco, más grande y muy legible */}
             <p className="text-white font-medium text-xl sm:text-2xl leading-relaxed md:leading-relaxed mt-6 max-w-3xl mx-auto animate-fade-in-up drop-shadow-md">
-              Elige un producto analizado, define tu audiencia y crea tu página, contenidos y seguimiento desde una sola plataforma.
+              Elige un producto analizado, crea tu página y automatiza tu contenido y seguimiento desde una sola plataforma.
             </p>
 
+            {/* Micro-llamado directo al video */}
+            <div className="mt-6 inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm sm:text-base font-bold text-white animate-fade-in-up">
+              <Play className="w-4 h-4 text-[#FF5A1F] fill-[#FF5A1F] shrink-0" />
+              <span>
+                Mira el paso a paso gratis: <span className="text-[#FF5A1F]">¡Dale Play al video</span> antes de crear tu cuenta!
+              </span>
+            </div>
+
             {/* Video Explicativo con youtube-nocookie.com */}
-            <div className="mt-8 mb-10 w-full max-w-4xl mx-auto animate-fade-in-up">
+            <div className="mt-6 mb-10 w-full max-w-4xl mx-auto animate-fade-in-up">
               <div className="relative bg-[#0E0E12] border-2 border-white/10 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-black/80 aspect-video flex items-center justify-center">
                 <iframe
                   src="https://www.youtube-nocookie.com/embed/x4NdPhJTXxM?rel=0&autoplay=0"
@@ -443,161 +617,258 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
               </div>
             </div>
 
-          </div>
-
-            {/* Barra de Características / Pilares en el Pie del Hero (Imagen 3 mejorada) */}
-          <div className="mt-20 lg:mt-24 bg-[#111111]/95 border border-white/10 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-2xl relative">
-            <div className="absolute -inset-px bg-gradient-to-r from-zinc-800 via-transparent to-zinc-800 rounded-3xl opacity-20 pointer-events-none"></div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-              
-              {/* Pilar 1: Productos Analizados */}
-              <div className="flex items-center gap-5 p-5 rounded-2xl transition-all duration-300 hover:bg-[#1A1A1A]/90 hover:shadow-[0_15px_30px_rgba(255,90,31,0.06)] border border-white/5 hover:border-white/20 group cursor-pointer">
-                <div className="w-14 h-14 bg-[#FF5A1F]/15 rounded-2xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/30 shadow-lg shadow-[#FF5A1F]/10 group-hover:scale-105 group-hover:bg-[#FF5A1F]/25 transition-all duration-300">
-                  <Briefcase className="w-7 h-7" />
+            {/* Bloque de Comentarios Sociales estilo Facebook */}
+            <div id="social-comments" className="mt-12 w-full max-w-3xl mx-auto bg-white text-[#1C1E21] rounded-2xl border border-gray-200 shadow-2xl p-5 sm:p-7 text-left animate-fade-in-up">
+              <div className="flex items-center justify-between border-b border-gray-200 pb-3.5 mb-5">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm sm:text-base text-[#1C1E21]">34 comentarios</span>
                 </div>
-                <div>
-                  <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wider group-hover:text-[#FF5A1F] transition-colors duration-300">Productos analizados</h3>
-                  <p className="text-white/95 text-sm md:text-base font-normal mt-2 leading-relaxed group-hover:text-white transition-colors duration-300">Las ofertas más rentables del mercado de afiliados previamente filtradas.</p>
-                </div>
-              </div>
-              
-              {/* Pilar 2: Embudos Listos Para Lanzar */}
-              <div className="flex items-center gap-5 p-5 rounded-2xl transition-all duration-300 hover:bg-[#1A1A1A]/90 hover:shadow-[0_15px_30px_rgba(99,102,241,0.06)] border border-white/5 hover:border-white/20 group cursor-pointer">
-                <div className="w-14 h-14 bg-indigo-500/15 rounded-2xl flex items-center justify-center text-indigo-400 shrink-0 border border-indigo-500/30 shadow-lg shadow-indigo-500/10 group-hover:scale-105 group-hover:bg-indigo-500/25 transition-all duration-300">
-                  <Rocket className="w-7 h-7" />
-                </div>
-                <div>
-                  <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wider group-hover:text-indigo-400 transition-colors duration-300">Embudos listos para lanzar</h3>
-                  <p className="text-white/95 text-sm md:text-base font-normal mt-2 leading-relaxed group-hover:text-white transition-colors duration-300">Embudos de alta conversión listos para instalarse en segundos por IA.</p>
+                <div className="flex items-center gap-1.5 text-xs text-gray-500 font-semibold">
+                  <Facebook className="w-3.5 h-3.5 text-[#1877F2]" />
+                  <span>Comentarios destacados</span>
                 </div>
               </div>
 
-              {/* Pilar 3: Contenido y Seguimiento */}
-              <div className="flex items-center gap-5 p-5 rounded-2xl transition-all duration-300 hover:bg-[#1A1A1A]/90 hover:shadow-[0_15px_30px_rgba(255,90,31,0.06)] border border-transparent hover:border-white/10 group cursor-pointer">
-                <div className="w-14 h-14 bg-[#FF5A1F]/15 rounded-2xl flex items-center justify-center text-[#FF5A1F] shrink-0 border border-[#FF5A1F]/30 shadow-lg shadow-[#FF5A1F]/10 group-hover:scale-105 group-hover:bg-[#FF5A1F]/25 transition-all duration-300">
-                  <Target className="w-7 h-7" />
-                </div>
-                <div>
-                  <h3 className="font-extrabold text-white text-base md:text-lg leading-tight uppercase tracking-wider group-hover:text-[#FF5A1F] transition-colors duration-300">Contenido y seguimiento</h3>
-                  <p className="text-white/95 text-sm md:text-base font-normal mt-2 leading-relaxed group-hover:text-white transition-colors duration-300">Copia secuencias de email preconfiguradas y guiones de alto impacto.</p>
-                </div>
+              <div className="space-y-6">
+                {socialComments.map((item) => {
+                  const isCommentLiked = !!likedIds[item.id];
+                  const isReplyLiked = !!likedIds[item.reply.id];
+                  const commentLikesCount = item.likes + (isCommentLiked ? 1 : 0);
+                  const replyLikesCount = item.reply.likes + (isReplyLiked ? 1 : 0);
+
+                  return (
+                    <div key={item.id} className="space-y-3">
+                      {/* Comentario principal del usuario */}
+                      <div className="flex items-start gap-3">
+                        <img
+                          src={item.avatar}
+                          alt={item.name}
+                          className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 border border-gray-200"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="bg-[#F0F2F5] rounded-2xl px-3.5 py-2.5">
+                            <div className="font-bold text-[13px] sm:text-sm text-[#385898] hover:underline cursor-pointer">
+                              {item.name}
+                            </div>
+                            <p className="text-[13px] sm:text-sm text-[#1C1E21] leading-snug mt-0.5 font-normal">
+                              {item.comment}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-3 mt-1 px-2 text-xs text-[#65676B]">
+                            <button
+                              type="button"
+                              onClick={() => toggleLike(item.id)}
+                              className={`font-semibold hover:underline cursor-pointer ${isCommentLiked ? 'text-[#1877F2]' : 'text-[#385898]'}`}
+                            >
+                              Me gusta
+                            </button>
+                            <span>·</span>
+                            <span className="inline-flex items-center gap-1 text-[#65676B]">
+                              <span className="w-4 h-4 rounded-full bg-[#1877F2] inline-flex items-center justify-center text-white">
+                                <ThumbsUp className="w-2.5 h-2.5 fill-white" />
+                              </span>
+                              <span>{commentLikesCount}</span>
+                            </span>
+                            <span>·</span>
+                            <span>{item.time}</span>
+                          </div>
+
+                          {/* Respuesta de Jorge Franco */}
+                          <div className="mt-3 pl-3 sm:pl-4 border-l-2 border-gray-200 flex items-start gap-2.5">
+                            <img
+                              src={item.reply.avatar}
+                              alt={item.reply.name}
+                              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover shrink-0 border border-gray-200"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="bg-[#F0F2F5] rounded-2xl px-3.5 py-2.5">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-bold text-[13px] sm:text-sm text-[#385898]">
+                                    {item.reply.name}
+                                  </span>
+                                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#1877F2]/10 text-[#1877F2]">
+                                    Autor
+                                  </span>
+                                </div>
+                                <p className="text-[13px] sm:text-sm text-[#1C1E21] leading-snug mt-0.5 font-normal">
+                                  {item.reply.text}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-3 mt-1 px-2 text-xs text-[#65676B]">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleLike(item.reply.id)}
+                                  className={`font-semibold hover:underline cursor-pointer ${isReplyLiked ? 'text-[#1877F2]' : 'text-[#385898]'}`}
+                                >
+                                  Me gusta
+                                </button>
+                                <span>·</span>
+                                <span className="inline-flex items-center gap-1 text-[#65676B]">
+                                  <span className="w-4 h-4 rounded-full bg-[#1877F2] inline-flex items-center justify-center text-white">
+                                    <ThumbsUp className="w-2.5 h-2.5 fill-white" />
+                                  </span>
+                                  <span>{replyLikesCount}</span>
+                                </span>
+                                <span>·</span>
+                                <span>{item.reply.time}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
+              <div className="mt-6 pt-3.5 border-t border-gray-200 flex items-center justify-between text-[11px] text-gray-500">
+                <span className="flex items-center gap-1.5">
+                  <Facebook className="w-3.5 h-3.5 text-[#1877F2]" />
+                  Plugin de comentarios sociales
+                </span>
+                <span>Aprende.Marketing</span>
+              </div>
             </div>
+
           </div>
 
         </div>
       </header>
 
-      {/* ////////// Secciones Herramientas activadas por visibilidad con mayor altura y animaciones aceleradas - 27/05/2025 10:00 ////////// */}
-      <section id="features" className="bg-white">
-          {/* Bloque 1: Estrategia de Proyecto */}
-          <div className="py-16 md:py-24 border-b border-gray-100 overflow-hidden">
-            <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center gap-12 md:gap-16 max-w-[75rem]">
-                <div className="lg:w-3/5 text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-bold uppercase tracking-wider mb-6">
-                        <Target className="w-4 h-4" /> Inteligencia Estratégica
-                    </div>
-                    <h3 className="text-2xl md:text-5xl font-black text-[#0B0B0B] mb-6 leading-tight">
-                        Crea tu <span className="text-[#FF5A1F]">Estrategia Maestra</span> en segundos
-                    </h3>
-                    <p className="text-lg md:text-[1.3rem] leading-[1.6] md:leading-[1.7] text-[#0B0B0B] mb-8 font-light">
-                        No empieces desde cero. Nuestra IA analiza tu nicho y producto para definir tu cliente ideal, sus dolores más profundos y los ganchos de venta que lo harán comprar.
-                    </p>
-                    <ul className="space-y-4">
-                        {['Análisis de Avatar automático', 'Detección de puntos de dolor', 'Propuesta de valor única'].map((item, i) => (
-                            <li key={i} className="flex items-center gap-3 text-[#0B0B0B] font-medium text-base md:text-[1.3rem] leading-[1.7]">
-                                <CheckCircle className="w-5 h-5 text-[#FF5A1F]" /> {item}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="lg:w-2/5 w-full flex justify-center">
-                    <TerminalBlock>
-                        <p className="text-gray-500 animate-terminal-step" style={{animationDelay: '0s'}}> {">"} Analizando nicho de mercado...</p>
-                        <p className="text-gray-300 animate-terminal-step" style={{animationDelay: '0.8s'}}> {">"} Detectando dolores del avatar...</p>
-                        <p className="text-gray-300 animate-terminal-step" style={{animationDelay: '1.6s'}}> {">"} Escaneando competencia...</p>
-                        <p className="text-gray-300 animate-terminal-step" style={{animationDelay: '2.4s'}}> {">"} Generando ganchos emocionales...</p>
-                        <p className="text-gray-300 animate-terminal-step" style={{animationDelay: '3.2s'}}> {">"} Estructurando oferta irresistible...</p>
-                        <p className="text-gray-300 animate-terminal-step" style={{animationDelay: '4s'}}> {">"} Optimizando para conversiones...</p>
-                        <p className="text-[#FF5A1F] font-black animate-terminal-step" style={{animationDelay: '4.8s'}}> {">"} ¡ESTRATEGIA MAESTRA LISTA!</p>
-                    </TerminalBlock>
-                </div>
-            </div>
-          </div>
+      {/* Sección Marquesina de Productos Disponibles en la Plataforma */}
+      <section id="products-marquee" className="py-20 md:py-24 bg-[#07090E] border-t border-white/5 relative overflow-hidden">
+        <div className="container mx-auto px-6 relative z-10 text-center max-w-3xl mb-12 md:mb-16">
+          <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[#FF5A1F]">
+            Catálogo listo para vender
+          </p>
+          <h2
+            className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mt-3 leading-tight"
+            style={{ textWrap: 'balance' }}
+          >
+            Productos analizados, <span className="text-[#FF5A1F]">listos para elegir hoy.</span>
+          </h2>
+          <p className="text-base sm:text-lg text-[#B0B0B0] mt-4 leading-relaxed font-normal">
+            Cada producto que añadimos a la plataforma viene con su investigación de mercado, página de captura, secuencias de seguimiento y guiones listos para que empieces en minutos.
+          </p>
+        </div>
 
-          {/* Bloque 2: Landing Page Instantánea (Dark) */}
-          <div className="py-16 md:py-24 bg-[#0B0B0B] relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_70%_50%,#FF5A1F30_0%,transparent_50%)]"></div>
-            <div className="container mx-auto px-6 flex flex-col lg:flex-row-reverse items-center gap-12 md:gap-16 max-w-[75rem] relative z-10">
-                <div className="lg:w-3/5 text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-bold uppercase tracking-wider mb-6">
-                        <Layout className="w-4 h-4" /> Conversión Máxima
-                    </div>
-                    <h3 className="text-2xl md:text-5xl font-black text-white mb-6 leading-tight">
-                        Tu <span className="text-[#FF5A1F]">Landing Page</span> diseñada para vender
-                    </h3>
-                    <p className="text-lg md:text-[1.3rem] leading-[1.6] md:leading-[1.7] text-white mb-8 font-light">
-                        Olvídate de configurar píxeles o pelear con diseños. El sistema genera una web profesional con textos persuasivos que guían al usuario directamente al botón de compra.
-                    </p>
-                    <ul className="space-y-4">
-                        {['Copywriting de nivel experto', 'Optimización para móviles', 'Carga ultra rápida'].map((item, i) => (
-                            <li key={i} className="flex items-center gap-3 text-white font-medium text-base md:text-[1.3rem] leading-[1.7]">
-                                <CheckCircle className="w-5 h-5 text-[#FF5A1F]" /> {item}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="lg:w-2/5 w-full flex justify-center">
-                    <TerminalBlock bgColor="bg-white" accentColor="bg-gray-800">
-                        <p className="text-gray-400 animate-terminal-step" style={{animationDelay: '0s'}}> {">"} Generando arquitectura persuasiva...</p>
-                        <p className="text-gray-600 animate-terminal-step" style={{animationDelay: '0.8s'}}> {">"} Escribiendo headlines magnéticos...</p>
-                        <p className="text-gray-600 animate-terminal-step" style={{animationDelay: '1.6s'}}> {">"} Diseñando bloques de contenido...</p>
-                        <p className="text-gray-600 animate-terminal-step" style={{animationDelay: '2.4s'}}> {">"} Integrando testimonios dinámicos...</p>
-                        <p className="text-gray-600 animate-terminal-step" style={{animationDelay: '3.2s'}}> {">"} Optimizando para móviles...</p>
-                        <p className="text-gray-600 animate-terminal-step" style={{animationDelay: '4s'}}> {">"} Configurando pixeles de venta...</p>
-                        <p className="text-[#FF5A1F] font-black animate-terminal-step" style={{animationDelay: '4.8s'}}> {">"} ¡PÁGINA PUBLICADA EN 45s!</p>
-                    </TerminalBlock>
-                </div>
-            </div>
-          </div>
+        {/* Doble carril de marquesina con pausa al pasar el cursor */}
+        <div className="marquee-wrapper relative w-full overflow-hidden">
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-28 bg-gradient-to-r from-[#07090E] to-transparent z-20" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-28 bg-gradient-to-l from-[#07090E] to-transparent z-20" />
 
-          {/* Bloque 3: Artículos SEO */}
-          <div className="py-16 md:py-24 overflow-hidden">
-            <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center gap-12 md:gap-16 max-w-[75rem]">
-                <div className="lg:w-3/5 text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-bold uppercase tracking-wider mb-6">
-                        <Search className="w-4 h-4" /> Tráfico Orgánico
+          {(() => {
+            const half = Math.ceil(marqueeProducts.length / 2);
+            const row1 = marqueeProducts.slice(0, half);
+            const row2 = marqueeProducts.slice(half).length > 0 ? marqueeProducts.slice(half) : marqueeProducts;
+
+            const renderProductCard = (product: MarqueeProductItem, keyPrefix: string, idx: number) => {
+              const imgFailed = !!failedProductImages[`${product.id}-${idx}`];
+              const resolvedSrc = imgFailed ? product.fallbackImg : (product.imageUrl || product.fallbackImg);
+              const commissionPct = product.commissionRate
+                ? Math.round(product.commissionRate <= 1 ? product.commissionRate * 100 : product.commissionRate)
+                : 65;
+
+              return (
+                <div
+                  key={`${keyPrefix}-${product.id}-${idx}`}
+                  className="w-[330px] sm:w-[540px] shrink-0 bg-[#111319] border border-white/10 hover:border-[#FF5A1F]/45 rounded-2xl p-4 sm:p-5 transition-colors duration-200 flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch shadow-xl"
+                >
+                  {/* Imagen del producto */}
+                  <div className="w-full sm:w-44 aspect-[4/3] sm:aspect-auto sm:min-h-[196px] shrink-0 rounded-xl overflow-hidden bg-[#191B23] relative">
+                    <img
+                      src={resolvedSrc}
+                      alt={product.name}
+                      referrerPolicy="no-referrer"
+                      onError={() => setFailedProductImages(prev => ({ ...prev, [`${product.id}-${idx}`]: true }))}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent pointer-events-none" />
+                  </div>
+
+                  {/* Información y sistema incluido */}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between text-left">
+                    <div>
+                      <div className="flex items-center gap-2 text-xs text-gray-400 font-medium whitespace-nowrap overflow-hidden">
+                        <span className="truncate">{product.niche}</span>
+                        <span aria-hidden="true">·</span>
+                        <span className="text-[#FF5A1F] font-semibold tabular-nums shrink-0">{commissionPct}% comisión</span>
+                      </div>
+
+                      <h3 className="text-base sm:text-lg font-extrabold text-white leading-snug mt-1 line-clamp-1 whitespace-normal">
+                        {product.name}
+                      </h3>
+
+                      <p className="text-xs sm:text-sm text-gray-300 leading-relaxed mt-1.5 line-clamp-2 whitespace-normal font-normal">
+                        {product.description}
+                      </p>
+
+                      <div className="mt-3 pt-3 border-t border-white/5">
+                        <p className="text-[11px] font-semibold text-gray-400 mb-2">
+                          Sistema listo en la plataforma:
+                        </p>
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] sm:text-xs text-gray-200 font-medium">
+                          <div className="flex items-center gap-1.5 truncate">
+                            <Cpu className="w-3.5 h-3.5 text-[#FF5A1F] shrink-0" />
+                            <span className="truncate">Estrategia IA</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 truncate">
+                            <Layout className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            <span className="truncate">Página de Captura</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 truncate">
+                            <Smartphone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            <span className="truncate">Guiones Reels / TikTok</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 truncate">
+                            <Mail className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                            <span className="truncate">Email & WhatsApp</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <h3 className="text-2xl md:text-5xl font-black text-[#0B0B0B] mb-6 leading-tight">
-                        Genera <span className="text-[#FF5A1F]">Artículos SEO</span> en automático
-                    </h3>
-                    <p className="text-lg md:text-[1.3rem] leading-[1.6] md:leading-[1.7] text-[#0B0B0B] mb-8 font-light">
-                        Atrae visitas gratis desde Google todos los días. Nuestra IA escribe artículos optimizados con tus palabras clave que posicionan rápido y llevan tráfico a tus ofertas.
-                    </p>
-                    <ul className="space-y-4">
-                        {['Investigación de keywords', 'Estructura SEO perfecta', 'Contenido 100% original'].map((item, i) => (
-                            <li key={i} className="flex items-center gap-3 text-[#0B0B0B] font-medium text-base md:text-[1.3rem] leading-[1.7]">
-                                <CheckCircle className="w-5 h-5 text-[#FF5A1F]" /> {item}
-                            </li>
-                        ))}
-                    </ul>
+
+                    <button
+                      type="button"
+                      onClick={() => navigate(user ? '/dashboard/projects' : '/register')}
+                      className="mt-4 w-full py-2.5 px-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-extrabold text-xs sm:text-sm tracking-wide transition-colors duration-150 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+                    >
+                      <span>Quiero este producto</span>
+                      <ArrowRight className="w-4 h-4 shrink-0" />
+                    </button>
+                  </div>
                 </div>
-                <div className="lg:w-2/5 w-full flex justify-center">
-                    <TerminalBlock bgColor="bg-[#161616]" accentColor="bg-indigo-500">
-                        <p className="text-gray-500 animate-terminal-step" style={{animationDelay: '0s'}}> {">"} Investigando palabras clave...</p>
-                        <p className="text-gray-300 animate-terminal-step" style={{animationDelay: '0.8s'}}> {">"} Analizando intención de búsqueda...</p>
-                        <p className="text-gray-300 animate-terminal-step" style={{animationDelay: '1.6s'}}> {">"} Redactando contenido optimizado...</p>
-                        <p className="text-gray-300 animate-terminal-step" style={{animationDelay: '2.4s'}}> {">"} Generando metaetiquetas SEO...</p>
-                        <p className="text-gray-300 animate-terminal-step" style={{animationDelay: '3.2s'}}> {">"} Estructurando enlaces internos...</p>
-                        <p className="text-gray-300 animate-terminal-step" style={{animationDelay: '4s'}}> {">"} Verificando legibilidad IA...</p>
-                        <p className="text-[#FF5A1F] font-black animate-terminal-step" style={{animationDelay: '4.8s'}}> {">"} ¡ARTÍCULO LISTO PARA GOOGLE!</p>
-                    </TerminalBlock>
+              );
+            };
+
+            return (
+              <div className="space-y-5">
+                <div className="animate-marquee-track gap-5">
+                  {[...row1, ...row1].map((item, i) => renderProductCard(item, 'r1', i))}
                 </div>
-            </div>
-          </div>
+                <div className="animate-marquee-track-reverse gap-5">
+                  {[...row2, ...row2].map((item, i) => renderProductCard(item, 'r2', i))}
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* CTA debajo de la marquesina */}
+        <div className="container mx-auto px-6 mt-12 md:mt-14 text-center relative z-10">
+          <button
+            type="button"
+            onClick={() => navigate(user ? '/dashboard' : '/register')}
+            className="px-8 sm:px-12 py-4 sm:py-5 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-[#E04810] hover:brightness-110 text-white font-black text-base sm:text-lg uppercase tracking-wider shadow-2xl shadow-[#FF5A1F]/35 hover:-translate-y-0.5 transition-all inline-flex items-center justify-center gap-3 cursor-pointer"
+          >
+            <span>Crear mi cuenta gratis</span>
+            <ArrowRight className="w-5 h-5" />
+          </button>
+          <p className="mt-3 text-xs sm:text-sm text-gray-400 font-medium">
+            Sin tarjeta de crédito · Elige tu producto ganador y lanza tu proyecto hoy
+          </p>
+        </div>
       </section>
-      {/* ////////// Fin de actualización - 27/05/2025 10:00 ////////// */}
 
       <section id="process" className="py-20 md:py-24 bg-[#0B0B0B] border-t border-white/5 relative overflow-hidden">
           <div className="container mx-auto px-6 relative z-10">
@@ -745,167 +1016,6 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
       </section>
       {/* ////////// Fin de sección de rentabilidad - 27/05/2025 02:15 ////////// */}
 
-      <section id="academy" className="py-20 md:py-24 bg-[#F6F6F6] border-t border-gray-200">
-          <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center gap-12 md:gap-16">
-              <div className="lg:w-1/2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-600/10 border border-indigo-600/20 text-indigo-600 text-xs font-bold uppercase tracking-wider mb-6">
-                    <GraduationCap className="w-4 h-4" /> Formación Incluida
-                </div>
-                <h3 className="text-2xl md:text-5xl font-black text-[#0B0B0B] mb-6 leading-tight">
-                    No solo te damos las herramientas, te enseñamos a <span className="text-indigo-600">Dominarlas</span>
-                </h3>
-                <p className="text-base md:text-[1.3rem] leading-[1.6] md:leading-[1.7] text-[#0B0B0B] mb-8 font-light">
-                    Dentro de la plataforma tendrás acceso a nuestra **Academia VIP**. Un curso paso a paso donde aprenderás desde cómo elegir un producto ganador en Hotmart hasta cómo escalar tus ventas a miles de dólares mensuales.
-                </p>
-                <button
-                  onClick={() => user ? navigate('/dashboard') : navigate('/register')}
-                  className="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl transition-all shadow-xl flex items-center justify-center gap-2"
-                >
-                  Ver temario completo <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="lg:w-1/2 w-full mt-8 lg:mt-0">
-                  <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-gray-200 shadow-2xl p-6 md:p-8 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 p-8 opacity-5"><GraduationCap className="w-32 md:w-48 h-32 md:h-48 text-indigo-600" /></div>
-                      <h4 className="text-lg md:text-xl font-black text-[#0B0B0B] mb-6 md:mb-8 flex items-center gap-3">
-                          <List className="w-5 md:w-6 h-5 md:h-6 text-indigo-600" /> Temario del Curso
-                      </h4>
-                      <div className="space-y-3 md:space-y-4 relative z-10">
-                          {[
-                              { mod: '01', title: 'Mentalidad e Investigación de Nichos' },
-                              { mod: '02', title: 'Configuración Estratégica del Sistema' },
-                              { mod: '03', title: 'Dominando la IA para el Copywriting' },
-                              { mod: '04', title: 'Tráfico de Pago vs Tráfico Orgánico SEO' },
-                              { mod: '05', title: 'Cierre de Ventas por WhatsApp (CRM)' }
-                          ].map((modulo, i) => (
-                              <div key={i} className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl border border-gray-100 hover:bg-indigo-50 hover:border-indigo-100 transition duration-300 group">
-                                  <span className="text-[10px] md:text-xs font-black text-indigo-300 group-hover:text-indigo-600 transition-colors uppercase tracking-widest">{modulo.mod}</span>
-                                  <span className="text-sm md:text-base font-bold text-[#0B0B0B]">{modulo.title}</span>
-                              </div>
-                          ))}
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </section>
-
-      {/* ////////// Testimonios WhatsApp Rediseñados (Más altos, sin scroll, subtítulo negro) - 26/05/2025 23:55 ////////// */}
-      <section id="testimonials" className="py-20 md:py-24 bg-[#EFEFEF] border-t border-gray-200 relative overflow-hidden">
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-2xl md:text-5xl font-black mb-4 text-[#0B0B0B]">Historias de Éxito Reales</h2>
-            <p className="text-lg md:text-xl text-[#0B0B0B] max-w-3xl mx-auto leading-relaxed font-black">Nuestra comunidad está logrando resultados increíbles interactuando con la IA.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 max-w-7xl mx-auto">
-            {[
-              { 
-                name: "Maria G.", 
-                status: "En línea",
-                img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop", 
-                msg: "¡Chicos! No puedo creerlo. Lancé mi primera landing page con la IA ayer y ya tengo 15 registros. El copywriting es brutal, parece escrito por un experto de años.",
-                reply: "¡Qué increíble Maria! 🎉 Ese es el poder de la IA cuando tiene la estrategia correcta detrás. ¡A seguir escalando ese proyecto! 🚀"
-              },
-              { 
-                name: "Juan P.", 
-                status: "En línea",
-                img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop", 
-                msg: "Por fin una herramienta que entiende lo que necesitamos. He generado mi web de ventas en segundos y los textos son mejores que los que yo hacía en horas.",
-                reply: "Exacto Juan, la velocidad es la clave en Hotmart. Me alegra mucho que te esté ahorrando tanto tiempo. ¡A por más ventas! 💰"
-              },
-              { 
-                name: "Ana S.", 
-                status: "En línea",
-                img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop", 
-                msg: "Increíble cómo optimizó mis artículos para SEO. Estoy empezando a recibir tráfico orgánico desde Google sin gastar ni un dólar en anuncios.",
-                reply: "¡Esa es la meta Ana! El tráfico gratis es el más rentable de todos. Sigue así, el sistema seguirá trabajando para ti. 💎"
-              }
-            ].map((chat, i) => (
-              <div key={i} className="bg-[#E5DDD5] rounded-[2.5rem] md:rounded-[3.5rem] border-[8px] md:border-[12px] border-[#0B0B0B] overflow-hidden shadow-2xl relative h-[600px] md:h-[780px] flex flex-col group hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_rgba(0,0,0,0.3)]">
-                <div className="bg-[#075E54] p-4 md:p-6 flex items-center justify-between text-white shrink-0">
-                  <div className="flex items-center gap-3 md:gap-4">
-                    <div className="w-10 md:w-14 h-10 md:h-14 rounded-full border-2 border-white/20 overflow-hidden shadow-md">
-                      <img src={chat.img} alt={chat.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                      <h4 className="font-black text-base md:text-lg leading-tight">{chat.name}</h4>
-                      <p className="text-[10px] md:text-xs opacity-80 font-medium">{chat.status}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3 md:gap-4 opacity-70">
-                    <Phone className="w-5 md:w-6 h-5 md:h-6" />
-                    <MoreVertical className="w-5 md:w-6 h-5 md:h-6" />
-                  </div>
-                </div>
-
-                <div className="flex-1 p-4 md:p-6 space-y-6 md:space-y-8 overflow-hidden bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-repeat bg-opacity-10">
-                  <div className="flex justify-start animate-in slide-in-from-left-6 duration-700">
-                    <div className="bg-white p-3 md:p-5 rounded-2xl md:rounded-3xl rounded-tl-none shadow-sm max-w-[90%] relative border border-gray-100">
-                      <p className="text-sm md:text-[1.2rem] text-[#0B0B0B] leading-relaxed font-medium">{chat.msg}</p>
-                      <span className="text-[8px] md:text-[10px] text-gray-400 block text-right mt-2 md:mt-3 font-bold uppercase">10:45 AM</span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end animate-in slide-in-from-right-6 duration-1000 delay-500">
-                    <div className="bg-[#DCF8C6] p-3 md:p-5 rounded-2xl md:rounded-3xl rounded-tr-none shadow-md max-w-[90%] relative border border-green-200">
-                      <p className="text-sm md:text-[1.2rem] text-[#0B0B0B] leading-relaxed font-medium">{chat.reply}</p>
-                      <span className="text-[8px] md:text-[10px] text-green-700 block text-right mt-2 md:mt-3 font-bold uppercase tracking-wider">10:46 AM ✓✓</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-[#F0F0F0] p-4 md:p-5 flex items-center gap-2 md:gap-3 border-t border-gray-300 shrink-0">
-                  <Smile className="w-6 md:w-7 h-6 md:h-7 text-gray-500" />
-                  <div className="flex-1 bg-white h-10 md:h-12 rounded-full border border-gray-200 px-4 md:px-6 flex items-center text-xs md:text-sm text-gray-400 italic">Escribe...</div>
-                  <div className="w-10 md:w-12 h-10 md:h-12 bg-[#075E54] rounded-full flex items-center justify-center text-white shadow-lg"><Send className="w-5 md:w-6 h-5 md:h-6 fill-current ml-1" /></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      {/* ////////// Fin de actualización - 26/05/2025 23:55 ////////// */}
-
-      {/* ////////// Nueva Sección: Preguntas Frecuentes (FAQ) - 27/05/2025 10:00 ////////// */}
-      <section id="faq" className="py-20 md:py-24 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <div className="text-center mb-12 md:mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 border border-gray-200 text-gray-500 text-[10px] md:text-xs font-bold uppercase tracking-wider mb-4">
-              <HelpCircle className="w-4 h-4" /> Despeja tus dudas
-            </div>
-            <h2 className="text-2xl md:text-5xl font-black text-[#0B0B0B]">Preguntas <span className="text-[#FF5A1F]">Frecuentes</span></h2>
-          </div>
-
-          <div className="space-y-3 md:space-y-4">
-            {[
-              { q: "¿Cómo funciona exactamente la IA para vender en Hotmart?", a: "Nuestra IA analiza los patrones de compra más exitosos en Hotmart para redactar copys persuasivos, estructurar embudos de alta conversión y generar contenido que atrae tráfico cualificado de forma automática." },
-              { q: "¿Necesito conocimientos técnicos previos para abrir mi cuenta?", a: "Absolutamente no. Hemos diseñado la interfaz para que sea tan intuitiva como enviar un mensaje por WhatsApp. No necesitas saber programar ni diseñar; la IA hace el trabajo pesado por ti." },
-              { q: "¿El sistema garantiza resultados inmediatos?", a: "Ningún sistema serio garantiza resultados de la noche a la mañana. Sin embargo, nuestro sistema reduce drásticamente el tiempo de implementación, permitiéndote lanzar y validar ofertas profesionales en minutos en lugar de semanas." },
-              { q: "¿Puedo usar mis propios dominios para las páginas?", a: "Sí, en nuestros planes Pro y Max puedes conectar tus propios dominios personalizados (.com, .net, etc.) para profesionalizar tu marca y aumentar la confianza de tus compradores." },
-              { q: "¿Qué tipo de soporte recibo al registrarme gratis?", a: "Incluso con la cuenta gratuita, tienes acceso a nuestra documentación de ayuda y a nuestra comunidad exclusiva en WhatsApp, donde podrás interactuar con otros emprendedores exitosos." }
-            ].map((faq, i) => (
-              <div key={i} className="border border-gray-100 rounded-2xl overflow-hidden bg-gray-50/50">
-                <button 
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full px-6 md:px-8 py-5 md:py-6 text-left flex justify-between items-center group transition-all"
-                >
-                  <span className="text-base md:text-lg font-bold text-[#0B0B0B] group-hover:text-[#FF5A1F] transition-colors pr-4">{faq.q}</span>
-                  {openFaq === i ? <ChevronUp className="w-5 h-5 text-[#FF5A1F] shrink-0" /> : <ChevronDown className="w-5 h-5 text-gray-400 shrink-0" />}
-                </button>
-                {openFaq === i && (
-                  <div className="px-6 md:px-8 pb-6 md:pb-8 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <p className="text-gray-600 text-base md:text-lg leading-relaxed font-light">
-                      {faq.a}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      {/* ////////// Fin de actualización - 27/05/2025 10:00 ////////// */}
-
       {/* ////////// Nueva Sección CTA Final para Registro Gratis - 01/01/2026 00:00 ////////// */}
       <section id="cta-final-register" className="py-24 md:py-32 bg-white relative overflow-hidden border-t border-gray-50">
         <div className="container mx-auto px-6 text-center max-w-4xl relative z-10">
@@ -969,18 +1079,18 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
              <div className="mt-8 md:mt-0">
                 <h4 className="text-white font-black text-lg md:text-xl mb-6 md:mb-10 uppercase tracking-[0.2em] opacity-60">Producto</h4>
                 <ul className="space-y-4 md:space-y-6 text-lg md:text-xl text-[#B0B0B0]">
-                  <li><button onClick={() => scrollToSection('features')} className="hover:text-white hover:translate-x-2 transition-all flex items-center gap-3 font-bold"><ChevronRight className="w-4 h-4 text-[#FF5A1F]" /> Herramientas IA</button></li>
-                  <li><button onClick={() => navigate('/register')} className="hover:text-white hover:translate-x-2 transition-all flex items-center gap-3 font-bold"><ChevronRight className="w-4 h-4 text-[#FF5A1F]" /> Registrate Gratis</button></li>
+                  <li><button onClick={() => scrollToSection('products-marquee')} className="hover:text-white hover:translate-x-2 transition-all flex items-center gap-3 font-bold"><ChevronRight className="w-4 h-4 text-[#FF5A1F]" /> Catálogo de Productos</button></li>
+                  <li><button onClick={() => navigate('/register')} className="hover:text-white hover:translate-x-2 transition-all flex items-center gap-3 font-bold"><ChevronRight className="w-4 h-4 text-[#FF5A1F]" /> Regístrate Gratis</button></li>
                   <li><button onClick={() => scrollToSection('process')} className="hover:text-white hover:translate-x-2 transition-all flex items-center gap-3 font-bold"><ChevronRight className="w-4 h-4 text-[#FF5A1F]" /> ¿Cómo Funciona?</button></li>
-                  <li><button onClick={() => scrollToSection('testimonials')} className="hover:text-white hover:translate-x-2 transition-all flex items-center gap-3 font-bold"><ChevronRight className="w-4 h-4 text-[#FF5A1F]" /> Casos de Éxito</button></li>
+                  <li><button onClick={() => scrollToSection('social-comments')} className="hover:text-white hover:translate-x-2 transition-all flex items-center gap-3 font-bold"><ChevronRight className="w-4 h-4 text-[#FF5A1F]" /> Testimonios</button></li>
                 </ul>
              </div>
 
              <div className="mt-8 md:mt-0">
                 <h4 className="text-white font-black text-lg md:text-xl mb-6 md:mb-10 uppercase tracking-[0.2em] opacity-60">Recursos</h4>
                 <ul className="space-y-4 md:space-y-6 text-lg md:text-xl text-[#B0B0B0]">
-                  <li><a href="#" className="hover:text-white hover:translate-x-2 transition-all flex items-center gap-3 font-bold"><ChevronRight className="w-4 h-4 text-[#FF5A1F]" /> Blog de Marketing</a></li>
-                  <li><button onClick={() => scrollToSection('academy')} className="hover:text-white hover:translate-x-2 transition-all flex items-center gap-3 font-bold"><ChevronRight className="w-4 h-4 text-[#FF5A1F]" /> Academia VIP</button></li>
+                  <li><button onClick={() => scrollToSection('profitability')} className="hover:text-white hover:translate-x-2 transition-all flex items-center gap-3 font-bold"><ChevronRight className="w-4 h-4 text-[#FF5A1F]" /> Hoja de Ruta</button></li>
+                  <li><button onClick={() => navigate('/register')} className="hover:text-white hover:translate-x-2 transition-all flex items-center gap-3 font-bold"><ChevronRight className="w-4 h-4 text-[#FF5A1F]" /> Crear Cuenta Gratis</button></li>
                 </ul>
              </div>
 
@@ -1008,10 +1118,4 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
   );
 };
 
-////////// Componente Interno auxiliar: HelpCircle - 27/05/2025 10:00 //////////
-const HelpCircle = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
-    </svg>
-);
-////////// Fin de componente interno - 27/05/2025 10:00 //////////
+

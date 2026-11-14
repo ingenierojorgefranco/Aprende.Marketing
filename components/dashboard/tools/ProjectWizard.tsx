@@ -904,16 +904,14 @@ export const ProjectWizard: React.FC = () => {
 
     useEffect(() => {
         const isRealAdmin = user.role === 'admin' && !isSimulating;
-        if (!id && !isRealAdmin && user.planLimits) {
-            const max = user.planLimits.maxProjects;
-            if (projectCount >= max) {
-                setShowUpgradeModal(true);
-            }
+        if (!id && !isRealAdmin) {
+            navigate('/dashboard/projects', { replace: true });
+            return;
         }
         if (id) {
             loadProject(id);
         }
-    }, [id, user, projectCount, isSimulating]);
+    }, [id, user, isSimulating, navigate]);
 
     const loadProject = async (projectId: string) => {
         setLoading(true);

@@ -535,7 +535,16 @@ export const ProjectsList: React.FC = () => {
                             )}
                         </div>
 
-                        {/* El botón de crear nuevo proyecto ha sido removido de esta sección */}
+                        {isRealAdmin && (
+                            <button
+                                type="button"
+                                onClick={() => navigate('/dashboard/projects/create')}
+                                className="w-full py-3.5 px-6 rounded-2xl bg-[#FF5A1F] hover:bg-[#e04812] text-white font-black text-sm uppercase tracking-wider shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer active:scale-[0.98]"
+                            >
+                                <Plus className="w-5 h-5 stroke-[2.5]" />
+                                <span>Crear Nuevo Proyecto</span>
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

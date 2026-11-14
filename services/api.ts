@@ -2186,6 +2186,40 @@ export const api = {
         apiCache.publicPlans = mappedPlans;
         return mappedPlans;
     },
+
+    getPublicMasterProducts: async (): Promise<Array<{
+        id: string;
+        name: string;
+        niche: string;
+        description: string;
+        shortDescription: string;
+        imageUrl: string;
+        fullPrice: number;
+        commissionRate: number;
+    }>> => {
+        if (isMockMode) {
+            return MOCK_PROJECTS.map((p) => ({
+                id: String(p.id),
+                name: p.productName || p.name,
+                niche: p.niche,
+                description: p.description || p.shortDescription || '',
+                shortDescription: p.shortDescription || p.description || '',
+                imageUrl: p.multimedia_json?.heroImages?.[0] || '',
+                fullPrice: p.fullPrice || 0,
+                commissionRate: p.commissionRate || 0
+            }));
+        }
+        try {
+            const products = await fetchWithFallback('/public/master-products');
+            if (Array.isArray(products)) {
+                return products;
+            }
+            return [];
+        } catch (err) {
+            console.warn('[API] Public master products unavailable, using fallback catalog:', err);
+            return [];
+        }
+    },
   
     savePlan: async (plan: Plan) => {
         if (isMockMode) return Promise.resolve();

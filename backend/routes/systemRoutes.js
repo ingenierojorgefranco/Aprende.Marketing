@@ -705,6 +705,52 @@ router.get('/public/plans', async (req, res) => {
     }
 });
 
+/**
+ * Lista los productos maestros activos para la marquesina pública de la home.
+ */
+router.get('/public/master-products', async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            `SELECT id, name, product_name, niche, description, short_description, multimedia_json, strategy_json, full_price, commission_rate, created_at
+             FROM projects
+             WHERE is_master = 1 AND is_active = 1
+             ORDER BY created_at DESC
+             LIMIT 24`
+        );
+
+        const parseJsonSafe = (val) => {
+            if (!val) return null;
+            try {
+                let parsed = typeof val === 'string' ? JSON.parse(val) : val;
+                if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+                return parsed;
+            } catch {
+                return null;
+            }
+        };
+
+        const formatted = (rows || []).map((p) => {
+            const mm = parseJsonSafe(p.multimedia_json) || {};
+            const st = parseJsonSafe(p.strategy_json) || {};
+            return {
+                id: String(p.id),
+                name: p.product_name || p.name || 'Producto Digital',
+                niche: p.niche || st?.meta?.niche || 'Negocios Digitales',
+                shortDescription: st?.meta?.shortDescription || p.short_description || p.description || '',
+                description: p.description || p.short_description || st?.meta?.shortDescription || '',
+                imageUrl: Array.isArray(mm.heroImages) && mm.heroImages[0] ? mm.heroImages[0] : (mm?.leadMagnets?.[0]?.imageUrl || ''),
+                fullPrice: p.full_price ? parseFloat(p.full_price) : (st?.meta?.price || 0),
+                commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (st?.meta?.commissionRate || 0)
+            };
+        });
+
+        res.json(formatted);
+    } catch (e) {
+        console.error("[PublicMasterProducts] Error fetching master products:", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // ======================================================
 //  IA & DIAGNÓSTICO
 // ======================================================
