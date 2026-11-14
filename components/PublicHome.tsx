@@ -16,7 +16,6 @@ import { api } from '../services/api';
 import productMicrobladingImg from '../src/assets/images/product_microblading_1794650768316.jpg';
 import productResinaImg from '../src/assets/images/product_resina_1794650768769.jpg';
 import productCaninoImg from '../src/assets/images/product_canino_1794650768945.jpg';
-import productReposteriaImg from '../src/assets/images/product_reposteria_1794650770796.jpg';
 
 interface PublicHomeProps {
   user: User | null;
@@ -36,63 +35,33 @@ interface MarqueeProductItem {
 
 const FALLBACK_MARQUEE_PRODUCTS: MarqueeProductItem[] = [
   {
-    id: 'cat-microblading',
+    id: 'proj-microblading-01',
     name: 'Masterclass Microblading Pro',
     niche: 'Belleza y Estética',
-    description: 'Certificación paso a paso en diseño de cejas pelo a pelo con alta demanda y excelente margen de comisión en Hotmart.',
+    description: 'Curso profesional de técnica de cejas pelo a pelo para principiantes y esteticistas, con embudo, página de captura y guiones listos.',
     imageUrl: productMicrobladingImg,
     fallbackImg: productMicrobladingImg,
     fullPrice: 200,
     commissionRate: 0.65
   },
   {
-    id: 'cat-resina',
-    name: 'Diseño de Joyas con Resina Epóxica',
-    niche: 'Manualidades y Arte',
-    description: 'Aprende a crear accesorios y piezas decorativas en resina desde casa para convertir una habilidad creativa en negocio rentable.',
+    id: 'proj-resina-01',
+    name: 'Diseño de Joyas con Resina',
+    niche: 'Manualidades',
+    description: 'Crea un negocio rentable de accesorios personalizados con resina epóxica desde casa usando nuestra estrategia y contenido automatizado.',
     imageUrl: productResinaImg,
     fallbackImg: productResinaImg,
     fullPrice: 79,
     commissionRate: 0.70
   },
   {
-    id: 'cat-canino',
-    name: 'Educación Canina en Casa VIP',
-    niche: 'Mascotas y Bienestar',
-    description: 'Programa práctico para corregir conductas difíciles y entrenar perros sin estrés, uno de los nichos evergreen más vendidos.',
+    id: 'proj-perros-01',
+    name: 'Educación Canina VIP',
+    niche: 'Mascotas',
+    description: 'Entrena a tu perro y corrige comportamientos difíciles en tiempo récord con secuencias de seguimiento y página de registro listas.',
     imageUrl: productCaninoImg,
     fallbackImg: productCaninoImg,
     fullPrice: 67,
-    commissionRate: 0.60
-  },
-  {
-    id: 'cat-reposteria',
-    name: 'Repostería Francesa desde Cero',
-    niche: 'Gastronomía y Negocios',
-    description: 'Domina postres gourmet, entremets y decoración moderna listos para comercializar por encargo desde tu propia cocina.',
-    imageUrl: productReposteriaImg,
-    fallbackImg: productReposteriaImg,
-    fullPrice: 97,
-    commissionRate: 0.65
-  },
-  {
-    id: 'cat-cejas-laminado',
-    name: 'Especialista en Cejas y Laminado',
-    niche: 'Belleza y Estética',
-    description: 'Técnicas actuales de visajismo, perfilado y laminado con embudo optimizado para captar clientes locales o digitales.',
-    imageUrl: productMicrobladingImg,
-    fallbackImg: productMicrobladingImg,
-    fullPrice: 89,
-    commissionRate: 0.70
-  },
-  {
-    id: 'cat-mesas-resina',
-    name: 'Porcelanato Líquido y Resina Pro',
-    niche: 'Oficios Rentables',
-    description: 'Capacitación técnica para recubrimientos de alto impacto visual con guiones virales y landing de captura preconfigurada.',
-    imageUrl: productResinaImg,
-    fallbackImg: productResinaImg,
-    fullPrice: 120,
     commissionRate: 0.60
   }
 ];
@@ -232,7 +201,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
       api.getPublicMasterProducts()
          .then((serverProducts) => {
             if (Array.isArray(serverProducts) && serverProducts.length > 0) {
-              const fallbackCycle = [productMicrobladingImg, productResinaImg, productCaninoImg, productReposteriaImg];
+              const fallbackCycle = [productMicrobladingImg, productResinaImg, productCaninoImg];
               const mapped: MarqueeProductItem[] = serverProducts.map((p, idx) => {
                 const fallbackAsset = fallbackCycle[idx % fallbackCycle.length];
                 return {
@@ -243,19 +212,10 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                   imageUrl: p.imageUrl || fallbackAsset,
                   fallbackImg: fallbackAsset,
                   fullPrice: p.fullPrice || 0,
-                  commissionRate: p.commissionRate || 0.6
+                  commissionRate: p.commissionRate || 0.65
                 };
               });
-              // Si hay menos de 6 productos en la BD, completamos con el catálogo curado para que la marquesina se vea fluida
-              const combined = mapped.length >= 6
-                ? mapped
-                : [
-                    ...mapped,
-                    ...FALLBACK_MARQUEE_PRODUCTS.filter(
-                      (fp) => !mapped.some((mp) => mp.name.toLowerCase() === fp.name.toLowerCase())
-                    )
-                  ];
-              setMarqueeProducts(combined);
+              setMarqueeProducts(mapped);
             }
          })
          .catch(err => console.error("Error loading public master products:", err));
@@ -298,27 +258,16 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-        @keyframes marqueeTrackReverse {
-          0% { transform: translateX(-50%); }
-          100% { transform: translateX(0); }
-        }
         .animate-marquee-track {
           display: flex;
           width: max-content;
-          animation: marqueeTrack 48s linear infinite;
+          animation: marqueeTrack 40s linear infinite;
         }
-        .animate-marquee-track-reverse {
-          display: flex;
-          width: max-content;
-          animation: marqueeTrackReverse 52s linear infinite;
-        }
-        .marquee-wrapper:hover .animate-marquee-track,
-        .marquee-wrapper:hover .animate-marquee-track-reverse {
+        .marquee-wrapper:hover .animate-marquee-track {
           animation-play-state: paused;
         }
         @media (prefers-reduced-motion: reduce) {
-          .animate-marquee-track,
-          .animate-marquee-track-reverse {
+          .animate-marquee-track {
             animation: none;
           }
         }
@@ -752,17 +701,20 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
           </p>
         </div>
 
-        {/* Doble carril de marquesina con pausa al pasar el cursor */}
-        <div className="marquee-wrapper relative w-full overflow-hidden">
+        {/* Carril único de marquesina más alto con pausa al pasar el cursor */}
+        <div className="marquee-wrapper relative w-full overflow-hidden py-2">
           <div className="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-28 bg-gradient-to-r from-[#07090E] to-transparent z-20" />
           <div className="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-28 bg-gradient-to-l from-[#07090E] to-transparent z-20" />
 
           {(() => {
-            const half = Math.ceil(marqueeProducts.length / 2);
-            const row1 = marqueeProducts.slice(0, half);
-            const row2 = marqueeProducts.slice(half).length > 0 ? marqueeProducts.slice(half) : marqueeProducts;
+            // Repetimos el ciclo de productos reales lo suficiente para cubrir pantallas anchas sin saltos
+            const repeatTimes = Math.max(2, Math.ceil(6 / Math.max(1, marqueeProducts.length)));
+            const halfTrack: MarqueeProductItem[] = [];
+            for (let r = 0; r < repeatTimes; r++) {
+              halfTrack.push(...marqueeProducts);
+            }
 
-            const renderProductCard = (product: MarqueeProductItem, keyPrefix: string, idx: number) => {
+            const renderProductCard = (product: MarqueeProductItem, idx: number) => {
               const imgFailed = !!failedProductImages[`${product.id}-${idx}`];
               const resolvedSrc = imgFailed ? product.fallbackImg : (product.imageUrl || product.fallbackImg);
               const commissionPct = product.commissionRate
@@ -771,11 +723,11 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
 
               return (
                 <div
-                  key={`${keyPrefix}-${product.id}-${idx}`}
-                  className="w-[330px] sm:w-[540px] shrink-0 bg-[#111319] border border-white/10 hover:border-[#FF5A1F]/45 rounded-2xl p-4 sm:p-5 transition-colors duration-200 flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch shadow-xl"
+                  key={`single-row-${product.id}-${idx}`}
+                  className="w-[310px] sm:w-[390px] md:w-[410px] shrink-0 bg-[#111319] border border-white/10 hover:border-[#FF5A1F]/45 rounded-2xl overflow-hidden transition-colors duration-200 flex flex-col justify-between shadow-2xl"
                 >
-                  {/* Imagen del producto */}
-                  <div className="w-full sm:w-44 aspect-[4/3] sm:aspect-auto sm:min-h-[196px] shrink-0 rounded-xl overflow-hidden bg-[#191B23] relative">
+                  {/* Imagen del producto más amplia */}
+                  <div className="w-full h-52 sm:h-56 bg-[#191B23] relative overflow-hidden shrink-0">
                     <img
                       src={resolvedSrc}
                       alt={product.name}
@@ -783,11 +735,11 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                       onError={() => setFailedProductImages(prev => ({ ...prev, [`${product.id}-${idx}`]: true }))}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#111319] via-black/15 to-transparent pointer-events-none" />
                   </div>
 
-                  {/* Información y sistema incluido */}
-                  <div className="flex-1 min-w-0 flex flex-col justify-between text-left">
+                  {/* Información completa y sistema incluido */}
+                  <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between text-left">
                     <div>
                       <div className="flex items-center gap-2 text-xs text-gray-400 font-medium whitespace-nowrap overflow-hidden">
                         <span className="truncate">{product.niche}</span>
@@ -795,19 +747,19 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                         <span className="text-[#FF5A1F] font-semibold tabular-nums shrink-0">{commissionPct}% comisión</span>
                       </div>
 
-                      <h3 className="text-base sm:text-lg font-extrabold text-white leading-snug mt-1 line-clamp-1 whitespace-normal">
+                      <h3 className="text-lg sm:text-xl font-extrabold text-white leading-snug mt-1.5 line-clamp-2 whitespace-normal">
                         {product.name}
                       </h3>
 
-                      <p className="text-xs sm:text-sm text-gray-300 leading-relaxed mt-1.5 line-clamp-2 whitespace-normal font-normal">
+                      <p className="text-sm text-gray-300 leading-relaxed mt-2.5 line-clamp-3 whitespace-normal font-normal min-h-[3.9rem]">
                         {product.description}
                       </p>
 
-                      <div className="mt-3 pt-3 border-t border-white/5">
-                        <p className="text-[11px] font-semibold text-gray-400 mb-2">
+                      <div className="mt-4 pt-4 border-t border-white/5">
+                        <p className="text-[11px] font-semibold text-gray-400 mb-2.5">
                           Sistema listo en la plataforma:
                         </p>
-                        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] sm:text-xs text-gray-200 font-medium">
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs text-gray-200 font-medium">
                           <div className="flex items-center gap-1.5 truncate">
                             <Cpu className="w-3.5 h-3.5 text-[#FF5A1F] shrink-0" />
                             <span className="truncate">Estrategia IA</span>
@@ -831,7 +783,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                     <button
                       type="button"
                       onClick={() => navigate(user ? '/dashboard/projects' : '/register')}
-                      className="mt-4 w-full py-2.5 px-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-extrabold text-xs sm:text-sm tracking-wide transition-colors duration-150 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+                      className="mt-5 w-full py-3 px-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-extrabold text-sm tracking-wide transition-colors duration-150 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
                     >
                       <span>Quiero este producto</span>
                       <ArrowRight className="w-4 h-4 shrink-0" />
@@ -842,13 +794,8 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
             };
 
             return (
-              <div className="space-y-5">
-                <div className="animate-marquee-track gap-5">
-                  {[...row1, ...row1].map((item, i) => renderProductCard(item, 'r1', i))}
-                </div>
-                <div className="animate-marquee-track-reverse gap-5">
-                  {[...row2, ...row2].map((item, i) => renderProductCard(item, 'r2', i))}
-                </div>
+              <div className="animate-marquee-track gap-6">
+                {[...halfTrack, ...halfTrack].map((item, i) => renderProductCard(item, i))}
               </div>
             );
           })()}

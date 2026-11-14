@@ -492,9 +492,61 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
         </div>
       </section>
 
-      {/* 3. CONTENIDO PRINCIPAL: 3 TARJETAS BLANCAS ESTRUCTURADAS */}
+      {/* 3. CONTENIDO PRINCIPAL: BLOQUE COMPACTO WHATSAPP + 2 TARJETAS EXISTENTES */}
       <main className="flex-1 px-4 pb-16 relative z-10">
         <div className="max-w-[50rem] mx-auto space-y-9">
+
+          {/* NUEVO BLOQUE COMPACTO SUPERIOR: COMUNIDAD WHATSAPP + GUÍA PRÁCTICA (ESTILO DIRECTO SIN FRICCIÓN) */}
+          <div
+            className={`rounded-2xl p-5 sm:p-7 border shadow-2xl backdrop-blur-md text-left ${
+              content.palette === 'minimal-mono'
+                ? 'bg-white border-gray-200 text-gray-900'
+                : 'bg-black/35 border-white/15 text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2.5 mb-2.5">
+              <Gift className={`w-5 h-5 shrink-0 ${content.palette === 'minimal-mono' ? 'text-emerald-600' : 'text-emerald-400'}`} />
+              <h2 className={`text-base sm:text-lg font-extrabold tracking-tight ${content.palette === 'minimal-mono' ? 'text-gray-900' : 'text-white'}`}>
+                {activeLeadMagnet?.name
+                  ? `Recibe tu guía: ${activeLeadMagnet.name}`
+                  : project?.niche
+                    ? `Recibe tu guía práctica de ${project.niche}`
+                    : 'Recibe tu guía práctica gratuita'}
+              </h2>
+            </div>
+
+            <p className={`text-sm sm:text-[15px] leading-relaxed mb-5 ${content.palette === 'minimal-mono' ? 'text-gray-600' : 'text-gray-200'}`}>
+              Únete a nuestra comunidad gratuita de WhatsApp y consigue una guía con materiales, errores frecuentes y consejos para comenzar. También compartimos ejercicios y resolvemos dudas.
+            </p>
+
+            {hasWhatsAppGroup ? (
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleWhatsAppClick}
+                className="w-full bg-[#063B27] hover:bg-[#084D33] border border-emerald-500/35 text-white py-3.5 px-6 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2.5 shadow-lg transition-all hover:scale-[1.01] cursor-pointer text-center"
+              >
+                <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{tyConfig.whatsappButtonText || "UNIRME AL GRUPO Y RECIBIR LA GUÍA"}</span>
+              </a>
+            ) : (
+              <button
+                type="button"
+                disabled
+                aria-disabled="true"
+                title="Enlace de WhatsApp no configurado aún"
+                className="w-full bg-[#063B27]/60 border border-emerald-500/20 text-white/70 py-3.5 px-6 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2.5 cursor-not-allowed select-none"
+              >
+                <MessageCircle className="w-4 h-4 text-emerald-400/70 shrink-0" />
+                <span>{tyConfig.whatsappButtonText || "UNIRME AL GRUPO Y RECIBIR LA GUÍA"}</span>
+              </button>
+            )}
+
+            <p className={`mt-3 text-center text-xs font-medium ${content.palette === 'minimal-mono' ? 'text-gray-500' : 'text-gray-300/90'}`}>
+              Acceso voluntario y gratuito. No necesitas unirte para ver la clase.
+            </p>
+          </div>
 
           {/* TARJETA 1: LA CLASE GRATUITA + OFERTA DE FORMACIÓN */}
           <div className={`bg-white rounded-[2rem] p-5 sm:p-8 md:p-10 shadow-2xl ${paletteAccents.cardBorder} text-gray-900 relative`}>
