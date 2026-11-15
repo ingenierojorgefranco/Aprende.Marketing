@@ -218,7 +218,10 @@ const attachProjectData = (page) => {
                     subLower.includes('grupo privado de whatsapp') ||
                     subLower.includes('sigue estos 2 pasos')
                 ) {
-                    ty.subheadline = "Ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional.";
+                    const topicName = (page.project?.name || '').trim();
+                    ty.subheadline = topicName
+                        ? `Ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional en el mundo de ${topicName}.`
+                        : "Ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional.";
                 }
             }
         }

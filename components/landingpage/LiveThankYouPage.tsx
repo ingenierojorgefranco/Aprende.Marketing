@@ -201,6 +201,14 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
   const paletteAccents = getPaletteAccents(content.palette);
 
+  // Tema / nombre específico del proyecto (ej: "Resina Epóxica en Suelos", "Microblading de Cejas")
+  const rawProjectTopic = (
+    project?.name ||
+    (project as any)?.project_name ||
+    (project as any)?.master_name ||
+    ''
+  ).trim();
+
   // Brand Name & Visuals
   const brandName = tyConfig.headerLogoText || content.brandName || project?.name || "ResinPro Studio Latino";
 
@@ -488,10 +496,14 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                 subLower.includes("unete a nuestro grupo") ||
                 subLower.includes("recibir tu material de preparación") ||
                 subLower.includes("tu clase gratuita ya está disponible") ||
-                subLower.includes("antes de comenzar, tenemos un regalo adicional");
-              return isLegacySub
-                ? "Ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional."
-                : rawSub;
+                subLower.includes("antes de comenzar, tenemos un regalo adicional") ||
+                subLower === "ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional." ||
+                subLower === "ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional";
+              if (!isLegacySub) return rawSub;
+
+              return rawProjectTopic
+                ? `Ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional en el mundo de ${rawProjectTopic}.`
+                : "Ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional.";
             })()}
           </p>
         </div>
@@ -607,7 +619,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                       rawUpsellTitle === "¿Quieres aprender el proceso completo?";
                     if (!isLegacyUpsellTitle) return rawUpsellTitle;
 
-                    const rawNiche = (
+                    const topicForUpsell = rawProjectTopic || (
                       project?.niche ||
                       (project as any)?.project_niche ||
                       (project as any)?.master_niche ||
@@ -616,9 +628,8 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                       ''
                     ).trim();
 
-                    if (rawNiche) {
-                      const lowerFirst = rawNiche.charAt(0).toLowerCase() + rawNiche.slice(1);
-                      return `¿Te gustaría aprender ${lowerFirst} paso a paso?`;
+                    if (topicForUpsell) {
+                      return `¿Te gustaría aprender ${topicForUpsell} paso a paso?`;
                     }
                     return "¿Te gustaría aprender el proceso paso a paso?";
                   })()}
