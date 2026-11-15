@@ -413,7 +413,7 @@ export const RegistrationModal = ({ content, ds, onClose, pageId, basePath, proj
 };
 
 // --- Smart CTA ---
-export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, centered = false, pageId, basePath, project }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean, fullWidth?: boolean, centered?: boolean, pageId?: string, basePath?: string, project?: any }) => {
+export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, centered = false, pageId, basePath, project, hideSocialProof = false, centerBadge = false }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean, fullWidth?: boolean, centered?: boolean, pageId?: string, basePath?: string, project?: any, hideSocialProof?: boolean, centerBadge?: boolean }) => {
     const strategy = getProjectStrategy(project);
     const dest = content.destination;
     const capture = content.capture || {};
@@ -471,8 +471,15 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
       <div className={`${centered ? 'mx-auto max-w-md' : 'w-full'}`}>
         <div id="smart-cta-container" className={`rounded-3xl shadow-2xl border relative ${ds.cta.containerBg} ${ds.cta.containerBorder} ${isMobilePreview ? 'p-6' : 'p-6 md:p-10'}`}>
             
-            {/* Badge de Cupos Estilo Robusto y Animado (Pulse) */}
-            <div id="smart-cta-badge" className={`absolute -top-5 right-6 text-sm md:text-base font-black px-8 py-2.5 rounded-full shadow-[0_10px_25px_rgba(0,0,0,0.3)] z-20 border-2 animate-pulse transition-transform hover:scale-105 ${ds.badges.spotsBg} ${ds.badges.spotsText} ${ds.badges.spotsBorder}`}>
+            {/* Badge de Cupos */}
+            <div
+              id="smart-cta-badge"
+              className={
+                centerBadge
+                  ? `absolute -top-4 left-1/2 -translate-x-1/2 text-xs md:text-sm font-extrabold px-5 py-1.5 rounded-full shadow-lg z-20 border whitespace-nowrap ${ds.badges.spotsBg} ${ds.badges.spotsText} ${ds.badges.spotsBorder}`
+                  : `absolute -top-5 right-6 text-sm md:text-base font-black px-8 py-2.5 rounded-full shadow-[0_10px_25px_rgba(0,0,0,0.3)] z-20 border-2 animate-pulse transition-transform hover:scale-105 ${ds.badges.spotsBg} ${ds.badges.spotsText} ${ds.badges.spotsBorder}`
+              }
+            >
                 {content.hero.spotsLeft || "¡Cupos Limitados!"}
             </div>
 
@@ -480,7 +487,7 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
             <h3 id="smart-cta-title" className={`font-black mb-2 text-center leading-tight ${ds.cta.cardTitleColor} ${isMobilePreview ? 'text-2xl' : 'text-2xl md:text-3xl'}`}>
                 {cardTitle}
             </h3>
-            <p id="smart-cta-desc" className={`text-center mb-8 text-[1.2rem] leading-[1.6rem] text-black`}>
+            <p id="smart-cta-desc" className={`text-center mb-8 text-[1.05rem] md:text-[1.15rem] leading-[1.55rem] ${ds.cta.cardTextColor}`}>
                 {cardDesc}
             </p>
 
@@ -515,6 +522,7 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
         </div>
 
         {/* Social Proof */}
+        {!hideSocialProof && (
         <div id="smart-cta-social-proof-block" className="mt-6 mb-2 py-3 px-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 flex items-center justify-center gap-4 shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-700">
             <div className="flex -space-x-3">
                 {(strategy?.modules?.testimonials && strategy.modules.testimonials.length > 0) ? (
@@ -544,6 +552,7 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
                 <p className="text-[10px] md:text-[11px] text-gray-300 font-bold uppercase tracking-[0.2em] leading-none mt-1">{capture.socialProofLabel || "Alumnos registrados"}</p>
             </div>
         </div>
+        )}
       </div>
     );
 };
