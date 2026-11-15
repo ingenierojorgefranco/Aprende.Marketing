@@ -5,10 +5,8 @@ import { Navbar, Footer, RegistrationModal } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline, getProjectStrategy } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 import { IntroModule } from './modules/IntroModule';
-import { InstructorModule } from './modules/InstructorModule';
 import { FaqModule } from './modules/FaqModule';
 import { PainPointsModule } from './modules/PainPointsModule';
-import { StepsModule } from './modules/StepsModule';
 import { FinalCtaModule } from './modules/FinalCtaModule';
 import { CtaBlockModule } from './modules/CtaBlockModule';
 
@@ -25,12 +23,6 @@ interface TemplateProps {
 
 export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, project, isMobilePreview, pageId, basePath, hasBlogArticles, isDark }) => {
   const [showModal, setShowModal] = useState(false);
-
-  const classicSteps = [
-    { num: 1, title: "Regístrate Ahora", text: "Completa el formulario con tu nombre y correo. Es 100% gratis y seguro." },
-    { num: 2, title: "Confirma tu Correo", text: "Revisa tu bandeja de entrada y haz clic en el enlace para asegurar tu cupo." },
-    { num: 3, title: "Acceso Instantáneo", text: "Recibirás el acceso a la clase y a tu E-book de regalo de inmediato. ¡Aprende a tu ritmo!" }
-  ];
 
   // Sanitizador para evitar nombres de proyectos o copys sobrecargados en el subtítulo
   const cleanSubheadline = (sub?: string): string => {
@@ -206,37 +198,8 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
             />
         )}
 
-        {/* Stats Bar */}
-        <div className="relative z-20 w-full max-w-[81em] mx-auto px-6 -mt-8 mb-12">
-            <div className="bg-white rounded-[2rem] shadow-2xl border border-gray-100 py-8 px-6 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-gray-200">
-                <div className="flex-1 flex flex-col items-center text-center px-4 w-full pt-4 md:pt-0">
-                    <span className="text-3xl font-black text-[#0B1120] mb-1">+2.000</span>
-                    <span className="text-sm font-medium text-slate-500">Alumnos formados</span>
-                </div>
-                <div className="flex-1 flex flex-col items-center text-center px-4 w-full pt-4 md:pt-0">
-                    <span className="text-3xl font-black text-[#0B1120] mb-2">4.8/5</span>
-                    <div className="flex items-center text-yellow-400 mb-1 gap-1">
-                        <Star className="w-4 h-4 fill-current" />
-                        <Star className="w-4 h-4 fill-current" />
-                        <Star className="w-4 h-4 fill-current" />
-                        <Star className="w-4 h-4 fill-current" />
-                        <Star className="w-4 h-4 fill-current" />
-                    </div>
-                    <span className="text-sm font-medium text-slate-500 mt-1">Valoración promedio</span>
-                </div>
-                <div className="flex-1 flex flex-col items-center text-center px-4 w-full pt-4 md:pt-0">
-                    <span className="text-3xl font-black text-[#0B1120] mb-1">100%</span>
-                    <span className="text-sm font-medium text-slate-500">Online y a tu ritmo</span>
-                </div>
-                <div className="flex-1 flex flex-col items-center text-center px-4 w-full pt-4 md:pt-0">
-                    <span className="text-3xl font-black text-[#0B1120] mb-1">Certificado</span>
-                    <span className="text-sm font-medium text-slate-500">Incluido</span>
-                </div>
-            </div>
-        </div>
-
-        <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
         <PainPointsModule content={content} ds={ds} project={project} pageId={pageId} basePath={basePath} />
+        <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
 
         <WhatsAppTestimonials 
             testimonials={content.testimonials} 
@@ -246,8 +209,6 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, pro
             ds={ds} 
             project={project}
         />
-        <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
-        <StepsModule content={content} ds={ds} isMobilePreview={isMobilePreview} description="En solo 3 simples pasos estarás dentro de la clase que puede cambiar tu carrera." steps={classicSteps} />
         <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} project={project} />
         <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
     </div>
