@@ -307,8 +307,8 @@ export const generateLandingPageContent = async (
   4. Instructor: Nombre y biografía.
   5. Footer: Copyright y contacto.
   9. BLUEPRINT DE PÁGINA DE GRACIAS (Usa estos valores como base y adáptalos al nicho y al Lead Magnet asignado):
-     - headline: "¡Registro confirmado! Tu clase gratuita está lista."
-     - subheadline: "Antes de comenzar, tenemos un regalo adicional para ayudarte a dar tus primeros pasos."
+     - headline: "¡Tu registro está confirmado!"
+     - subheadline: "Ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional."
      - progressBarText: "¡PERO ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR."
      - greenBadgeText: ""
      - step1Title: "Revisa tu Correo Electrónico"

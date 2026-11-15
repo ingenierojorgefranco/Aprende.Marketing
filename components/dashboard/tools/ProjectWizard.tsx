@@ -545,11 +545,11 @@ export const ProjectWizard: React.FC = () => {
                 'Acabados profesionales y corrección de errores',
                 'Acceso a una formación estructurada'
             ],
-            upsellButtonText: 'CONOCER LA FORMACIÓN COMPLETA',
+            upsellButtonText: 'CONOCER EL CURSO COMPLETO',
             upsellButtonUrl: '',
             whatsappBadge: 'REGALO ADICIONAL',
-            whatsappTitle: 'Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica',
-            whatsappSubtitle: 'Conecta con nuestra comunidad, resuelve tus dudas y descarga tu guía en formato digital.',
+            whatsappTitle: 'Un regalo adicional para ti',
+            whatsappSubtitle: 'Únete gratis a nuestra comunidad de WhatsApp y recibe una guía práctica para principiantes con materiales, recomendaciones y errores que debes evitar.',
             whatsappGuideTitle: '',
             whatsappGuideBullets: [
                 'Descubre cómo encontrar clientes',
@@ -557,7 +557,7 @@ export const ProjectWizard: React.FC = () => {
                 'Calcula correctamente tus costes',
                 'Conoce cómo presentar el servicio profesionalmente'
             ],
-            whatsappButtonText: 'UNIRME AL GRUPO Y RECIBIR LA GUÍA',
+            whatsappButtonText: 'UNIRME Y RECIBIR LA GUÍA GRATUITA',
             whatsappGuideImageUrl: ''
         }
     });
@@ -1054,11 +1054,11 @@ export const ProjectWizard: React.FC = () => {
                                 'Acabados profesionales y corrección de errores',
                                 'Acceso a una formación estructurada'
                             ],
-                            upsellButtonText: loadedTy.upsellButtonText || 'CONOCER LA FORMACIÓN COMPLETA',
+                            upsellButtonText: loadedTy.upsellButtonText || 'CONOCER EL CURSO COMPLETO',
                             upsellButtonUrl: loadedTy.upsellButtonUrl || '',
                             whatsappBadge: loadedTy.whatsappBadge || 'REGALO ADICIONAL',
-                            whatsappTitle: loadedTy.whatsappTitle || 'Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica',
-                            whatsappSubtitle: loadedTy.whatsappSubtitle || 'Conecta con nuestra comunidad, resuelve tus dudas y descarga tu guía en formato digital.',
+                            whatsappTitle: loadedTy.whatsappTitle || 'Un regalo adicional para ti',
+                            whatsappSubtitle: loadedTy.whatsappSubtitle || 'Únete gratis a nuestra comunidad de WhatsApp y recibe una guía práctica para principiantes con materiales, recomendaciones y errores que debes evitar.',
                             whatsappGuideTitle: loadedTy.whatsappGuideTitle || '',
                             whatsappGuideBullets: Array.isArray(loadedTy.whatsappGuideBullets) && loadedTy.whatsappGuideBullets.length > 0 ? loadedTy.whatsappGuideBullets : [
                                 'Descubre cómo encontrar clientes',
@@ -1066,7 +1066,7 @@ export const ProjectWizard: React.FC = () => {
                                 'Calcula correctamente tus costes',
                                 'Conoce cómo presentar el servicio profesionalmente'
                             ],
-                            whatsappButtonText: loadedTy.whatsappButtonText || 'UNIRME AL GRUPO Y RECIBIR LA GUÍA',
+                            whatsappButtonText: loadedTy.whatsappButtonText || 'UNIRME Y RECIBIR LA GUÍA GRATUITA',
                             whatsappGuideImageUrl: loadedTy.whatsappGuideImageUrl || ''
                         }
                     });
@@ -1104,11 +1104,11 @@ export const ProjectWizard: React.FC = () => {
                                 'Acabados profesionales y corrección de errores',
                                 'Acceso a una formación estructurada'
                             ],
-                            upsellButtonText: 'CONOCER LA FORMACIÓN COMPLETA',
+                            upsellButtonText: 'CONOCER EL CURSO COMPLETO',
                             upsellButtonUrl: '',
                             whatsappBadge: 'REGALO ADICIONAL',
-                            whatsappTitle: 'Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica',
-                            whatsappSubtitle: 'Conecta con nuestra comunidad, resuelve tus dudas y descarga tu guía en formato digital.',
+                            whatsappTitle: 'Un regalo adicional para ti',
+                            whatsappSubtitle: 'Únete gratis a nuestra comunidad de WhatsApp y recibe una guía práctica para principiantes con materiales, recomendaciones y errores que debes evitar.',
                             whatsappGuideTitle: '',
                             whatsappGuideBullets: [
                                 'Descubre cómo encontrar clientes',
@@ -1116,7 +1116,7 @@ export const ProjectWizard: React.FC = () => {
                                 'Calcula correctamente tus costes',
                                 'Conoce cómo presentar el servicio profesionalmente'
                             ],
-                            whatsappButtonText: 'UNIRME AL GRUPO Y RECIBIR LA GUÍA',
+                            whatsappButtonText: 'UNIRME Y RECIBIR LA GUÍA GRATUITA',
                             whatsappGuideImageUrl: ''
                         }
                     });
@@ -2062,7 +2062,7 @@ export const ProjectWizard: React.FC = () => {
                                                         type="text" 
                                                         value={multimedia.thankYouPage?.upsellButtonText || ''} 
                                                         onChange={(e) => handleUpdateThankYouField('upsellButtonText', e.target.value)}
-                                                        placeholder="CONOCER LA FORMACIÓN COMPLETA"
+                                                        placeholder="CONOCER EL CURSO COMPLETO"
                                                         className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
                                                     />
                                                 </div>

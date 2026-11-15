@@ -460,9 +460,10 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                 !rawHeadline ||
                 rawHeadline === "PERFECTO, YA TIENES EL ACCESO A LA CLASE DE MICROBLADING PROFESIONAL" ||
                 rawHeadline === "Perfecto, tu registro está confirmado" ||
-                rawHeadline === "Perfecto, hemos enviado el acceso a la clase gratuita a tu correo electrónico";
+                rawHeadline === "Perfecto, hemos enviado el acceso a la clase gratuita a tu correo electrónico" ||
+                rawHeadline === "¡Registro confirmado! Tu clase gratuita está lista.";
               return isLegacyHeadline
-                ? "¡Registro confirmado! Tu clase gratuita está lista."
+                ? "¡Tu registro está confirmado!"
                 : rawHeadline;
             })()}
           </h1>
@@ -486,70 +487,19 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                 subLower.includes("únete a nuestro grupo") ||
                 subLower.includes("unete a nuestro grupo") ||
                 subLower.includes("recibir tu material de preparación") ||
-                subLower.includes("tu clase gratuita ya está disponible");
+                subLower.includes("tu clase gratuita ya está disponible") ||
+                subLower.includes("antes de comenzar, tenemos un regalo adicional");
               return isLegacySub
-                ? "Antes de comenzar, tenemos un regalo adicional para ayudarte a dar tus primeros pasos."
+                ? "Ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional."
                 : rawSub;
             })()}
           </p>
         </div>
       </section>
 
-      {/* 3. CONTENIDO PRINCIPAL: BLOQUE COMPACTO WHATSAPP + 2 TARJETAS EXISTENTES */}
+      {/* 3. CONTENIDO PRINCIPAL: CLASE GRATUITA ARRIBA + BLOQUE COMPACTO WHATSAPP DEBAJO */}
       <main className="flex-1 px-4 pb-16 relative z-10">
         <div className="max-w-[50rem] mx-auto space-y-9">
-
-          {/* NUEVO BLOQUE COMPACTO SUPERIOR: COMUNIDAD WHATSAPP + GUÍA PRÁCTICA (ESTILO DIRECTO SIN FRICCIÓN) */}
-          <div
-            className={`rounded-2xl p-5 sm:p-7 border shadow-2xl backdrop-blur-md text-left ${
-              content.palette === 'minimal-mono'
-                ? 'bg-white border-gray-200 text-gray-900'
-                : 'bg-black/35 border-white/15 text-white'
-            }`}
-          >
-            <div className="flex items-center gap-2.5 mb-2.5">
-              <Gift className={`w-5 h-5 shrink-0 ${content.palette === 'minimal-mono' ? 'text-emerald-600' : 'text-emerald-400'}`} />
-              <h2 className={`text-base sm:text-lg font-extrabold tracking-tight ${content.palette === 'minimal-mono' ? 'text-gray-900' : 'text-white'}`}>
-                {activeLeadMagnet?.name
-                  ? `Recibe tu guía: ${activeLeadMagnet.name}`
-                  : project?.niche
-                    ? `Recibe tu guía práctica de ${project.niche}`
-                    : 'Recibe tu guía práctica gratuita'}
-              </h2>
-            </div>
-
-            <p className={`text-sm sm:text-[15px] leading-relaxed mb-5 ${content.palette === 'minimal-mono' ? 'text-gray-600' : 'text-gray-200'}`}>
-              Únete a nuestra comunidad gratuita de WhatsApp y consigue una guía con materiales, errores frecuentes y consejos para comenzar. También compartimos ejercicios y resolvemos dudas.
-            </p>
-
-            {hasWhatsAppGroup ? (
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleWhatsAppClick}
-                className="w-full bg-[#063B27] hover:bg-[#084D33] border border-emerald-500/35 text-white py-3.5 px-6 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2.5 shadow-lg transition-all hover:scale-[1.01] cursor-pointer text-center"
-              >
-                <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>{tyConfig.whatsappButtonText || "UNIRME AL GRUPO Y RECIBIR LA GUÍA"}</span>
-              </a>
-            ) : (
-              <button
-                type="button"
-                disabled
-                aria-disabled="true"
-                title="Enlace de WhatsApp no configurado aún"
-                className="w-full bg-[#063B27]/60 border border-emerald-500/20 text-white/70 py-3.5 px-6 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2.5 cursor-not-allowed select-none"
-              >
-                <MessageCircle className="w-4 h-4 text-emerald-400/70 shrink-0" />
-                <span>{tyConfig.whatsappButtonText || "UNIRME AL GRUPO Y RECIBIR LA GUÍA"}</span>
-              </button>
-            )}
-
-            <p className={`mt-3 text-center text-xs font-medium ${content.palette === 'minimal-mono' ? 'text-gray-500' : 'text-gray-300/90'}`}>
-              Acceso voluntario y gratuito. No necesitas unirte para ver la clase.
-            </p>
-          </div>
 
           {/* TARJETA 1: LA CLASE GRATUITA + OFERTA DE FORMACIÓN */}
           <div className={`bg-white rounded-[2rem] p-5 sm:p-8 md:p-10 shadow-2xl ${paletteAccents.cardBorder} text-gray-900 relative`}>
@@ -646,50 +596,135 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
               )}
             </div>
 
-            {/* SECCIÓN INTERNA: ¿Quieres aprender el proceso completo? (FORMACIÓN / UPSELL) */}
+            {/* SECCIÓN INTERNA: ¿Te gustaría aprender [nicho] paso a paso? (FORMACIÓN / UPSELL) */}
             <div className="pt-8 border-t border-gray-100">
               <div className="text-center mb-6 sm:mb-8">
                 <h3 className="text-2xl sm:text-3xl md:text-[2.1rem] font-black tracking-tight text-gray-950">
-                  {tyConfig.upsellTitle || "¿Quieres aprender el proceso completo?"}
+                  {(() => {
+                    const rawUpsellTitle = (tyConfig.upsellTitle || '').trim();
+                    const isLegacyUpsellTitle =
+                      !rawUpsellTitle ||
+                      rawUpsellTitle === "¿Quieres aprender el proceso completo?";
+                    if (!isLegacyUpsellTitle) return rawUpsellTitle;
+
+                    const rawNiche = (
+                      project?.niche ||
+                      (project as any)?.project_niche ||
+                      (project as any)?.master_niche ||
+                      (project?.strategy_json as any)?.meta?.niche ||
+                      (content as any)?.niche ||
+                      ''
+                    ).trim();
+
+                    if (rawNiche) {
+                      const lowerFirst = rawNiche.charAt(0).toLowerCase() + rawNiche.slice(1);
+                      return `¿Te gustaría aprender ${lowerFirst} paso a paso?`;
+                    }
+                    return "¿Te gustaría aprender el proceso paso a paso?";
+                  })()}
                 </h3>
               </div>
 
-              {/* Descripción debajo de ¿Quieres aprender el proceso completo? */}
+              {/* Descripción debajo del título dinámico de formación */}
               <div className="max-w-2xl mx-auto text-center">
                 <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed max-w-xl mx-auto mb-8 font-medium">
-                  Conoce el programa, sus módulos, los materiales y todo lo que incluye la formación.
+                  Descubre la formación completa, los módulos y todo lo que aprenderás para seguir desarrollando tus habilidades.
                 </p>
 
-                {/* Botón CTA Formación Completa con tamaño prominente (Ref. Imagen 3) */}
+                {/* Botón CTA Formación Completa con tamaño prominente */}
                 <div className="max-w-md mx-auto">
-                  {hasUpsellUrl ? (
-                    <a
-                      href={upsellTargetUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`w-full ${activeDs.buttons.primary} py-4 px-6 rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-3 shadow-xl hover:shadow-2xl hover:scale-[1.01] active:scale-98 transition-all cursor-pointer`}
-                    >
-                      <GraduationCap className="w-5 h-5 shrink-0" />
-                      <span>{tyConfig.upsellButtonText || "CONOCER LA FORMACIÓN COMPLETA"}</span>
-                      <ExternalLink className="w-4 h-4 shrink-0 ml-0.5" />
-                    </a>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled
-                      aria-disabled="true"
-                      title="Hotlink de formación no configurado aún"
-                      className={`w-full ${activeDs.buttons.primary} opacity-50 py-4 px-6 rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-3 shadow-md cursor-not-allowed select-none`}
-                    >
-                      <GraduationCap className="w-5 h-5 shrink-0" />
-                      <span>{tyConfig.upsellButtonText || "CONOCER LA FORMACIÓN COMPLETA"}</span>
-                      <ExternalLink className="w-4 h-4 shrink-0 ml-0.5 opacity-50" />
-                    </button>
-                  )}
+                  {(() => {
+                    const rawUpsellBtnText = (tyConfig.upsellButtonText || '').trim();
+                    const upsellBtnLabel =
+                      rawUpsellBtnText && rawUpsellBtnText.toUpperCase() !== "CONOCER LA FORMACIÓN COMPLETA"
+                        ? rawUpsellBtnText
+                        : "CONOCER EL CURSO COMPLETO";
+
+                    return hasUpsellUrl ? (
+                      <a
+                        href={upsellTargetUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`w-full ${activeDs.buttons.primary} py-4 px-6 rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-3 shadow-xl hover:shadow-2xl hover:scale-[1.01] active:scale-98 transition-all cursor-pointer`}
+                      >
+                        <GraduationCap className="w-5 h-5 shrink-0" />
+                        <span>{upsellBtnLabel}</span>
+                        <ExternalLink className="w-4 h-4 shrink-0 ml-0.5" />
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled
+                        aria-disabled="true"
+                        title="Hotlink de formación no configurado aún"
+                        className={`w-full ${activeDs.buttons.primary} opacity-50 py-4 px-6 rounded-2xl font-black text-sm sm:text-base tracking-wider uppercase flex items-center justify-center gap-3 shadow-md cursor-not-allowed select-none`}
+                      >
+                        <GraduationCap className="w-5 h-5 shrink-0" />
+                        <span>{upsellBtnLabel}</span>
+                        <ExternalLink className="w-4 h-4 shrink-0 ml-0.5 opacity-50" />
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
 
+          </div>
+
+          {/* BLOQUE COMPACTO INFERIOR: COMUNIDAD WHATSAPP + GUÍA PRÁCTICA (DEBAJO DE LA CLASE GRATUITA) */}
+          <div
+            className={`rounded-2xl p-5 sm:p-7 border shadow-2xl backdrop-blur-md text-left ${
+              content.palette === 'minimal-mono'
+                ? 'bg-white border-gray-200 text-gray-900'
+                : 'bg-black/35 border-white/15 text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2.5 mb-2.5">
+              <Gift className={`w-5 h-5 shrink-0 ${content.palette === 'minimal-mono' ? 'text-emerald-600' : 'text-emerald-400'}`} />
+              <h2 className={`text-base sm:text-lg font-extrabold tracking-tight ${content.palette === 'minimal-mono' ? 'text-gray-900' : 'text-white'}`}>
+                Un regalo adicional para ti
+              </h2>
+            </div>
+
+            <p className={`text-sm sm:text-[15px] leading-relaxed mb-5 ${content.palette === 'minimal-mono' ? 'text-gray-600' : 'text-gray-200'}`}>
+              Únete gratis a nuestra comunidad de WhatsApp y recibe una guía práctica para principiantes con materiales, recomendaciones y errores que debes evitar.
+            </p>
+
+            {(() => {
+              const rawBtnText = (tyConfig.whatsappButtonText || '').trim();
+              const btnLabel =
+                rawBtnText && rawBtnText !== "UNIRME AL GRUPO Y RECIBIR LA GUÍA"
+                  ? rawBtnText
+                  : "UNIRME Y RECIBIR LA GUÍA GRATUITA";
+
+              return hasWhatsAppGroup ? (
+                <a
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleWhatsAppClick}
+                  className="w-full bg-[#063B27] hover:bg-[#084D33] border border-emerald-500/35 text-white py-3.5 px-6 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2.5 shadow-lg transition-all hover:scale-[1.01] cursor-pointer text-center"
+                >
+                  <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>{btnLabel}</span>
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  aria-disabled="true"
+                  title="Enlace de WhatsApp no configurado aún"
+                  className="w-full bg-[#063B27]/60 border border-emerald-500/20 text-white/70 py-3.5 px-6 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2.5 cursor-not-allowed select-none"
+                >
+                  <MessageCircle className="w-4 h-4 text-emerald-400/70 shrink-0" />
+                  <span>{btnLabel}</span>
+                </button>
+              );
+            })()}
+
+            <p className={`mt-3 text-center text-xs font-medium ${content.palette === 'minimal-mono' ? 'text-gray-500' : 'text-gray-300/90'}`}>
+              Acceso voluntario y gratuito. No necesitas unirte para ver la clase.
+            </p>
           </div>
 
         </div>

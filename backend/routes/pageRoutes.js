@@ -132,6 +132,7 @@ const attachProjectData = (page) => {
             id: page.project_id,
             name: page.project_name || page.master_name || page.name || "",
             productName: page.project_product_name || page.master_product_name || "",
+            niche: page.project_niche || page.master_niche || page.niche || "",
             masterParentId: page.master_parent_id,
             leadMagnetUrl: resolvedLeadMagnetUrl,
             whatsappGroupUrl: resolvedWhatsappUrl,
@@ -217,7 +218,7 @@ const attachProjectData = (page) => {
                     subLower.includes('grupo privado de whatsapp') ||
                     subLower.includes('sigue estos 2 pasos')
                 ) {
-                    ty.subheadline = "Antes de comenzar, tenemos un regalo adicional para ayudarte a dar tus primeros pasos.";
+                    ty.subheadline = "Ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional.";
                 }
             }
         }
@@ -507,10 +508,10 @@ router.get('/public/pages/by-domain', async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT lp.*, lp.thankyoupage_json, 
-              pr.name as project_name, pr.product_name as project_product_name,
+              pr.name as project_name, pr.product_name as project_product_name, pr.niche as project_niche,
               pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
               pr.affiliate_links as project_affiliate_links,
-              pm.name as master_name, pm.product_name as master_product_name,
+              pm.name as master_name, pm.product_name as master_product_name, pm.niche as master_niche,
               pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url,
               pm.affiliate_links as master_affiliate_links
        FROM landing_pages lp
@@ -568,10 +569,10 @@ router.get('/public/pages/by-user/:userSlug/:slug', async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT lp.*, lp.thankyoupage_json, 
-              pr.name as project_name, pr.product_name as project_product_name,
+              pr.name as project_name, pr.product_name as project_product_name, pr.niche as project_niche,
               pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
               pr.affiliate_links as project_affiliate_links,
-              pm.name as master_name, pm.product_name as master_product_name,
+              pm.name as master_name, pm.product_name as master_product_name, pm.niche as master_niche,
               pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url,
               pm.affiliate_links as master_affiliate_links
        FROM landing_pages lp
@@ -615,10 +616,10 @@ router.get('/public/pages/:slug', async (req, res) => {
     if (slug && slug.length <= 10) {
       [rows] = await pool.query(`
         SELECT lp.*, lp.thankyoupage_json, 
-               pr.name as project_name, pr.product_name as project_product_name,
+               pr.name as project_name, pr.product_name as project_product_name, pr.niche as project_niche,
                pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
                pr.affiliate_links as project_affiliate_links,
-               pm.name as master_name, pm.product_name as master_product_name,
+               pm.name as master_name, pm.product_name as master_product_name, pm.niche as master_niche,
                pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url,
                pm.affiliate_links as master_affiliate_links
         FROM landing_pages lp 
@@ -632,10 +633,10 @@ router.get('/public/pages/:slug', async (req, res) => {
     if (rows.length === 0 && /^\d+$/.test(slug)) {
        [rows] = await pool.query(`
          SELECT lp.*, lp.thankyoupage_json, 
-                pr.name as project_name, pr.product_name as project_product_name,
+                pr.name as project_name, pr.product_name as project_product_name, pr.niche as project_niche,
                 pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
                 pr.affiliate_links as project_affiliate_links,
-                pm.name as master_name, pm.product_name as master_product_name,
+                pm.name as master_name, pm.product_name as master_product_name, pm.niche as master_niche,
                 pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url,
                 pm.affiliate_links as master_affiliate_links
          FROM landing_pages lp 
@@ -649,10 +650,10 @@ router.get('/public/pages/:slug', async (req, res) => {
     if (rows.length === 0) {
         [rows] = await pool.query(`
           SELECT lp.*, lp.thankyoupage_json, 
-                 pr.name as project_name, pr.product_name as project_product_name,
+                 pr.name as project_name, pr.product_name as project_product_name, pr.niche as project_niche,
                  pr.strategy_json as project_strategy, pr.multimedia_json as project_multimedia, pr.lead_magnet_url as project_lead_magnet_url, pr.whatsapp_group_url as project_whatsapp_group_url, pr.master_parent_id,
                  pr.affiliate_links as project_affiliate_links,
-                 pm.name as master_name, pm.product_name as master_product_name,
+                 pm.name as master_name, pm.product_name as master_product_name, pm.niche as master_niche,
                  pm.strategy_json as master_strategy, pm.multimedia_json as master_multimedia, pm.lead_magnet_url as master_lead_magnet_url, pm.whatsapp_group_url as master_whatsapp_group_url,
                  pm.affiliate_links as master_affiliate_links
           FROM landing_pages lp 

@@ -355,8 +355,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
           securityText: "Acceso Inmediato & Garantizado"
       },
       thankYouPage: page.content.thankYouPage || {
-          headline: "¡Registro confirmado! Tu clase gratuita está lista.",
-          subheadline: "Antes de comenzar, tenemos un regalo adicional para ayudarte a dar tus primeros pasos.",
+          headline: "¡Tu registro está confirmado!",
+          subheadline: "Ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional.",
           ctaLink: "#",
           showSocials: true
       }
@@ -1252,8 +1252,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                           <SectionHeader id="ty-hero" title="1. Hero & Confirmación" icon={Sparkles} openSection={openSection} toggleSection={toggleSection} />
                           <SectionContent id="ty-hero" openSection={openSection}>
                               <div><Label>Nombre de la Marca / Logo</Label><Input value={content.thankYouPage?.headerLogoText || ''} onChange={(e) => updateThankYouConfig('headerLogoText', e.target.value)} placeholder="ResinPro Studio Latino" /></div>
-                              <div><Label>Título de Confirmación</Label><Input value={content.thankYouPage?.headline || ''} onChange={(e) => updateThankYouConfig('headline', e.target.value)} placeholder="¡Registro confirmado! Tu clase gratuita está lista." /></div>
-                              <div><Label>Mensaje / Subtítulo</Label><RichTextArea value={content.thankYouPage?.subheadline || ''} onChange={(e) => updateThankYouConfig('subheadline', e.target.value)} className="h-20" placeholder="Antes de comenzar, tenemos un regalo adicional para ayudarte a dar tus primeros pasos." /></div>
+                              <div><Label>Título de Confirmación</Label><Input value={content.thankYouPage?.headline || ''} onChange={(e) => updateThankYouConfig('headline', e.target.value)} placeholder="¡Tu registro está confirmado!" /></div>
+                              <div><Label>Mensaje / Subtítulo</Label><RichTextArea value={content.thankYouPage?.subheadline || ''} onChange={(e) => updateThankYouConfig('subheadline', e.target.value)} className="h-20" placeholder="Ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional." /></div>
                               <div><Label>Texto de Aviso (Email / Spam)</Label><Input value={content.thankYouPage?.emailNotificationText || ''} onChange={(e) => updateThankYouConfig('emailNotificationText', e.target.value)} placeholder="Revisa tu bandeja de entrada (y spam) para encontrar el acceso." /></div>
                           </SectionContent>
 
@@ -1290,7 +1290,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                               </div>
                               <div className="pt-3 border-t border-gray-800">
                                   <Label>Texto Botón CTA</Label>
-                                  <Input value={content.thankYouPage?.upsellButtonText || ''} onChange={(e) => updateThankYouConfig('upsellButtonText', e.target.value)} placeholder="CONOCER LA FORMACIÓN COMPLETA" />
+                                  <Input value={content.thankYouPage?.upsellButtonText || ''} onChange={(e) => updateThankYouConfig('upsellButtonText', e.target.value)} placeholder="CONOCER EL CURSO COMPLETO" />
                               </div>
                               <div>
                                   <Label>Enlace Botón (Checkout / Página de Pago)</Label>

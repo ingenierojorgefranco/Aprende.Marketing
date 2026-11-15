@@ -57,6 +57,7 @@ export const LivePage: React.FC<LivePageProps> = ({
 
                     setProject(prev => prev ? {
                         ...prev,
+                        niche: prev.niche || master.niche,
                         leadMagnetUrl: master.leadMagnetUrl || prev.leadMagnetUrl,
                         multimedia_json: {
                             ...(prev.multimedia_json || {}),
@@ -91,6 +92,7 @@ export const LivePage: React.FC<LivePageProps> = ({
 
                             p = {
                                 ...p,
+                                niche: p.niche || master.niche,
                                 leadMagnetUrl: master.leadMagnetUrl || p.leadMagnetUrl,
                                 whatsappGroupUrl: resolvedWhatsapp,
                                 whatsapp_group_url: resolvedWhatsapp,
