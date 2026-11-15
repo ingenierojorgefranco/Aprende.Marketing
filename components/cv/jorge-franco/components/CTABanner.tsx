@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpRight, MessageSquare } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 
 interface CTABannerProps {
   lang: 'es' | 'en';
@@ -16,10 +16,6 @@ export const CTABanner: React.FC<CTABannerProps> = ({ lang }) => {
           <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#FF5A1F]/10 border border-[#FF5A1F]/30 rounded-full text-xs font-black text-[#FF5A1F] uppercase tracking-widest">
             {lang === 'es' ? '✉ TRABAJEMOS JUNTOS' : '✉ WORK WITH ME'}
           </span>
-          
-          <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight max-w-2xl mx-auto leading-tight">
-            {lang === 'es' ? '¿Buscas un Senior Full-Stack o Product Engineer?' : 'Looking for a Senior Full-Stack or Product Engineer?'}
-          </h3>
           
           <p className="text-white font-normal max-w-xl mx-auto leading-relaxed text-base md:text-lg">
             {lang === 'es'

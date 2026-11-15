@@ -1,5 +1,5 @@
 import React from 'react';
-import { Code, Server, Cpu, Cloud, Zap, Download, Mail, Github, Linkedin, MapPin } from 'lucide-react';
+import { Download, Mail, Github, Linkedin, MapPin } from 'lucide-react';
 
 interface HeroSectionProps {
   onScrollTo: (elementId: string) => void;
@@ -27,22 +27,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollTo, lang }) =>
             ? 'He diseñado y desarrollado plataformas completas en producción, desde la arquitectura hasta el despliegue, integrando IA generativa, Stripe, automatizaciones y arquitecturas multi-tenant.'
             : 'I have designed and developed complete platforms in production, from architecture to deployment, integrating generative AI, Stripe, automation, and multi-tenant architectures.'}
         </p>
-
-        {/* Pilas de Características */}
-        <div className="flex flex-wrap gap-3 pt-2">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#111] border border-white/10 rounded-full text-xs font-normal text-white">
-            <Code className="w-3.5 h-3.5 text-[#FF5A1F]" /> Full-Stack Engineering
-          </span>
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#111] border border-white/10 rounded-full text-xs font-normal text-white">
-            <Server className="w-3.5 h-3.5 text-emerald-500" /> SaaS Products
-          </span>
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#111] border border-white/10 rounded-full text-xs font-normal text-white">
-            <Cpu className="w-3.5 h-3.5 text-[#FFBF00]" /> Generative AI
-          </span>
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#111] border border-white/10 rounded-full text-xs font-normal text-white">
-            <Cloud className="w-3.5 h-3.5 text-blue-400" /> Cloud Architecture
-          </span>
-        </div>
 
         {/* Botones de Acción y Redes */}
         <div className="space-y-3 pt-4">
@@ -127,13 +111,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollTo, lang }) =>
               <p className="text-xs font-semibold text-[#FFBF00] uppercase tracking-widest flex items-center justify-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5 text-[#FF5A1F]" /> {lang === 'es' ? 'Sevilla, España' : 'Sevilla, Spain'}
               </p>
-            </div>
-
-            {/* Disponibilidad Badge */}
-            <div className="pt-2 border-t border-white/5">
-              <span className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md text-xs font-black text-emerald-400">
-                {lang === 'es' ? 'DISPONIBLE PARA TRABAJO REMOTO O PRESENCIAL' : 'AVAILABLE FOR REMOTE OR ON-SITE WORK'}
-              </span>
             </div>
           </div>
         </div>

@@ -8,7 +8,6 @@ import { MetricsBar } from './components/MetricsBar';
 import { MainCaseStudy } from './components/MainCaseStudy';
 import { TechnologyStack } from './components/TechnologyStack';
 import { Certifications } from './components/Certifications';
-import { EngineeringPractices } from './components/EngineeringPractices';
 import { ProfessionalExperience } from './components/ProfessionalExperience';
 import { AboutAndAvailability } from './components/AboutAndAvailability';
 import { CTABanner } from './components/CTABanner';
@@ -63,13 +62,11 @@ export const JorgeFrancoPage: React.FC = () => {
           
           <AboutAndAvailability lang={lang} />
           
-          <MainCaseStudy lang={lang} />
-          
           <TechnologyStack lang={lang} />
           
-          <Certifications lang={lang} />
+          <MainCaseStudy lang={lang} />
           
-          <EngineeringPractices lang={lang} />
+          <Certifications lang={lang} />
           
           <ProfessionalExperience lang={lang} />
           
