@@ -329,7 +329,7 @@ router.post('/analyze-site', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     let query = `
-      SELECT p.*, parent.digital_product_url as parent_digital_product_url,
+      SELECT p.*, parent.name as parent_name, parent.digital_product_url as parent_digital_product_url,
              parent.multimedia_json as parent_multimedia_json,
              parent.lead_magnet_url as parent_lead_magnet_url,
              parent.whatsapp_group_url as parent_whatsapp_group_url,
@@ -389,7 +389,8 @@ router.get('/', async (req, res) => {
             isMaster: !!p.is_master,
             isActive: !!p.is_active,
             isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked,
-            masterParentId: p.master_parent_id ? String(p.master_parent_id) : undefined
+            masterParentId: p.master_parent_id ? String(p.master_parent_id) : undefined,
+            masterName: p.master_parent_id ? (p.parent_name || undefined) : undefined
         };
     });
     res.json(projects);
@@ -399,7 +400,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const [rows] = await pool.query(`
-        SELECT p.*, parent.digital_product_url as parent_digital_product_url,
+        SELECT p.*, parent.name as parent_name, parent.digital_product_url as parent_digital_product_url,
                parent.multimedia_json as parent_multimedia_json,
                parent.lead_magnet_url as parent_lead_magnet_url,
                parent.whatsapp_group_url as parent_whatsapp_group_url,
@@ -456,6 +457,7 @@ router.get('/:id', async (req, res) => {
     project.isMaster = !!project.is_master;
     project.isActive = !!project.is_active;
     project.masterParentId = project.master_parent_id ? String(project.master_parent_id) : undefined;
+    project.masterName = project.master_parent_id ? (project.parent_name || undefined) : undefined;
     res.json(project);
   } catch (error) { res.status(500).json({ error: error.message }); }
 });

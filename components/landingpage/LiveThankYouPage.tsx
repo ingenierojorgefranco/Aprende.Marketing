@@ -201,11 +201,13 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
   const paletteAccents = getPaletteAccents(content.palette);
 
-  // Tema / nombre específico del proyecto (ej: "Resina Epóxica en Suelos", "Microblading de Cejas")
+  // Tema / nombre oficial del proyecto (prioriza el Proyecto Maestro para coincidir con la marquesina)
   const rawProjectTopic = (
+    (project as any)?.masterName ||
+    (project as any)?.master_name ||
+    (project as any)?.parent_name ||
     project?.name ||
     (project as any)?.project_name ||
-    (project as any)?.master_name ||
     ''
   ).trim();
 

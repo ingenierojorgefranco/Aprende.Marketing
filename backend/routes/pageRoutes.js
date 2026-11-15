@@ -131,6 +131,7 @@ const attachProjectData = (page) => {
         page.project = {
             id: page.project_id,
             name: page.project_name || page.master_name || page.name || "",
+            masterName: page.master_name || "",
             productName: page.project_product_name || page.master_product_name || "",
             niche: page.project_niche || page.master_niche || page.niche || "",
             masterParentId: page.master_parent_id,
@@ -218,7 +219,7 @@ const attachProjectData = (page) => {
                     subLower.includes('grupo privado de whatsapp') ||
                     subLower.includes('sigue estos 2 pasos')
                 ) {
-                    const topicName = (page.project?.name || '').trim();
+                    const topicName = (page.master_name || page.project?.masterName || page.project?.name || '').trim();
                     ty.subheadline = topicName
                         ? `Ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional en el mundo de ${topicName}.`
                         : "Ya puedes acceder a tu clase gratuita y descubrir cómo dar tus primeros pasos de forma profesional.";

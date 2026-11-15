@@ -676,6 +676,7 @@ export interface StrategyJSON {
 export interface Project {
   id: string;
   name: string; // e.g. "Curso de Uñas Pro"
+  masterName?: string;
   niche: string; // e.g. "Belleza / Manicure"
   description: string; // Internal description
   shortDescription?: string; // */ Sigue presente para el frontend, pero poblado desde el JSON - 25/06/2024 11:30
