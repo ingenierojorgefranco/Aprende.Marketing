@@ -13,9 +13,6 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tool
 import { User, Plan } from '../types';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import productMicrobladingImg from '../src/assets/images/product_microblading_1794650768316.jpg';
-import productResinaImg from '../src/assets/images/product_resina_1794650768769.jpg';
-import productCaninoImg from '../src/assets/images/product_canino_1794650768945.jpg';
 
 interface PublicHomeProps {
   user: User | null;
@@ -28,43 +25,9 @@ interface MarqueeProductItem {
   niche: string;
   description: string;
   imageUrl: string;
-  fallbackImg: string;
   fullPrice: number;
   commissionRate: number;
 }
-
-const FALLBACK_MARQUEE_PRODUCTS: MarqueeProductItem[] = [
-  {
-    id: 'proj-microblading-01',
-    name: 'Masterclass Microblading Pro',
-    niche: 'Belleza y Estética',
-    description: 'Curso profesional de técnica de cejas pelo a pelo para principiantes y esteticistas, con embudo, página de captura y guiones listos.',
-    imageUrl: productMicrobladingImg,
-    fallbackImg: productMicrobladingImg,
-    fullPrice: 200,
-    commissionRate: 0.65
-  },
-  {
-    id: 'proj-resina-01',
-    name: 'Diseño de Joyas con Resina',
-    niche: 'Manualidades',
-    description: 'Crea un negocio rentable de accesorios personalizados con resina epóxica desde casa usando nuestra estrategia y contenido automatizado.',
-    imageUrl: productResinaImg,
-    fallbackImg: productResinaImg,
-    fullPrice: 79,
-    commissionRate: 0.70
-  },
-  {
-    id: 'proj-perros-01',
-    name: 'Educación Canina VIP',
-    niche: 'Mascotas',
-    description: 'Entrena a tu perro y corrige comportamientos difíciles en tiempo récord con secuencias de seguimiento y página de registro listas.',
-    imageUrl: productCaninoImg,
-    fallbackImg: productCaninoImg,
-    fullPrice: 67,
-    commissionRate: 0.60
-  }
-];
 
 
 ////////// Datos para la gráfica de Rentabilidad 2026 - 27/05/2025 02:15 //////////
@@ -87,7 +50,8 @@ const profitabilityData = [
 export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [marqueeProducts, setMarqueeProducts] = useState<MarqueeProductItem[]>(FALLBACK_MARQUEE_PRODUCTS);
+  const [marqueeProducts, setMarqueeProducts] = useState<MarqueeProductItem[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState<boolean>(true);
   const [failedProductImages, setFailedProductImages] = useState<Record<string, boolean>>({});
   
   ////////// Estado para el menú móvil - 27/05/2025 10:00 //////////
@@ -201,24 +165,27 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
       api.getPublicMasterProducts()
          .then((serverProducts) => {
             if (Array.isArray(serverProducts) && serverProducts.length > 0) {
-              const fallbackCycle = [productMicrobladingImg, productResinaImg, productCaninoImg];
-              const mapped: MarqueeProductItem[] = serverProducts.map((p, idx) => {
-                const fallbackAsset = fallbackCycle[idx % fallbackCycle.length];
-                return {
-                  id: p.id,
-                  name: p.name,
-                  niche: p.niche || 'Producto Digital',
-                  description: p.shortDescription || p.description || 'Producto validado con embudo, página de captura y contenido listo para impulsar tus comisiones.',
-                  imageUrl: p.imageUrl || fallbackAsset,
-                  fallbackImg: fallbackAsset,
-                  fullPrice: p.fullPrice || 0,
-                  commissionRate: p.commissionRate || 0.65
-                };
-              });
+              const mapped: MarqueeProductItem[] = serverProducts.map((p) => ({
+                id: p.id,
+                name: p.name,
+                niche: p.niche || 'Producto Digital',
+                description: p.shortDescription || p.description || 'Producto validado con embudo, página de captura y contenido listo para impulsar tus comisiones.',
+                imageUrl: p.imageUrl || '',
+                fullPrice: p.fullPrice || 0,
+                commissionRate: p.commissionRate || 0
+              }));
               setMarqueeProducts(mapped);
+            } else {
+              setMarqueeProducts([]);
             }
          })
-         .catch(err => console.error("Error loading public master products:", err));
+         .catch(err => {
+            console.error("Error loading public master products:", err);
+            setMarqueeProducts([]);
+         })
+         .finally(() => {
+            setLoadingProducts(false);
+         });
   }, []);
 
   useEffect(() => {
@@ -684,7 +651,8 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
         </div>
       </header>
 
-      {/* Sección Marquesina de Productos Disponibles en la Plataforma */}
+      {/* Sección Marquesina de Productos Reales Disponibles en la Plataforma */}
+      {(loadingProducts || marqueeProducts.length > 0) && (
       <section id="products-marquee" className="py-20 md:py-24 bg-[#07090E] border-t border-white/5 relative overflow-hidden">
         <div className="container mx-auto px-6 relative z-10 text-center max-w-3xl mb-12 md:mb-16">
           <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[#FF5A1F]">
@@ -706,7 +674,24 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
           <div className="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-28 bg-gradient-to-r from-[#07090E] to-transparent z-20" />
           <div className="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-28 bg-gradient-to-l from-[#07090E] to-transparent z-20" />
 
-          {(() => {
+          {loadingProducts && marqueeProducts.length === 0 ? (
+            <div className="flex gap-6 px-6 justify-center">
+              {[0, 1, 2].map((skeletonIdx) => (
+                <div
+                  key={`marquee-skeleton-${skeletonIdx}`}
+                  className="w-[310px] sm:w-[390px] md:w-[410px] shrink-0 bg-[#111319] border border-white/10 rounded-2xl overflow-hidden animate-pulse"
+                >
+                  <div className="w-full h-52 sm:h-56 bg-white/5" />
+                  <div className="p-6 space-y-3">
+                    <div className="h-3 w-32 bg-white/10 rounded" />
+                    <div className="h-6 w-3/4 bg-white/10 rounded" />
+                    <div className="h-14 w-full bg-white/5 rounded" />
+                    <div className="h-11 w-full bg-white/10 rounded-xl mt-4" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (() => {
             // Repetimos el ciclo de productos reales lo suficiente para cubrir pantallas anchas sin saltos
             const repeatTimes = Math.max(2, Math.ceil(6 / Math.max(1, marqueeProducts.length)));
             const halfTrack: MarqueeProductItem[] = [];
@@ -716,25 +701,31 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
 
             const renderProductCard = (product: MarqueeProductItem, idx: number) => {
               const imgFailed = !!failedProductImages[`${product.id}-${idx}`];
-              const resolvedSrc = imgFailed ? product.fallbackImg : (product.imageUrl || product.fallbackImg);
+              const hasValidImage = Boolean(product.imageUrl && !imgFailed);
               const commissionPct = product.commissionRate
                 ? Math.round(product.commissionRate <= 1 ? product.commissionRate * 100 : product.commissionRate)
-                : 65;
+                : 0;
 
               return (
                 <div
                   key={`single-row-${product.id}-${idx}`}
                   className="w-[310px] sm:w-[390px] md:w-[410px] shrink-0 bg-[#111319] border border-white/10 hover:border-[#FF5A1F]/45 rounded-2xl overflow-hidden transition-colors duration-200 flex flex-col justify-between shadow-2xl"
                 >
-                  {/* Imagen del producto más amplia */}
+                  {/* Imagen del producto real desde la base de datos */}
                   <div className="w-full h-52 sm:h-56 bg-[#191B23] relative overflow-hidden shrink-0">
-                    <img
-                      src={resolvedSrc}
-                      alt={product.name}
-                      referrerPolicy="no-referrer"
-                      onError={() => setFailedProductImages(prev => ({ ...prev, [`${product.id}-${idx}`]: true }))}
-                      className="w-full h-full object-cover"
-                    />
+                    {hasValidImage ? (
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        referrerPolicy="no-referrer"
+                        onError={() => setFailedProductImages(prev => ({ ...prev, [`${product.id}-${idx}`]: true }))}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[#191B23] via-[#13151C] to-[#0B0D12] flex items-center justify-center">
+                        <Briefcase className="w-12 h-12 text-[#FF5A1F]/40" />
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#111319] via-black/15 to-transparent pointer-events-none" />
                   </div>
 
@@ -743,8 +734,12 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                     <div>
                       <div className="flex items-center gap-2 text-xs text-gray-400 font-medium whitespace-nowrap overflow-hidden">
                         <span className="truncate">{product.niche}</span>
-                        <span aria-hidden="true">·</span>
-                        <span className="text-[#FF5A1F] font-semibold tabular-nums shrink-0">{commissionPct}% comisión</span>
+                        {commissionPct > 0 && (
+                          <>
+                            <span aria-hidden="true">·</span>
+                            <span className="text-[#FF5A1F] font-semibold tabular-nums shrink-0">{commissionPct}% comisión</span>
+                          </>
+                        )}
                       </div>
 
                       <h3 className="text-lg sm:text-xl font-extrabold text-white leading-snug mt-1.5 line-clamp-2 whitespace-normal">
@@ -816,6 +811,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
           </p>
         </div>
       </section>
+      )}
 
       <section id="process" className="py-20 md:py-24 bg-[#0B0B0B] border-t border-white/5 relative overflow-hidden">
           <div className="container mx-auto px-6 relative z-10">

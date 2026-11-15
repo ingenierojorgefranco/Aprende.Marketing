@@ -706,18 +706,10 @@ router.get('/public/plans', async (req, res) => {
 });
 
 /**
- * Lista los productos maestros activos para la marquesina pública de la home.
+ * Lista los productos maestros activos (o proyectos activos reales) para la marquesina pública de la home.
  */
 router.get('/public/master-products', async (req, res) => {
     try {
-        const [rows] = await pool.query(
-            `SELECT id, name, product_name, niche, description, short_description, multimedia_json, strategy_json, full_price, commission_rate, created_at
-             FROM projects
-             WHERE is_master = 1 AND is_active = 1
-             ORDER BY created_at DESC
-             LIMIT 24`
-        );
-
         const parseJsonSafe = (val) => {
             if (!val) return null;
             try {
@@ -729,16 +721,75 @@ router.get('/public/master-products', async (req, res) => {
             }
         };
 
+        const stripHtml = (val) => {
+            if (!val) return '';
+            return String(val)
+                .replace(/<[^>]*>?/gm, ' ')
+                .replace(/&nbsp;/gi, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        };
+
+        let [rows] = await pool.query(
+            `SELECT p.id, p.name, p.product_name, p.niche, p.description,
+                    p.multimedia_json, p.strategy_json, p.full_price, p.commission_rate,
+                    p.master_parent_id, p.created_at,
+                    pm.multimedia_json as parent_multimedia_json,
+                    pm.strategy_json as parent_strategy_json
+             FROM projects p
+             LEFT JOIN projects pm ON p.master_parent_id = pm.id
+             WHERE p.is_master = 1 AND p.is_active = 1
+             ORDER BY p.created_at DESC
+             LIMIT 24`
+        );
+
+        // Respaldo: si aún no hay proyectos marcados como is_master = 1, tomar proyectos activos reales sin duplicar nombres
+        if (!rows || rows.length === 0) {
+            const [activeRows] = await pool.query(
+                `SELECT p.id, p.name, p.product_name, p.niche, p.description,
+                        p.multimedia_json, p.strategy_json, p.full_price, p.commission_rate,
+                        p.master_parent_id, p.created_at,
+                        pm.multimedia_json as parent_multimedia_json,
+                        pm.strategy_json as parent_strategy_json
+                 FROM projects p
+                 LEFT JOIN projects pm ON p.master_parent_id = pm.id
+                 WHERE p.is_active = 1
+                 ORDER BY p.created_at DESC
+                 LIMIT 24`
+            );
+            const seenNames = new Set();
+            rows = (activeRows || []).filter((r) => {
+                const key = (r.name || r.product_name || String(r.id)).trim().toLowerCase();
+                if (seenNames.has(key)) return false;
+                seenNames.add(key);
+                return true;
+            });
+        }
+
         const formatted = (rows || []).map((p) => {
             const mm = parseJsonSafe(p.multimedia_json) || {};
-            const st = parseJsonSafe(p.strategy_json) || {};
+            const parentMm = parseJsonSafe(p.parent_multimedia_json) || {};
+            const st = parseJsonSafe(p.strategy_json) || parseJsonSafe(p.parent_strategy_json) || {};
+
+            const shortDesc = stripHtml(st?.meta?.shortDescription || st?.shortDescription || '');
+            const fullDesc = stripHtml(p.description || '');
+            const resolvedDesc = shortDesc || fullDesc;
+
+            const heroImg =
+                (Array.isArray(mm.heroImages) && mm.heroImages[0]) ||
+                (Array.isArray(parentMm.heroImages) && parentMm.heroImages[0]) ||
+                mm?.leadMagnets?.[0]?.imageUrl ||
+                parentMm?.leadMagnets?.[0]?.imageUrl ||
+                '';
+
             return {
                 id: String(p.id),
-                name: p.product_name || p.name || 'Producto Digital',
+                name: p.name || p.product_name || 'Producto Digital',
+                productName: p.product_name || p.name || 'Producto Digital',
                 niche: p.niche || st?.meta?.niche || 'Negocios Digitales',
-                shortDescription: st?.meta?.shortDescription || p.short_description || p.description || '',
-                description: p.description || p.short_description || st?.meta?.shortDescription || '',
-                imageUrl: Array.isArray(mm.heroImages) && mm.heroImages[0] ? mm.heroImages[0] : (mm?.leadMagnets?.[0]?.imageUrl || ''),
+                shortDescription: resolvedDesc,
+                description: resolvedDesc,
+                imageUrl: heroImg,
                 fullPrice: p.full_price ? parseFloat(p.full_price) : (st?.meta?.price || 0),
                 commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (st?.meta?.commissionRate || 0)
             };
