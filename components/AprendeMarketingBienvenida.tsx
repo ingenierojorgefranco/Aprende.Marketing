@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Play, 
   Sparkles, 
-  UserPlus, 
-  ArrowRight, 
   CheckCircle2, 
   Instagram, 
   Facebook, 
   MessageCircle, 
   GraduationCap, 
-  ShieldCheck, 
   Zap, 
   ExternalLink,
   Users,
   Video,
   Rocket
 } from 'lucide-react';
+import { SocialCommentsBlock } from './shared/SocialCommentsBlock';
+import { ProductsMarqueeSection } from './shared/ProductsMarqueeSection';
 
 interface AprendeMarketingBienvenidaProps {
   // Permite sobreescribir el enlace de video de YouTube fácilmente
@@ -31,13 +29,12 @@ interface AprendeMarketingBienvenidaProps {
 
 export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProps> = ({
   customVideoUrl = "https://www.youtube.com/embed/x4NdPhJTXxM?rel=0&controls=1&showinfo=0",
-  freeClassesUrl = "https://www.youtube.com/playlist?list=PLGFXdqHqDQ9I",
   facebookUrl = "https://www.facebook.com/jorgefranpuntoco",
   instagramUrl = "https://instagram.com/jorgefranpuntoco",
   whatsappGroupUrl = "https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4"
 }) => {
   const navigate = useNavigate();
-  const [videoUrl, setVideoUrl] = useState(customVideoUrl);
+  const [videoUrl] = useState(customVideoUrl);
 
   // Convierte URLs estándar de YouTube (youtube.com/watch?v= o youtu.be/) a formato embed
   const getEmbedUrl = (rawUrl: string): string => {
@@ -100,7 +97,8 @@ export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProp
       </a>
 
       {/* Contenido Principal */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-10 sm:py-16 relative z-10 max-w-6xl mx-auto w-full">
+      <main className="flex-1 flex flex-col items-center py-10 sm:py-16 relative z-10 w-full">
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 flex flex-col items-center">
         
         {/* LOGOTIPO DE APRENDE MARKETING CENTRADO */}
         <div className="flex flex-col items-center justify-center text-center mb-8 sm:mb-10 group cursor-pointer" onClick={() => navigate('/')}>
@@ -167,7 +165,7 @@ export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProp
         </div>
 
         {/* NUEVO FORMATO DE ACCIÓN: PROTAGONISMO A CREAR CUENTA / PROYECTO */}
-        <div className="w-full max-w-2xl flex flex-col items-center mb-16 sm:mb-20 bg-[#0E0E14]/90 border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden text-center">
+        <div className="w-full max-w-2xl flex flex-col items-center mb-12 sm:mb-16 bg-[#0E0E14]/90 border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden text-center">
           
           {/* Luz ambiental sutil */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-32 bg-[#FF5A1F]/15 rounded-full blur-3xl pointer-events-none"></div>
@@ -210,35 +208,17 @@ export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProp
             </div>
           </div>
 
-          {/* Línea divisoria elegante */}
-          <div className="w-full max-w-lg border-t border-white/10 my-7 sm:my-8 relative z-10"></div>
+        </div>
 
-          {/* SECCIÓN SECUNDARIA: Consulta de clases sin robar protagonismo */}
-          <div className="space-y-2 relative z-10">
-            <h4 className="text-base sm:text-lg font-bold text-gray-200">
-              ¿Quieres profundizar en los conceptos?
-            </h4>
-            <p className="text-xs sm:text-sm text-gray-400 max-w-md mx-auto">
-              También puedes consultar nuestras clases completas grabadas.
-            </p>
-
-            <div className="pt-3">
-              <a
-                href={freeClassesUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 font-bold text-white transition-all duration-200 bg-blue-600 hover:bg-blue-500 rounded-xl hover:scale-105 shadow-lg shadow-blue-600/30 border border-blue-400/30 text-sm sm:text-base cursor-pointer group"
-              >
-                <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
-                  <Play className="w-4 h-4 fill-current ml-0.5" />
-                </div>
-                <span>Ver Clases Gratuitas</span>
-                <ExternalLink className="w-4 h-4 opacity-80 group-hover:opacity-100 transition-opacity ml-1" />
-              </a>
-            </div>
-          </div>
+        {/* BLOQUE DE COMENTARIOS ESTILO FACEBOOK */}
+        <SocialCommentsBlock className="mb-16 sm:mb-20" />
 
         </div>
+
+        {/* BLOQUE DE PRODUCTOS ANALIZADOS DE LA HOME */}
+        <ProductsMarqueeSection />
+
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 flex flex-col items-center">
 
         {/* SECCIÓN DE VALOR / CARDS DE COLOR VIBRANTES Y PREMIUM */}
         <div className="w-full max-w-5xl grid sm:grid-cols-3 gap-6 sm:gap-6 mb-16 sm:mb-20">
@@ -374,6 +354,8 @@ export const AprendeMarketingBienvenida: React.FC<AprendeMarketingBienvenidaProp
               </a>
             </div>
           )}
+        </div>
+
         </div>
 
       </main>
