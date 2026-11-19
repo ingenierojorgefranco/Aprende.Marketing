@@ -103,6 +103,16 @@ app.use('/api/master-step-videos', masterStepVideoRoutes);
 app.use('/api/upload', uploadRoutes);
 
 // ======================================================
+//  REDIRECCIONES DIRECTAS EN SERVIDOR
+// ======================================================
+const SESION_WHATSAPP_URL = 'https://wa.me/573146270784?text=Hola%20Jorge%2C%20me%20gustar%C3%ADa%20postularme%20a%20la%20sesi%C3%B3n%20personalizada%20para%20construir%20mi%20negocio%20digital%20a%20trav%C3%A9s%20de%20Aprende.Marketing.%20Env%C3%ADame%20por%20favor%20el%20formulario%20para%20postularme';
+
+app.get('/sesion', (req, res, next) => {
+  if (req.tenantSubdomain) return next();
+  return res.redirect(302, SESION_WHATSAPP_URL);
+});
+
+// ======================================================
 //  STATIC FILES & SPA FALLBACK
 // ======================================================
 const frontendDistPath = path.join(__dirname, '..', 'dist');

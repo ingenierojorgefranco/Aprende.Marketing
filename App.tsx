@@ -30,6 +30,28 @@ const AprendeMarketingProjectPageWrapper: React.FC = () => {
   return <AprendeMarketingProjectPage lang={lang === 'en' ? 'en' : 'es'} />;
 };
 
+const SESION_WHATSAPP_URL =
+  "https://wa.me/573146270784?text=Hola%20Jorge%2C%20me%20gustar%C3%ADa%20postularme%20a%20la%20sesi%C3%B3n%20personalizada%20para%20construir%20mi%20negocio%20digital%20a%20trav%C3%A9s%20de%20Aprende.Marketing.%20Env%C3%ADame%20por%20favor%20el%20formulario%20para%20postularme";
+
+const ExternalRedirect: React.FC<{ to: string }> = ({ to }) => {
+  useEffect(() => {
+    window.location.replace(to);
+  }, [to]);
+
+  return (
+    <div className="min-h-screen bg-[#0B0B0B] text-white flex flex-col items-center justify-center p-6 text-center">
+      <div className="w-10 h-10 border-4 border-[#FF5A1F] border-t-transparent rounded-full animate-spin mb-5" />
+      <p className="text-lg font-bold mb-2">Redirigiendo a WhatsApp...</p>
+      <a
+        href={to}
+        className="text-sm text-[#FF5A1F] hover:underline"
+      >
+        Si no eres redirigido automáticamente, haz clic aquí
+      </a>
+    </div>
+  );
+};
+
 // Dashboard Core
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
 import { DashboardHome } from "./components/dashboard/DashboardHome";
@@ -360,6 +382,9 @@ const App: React.FC = () => {
         <Route path="/aprendemarketing/bienvenida" element={<AprendeMarketingBienvenida />} />
         <Route path="/bienvenida" element={<Navigate to="/aprendemarketing/bienvenida" replace />} />
         <Route path="/aprendemarketing" element={<Navigate to="/aprendemarketing/bienvenida" replace />} />
+
+        {/* REDIRECCIONES EXTERNAS DIRECTAS */}
+        <Route path="/sesion" element={<ExternalRedirect to={SESION_WHATSAPP_URL} />} />
 
         {/* RUTAS INTELIGENTES UNIVERSALES DE REDIRECCIÓN (/go/:destination) */}
         <Route path="/go/:destination" element={<SmartRedirect />} />
