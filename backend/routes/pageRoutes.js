@@ -261,21 +261,51 @@ const sanitizeLandingContent = (content) => {
 router.get('/pages', authMiddleware, async (req, res) => {
   try {
     const [rows] = await pool.query(`
-      SELECT lp.*, lp.thankyoupage_json, pr.name as project_name 
+      SELECT lp.*, lp.thankyoupage_json,
+             pr.name as project_name,
+             pr.multimedia_json as project_multimedia,
+             pr.master_parent_id,
+             pm.multimedia_json as master_multimedia
       FROM landing_pages lp 
-      LEFT JOIN projects pr ON lp.project_id = pr.id 
+      LEFT JOIN projects pr ON lp.project_id = pr.id
+      LEFT JOIN projects pm ON pr.master_parent_id = pm.id
       WHERE lp.user_id = ? 
       ORDER BY lp.created_at DESC
     `, [req.user.id]);
     
+    const masterSyncKeys = [
+      'videoUrl', 'videoTitle', 'videoSubtitle', 'videoNoticeText', 'videoPosterUrl', 'videoBadge', 'videoDuration',
+      'whatsappTitle', 'whatsappSubtitle', 'whatsappButtonText',
+      'upsellTitle', 'upsellSubtitle', 'upsellButtonText'
+    ];
+
     rows.forEach(page => {
         if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
         page.content = sanitizeLandingContent(page.content);
+        if (!page.content) page.content = {};
+
+        let tyData = {};
         if (page.thankyoupage_json) {
-            const tyData = typeof page.thankyoupage_json === 'string' ? JSON.parse(page.thankyoupage_json) : page.thankyoupage_json;
-            if (!page.content) page.content = {};
-            page.content.thankYouPage = tyData;
+            tyData = typeof page.thankyoupage_json === 'string' ? safeParseJson(page.thankyoupage_json, {}) : page.thankyoupage_json;
+        } else if (page.content.thankYouPage) {
+            tyData = { ...page.content.thankYouPage };
         }
+
+        const projMm = safeParseJson(page.project_multimedia, {}) || {};
+        const mastMm = safeParseJson(page.master_multimedia, {}) || {};
+        const sourceTy = page.master_parent_id
+            ? { ...(projMm.thankYouPage || {}), ...(mastMm.thankYouPage || {}) }
+            : { ...(mastMm.thankYouPage || {}), ...(projMm.thankYouPage || {}) };
+
+        masterSyncKeys.forEach((key) => {
+            if (typeof sourceTy[key] === 'string' && sourceTy[key].trim() !== '') {
+                tyData[key] = sourceTy[key].trim();
+            }
+        });
+
+        page.content.thankYouPage = tyData;
+        delete page.project_multimedia;
+        delete page.master_multimedia;
     });
     res.json(rows);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -330,6 +360,21 @@ router.post('/pages', authMiddleware, async (req, res) => {
                 }
 
                 if (!tyPage) tyPage = {};
+
+                // Heredar textos globales de la Página de Gracias desde el Proyecto Maestro (o Proyecto)
+                const effectiveTy = pRow.master_parent_id
+                    ? { ...(pMm.thankYouPage || {}), ...(mMm.thankYouPage || {}) }
+                    : { ...(mMm.thankYouPage || {}), ...(pMm.thankYouPage || {}) };
+
+                [
+                    'videoUrl', 'videoTitle', 'videoSubtitle', 'videoNoticeText', 'videoPosterUrl', 'videoBadge', 'videoDuration',
+                    'whatsappTitle', 'whatsappSubtitle', 'whatsappButtonText',
+                    'upsellTitle', 'upsellSubtitle', 'upsellButtonText'
+                ].forEach((key) => {
+                    if (typeof effectiveTy[key] === 'string' && effectiveTy[key].trim() !== '') {
+                        tyPage[key] = effectiveTy[key].trim();
+                    }
+                });
 
                 const groupWhatsappUrl = pRow.whatsapp_group_url || pRow.master_whatsapp_group_url || pMm.whatsappGroupUrl || mMm.whatsappGroupUrl;
                 if (groupWhatsappUrl && (!tyPage.ctaLink || tyPage.ctaLink === '#' || tyPage.ctaLink === 'https://chat.whatsapp.com/demo')) {

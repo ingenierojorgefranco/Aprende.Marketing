@@ -408,6 +408,50 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
     api.getMasterLibrary().then(setMasterLibrary).catch(err => console.error("Error cargando biblioteca maestra", err));
   }, []);
 
+  // Sincronizar los textos globales de la Página de Gracias desde el Proyecto Maestro en los campos del editor
+  useEffect(() => {
+    const sourceTy = (masterProject?.multimedia_json as any)?.thankYouPage || (linkedProject?.multimedia_json as any)?.thankYouPage;
+    if (!sourceTy) return;
+
+    setContent(prev => {
+      const currentTy = prev.thankYouPage || ({} as any);
+      const nextTy = { ...currentTy };
+      let changed = false;
+
+      const syncKeys: Array<keyof NonNullable<GeneratedPageContent['thankYouPage']>> = [
+        'whatsappTitle',
+        'whatsappSubtitle',
+        'whatsappButtonText',
+        'upsellTitle',
+        'upsellSubtitle',
+        'upsellButtonText'
+      ];
+
+      syncKeys.forEach((key) => {
+        const masterVal = typeof sourceTy[key] === 'string' ? sourceTy[key].trim() : '';
+        if (masterVal && nextTy[key] !== masterVal) {
+          (nextTy as any)[key] = masterVal;
+          changed = true;
+        }
+      });
+
+      if (!nextTy.whatsappTitle || nextTy.whatsappTitle === 'Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica') {
+        nextTy.whatsappTitle = 'Un regalo adicional para ti';
+        changed = true;
+      }
+      if (!nextTy.whatsappSubtitle || nextTy.whatsappSubtitle === 'Conecta con nuestra comunidad, resuelve tus dudas y descarga tu guía en formato digital.') {
+        nextTy.whatsappSubtitle = 'Únete gratis a nuestra comunidad de WhatsApp y recibe una guía práctica para principiantes con materiales, recomendaciones y errores que debes evitar.';
+        changed = true;
+      }
+      if (!nextTy.whatsappButtonText || nextTy.whatsappButtonText === 'UNIRME AL GRUPO Y RECIBIR LA GUÍA') {
+        nextTy.whatsappButtonText = 'UNIRME Y RECIBIR LA GUÍA GRATUITA';
+        changed = true;
+      }
+
+      return changed ? { ...prev, thankYouPage: nextTy } : prev;
+    });
+  }, [masterProject, linkedProject]);
+
   // URL calculation
   const baseSlug = page.subdomain ? page.subdomain.split('.')[0] : page.id;
   const publicUrl = `/lp/${baseSlug}`;
@@ -1278,16 +1322,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                           {/* 3. FORMACIÓN COMPLETA / UPSELL */}
                           <SectionHeader id="ty-upsell" title="3. Formación Completa (Upsell)" icon={GraduationCap} openSection={openSection} toggleSection={toggleSection} />
                           <SectionContent id="ty-upsell" openSection={openSection}>
-                              <div><Label>Título Sección</Label><Input value={content.thankYouPage?.upsellTitle || ''} onChange={(e) => updateThankYouConfig('upsellTitle', e.target.value)} placeholder="¿Quieres aprender el proceso completo?" /></div>
-                              <div><Label>Subtítulo Sección</Label><Input value={content.thankYouPage?.upsellSubtitle || ''} onChange={(e) => updateThankYouConfig('upsellSubtitle', e.target.value)} placeholder="Lleva tus habilidades al siguiente nivel..." /></div>
-                              <div className="pt-3 border-t border-gray-800">
-                                  <Label>Nombre del Programa / Formación</Label>
-                                  <Input value={content.thankYouPage?.upsellProductName || ''} onChange={(e) => updateThankYouConfig('upsellProductName', e.target.value)} placeholder="Especialista en Resina Epóxica para Suelos" />
-                              </div>
-                              <div className="grid grid-cols-2 gap-2">
-                                  <div><Label>Nombre del Instructor</Label><Input value={content.thankYouPage?.upsellInstructorName || ''} onChange={(e) => updateThankYouConfig('upsellInstructorName', e.target.value)} placeholder="Ariana Zamora" /></div>
-                                  <div><Label>Especialidad Instructor</Label><Input value={content.thankYouPage?.upsellInstructorTitle || ''} onChange={(e) => updateThankYouConfig('upsellInstructorTitle', e.target.value)} placeholder="Especialista en recubrimientos epóxicos" /></div>
-                              </div>
+                              <div><Label>Título Sección</Label><Input value={content.thankYouPage?.upsellTitle || ''} onChange={(e) => updateThankYouConfig('upsellTitle', e.target.value)} placeholder="¿Te gustaría aprender el proceso paso a paso?" /></div>
+                              <div><Label>Subtítulo Sección</Label><Input value={content.thankYouPage?.upsellSubtitle || ''} onChange={(e) => updateThankYouConfig('upsellSubtitle', e.target.value)} placeholder="Descubre la formación completa, los módulos y todo lo que aprenderás para seguir desarrollando tus habilidades." /></div>
                               <div className="pt-3 border-t border-gray-800">
                                   <Label>Texto Botón CTA</Label>
                                   <Input value={content.thankYouPage?.upsellButtonText || ''} onChange={(e) => updateThankYouConfig('upsellButtonText', e.target.value)} placeholder="CONOCER EL CURSO COMPLETO" />
@@ -1296,33 +1332,20 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                   <Label>Enlace Botón (Checkout / Página de Pago)</Label>
                                   <Input value={content.thankYouPage?.upsellButtonUrl || ''} onChange={(e) => updateThankYouConfig('upsellButtonUrl', e.target.value)} placeholder="https://pay.hotmart.com/... o enlace de compra" />
                               </div>
-                              <div>
-                                  <Label>Imagen Mockup Personalizada (Opcional)</Label>
-                                  <Input value={content.thankYouPage?.upsellImageUrl || ''} onChange={(e) => updateThankYouConfig('upsellImageUrl', e.target.value)} placeholder="URL de imagen de mockup (deja vacío para mockup 3D automático)" />
-                              </div>
                           </SectionContent>
 
                           {/* 4. REGALO ADICIONAL (WHATSAPP + GUÍA) */}
                           <SectionHeader id="ty-whatsapp" title="4. Regalo Adicional (WhatsApp + Guía)" icon={Gift} openSection={openSection} toggleSection={toggleSection} />
                           <SectionContent id="ty-whatsapp" openSection={openSection}>
-                              <div><Label>Badge Superior</Label><Input value={content.thankYouPage?.whatsappBadge || ''} onChange={(e) => updateThankYouConfig('whatsappBadge', e.target.value)} placeholder="REGALO ADICIONAL" /></div>
-                              <div><Label>Título Principal</Label><Input value={content.thankYouPage?.whatsappTitle || ''} onChange={(e) => updateThankYouConfig('whatsappTitle', e.target.value)} placeholder="Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica" /></div>
-                              <div><Label>Subtítulo</Label><RichTextArea value={content.thankYouPage?.whatsappSubtitle || ''} onChange={(e) => updateThankYouConfig('whatsappSubtitle', e.target.value)} className="h-20" placeholder="Conecta con nuestra comunidad, resuelve tus dudas..." /></div>
-                              <div className="pt-3 border-t border-gray-800">
-                                  <Label>Título de la Guía Práctica</Label>
-                                  <Input value={content.thankYouPage?.whatsappGuideTitle || ''} onChange={(e) => updateThankYouConfig('whatsappGuideTitle', e.target.value)} placeholder="Cómo convertir la aplicación de resina epóxica para suelos en un negocio rentable" />
-                              </div>
+                              <div><Label>Título Principal</Label><Input value={content.thankYouPage?.whatsappTitle || ''} onChange={(e) => updateThankYouConfig('whatsappTitle', e.target.value)} placeholder="Un regalo adicional para ti" /></div>
+                              <div><Label>Subtítulo</Label><RichTextArea value={content.thankYouPage?.whatsappSubtitle || ''} onChange={(e) => updateThankYouConfig('whatsappSubtitle', e.target.value)} className="h-20" placeholder="Únete gratis a nuestra comunidad de WhatsApp y recibe una guía práctica para principiantes con materiales, recomendaciones y errores que debes evitar." /></div>
                               <div className="pt-3 border-t border-gray-800">
                                   <Label>Texto Botón de WhatsApp</Label>
-                                  <Input value={content.thankYouPage?.whatsappButtonText || ''} onChange={(e) => updateThankYouConfig('whatsappButtonText', e.target.value)} placeholder="UNIRME AL GRUPO Y RECIBIR LA GUÍA" />
+                                  <Input value={content.thankYouPage?.whatsappButtonText || ''} onChange={(e) => updateThankYouConfig('whatsappButtonText', e.target.value)} placeholder="UNIRME Y RECIBIR LA GUÍA GRATUITA" />
                               </div>
                               <div>
                                   <Label>Enlace del Grupo de WhatsApp (VIP)</Label>
                                   <Input value={content.thankYouPage?.ctaLink || ''} onChange={(e) => updateThankYouConfig('ctaLink', e.target.value)} placeholder="https://chat.whatsapp.com/..." />
-                              </div>
-                              <div>
-                                  <Label>Imagen Guía Personalizada (Opcional)</Label>
-                                  <Input value={content.thankYouPage?.whatsappGuideImageUrl || ''} onChange={(e) => updateThankYouConfig('whatsappGuideImageUrl', e.target.value)} placeholder="URL de imagen de la guía (deja vacío para mockup 3D automático)" />
                               </div>
                           </SectionContent>
 

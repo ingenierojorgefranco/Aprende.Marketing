@@ -224,21 +224,21 @@ export const ProjectStrategy_Onboarding: React.FC<ProjectStrategy_OnboardingProp
         </div>
       </div>
 
-      {/* 5. Banner de Próximo Paso */}
-      <div className="bg-gradient-to-r from-[#FF5A1F]/15 via-orange-950/30 to-[#0B1120] border border-[#FF5A1F]/30 p-6 sm:p-8 rounded-2xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
-        <div className="space-y-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FF5A1F]/20 text-[#FF5A1F] text-[10px] font-black uppercase tracking-wider border border-[#FF5A1F]/30">
-            <Sparkles className="w-3.5 h-3.5" /> Siguiente Paso Recomendado
-          </span>
-          <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
-            ¿Listo para explorar la estrategia de tu producto?
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
-            Avanza al <strong className="text-white font-bold">Paso 2: Tu Estrategia Digital</strong> para conocer el producto a promocionar, la ganancia por venta y el funcionamiento de tu sistema de ventas.
-          </p>
-        </div>
+      {/* 5. Banner de Próximo Paso (solo si se usa fuera de la Guía unificada) */}
+      {onNextStep && (
+        <div className="bg-gradient-to-r from-[#FF5A1F]/15 via-orange-950/30 to-[#0B1120] border border-[#FF5A1F]/30 p-6 sm:p-8 rounded-2xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
+          <div className="space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FF5A1F]/20 text-[#FF5A1F] text-[10px] font-black uppercase tracking-wider border border-[#FF5A1F]/30">
+              <Sparkles className="w-3.5 h-3.5" /> Siguiente Paso Recomendado
+            </span>
+            <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
+              ¿Listo para explorar la estrategia de tu producto?
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+              Avanza al <strong className="text-white font-bold">Paso 2: Tu Estrategia Digital</strong> para conocer el producto a promocionar, la ganancia por venta y el funcionamiento de tu sistema de ventas.
+            </p>
+          </div>
 
-        {onNextStep && (
           <button
             type="button"
             onClick={onNextStep}
@@ -247,8 +247,8 @@ export const ProjectStrategy_Onboarding: React.FC<ProjectStrategy_OnboardingProp
             <span>Ir al Paso 2</span>
             <ArrowRight className="w-4 h-4" />
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Modal del Glosario */}
       {showGlosarioModal && (

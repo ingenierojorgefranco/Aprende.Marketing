@@ -1175,6 +1175,7 @@ export const api = {
         });
         clearCache('projects');
         clearCache('masterLibrary');
+        clearCache('pages');
         clearCache('projectDetails', id);
         clearCache('masterStrategies', id);
     },

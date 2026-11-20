@@ -671,16 +671,18 @@ sigue las siguientes instrucciones:
           )}
         </div>
 
-      {/* Botón Siguiente Paso */}
-      <div className="pt-6 border-t border-slate-800 flex items-center justify-end">
-        <button
-          onClick={onNavigateNext}
-          className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#FF5A1F] hover:bg-[#ff6d38] text-white font-bold text-base transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
-        >
-          <span>Siguiente Paso: Carruseles Magnéticos (Paso 10)</span>
-          <ArrowRight className="w-5 h-5" />
-        </button>
-      </div>
+      {/* Botón Siguiente Paso (solo si se usa fuera de la Guía unificada) */}
+      {onNavigateNext && (
+        <div className="pt-6 border-t border-slate-800 flex items-center justify-end">
+          <button
+            onClick={onNavigateNext}
+            className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#FF5A1F] hover:bg-[#ff6d38] text-white font-bold text-base transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
+          >
+            <span>Siguiente Paso: Carruseles Magnéticos (Paso 10)</span>
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

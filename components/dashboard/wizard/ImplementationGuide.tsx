@@ -62,6 +62,8 @@ import {
   Gift,
   ArrowUpRight,
   ArrowRight,
+  ArrowLeft,
+  Sparkles,
   AlertTriangle,
   Tag,
   DollarSign,
@@ -379,6 +381,79 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     { id: 15, title: "15. Lanzamientos Magnéticos (WhatsApp)", stage: 2 },
   ];
 
+  const nextStepBanners: Record<number, { title: string; nextStepLabel: string; description: string }> = {
+    1: {
+      title: "¿Listo para explorar la estrategia de tu producto?",
+      nextStepLabel: "Paso 2: Tu Estrategia Digital",
+      description: "para conocer el producto a promocionar, la ganancia por venta y el funcionamiento de tu sistema de ventas."
+    },
+    2: {
+      title: "¿Quieres saber exactamente a quién le vas a vender?",
+      nextStepLabel: "Paso 3: Tu comprador ideal",
+      description: "para descubrir el perfil psicológico de tus clientes, sus dolores reales y los argumentos que activan su decisión de compra."
+    },
+    3: {
+      title: "Asegura tus comisiones antes de atraer tráfico",
+      nextStepLabel: "Paso 4: Tus enlaces de afiliados",
+      description: "para configurar tus Hotlinks correctamente y garantizar que cada venta generada se acredite directamente en tu cuenta."
+    },
+    4: {
+      title: "Descubre dónde verás a cada persona interesada",
+      nextStepLabel: "Paso 5: Leads capturados",
+      description: "para conocer tu panel de prospectos y aprender a hacer seguimiento efectivo a cada registro que entre en tu sistema."
+    },
+    5: {
+      title: "¡Empieza la Etapa 2 y activa tu imán de prospectos!",
+      nextStepLabel: "Paso 6: Tu página de captura",
+      description: "para revisar, personalizar y activar la página diseñada para convertir visitantes en prospectos todos los días."
+    },
+    6: {
+      title: "Prepara tus canales para atraer tráfico calificado",
+      nextStepLabel: "Paso 7: Creando tus Redes Sociales",
+      description: "para estructurar y optimizar tus perfiles estratégicamente y dirigir personas interesadas directo a tu embudo."
+    },
+    7: {
+      title: "¿Listo para atraer visitas con videos cortos virales?",
+      nextStepLabel: "Paso 8: Reels Magnéticos",
+      description: "para acceder a los ganchos y guiones probados que captan la atención en segundos y llevan prospectos a tu página."
+    },
+    8: {
+      title: "Multiplica tu alcance con tráfico orgánico constante",
+      nextStepLabel: "Paso 9: Estrategias de Atracción en YouTube",
+      description: "para aprovechar ideas y estructuras de video que atraen prospectos calificados en piloto automático día tras día."
+    },
+    9: {
+      title: "Convierte seguidores en prospectos con contenido visual",
+      nextStepLabel: "Paso 10: Carruseles Magnéticos",
+      description: "para utilizar secuencias visuales diseñadas psicológicamente para educar, generar confianza y disparar tus registros."
+    },
+    10: {
+      title: "Atrae compradores que ya están buscando una solución",
+      nextStepLabel: "Paso 11: Artículos Magnéticos",
+      description: "para publicar contenido optimizado que posiciona tu embudo frente a personas con alta intención de compra."
+    },
+    11: {
+      title: "Activa el recurso que dispara tus registros y tu comunidad",
+      nextStepLabel: "Paso 12: LeadMagnet de Whatsapp",
+      description: "para configurar la entrega de tu recurso gratuito y llevar a tus prospectos a un canal cercano de alta conversión."
+    },
+    12: {
+      title: "Convierte tus nuevos prospectos en ventas automáticas",
+      nextStepLabel: "Paso 13: Email Magnético (Conversión)",
+      description: "para implementar la secuencia de correos persuasivos enfocada en cerrar ventas desde los primeros días."
+    },
+    13: {
+      title: "Recupera ventas y mantén el interés a largo plazo",
+      nextStepLabel: "Paso 14: Email Magnético (Nutrición)",
+      description: "para seguir aportando valor automático y convertir a los prospectos que necesitan más confianza antes de comprar."
+    },
+    14: {
+      title: "Cierra con broche de oro: escala tus ventas por WhatsApp",
+      nextStepLabel: "Paso 15: Lanzamientos Magnéticos (WhatsApp)",
+      description: "para ejecutar mensajes y campañas de alto impacto que generan picos de ventas directo en tu comunidad."
+    }
+  };
+
   const handleStepClick = (id: number) => {
     setActiveStep(id);
     const sectionId = stepToSectionMap[id] || 'summary';
@@ -566,7 +641,6 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
               <ProjectStrategy_Onboarding 
                 user={user}
                 isAdmin={isAdmin}
-                onNextStep={() => handleStepClick(2)}
               />
             )}
 
@@ -1180,7 +1254,6 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
                 totalSteps={stepsList.length}
                 strategyData={strategyData}
                 overrideProjectId={projectId || searchParams.get('id') || ''}
-                onNavigateNext={() => handleStepClick(10)}
               />
             )}
 
@@ -1464,48 +1537,82 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
 
 
 
-            {/* BOTÓN NAVEGACIÓN "SIGUIENTE PASO" AL FINAL DE CADA PÁGINA */}
-            <div className="pt-8 pb-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 bg-[#0B1120] border border-slate-800 rounded-2xl p-6 shadow-xl">
-              <div className="text-left space-y-1">
-                <p className="text-xs font-bold text-[#FF5A1F] uppercase tracking-wider">
-                  {activeStep < stepsList.length ? `PASO SIGUIENTE EN TU RUTA DE IMPLEMENTACIÓN` : `¡HAS LLEGADO AL ÚLTIMO PASO DE TU GUÍA!`}
-                </p>
-                <p className="text-sm sm:text-base font-bold text-white">
-                  {activeStep < stepsList.length 
-                    ? `Paso ${activeStep + 1}: ${stepsList[activeStep]?.title.replace(/^\d+\.\s*/, '')}`
-                    : `Has completado la revisión de todos los pasos del sistema.`}
-                </p>
-              </div>
+            {/* BANNER UNIFICADO DE SIGUIENTE PASO RECOMENDADO AL FINAL DE CADA SECCIÓN */}
+            {activeStep < stepsList.length ? (
+              <div className="mt-8 bg-gradient-to-r from-[#FF5A1F]/15 via-orange-950/30 to-[#0B1120] border border-[#FF5A1F]/30 p-6 sm:p-8 rounded-2xl shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-6 text-center lg:text-left">
+                <div className="space-y-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FF5A1F]/20 text-[#FF5A1F] text-[10px] font-black uppercase tracking-wider border border-[#FF5A1F]/30">
+                    <Sparkles className="w-3.5 h-3.5" /> Siguiente Paso Recomendado
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
+                    {nextStepBanners[activeStep]?.title || `¿Listo para continuar con el Paso ${activeStep + 1}?`}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                    Avanza al{' '}
+                    <strong className="text-white font-bold">
+                      {nextStepBanners[activeStep]?.nextStepLabel || `Paso ${activeStep + 1}: ${stepsList[activeStep]?.title.replace(/^\d+\.\s*/, '')}`}
+                    </strong>{' '}
+                    {nextStepBanners[activeStep]?.description || 'para seguir construyendo y optimizando tu sistema de ventas paso a paso.'}
+                  </p>
+                </div>
 
-              <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                {activeStep > 1 && (
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto justify-center lg:justify-end shrink-0">
+                  {activeStep > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleStepClick(activeStep - 1)}
+                      className="px-5 py-4 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-all border border-slate-700/80 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto shrink-0"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      <span>Paso anterior</span>
+                    </button>
+                  )}
+
                   <button
-                    onClick={() => handleStepClick(activeStep - 1)}
-                    className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition-all border border-slate-700/80 flex items-center gap-2 cursor-pointer"
+                    type="button"
+                    onClick={() => handleStepClick(activeStep + 1)}
+                    className="px-6 py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#e04e17] text-white font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shrink-0 shadow-lg shadow-[#FF5A1F]/25 hover:scale-105 active:scale-95 transition-all cursor-pointer w-full sm:w-auto"
                   >
+                    <span>Ir al Paso {activeStep + 1}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-8 bg-gradient-to-r from-emerald-500/15 via-emerald-950/30 to-[#0B1120] border border-emerald-500/30 p-6 sm:p-8 rounded-2xl shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-6 text-center lg:text-left">
+                <div className="space-y-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30">
+                    <Sparkles className="w-3.5 h-3.5" /> ¡Ruta de Implementación Completada!
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
+                    ¡Felicidades! Ya conoces todo tu sistema de ventas
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                    Has recorrido los <strong className="text-white font-bold">15 pasos de tu Guía de Implementación</strong>. Ahora aplica cada etapa con constancia o regresa al inicio cuando quieras repasar cualquier módulo.
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto justify-center lg:justify-end shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => handleStepClick(activeStep - 1)}
+                    className="px-5 py-4 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-all border border-slate-700/80 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto shrink-0"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
                     <span>Paso anterior</span>
                   </button>
-                )}
 
-                {activeStep < stepsList.length ? (
                   <button
-                    onClick={() => handleStepClick(activeStep + 1)}
-                    className="px-6 py-3.5 rounded-xl bg-[#FF5A1F] hover:bg-[#ff6c37] text-white font-extrabold text-sm sm:text-base transition-all shadow-lg shadow-[#FF5A1F]/20 hover:scale-[1.02] flex items-center justify-center gap-2.5 cursor-pointer w-full sm:w-auto"
-                  >
-                    <span>Siguiente paso</span>
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-                ) : (
-                  <button
+                    type="button"
                     onClick={() => handleStepClick(1)}
-                    className="px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm sm:text-base transition-all shadow-lg shadow-emerald-500/20 hover:scale-[1.02] flex items-center justify-center gap-2.5 cursor-pointer w-full sm:w-auto"
+                    className="px-6 py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shrink-0 shadow-lg shadow-emerald-500/25 hover:scale-105 active:scale-95 transition-all cursor-pointer w-full sm:w-auto"
                   >
                     <span>Volver al inicio</span>
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-4 h-4" />
                   </button>
-                )}
+                </div>
               </div>
-            </div>
+            )}
 
           </main>
 

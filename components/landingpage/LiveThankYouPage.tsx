@@ -641,7 +641,15 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
               {/* Descripción debajo del título dinámico de formación */}
               <div className="max-w-2xl mx-auto text-center">
                 <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed max-w-xl mx-auto mb-8 font-medium">
-                  Descubre la formación completa, los módulos y todo lo que aprenderás para seguir desarrollando tus habilidades.
+                  {(() => {
+                    const rawUpsellSubtitle = (tyConfig.upsellSubtitle || '').trim();
+                    const isLegacySubtitle =
+                      !rawUpsellSubtitle ||
+                      rawUpsellSubtitle === "Lleva tus habilidades al siguiente nivel con nuestra formación especializada.";
+                    return isLegacySubtitle
+                      ? "Descubre la formación completa, los módulos y todo lo que aprenderás para seguir desarrollando tus habilidades."
+                      : rawUpsellSubtitle;
+                  })()}
                 </p>
 
                 {/* Botón CTA Formación Completa con tamaño prominente */}
@@ -695,12 +703,26 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
             <div className="flex items-center gap-2.5 mb-2.5">
               <Gift className={`w-5 h-5 shrink-0 ${content.palette === 'minimal-mono' ? 'text-emerald-600' : 'text-emerald-400'}`} />
               <h2 className={`text-base sm:text-lg font-extrabold tracking-tight ${content.palette === 'minimal-mono' ? 'text-gray-900' : 'text-white'}`}>
-                Un regalo adicional para ti
+                {(() => {
+                  const rawWaTitle = (tyConfig.whatsappTitle || '').trim();
+                  const isLegacyWaTitle =
+                    !rawWaTitle ||
+                    rawWaTitle === "Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica";
+                  return isLegacyWaTitle ? "Un regalo adicional para ti" : rawWaTitle;
+                })()}
               </h2>
             </div>
 
             <p className={`text-sm sm:text-[15px] leading-relaxed mb-5 ${content.palette === 'minimal-mono' ? 'text-gray-600' : 'text-gray-200'}`}>
-              Únete gratis a nuestra comunidad de WhatsApp y recibe una guía práctica para principiantes con materiales, recomendaciones y errores que debes evitar.
+              {(() => {
+                const rawWaSubtitle = (tyConfig.whatsappSubtitle || '').trim();
+                const isLegacyWaSubtitle =
+                  !rawWaSubtitle ||
+                  rawWaSubtitle === "Conecta con nuestra comunidad, resuelve tus dudas y descarga tu guía en formato digital.";
+                return isLegacyWaSubtitle
+                  ? "Únete gratis a nuestra comunidad de WhatsApp y recibe una guía práctica para principiantes con materiales, recomendaciones y errores que debes evitar."
+                  : rawWaSubtitle;
+              })()}
             </p>
 
             {(() => {

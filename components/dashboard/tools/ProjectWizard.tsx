@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp, Upload, Image, FileText, FileUp, ExternalLink, MessageCircle, Video, Play, Gift, Check, GraduationCap, Clock, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp, Upload, Image, FileText, FileUp, ExternalLink, Video, Play, Gift, Check, GraduationCap, Clock, Eye, EyeOff } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -1063,8 +1063,12 @@ export const ProjectWizard: React.FC = () => {
                             upsellButtonText: loadedTy.upsellButtonText || 'CONOCER EL CURSO COMPLETO',
                             upsellButtonUrl: loadedTy.upsellButtonUrl || '',
                             whatsappBadge: loadedTy.whatsappBadge || 'REGALO ADICIONAL',
-                            whatsappTitle: loadedTy.whatsappTitle || 'Un regalo adicional para ti',
-                            whatsappSubtitle: loadedTy.whatsappSubtitle || 'Únete gratis a nuestra comunidad de WhatsApp y recibe una guía práctica para principiantes con materiales, recomendaciones y errores que debes evitar.',
+                            whatsappTitle: (!loadedTy.whatsappTitle || loadedTy.whatsappTitle.trim() === 'Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica')
+                                ? 'Un regalo adicional para ti'
+                                : loadedTy.whatsappTitle,
+                            whatsappSubtitle: (!loadedTy.whatsappSubtitle || loadedTy.whatsappSubtitle.trim() === 'Conecta con nuestra comunidad, resuelve tus dudas y descarga tu guía en formato digital.')
+                                ? 'Únete gratis a nuestra comunidad de WhatsApp y recibe una guía práctica para principiantes con materiales, recomendaciones y errores que debes evitar.'
+                                : loadedTy.whatsappSubtitle,
                             whatsappGuideTitle: loadedTy.whatsappGuideTitle || '',
                             whatsappGuideBullets: Array.isArray(loadedTy.whatsappGuideBullets) && loadedTy.whatsappGuideBullets.length > 0 ? loadedTy.whatsappGuideBullets : [
                                 'Descubre cómo encontrar clientes',
@@ -1072,7 +1076,9 @@ export const ProjectWizard: React.FC = () => {
                                 'Calcula correctamente tus costes',
                                 'Conoce cómo presentar el servicio profesionalmente'
                             ],
-                            whatsappButtonText: loadedTy.whatsappButtonText || 'UNIRME Y RECIBIR LA GUÍA GRATUITA',
+                            whatsappButtonText: (!loadedTy.whatsappButtonText || loadedTy.whatsappButtonText.trim() === 'UNIRME AL GRUPO Y RECIBIR LA GUÍA')
+                                ? 'UNIRME Y RECIBIR LA GUÍA GRATUITA'
+                                : loadedTy.whatsappButtonText,
                             whatsappGuideImageUrl: loadedTy.whatsappGuideImageUrl || ''
                         }
                     });
@@ -2032,99 +2038,26 @@ export const ProjectWizard: React.FC = () => {
                                             </div>
                                         </div>
 
-                                        {/* SUB-BLOQUE 2: ACCESO A LA FORMACIÓN COMPLETA (MOCKUP 3D Y BULLETS - REF. IMAGEN 3) */}
+                                        {/* SUB-BLOQUE 2: ACCESO A LA FORMACIÓN COMPLETA (PÁGINA DE GRACIAS) */}
                                         <div className="bg-black/50 border border-gray-800/80 rounded-2xl p-5 space-y-5">
                                             <div className="flex items-center gap-2 border-b border-gray-800 pb-3">
                                                 <GraduationCap className="w-4 h-4 text-indigo-400" />
                                                 <h6 className="text-xs font-black uppercase tracking-wider text-indigo-400">
-                                                    2. Acceso a la Formación Completa (Mockup 3D y Bullets - Ref. Imagen 3)
+                                                    2. Acceso a la Formación Completa (Página de Gracias)
                                                 </h6>
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                {/* IMAGEN DEL ACCESO A LA CLASE COMPLETA (MOCKUP 3D) */}
-                                                <div className="md:col-span-2">
-                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
-                                                        Imagen del Acceso a la Clase Completa (Mockup 3D de la Formación)
-                                                    </label>
-                                                    <div className="flex items-center gap-2">
-                                                        {multimedia.thankYouPage?.upsellImageUrl ? (
-                                                            <a 
-                                                                href={multimedia.thankYouPage.upsellImageUrl} 
-                                                                target="_blank" 
-                                                                rel="noopener noreferrer" 
-                                                                className="w-12 h-12 rounded-lg border border-gray-700 bg-gray-900 overflow-hidden shrink-0 flex items-center justify-center group relative hover:opacity-80 transition"
-                                                                title="Ver imagen completa"
-                                                            >
-                                                                <img src={multimedia.thankYouPage.upsellImageUrl} alt="Mockup Clase Completa" className="w-full h-full object-cover" />
-                                                            </a>
-                                                        ) : (
-                                                            <div className="w-12 h-12 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 text-indigo-400">
-                                                                <Image className="w-6 h-6" />
-                                                            </div>
-                                                        )}
-                                                        <input 
-                                                            type="text" 
-                                                            value={multimedia.thankYouPage?.upsellImageUrl || ''} 
-                                                            onChange={(e) => handleUpdateThankYouField('upsellImageUrl', e.target.value)}
-                                                            placeholder="URL del mockup 3D de la formación completa..."
-                                                            className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
-                                                        />
-                                                        <label 
-                                                            className={`p-2.5 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20 rounded-lg cursor-pointer transition-colors flex items-center justify-center ${uploadingState?.type === 'thankYouUpsellImage' ? 'opacity-50 pointer-events-none' : ''}`}
-                                                            title="Subir imagen al bucket"
-                                                        >
-                                                            {uploadingState?.type === 'thankYouUpsellImage' ? (
-                                                                <Loader2 className="w-4 h-4 animate-spin" />
-                                                            ) : (
-                                                                <Upload className="w-4 h-4" />
-                                                            )}
-                                                            <input 
-                                                                type="file" 
-                                                                className="hidden" 
-                                                                accept="image/*"
-                                                                disabled={uploadingState !== null}
-                                                                onChange={(e) => handleImageUpload(e, 'thankYouUpsellImage')}
-                                                            />
-                                                        </label>
-                                                        {multimedia.thankYouPage?.upsellImageUrl && (
-                                                            <a 
-                                                                href={multimedia.thankYouPage.upsellImageUrl} 
-                                                                target="_blank" 
-                                                                rel="noopener noreferrer" 
-                                                                className="p-2.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors flex items-center justify-center"
-                                                                title="Ver en pestaña nueva"
-                                                            >
-                                                                <ExternalLink className="w-4 h-4" />
-                                                            </a>
-                                                        )}
-                                                        {multimedia.thankYouPage?.upsellImageUrl && (
-                                                            <button 
-                                                                type="button"
-                                                                onClick={() => handleDeleteImage('thankYouUpsellImage')}
-                                                                disabled={uploadingState !== null}
-                                                                className="p-2.5 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors flex items-center justify-center"
-                                                                title="Eliminar imagen del servidor"
-                                                            >
-                                                                <Trash2 className="w-4 h-4" />
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                    <p className="text-[10px] text-gray-500 mt-1">
-                                                        Sube la portada o mockup 3D del producto o formación completa (si no subes una, se generará una tarjeta 3D automática con el color de la página).
-                                                    </p>
-                                                </div>
-
-                                                {/* NOMBRE DEL PRODUCTO / FORMACIÓN */}
+                                                {/* TÍTULO DE SECCIÓN UPSELL */}
                                                 <div>
                                                     <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
-                                                        Nombre de la Formación Completa
+                                                        Título Superior de la Sección
                                                     </label>
                                                     <input 
                                                         type="text" 
-                                                        value={multimedia.thankYouPage?.upsellProductName || ''} 
-                                                        onChange={(e) => handleUpdateThankYouField('upsellProductName', e.target.value)}
-                                                        placeholder="Ej: Especialista en Resina Epóxica para Suelos"
+                                                        value={multimedia.thankYouPage?.upsellTitle || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('upsellTitle', e.target.value)}
+                                                        placeholder="¿Te gustaría aprender el proceso paso a paso?"
                                                         className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
                                                     />
                                                 </div>
@@ -2143,22 +2076,8 @@ export const ProjectWizard: React.FC = () => {
                                                     />
                                                 </div>
 
-                                                {/* TÍTULO DE SECCIÓN UPSELL */}
-                                                <div>
-                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
-                                                        Título Superior de la Sección
-                                                    </label>
-                                                    <input 
-                                                        type="text" 
-                                                        value={multimedia.thankYouPage?.upsellTitle || ''} 
-                                                        onChange={(e) => handleUpdateThankYouField('upsellTitle', e.target.value)}
-                                                        placeholder="¿Quieres aprender el proceso completo?"
-                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
-                                                    />
-                                                </div>
-
                                                 {/* SUBTÍTULO DE SECCIÓN UPSELL */}
-                                                <div>
+                                                <div className="md:col-span-2">
                                                     <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
                                                         Subtítulo de la Sección
                                                     </label>
@@ -2166,43 +2085,9 @@ export const ProjectWizard: React.FC = () => {
                                                         type="text" 
                                                         value={multimedia.thankYouPage?.upsellSubtitle || ''} 
                                                         onChange={(e) => handleUpdateThankYouField('upsellSubtitle', e.target.value)}
-                                                        placeholder="Lleva tus habilidades al siguiente nivel con nuestra formación especializada."
+                                                        placeholder="Descubre la formación completa, los módulos y todo lo que aprenderás para seguir desarrollando tus habilidades."
                                                         className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
                                                     />
-                                                </div>
-
-                                                {/* INSTRUCTOR / PROFESOR DE LA BASE DE DATOS (IMAGEN 2) */}
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:col-span-2 bg-gray-900/40 p-3 rounded-xl border border-gray-800">
-                                                    <div>
-                                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
-                                                            Nombre del Profesor / Instructor (Ficha del Programa)
-                                                        </label>
-                                                        <input 
-                                                            type="text" 
-                                                            value={multimedia.thankYouPage?.upsellInstructorName || ''} 
-                                                            onChange={(e) => handleUpdateThankYouField('upsellInstructorName', e.target.value)}
-                                                            placeholder={originalStrategyJson?.teacher?.name || "Ej: Ariana Zamora (o dejar vacío para usar el profesor de la estrategia)"}
-                                                            className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
-                                                        />
-                                                        <p className="text-[9px] text-gray-500 mt-1">
-                                                            {originalStrategyJson?.teacher?.name ? `Profesor en la base de datos: "${originalStrategyJson.teacher.name}"` : "Si se deja vacío, tomará el profesor generado en la estrategia del proyecto."}
-                                                        </p>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
-                                                            Título / Especialidad del Profesor
-                                                        </label>
-                                                        <input 
-                                                            type="text" 
-                                                            value={multimedia.thankYouPage?.upsellInstructorTitle || ''} 
-                                                            onChange={(e) => handleUpdateThankYouField('upsellInstructorTitle', e.target.value)}
-                                                            placeholder={originalStrategyJson?.teacher?.title || "Ej: Especialista en recubrimientos epóxicos"}
-                                                            className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
-                                                        />
-                                                        <p className="text-[9px] text-gray-500 mt-1">
-                                                            {originalStrategyJson?.teacher?.title ? `Especialidad en base de datos: "${originalStrategyJson.teacher.title}"` : "Si se deja vacío, tomará el cargo de la estrategia."}
-                                                        </p>
-                                                    </div>
                                                 </div>
 
                                                 {/* URL ESPECÍFICA DE PAGO (OPCIONAL) O SELECCIÓN DE HOTLINK */}
@@ -2242,69 +2127,29 @@ export const ProjectWizard: React.FC = () => {
                                                         className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
                                                     />
                                                 </div>
-
-                                                {/* BULLET POINTS DE LA FORMACIÓN COMPLETA (IMAGEN 3) */}
-                                                <div className="md:col-span-2 space-y-2 pt-2">
-                                                    <div className="flex items-center justify-between">
-                                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                                                            Bullet Points del Acceso a la Formación Completa (Ref. Imagen 3)
-                                                        </label>
-                                                        <button 
-                                                            type="button"
-                                                            onClick={() => handleAddThankYouBullet('upsellBullets')}
-                                                            className="text-[10px] bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 px-2.5 py-1 rounded-md font-bold flex items-center gap-1 transition-colors"
-                                                        >
-                                                            <Plus className="w-3 h-3" /> Agregar Viñeta
-                                                        </button>
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        {(multimedia.thankYouPage?.upsellBullets || []).map((bullet, bIdx) => (
-                                                            <div key={bIdx} className="flex items-center gap-2">
-                                                                <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs font-bold">
-                                                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                                                </div>
-                                                                <input 
-                                                                    type="text" 
-                                                                    value={bullet} 
-                                                                    onChange={(e) => handleUpdateThankYouBullet('upsellBullets', bIdx, e.target.value)}
-                                                                    placeholder={`Viñeta ${bIdx + 1}...`}
-                                                                    className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-indigo-500"
-                                                                />
-                                                                <button 
-                                                                    type="button"
-                                                                    onClick={() => handleDeleteThankYouBullet('upsellBullets', bIdx)}
-                                                                    className="p-2 text-gray-500 hover:text-red-400 transition-colors"
-                                                                    title="Eliminar viñeta"
-                                                                >
-                                                                    <Trash2 className="w-4 h-4" />
-                                                                </button>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
                                             </div>
                                         </div>
 
-                                        {/* SUB-BLOQUE 3: LEAD MAGNET / REGALO ADICIONAL EN WHATSAPP (REF. IMAGEN 4) */}
+                                        {/* SUB-BLOQUE 3: BLOQUE DE COMUNIDAD WHATSAPP / REGALO ADICIONAL (PÁGINA DE GRACIAS) */}
                                         <div className="bg-black/50 border border-gray-800/80 rounded-2xl p-5 space-y-5">
                                             <div className="flex items-center gap-2 border-b border-gray-800 pb-3">
                                                 <Gift className="w-4 h-4 text-emerald-400" />
                                                 <h6 className="text-xs font-black uppercase tracking-wider text-emerald-400">
-                                                    3. Sección de Lead Magnet / Guía en WhatsApp (Ref. Imagen 4)
+                                                    3. Bloque de Comunidad WhatsApp / Regalo Adicional (Página de Gracias)
                                                 </h6>
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                {/* BADGE SUPERIOR */}
+                                                {/* TÍTULO PRINCIPAL DEL BLOQUE DE WHATSAPP */}
                                                 <div>
                                                     <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
-                                                        Badge / Distintivo Superior
+                                                        Título del Bloque de WhatsApp
                                                     </label>
                                                     <input 
                                                         type="text" 
-                                                        value={multimedia.thankYouPage?.whatsappBadge || ''} 
-                                                        onChange={(e) => handleUpdateThankYouField('whatsappBadge', e.target.value)}
-                                                        placeholder="REGALO ADICIONAL"
+                                                        value={multimedia.thankYouPage?.whatsappTitle || ''} 
+                                                        onChange={(e) => handleUpdateThankYouField('whatsappTitle', e.target.value)}
+                                                        placeholder="Un regalo adicional para ti"
                                                         className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
                                                     />
                                                 </div>
@@ -2318,21 +2163,7 @@ export const ProjectWizard: React.FC = () => {
                                                         type="text" 
                                                         value={multimedia.thankYouPage?.whatsappButtonText || ''} 
                                                         onChange={(e) => handleUpdateThankYouField('whatsappButtonText', e.target.value)}
-                                                        placeholder="UNIRME AL GRUPO Y RECIBIR LA GUÍA"
-                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
-                                                    />
-                                                </div>
-
-                                                {/* TÍTULO PRINCIPAL DEL BLOQUE DE WHATSAPP */}
-                                                <div className="md:col-span-2">
-                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
-                                                        Título del Bloque de WhatsApp
-                                                    </label>
-                                                    <input 
-                                                        type="text" 
-                                                        value={multimedia.thankYouPage?.whatsappTitle || ''} 
-                                                        onChange={(e) => handleUpdateThankYouField('whatsappTitle', e.target.value)}
-                                                        placeholder="Únete a nuestro grupo de WhatsApp y recibe gratis esta guía práctica"
+                                                        placeholder="UNIRME Y RECIBIR LA GUÍA GRATUITA"
                                                         className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
                                                     />
                                                 </div>
@@ -2345,137 +2176,13 @@ export const ProjectWizard: React.FC = () => {
                                                     <textarea 
                                                         value={multimedia.thankYouPage?.whatsappSubtitle || ''} 
                                                         onChange={(e) => handleUpdateThankYouField('whatsappSubtitle', e.target.value)}
-                                                        placeholder="Conecta con nuestra comunidad, resuelve tus dudas y descarga tu guía en formato digital."
+                                                        placeholder="Únete gratis a nuestra comunidad de WhatsApp y recibe una guía práctica para principiantes con materiales, recomendaciones y errores que debes evitar."
                                                         rows={2}
                                                         className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500 resize-y"
                                                     />
-                                                </div>
-
-                                                {/* IMAGEN DE LA GUÍA PRÁCTICA (MOCKUP) */}
-                                                <div className="md:col-span-2">
-                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
-                                                        Imagen de Portada de la Guía Digital (Mockup Libro/Guía)
-                                                    </label>
-                                                    <div className="flex items-center gap-2">
-                                                        {multimedia.thankYouPage?.whatsappGuideImageUrl ? (
-                                                            <a 
-                                                                href={multimedia.thankYouPage.whatsappGuideImageUrl} 
-                                                                target="_blank" 
-                                                                rel="noopener noreferrer" 
-                                                                className="w-12 h-12 rounded-lg border border-gray-700 bg-gray-900 overflow-hidden shrink-0 flex items-center justify-center group relative hover:opacity-80 transition"
-                                                                title="Ver imagen completa"
-                                                            >
-                                                                <img src={multimedia.thankYouPage.whatsappGuideImageUrl} alt="Portada Guía" className="w-full h-full object-cover" />
-                                                            </a>
-                                                        ) : (
-                                                            <div className="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 text-emerald-400">
-                                                                <Image className="w-6 h-6" />
-                                                            </div>
-                                                        )}
-                                                        <input 
-                                                            type="text" 
-                                                            value={multimedia.thankYouPage?.whatsappGuideImageUrl || ''} 
-                                                            onChange={(e) => handleUpdateThankYouField('whatsappGuideImageUrl', e.target.value)}
-                                                            placeholder="URL de la portada de la guía..."
-                                                            className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-emerald-300 font-mono outline-none focus:border-emerald-500"
-                                                        />
-                                                        <label 
-                                                            className={`p-2.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 rounded-lg cursor-pointer transition-colors flex items-center justify-center ${uploadingState?.type === 'thankYouGuideImage' ? 'opacity-50 pointer-events-none' : ''}`}
-                                                            title="Subir imagen al bucket"
-                                                        >
-                                                            {uploadingState?.type === 'thankYouGuideImage' ? (
-                                                                <Loader2 className="w-4 h-4 animate-spin" />
-                                                            ) : (
-                                                                <Upload className="w-4 h-4" />
-                                                            )}
-                                                            <input 
-                                                                type="file" 
-                                                                className="hidden" 
-                                                                accept="image/*"
-                                                                disabled={uploadingState !== null}
-                                                                onChange={(e) => handleImageUpload(e, 'thankYouGuideImage')}
-                                                            />
-                                                        </label>
-                                                        {multimedia.thankYouPage?.whatsappGuideImageUrl && (
-                                                            <a 
-                                                                href={multimedia.thankYouPage.whatsappGuideImageUrl} 
-                                                                target="_blank" 
-                                                                rel="noopener noreferrer" 
-                                                                className="p-2.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors flex items-center justify-center"
-                                                                title="Ver en pestaña nueva"
-                                                            >
-                                                                <ExternalLink className="w-4 h-4" />
-                                                            </a>
-                                                        )}
-                                                        {multimedia.thankYouPage?.whatsappGuideImageUrl && (
-                                                            <button 
-                                                                type="button"
-                                                                onClick={() => handleDeleteImage('thankYouGuideImage')}
-                                                                disabled={uploadingState !== null}
-                                                                className="p-2.5 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors flex items-center justify-center"
-                                                                title="Eliminar imagen del servidor"
-                                                            >
-                                                                <Trash2 className="w-4 h-4" />
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                    <p className="text-[10px] text-gray-500 mt-1">
-                                                        Sube la portada o pantallazo de la guía digital para el regalo de WhatsApp (Ref. Imagen 4).
+                                                    <p className="text-[10px] text-emerald-400/70 mt-1.5">
+                                                        Si editas estos textos en un Proyecto Maestro, el cambio se reflejará automáticamente en las páginas de gracias de todos los proyectos creados a partir de este maestro.
                                                     </p>
-                                                </div>
-
-                                                {/* TÍTULO ESPECÍFICO DE LA GUÍA DIGITAL */}
-                                                <div className="md:col-span-2">
-                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
-                                                        Título Específico de la Guía Digital
-                                                    </label>
-                                                    <input 
-                                                        type="text" 
-                                                        value={multimedia.thankYouPage?.whatsappGuideTitle || ''} 
-                                                        onChange={(e) => handleUpdateThankYouField('whatsappGuideTitle', e.target.value)}
-                                                        placeholder="Ej: Cómo convertir la aplicación de resina epóxica para suelos en un negocio rentable"
-                                                        className="w-full bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
-                                                    />
-                                                </div>
-
-                                                {/* BULLET POINTS DE LA GUÍA (IMAGEN 4) */}
-                                                <div className="md:col-span-2 space-y-2 pt-2">
-                                                    <div className="flex items-center justify-between">
-                                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                                                            Bullet Points de la Guía Digital / Lead Magnet (Ref. Imagen 4)
-                                                        </label>
-                                                        <button 
-                                                            type="button"
-                                                            onClick={() => handleAddThankYouBullet('whatsappGuideBullets')}
-                                                            className="text-[10px] bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 px-2.5 py-1 rounded-md font-bold flex items-center gap-1 transition-colors"
-                                                        >
-                                                            <Plus className="w-3 h-3" /> Agregar Viñeta
-                                                        </button>
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        {(multimedia.thankYouPage?.whatsappGuideBullets || []).map((bullet, bIdx) => (
-                                                            <div key={bIdx} className="flex items-center gap-2">
-                                                                <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs font-bold">
-                                                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                                                </div>
-                                                                <input 
-                                                                    type="text" 
-                                                                    value={bullet} 
-                                                                    onChange={(e) => handleUpdateThankYouBullet('whatsappGuideBullets', bIdx, e.target.value)}
-                                                                    placeholder={`Viñeta ${bIdx + 1}...`}
-                                                                    className="flex-1 bg-black/80 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-200 outline-none focus:border-emerald-500"
-                                                                />
-                                                                <button 
-                                                                    type="button"
-                                                                    onClick={() => handleDeleteThankYouBullet('whatsappGuideBullets', bIdx)}
-                                                                    className="p-2 text-gray-500 hover:text-red-400 transition-colors"
-                                                                    title="Eliminar viñeta"
-                                                                >
-                                                                    <Trash2 className="w-4 h-4" />
-                                                                </button>
-                                                            </div>
-                                                        ))}
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2644,45 +2351,6 @@ export const ProjectWizard: React.FC = () => {
                                             placeholder="Ej: 5.0 Estrellas" 
                                         />
                                     </div>
-                                </div>
-                            </div>
-                            <div className="bg-[#0B1120] border border-slate-800/80 rounded-2xl p-5 sm:p-6 space-y-4">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
-                                            <MessageCircle className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-white uppercase tracking-wide">
-                                                Enlace del Grupo de WhatsApp (Página de Gracias)
-                                            </label>
-                                            <p className="text-xs text-slate-400 mt-0.5">
-                                                Enlace donde tus prospectos se unirán desde la página de gracias para entregarles su recurso o regalo manualmente.
-                                            </p>
-                                        </div>
-                                    </div>
-                                    {whatsappGroupUrl && (
-                                        <a
-                                            href={whatsappGroupUrl.startsWith('http') ? whatsappGroupUrl : `https://${whatsappGroupUrl}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-xs text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 hover:underline shrink-0"
-                                        >
-                                            Probar enlace <ExternalLink className="w-3.5 h-3.5" />
-                                        </a>
-                                    )}
-                                </div>
-                                <div className="space-y-2">
-                                    <input 
-                                        type="text" 
-                                        value={whatsappGroupUrl} 
-                                        onChange={(e) => setWhatsappGroupUrl(e.target.value)} 
-                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-emerald-400 focus:border-emerald-500 outline-none transition-all placeholder:text-gray-600 font-mono text-sm" 
-                                        placeholder="https://chat.whatsapp.com/..." 
-                                    />
-                                    <p className="text-xs text-slate-500">
-                                        💡 Los usuarios que se registren en tu landing page verán el botón directo a este enlace en la página de agradecimiento y el sistema registrará los clics automáticamente.
-                                    </p>
                                 </div>
                             </div>
 
