@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useOutletContext, useLocation } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { Project, User, AffiliateLink, Plan, ProjectHook } from '../../../types';
-import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check, Gift, ShoppingCart as CartIcon, Info, Crown as CornerCrown, Settings, FileText, Star, Play, Users, Eye, ChevronRight, Clock, Activity, Folder, Globe, Award, Compass, GraduationCap, ShieldCheck, Package, Layers } from 'lucide-react';
+import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check, Gift, ShoppingCart as CartIcon, Info, Crown as CornerCrown, Settings, FileText, Star, Play, Users, Eye, EyeOff, ChevronRight, Clock, Activity, Folder, Globe, Award, Compass, GraduationCap, ShieldCheck, Package, Layers } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 import { UnlockProjectModal } from '../UnlockProjectModal';
@@ -37,6 +37,7 @@ export const ProjectsList: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, isSimulating, setShowProfileModal, projectCount } = useOutletContext() as DashboardContext;
+    const isRealAdmin = user.role === 'admin' && !isSimulating;
     const [projects, setProjects] = useState<Project[]>([]);
     const [masterLibrary, setMasterLibrary] = useState<Project[]>([]);
     const [plans, setPlans] = useState<Plan[]>([]);
@@ -123,22 +124,27 @@ export const ProjectsList: React.FC = () => {
         }
     };
 
+    const visibleMasterLibrary = useMemo(() => {
+        if (isRealAdmin) return masterLibrary;
+        return masterLibrary.filter(p => p.isActive !== false);
+    }, [masterLibrary, isRealAdmin]);
+
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const unlockId = params.get('unlockProjectId');
-        if (unlockId && masterLibrary.length > 0) {
-            const found = masterLibrary.find(p => String(p.id) === String(unlockId));
+        if (unlockId && visibleMasterLibrary.length > 0) {
+            const found = visibleMasterLibrary.find(p => String(p.id) === String(unlockId));
             if (found) {
                 setSelectedMasterProject(found);
                 setShowUnlockProtocol(true);
             }
         }
-    }, [location.search, masterLibrary]);
+    }, [location.search, visibleMasterLibrary]);
 
     const [activeOnboardingCategory, setActiveOnboardingCategory] = useState('all');
 
     const onboardingCategories = useMemo(() => {
-        const rawNiches = masterLibrary
+        const rawNiches = visibleMasterLibrary
             .map(p => (p.niche || '').trim())
             .filter(n => n.length > 0);
 
@@ -181,13 +187,13 @@ export const ProjectsList: React.FC = () => {
                 icon: getCategoryIcon(niche)
             }))
         ];
-    }, [masterLibrary]);
+    }, [visibleMasterLibrary]);
 
     const filteredOnboardingProjects = useMemo(() => {
-        let list = masterLibrary;
+        let list = visibleMasterLibrary;
         if (activeOnboardingCategory !== 'all') {
             const catLower = activeOnboardingCategory.toLowerCase().trim();
-            list = masterLibrary.filter(p => {
+            list = visibleMasterLibrary.filter(p => {
                 const nicheLower = (p.niche || '').toLowerCase().trim();
                 return nicheLower === catLower || nicheLower.includes(catLower) || catLower.includes(nicheLower);
             });
@@ -195,7 +201,7 @@ export const ProjectsList: React.FC = () => {
         return [...list].sort((a, b) => {
             const dateA = new Date(a.createdAt || 0).getTime();
             const dateB = new Date(b.createdAt || 0).getTime();
-            if (user.role === 'admin') {
+            if (isRealAdmin) {
                 return dateA - dateB;
             } else {
                 if (a.isUnlocked && !b.isUnlocked) return -1;
@@ -203,7 +209,7 @@ export const ProjectsList: React.FC = () => {
                 return dateA - dateB;
             }
         });
-    }, [masterLibrary, activeOnboardingCategory, user.role]);
+    }, [visibleMasterLibrary, activeOnboardingCategory, isRealAdmin]);
 
     const getOnboardingCardImage = (project: Project, library: Project[] = []) => {
         let mm: any = project.multimedia_json;
@@ -478,7 +484,6 @@ export const ProjectsList: React.FC = () => {
     }
 
     // Plan Logic
-    const isRealAdmin = user.role === 'admin' && !isSimulating;
     const isProPlan = user.planSlug === 'pro' || user.planId === 'pro' || user.planLimits?.planName?.toLowerCase().includes('pro');
     const maxProjects = user.planLimits?.maxProjects || (isProPlan ? 3 : 1);
     const currentCount = projects.length;
@@ -597,9 +602,15 @@ export const ProjectsList: React.FC = () => {
                                             <span className="px-3 py-1 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-[10px] font-black tracking-widest uppercase rounded-lg">
                                                 {categoryLabel}
                                             </span>
-                                            <span className="px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                                Listo
-                                            </span>
+                                            {isRealAdmin && project.isMaster && project.isActive === false ? (
+                                                <span className="px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-rose-500/15 text-rose-400 border border-rose-500/30 flex items-center gap-1">
+                                                    <EyeOff className="w-3 h-3" /> Oculto
+                                                </span>
+                                            ) : (
+                                                <span className="px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                                    Listo
+                                                </span>
+                                            )}
                                         </div>
 
                                         {/* Image Cover */}
@@ -676,7 +687,7 @@ export const ProjectsList: React.FC = () => {
                                             <ArrowRight className="w-4 h-4 shrink-0" />
                                         </button>
 
-                                        {user.role === 'admin' && (
+                                        {isRealAdmin && (
                                             <div className="flex items-center justify-between gap-2.5 pt-2 border-t border-white/5">
                                                 <button
                                                     type="button"
@@ -761,7 +772,8 @@ export const ProjectsList: React.FC = () => {
                     <div className="w-full max-w-full px-4 sm:px-6 lg:px-8 mx-auto">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
                             {filteredOnboardingProjects.map((project) => {
-                                const isAlreadyUnlocked = project.isUnlocked || user.role === 'admin';
+                                const isAlreadyUnlocked = project.isUnlocked || isRealAdmin;
+                                const isHiddenForUsers = isRealAdmin && project.isActive === false;
                                 const projectImg = getOnboardingCardImage(project, masterLibrary);
                                 const title = getOnboardingCardTitle(project);
                                 const desc = getOnboardingCardDesc(project);
@@ -782,18 +794,24 @@ export const ProjectsList: React.FC = () => {
                                             }
                                         }}
                                         className={`group rounded-3xl p-5 md:p-6 flex flex-col justify-between h-full relative w-full cursor-pointer transition-all duration-300 space-y-4 ${
-                                            isAlreadyUnlocked
-                                                ? 'bg-gradient-to-b from-[#0c1a14]/90 to-[#07130e]/95 border-2 border-emerald-500/70 shadow-[0_0_30px_rgba(16,185,129,0.18)] hover:shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:border-emerald-400'
-                                                : 'bg-gradient-to-b from-[#181409]/90 to-[#100e06]/95 border-2 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.12)] hover:shadow-[0_0_40px_rgba(234,179,8,0.22)] hover:border-yellow-400'
+                                            isHiddenForUsers
+                                                ? 'bg-gradient-to-b from-[#1a0f14]/90 to-[#11080c]/95 border-2 border-rose-500/50 shadow-[0_0_25px_rgba(244,63,94,0.14)] hover:border-rose-400'
+                                                : isAlreadyUnlocked
+                                                    ? 'bg-gradient-to-b from-[#0c1a14]/90 to-[#07130e]/95 border-2 border-emerald-500/70 shadow-[0_0_30px_rgba(16,185,129,0.18)] hover:shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:border-emerald-400'
+                                                    : 'bg-gradient-to-b from-[#181409]/90 to-[#100e06]/95 border-2 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.12)] hover:shadow-[0_0_40px_rgba(234,179,8,0.22)] hover:border-yellow-400'
                                         }`}
                                     >
                                         {/* Header Badges: Categoría y Estado encima de la imagen (sin taparla) */}
-                                        <div className="flex items-center justify-between gap-2">
+                                        <div className="flex items-center justify-between gap-2 flex-wrap">
                                             <span className={`px-3 py-1.5 bg-black/60 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 border ${isAlreadyUnlocked ? 'border-emerald-500/40 text-emerald-300' : 'border-yellow-500/40 text-yellow-300'} shadow-sm`}>
                                                 <span>{catIcon}</span> Categoría: {category}
                                             </span>
 
-                                            {isAlreadyUnlocked ? (
+                                            {isHiddenForUsers ? (
+                                                <span className="px-3 py-1 bg-rose-500/20 text-rose-300 text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-rose-500/50">
+                                                    <EyeOff className="w-3.5 h-3.5 text-rose-400" /> Oculto para usuarios
+                                                </span>
+                                            ) : isAlreadyUnlocked ? (
                                                 <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-emerald-500/50">
                                                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Desbloqueado
                                                 </span>
@@ -890,7 +908,7 @@ export const ProjectsList: React.FC = () => {
                                             )}
 
                                             {/* Enlaces de Gestión Exclusivos para Administrador */}
-                                            {user.role === 'admin' && (
+                                            {isRealAdmin && (
                                                 <div className="flex items-center justify-between gap-2.5 pt-3 mt-3 border-t border-white/10">
                                                     <button
                                                         type="button"

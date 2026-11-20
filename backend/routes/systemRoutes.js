@@ -738,32 +738,36 @@ router.get('/public/master-products', async (req, res) => {
                     pm.strategy_json as parent_strategy_json
              FROM projects p
              LEFT JOIN projects pm ON p.master_parent_id = pm.id
-             WHERE p.is_master = 1 AND p.is_active = 1
+             WHERE p.is_master = 1 AND (p.is_active IS NULL OR p.is_active = 1)
              ORDER BY p.created_at DESC
              LIMIT 24`
         );
 
-        // Respaldo: si aún no hay proyectos marcados como is_master = 1, tomar proyectos activos reales sin duplicar nombres
+        // Respaldo: solo si aún NO existen proyectos marcados como is_master = 1 en la BD, tomar proyectos activos reales sin duplicar nombres
         if (!rows || rows.length === 0) {
-            const [activeRows] = await pool.query(
-                `SELECT p.id, p.name, p.product_name, p.niche, p.description,
-                        p.multimedia_json, p.strategy_json, p.full_price, p.commission_rate,
-                        p.master_parent_id, p.created_at,
-                        pm.multimedia_json as parent_multimedia_json,
-                        pm.strategy_json as parent_strategy_json
-                 FROM projects p
-                 LEFT JOIN projects pm ON p.master_parent_id = pm.id
-                 WHERE p.is_active = 1
-                 ORDER BY p.created_at DESC
-                 LIMIT 24`
-            );
-            const seenNames = new Set();
-            rows = (activeRows || []).filter((r) => {
-                const key = (r.name || r.product_name || String(r.id)).trim().toLowerCase();
-                if (seenNames.has(key)) return false;
-                seenNames.add(key);
-                return true;
-            });
+            const [[masterCountRow]] = await pool.query('SELECT COUNT(*) as total FROM projects WHERE is_master = 1');
+            const totalMasters = Number(masterCountRow?.total || 0);
+            if (totalMasters === 0) {
+                const [activeRows] = await pool.query(
+                    `SELECT p.id, p.name, p.product_name, p.niche, p.description,
+                            p.multimedia_json, p.strategy_json, p.full_price, p.commission_rate,
+                            p.master_parent_id, p.created_at,
+                            pm.multimedia_json as parent_multimedia_json,
+                            pm.strategy_json as parent_strategy_json
+                     FROM projects p
+                     LEFT JOIN projects pm ON p.master_parent_id = pm.id
+                     WHERE (p.is_active IS NULL OR p.is_active = 1)
+                     ORDER BY p.created_at DESC
+                     LIMIT 24`
+                );
+                const seenNames = new Set();
+                rows = (activeRows || []).filter((r) => {
+                    const key = (r.name || r.product_name || String(r.id)).trim().toLowerCase();
+                    if (seenNames.has(key)) return false;
+                    seenNames.add(key);
+                    return true;
+                });
+            }
         }
 
         const formatted = (rows || []).map((p) => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp, Upload, Image, FileText, FileUp, ExternalLink, MessageCircle, Video, Play, Gift, Check, GraduationCap, Clock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp, Upload, Image, FileText, FileUp, ExternalLink, MessageCircle, Video, Play, Gift, Check, GraduationCap, Clock, Eye, EyeOff } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -446,6 +446,7 @@ export const ProjectWizard: React.FC = () => {
     const [digitalProductUrl, setDigitalProductUrl] = useState('');
     const [salesPageUrl, setSalesPageUrl] = useState('');
     const [isMaster, setIsMaster] = useState(false);
+    const [isActive, setIsActive] = useState(true);
     const [masterParentId, setMasterParentId] = useState<string | undefined>(undefined);
     
     const [niche, setNiche] = useState('');
@@ -945,6 +946,11 @@ export const ProjectWizard: React.FC = () => {
                     { label: 'Hotlink con Descuento', url: '' }
                 ]);
                 setIsMaster(!!proj.isMaster);
+                const rawIsActive = (proj as any).is_active;
+                const resolvedIsActive = rawIsActive !== undefined && rawIsActive !== null
+                    ? (rawIsActive !== 0 && rawIsActive !== false && rawIsActive !== '0')
+                    : (proj.isActive !== false);
+                setIsActive(resolvedIsActive);
                 setMasterParentId(proj.masterParentId);
                 setOriginalStrategyJson(proj.strategy_json);
                 const avatars = proj.strategy_json?.avatars || [];
@@ -1210,6 +1216,7 @@ export const ProjectWizard: React.FC = () => {
             keyBenefits: keyBenefits,
             affiliateLinks: affiliateLinks.filter(l => (l.url || '').trim() !== ''),
             isMaster: (user.role === 'admin' && !isSimulating) ? isMaster : false,
+            isActive: (user.role === 'admin' && !isSimulating) ? (isMaster ? isActive : true) : true,
             hotmart_rating: hotmartRating,
             hotmart_temperature: hotmartTemperature,
             hotmart_blueprint: hotmartBlueprint,
@@ -1342,37 +1349,106 @@ export const ProjectWizard: React.FC = () => {
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
                             {/* CONFIGURACIÓN PROYECTO MAESTRO REDISEÑADA (SOLO ADMIN REAL) */}
                             {user.role === 'admin' && !isSimulating && (
-                                <div className="bg-yellow-500/10 border border-yellow-500/30 p-10 rounded-[3rem] animate-in slide-in-from-top-2 shadow-[0_0_50px_rgba(234,179,8,0.15)] relative overflow-hidden group">
-                                    <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
-                                        <Star className="w-48 h-48 text-yellow-500" />
-                                    </div>
-                                    <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
-                                        <div className="flex items-center gap-6">
-                                            <div className="p-5 bg-yellow-500/20 rounded-[2rem] text-yellow-500 shadow-xl border border-yellow-500/20 group-hover:scale-105 transition-transform duration-500">
-                                                <Crown className="w-10 h-10 fill-current" />
+                                <div className="space-y-4 animate-in slide-in-from-top-2">
+                                    <div className="bg-yellow-500/10 border border-yellow-500/30 p-10 rounded-[3rem] shadow-[0_0_50px_rgba(234,179,8,0.15)] relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
+                                            <Star className="w-48 h-48 text-yellow-500" />
+                                        </div>
+                                        <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+                                            <div className="flex items-center gap-6">
+                                                <div className="p-5 bg-yellow-500/20 rounded-[2rem] text-yellow-500 shadow-xl border border-yellow-500/20 group-hover:scale-105 transition-transform duration-500">
+                                                    <Crown className="w-10 h-10 fill-current" />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-white font-black text-2xl uppercase tracking-tighter italic leading-none">Publicar en Biblioteca Maestra</h4>
+                                                    <p className="text-yellow-500/70 text-xs font-black uppercase tracking-[0.25em] mt-3">
+                                                        {isMaster
+                                                            ? (isActive
+                                                                ? 'Proyecto maestro visible para todos los usuarios de la plataforma'
+                                                                : 'Marcado como proyecto maestro (actualmente oculto para usuarios)')
+                                                            : 'Visible para todos los usuarios de la plataforma'}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h4 className="text-white font-black text-2xl uppercase tracking-tighter italic leading-none">Publicar en Biblioteca Maestra</h4>
-                                                <p className="text-yellow-500/70 text-xs font-black uppercase tracking-[0.25em] mt-3">Visible para todos los usuarios de la plataforma</p>
+                                            <div className="flex items-center gap-3 bg-black/40 p-2.5 rounded-[1.5rem] border border-white/5 shadow-inner">
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (!isMaster) {
+                                                            setIsActive(true);
+                                                        }
+                                                        setIsMaster(true);
+                                                    }}
+                                                    className={`px-10 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${isMaster ? 'bg-yellow-500 text-black shadow-xl shadow-yellow-900/40 transform scale-105' : 'text-gray-500 hover:text-white'}`}
+                                                >
+                                                    SÍ, PÚBLICO
+                                                </button>
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => setIsMaster(false)}
+                                                    className={`px-10 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${!isMaster ? 'bg-gray-700 text-white shadow-xl transform scale-105' : 'text-gray-500 hover:text-white'}`}
+                                                >
+                                                    NO, PRIVADO
+                                                </button>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3 bg-black/40 p-2.5 rounded-[1.5rem] border border-white/5 shadow-inner">
-                                            <button 
-                                                type="button"
-                                                onClick={() => setIsMaster(true)}
-                                                className={`px-10 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${isMaster ? 'bg-yellow-500 text-black shadow-xl shadow-yellow-900/40 transform scale-105' : 'text-gray-500 hover:text-white'}`}
-                                            >
-                                                SÍ, PÚBLICO
-                                            </button>
-                                            <button 
-                                                type="button"
-                                                onClick={() => setIsMaster(false)}
-                                                className={`px-10 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${!isMaster ? 'bg-gray-700 text-white shadow-xl transform scale-105' : 'text-gray-500 hover:text-white'}`}
-                                            >
-                                                NO, PRIVADO
-                                            </button>
-                                        </div>
                                     </div>
+
+                                    {isMaster && (
+                                        <div className={`p-8 md:px-10 rounded-[2.5rem] border transition-all duration-300 relative overflow-hidden ${
+                                            isActive
+                                                ? 'bg-emerald-500/10 border-emerald-500/30 shadow-[0_0_40px_rgba(16,185,129,0.12)]'
+                                                : 'bg-rose-500/10 border-rose-500/30 shadow-[0_0_40px_rgba(244,63,94,0.12)]'
+                                        }`}>
+                                            <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                                                <div className="flex items-center gap-5">
+                                                    <div className={`p-4 rounded-[1.5rem] shadow-xl border transition-colors ${
+                                                        isActive
+                                                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/25'
+                                                            : 'bg-rose-500/20 text-rose-400 border-rose-500/25'
+                                                    }`}>
+                                                        {isActive ? <Eye className="w-8 h-8" /> : <EyeOff className="w-8 h-8" />}
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-white font-black text-xl uppercase tracking-tighter italic leading-none">
+                                                            Proyecto Activo para el Usuario
+                                                        </h4>
+                                                        <p className={`text-[11px] font-black uppercase tracking-[0.2em] mt-2.5 ${
+                                                            isActive ? 'text-emerald-400/80' : 'text-rose-400/85'
+                                                        }`}>
+                                                            {isActive
+                                                                ? 'Se muestra a los usuarios en la Biblioteca Maestra'
+                                                                : 'Oculto para usuarios (solo visible y editable para administradores)'}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-3 bg-black/40 p-2 rounded-[1.5rem] border border-white/5 shadow-inner">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsActive(true)}
+                                                        className={`px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                                                            isActive
+                                                                ? 'bg-emerald-500 text-black shadow-xl shadow-emerald-900/40 transform scale-105'
+                                                                : 'text-gray-500 hover:text-white'
+                                                        }`}
+                                                    >
+                                                        SÍ, ACTIVO
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsActive(false)}
+                                                        className={`px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                                                            !isActive
+                                                                ? 'bg-rose-600 text-white shadow-xl shadow-rose-900/40 transform scale-105'
+                                                                : 'text-gray-500 hover:text-white'
+                                                        }`}
+                                                    >
+                                                        NO, OCULTO
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

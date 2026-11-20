@@ -58,6 +58,7 @@ const getOnboardingCardDesc = (project: Project) => {
 
 interface DashboardContext {
     user: User;
+    isSimulating?: boolean;
     pageCount: number;
     projectCount: number;
     articleCount: number;
@@ -68,7 +69,8 @@ interface DashboardContext {
 
 export const DashboardHome: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setShowProfileModal, setShowUpgradeModal, projectCount, onUpdateUser } = useOutletContext() as DashboardContext;
+  const { user, isSimulating, setShowProfileModal, setShowUpgradeModal, projectCount, onUpdateUser } = useOutletContext() as DashboardContext;
+  const isRealAdmin = user?.role === 'admin' && !isSimulating;
 
   const [summaryData, setSummaryData] = useState({
       totalVisits: 0,
@@ -98,7 +100,6 @@ export const DashboardHome: React.FC = () => {
       leadmagnets: 0
   });
 
-  const isRealAdmin = user?.role === 'admin';
   const isProPlan = user?.planSlug === 'pro' || user?.planId === 'pro' || user?.planLimits?.planName?.toLowerCase().includes('pro');
   const maxProjectsCalculated = user?.planLimits?.maxProjects || (isProPlan ? 3 : 1);
   const isAtLimit = (projects.length >= maxProjectsCalculated) && !isRealAdmin;
@@ -227,23 +228,27 @@ export const DashboardHome: React.FC = () => {
   }, []);
 
   const lockedLibraryProjects = useMemo(() => {
+      const visibleMasters = isRealAdmin
+          ? masterLibrary
+          : masterLibrary.filter(p => p.isActive !== false);
+
       const unlockedIds = new Set(
           projects.map(p => String(p.masterParentId || p.id))
       );
 
-      const locked = masterLibrary.filter(p => {
+      const locked = visibleMasters.filter(p => {
           const isUnlocked = Boolean(p.isUnlocked) || unlockedIds.has(String(p.id));
           return !isUnlocked;
       });
 
-      const listToSort = locked.length > 0 ? locked : masterLibrary;
+      const listToSort = locked.length > 0 ? locked : visibleMasters;
 
       return [...listToSort].sort((a, b) => {
           const dateA = new Date(a.createdAt || 0).getTime();
           const dateB = new Date(b.createdAt || 0).getTime();
           return dateB - dateA;
       });
-  }, [masterLibrary, projects]);
+  }, [masterLibrary, projects, isRealAdmin]);
 
   const planRawName = (user?.planLimits as any)?.planDisplayName || user?.planLimits?.planName || user?.planSlug || 'Gratuito';
   const isFree = ['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free', 'plan starter'].includes(planRawName.toLowerCase());

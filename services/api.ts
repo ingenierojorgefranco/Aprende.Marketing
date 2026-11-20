@@ -987,7 +987,7 @@ export const api = {
               digitalProductUrl: p.digital_product_url || p.digitalProductUrl,
               createdAt: new Date(p.created_at || p.createdAt),
               isMaster: !!p.is_master,
-              isActive: !!p.is_active,
+              isActive: p.is_active !== undefined && p.is_active !== null ? (p.is_active !== 0 && p.is_active !== false && p.is_active !== '0') : (p.isActive !== undefined && p.isActive !== null ? Boolean(p.isActive) : true),
               isUnlocked: !!p.is_unlocked,
               masterParentId: p.master_parent_id
           };
@@ -1018,7 +1018,7 @@ export const api = {
             fullPrice: p.full_price ? parseFloat(p.full_price) : (p.fullPrice || 0),
             commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
             isMaster: true,
-            isActive: !!p.is_active,
+            isActive: p.is_active !== undefined && p.is_active !== null ? (p.is_active !== 0 && p.is_active !== false && p.is_active !== '0') : (p.isActive !== undefined && p.isActive !== null ? Boolean(p.isActive) : true),
             leadMagnetUrl: p.lead_magnet_url || p.leadMagnetUrl,
             digitalProductUrl: p.digital_product_url || p.digitalProductUrl,
             createdAt: new Date(p.created_at)
@@ -1073,7 +1073,7 @@ export const api = {
               digitalProductUrl: p.digital_product_url || p.digitalProductUrl,
               createdAt: new Date(p.created_at || p.createdAt),
               isMaster: !!p.is_master,
-              isActive: !!p.is_active,
+              isActive: p.is_active !== undefined && p.is_active !== null ? (p.is_active !== 0 && p.is_active !== false && p.is_active !== '0') : (p.isActive !== undefined && p.isActive !== null ? Boolean(p.isActive) : true),
               masterParentId: p.master_parent_id
           };
           apiCache.projectDetails[id] = mappedProject;
@@ -1155,6 +1155,7 @@ export const api = {
           body: JSON.stringify(project)
         });
         clearCache('projects');
+        clearCache('masterLibrary');
         clearCache('userUsageStats');
         return { ...project, id: data.id.toString(), createdAt: new Date() };
     },
@@ -1164,6 +1165,7 @@ export const api = {
             localProjects = localProjects.map(p => p.id === id ? { ...project, id, createdAt: p.createdAt } : p);
             clearCache('projectDetails', id);
             clearCache('masterStrategies', id);
+            clearCache('masterLibrary');
             return Promise.resolve();
         }
         await fetchWithFallback(`/projects/${id}`, {
@@ -1172,6 +1174,7 @@ export const api = {
             body: JSON.stringify(project)
         });
         clearCache('projects');
+        clearCache('masterLibrary');
         clearCache('projectDetails', id);
         clearCache('masterStrategies', id);
     },

@@ -1032,7 +1032,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     setLoadingProjects(true);
     try {
       const masterLibrary = await api.getMasterLibrary();
-      setProjects(masterLibrary);
+      const visibleProjects = user?.role === 'admin'
+        ? masterLibrary
+        : masterLibrary.filter(p => p.isActive !== false);
+      setProjects(visibleProjects);
     } catch (error) {
       console.error("Error cargando libreria maestra:", error);
     } finally {

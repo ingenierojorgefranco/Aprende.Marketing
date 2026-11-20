@@ -30,6 +30,8 @@ const safeParseJson = (str) => {
     }
 };
 
+const isRowActive = (val) => val !== 0 && val !== false && val !== '0';
+
 router.use(authMiddleware);
 
 // ======================================================
@@ -45,7 +47,7 @@ router.get('/master-library', async (req, res) => {
         let params = [req.user.id];
 
         if (req.user.role !== 'admin') {
-            query += ` AND p.is_active = 1 AND p.user_id != ?`;
+            query += ` AND (p.is_active IS NULL OR p.is_active = 1) AND p.user_id != ?`;
             params.push(req.user.id);
         }
 
@@ -60,7 +62,7 @@ router.get('/master-library', async (req, res) => {
             strategy_json: safeParseJson(p.strategy_json),
             digital_product_url: p.digital_product_url,
             isMaster: !!p.is_master,
-            isActive: !!p.is_active,
+            isActive: isRowActive(p.is_active),
             isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked
         }));
         res.json(projects);
@@ -89,6 +91,11 @@ router.post('/unlock/:id', async (req, res) => {
         );
         if (existingUserProject.length > 0) {
             return res.json(existingUserProject[0]);
+        }
+
+        // 1c. Bloquear desbloqueo para usuarios regulares si el proyecto maestro está oculto/inactivo
+        if (req.user.role !== 'admin' && !isRowActive(master.is_active)) {
+            return res.status(403).json({ error: 'Este proyecto maestro no está activo para usuarios en este momento.' });
         }
         
         // 2. Verificar límites del usuario de forma dinámica
@@ -387,7 +394,7 @@ router.get('/', async (req, res) => {
             planSlug: status.planName,
             isBlocked: status.isBlocked,
             isMaster: !!p.is_master,
-            isActive: !!p.is_active,
+            isActive: isRowActive(p.is_active),
             isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked,
             masterParentId: p.master_parent_id ? String(p.master_parent_id) : undefined,
             masterName: p.master_parent_id ? (p.parent_name || undefined) : undefined
@@ -455,7 +462,7 @@ router.get('/:id', async (req, res) => {
     project.planSlug = status.planName;
     project.isBlocked = status.isBlocked;
     project.isMaster = !!project.is_master;
-    project.isActive = !!project.is_active;
+    project.isActive = isRowActive(project.is_active);
     project.masterParentId = project.master_parent_id ? String(project.master_parent_id) : undefined;
     project.masterName = project.master_parent_id ? (project.parent_name || undefined) : undefined;
     res.json(project);
@@ -493,7 +500,7 @@ router.patch('/:id/toggle-active', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, leadMagnetUrl, salesPageUrl, digitalProductUrl, whatsappGroupUrl, whatsapp_group_url, isMaster, hotmart_rating, hotmart_temperature, hotmart_blueprint, hotmartRating, hotmartTemperature, hotmartBlueprint } = req.body;
+  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, leadMagnetUrl, salesPageUrl, digitalProductUrl, whatsappGroupUrl, whatsapp_group_url, isMaster, isActive, hotmart_rating, hotmart_temperature, hotmart_blueprint, hotmartRating, hotmartTemperature, hotmartBlueprint } = req.body;
   try {
     // Verificar límites del usuario de forma dinámica
     const [userProjects] = await pool.query('SELECT id FROM projects WHERE user_id = ? AND is_master = 0', [req.user.id]);
@@ -505,6 +512,7 @@ router.post('/', async (req, res) => {
     }
 
     const isMasterFinal = (req.user.role === 'admin' && isMaster === true) ? 1 : 0;
+    const isActiveFinal = (req.user.role === 'admin' && isMasterFinal === 1 && isActive !== undefined) ? (isActive ? 1 : 0) : 1;
     
     // Obtener el plan Starter para el nuevo proyecto
     const [starterPlan] = await pool.query("SELECT id, slug FROM plans WHERE slug = 'starter' LIMIT 1");
@@ -519,9 +527,9 @@ router.post('/', async (req, res) => {
     const finalBlueprint = hotmart_blueprint || hotmartBlueprint || null;
 
     const [result] = await pool.query(
-      `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, multimedia_json, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, digital_product_url, whatsapp_group_url, is_master, plan_id, plan_slug, hotmart_rating, hotmart_temperature, hotmart_blueprint, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-      [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(finalAffiliateLinks), strategy_json ? JSON.stringify(strategy_json) : null, req.body.multimedia_json ? JSON.stringify(req.body.multimedia_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', digitalProductUrl || '', finalWhatsappGroupUrl, isMasterFinal, planId, planSlug, finalRating, finalTemperature, finalBlueprint]
+      `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, multimedia_json, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, digital_product_url, whatsapp_group_url, is_master, is_active, plan_id, plan_slug, hotmart_rating, hotmart_temperature, hotmart_blueprint, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(finalAffiliateLinks), strategy_json ? JSON.stringify(strategy_json) : null, req.body.multimedia_json ? JSON.stringify(req.body.multimedia_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', leadMagnetUrl || '', salesPageUrl || '', digitalProductUrl || '', finalWhatsappGroupUrl, isMasterFinal, isActiveFinal, planId, planSlug, finalRating, finalTemperature, finalBlueprint]
     );
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name });
     clearLimitsCache(req.user.id);
@@ -582,7 +590,7 @@ router.put('/:id', async (req, res) => {
         : (body.whatsapp_group_url !== undefined ? body.whatsapp_group_url : existing.whatsapp_group_url);
     
     const isMasterFinal = (req.user.role === 'admin' && body.isMaster !== undefined) ? (body.isMaster ? 1 : 0) : (existing.is_master ? 1 : 0);
-    const isActiveFinal = (req.user.role === 'admin' && body.isActive !== undefined) ? (body.isActive ? 1 : 0) : (existing.is_active === 0 ? 0 : 1);
+    const isActiveFinal = (req.user.role === 'admin' && body.isActive !== undefined) ? (body.isActive ? 1 : 0) : (isRowActive(existing.is_active) ? 1 : 0);
     const finalDigitalProductUrl = existing.master_parent_id ? null : (body.digitalProductUrl !== undefined ? body.digitalProductUrl : existing.digital_product_url);
 
     const hotmartRating = body.hotmart_rating !== undefined ? body.hotmart_rating : (body.hotmartRating !== undefined ? body.hotmartRating : existing.hotmart_rating);
