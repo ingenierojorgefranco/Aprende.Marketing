@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp, Upload, Image, FileText, FileUp, ExternalLink, Video, Play, Gift, Check, GraduationCap, Clock, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon, Rocket, Users, ChevronDown, ChevronUp, Upload, Image, FileText, FileUp, ExternalLink, Video, Play, Gift, Check, GraduationCap, Clock, Eye, EyeOff, Layers, LayoutGrid } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -469,6 +469,99 @@ export const ProjectWizard: React.FC = () => {
     const [isOpenCommercialModal, setIsOpenCommercialModal] = useState(false);
     const [activeCommercialTab, setActiveCommercialTab] = useState<'proposition' | 'offer' | 'funnel' | 'cta'>('offer');
     const [tempCommercial, setTempCommercial] = useState<any>(JSON.parse(JSON.stringify(DEFAULT_COMMERCIAL_DATA)));
+
+    // Carga Masiva de Biblioteca Base (Admin)
+    const [isOpenBulkLibraryModal, setIsOpenBulkLibraryModal] = useState(false);
+    const [bulkTitlesText, setBulkTitlesText] = useState('');
+    const [bulkCtaCopy, setBulkCtaCopy] = useState('');
+    const [bulkTargets, setBulkTargets] = useState<{ reels: boolean; carousels: boolean; articles: boolean }>({
+        reels: true,
+        carousels: true,
+        articles: true
+    });
+    const [bulkLoading, setBulkLoading] = useState(false);
+    const [bulkError, setBulkError] = useState<string | null>(null);
+    const [bulkResult, setBulkResult] = useState<{
+        created: { reels: number; carousels: number; articles: number; total: number };
+        skipped: { reels: number; carousels: number; articles: number; total: number };
+    } | null>(null);
+    const [pendingBulkQueue, setPendingBulkQueue] = useState<{
+        titles: string[];
+        targets: { reels: boolean; carousels: boolean; articles: boolean };
+        ctaCopy: string;
+    } | null>(null);
+
+    const parseBulkTitles = (raw: string): string[] => {
+        const seen = new Set<string>();
+        const result: string[] = [];
+        for (const line of raw.split(/\r?\n/)) {
+            const normalized = line.replace(/\t+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 255);
+            if (!normalized) continue;
+            const key = normalized.toLowerCase();
+            if (seen.has(key)) continue;
+            seen.add(key);
+            result.push(normalized);
+        }
+        return result;
+    };
+
+    const parsedBulkTitles = parseBulkTitles(bulkTitlesText);
+    const selectedBulkTargetCount = (bulkTargets.reels ? 1 : 0) + (bulkTargets.carousels ? 1 : 0) + (bulkTargets.articles ? 1 : 0);
+
+    const handleBulkLibrarySubmit = async () => {
+        setBulkError(null);
+        setBulkResult(null);
+
+        if (selectedBulkTargetCount === 0) {
+            setBulkError('Selecciona al menos un destino (Reels, Carruseles o Artículos).');
+            return;
+        }
+        if (parsedBulkTitles.length === 0) {
+            setBulkError('Pega al menos un título en el listado (uno por línea).');
+            return;
+        }
+        if (parsedBulkTitles.length > 500) {
+            setBulkError('El máximo permitido por lote es de 500 títulos.');
+            return;
+        }
+
+        const cleanCta = bulkCtaCopy.trim();
+
+        // Si el proyecto todavía no existe en BD (creando proyecto nuevo), guardar en cola para cargarlo al guardar el proyecto
+        if (!id) {
+            setPendingBulkQueue({
+                titles: parsedBulkTitles,
+                targets: { ...bulkTargets },
+                ctaCopy: cleanCta
+            });
+            if (cleanCta) {
+                setMultimedia(prev => ({ ...prev, bulkLibraryCtaCopy: cleanCta }));
+            }
+            setIsOpenBulkLibraryModal(false);
+            return;
+        }
+
+        setBulkLoading(true);
+        try {
+            const res = await api.bulkCreateLibraryAssets(id, {
+                titles: parsedBulkTitles,
+                targets: bulkTargets,
+                ctaCopy: cleanCta
+            });
+            setBulkResult({
+                created: res.created,
+                skipped: res.skipped
+            });
+            setBulkTitlesText('');
+            if (cleanCta) {
+                setMultimedia(prev => ({ ...prev, bulkLibraryCtaCopy: cleanCta }));
+            }
+        } catch (err: any) {
+            setBulkError(err?.message || 'Ocurrió un error al cargar los activos en la biblioteca.');
+        } finally {
+            setBulkLoading(false);
+        }
+    };
     
     const [errors, setErrors] = useState<Record<string, string>>({});
     
@@ -482,6 +575,7 @@ export const ProjectWizard: React.FC = () => {
         videoUrls: string[], 
         descriptiveImages: string[], 
         instructorImage?: string,
+        bulkLibraryCtaCopy?: string,
         leadMagnets?: { name: string; url: string; imageUrl?: string; description?: string; fromMaster?: boolean; }[],
         instructor?: {
             name: string;
@@ -1024,6 +1118,10 @@ export const ProjectWizard: React.FC = () => {
                 }
                 if (proj.multimedia_json) {
                     const loadedTy = (proj.multimedia_json as any).thankYouPage || {};
+                    const loadedBulkCta = (proj.multimedia_json as any).bulkLibraryCtaCopy || '';
+                    if (loadedBulkCta) {
+                        setBulkCtaCopy(loadedBulkCta);
+                    }
                     const loadedInstructor = (proj.multimedia_json as any).instructor 
                         || (proj.strategy_json as any)?.teacher 
                         || (proj.strategy_json as any)?.instructor 
@@ -1033,6 +1131,7 @@ export const ProjectWizard: React.FC = () => {
                         videoUrls: proj.multimedia_json.videoUrls || ((proj.multimedia_json as any).videoUrl ? [(proj.multimedia_json as any).videoUrl] : []),
                         descriptiveImages: proj.multimedia_json.descriptiveImages || [],
                         instructorImage: proj.multimedia_json.instructorImage || '',
+                        bulkLibraryCtaCopy: loadedBulkCta,
                         instructor: {
                             name: loadedInstructor.name || 'Ariana Zamora',
                             bio: loadedInstructor.bio || loadedInstructor.bioText || 'Microblading Artist · Phibrows Artist · Certificada en PMU · 1,560+ Alumnas. Después de dirigir tres estudios propios en Buenos Aires, decidió perfeccionarse internacionalmente. Actualmente opera su propio estudio en Estados Unidos, aplicando diariamente la técnica hiperrealista que enseña a sus alumnas en todo el mundo.',
@@ -1243,6 +1342,15 @@ export const ProjectWizard: React.FC = () => {
                 setLoadingStatus('Fase 1/2: Guardando información en base de datos...');
                 const saved = await api.createProject(projectData as any);
                 const projectId = saved.id;
+
+                if (user.role === 'admin' && !isSimulating && pendingBulkQueue && pendingBulkQueue.titles.length > 0) {
+                    setLoadingStatus(`Cargando ${pendingBulkQueue.titles.length} títulos en tu Biblioteca Base (desactivados)...`);
+                    try {
+                        await api.bulkCreateLibraryAssets(projectId, pendingBulkQueue);
+                    } catch (bulkErr) {
+                        console.error('Error en carga masiva inicial:', bulkErr);
+                    }
+                }
                 
                 setLoadingStatus('Fase 2/2: La IA está diseñando tu Estrategia Maestra (esto puede tardar unos 20 segundos)...');
                 await api.generateProjectStrategyFull(projectId);
@@ -2830,6 +2938,269 @@ export const ProjectWizard: React.FC = () => {
                                             >
                                                 Guardar Estrategia Comercial
                                             </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* CARGA MASIVA DE BIBLIOTECA BASE (SOLO ADMIN) */}
+                            {user.role === 'admin' && !isSimulating && (
+                                <div className="border border-gray-800 rounded-2xl p-6 bg-zinc-950/40 flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+                                    <div className="space-y-1">
+                                        <h3 className="text-lg font-bold text-white flex items-center gap-2 font-sans">
+                                            <Layers className="w-5 h-5 text-emerald-400" /> Carga Masiva de Biblioteca Base
+                                        </h3>
+                                        <p className="text-xs text-gray-400 font-sans">
+                                            Pega tu lista de títulos línea por línea y tu Copy CTA Base para crear automáticamente los activos desactivados en Reels, Carruseles y Artículos.
+                                        </p>
+                                        {!id && pendingBulkQueue && pendingBulkQueue.titles.length > 0 && (
+                                            <p className="text-xs text-emerald-400 font-semibold pt-1 font-sans">
+                                                ✓ {pendingBulkQueue.titles.length} {pendingBulkQueue.titles.length === 1 ? 'título en cola' : 'títulos en cola'} listos para cargarse al guardar el proyecto.
+                                            </p>
+                                        )}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setBulkError(null);
+                                            setBulkResult(null);
+                                            setIsOpenBulkLibraryModal(true);
+                                        }}
+                                        className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold px-5 py-3 rounded-xl transition-all hover:opacity-90 hover:scale-[1.02] shadow-lg shadow-emerald-900/20 active:scale-[0.98] text-sm whitespace-nowrap cursor-pointer"
+                                        id="btn-bulk-library-wizard"
+                                    >
+                                        <Layers className="w-4 h-4" /> Cargar Biblioteca Masiva
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* MODAL: CARGA MASIVA DE BIBLIOTECA BASE */}
+                            {isOpenBulkLibraryModal && user.role === 'admin' && !isSimulating && (
+                                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+                                    <div className="bg-[#111115] border border-gray-800 rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+                                        
+                                        {/* Header */}
+                                        <div className="p-6 border-b border-gray-800 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                                                    <Layers className="w-6 h-6 text-emerald-400" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-white font-sans">Carga Masiva de Biblioteca Base</h3>
+                                                    <p className="text-xs text-gray-400 mt-0.5 font-sans">
+                                                        Todos los activos se crearán <span className="text-amber-400 font-semibold">desactivados</span> para que los trabajes antes de mostrarlos al usuario.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button 
+                                                type="button"
+                                                onClick={() => setIsOpenBulkLibraryModal(false)}
+                                                className="text-gray-500 hover:text-white p-2 rounded-xl hover:bg-gray-800/50 transition-all cursor-pointer"
+                                            >
+                                                <X className="w-5 h-5" />
+                                            </button>
+                                        </div>
+
+                                        {/* Modal Body */}
+                                        <div className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar text-left">
+                                            {/* Selector de 3 destinos (por defecto todos seleccionados) */}
+                                            <div className="space-y-2.5">
+                                                <label className="block text-xs font-bold uppercase tracking-wider text-gray-400">
+                                                    1. ¿En qué bibliotecas deseas añadir estos títulos?
+                                                </label>
+                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                    {[
+                                                        {
+                                                            key: 'reels' as const,
+                                                            label: 'Reels',
+                                                            sub: 'Título + Caption + Comentario Fijado',
+                                                            icon: Video
+                                                        },
+                                                        {
+                                                            key: 'carousels' as const,
+                                                            label: 'Carruseles',
+                                                            sub: 'Título + Texto de Publicación',
+                                                            icon: LayoutGrid
+                                                        },
+                                                        {
+                                                            key: 'articles' as const,
+                                                            label: 'Artículos',
+                                                            sub: 'Solo título en borrador',
+                                                            icon: FileText
+                                                        }
+                                                    ].map((item) => {
+                                                        const IconComp = item.icon;
+                                                        const isSelected = bulkTargets[item.key];
+                                                        return (
+                                                            <button
+                                                                key={item.key}
+                                                                type="button"
+                                                                onClick={() => setBulkTargets(prev => ({ ...prev, [item.key]: !prev[item.key] }))}
+                                                                className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex items-start gap-3 ${
+                                                                    isSelected
+                                                                        ? 'bg-emerald-500/10 border-emerald-500/60 shadow-[0_0_20px_rgba(16,185,129,0.12)]'
+                                                                        : 'bg-[#16161c] border-gray-800 opacity-60 hover:opacity-100 hover:border-gray-700'
+                                                                }`}
+                                                            >
+                                                                <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-all ${
+                                                                    isSelected
+                                                                        ? 'bg-emerald-500 border-emerald-400 text-black'
+                                                                        : 'bg-black/40 border-gray-600 text-transparent'
+                                                                }`}>
+                                                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <div className="flex items-center gap-1.5">
+                                                                        <IconComp className={`w-4 h-4 ${isSelected ? 'text-emerald-400' : 'text-gray-400'}`} />
+                                                                        <span className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-gray-300'}`}>{item.label}</span>
+                                                                    </div>
+                                                                    <p className="text-[11px] text-gray-400 mt-0.5 leading-snug">{item.sub}</p>
+                                                                </div>
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            {/* Textarea grande: Lista de títulos línea por línea */}
+                                            <div className="space-y-2">
+                                                <div className="flex items-center justify-between gap-2 flex-wrap">
+                                                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400">
+                                                        2. Lista de Títulos (uno por línea)
+                                                    </label>
+                                                    <span className="text-xs font-semibold text-emerald-400">
+                                                        {parsedBulkTitles.length} {parsedBulkTitles.length === 1 ? 'título detectado' : 'títulos detectados'}
+                                                        {parsedBulkTitles.length > 0 && selectedBulkTargetCount > 0 && (
+                                                            <span className="text-gray-400 font-normal">
+                                                                {' '}→ {parsedBulkTitles.length * selectedBulkTargetCount} activos desactivados
+                                                            </span>
+                                                        )}
+                                                    </span>
+                                                </div>
+                                                <textarea
+                                                    rows={8}
+                                                    value={bulkTitlesText}
+                                                    onChange={(e) => {
+                                                        setBulkTitlesText(e.target.value);
+                                                        if (bulkError) setBulkError(null);
+                                                    }}
+                                                    className="w-full bg-[#16161c] border border-gray-800 rounded-2xl px-4 py-3.5 text-white focus:border-emerald-500 outline-none transition-all text-sm leading-relaxed resize-y placeholder:text-gray-600 font-sans"
+                                                    placeholder={"Pega tu lista completa aquí, un título por línea. Ejemplo:\n¿Quieres aprender a hacer jabones de glicerina? Estas son las 5 cosas que debes saber antes de empezar\n3 errores que arruinan tus primeros jabones artesanales\nCómo iniciar tu negocio de jabones desde casa con poco presupuesto"}
+                                                />
+                                                <p className="text-[11px] text-gray-500">
+                                                    El sistema limpia automáticamente líneas vacías, tabulaciones y espacios sobrantes, y omite títulos que ya existan en este proyecto.
+                                                </p>
+                                            </div>
+
+                                            {/* Copy CTA Base */}
+                                            <div className="space-y-2">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400">
+                                                        3. Copy CTA Base (para Reels y Carruseles)
+                                                    </label>
+                                                    <span className="text-[11px] text-gray-500">Opcional · Se recuerda para este proyecto</span>
+                                                </div>
+                                                <textarea
+                                                    rows={4}
+                                                    value={bulkCtaCopy}
+                                                    onChange={(e) => setBulkCtaCopy(e.target.value)}
+                                                    className="w-full bg-[#16161c] border border-gray-800 rounded-2xl px-4 py-3 text-white focus:border-emerald-500 outline-none transition-all text-sm leading-relaxed resize-y placeholder:text-gray-600 font-sans"
+                                                    placeholder={'🎓 Clase Gratuita de Resina Epóxica en Suelos:\nEscribe la palabra: "RESINA" en los comentarios y te enviaremos el enlace para ingresar a nuestra CLASE GRATUITA.'}
+                                                />
+                                                <p className="text-[11px] text-gray-500">
+                                                    En <strong className="text-gray-300">Reels</strong> se agrega en <em>Caption / Descripción</em> (debajo del título) y en <em>Comentario Fijado</em>. En <strong className="text-gray-300">Carruseles</strong> se agrega en el <em>Texto de Publicación</em>. En <strong className="text-gray-300">Artículos</strong> solo se crea el título.
+                                                </p>
+                                            </div>
+
+                                            {/* Aviso si es proyecto nuevo sin ID */}
+                                            {!id && (
+                                                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs leading-relaxed">
+                                                    Este proyecto aún no ha sido guardado. Al confirmar, dejaremos esta lista en cola y se cargará automáticamente en la base de datos en cuanto guardes el proyecto.
+                                                </div>
+                                            )}
+
+                                            {/* Error Feedback */}
+                                            {bulkError && (
+                                                <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
+                                                    <AlertTriangle className="w-4 h-4 shrink-0 text-red-400" />
+                                                    <span>{bulkError}</span>
+                                                </div>
+                                            )}
+
+                                            {/* Success Feedback */}
+                                            {bulkResult && (
+                                                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
+                                                    <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                                                        <CheckCircle2 className="w-5 h-5 shrink-0" />
+                                                        <span>
+                                                            ¡Carga completada! Se crearon {bulkResult.created.total} activos desactivados en la biblioteca.
+                                                        </span>
+                                                    </div>
+                                                    <div className="grid grid-cols-3 gap-2 pt-1 text-xs">
+                                                        <div className="bg-black/40 border border-white/5 rounded-xl p-2.5 text-center">
+                                                            <div className="text-gray-400 text-[11px]">Reels</div>
+                                                            <div className="text-white font-bold text-base">{bulkResult.created.reels}</div>
+                                                            {bulkResult.skipped.reels > 0 && (
+                                                                <div className="text-[10px] text-amber-400">{bulkResult.skipped.reels} ya existían</div>
+                                                            )}
+                                                        </div>
+                                                        <div className="bg-black/40 border border-white/5 rounded-xl p-2.5 text-center">
+                                                            <div className="text-gray-400 text-[11px]">Carruseles</div>
+                                                            <div className="text-white font-bold text-base">{bulkResult.created.carousels}</div>
+                                                            {bulkResult.skipped.carousels > 0 && (
+                                                                <div className="text-[10px] text-amber-400">{bulkResult.skipped.carousels} ya existían</div>
+                                                            )}
+                                                        </div>
+                                                        <div className="bg-black/40 border border-white/5 rounded-xl p-2.5 text-center">
+                                                            <div className="text-gray-400 text-[11px]">Artículos</div>
+                                                            <div className="text-white font-bold text-base">{bulkResult.created.articles}</div>
+                                                            {bulkResult.skipped.articles > 0 && (
+                                                                <div className="text-[10px] text-amber-400">{bulkResult.skipped.articles} ya existían</div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Footer */}
+                                        <div className="p-6 bg-black/40 border-t border-gray-800 flex items-center justify-between gap-3">
+                                            <span className="text-xs text-gray-500 hidden sm:inline">
+                                                Todos los registros quedarán ocultos hasta que los actives en cada sección.
+                                            </span>
+                                            <div className="flex items-center gap-3 ml-auto">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsOpenBulkLibraryModal(false)}
+                                                    disabled={bulkLoading}
+                                                    className="text-gray-400 hover:text-white font-bold text-xs px-5 py-3 rounded-xl transition-all hover:bg-gray-800/40 cursor-pointer font-sans disabled:opacity-50"
+                                                >
+                                                    Cerrar
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleBulkLibrarySubmit}
+                                                    disabled={bulkLoading || parsedBulkTitles.length === 0 || selectedBulkTargetCount === 0}
+                                                    className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all shadow-md active:scale-[0.98] cursor-pointer font-sans disabled:opacity-40 disabled:cursor-not-allowed"
+                                                >
+                                                    {bulkLoading ? (
+                                                        <>
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                            <span>Cargando en BD...</span>
+                                                        </>
+                                                    ) : !id ? (
+                                                        <>
+                                                            <Check className="w-4 h-4" />
+                                                            <span>Guardar Lista en Cola ({parsedBulkTitles.length})</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Layers className="w-4 h-4" />
+                                                            <span>Cargar {parsedBulkTitles.length * selectedBulkTargetCount} Activos Desactivados</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

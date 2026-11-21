@@ -715,4 +715,208 @@ router.post('/:id/generate-strategy', async (req, res) => {
     }
 });
 
+router.post('/:id/bulk-library-assets', async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Solo administradores pueden realizar carga masiva en la biblioteca base.' });
+    }
+
+    const projectId = parseInt(req.params.id, 10);
+    if (isNaN(projectId) || projectId <= 0) {
+      return res.status(400).json({ error: 'ID de proyecto inválido.' });
+    }
+
+    const [projRows] = await pool.query(
+      'SELECT id, user_id, multimedia_json FROM projects WHERE id = ?',
+      [projectId]
+    );
+    if (projRows.length === 0) {
+      return res.status(404).json({ error: 'Proyecto no encontrado.' });
+    }
+    const project = projRows[0];
+
+    const rawTitles = Array.isArray(req.body?.titles) ? req.body.titles : [];
+    const targets = req.body?.targets || {};
+    const includeReels = targets.reels === true;
+    const includeCarousels = targets.carousels === true;
+    const includeArticles = targets.articles === true;
+
+    if (!includeReels && !includeCarousels && !includeArticles) {
+      return res.status(400).json({ error: 'Debes seleccionar al menos un destino (Reels, Carruseles o Artículos).' });
+    }
+
+    // Limpiar, normalizar espacios/tabs y deduplicar dentro del mismo lote
+    const seenInBatch = new Set();
+    const cleanedTitles = [];
+    for (const item of rawTitles) {
+      if (typeof item !== 'string') continue;
+      const normalized = item.replace(/\t+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 255);
+      if (!normalized) continue;
+      const key = normalized.toLowerCase();
+      if (seenInBatch.has(key)) continue;
+      seenInBatch.add(key);
+      cleanedTitles.push(normalized);
+      if (cleanedTitles.length >= 500) break;
+    }
+
+    if (cleanedTitles.length === 0) {
+      return res.status(400).json({ error: 'Ingresa al menos un título válido en la lista.' });
+    }
+
+    const cleanCtaCopy = typeof req.body?.ctaCopy === 'string'
+      ? req.body.ctaCopy.trim().slice(0, 5000)
+      : '';
+
+    const created = { reels: 0, carousels: 0, articles: 0, total: 0 };
+    const skipped = { reels: 0, carousels: 0, articles: 0, total: 0 };
+
+    // 1. REELS (project_hooks) — desactivados (is_active = 0) + Copy CTA en Caption y Comentario Fijado
+    if (includeReels) {
+      const [existingHooks] = await pool.query(
+        'SELECT LOWER(TRIM(title)) as norm_title FROM project_hooks WHERE project_id = ?',
+        [projectId]
+      );
+      const existingHookSet = new Set(existingHooks.map(r => r.norm_title));
+      const defaultHookStrategy = JSON.stringify([
+        "Usa voz o texto en pantalla",
+        "Mantén el encuadre simple",
+        "Continúa con el desarrollo del valor"
+      ]);
+
+      for (const title of cleanedTitles) {
+        if (existingHookSet.has(title.toLowerCase())) {
+          skipped.reels++;
+          continue;
+        }
+        const contentJson = {
+          script: "Aquí ingresa el guion del video persuasivo...",
+          reelTitle: title,
+          ads: cleanCtaCopy
+            ? `${title}\n\n${cleanCtaCopy}`
+            : "🔥 Aquí ingresa la descripción para tus anuncios...\n\n✅ Beneficio 1\n✅ Beneficio 2\n\n🔗 [LINK]",
+          pinnedComment: cleanCtaCopy || "📌 Comentario fijado sugerido para este video...",
+          videoUrl: "",
+          downloadUrl: "",
+          thumbs: [
+            "Diseño Sugerido 1",
+            "Diseño Sugerido 2",
+            "Diseño Sugerido 3"
+          ]
+        };
+
+        await pool.query(
+          `INSERT INTO project_hooks (project_id, title, psychological_strategy, content_json, is_generated, is_active)
+           VALUES (?, ?, ?, ?, 0, 0)`,
+          [projectId, title, defaultHookStrategy, JSON.stringify(contentJson)]
+        );
+        existingHookSet.add(title.toLowerCase());
+        created.reels++;
+      }
+    }
+
+    // 2. CARRUSELES (project_carousels) — desactivados (is_active = 0) + Copy CTA en Caption / FeedCopy
+    if (includeCarousels) {
+      const [existingCarousels] = await pool.query(
+        'SELECT LOWER(TRIM(title)) as norm_title FROM project_carousels WHERE project_id = ?',
+        [projectId]
+      );
+      const existingCarouselSet = new Set(existingCarousels.map(r => r.norm_title));
+
+      for (const title of cleanedTitles) {
+        if (existingCarouselSet.has(title.toLowerCase())) {
+          skipped.carousels++;
+          continue;
+        }
+        const carouselCaption = cleanCtaCopy
+          ? `${title}\n\n${cleanCtaCopy}`
+          : "¡Aquí va la descripción o caption para tu post de Instagram/Facebook!";
+
+        const contentJson = {
+          slides: [
+            {
+              slideNumber: 1,
+              title: title,
+              description: "Descripción del primer slide para retener audiencia.",
+              image: ""
+            }
+          ],
+          caption: carouselCaption,
+          feedCopy: carouselCaption
+        };
+
+        await pool.query(
+          `INSERT INTO project_carousels (project_id, title, psychological_strategy, content_json, is_generated, is_active)
+           VALUES (?, ?, ?, ?, 0, 0)`,
+          [projectId, title, 'Aprende de forma visual y rápida.', JSON.stringify(contentJson)]
+        );
+        existingCarouselSet.add(title.toLowerCase());
+        created.carousels++;
+      }
+    }
+
+    // 3. ARTÍCULOS (articles) — solo el título en borrador y desactivados (is_active = 0)
+    if (includeArticles) {
+      const [existingArticles] = await pool.query(
+        'SELECT LOWER(TRIM(title)) as norm_title FROM articles WHERE project_id = ?',
+        [projectId]
+      );
+      const existingArticleSet = new Set(existingArticles.map(r => r.norm_title));
+      const articleOwnerId = project.user_id || req.user.id;
+      const defaultArticleStrategy = JSON.stringify({
+        focus: "Describe el enfoque aquí...",
+        keyword: "",
+        searchVolume: "0",
+        targetUrl: ""
+      });
+
+      for (const title of cleanedTitles) {
+        if (existingArticleSet.has(title.toLowerCase())) {
+          skipped.articles++;
+          continue;
+        }
+
+        await pool.query(
+          `INSERT INTO articles (user_id, project_id, title, psychological_strategy, status, is_generated, is_active, created_at)
+           VALUES (?, ?, ?, ?, 'draft', 0, 0, NOW())`,
+          [articleOwnerId, projectId, title, defaultArticleStrategy]
+        );
+        existingArticleSet.add(title.toLowerCase());
+        created.articles++;
+      }
+    }
+
+    // Guardar el último Copy CTA Base en multimedia_json del proyecto para comodidad en futuras tandas
+    if (cleanCtaCopy) {
+      try {
+        const currentMm = safeParseJson(project.multimedia_json) || {};
+        currentMm.bulkLibraryCtaCopy = cleanCtaCopy;
+        await pool.query(
+          'UPDATE projects SET multimedia_json = ?, updated_at = NOW() WHERE id = ?',
+          [JSON.stringify(currentMm), projectId]
+        );
+      } catch (mmErr) {
+        console.warn('No se pudo guardar bulkLibraryCtaCopy en multimedia_json:', mmErr.message);
+      }
+    }
+
+    created.total = created.reels + created.carousels + created.articles;
+    skipped.total = skipped.reels + skipped.carousels + skipped.articles;
+
+    await logSystemActivity(req.user.id, req.user.email, 'BULK_CREATE_LIBRARY_ASSETS', 'project', projectId, {
+      created,
+      skipped,
+      targets: { reels: includeReels, carousels: includeCarousels, articles: includeArticles }
+    });
+
+    res.json({
+      success: true,
+      created,
+      skipped
+    });
+  } catch (error) {
+    console.error('[Bulk Library Assets Error]', error);
+    res.status(500).json({ error: 'Error al cargar los activos masivos en la biblioteca.' });
+  }
+});
+
 export default router;

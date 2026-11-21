@@ -411,8 +411,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 .filter(a => !isAlreadyGenerated(a) && (isRealAdmin || a.isActive !== false));
 
             const LIBRARY_COUNT = 5;
-            const randomizedCandidates = [...unlocked, ...locked].sort(() => Math.random() - 0.5);
-            const newLibrary = randomizedCandidates.slice(0, LIBRARY_COUNT);
+            const newLibrary = isRealAdmin
+                ? [...unlocked, ...locked]
+                : [...unlocked, ...locked].sort(() => Math.random() - 0.5).slice(0, LIBRARY_COUNT);
 
             setLibraryData(newLibrary);
 

@@ -47,6 +47,9 @@ router.get('/articles', authMiddleware, async (req, res) => {
 router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
     const { projectId } = req.params;
     try {
+        const isAdmin = req.user.role === 'admin' && req.query.simulateUser !== 'true';
+        const activeCondition = isAdmin ? '' : 'AND a.is_active = 1';
+
         // 1. Obtener el master_parent_id del proyecto
         const [proj] = await pool.query('SELECT master_parent_id FROM projects WHERE id = ?', [projectId]);
         const masterParentId = proj[0]?.master_parent_id;
@@ -74,6 +77,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                      LEFT JOIN landing_pages lp ON a.page_id = lp.id
                      LEFT JOIN projects p ON a.project_id = p.id
                      WHERE a.project_id = ? 
+                     ${activeCondition}
                      AND a.id NOT IN (SELECT master_article_id FROM articles WHERE project_id = ? AND master_article_id IS NOT NULL)
                      AND (a.title LIKE ? OR a.slug LIKE ? OR a.keyword LIKE ? OR a.description LIKE ?)
                      ORDER BY a.title ASC
@@ -91,6 +95,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                      LEFT JOIN landing_pages lp ON a.page_id = lp.id
                      LEFT JOIN projects p ON a.project_id = p.id
                      WHERE a.project_id = ? 
+                     ${activeCondition}
                      AND a.id NOT IN (SELECT master_article_id FROM articles WHERE project_id = ? AND master_article_id IS NOT NULL)
                      ORDER BY RAND()
                      LIMIT ?`,
@@ -104,6 +109,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                      LEFT JOIN landing_pages lp ON a.page_id = lp.id
                      LEFT JOIN projects p ON a.project_id = p.id
                      WHERE a.project_id = ? 
+                     ${activeCondition}
                      AND a.id NOT IN (SELECT master_article_id FROM articles WHERE project_id = ? AND master_article_id IS NOT NULL)
                      ORDER BY COALESCE(a.published_at, a.created_at) DESC, a.id DESC`,
                     [masterParentId, projectId]
@@ -160,6 +166,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                  LEFT JOIN landing_pages lp ON a.page_id = lp.id 
                  LEFT JOIN projects p ON a.project_id = p.id
                  WHERE a.project_id = ? 
+                 ${activeCondition}
                  ORDER BY COALESCE(a.published_at, a.created_at) DESC, a.id DESC`,
                 [projectId]
             );

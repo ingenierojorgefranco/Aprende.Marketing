@@ -1197,6 +1197,39 @@ export const api = {
         return res;
     },
 
+    bulkCreateLibraryAssets: async (
+        projectId: string,
+        payload: {
+            titles: string[];
+            targets: { reels: boolean; carousels: boolean; articles: boolean };
+            ctaCopy?: string;
+        }
+    ): Promise<{
+        success: boolean;
+        created: { reels: number; carousels: number; articles: number; total: number };
+        skipped: { reels: number; carousels: number; articles: number; total: number };
+    }> => {
+        if (isMockMode) {
+            const count = payload.titles.length;
+            const reels = payload.targets.reels ? count : 0;
+            const carousels = payload.targets.carousels ? count : 0;
+            const articles = payload.targets.articles ? count : 0;
+            return {
+                success: true,
+                created: { reels, carousels, articles, total: reels + carousels + articles },
+                skipped: { reels: 0, carousels: 0, articles: 0, total: 0 }
+            };
+        }
+        const res = await fetchWithFallback(`/projects/${projectId}/bulk-library-assets`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(payload)
+        });
+        clearCache('projectDetails', projectId);
+        clearCache('masterLibrary');
+        return res;
+    },
+
     updateProjectStrategy: async (projectId: string, strategy: ProjectMasterStrategy): Promise<void> => {
         if (isMockMode) {
             const project = localProjects.find(p => String(p.id) === String(projectId));
