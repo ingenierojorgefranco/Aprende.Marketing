@@ -206,7 +206,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     ];
   };
 
-  const DEFAULT_HOOK_WHY_IT_WORKS = "Hook que llama la atención en los primeros 3 segundos y atrae audiencia cualificada para tu oferta digital.";
+  const DEFAULT_HOOK_WHY_IT_WORKS = "Publicar este reel te permite mantener activas tus redes sociales, aportar contenido a tu audiencia y generar oportunidades para que más personas descubran tu negocio.";
+  const LEGACY_DEFAULT_HOOK_WHY_IT_WORKS = "Hook que llama la atención en los primeros 3 segundos y atrae audiencia cualificada para tu oferta digital.";
 
   const getSingleStrategyText = (strategyRaw: any): { text: string; isCustom: boolean } => {
     if (!strategyRaw) {
@@ -243,7 +244,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
 
     const cleanStr = String(textToParse || "").trim();
-    if (!cleanStr || cleanStr === "N/A" || cleanStr === DEFAULT_HOOK_WHY_IT_WORKS) {
+    if (!cleanStr || cleanStr === "N/A" || cleanStr === DEFAULT_HOOK_WHY_IT_WORKS || cleanStr === LEGACY_DEFAULT_HOOK_WHY_IT_WORKS) {
       return { text: DEFAULT_HOOK_WHY_IT_WORKS, isCustom: false };
     }
 
@@ -523,7 +524,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (currentHook && currentHook.id) {
         setLocalTitle(currentHook.title || "");
         const strat = (currentHook as any).psychological_strategy || currentHook.psychologicalStrategy || "";
-        setLocalStrategy(strat);
+        const resolvedStrategy = getSingleStrategyText(strat).text;
+        setLocalStrategy(resolvedStrategy);
         setStrategyItems(parseStrategyItems(strat));
         setIsEditingTitle(false);
         setIsEditingScript(false);
@@ -1017,11 +1019,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             const now = new Date().toISOString();
             const hookData = {
                 title: 'Nuevo Gancho Manual',
-                psychological_strategy: JSON.stringify([
-                    "Usa voz o texto en pantalla",
-                    "Mantén el encuadre simple",
-                    "Continúa con el desarrollo del valor"
-                ]),
+                psychological_strategy: DEFAULT_HOOK_WHY_IT_WORKS,
                 contentJson: defaultKitContent,
                 isGenerated: false,
                 updatedAt: now

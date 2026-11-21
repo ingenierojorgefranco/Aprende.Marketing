@@ -175,6 +175,13 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
         }
         if (typeof strategyRaw === 'string') {
             const trimmed = strategyRaw.trim();
+            if (!trimmed || trimmed.replace(/\.+$/, '').toLowerCase() === 'aprende de forma visual y rápida') {
+                return [
+                    "Atrae atención rápido.",
+                    "Educa y genera confianza.",
+                    "Convierte vistas en clientes."
+                ];
+            }
             if (trimmed.startsWith('[')) {
                 try {
                     const arr = JSON.parse(trimmed);
@@ -635,7 +642,11 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 const now = new Date().toISOString();
                 const carouselData = {
                     title: 'Nuevo Carrusel Manual',
-                    psychological_strategy: 'Aprende de forma visual y rápida.',
+                    psychological_strategy: JSON.stringify([
+                        "Atrae atención rápido.",
+                        "Educa y genera confianza.",
+                        "Convierte vistas en clientes."
+                    ]),
                     contentJson: {
                         slides: [
                             {

@@ -777,11 +777,7 @@ router.post('/:id/bulk-library-assets', async (req, res) => {
         [projectId]
       );
       const existingHookSet = new Set(existingHooks.map(r => r.norm_title));
-      const defaultHookStrategy = JSON.stringify([
-        "Usa voz o texto en pantalla",
-        "Mantén el encuadre simple",
-        "Continúa con el desarrollo del valor"
-      ]);
+      const defaultHookStrategy = "Publicar este reel te permite mantener activas tus redes sociales, aportar contenido a tu audiencia y generar oportunidades para que más personas descubran tu negocio.";
 
       for (const title of cleanedTitles) {
         if (existingHookSet.has(title.toLowerCase())) {
@@ -844,10 +840,16 @@ router.post('/:id/bulk-library-assets', async (req, res) => {
           feedCopy: carouselCaption
         };
 
+        const defaultCarouselStrategy = JSON.stringify([
+          "Atrae atención rápido.",
+          "Educa y genera confianza.",
+          "Convierte vistas en clientes."
+        ]);
+
         await pool.query(
           `INSERT INTO project_carousels (project_id, title, psychological_strategy, content_json, is_generated, is_active)
            VALUES (?, ?, ?, ?, 0, 0)`,
-          [projectId, title, 'Aprende de forma visual y rápida.', JSON.stringify(contentJson)]
+          [projectId, title, defaultCarouselStrategy, JSON.stringify(contentJson)]
         );
         existingCarouselSet.add(title.toLowerCase());
         created.carousels++;
