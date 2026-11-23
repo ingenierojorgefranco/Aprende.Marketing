@@ -133,11 +133,14 @@ export const DashboardHome: React.FC = () => {
             if (freshUser && onUpdateUser) {
                 const freshPlan = (freshUser as any).planLimits?.planName || (freshUser as any).planSlug;
                 const currentPlan = user?.planLimits?.planName || user?.planSlug;
-                if (freshPlan !== currentPlan || JSON.stringify((freshUser as any).planLimits) !== JSON.stringify(user?.planLimits)) {
+                const freshPhone = (freshUser as any).phone || '';
+                const hasPhoneChanged = freshPhone !== (user?.phone || '');
+                if (freshPlan !== currentPlan || JSON.stringify((freshUser as any).planLimits) !== JSON.stringify(user?.planLimits) || hasPhoneChanged) {
                     onUpdateUser({
                         ...user,
                         ...freshUser,
                         id: freshUser.id.toString(),
+                        phone: freshPhone,
                         role: (freshUser.role === 'admin' ? 'admin' : 'user') as 'admin' | 'user',
                         planSlug: freshPlan || user?.planSlug,
                         planLimits: (freshUser as any).planLimits || user?.planLimits

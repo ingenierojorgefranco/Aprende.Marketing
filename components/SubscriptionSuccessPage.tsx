@@ -193,6 +193,7 @@ export const SubscriptionSuccessPage: React.FC<SubscriptionSuccessPageProps> = (
         id: loggedInUser.id.toString(),
         name: loggedInUser.name,
         email: loggedInUser.email,
+        phone: (loggedInUser as any).phone || '',
         role: loggedInUser.role as any,
         planLimits: (loggedInUser as any).planLimits,
         customRedirectUrl: (loggedInUser as any).customRedirectUrl

@@ -189,12 +189,15 @@ export const DashboardLayout = ({
           JSON.stringify((latestUser as any).planLimits) !== JSON.stringify(user.planLimits);
         const hasSurveyChanged = (latestUser as any).survey_json && !user.survey_json;
         const hasRoleChanged = latestUser.role !== user.role;
+        const latestPhone = (latestUser as any).phone || '';
+        const hasPhoneChanged = latestPhone !== (user.phone || '');
 
-        if (hasPlanChanged || hasSurveyChanged || hasRoleChanged) {
+        if (hasPlanChanged || hasSurveyChanged || hasRoleChanged || hasPhoneChanged) {
           const formattedUser: User = {
             ...user,
             ...latestUser,
             id: latestUser.id.toString(),
+            phone: latestPhone,
             role: (latestUser.role === 'admin' ? 'admin' : 'user') as 'admin' | 'user',
             planSlug: latestPlanName || user.planSlug,
             planLimits: (latestUser as any).planLimits || user.planLimits,

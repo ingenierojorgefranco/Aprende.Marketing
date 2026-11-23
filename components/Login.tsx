@@ -61,6 +61,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         id: user.id.toString(),
         name: user.name,
         email: user.email,
+        phone: (user as any).phone || '',
         role: user.role as any, 
         planLimits: (user as any).planLimits,
         customRedirectUrl: (user as any).customRedirectUrl

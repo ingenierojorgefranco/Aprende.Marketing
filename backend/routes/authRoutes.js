@@ -1374,6 +1374,7 @@ router.post('/activate-hotmart-account', async (req, res) => {
                 id: targetUserId.toString(),
                 name: existing[0].name || cleanName,
                 email: cleanEmail,
+                phone: existing[0].phone || '',
                 role: existing[0].role || 'user',
                 planLimits: limits,
                 customRedirectUrl: existing[0].custom_redirect_url

@@ -35,6 +35,7 @@ export const WaitlistView: React.FC<WaitlistViewProps> = ({ user, onUpdateUser, 
                     const formatted: User = {
                         ...user,
                         id: updated.id.toString(),
+                        phone: (updated as any).phone ?? user.phone ?? '',
                         survey_json: (updated as any).survey_json
                     };
                     onUpdateUser(formatted);

@@ -251,6 +251,7 @@ const App: React.FC = () => {
               id: authUser.id.toString(),
               name: authUser.name,
               email: authUser.email,
+              phone: (authUser as any).phone || '',
               role: (authUser as any).role,
               planSlug: (authUser as any).planSlug || (authUser as any).planLimits?.planName,
               planLimits: (authUser as any).planLimits,
