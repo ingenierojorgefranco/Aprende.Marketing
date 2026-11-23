@@ -516,7 +516,7 @@ router.post('/login', async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, password_hash, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json, main_goal, experience_level, budget_range, main_obstacle, createdsurvey_at, updatedsurvey_at, niche, urgency_level FROM users WHERE email = ?',
+      'SELECT id, name, email, phone, password_hash, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json, main_goal, experience_level, budget_range, main_obstacle, createdsurvey_at, updatedsurvey_at, niche, urgency_level FROM users WHERE email = ?',
       [email]
     );
 
@@ -537,6 +537,7 @@ router.post('/login', async (req, res) => {
       id: user.id,
       name: user.name,
       email: user.email,
+      phone: user.phone || '',
       role: user.role,
       public_subdomain: user.public_subdomain,
       planLimits: planLimits,
@@ -583,7 +584,7 @@ router.get('/me', authMiddleware, async (req, res) => {
     res.setHeader('Expires', '0');
 
     const [rows] = await pool.query(
-      'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json, main_goal, experience_level, budget_range, main_obstacle, createdsurvey_at, updatedsurvey_at, niche, urgency_level FROM users WHERE id = ?',
+      'SELECT id, name, email, phone, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json, main_goal, experience_level, budget_range, main_obstacle, createdsurvey_at, updatedsurvey_at, niche, urgency_level FROM users WHERE id = ?',
       [req.user.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -595,6 +596,7 @@ router.get('/me', authMiddleware, async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        phone: user.phone || '',
         role: user.role,
         is_active: user.is_active,
         public_subdomain: user.public_subdomain,
@@ -748,20 +750,28 @@ router.get('/me/resources', authMiddleware, async (req, res) => {
 
 // Profile Update Route
 router.put('/profile', authMiddleware, async (req, res) => {
-    const { name, email, avatarUrl, birthDate } = req.body;
+    const { name, email, avatarUrl, birthDate, phone } = req.body;
     
     if (!name || !email) {
         return res.status(400).json({ error: "Nombre y Email son obligatorios" });
     }
 
     try {
-        await pool.query(
-            'UPDATE users SET name = ?, email = ?, avatar_url = ?, birth_date = ? WHERE id = ?',
-            [name, email, avatarUrl, birthDate, req.user.id]
-        );
+        if (phone !== undefined) {
+            const cleanedPhone = typeof phone === 'string' ? phone.replace(/[^\d+]/g, '').slice(0, 30) : '';
+            await pool.query(
+                'UPDATE users SET name = ?, email = ?, avatar_url = ?, birth_date = ?, phone = ? WHERE id = ?',
+                [name, email, avatarUrl, birthDate, cleanedPhone || null, req.user.id]
+            );
+        } else {
+            await pool.query(
+                'UPDATE users SET name = ?, email = ?, avatar_url = ?, birth_date = ? WHERE id = ?',
+                [name, email, avatarUrl, birthDate, req.user.id]
+            );
+        }
         
         const [rows] = await pool.query(
-            'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json, main_goal, experience_level, budget_range, main_obstacle, createdsurvey_at, updatedsurvey_at, niche, urgency_level FROM users WHERE id = ?',
+            'SELECT id, name, email, phone, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks, survey_json, main_goal, experience_level, budget_range, main_obstacle, createdsurvey_at, updatedsurvey_at, niche, urgency_level FROM users WHERE id = ?',
             [req.user.id]
         );
         
@@ -772,6 +782,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
             id: user.id,
             name: user.name,
             email: user.email,
+            phone: user.phone || '',
             role: user.role,
             planLimits: planLimits,
             avatarUrl: user.avatar_url,
@@ -793,6 +804,34 @@ router.put('/profile', authMiddleware, async (req, res) => {
     } catch (e) {
         console.error("Error updating profile:", e);
         res.status(500).json({ error: "Error al actualizar perfil" });
+    }
+});
+
+// Update Authenticated User's WhatsApp Number
+router.patch('/whatsapp', authMiddleware, async (req, res) => {
+    try {
+        const rawPhone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
+        const digitsOnly = rawPhone.replace(/\D/g, '');
+
+        if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+            return res.status(400).json({ error: 'Ingresa un número de WhatsApp válido (incluyendo indicativo de país).' });
+        }
+
+        const normalizedPhone = `+${digitsOnly}`;
+
+        await pool.query(
+            'UPDATE users SET phone = ? WHERE id = ?',
+            [normalizedPhone, req.user.id]
+        );
+
+        await logSystemActivity(req.user.id, req.user.email || 'Usuario', 'UPDATE_WHATSAPP', 'user', req.user.id, {
+            hasPhone: true
+        });
+
+        res.json({ success: true, phone: normalizedPhone });
+    } catch (e) {
+        console.error('Error updating user WhatsApp:', e);
+        res.status(500).json({ error: 'Error al guardar tu número de WhatsApp.' });
     }
 });
 

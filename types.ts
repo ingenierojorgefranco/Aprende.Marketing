@@ -242,6 +242,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   role?: 'admin' | 'user';
   planLimits?: PlanLimits;
   planId?: string; // NEW: Global plan ID for the user (legacy or base)

@@ -140,7 +140,13 @@ export const logout = () => {
     const keysToRemove: string[] = [];
     for (let i = 0; i < sessionStorage.length; i++) {
       const key = sessionStorage.key(i);
-      if (key && (key.startsWith('session_library_articles_') || key.startsWith('session_library_carousels_') || key.startsWith('session_library_hooks_'))) {
+      if (
+        key &&
+        (key.startsWith('session_library_articles_') ||
+          key.startsWith('session_library_carousels_') ||
+          key.startsWith('session_library_hooks_') ||
+          key.startsWith('whatsapp_prompt_dismissed_'))
+      ) {
         keysToRemove.push(key);
       }
     }

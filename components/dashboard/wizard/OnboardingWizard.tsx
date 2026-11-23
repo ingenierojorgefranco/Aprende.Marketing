@@ -71,6 +71,7 @@ import {
 } from "./WizardSteps";
 import { Image1Dashboard } from "./Image1Dashboard";
 import { ImplementationGuide } from "./ImplementationGuide";
+import { WhatsAppOnboardingStep } from "../WhatsAppPhoneCapture";
 
 const UserProfileModal = React.lazy(() => import("../UserProfileModal"));
 
@@ -85,6 +86,7 @@ interface OnboardingWizardProps {
 
 type WizardStep =
   | "welcome"
+  | "whatsapp_capture"
   | "selection"
   | "unlock"
   | "generating_strategy"
@@ -281,7 +283,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   useEffect(() => {
     const fullPath = location.pathname + location.hash + location.search;
 
-    const validStep1Substeps: WizardStep[] = ["welcome"];
+    const validStep1Substeps: WizardStep[] = ["welcome", "whatsapp_capture"];
     const validStep2Substeps: WizardStep[] = ["selection", "generating_strategy"];
     const validStep3Substeps: WizardStep[] = ["strategy_ready", "creating_web", "landing_success", "show_avatars", "show_landing_prep", "unlock"];
     const validStep4Substeps: WizardStep[] = ["generating_hooks", "show_hooks", "success"];
@@ -2283,9 +2285,39 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           >
             <WelcomeStep
               userData={user}
-              onNext={() => goToStep(2)}
+              onNext={() => {
+                const hasPhone = !!(user.phone && user.phone.trim() !== "");
+                const dismissedThisSession =
+                  typeof window !== "undefined" &&
+                  sessionStorage.getItem(`whatsapp_prompt_dismissed_${user.id}`) === "true";
+                if (!hasPhone && user.role !== "admin" && !dismissedThisSession) {
+                  setStep("whatsapp_capture");
+                } else {
+                  goToStep(2);
+                }
+              }}
               onGoToStep={(s) => goToStep(s)}
               disabled={!!strategyData}
+            />
+          </div>
+        ) : step === "whatsapp_capture" ? (
+          <div
+            className="w-full max-w-5xl mx-auto px-4 md:px-6 min-h-[calc(100vh-100px)] flex flex-col justify-center items-center py-8 relative font-sans"
+          >
+            <WhatsAppOnboardingStep
+              userName={user.name}
+              onSaved={(savedPhone) => {
+                if (onUpdateUser) {
+                  onUpdateUser({ ...user, phone: savedPhone });
+                }
+                goToStep(2);
+              }}
+              onSkip={() => {
+                if (typeof window !== "undefined") {
+                  sessionStorage.setItem(`whatsapp_prompt_dismissed_${user.id}`, "true");
+                }
+                goToStep(2);
+              }}
             />
           </div>
         ) : step === "selection" ? (

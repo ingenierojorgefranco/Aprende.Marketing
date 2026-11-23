@@ -9,6 +9,7 @@ import { SubscriptionSuccessModal } from './SubscriptionSuccessModal';
 import { NewsHistoryModal } from './NewsHistoryModal';
 import { getCurrentUser } from '../../services/auth';
 import { WaitlistView } from './WaitlistView';
+import { WhatsAppPromptModal } from './WhatsAppPhoneCapture';
 
 // Lazy Load User Profile Modal
 const UserProfileModal = React.lazy(() => import('./UserProfileModal'));
@@ -112,6 +113,10 @@ export const DashboardLayout = ({
   const [headerUserMenuOpen, setHeaderUserMenuOpen] = useState(false);
   const headerUserMenuRef = React.useRef<HTMLDivElement>(null);
   const [isWizardGenerating, setIsWizardGenerating] = useState(false);
+  const [whatsappPromptDismissed, setWhatsappPromptDismissed] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return sessionStorage.getItem(`whatsapp_prompt_dismissed_${user.id}`) === 'true';
+  });
 
   const [upgradeInitialPeriod, setUpgradeInitialPeriod] = useState<'monthly' | 'yearly'>('monthly');
 
@@ -933,6 +938,30 @@ export const DashboardLayout = ({
       />
       {showSuccessModal && <SubscriptionSuccessModal onClose={() => setShowSuccessModal(false)} planName={effectiveUser.planLimits?.planName} />}
       <NewsHistoryModal isOpen={showNewsModal} onClose={() => setShowNewsModal(false)} />
+      <WhatsAppPromptModal
+        isOpen={
+          !loadingMode &&
+          !showWelcomeVideo &&
+          !showWizard &&
+          user.role !== 'admin' &&
+          !simulatedPlanSlug &&
+          (!user.phone || user.phone.trim() === '') &&
+          !whatsappPromptDismissed
+        }
+        userName={user.name}
+        onSaved={(savedPhone) => {
+          setWhatsappPromptDismissed(true);
+          if (onUpdateUser) {
+            onUpdateUser({ ...user, phone: savedPhone });
+          }
+        }}
+        onDismiss={() => {
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem(`whatsapp_prompt_dismissed_${user.id}`, 'true');
+          }
+          setWhatsappPromptDismissed(true);
+        }}
+      />
     </div>
   );
 };

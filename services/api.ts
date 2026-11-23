@@ -663,14 +663,33 @@ export const api = {
           MOCK_USER.email = data.email || MOCK_USER.email;
           MOCK_USER.avatarUrl = data.avatarUrl || MOCK_USER.avatarUrl;
           MOCK_USER.birthDate = data.birthDate || MOCK_USER.birthDate;
+          if (data.phone !== undefined) MOCK_USER.phone = data.phone;
           return Promise.resolve({ ...MOCK_USER });
       }
       clearCache('usersList');
+      clearCache('currentUser');
       return await fetchWithFallback('/auth/profile', {
           method: 'PUT',
           headers: getAuthHeaders(),
           body: JSON.stringify(data)
       });
+  },
+
+  updateWhatsappPhone: async (phone: string): Promise<{ success: boolean; phone: string }> => {
+      if (isMockMode) {
+          const digits = phone.replace(/\D/g, '');
+          const normalized = digits ? `+${digits}` : '';
+          MOCK_USER.phone = normalized;
+          return Promise.resolve({ success: true, phone: normalized });
+      }
+      const res = await fetchWithFallback('/auth/whatsapp', {
+          method: 'PATCH',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ phone })
+      });
+      clearCache('currentUser');
+      clearCache('usersList');
+      return res;
   },
 
   submitSurvey: async (formData: any): Promise<void> => {

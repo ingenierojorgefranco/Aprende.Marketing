@@ -351,6 +351,7 @@ export const AdminPanel: React.FC = () => {
                 isActive: true, // Assuming active for now
                 name: editingUser.name,
                 email: editingUser.email,
+                phone: editingUser.phone ?? '',
                 avatarUrl: editingUser.avatarUrl,
                 birthDate: editingUser.birthDate,
                 customRedirectUrl: editingUser.customRedirectUrl,
@@ -757,6 +758,7 @@ export const AdminPanel: React.FC = () => {
                             <thead className="bg-gray-800 text-gray-400 text-xs uppercase tracking-wider">
                                 <tr>
                                     <th className="p-4">Usuario</th>
+                                    <th className="p-4">WhatsApp</th>
                                     <th className="p-4">Rol</th>
                                     <th className="p-4">Registro / Último Acceso</th>
                                     <th className="p-4">Plan Actual</th>
@@ -766,11 +768,32 @@ export const AdminPanel: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-800 text-sm">
-                                {users.map(user => (
+                                {users.map(user => {
+                                    const waDigits = (user.phone || '').replace(/\D/g, '');
+                                    return (
                                     <tr key={user.id} className="hover:bg-gray-800/50 transition">
                                         <td className="p-4">
                                             <div className="font-bold text-white">{user.name}</div>
                                             <div className="text-gray-500">{user.email}</div>
+                                        </td>
+                                        <td className="p-4 whitespace-nowrap">
+                                            {waDigits ? (
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-gray-200 font-mono text-xs">{user.phone}</span>
+                                                    <a
+                                                        href={`https://wa.me/${waDigits}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold transition"
+                                                        title={`Abrir WhatsApp con ${user.name}`}
+                                                    >
+                                                        <MessageCircle className="w-3.5 h-3.5" />
+                                                        <span>Chat</span>
+                                                    </a>
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-gray-600 italic">Sin registrar</span>
+                                            )}
                                         </td>
                                         <td className="p-4">
                                             <span className={`px-2 py-1 rounded text-xs font-bold ${user.role === 'admin' ? 'bg-red-900/30 text-red-400 border border-red-900' : 'bg-blue-900/30 text-blue-400 border border-blue-900'}`}>
@@ -834,7 +857,8 @@ export const AdminPanel: React.FC = () => {
                                             </button>
                                         </td>
                                     </tr>
-                                ))}
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
@@ -985,6 +1009,16 @@ export const AdminPanel: React.FC = () => {
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
+                                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">WhatsApp / Teléfono</label>
+                                                <input 
+                                                    type="tel" 
+                                                    value={editingUser.phone || ''} 
+                                                    onChange={(e) => setEditingUser({...editingUser, phone: e.target.value})}
+                                                    placeholder="+573001234567"
+                                                    className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white font-mono text-sm"
+                                                />
+                                            </div>
+                                            <div>
                                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Fecha Nacimiento</label>
                                                 <input 
                                                     type="date" 
@@ -994,16 +1028,16 @@ export const AdminPanel: React.FC = () => {
                                                     style={{ colorScheme: 'dark' }} 
                                                 />
                                             </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Avatar URL</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={editingUser.avatarUrl || ''} 
-                                                    onChange={(e) => setEditingUser({...editingUser, avatarUrl: e.target.value})}
-                                                    placeholder="https://..."
-                                                    className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
-                                                />
-                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Avatar URL</label>
+                                            <input 
+                                                type="text" 
+                                                value={editingUser.avatarUrl || ''} 
+                                                onChange={(e) => setEditingUser({...editingUser, avatarUrl: e.target.value})}
+                                                placeholder="https://..."
+                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                            />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nueva Contraseña (Dejar vacío para mantener la actual)</label>

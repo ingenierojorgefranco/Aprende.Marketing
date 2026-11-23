@@ -36,7 +36,7 @@ router.use('/', courseAdminRouter);
 router.get('/users', async (req, res) => {
     try {
         const [users] = await pool.query(
-            `SELECT id, name, email, role, is_active, plan_limits, systemio_registrado, created_at, last_login_at, avatar_url, birth_date, custom_redirect_url, max_hooks,
+            `SELECT id, name, email, phone, role, is_active, plan_limits, systemio_registrado, created_at, last_login_at, avatar_url, birth_date, custom_redirect_url, max_hooks,
                     survey_json, main_goal, experience_level, budget_range, main_obstacle, niche, urgency_level, createdsurvey_at, updatedsurvey_at 
              FROM users ORDER BY created_at DESC`
         );
@@ -90,22 +90,44 @@ router.get('/users/:id/stats', async (req, res) => {
 
 router.put('/users/:id', async (req, res) => {
     const { id } = req.params;
-    const { role, planLimits, isActive, name, email, avatarUrl, birthDate, customRedirectUrl, maxHooks, password } = req.body;
+    const { role, planLimits, isActive, name, email, phone, avatarUrl, birthDate, customRedirectUrl, maxHooks, password } = req.body;
+    const hasPhoneField = Object.prototype.hasOwnProperty.call(req.body, 'phone');
+    const sanitizedPhone = hasPhoneField
+        ? (typeof phone === 'string' && phone.trim() ? phone.replace(/[^\d+]/g, '').slice(0, 30) : null)
+        : undefined;
     try {
-        await pool.query(
-            `UPDATE users SET 
-                role = ?, 
-                plan_limits = ?, 
-                is_active = ?,
-                name = COALESCE(?, name),
-                email = COALESCE(?, email),
-                avatar_url = ?,
-                birth_date = ?,
-                custom_redirect_url = ?,
-                max_hooks = ?
-             WHERE id = ?`,
-            [role, JSON.stringify(planLimits), isActive, name, email, avatarUrl, birthDate, customRedirectUrl, maxHooks, id]
-        );
+        if (hasPhoneField) {
+            await pool.query(
+                `UPDATE users SET 
+                    role = ?, 
+                    plan_limits = ?, 
+                    is_active = ?,
+                    name = COALESCE(?, name),
+                    email = COALESCE(?, email),
+                    phone = ?,
+                    avatar_url = ?,
+                    birth_date = ?,
+                    custom_redirect_url = ?,
+                    max_hooks = ?
+                 WHERE id = ?`,
+                [role, JSON.stringify(planLimits), isActive, name, email, sanitizedPhone, avatarUrl, birthDate, customRedirectUrl, maxHooks, id]
+            );
+        } else {
+            await pool.query(
+                `UPDATE users SET 
+                    role = ?, 
+                    plan_limits = ?, 
+                    is_active = ?,
+                    name = COALESCE(?, name),
+                    email = COALESCE(?, email),
+                    avatar_url = ?,
+                    birth_date = ?,
+                    custom_redirect_url = ?,
+                    max_hooks = ?
+                 WHERE id = ?`,
+                [role, JSON.stringify(planLimits), isActive, name, email, avatarUrl, birthDate, customRedirectUrl, maxHooks, id]
+            );
+        }
 
         if (password && password.trim() !== '') {
             const passwordHash = await bcrypt.hash(password, 10);
